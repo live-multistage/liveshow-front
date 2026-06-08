@@ -1,0 +1,10 @@
+export { DashboardGuard } from './components/DashboardGuard';
+export { DashboardSidebar } from './components/DashboardSidebar';
+export { RoleDashboardOverview } from './components/RoleDashboardOverview';
+export { AdminDashboard } from './components/AdminDashboard';
+export { OrganizerDashboard } from './components/OrganizerDashboard';
+export { ArtistDashboard } from './components/ArtistDashboard';
+export { DashboardUserMenu } from './components/DashboardUserMenu';
+export { DASHBOARD_ROLES, NAV_BY_ROLE, ROLE_LABEL } from './types/dashboard.types';
+export { useDashboardStats } from './hooks/use-dashboard-stats';
+export { DashboardCharts } from './components/DashboardCharts';

@@ -1,0 +1,63 @@
+@use '../../../../styles/_variables' as *;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ─── Genre Filter Row ─────────────────────────────────────────────
+.genreFilter {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.genreLabel {
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 17.5px;
+  color: $text-primary;
+  white-space: pre-line;
+  flex-shrink: 0;
+  width: 64px;
+}
+
+.genreBar {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.genreChip {
+  flex-shrink: 0;
+  padding: 8px 24px;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  border: 1px solid;
+  cursor: pointer;
+  border-radius: 9999px;
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+}
+
+.genreChipActive {
+  background-color: $action;
+  border-color: $action;
+  color: $text-primary;
+}
+
+.genreChipInactive {
+  background-color: #1A1A1A;
+  border-color: #374151;
+  color: $text-primary;
+
+  &:hover {
+    border-color: $action;
+  }
+}

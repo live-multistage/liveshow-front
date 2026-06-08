@@ -1,0 +1,46 @@
+// ── Base ──────────────────────────────────────────────────────────
+$bg:           #030303;
+$surface:      #1a0505;
+$surface-dark: #0f0f0f;
+$surface-card: #3D0A0A;
+$accent:       #6B1111;
+
+// ── Brand ─────────────────────────────────────────────────────────
+$action:       #DC2626;
+$action-dim:   rgba(220, 38, 38, 0.12);
+$action-bg:    rgba(220, 38, 38, 0.1);
+$violet:       #9810fa;
+$violet-dim:   rgba(152, 16, 250, 0.8);
+$violet-glow:  rgba(152, 16, 250, 0.12);
+
+// ── Text ──────────────────────────────────────────────────────────
+$text-primary:   #FFFFFF;
+$text-secondary: #A1A1AA;
+$text-muted:     #71717A;
+$white-50:       rgba(255, 255, 255, 0.5);
+
+// ── Borders & hover ───────────────────────────────────────────────
+$border:       #27272A;
+$bg-hover:     #1a0505;
+
+// ── Feedback ──────────────────────────────────────────────────────
+$error:        #F87171;
+$error-bg:     $action-bg;
+$success:      #16A34A;
+$success-light: #4ADE80;
+$success-bg:   rgba(22, 163, 74, 0.1);
+
+// ── Accent colors ─────────────────────────────────────────────────
+$price:        #FB64B6;
+
+// ── Aliases (backwards compat) ────────────────────────────────────
+$muted:        $text-secondary;
+$text-label:   $text-secondary;
+$text-secondary-alt: $text-secondary;
+$surface2:     $surface;
+$surface-2:    $surface;
+
+// ── Breakpoints ───────────────────────────────────────────────────
+$sm: 640px;
+$md: 768px;
+$lg: 1024px;

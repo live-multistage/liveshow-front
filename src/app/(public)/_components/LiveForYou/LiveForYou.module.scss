@@ -1,0 +1,28 @@
+@use '../../../../styles/_variables' as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 526px;
+  flex-shrink: 0;
+
+  @media (max-width: 1024px) {
+    width: 100%;
+  }
+}
+
+.heading {
+  font-family: 'Jost', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  color: $text-primary;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 16px;
+}

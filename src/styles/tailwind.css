@@ -1,0 +1,19 @@
+@import 'tailwindcss' source(none);
+@source '../**/*.{js,ts,jsx,tsx}';
+
+@theme {
+  --font-jost: 'Jost', sans-serif;
+  --font-jetbrains: 'JetBrains Mono', monospace;
+}
+
+@import 'tw-animate-css';
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

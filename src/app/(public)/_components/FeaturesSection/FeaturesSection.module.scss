@@ -1,0 +1,47 @@
+@use '../../../../styles/_variables' as *;
+
+.section {
+  padding: 4rem 1.5rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  border-top: 1px solid $border;
+
+  @media (min-width: $sm) {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background-color: $border;
+
+  @media (min-width: $sm) { grid-template-columns: repeat(3, 1fr); }
+}
+
+.item {
+  background-color: $bg;
+  padding: 2rem;
+}
+
+.icon {
+  margin-bottom: 1rem;
+  color: $action;
+}
+
+.itemTitle {
+  color: $text-primary;
+  margin-bottom: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 0.04em;
+}
+
+.itemDesc {
+  color: $muted;
+  font-size: 0.875rem;
+  line-height: 1.65;
+}

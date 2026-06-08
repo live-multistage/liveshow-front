@@ -1,0 +1,41 @@
+@use '../../styles/_variables' as *;
+
+.layout {
+  min-height: 100vh;
+  background-color: $bg;
+  color: $text-primary;
+}
+
+.inner {
+  display: flex;
+}
+
+.sidebar {
+  width: 16rem;
+  min-height: 100vh;
+  background-color: $surface;
+  border-right: 1px solid $border;
+  padding: 1rem;
+  flex-shrink: 0;
+}
+
+.sidebarTitle {
+  color: $action;
+  font-weight: 700;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 1.5rem;
+}
+
+.main {
+  flex: 1;
+  padding: 2rem;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 500;
+  font-family: 'Oswald', sans-serif;
+  color: $text-primary;
+}

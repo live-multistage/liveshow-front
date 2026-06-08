@@ -1,0 +1,297 @@
+@use '../../../../styles/_variables' as *;
+
+// ── Wizard wrapper ────────────────────────────────────────────────
+.wizard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 720px;
+}
+
+// ── Stepper ───────────────────────────────────────────────────────
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 1.25rem 1.5rem;
+  background-color: $surface-dark;
+  border: 1px solid $border;
+  border-radius: 10px;
+}
+
+.stepGroup {
+  display: flex;
+  align-items: center;
+  flex: 1;
+
+  &:last-child {
+    flex: 0;
+  }
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.stepCircle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid $border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-muted;
+  background-color: $bg;
+  flex-shrink: 0;
+  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+}
+
+.stepLabel {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: $text-muted;
+  white-space: nowrap;
+  transition: color 0.2s;
+
+  @media (max-width: 560px) {
+    display: none;
+  }
+}
+
+.stepLine {
+  flex: 1;
+  height: 1px;
+  background-color: $border;
+  margin: 0 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.stepLineDone {
+  background-color: $action;
+}
+
+.stepActive {
+  .stepCircle {
+    border-color: $action;
+    background-color: rgba(220, 38, 38, 0.1);
+    color: $action;
+  }
+
+  .stepLabel {
+    color: $text-primary;
+    font-weight: 600;
+  }
+}
+
+.stepDone {
+  .stepCircle {
+    border-color: $action;
+    background-color: $action;
+    color: white;
+  }
+
+  .stepLabel {
+    color: $text-secondary;
+  }
+}
+
+.stepNavigable {
+  cursor: pointer;
+
+  &:hover {
+    .stepCircle {
+      background-color: rgba(220, 38, 38, 0.75);
+    }
+
+    .stepLabel {
+      color: $text-primary;
+    }
+  }
+}
+
+// ── Form ──────────────────────────────────────────────────────────
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+// ── Section ───────────────────────────────────────────────────────
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid $border;
+  border-radius: 10px;
+  background-color: $surface-dark;
+}
+
+.stepDesc {
+  font-size: 0.875rem;
+  color: $text-secondary;
+  margin: 0;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid $border;
+}
+
+// ── Layout helpers ────────────────────────────────────────────────
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fieldNarrow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  max-width: 160px;
+}
+
+// ── Field ─────────────────────────────────────────────────────────
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: $text-label;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+// ── Inputs ────────────────────────────────────────────────────────
+.input,
+.textarea {
+  background-color: $bg;
+  border: 1px solid $border;
+  border-radius: 6px;
+  color: $text-primary;
+  font-size: 0.9rem;
+  padding: 0.625rem 0.75rem;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    border-color: $action;
+    box-shadow: 0 0 0 3px $action-dim;
+  }
+
+  &::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.4;
+    cursor: pointer;
+  }
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    filter: invert(0.5);
+  }
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.inputError {
+  border-color: $error;
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
+  }
+}
+
+// ── Navigation ────────────────────────────────────────────────────
+.navRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+.navSpacer {
+  flex: 1;
+}
+
+.btnBack {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: none;
+  border: 1px solid $border;
+  color: $text-secondary;
+  border-radius: 6px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover {
+    color: $text-primary;
+    border-color: $text-secondary;
+  }
+}
+
+.btnNext {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: $action;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+
+  &:hover:not(:disabled) {
+    opacity: 0.88;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ── Feedback ──────────────────────────────────────────────────────
+.error {
+  font-size: 0.76rem;
+  color: $error;
+}
+
+.globalError {
+  padding: 0.625rem 0.875rem;
+  background-color: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: 6px;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: #F59E0B;
+  margin: 0;
+}

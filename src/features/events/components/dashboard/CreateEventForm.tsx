@@ -1,0 +1,87 @@
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { createEventSchema, type CreateEventFormValues } from '../../schemas/create-event.schema';
+import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
+import { useCreateEventWizard } from '../../hooks/use-create-event-wizard';
+import { CreateEventStepper } from './CreateEventStepper';
+import { EventPhotoUploader } from './EventPhotoUploader';
+import { EventInfoStep } from './steps/EventInfoStep';
+import { EventLocationStep } from './steps/EventLocationStep';
+import { EventProductionStep } from './steps/EventProductionStep';
+import { EventTicketsStep } from './steps/EventTicketsStep';
+import type { EventResponse } from '../../types/event.types';
+import styles from './CreateEventForm.module.scss';
+
+interface Props {
+  onSuccess?: (event: EventResponse) => void;
+}
+
+export function CreateEventForm({ onSuccess }: Props) {
+  const { data: orgs = [] } = useMyOrganizationsQuery();
+
+  const { register, handleSubmit, trigger, formState: { errors } } = useForm<CreateEventFormValues>({
+    resolver: zodResolver(createEventSchema),
+    defaultValues: { camerasCount: 1 },
+  });
+
+  const wizard = useCreateEventWizard(onSuccess);
+  const { step, setStep, tickets, setTickets, ticketsError, createdEvent, mutation } = wizard;
+
+  const stepContent: Record<number, React.ReactNode> = {
+    1: <EventInfoStep register={register} errors={errors} orgs={orgs} />,
+    2: <EventLocationStep register={register} errors={errors} />,
+    3: <EventProductionStep register={register} errors={errors} />,
+    4: (
+      <EventTicketsStep
+        tickets={tickets}
+        onTicketsChange={setTickets}
+        ticketsError={ticketsError}
+        mutationError={mutation.error?.message ?? null}
+      />
+    ),
+  };
+
+  if (step === 5 && createdEvent) {
+    return (
+      <>
+        <CreateEventStepper current={5} />
+        <EventPhotoUploader event={createdEvent} onDone={wizard.finish} />
+      </>
+    );
+  }
+
+  return (
+    <div className={styles.wizard}>
+      <CreateEventStepper current={step} onNavigate={setStep} />
+
+      <form onSubmit={handleSubmit(wizard.submit)} className={styles.form}>
+        {stepContent[step]}
+
+        <div className={styles.navRow}>
+          {step > 1 && (
+            <button type="button" onClick={wizard.back} className={styles.btnBack}>
+              <ChevronLeft size={16} /> Voltar
+            </button>
+          )}
+
+          <div className={styles.navSpacer} />
+
+          {step < 4 && (
+            <button type="button" onClick={() => wizard.advance(trigger)} className={styles.btnNext}>
+              Próximo <ChevronRight size={16} />
+            </button>
+          )}
+
+          {step === 4 && (
+            <button type="submit" className={styles.btnNext} disabled={mutation.isPending}>
+              {mutation.isPending ? 'Criando...' : 'Criar Evento'}
+            </button>
+          )}
+        </div>
+      </form>
+    </div>
+  );
+}

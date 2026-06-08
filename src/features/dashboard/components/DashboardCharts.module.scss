@@ -1,0 +1,56 @@
+@use '../../../styles/_variables' as *;
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.chartCard {
+  background-color: $surface-dark;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dotRed    { background-color: $action; }
+.dotViolet { background-color: $violet; }
+.dotPink   { background-color: $price; }
+
+.chartTitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $text-primary;
+  margin: 0;
+}
+
+.mock {
+  font-size: 0.65rem;
+  color: $text-muted;
+  margin-left: auto;
+  font-style: italic;
+}
+
+.chartWrap {
+  height: 160px;
+  position: relative;
+}

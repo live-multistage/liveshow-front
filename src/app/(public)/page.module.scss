@@ -1,0 +1,17 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  padding: 90px 40px 64px;
+}
+
+.heroRow {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 24px;
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+  }
+}

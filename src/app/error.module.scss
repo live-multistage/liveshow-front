@@ -1,0 +1,40 @@
+@use '../styles/_variables' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: #030303;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inner {
+  text-align: center;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.message {
+  color: #A1A1AA;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.btn {
+  background-color: $action;
+  color: #FFFFFF;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  &:hover { background-color: darken($action, 8%); }
+}

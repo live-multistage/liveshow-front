@@ -1,0 +1,35 @@
+import { z } from 'zod';
+
+export const ticketSchema = z
+  .object({
+    name: z.string().min(2, 'Mínimo 2 caracteres').max(255),
+    description: z.string().min(5, 'Mínimo 5 caracteres'),
+    price: z.coerce.number().min(0, 'Preço não pode ser negativo'),
+    liveView: z.boolean().default(false),
+    replayView: z.boolean().default(false),
+  })
+  .refine((d) => d.liveView || d.replayView, {
+    message: 'Selecione ao menos um tipo de acesso',
+    path: ['liveView'],
+  });
+
+export type TicketFormValues = z.infer<typeof ticketSchema>;
+
+export const createEventSchema = z
+  .object({
+    organizationId: z.string().uuid('Selecione uma organização'),
+    title: z.string().min(3, 'Mínimo 3 caracteres').max(255),
+    description: z.string().min(10, 'Mínimo 10 caracteres'),
+    startsAt: z.string().min(1, 'Obrigatório'),
+    endsAt: z.string().min(1, 'Obrigatório'),
+    venue: z.string().max(255).optional(),
+    city: z.string().max(100).optional(),
+    country: z.string().max(100).optional(),
+    camerasCount: z.coerce.number().int().min(1).max(32).default(1),
+  })
+  .refine((d) => new Date(d.endsAt) > new Date(d.startsAt), {
+    message: 'Fim deve ser após o início',
+    path: ['endsAt'],
+  });
+
+export type CreateEventFormValues = z.infer<typeof createEventSchema>;

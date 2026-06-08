@@ -1,0 +1,71 @@
+@use '../../../styles/_variables' as *;
+
+.sidebar {
+  width: 16rem;
+  min-height: 100vh;
+  background-color: $surface;
+  border-right: 1px solid $border;
+  padding: 1.5rem 1rem;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.logoLink {
+  display: block;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  color: $text-muted;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.15s, color 0.15s;
+  border-left: 2px solid transparent;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: $text-primary;
+  }
+}
+
+.navIcon {
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+
+  .navItem:hover & {
+    opacity: 1;
+  }
+}
+
+.active {
+  background-color: rgba(220, 38, 38, 0.12);
+  color: $text-primary;
+  border-left-color: $action;
+
+  .navIcon {
+    opacity: 1;
+    color: $action;
+  }
+}
+
+.userMenuWrapper {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid $border;
+}
