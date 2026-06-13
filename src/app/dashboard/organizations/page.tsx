@@ -1,5 +1,5 @@
-import { OrganizationsPageContent } from '@/features/organizations';
+import { OrganizationListPage } from '@/features/organizations';
 
 export default function DashboardOrganizationsPage() {
-  return <OrganizationsPageContent />;
+  return <OrganizationListPage />;
 }

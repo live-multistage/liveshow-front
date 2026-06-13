@@ -1,4 +1,4 @@
-import type { EventResponse } from '@/features/events';
+import type { EventResponse, AccessCapability } from '@/features/events';
 
 export interface OrderResponse {
   orderId: string;
@@ -7,7 +7,8 @@ export interface OrderResponse {
   ticketProductName: string;
   status: string;
   totalAmount: number;
-  capabilities: ('LIVE_VIEW' | 'REPLAY_VIEW')[];
+  capabilities: AccessCapability[];
+  camerasLimit: number | null;
   createdAt: string;
 }
 
@@ -15,9 +16,10 @@ export interface PurchasedTicket {
   orderId: string;
   event: EventResponse;
   ticketProductName: string;
-  capabilities: ('LIVE_VIEW' | 'REPLAY_VIEW')[];
+  capabilities: AccessCapability[];
+  camerasLimit: number | null;
   totalAmount: number;
   purchasedAt: string;
 }
 
-export type TicketFilter = 'all' | 'replay' | 'no-replay';
+export type TicketFilter = 'all' | 'replay' | 'no-replay' | 'camera';

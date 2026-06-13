@@ -37,11 +37,14 @@ export interface UpdateEventRequest {
   endsAt?: string;
 }
 
+export type AccessCapability = 'LIVE_VIEW' | 'REPLAY_VIEW' | 'CAMERA_VIEW';
+
 export interface CreateTicketRequest {
   name: string;
   description: string;
   price: number;
-  capabilities: ('LIVE_VIEW' | 'REPLAY_VIEW')[];
+  capabilities: AccessCapability[];
+  camerasLimit?: number | null;
 }
 
 export interface TicketProductResponse {
@@ -50,7 +53,8 @@ export interface TicketProductResponse {
   name: string;
   description: string;
   price: number;
-  capabilities: ('LIVE_VIEW' | 'REPLAY_VIEW')[];
+  capabilities: AccessCapability[];
+  camerasLimit: number | null;
   immutable: boolean;
 }
 

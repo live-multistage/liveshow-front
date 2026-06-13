@@ -1,0 +1,90 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.sectionTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $text-label;
+  margin: 0;
+}
+
+.sectionBody {
+  background-color: $surface-dark;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.brandingGrid {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.fieldLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.fieldInput {
+  background-color: $bg;
+  border: 1px solid $border;
+  border-radius: 6px;
+  color: $text-primary;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &::placeholder { color: $muted; }
+  &:focus { border-color: $action; }
+}
+
+.state {
+  padding: 2rem;
+  font-size: 0.875rem;
+  color: $text-secondary;
+}
+
+.stateError {
+  color: $error;
+}

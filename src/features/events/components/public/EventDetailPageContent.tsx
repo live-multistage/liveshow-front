@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import {
   Calendar, Clock, MapPin, Camera, RotateCcw,
-  Play, ChevronLeft,
+  Play, ChevronLeft, Building2,
 } from 'lucide-react';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
 import { TicketPanel } from './TicketPanel';
@@ -11,6 +11,7 @@ import {
   formatDate, formatTime, formatDuration,
   buildCameras, statusLabel,
 } from '../../utils/event-formatters';
+import { useOrganization } from '@/features/organizations';
 import styles from './EventDetailPageContent.module.scss';
 
 interface Props {
@@ -21,6 +22,7 @@ export function EventDetailPageContent({ id }: Props) {
   const router = useRouter();
   const { data: event, isLoading, isError } = useGetEventQuery(id);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
+  const { data: org } = useOrganization(event?.organizationId ?? '');
 
   if (isLoading) {
     return (
@@ -97,6 +99,24 @@ export function EventDetailPageContent({ id }: Props) {
                 </div>
               ))}
             </div>
+
+            {org && (
+              <button
+                className={styles.orgCard}
+                onClick={() => router.push(`/o/${org.slug}`)}
+              >
+                <div className={styles.orgAvatar}>
+                  {org.logoUrl
+                    ? <img src={org.logoUrl} alt={org.name} className={styles.orgAvatarImg} />
+                    : <Building2 size={18} />}
+                </div>
+                <div className={styles.orgInfo}>
+                  <span className={styles.orgLabel}>Organização</span>
+                  <span className={styles.orgName}>{org.name}</span>
+                </div>
+                <span className={styles.orgArrow}>Ver perfil →</span>
+              </button>
+            )}
 
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Sobre o Show</h2>

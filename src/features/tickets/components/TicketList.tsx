@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { RotateCcw, Tv2, Ticket } from 'lucide-react';
+import { RotateCcw, Tv2, Ticket, Video } from 'lucide-react';
 import { TicketCard } from './TicketCard';
 import type { PurchasedTicket } from '../types/ticket.types';
 import styles from './TicketList.module.scss';
@@ -10,11 +10,13 @@ interface TicketListProps {
   tickets: PurchasedTicket[];
   withReplay: PurchasedTicket[];
   withoutReplay: PurchasedTicket[];
+  withCamera: PurchasedTicket[];
 }
 
 const TABS = [
   { id: 'all',       label: 'Todos',          icon: <Ticket size={14} /> },
   { id: 'replay',    label: 'Com Reprise',     icon: <RotateCcw size={14} /> },
+  { id: 'camera',    label: 'Com Câmeras',     icon: <Video size={14} /> },
   { id: 'no-replay', label: 'Apenas Ao Vivo',  icon: <Tv2 size={14} /> },
 ] as const;
 
@@ -25,18 +27,19 @@ function TicketGroup({ tickets, emptyMessage }: { tickets: PurchasedTicket[]; em
   return (
     <div className={styles.ticketGroup}>
       {tickets.map((ticket) => (
-        <TicketCard key={ticket.show.id} ticket={ticket} />
+        <TicketCard key={ticket.orderId} ticket={ticket} />
       ))}
     </div>
   );
 }
 
-export function TicketList({ tickets, withReplay, withoutReplay }: TicketListProps) {
+export function TicketList({ tickets, withReplay, withoutReplay, withCamera }: TicketListProps) {
   const [activeTab, setActiveTab] = useState<TabId>('all');
 
   const counts: Record<TabId, number> = {
     all: tickets.length,
     replay: withReplay.length,
+    camera: withCamera.length,
     'no-replay': withoutReplay.length,
   };
 
@@ -63,6 +66,12 @@ export function TicketList({ tickets, withReplay, withoutReplay }: TicketListPro
         <TicketGroup
           tickets={withReplay}
           emptyMessage="Nenhum ingresso com reprise. Ingressos Pro e Ultra incluem reprise."
+        />
+      )}
+      {activeTab === 'camera' && (
+        <TicketGroup
+          tickets={withCamera}
+          emptyMessage="Nenhum ingresso com acesso a câmeras."
         />
       )}
       {activeTab === 'no-replay' && (

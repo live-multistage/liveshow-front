@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  ChevronLeft, Play, Pause, RotateCcw, Volume2, VolumeX,
-  Maximize, Minimize, SkipBack, SkipForward, Radio, Film, Info, X,
+  Play, Pause, Volume2, VolumeX,
+  Maximize, Minimize, X,
 } from 'lucide-react';
 import type { Show } from '@/features/events/types/show';
 import { CameraGrid } from './CameraGrid';
@@ -16,11 +16,8 @@ interface LivePlayerProps {
 
 export function LivePlayer({ show }: LivePlayerProps) {
   const router = useRouter();
-  const [mode, setMode] = useState<'live' | 'replay'>('live');
   const [playing, setPlaying] = useState(true);
   const [muted, setMuted] = useState(false);
-  const [replayTime, setReplayTime] = useState(0);
-  const [duration] = useState(7200);
   const [showInfo, setShowInfo] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -28,13 +25,11 @@ export function LivePlayer({ show }: LivePlayerProps) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (playing && mode === 'live') {
+    if (playing) {
       intervalRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
-    } else if (playing && mode === 'replay') {
-      intervalRef.current = setInterval(() => setReplayTime((t) => Math.min(t + 1, duration)), 1000);
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [playing, mode, duration]);
+  }, [playing]);
 
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
@@ -52,62 +47,15 @@ export function LivePlayer({ show }: LivePlayerProps) {
 
   return (
     <div ref={containerRef} className={styles.player}>
-      <div className={styles.topBar}>
-        <div className={styles.topLeft}>
-          <button
-            onClick={() => router.push(`/events/${show.id}`)}
-            className={styles.backBtn}
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <div>
-            <p className={styles.showTitle}>{show.title}</p>
-            <p className={styles.showMeta}>{show.artist} · {show.venue}</p>
-          </div>
-        </div>
-
-        <div className={styles.modeSwitcher}>
-          <button
-            onClick={() => { setMode('live'); setPlaying(true); }}
-            className={`${styles.modeBtn} ${mode === 'live' ? styles.modeBtnLiveActive : ''}`}
-          >
-            <Radio size={14} />
-            <span>Ao Vivo</span>
-            {mode === 'live' && <span className={styles.livePulse} />}
-          </button>
-          {show.hasReplay && (
-            <button
-              onClick={() => { setMode('replay'); setReplayTime(0); setPlaying(true); }}
-              className={`${styles.modeBtn} ${mode === 'replay' ? styles.modeBtnReplayActive : ''}`}
-            >
-              <Film size={14} />
-              <span>Reprise</span>
-            </button>
-          )}
-        </div>
-
-        <div className={styles.topRight}>
-          {show.isLive && mode === 'live' && (
-            <div className={styles.viewerCount}>
-              <span className={styles.viewerDot} />
-              {show.viewers?.toLocaleString('pt-BR')} ao vivo
-            </div>
-          )}
-          <button
-            onClick={() => setShowInfo(!showInfo)}
-            className={`${styles.iconBtn} ${showInfo ? styles.iconBtnActive : ''}`}
-          >
-            <Info size={16} />
-          </button>
-          <button onClick={toggleFullscreen} className={styles.iconBtn}>
-            {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
-          </button>
-        </div>
-      </div>
-
       <div className={styles.main}>
         <div className={styles.gridArea}>
-          <CameraGrid cameras={show.cameras} isReplay={mode === 'replay'} replayTime={replayTime} />
+          <CameraGrid
+            cameras={show.cameras}
+            title={show.title}
+            subtitle={`${show.artist} · ${show.venue}`}
+            onBack={() => router.push(`/events/${show.id}`)}
+            onTitleClick={() => setShowInfo(true)}
+          />
         </div>
 
         {showInfo && (
@@ -157,70 +105,32 @@ export function LivePlayer({ show }: LivePlayerProps) {
       <div className={styles.bottomBar}>
         <div className={styles.controls}>
           <div className={styles.playGroup}>
-            <button
-              className={styles.skipBtn}
-              onClick={() => setReplayTime(Math.max(0, replayTime - 30))}
-              disabled={mode === 'live'}
-            >
-              <SkipBack size={16} />
-            </button>
             <button onClick={() => setPlaying(!playing)} className={styles.playBtn}>
               {playing
                 ? <Pause size={16} color="white" />
                 : <Play size={16} color="white" fill="white" />
               }
             </button>
-            <button
-              className={styles.skipBtn}
-              onClick={() => setReplayTime(Math.min(duration, replayTime + 30))}
-              disabled={mode === 'live'}
-            >
-              <SkipForward size={16} />
-            </button>
           </div>
 
           <div className={styles.timeArea}>
-            {mode === 'live' ? (
-              <>
-                <span className={styles.timeCode}>{formatTime(elapsed)}</span>
-                <div className={styles.progressTrack}>
-                  <div className={styles.progressFillLive} />
-                </div>
-                <div className={styles.liveBadge}>
-                  <span className={styles.liveIndicator} />
-                  AO VIVO
-                </div>
-              </>
-            ) : (
-              <>
-                <span className={styles.timeCode}>{formatTime(replayTime)}</span>
-                <div
-                  className={`${styles.progressTrack} ${styles.progressTrackClickable}`}
-                  onClick={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const ratio = (e.clientX - rect.left) / rect.width;
-                    setReplayTime(Math.floor(ratio * duration));
-                  }}
-                >
-                  <div
-                    className={styles.progressFillReplay}
-                    style={{ width: `${(replayTime / duration) * 100}%` }}
-                  />
-                </div>
-                <span className={styles.timeCode}>{formatTime(duration)}</span>
-              </>
-            )}
+            <span className={styles.timeCode}>{formatTime(elapsed)}</span>
+            <div className={styles.progressTrack}>
+              <div className={styles.progressFillLive} />
+            </div>
+            <div className={styles.liveBadge}>
+              <span className={styles.liveIndicator} />
+              AO VIVO
+            </div>
           </div>
 
           <div className={styles.rightControls}>
             <button onClick={() => setMuted(!muted)} className={styles.skipBtn}>
               {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
             </button>
-            {mode === 'replay' && (
-              <button onClick={() => setReplayTime(0)} className={styles.skipBtn} title="Reiniciar">
-                <RotateCcw size={16} />
-              </button>
-            )}
+            <button onClick={toggleFullscreen} className={styles.skipBtn}>
+              {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+            </button>
           </div>
         </div>
       </div>

@@ -1,0 +1,45 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: $text-primary;
+  margin: 0;
+}
+
+.subheading {
+  font-size: 0.8rem;
+  color: $text-secondary;
+  margin: 0.2rem 0 0;
+}
+
+.state {
+  font-size: 0.875rem;
+  color: $text-secondary;
+  padding: 1rem 0;
+}
+
+.stateError {
+  color: $error;
+}

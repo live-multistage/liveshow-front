@@ -1,0 +1,238 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $bg;
+}
+
+.banner {
+  width: 100%;
+  height: 260px;
+  overflow: hidden;
+  background-color: $surface;
+
+  @media (max-width: $md) {
+    height: 160px;
+  }
+}
+
+.bannerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bannerPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, $surface-card 0%, $surface 100%);
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+
+.profileRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.25rem;
+  margin-top: -48px;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid $border;
+  margin-bottom: 2rem;
+}
+
+.avatar {
+  flex-shrink: 0;
+}
+
+.avatarImg {
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 4px solid $bg;
+}
+
+.avatarPlaceholder {
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  background-color: $action-dim;
+  color: $action;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid $bg;
+}
+
+.profileInfo {
+  padding-bottom: 0.5rem;
+}
+
+.orgName {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: $text-primary;
+  margin: 0;
+}
+
+.orgSlug {
+  font-size: 0.8rem;
+  color: $text-muted;
+  font-family: 'JetBrains Mono', monospace;
+  margin: 0.2rem 0 0;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 2rem;
+  align-items: start;
+
+  @media (max-width: $lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $text-label;
+  margin: 0;
+}
+
+.liveIcon {
+  color: $action;
+}
+
+.description {
+  font-size: 0.9rem;
+  color: $text-secondary;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.tabsRow {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid $border;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: $text-secondary;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+
+  &:hover { color: $text-primary; }
+}
+
+.tabActive {
+  color: $action;
+  border-bottom-color: $action;
+}
+
+.eventList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.loadingText,
+.emptyText {
+  font-size: 0.875rem;
+  color: $text-muted;
+  padding: 1rem 0;
+}
+
+.sidebar {
+  position: sticky;
+  top: 5rem;
+
+  @media (max-width: $lg) {
+    position: static;
+  }
+}
+
+.sideCard {
+  background-color: $surface-dark;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sideCardTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $text-label;
+  margin: 0;
+}
+
+.statRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statIcon {
+  color: $text-muted;
+  flex-shrink: 0;
+}
+
+.statText {
+  font-size: 0.8rem;
+  color: $text-secondary;
+}
+
+.statePage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.stateText {
+  font-size: 0.875rem;
+  color: $text-secondary;
+}
+
+.stateError {
+  color: $error;
+}

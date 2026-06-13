@@ -6,9 +6,19 @@
 }
 
 .root {
+  position: relative;
   display: flex;
   height: 100%;
+  overflow: hidden;
   background-color: $bg;
+}
+
+// ── Backdrop (drawer overlay) ────────────────────────────────
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 // ── Controls bar ─────────────────────────────────────────────
@@ -32,8 +42,63 @@
 .statusRow {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.5rem;
+  min-width: 0;
   color: $action;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: $text-primary;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: none;
+  border-radius: 6px;
+  padding: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  &:hover { background-color: rgba(255, 255, 255, 0.1); }
+}
+
+.titleBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  gap: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover .titleText { color: $action; }
+}
+
+.titleText {
+  color: $text-primary;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Oswald', sans-serif;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  transition: color 0.15s;
+}
+
+.subtitleText {
+  color: $muted;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .statusText {
@@ -135,19 +200,51 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
-// ── Camera sidebar ───────────────────────────────────────────
+// ── Camera sidebar (drawer) ──────────────────────────────────
 .sidebar {
-  width: 13rem;
-  flex-shrink: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  width: 14rem;
+  max-width: 80%;
   background-color: $surface;
   border-left: 1px solid $border;
   display: flex;
   flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.2s ease;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.4);
+}
+
+.sidebarOpen {
+  transform: translateX(0);
 }
 
 .sidebarHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid $border;
+}
+
+.sidebarClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: $muted;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.125rem;
+  border-radius: 4px;
+  transition: color 0.15s, background-color 0.15s;
+
+  &:hover { color: $text-primary; background-color: rgba(255, 255, 255, 0.08); }
 }
 
 .sidebarHeaderTitle {

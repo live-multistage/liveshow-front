@@ -163,11 +163,18 @@
   }
 }
 
-// ── Error ─────────────────────────────────────────────────────────
+// ── Error / Hint ──────────────────────────────────────────────────
 .error {
   font-size: 0.76rem;
   color: $error;
   font-family: 'Oswald', sans-serif;
+}
+
+.inputHint {
+  font-size: 0.72rem;
+  color: $text-muted;
+  font-family: 'Oswald', sans-serif;
+  font-style: italic;
 }
 
 // ── Ticket cards ──────────────────────────────────────────────────

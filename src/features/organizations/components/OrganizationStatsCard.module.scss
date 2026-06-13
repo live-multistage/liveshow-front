@@ -1,0 +1,46 @@
+@use '../../../styles/_variables' as *;
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  background-color: $surface-dark;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: $action-dim;
+  color: $action;
+  flex-shrink: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $text-muted;
+  margin: 0;
+}
+
+.value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Oswald', sans-serif;
+  color: $text-primary;
+  margin: 0;
+}

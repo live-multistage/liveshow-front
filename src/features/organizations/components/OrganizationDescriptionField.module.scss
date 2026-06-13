@@ -1,0 +1,39 @@
+@use '../../../styles/_variables' as *;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.textarea {
+  background-color: $bg;
+  border: 1px solid $border;
+  border-radius: 6px;
+  color: $text-primary;
+  font-size: 0.8rem;
+  font-family: inherit;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s;
+
+  &::placeholder { color: $muted; }
+  &:focus { border-color: $action; }
+}
+
+.textareaError { border-color: $error; }
+
+.error {
+  font-size: 0.72rem;
+  color: $error;
+  margin: 0;
+}

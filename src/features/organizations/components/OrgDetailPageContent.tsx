@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UserPlus, Trash2, Crown, Shield, User, Music, Mic2, ArrowLeft, Search } from 'lucide-react';
+import { UserPlus, Trash2, Crown, Shield, User, Music, ArrowLeft, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useOrgMembersQuery } from '../queries/get-members';
 import { useAddMemberMutation } from '../mutations/add-member.mutation';
@@ -13,17 +13,15 @@ import styles from './OrgDetailPageContent.module.scss';
 const ROLE_ICONS: Record<OrganizationRole, React.ReactNode> = {
   OWNER: <Crown size={14} />,
   ADMIN: <Shield size={14} />,
-  ORGANIZER: <Music size={14} />,
-  ARTIST: <Mic2 size={14} />,
-  MEMBER: <User size={14} />,
+  EVENT_MANAGER: <Music size={14} />,
+  VIEWER: <User size={14} />,
 };
 
 const ROLE_LABEL: Record<OrganizationRole, string> = {
   OWNER: 'Owner',
   ADMIN: 'Admin',
-  ORGANIZER: 'Organizador',
-  ARTIST: 'Artista',
-  MEMBER: 'Membro',
+  EVENT_MANAGER: 'Gestor de Eventos',
+  VIEWER: 'Visualizador',
 };
 
 interface Props {
@@ -164,9 +162,8 @@ export function OrgDetailPageContent({ org, currentUserId }: Props) {
                     value={addRole}
                     onChange={(e) => setAddRole(e.target.value as OrganizationRole)}
                   >
-                    <option value="MEMBER">Membro</option>
-                    <option value="ORGANIZER">Organizador</option>
-                    <option value="ARTIST">Artista</option>
+                    <option value="EVENT_MANAGER">Gestor de Eventos</option>
+                    <option value="VIEWER">Visualizador</option>
                     <option value="ADMIN">Admin</option>
                   </select>
                   <button

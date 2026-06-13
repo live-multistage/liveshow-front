@@ -1,0 +1,71 @@
+@use '../../../styles/_variables' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input {
+  background-color: $bg;
+  border: 1px solid $border;
+  border-radius: 6px;
+  color: $text-primary;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &::placeholder { color: $muted; }
+  &:focus { border-color: $action; }
+}
+
+.inputError { border-color: $error; }
+
+.error {
+  font-size: 0.72rem;
+  color: $error;
+  margin: 0;
+}
+
+.globalError {
+  padding: 0.5rem 0.75rem;
+  background-color: $error-bg;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 6px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+}
+
+.submit {
+  background-color: $action;
+  color: $text-primary;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover:not(:disabled) { opacity: 0.88; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}

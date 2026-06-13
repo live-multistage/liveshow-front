@@ -1,4 +1,4 @@
-import { OrgDetailLoader } from '@/features/organizations';
+import { OrganizationDashboardPage } from '@/features/organizations';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -6,5 +6,5 @@ interface Props {
 
 export default async function OrganizationDetailPage({ params }: Props) {
   const { id } = await params;
-  return <OrgDetailLoader orgId={id} />;
+  return <OrganizationDashboardPage organizationId={id} />;
 }
