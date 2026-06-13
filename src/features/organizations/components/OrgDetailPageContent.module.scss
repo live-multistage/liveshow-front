@@ -95,11 +95,10 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 
-  &[data-role='OWNER']     { color: #F59E0B; }
-  &[data-role='ADMIN']     { color: #60A5FA; }
-  &[data-role='ORGANIZER'] { color: #A78BFA; }
-  &[data-role='ARTIST']    { color: #FB64B6; }
-  &[data-role='MEMBER']    { color: $text-secondary; }
+  &[data-role='OWNER']         { color: #F59E0B; }
+  &[data-role='ADMIN']         { color: #60A5FA; }
+  &[data-role='EVENT_MANAGER'] { color: #A78BFA; }
+  &[data-role='VIEWER']        { color: $text-secondary; }
 }
 
 .memberInfo {

@@ -729,6 +729,85 @@
   gap: 2rem;
 }
 
+// ── Organization attribution ────────────────────────────────────
+.orgCard {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background-color 0.15s;
+  margin: 1.5rem 0;
+
+  &:hover {
+    border-color: $action;
+    background-color: rgba(220, 38, 38, 0.04);
+  }
+}
+
+.orgAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background-color: $action-dim;
+  color: $action;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.orgAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.orgInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  overflow: hidden;
+}
+
+.orgLabel {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $text-muted;
+}
+
+.orgName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: $text-primary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.orgArrow {
+  font-size: 0.72rem;
+  color: $action;
+  flex-shrink: 0;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.15s;
+
+  .orgCard:hover & { opacity: 1; }
+}
+
 .section {
   margin: 2rem 0;
 }

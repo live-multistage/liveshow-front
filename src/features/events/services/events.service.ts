@@ -32,8 +32,13 @@ export const eventsService = {
     return data;
   },
 
-  createTicket: async (eventId: string, payload: CreateTicketRequest): Promise<void> => {
-    await httpClient.post(`/shows/${eventId}/tickets`, payload);
+  createTicket: async (eventId: string, payload: CreateTicketRequest): Promise<TicketProductResponse> => {
+    const { data } = await httpClient.post<TicketProductResponse>(`/shows/${eventId}/tickets`, payload);
+    return data;
+  },
+
+  deleteTicketProduct: async (eventId: string, ticketId: string): Promise<void> => {
+    await httpClient.delete(`/shows/${eventId}/tickets/${ticketId}`);
   },
 
   uploadAsset: async (eventId: string, assetType: 'banner' | 'thumbnail', file: File): Promise<EventResponse> => {

@@ -9,10 +9,10 @@ import styles from '../../../app/(user)/tickets/page.module.scss';
 
 export function MyTicketsPageContent() {
   const router = useRouter();
-  const { tickets, withReplay, withoutReplay, isLoading } = useTickets();
+  const { tickets, withReplay, withoutReplay, withCamera, isLoading } = useTickets();
   const { data: events = [] } = useListEventsQuery('all');
 
-  const ticketIds = tickets.map((t) => t.show.id);
+  const ticketIds = tickets.map((t) => t.event.id);
   const upcomingShows = events
     .map(eventToShow)
     .filter((s) => !ticketIds.includes(s.id))
@@ -71,6 +71,7 @@ export function MyTicketsPageContent() {
               tickets={tickets}
               withReplay={withReplay}
               withoutReplay={withoutReplay}
+              withCamera={withCamera}
             />
 
             {upcomingShows.length > 0 && (

@@ -348,6 +348,21 @@
   margin: 0;
 }
 
+.ticketCameraBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  background-color: rgba(152, 16, 250, 0.12);
+  border: 1px solid rgba(152, 16, 250, 0.35);
+  color: #c084fc;
+  font-size: 0.625rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+}
+
 // ── States ─────────────────────────────────────────────────────────
 .centered {
   display: flex;

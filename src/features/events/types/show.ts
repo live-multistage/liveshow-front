@@ -215,7 +215,4 @@ export const GRID_LAYOUTS = [
   { id: "1x1", label: "1 Câmera", cols: 1, rows: 1, max: 1 },
   { id: "1x2", label: "2 Câmeras", cols: 2, rows: 1, max: 2 },
   { id: "2x2", label: "4 Câmeras", cols: 2, rows: 2, max: 4 },
-  { id: "2x3", label: "6 Câmeras", cols: 3, rows: 2, max: 6 },
-  { id: "3x3", label: "9 Câmeras", cols: 3, rows: 3, max: 9 },
-  { id: "4x4", label: "16 Câmeras", cols: 4, rows: 4, max: 16 },
 ];

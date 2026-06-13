@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Calendar, Tv2, RotateCcw, MapPin } from 'lucide-react';
+import { Calendar, Tv2, RotateCcw, MapPin, Video } from 'lucide-react';
 import type { PurchasedTicket } from '../types/ticket.types';
 import { formatDate, formatTime } from '@/features/events';
 import styles from './TicketCard.module.scss';
@@ -10,12 +10,18 @@ interface TicketCardProps {
   ticket: PurchasedTicket;
 }
 
+function cameraLabel(limit: number | null): string {
+  if (limit === null) return 'Todas as câmeras';
+  return `${limit} câmera${limit !== 1 ? 's' : ''}`;
+}
+
 export function TicketCard({ ticket }: TicketCardProps) {
-  const { event, capabilities, ticketProductName } = ticket;
+  const { event, capabilities, camerasLimit, ticketProductName } = ticket;
   const router = useRouter();
 
   const isLive = event.status === 'LIVE';
   const hasReplay = capabilities.includes('REPLAY_VIEW');
+  const hasCameras = capabilities.includes('CAMERA_VIEW');
   const location = [event.venue, event.city].filter(Boolean).join(' · ');
 
   return (
@@ -51,6 +57,12 @@ export function TicketCard({ ticket }: TicketCardProps) {
                 </span>
               ) : (
                 <span className={styles.badgeLiveOnly}>📺 APENAS AO VIVO</span>
+              )}
+              {hasCameras && (
+                <span className={styles.badgeCamera}>
+                  <Video size={10} />
+                  {cameraLabel(camerasLimit)}
+                </span>
               )}
               <span className={styles.badgeGenre}>{ticketProductName}</span>
             </div>

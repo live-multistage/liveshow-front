@@ -13,6 +13,7 @@ import { EventEditForm, editSchema } from './EventEditForm';
 import type { EditFormValues } from './EventEditForm';
 import { EventInfoGrid } from './EventInfoGrid';
 import { EventTicketList } from './EventTicketList';
+import { EditTicketSection } from './EditTicketSection';
 import { PhotosSection } from './PhotosSection';
 import { EventMetadataSection } from '@/features/metadata';
 import styles from './EventDashboardDetailContent.module.scss';
@@ -125,6 +126,7 @@ export function EventDashboardDetailContent({ id }: Props) {
               isPending={updateMutation.isPending}
               errorMessage={updateMutation.error?.message}
             />
+            <EditTicketSection eventId={id} tickets={tickets} />
             <PhotosSection event={event} />
           </>
         ) : (

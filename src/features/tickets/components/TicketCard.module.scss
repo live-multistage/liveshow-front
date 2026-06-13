@@ -139,6 +139,20 @@
   border-radius: 9999px;
 }
 
+.badgeCamera {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: rgba(152, 16, 250, 0.12);
+  border: 1px solid rgba(152, 16, 250, 0.35);
+  color: #c084fc;
+  font-size: 0.625rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+}
+
 .badgeGenre {
   background-color: $surface;
   color: $muted;

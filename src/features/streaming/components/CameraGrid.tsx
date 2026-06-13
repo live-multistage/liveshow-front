@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Camera, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Camera, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import type { Camera as CameraType } from '@/features/events/types/show';
 import { GRID_LAYOUTS } from '@/features/events/types/show';
 import { VideoPanel } from './VideoPanel';
@@ -9,13 +9,25 @@ interface CameraGridProps {
   cameras: CameraType[];
   isReplay?: boolean;
   replayTime?: number;
+  title?: string;
+  subtitle?: string;
+  onBack?: () => void;
+  onTitleClick?: () => void;
 }
 
-export function CameraGrid({ cameras, isReplay = false, replayTime = 0 }: CameraGridProps) {
+export function CameraGrid({
+  cameras,
+  isReplay = false,
+  replayTime = 0,
+  title,
+  subtitle,
+  onBack,
+  onTitleClick,
+}: CameraGridProps) {
   const [layoutId, setLayoutId] = useState('2x2');
   const [activeCameras, setActiveCameras] = useState<string[]>(() => cameras.slice(0, 4).map((c) => c.id));
   const [focusedCamera, setFocusedCamera] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const layout = GRID_LAYOUTS.find((l) => l.id === layoutId) || GRID_LAYOUTS[2];
 
@@ -74,16 +86,27 @@ export function CameraGrid({ cameras, isReplay = false, replayTime = 0 }: Camera
       <div className={styles.gridMain}>
         <div className={styles.controlsBar}>
           <div className={styles.statusRow}>
-            <Camera size={16} />
-            <span className={styles.statusText}>
-              {focusedCamera
-                ? 'Câmera Ampliada'
-                : `${displayCameras.length} câmera${displayCameras.length !== 1 ? 's' : ''} ativas`}
-            </span>
-            {focusedCamera && (
-              <button onClick={() => setFocusedCamera(null)} className={styles.backLink}>
-                Voltar ao grid
+            {onBack && (
+              <button onClick={onBack} className={styles.backBtn} aria-label="Voltar">
+                <ChevronLeft size={20} />
               </button>
+            )}
+            {focusedCamera ? (
+              <>
+                <span className={styles.statusText}>Câmera Ampliada</span>
+                <button onClick={() => setFocusedCamera(null)} className={styles.backLink}>
+                  Voltar ao grid
+                </button>
+              </>
+            ) : title ? (
+              <button onClick={onTitleClick} className={styles.titleBtn} title="Ver informações">
+                <span className={styles.titleText}>{title}</span>
+                {subtitle && <span className={styles.subtitleText}>{subtitle}</span>}
+              </button>
+            ) : (
+              <span className={styles.statusText}>
+                {`${displayCameras.length} câmera${displayCameras.length !== 1 ? 's' : ''} ativas`}
+              </span>
             )}
           </div>
 
@@ -137,11 +160,19 @@ export function CameraGrid({ cameras, isReplay = false, replayTime = 0 }: Camera
       </div>
 
       {sidebarOpen && (
-        <div className={styles.sidebar}>
-          <div className={styles.sidebarHeader}>
+        <div className={styles.backdrop} onClick={() => setSidebarOpen(false)} />
+      )}
+
+      <div className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
+        <div className={styles.sidebarHeader}>
+          <div>
             <p className={styles.sidebarHeaderTitle}>SELECIONAR CÂMERAS</p>
             <p className={styles.sidebarHeaderMeta}>Máx. {layout.max} no layout {layoutId}</p>
           </div>
+          <button onClick={() => setSidebarOpen(false)} className={styles.sidebarClose} aria-label="Fechar">
+            <X size={16} />
+          </button>
+        </div>
           <div className={styles.sidebarList}>
             {cameras.map((camera) => {
               const isActive = activeCameras.includes(camera.id);
@@ -178,8 +209,7 @@ export function CameraGrid({ cameras, isReplay = false, replayTime = 0 }: Camera
               );
             })}
           </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

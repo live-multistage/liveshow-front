@@ -1,0 +1,100 @@
+@use '../../../styles/_variables' as *;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  background-color: $bg;
+  border: 1px solid $border;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+
+  &:focus-within { border-color: $action; }
+}
+
+.wrapperError {
+  border-color: $error !important;
+}
+
+.wrapperOk {
+  border-color: #22c55e !important;
+}
+
+.prefix {
+  padding: 0 0.625rem;
+  font-size: 0.8rem;
+  color: $text-muted;
+  font-family: 'JetBrains Mono', monospace;
+  border-right: 1px solid $border;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.03);
+  align-self: stretch;
+}
+
+.input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: $text-primary;
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  min-width: 0;
+
+  &::placeholder { color: $muted; }
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  padding: 0 0.625rem;
+  color: $text-muted;
+  flex-shrink: 0;
+}
+
+.iconSpin {
+  animation: spin 0.8s linear infinite;
+  color: $text-muted;
+}
+
+.iconOk {
+  color: #22c55e;
+}
+
+.iconError {
+  color: $error;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.error {
+  font-size: 0.72rem;
+  color: $error;
+  margin: 0;
+}
+
+.hint {
+  font-size: 0.72rem;
+  color: #22c55e;
+  margin: 0;
+}

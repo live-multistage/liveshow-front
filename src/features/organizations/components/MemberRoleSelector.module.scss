@@ -1,0 +1,16 @@
+@use '../../../styles/_variables' as *;
+
+.select {
+  background-color: $bg;
+  border: 1px solid $border;
+  border-radius: 6px;
+  color: $text-primary;
+  font-size: 0.8rem;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:focus { border-color: $action; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}

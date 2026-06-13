@@ -20,6 +20,7 @@ export function useTickets() {
           event,
           ticketProductName: order.ticketProductName,
           capabilities: order.capabilities,
+          camerasLimit: order.camerasLimit,
           totalAmount: order.totalAmount,
           purchasedAt: order.createdAt,
         } satisfies PurchasedTicket;
@@ -31,6 +32,7 @@ export function useTickets() {
     tickets,
     withReplay: tickets.filter((t) => t.capabilities.includes('REPLAY_VIEW')),
     withoutReplay: tickets.filter((t) => !t.capabilities.includes('REPLAY_VIEW')),
+    withCamera: tickets.filter((t) => t.capabilities.includes('CAMERA_VIEW')),
     isLoading: ordersLoading || eventsLoading,
   };
 }

@@ -1,0 +1,33 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.state {
+  padding: 2rem;
+  font-size: 0.875rem;
+  color: $text-secondary;
+}
+
+.stateError {
+  color: $error;
+}

@@ -7,8 +7,15 @@ export const ticketSchema = z
     price: z.coerce.number().min(0, 'Preço não pode ser negativo'),
     liveView: z.boolean().default(false),
     replayView: z.boolean().default(false),
+    cameraView: z.boolean().default(false),
+    camerasLimit: z
+      .preprocess(
+        (val) => (val === '' || val === undefined ? null : val),
+        z.coerce.number().int('Deve ser número inteiro').min(1, 'Mínimo 1 câmera').nullable(),
+      )
+      .optional(),
   })
-  .refine((d) => d.liveView || d.replayView, {
+  .refine((d) => d.liveView || d.replayView || d.cameraView, {
     message: 'Selecione ao menos um tipo de acesso',
     path: ['liveView'],
   });

@@ -14,6 +14,6 @@ export { useMyEventsQuery, MY_EVENTS_KEY } from './queries/get-my-events';
 export { useListEventsQuery, LIST_EVENTS_KEY } from './queries/use-list-events';
 export { eventToShow } from './utils/event-adapter';
 export { formatDate, formatTime, formatDuration, formatPrice } from './utils/event-formatters';
-export type { EventResponse, CreateEventRequest, CreateTicketRequest, EventStatus, ListEventsFilter } from './types/event.types';
+export type { EventResponse, CreateEventRequest, CreateTicketRequest, TicketProductResponse, AccessCapability, EventStatus, ListEventsFilter } from './types/event.types';
 export type { CreateEventFormValues, TicketFormValues } from './schemas/create-event.schema';
 export type { AddedTicket } from './components/dashboard/TicketSection';
