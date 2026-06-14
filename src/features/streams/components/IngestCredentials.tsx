@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Copy, Check, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useCameraIngestQuery } from '../queries/ingest.queries';
 import { useRegenerateCameraKeyMutation } from '../mutations/ingest.mutations';
@@ -13,12 +13,20 @@ interface Props {
 function CopyField({ label, value, secret }: { label: string; value: string; secret?: boolean }) {
   const [copied, setCopied] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shown = secret && !revealed ? '•'.repeat(Math.min(value.length, 24)) : value;
 
+  useEffect(() => () => { if (copiedTimer.current) clearTimeout(copiedTimer.current); }, []);
+
   const copy = async () => {
-    await navigator.clipboard.writeText(value);
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      return; // clipboard unavailable / denied — leave the icon unchanged
+    }
     setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    if (copiedTimer.current) clearTimeout(copiedTimer.current);
+    copiedTimer.current = setTimeout(() => setCopied(false), 1500);
   };
 
   return (
