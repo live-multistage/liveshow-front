@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { streamsService } from '../services/streams.service';
 import { normalizeError } from '@/lib/http/errors';
 import { STREAM_KEYS } from '../queries/streams.queries';
-import type { StreamResponse } from '../types/stream.types';
+import type { StreamResponse, UpdateStreamRequest } from '../types/stream.types';
 
 export function useCreateStreamMutation(eventId: string, onSuccess?: (s: StreamResponse) => void) {
   const qc = useQueryClient();
@@ -75,4 +75,23 @@ export function useEndStreamMutation(streamId: string, eventId: string) {
 
 export function useCancelStreamMutation(streamId: string, eventId: string) {
   return useLifecycleMutation(streamId, streamsService.cancel, eventId);
+}
+
+export function useUpdateStreamMutation(eventId: string, onSuccess?: (s: StreamResponse) => void) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ streamId, payload }: { streamId: string; payload: UpdateStreamRequest }) => {
+      try {
+        return await streamsService.updateStream(streamId, payload);
+      } catch (err) {
+        throw normalizeError(err);
+      }
+    },
+    onSuccess: (data: StreamResponse) => {
+      qc.setQueryData(STREAM_KEYS.byEvent(eventId), (prev: StreamResponse[] | undefined) =>
+        prev?.map((s) => (s.id === data.id ? data : s)),
+      );
+      onSuccess?.(data);
+    },
+  });
 }
