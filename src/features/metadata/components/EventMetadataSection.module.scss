@@ -119,7 +119,7 @@
   transition: color 0.15s, background 0.15s;
 
   &:hover { color: $text-primary; background: rgba(255,255,255,0.07); }
-  &.danger:hover { color: #f87171; background: rgba(220,38,38,0.1); }
+  &.danger:hover { color: $error; background: rgba(220,38,38,0.1); }
 }
 
 // ── Add / inline-edit form ────────────────────────────────────────
@@ -174,7 +174,7 @@
   &:focus { border-color: $action; }
 }
 
-.formSelect option { background-color: #1a0505; }
+.formSelect option { background-color: $surface; }
 
 .formActions {
   display: flex;
@@ -226,7 +226,7 @@
 
 .error {
   font-size: 0.75rem;
-  color: #f87171;
+  color: $error;
   padding: 0.5rem 0.75rem;
   background: rgba(248,113,113,0.08);
   border: 1px solid rgba(248,113,113,0.2);

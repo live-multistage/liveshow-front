@@ -1,5 +1,5 @@
 import { httpClient } from '@/lib/http/client';
-import type { CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, TicketProductResponse, UpdateEventRequest } from '../types/event.types';
+import type { CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, TicketProductResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
 
 export const eventsService = {
   listEvents: async (filter: ListEventsFilter = 'all'): Promise<EventResponse[]> => {
@@ -34,6 +34,11 @@ export const eventsService = {
 
   createTicket: async (eventId: string, payload: CreateTicketRequest): Promise<TicketProductResponse> => {
     const { data } = await httpClient.post<TicketProductResponse>(`/shows/${eventId}/tickets`, payload);
+    return data;
+  },
+
+  updateTicketProduct: async (eventId: string, ticketId: string, payload: UpdateTicketRequest): Promise<TicketProductResponse> => {
+    const { data } = await httpClient.put<TicketProductResponse>(`/shows/${eventId}/tickets/${ticketId}`, payload);
     return data;
   },
 

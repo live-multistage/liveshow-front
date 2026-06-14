@@ -1,4 +1,7 @@
+import type { Metadata } from 'next';
 import styles from './page.module.scss';
+
+export const metadata: Metadata = { title: 'Minha conta' };
 
 export default function AccountPage() {
   return (

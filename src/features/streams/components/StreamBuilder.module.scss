@@ -57,10 +57,10 @@
   white-space: nowrap;
 }
 
-.badgeDraft     { background: rgba(113,113,122,0.15); color: #71717a; border: 1px solid rgba(113,113,122,0.3); }
+.badgeDraft     { background: rgba(113,113,122,0.15); color: $text-muted; border: 1px solid rgba(113,113,122,0.3); }
 .badgeReady     { background: rgba(59,130,246,0.12);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
 .badgeLive      { background: rgba(220,38,38,0.12);   color: $action; border: 1px solid rgba(220,38,38,0.3); }
-.badgeEnded     { background: rgba(22,163,74,0.12);   color: #4ade80; border: 1px solid rgba(22,163,74,0.3); }
+.badgeEnded     { background: rgba(22,163,74,0.12);   color: $success-light; border: 1px solid rgba(22,163,74,0.3); }
 .badgeCancelled { background: rgba(161,161,170,0.1);  color: #52525b; border: 1px solid rgba(161,161,170,0.2); }
 
 .pulse {
@@ -113,7 +113,7 @@
   letter-spacing: 0.05em;
   border: 1px solid rgba(22,163,74,0.4);
   background: rgba(22,163,74,0.1);
-  color: #4ade80;
+  color: $success-light;
   cursor: pointer;
   transition: background 0.15s;
 
@@ -301,7 +301,7 @@
   flex-shrink: 0;
   background: $text-muted;
 
-  &.enabled { background: #4ade80; }
+  &.enabled { background: $success-light; }
 }
 
 .cameraName {
@@ -333,7 +333,7 @@
 
   &:hover { color: $text-primary; background: rgba(255,255,255,0.07); }
   &.danger:hover { color: $error; background: rgba(220,38,38,0.1); }
-  &.success:hover { color: #4ade80; background: rgba(22,163,74,0.1); }
+  &.success:hover { color: $success-light; background: rgba(22,163,74,0.1); }
 }
 
 // ── Inline form (add stage/feed/camera) ───────────────────────────

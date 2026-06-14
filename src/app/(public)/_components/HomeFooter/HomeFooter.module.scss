@@ -1,7 +1,7 @@
 @use '../../../../styles/_variables' as *;
 
 .footer {
-  background-color: #000000;
+  background-color: $bg;
   color: $text-secondary;
   font-size: 0.75rem;
   font-family: 'JetBrains Mono', monospace;

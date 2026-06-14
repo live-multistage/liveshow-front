@@ -21,7 +21,7 @@ export function DashboardSidebar() {
   return (
     <aside className={styles.sidebar}>
       <Link href="/" className={styles.logoLink}>
-        <Image src="/logo-white.svg" alt="StageLive" width={120} height={36} priority />
+        <Image src="/logo-white.svg" alt="Liveshow" width={120} height={36} priority />
       </Link>
       <nav className={styles.nav}>
         {navItems.map((item) => {

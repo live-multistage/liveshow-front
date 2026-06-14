@@ -82,7 +82,7 @@
   border-radius: 8px !important;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6) !important;
   border-color: $border !important;
-  background-color: #1a0505 !important;
+  background-color: $surface !important;
   color: $text-primary !important;
   width: 13rem !important;
   margin-bottom: 0.25rem;
@@ -130,11 +130,11 @@
 .logoutItem {
   cursor: pointer !important;
   border-radius: 8px !important;
-  color: $action !important;
+  color: $danger !important;
 
   &:hover,
   &:focus {
-    background-color: $action-bg !important;
-    color: $action !important;
+    background-color: $danger-bg !important;
+    color: $danger !important;
   }
 }

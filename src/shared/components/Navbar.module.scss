@@ -173,7 +173,7 @@
   border-radius: 8px !important;
   box-shadow: 0 4px 24px rgba(0,0,0,0.6) !important;
   border-color: $border !important;
-  background-color: #1a0505 !important;
+  background-color: $surface !important;
   color: $text-primary !important;
   width: 12rem !important;
 }
@@ -270,7 +270,7 @@
 }
 
 .mobileMenu {
-  background-color: #1a0505;
+  background-color: $surface;
   border-top: 1px solid $border;
   padding: 0.5rem 1.5rem;
   display: flex;

@@ -40,7 +40,7 @@ export function LoginForm({ callbackUrl }: LoginFormProps) {
 
   return (
     <div className={styles.card}>
-      <p className={styles.brand}>StageLive</p>
+      <p className={styles.brand}>Liveshow</p>
       <h1 className={styles.title}>Bem-vindo de volta</h1>
       <p className={styles.subtitle}>Entre na sua conta para continuar</p>
 

@@ -1,7 +1,9 @@
+@use '../../../styles/_variables' as *;
+
 .page {
   min-height: 100vh;
-  background-color: #030303;
-  color: #FFFFFF;
+  background-color: $bg;
+  color: $text-primary;
   padding-top: 5rem;
   padding-left: 1.5rem;
 }

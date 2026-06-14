@@ -3,7 +3,10 @@ import { Providers } from '@/providers';
 import '@/styles/index.css';
 
 export const metadata: Metadata = {
-  title: 'StageLive',
+  title: {
+    default: 'Liveshow',
+    template: '%s · Liveshow',
+  },
   description: 'Shows ao vivo de todo o mundo, na palma da sua mão.',
 };
 

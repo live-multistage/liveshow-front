@@ -27,7 +27,7 @@ export function RegisterForm() {
   return (
     <div className={styles.card}>
       <h1 className={styles.title}>Criar conta</h1>
-      <p className={styles.subtitle}>Junte-se ao StageLive e assista shows ao vivo de todo o mundo.</p>
+      <p className={styles.subtitle}>Junte-se ao Liveshow e assista shows ao vivo de todo o mundo.</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
         <div className={styles.field}>

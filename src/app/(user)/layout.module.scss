@@ -1,4 +1,6 @@
+@use '../../styles/_variables' as *;
+
 .layout {
   min-height: 100vh;
-  background-color: #030303;
+  background-color: $bg;
 }

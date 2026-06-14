@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { eventsService } from '../services/events.service';
+import type { EventResponse } from '../types/event.types';
 
 export const eventKeys = {
   detail: (id: string) => ['events', 'detail', id] as const,
@@ -9,11 +10,12 @@ export const eventKeys = {
   photos: (eventId: string) => ['events', 'photos', eventId] as const,
 };
 
-export function useGetEventQuery(id: string) {
+export function useGetEventQuery(id: string, initialData?: EventResponse) {
   return useQuery({
     queryKey: eventKeys.detail(id),
     queryFn: () => eventsService.getEvent(id),
     enabled: !!id,
+    initialData,
   });
 }
 

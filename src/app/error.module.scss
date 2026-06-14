@@ -2,8 +2,8 @@
 
 .page {
   min-height: 100vh;
-  background-color: #030303;
-  color: #FFFFFF;
+  background-color: $bg;
+  color: $text-primary;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,14 +21,14 @@
 }
 
 .message {
-  color: #A1A1AA;
+  color: $text-secondary;
   font-size: 0.875rem;
   margin-bottom: 1rem;
 }
 
 .btn {
   background-color: $action;
-  color: #FFFFFF;
+  color: $text-primary;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 8px;

@@ -1,6 +1,8 @@
+@use '../../styles/_variables' as *;
+
 .layout {
   min-height: 100vh;
-  background-color: #030303;
+  background-color: $bg;
   display: flex;
   align-items: center;
   justify-content: center;

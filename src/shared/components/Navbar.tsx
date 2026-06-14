@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Ticket, Menu, X, Search, Bell, User, LogOut, Settings, LayoutDashboard } from 'lucide-react';
+import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutDashboard } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +14,7 @@ import {
 } from '@/shared/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
 import { useAuth, useAuthCheck } from '@/features/account';
+import { NotificationsDropdown } from '@/features/notifications';
 import styles from './Navbar.module.scss';
 
 function getInitials(name: string) {
@@ -37,7 +38,7 @@ export function Navbar() {
       <div className={styles.navInner}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
-          <Image src="/logo-white.svg" alt="StageLive" width={110} height={32} priority />
+          <Image src="/logo-white.svg" alt="Liveshow" width={110} height={32} priority />
         </Link>
 
         {/* Desktop Nav */}
@@ -77,9 +78,7 @@ export function Navbar() {
                     </Link>
                   )}
 
-                  <button className={`${styles.iconBtn} ${styles.bellBtn}`}>
-                    <Bell size={16} />
-                  </button>
+                  <NotificationsDropdown />
 
                   <Link href="/tickets" className={styles.ticketsBtn}>
                     <Ticket size={14} />

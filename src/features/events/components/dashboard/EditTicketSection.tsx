@@ -1,10 +1,15 @@
 'use client';
 
-import { Lock } from 'lucide-react';
+import { useState } from 'react';
+import { Lock, Pencil } from 'lucide-react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ticketSchema, type TicketFormValues } from '../../schemas/create-event.schema';
-import { useCreateTicketProductMutation, useDeleteTicketProductMutation } from '../../mutations/ticket-product.mutation';
+import {
+  useCreateTicketProductMutation,
+  useDeleteTicketProductMutation,
+  useUpdateTicketProductMutation,
+} from '../../mutations/ticket-product.mutation';
 import type { AccessCapability, TicketProductResponse } from '../../types/event.types';
 import styles from './TicketSection.module.scss';
 
@@ -23,9 +28,31 @@ function capabilitiesLabel(caps: AccessCapability[], camerasLimit: number | null
   return parts.join(' + ') || 'Sem acesso';
 }
 
+function ticketToForm(t: TicketProductResponse): TicketFormValues {
+  return {
+    name: t.name,
+    description: t.description,
+    price: t.price,
+    liveView: t.capabilities.includes('LIVE_VIEW'),
+    replayView: t.capabilities.includes('REPLAY_VIEW'),
+    cameraView: t.capabilities.includes('CAMERA_VIEW'),
+    camerasLimit: t.camerasLimit ?? undefined,
+  };
+}
+
+const EMPTY_FORM: Partial<TicketFormValues> = {
+  liveView: false,
+  replayView: false,
+  cameraView: false,
+  camerasLimit: undefined,
+};
+
 export function EditTicketSection({ eventId, tickets }: Props) {
   const createMutation = useCreateTicketProductMutation(eventId);
+  const updateMutation = useUpdateTicketProductMutation(eventId);
   const deleteMutation = useDeleteTicketProductMutation(eventId);
+
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const {
     register,
@@ -35,27 +62,46 @@ export function EditTicketSection({ eventId, tickets }: Props) {
     formState: { errors },
   } = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
-    defaultValues: { liveView: false, replayView: false, cameraView: false, camerasLimit: undefined },
+    defaultValues: EMPTY_FORM,
   });
 
   const cameraView = useWatch({ control, name: 'cameraView' });
 
-  const onAdd = (values: TicketFormValues) => {
+  const isEditing = editingId !== null;
+  const isPending = createMutation.isPending || updateMutation.isPending;
+
+  const startEdit = (ticket: TicketProductResponse) => {
+    setEditingId(ticket.id);
+    reset(ticketToForm(ticket));
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    reset(EMPTY_FORM);
+  };
+
+  const onSubmit = (values: TicketFormValues) => {
     const capabilities: AccessCapability[] = [];
     if (values.liveView) capabilities.push('LIVE_VIEW');
     if (values.replayView) capabilities.push('REPLAY_VIEW');
     if (values.cameraView) capabilities.push('CAMERA_VIEW');
 
-    createMutation.mutate(
-      {
-        name: values.name,
-        description: values.description,
-        price: values.price,
-        capabilities,
-        camerasLimit: values.cameraView ? (values.camerasLimit ?? null) : null,
-      },
-      { onSuccess: () => reset() },
-    );
+    const payload = {
+      name: values.name,
+      description: values.description,
+      price: values.price,
+      capabilities,
+      camerasLimit: values.cameraView ? (values.camerasLimit ?? null) : null,
+    };
+
+    if (editingId) {
+      updateMutation.mutate(
+        { ticketId: editingId, payload },
+        { onSuccess: () => cancelEdit() },
+      );
+    } else {
+      createMutation.mutate(payload, { onSuccess: () => reset(EMPTY_FORM) });
+    }
   };
 
   return (
@@ -65,14 +111,32 @@ export function EditTicketSection({ eventId, tickets }: Props) {
           <span className={styles.dot} />
           Ingressos
         </h3>
-        <button
-          type="button"
-          className={styles.addBtn}
-          onClick={handleSubmit(onAdd)}
-          disabled={createMutation.isPending}
-        >
-          {createMutation.isPending ? 'Adicionando…' : 'Adicionar'}
-        </button>
+        <div className={styles.headerActions}>
+          {isEditing && (
+            <button
+              type="button"
+              className={styles.cancelBtn}
+              onClick={cancelEdit}
+              disabled={isPending}
+            >
+              Cancelar
+            </button>
+          )}
+          <button
+            type="button"
+            className={styles.addBtn}
+            onClick={handleSubmit(onSubmit)}
+            disabled={isPending}
+          >
+            {isEditing
+              ? updateMutation.isPending
+                ? 'Salvando…'
+                : 'Salvar'
+              : createMutation.isPending
+                ? 'Adicionando…'
+                : 'Adicionar'}
+          </button>
+        </div>
       </div>
 
       {/* Add form */}
@@ -151,10 +215,16 @@ export function EditTicketSection({ eventId, tickets }: Props) {
       {createMutation.isError && (
         <p className={styles.error}>{createMutation.error?.message ?? 'Erro ao adicionar ingresso.'}</p>
       )}
+      {updateMutation.isError && (
+        <p className={styles.error}>{updateMutation.error?.message ?? 'Erro ao salvar ingresso.'}</p>
+      )}
 
       {/* Existing tickets */}
       {tickets.map((ticket) => (
-        <div key={ticket.id} className={styles.ticketCard}>
+        <div
+          key={ticket.id}
+          className={`${styles.ticketCard} ${editingId === ticket.id ? styles.ticketCardEditing : ''}`}
+        >
           <div className={styles.ticketCardTop}>
             <span className={styles.ticketCapLabel}>
               {capabilitiesLabel(ticket.capabilities, ticket.camerasLimit)}
@@ -162,15 +232,26 @@ export function EditTicketSection({ eventId, tickets }: Props) {
             {ticket.immutable ? (
               <Lock size={14} color="var(--text-muted, #666)" />
             ) : (
-              <button
-                type="button"
-                className={styles.removeBtn}
-                onClick={() => deleteMutation.mutate(ticket.id)}
-                disabled={deleteMutation.isPending}
-                aria-label="Remover ingresso"
-              >
-                ×
-              </button>
+              <div className={styles.ticketCardActions}>
+                <button
+                  type="button"
+                  className={styles.editBtn}
+                  onClick={() => startEdit(ticket)}
+                  disabled={isPending}
+                  aria-label="Editar ingresso"
+                >
+                  <Pencil size={13} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.removeBtn}
+                  onClick={() => deleteMutation.mutate(ticket.id)}
+                  disabled={deleteMutation.isPending || editingId === ticket.id}
+                  aria-label="Remover ingresso"
+                >
+                  ×
+                </button>
+              </div>
             )}
           </div>
           <p className={styles.ticketName}>{ticket.name}</p>

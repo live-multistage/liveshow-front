@@ -1,6 +1,8 @@
+@use '../../../styles/_variables' as *;
+
 .page {
   text-align: center;
-  color: #FFFFFF;
+  color: $text-primary;
 }
 
 .title {
@@ -11,7 +13,7 @@
 }
 
 .subtitle {
-  color: #A1A1AA;
+  color: $text-secondary;
   font-size: 0.875rem;
   font-family: 'JetBrains Mono', monospace;
 }

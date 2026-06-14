@@ -354,7 +354,7 @@
 
 .progressFillReplay {
   height: 100%;
-  background: linear-gradient(to right, $action, #6B1111);
+  background: linear-gradient(to right, $action, $accent);
   border-radius: 9999px;
   transition: width 0.3s;
 }

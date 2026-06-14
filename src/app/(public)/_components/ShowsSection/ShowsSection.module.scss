@@ -53,8 +53,8 @@
 }
 
 .genreChipInactive {
-  background-color: #1A1A1A;
-  border-color: #374151;
+  background-color: $surface-card;
+  border-color: $border;
   color: $text-primary;
 
   &:hover {

@@ -16,7 +16,7 @@ export function HomePageContent() {
   if (isLoading || !featuredShow) {
     return (
       <main className={styles.main}>
-        <p style={{ color: '#aaa', padding: '40px 0' }}>Carregando eventos...</p>
+        <p style={{ color: '#A1A1AA', padding: '40px 0' }}>Carregando eventos...</p>
       </main>
     );
   }

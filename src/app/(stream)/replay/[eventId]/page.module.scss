@@ -1,12 +1,14 @@
+@use '../../../../styles/_variables' as *;
+
 .page {
   min-height: 100vh;
-  background-color: #030303;
+  background-color: $bg;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .text {
-  color: #A1A1AA;
+  color: $text-secondary;
   font-family: 'JetBrains Mono', monospace;
 }

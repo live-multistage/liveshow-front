@@ -11,9 +11,9 @@ const chipVariants = cva(
       variant: {
         // Genre filter pill — interactive, Jost 14px
         default:
-          "rounded-full border border-[#374151] bg-[#1A1A1A] px-6 py-2 text-sm text-white font-jost cursor-pointer hover:border-[#DC2626]",
+          "rounded-full border border-[#27272A] bg-[#18181b] px-6 py-2 text-sm text-white font-jost cursor-pointer hover:border-[#EC4899]",
         active:
-          "rounded-full border border-transparent bg-[#DC2626] px-6 py-2 text-sm text-white font-jost cursor-pointer",
+          "rounded-full border border-transparent bg-[#EC4899] px-6 py-2 text-sm text-white font-jost cursor-pointer",
         // Genre / tag chip — static label, JetBrains Mono 12px
         tag: "rounded-[8px] border border-[#27272A] bg-transparent px-2 py-0.5 text-[12px] leading-[18px] text-[#A1A1AA] font-jetbrains uppercase tracking-[0.05em]",
       },

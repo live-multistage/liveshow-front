@@ -16,6 +16,7 @@ import { EventTicketList } from './EventTicketList';
 import { EditTicketSection } from './EditTicketSection';
 import { PhotosSection } from './PhotosSection';
 import { EventMetadataSection } from '@/features/metadata';
+import type { EventResponse } from '../../types/event.types';
 import styles from './EventDashboardDetailContent.module.scss';
 
 function toDatetimeLocal(iso: string) {
@@ -24,13 +25,14 @@ function toDatetimeLocal(iso: string) {
 
 interface Props {
   id: string;
+  initialEvent?: EventResponse;
 }
 
-export function EventDashboardDetailContent({ id }: Props) {
+export function EventDashboardDetailContent({ id, initialEvent }: Props) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
 
-  const { data: event, isLoading, isError } = useGetEventQuery(id);
+  const { data: event, isLoading, isError } = useGetEventQuery(id, initialEvent);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
 
   const updateMutation = useUpdateEventMutation(id);

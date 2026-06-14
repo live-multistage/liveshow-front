@@ -1,14 +1,14 @@
-// ── Base ──────────────────────────────────────────────────────────
-$bg:           #030303;
-$surface:      #1a0505;
+// ── Base (neutral dark — surfaces carry no hue) ───────────────────
+$bg:           #09090b;
+$surface:      #131316;
 $surface-dark: #0f0f0f;
-$surface-card: #3D0A0A;
-$accent:       #6B1111;
+$surface-card: #18181b;
+$accent:       #1f1f23;
 
-// ── Brand ─────────────────────────────────────────────────────────
-$action:       #DC2626;
-$action-dim:   rgba(220, 38, 38, 0.12);
-$action-bg:    rgba(220, 38, 38, 0.1);
+// ── Brand (magenta = energy / nightlife accent) ───────────────────
+$action:       #EC4899;
+$action-dim:   rgba(236, 72, 153, 0.14);
+$action-bg:    rgba(236, 72, 153, 0.12);
 $violet:       #9810fa;
 $violet-dim:   rgba(152, 16, 250, 0.8);
 $violet-glow:  rgba(152, 16, 250, 0.12);
@@ -21,11 +21,13 @@ $white-50:       rgba(255, 255, 255, 0.5);
 
 // ── Borders & hover ───────────────────────────────────────────────
 $border:       #27272A;
-$bg-hover:     #1a0505;
+$bg-hover:     #1f1f23;
 
-// ── Feedback ──────────────────────────────────────────────────────
+// ── Feedback (stays red — never magenta) ──────────────────────────
 $error:        #F87171;
-$error-bg:     $action-bg;
+$error-bg:     rgba(248, 113, 113, 0.12);
+$danger:       #EF4444;
+$danger-bg:    rgba(239, 68, 68, 0.12);
 $success:      #16A34A;
 $success-light: #4ADE80;
 $success-bg:   rgba(22, 163, 74, 0.1);

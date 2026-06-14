@@ -1,4 +1,7 @@
+import type { Metadata } from 'next';
 import styles from './page.module.scss';
+
+export const metadata: Metadata = { title: 'Redefinir senha' };
 
 export default function ResetPasswordPage() {
   return (

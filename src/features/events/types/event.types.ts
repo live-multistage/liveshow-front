@@ -47,6 +47,14 @@ export interface CreateTicketRequest {
   camerasLimit?: number | null;
 }
 
+export interface UpdateTicketRequest {
+  name?: string;
+  description?: string;
+  price?: number;
+  capabilities?: AccessCapability[];
+  camerasLimit?: number | null;
+}
+
 export interface TicketProductResponse {
   id: string;
   showId: string;
