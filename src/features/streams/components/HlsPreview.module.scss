@@ -1,0 +1,17 @@
+.overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+}
+.box {
+  position: relative; width: min(880px, 92vw);
+  background: #000; border-radius: 12px; overflow: hidden;
+}
+.video { width: 100%; display: block; aspect-ratio: 16 / 9; background: #000; }
+.close {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  width: 32px; height: 32px; border-radius: 8px; border: none;
+  background: rgba(0,0,0,0.6); color: #fff; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.error { color: #fca5a5; padding: 40px; text-align: center; font-size: 14px; }
