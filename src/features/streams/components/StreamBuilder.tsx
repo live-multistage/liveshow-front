@@ -5,6 +5,7 @@ import {
   useStartStreamMutation,
   useEndStreamMutation,
   useCancelStreamMutation,
+  useUpdateStreamMutation,
 } from '../mutations/stream.mutations';
 import type { StreamResponse } from '../types/stream.types';
 import { StreamHeader } from './StreamHeader';
@@ -15,13 +16,15 @@ interface Props {
   stream: StreamResponse;
   eventId: string;
   onStreamUpdated?: (s: StreamResponse) => void;
+  onStreamDeleted?: (id: string) => void;
 }
 
-export function StreamBuilder({ stream, eventId, onStreamUpdated }: Props) {
+export function StreamBuilder({ stream, eventId, onStreamUpdated, onStreamDeleted }: Props) {
   const prepare = usePrepareStreamMutation(stream.id, eventId);
   const start = useStartStreamMutation(stream.id, eventId);
   const end = useEndStreamMutation(stream.id, eventId);
   const cancel = useCancelStreamMutation(stream.id, eventId);
+  const update = useUpdateStreamMutation(eventId, onStreamUpdated);
 
   function makeAction(mut: typeof prepare) {
     return {
@@ -38,6 +41,11 @@ export function StreamBuilder({ stream, eventId, onStreamUpdated }: Props) {
         start={makeAction(start)}
         end={makeAction(end)}
         cancel={makeAction(cancel)}
+        onRename={(title, description) =>
+          update.mutate({ streamId: stream.id, payload: { title, description } })
+        }
+        isRenaming={update.isPending}
+        onDeleted={onStreamDeleted}
       />
       <StageList streamId={stream.id} streamStatus={stream.status} />
     </div>

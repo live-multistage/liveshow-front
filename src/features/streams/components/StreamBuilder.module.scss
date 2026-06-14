@@ -453,3 +453,15 @@
 @keyframes signalPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
 .cameraTop { display: flex; align-items: center; gap: 8px; }
+
+.headerIconBtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; margin-left: 4px;
+  border-radius: 6px; border: 1px solid rgba(0,0,0,0.1);
+  background: #fff; color: #666; cursor: pointer;
+}
+.editRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
+.editInput {
+  font-size: 13px; padding: 6px 10px; border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.15); min-width: 160px;
+}

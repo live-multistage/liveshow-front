@@ -174,6 +174,7 @@ export function StreamsPageContent() {
               stream={selectedStream}
               eventId={selectedEventId!}
               onStreamUpdated={handleStreamUpdated}
+              onStreamDeleted={() => setSelectedStream(null)}
             />
           ) : (
             <div className={styles.placeholder}>

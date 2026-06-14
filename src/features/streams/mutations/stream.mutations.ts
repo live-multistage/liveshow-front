@@ -23,18 +23,20 @@ export function useCreateStreamMutation(eventId: string, onSuccess?: (s: StreamR
   });
 }
 
-export function useDeleteStreamMutation(eventId: string) {
+export function useDeleteStreamMutation(eventId: string, onSuccess?: (id: string) => void) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (streamId: string) => {
       try {
         await streamsService.delete(streamId);
+        return streamId;
       } catch (err) {
         throw normalizeError(err);
       }
     },
-    onSuccess: () => {
+    onSuccess: (streamId) => {
       qc.invalidateQueries({ queryKey: STREAM_KEYS.byEvent(eventId) });
+      onSuccess?.(streamId);
     },
   });
 }
