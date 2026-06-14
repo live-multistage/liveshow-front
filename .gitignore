@@ -65,3 +65,6 @@ next-env.d.ts
 # ── Misc ──────────────────────────────────────────────────────────
 *.pem
 .npmrc.local
+
+# git worktrees (subagent-driven dev)
+.worktrees/
