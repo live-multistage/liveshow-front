@@ -27,7 +27,7 @@ interface Props {
   start: LifecycleAction;
   end: LifecycleAction;
   cancel: LifecycleAction;
-  onRename: (title: string, description?: string) => void;
+  onRename: (title: string, description?: string) => Promise<unknown>;
   isRenaming: boolean;
   onDeleted?: (id: string) => void;
 }
@@ -40,6 +40,7 @@ export function StreamHeader({
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(stream.title);
   const [description, setDescription] = useState(stream.description ?? '');
+  const [renameError, setRenameError] = useState<string | null>(null);
   const del = useDeleteStreamMutation(stream.eventId, onDeleted);
 
   // Builder stays mounted across stream selection changes (no key), so re-seed
@@ -65,15 +66,21 @@ export function StreamHeader({
           />
           <Button
             size="sm" variant="success" isLoading={isRenaming}
-            onClick={() => {
+            onClick={async () => {
               if (!title.trim()) return;
-              onRename(title.trim(), description.trim() || undefined);
-              setEditing(false);
+              setRenameError(null);
+              try {
+                await onRename(title.trim(), description.trim() || undefined);
+                setEditing(false);
+              } catch {
+                setRenameError('Falha ao salvar. Tente novamente.');
+              }
             }}
           >
             Salvar
           </Button>
           <Button size="sm" variant="subtle" onClick={() => setEditing(false)}>Cancelar</Button>
+          {renameError && <span className={styles.streamDesc}>{renameError}</span>}
         </div>
       </div>
     );

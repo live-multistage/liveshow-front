@@ -23,7 +23,10 @@ export function HlsPreview({ packageId, onClose }: Props) {
     // Safari plays HLS natively; everyone else needs hls.js (MSE).
     if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = src;
-      return;
+      const onErr = () =>
+        setError('Falha ao carregar o preview (origin pode ainda não ter segmentos).');
+      video.addEventListener('error', onErr);
+      return () => video.removeEventListener('error', onErr);
     }
     if (!Hls.isSupported()) {
       setError('Navegador não suporta HLS.');

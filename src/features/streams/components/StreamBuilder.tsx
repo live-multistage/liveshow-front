@@ -42,7 +42,7 @@ export function StreamBuilder({ stream, eventId, onStreamUpdated, onStreamDelete
         end={makeAction(end)}
         cancel={makeAction(cancel)}
         onRename={(title, description) =>
-          update.mutate({ streamId: stream.id, payload: { title, description } })
+          update.mutateAsync({ streamId: stream.id, payload: { title, description } })
         }
         isRenaming={update.isPending}
         onDeleted={onStreamDeleted}
