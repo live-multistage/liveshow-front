@@ -25,17 +25,37 @@ export function HlsPreview({ packageId, onClose }: Props) {
       video.src = src;
       const onErr = () =>
         setError('Falha ao carregar o preview (origin pode ainda não ter segmentos).');
+      // Jump to the live edge on load so we monitor "now", not the window start.
+      const seekLive = () => {
+        const s = video.seekable;
+        if (s.length) video.currentTime = s.end(s.length - 1);
+      };
       video.addEventListener('error', onErr);
-      return () => video.removeEventListener('error', onErr);
+      video.addEventListener('loadedmetadata', seekLive);
+      return () => {
+        video.removeEventListener('error', onErr);
+        video.removeEventListener('loadedmetadata', seekLive);
+      };
     }
     if (!Hls.isSupported()) {
       setError('Navegador não suporta HLS.');
       return;
     }
 
-    const hls = new Hls({ lowLatencyMode: true });
+    // Live, low-latency: stay ~2 segments behind the edge, keep a short back
+    // buffer, and let hls.js speed up slightly to catch the live edge if it drifts.
+    const hls = new Hls({
+      lowLatencyMode: true,
+      liveSyncDurationCount: 2,
+      liveMaxLatencyDurationCount: 6,
+      backBufferLength: 10,
+      maxLiveSyncPlaybackRate: 1.5,
+    });
     hls.loadSource(src);
     hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      void video.play().catch(() => {});
+    });
     hls.on(Hls.Events.ERROR, (_evt, data) => {
       if (data.fatal) setError('Falha ao carregar o preview (origin pode ainda não ter segmentos).');
     });
