@@ -1,7 +1,9 @@
+import axios from 'axios';
 import { httpClient } from '@/lib/http/client';
 import type {
   StreamResponse, StageResponse, FeedResponse, CameraResponse,
   CreateStreamRequest, CreateStageRequest, CreateFeedRequest, CreateCameraRequest,
+  CameraIngestResponse, FeedIngestResponse, TranscodeJobResponse, UpdateStreamRequest,
 } from '../types/stream.types';
 
 export const streamsService = {
@@ -22,6 +24,12 @@ export const streamsService = {
   },
 
   update: async (streamId: string, payload: Partial<CreateStreamRequest>): Promise<StreamResponse> => {
+    const { data } = await httpClient.put<StreamResponse>(`/streams/${streamId}`, payload);
+    return data;
+  },
+
+  // ── Stream update (typed) ──────────────────────────────────────
+  updateStream: async (streamId: string, payload: UpdateStreamRequest): Promise<StreamResponse> => {
     const { data } = await httpClient.put<StreamResponse>(`/streams/${streamId}`, payload);
     return data;
   },
@@ -100,5 +108,33 @@ export const streamsService = {
   disableCamera: async (cameraId: string): Promise<CameraResponse> => {
     const { data } = await httpClient.post<CameraResponse>(`/cameras/${cameraId}/disable`);
     return data;
+  },
+
+  // ── Ingest credentials (admin) ─────────────────────────────────
+  getCameraIngest: async (cameraId: string): Promise<CameraIngestResponse> => {
+    const { data } = await httpClient.get<CameraIngestResponse>(`/cameras/${cameraId}/ingest`);
+    return data;
+  },
+
+  regenerateCameraKey: async (cameraId: string): Promise<CameraIngestResponse> => {
+    const { data } = await httpClient.post<CameraIngestResponse>(`/cameras/${cameraId}/regenerate-key`);
+    return data;
+  },
+
+  // ── Live ingest status ─────────────────────────────────────────
+  getFeedIngest: async (feedId: string): Promise<FeedIngestResponse> => {
+    const { data } = await httpClient.get<FeedIngestResponse>(`/feeds/${feedId}/ingest`);
+    return data;
+  },
+
+  // ── Transcode job for a camera (404 → null) ───────────────────
+  getActiveTranscodeJob: async (cameraId: string): Promise<TranscodeJobResponse | null> => {
+    try {
+      const { data } = await httpClient.get<TranscodeJobResponse>(`/transcode/cameras/${cameraId}/job`);
+      return data;
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 404) return null;
+      throw err;
+    }
   },
 };
