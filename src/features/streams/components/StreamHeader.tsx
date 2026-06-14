@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/shared/components/Button';
 import { useDeleteStreamMutation } from '../mutations/stream.mutations';
@@ -41,6 +41,14 @@ export function StreamHeader({
   const [title, setTitle] = useState(stream.title);
   const [description, setDescription] = useState(stream.description ?? '');
   const del = useDeleteStreamMutation(stream.eventId, onDeleted);
+
+  // Builder stays mounted across stream selection changes (no key), so re-seed
+  // the edit inputs when a different stream is selected to avoid stale values.
+  useEffect(() => {
+    setTitle(stream.title);
+    setDescription(stream.description ?? '');
+    setEditing(false);
+  }, [stream.id]);
 
   const canEdit = status === 'DRAFT' || status === 'READY';
 
