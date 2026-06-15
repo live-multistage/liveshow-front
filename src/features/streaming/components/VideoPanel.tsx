@@ -44,8 +44,6 @@ export function VideoPanel({
     setLevels([]);
     setCurrentLevel(-1);
 
-    // Prefer hls.js when MSE is available (Chrome, Firefox, desktop Safari 14.1+).
-    // Only fall back to native HLS on iOS Safari where MSE is not supported.
     if (!Hls.isSupported()) {
       if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = src;

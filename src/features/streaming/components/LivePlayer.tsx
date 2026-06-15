@@ -9,16 +9,12 @@ import { StageSelector } from './StageSelector';
 import styles from './LivePlayer.module.scss';
 
 interface LivePlayerProps {
-  cameras: LiveCamera[];   // flat list — always present (backward compat)
-  stages?: LiveStage[];    // grouped by stage — present when backend supports it
+  cameras: LiveCamera[];
+  stages?: LiveStage[];
   title: string;
   eventId: string;
 }
 
-// Normalises the flat cameras list and optional stages into a unified stages
-// array. When the backend sends stages, use them directly. Otherwise wrap all
-// cameras into a single synthetic "Palco Principal" stage so the rest of the
-// component always works with the same data shape.
 function useStages(cameras: LiveCamera[], rawStages?: LiveStage[]): LiveStage[] {
   return useMemo(() => {
     if (rawStages && rawStages.length > 0) {
@@ -36,7 +32,6 @@ export function LivePlayer({ cameras, stages: rawStages, title, eventId }: LiveP
   const stages = useStages(cameras, rawStages);
   const [activeStageId, setActiveStageId] = useState<string>(() => stages[0]?.stageId ?? '__main__');
 
-  // Keep activeStageId valid if stages change (e.g. a stage goes offline)
   const activeStage =
     stages.find((s) => s.stageId === activeStageId) ?? stages[0];
 

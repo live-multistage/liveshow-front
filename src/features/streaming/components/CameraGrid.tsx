@@ -13,8 +13,6 @@ const GRID_LAYOUTS = [
   { id: '3x3', label: '9 Câmeras', cols: 3, rows: 3, max: 9 },
 ];
 
-// Smart layout: pick the smallest grid that fits the number of online cameras
-// (1 → 1x1, 2 → 1x2, 3-4 → 2x2, 5+ → 3x3).
 function layoutForCount(n: number) {
   if (n <= 1) return GRID_LAYOUTS[0];
   if (n === 2) return GRID_LAYOUTS[1];
@@ -44,10 +42,6 @@ export function CameraGrid({
   const [focusedCamera, setFocusedCamera] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Smart controller: when the set of online cameras changes (one joins/leaves —
-  // the playback query polls every 5s), re-fit the grid to the new count and show
-  // all of them. Keyed on the sorted camera-id set so it only fires on real
-  // changes, leaving manual layout/selection tweaks intact between them.
   const cameraKey = cameras.map((c) => c.cameraId).sort().join(',');
   useEffect(() => {
     const auto = layoutForCount(cameras.length);
