@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Camera, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
@@ -10,7 +10,17 @@ const GRID_LAYOUTS = [
   { id: '1x1', label: '1 Câmera', cols: 1, rows: 1, max: 1 },
   { id: '1x2', label: '2 Câmeras', cols: 2, rows: 1, max: 2 },
   { id: '2x2', label: '4 Câmeras', cols: 2, rows: 2, max: 4 },
+  { id: '3x3', label: '9 Câmeras', cols: 3, rows: 3, max: 9 },
 ];
+
+// Smart layout: pick the smallest grid that fits the number of online cameras
+// (1 → 1x1, 2 → 1x2, 3-4 → 2x2, 5+ → 3x3).
+function layoutForCount(n: number) {
+  if (n <= 1) return GRID_LAYOUTS[0];
+  if (n === 2) return GRID_LAYOUTS[1];
+  if (n <= 4) return GRID_LAYOUTS[2];
+  return GRID_LAYOUTS[3];
+}
 
 interface CameraGridProps {
   cameras: LiveCamera[];
@@ -27,12 +37,25 @@ export function CameraGrid({
   onBack,
   onTitleClick,
 }: CameraGridProps) {
-  const [layoutId, setLayoutId] = useState('2x2');
+  const [layoutId, setLayoutId] = useState(() => layoutForCount(cameras.length).id);
   const [activeCameras, setActiveCameras] = useState<string[]>(() =>
-    cameras.slice(0, 4).map((c) => c.cameraId),
+    cameras.slice(0, layoutForCount(cameras.length).max).map((c) => c.cameraId),
   );
   const [focusedCamera, setFocusedCamera] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Smart controller: when the set of online cameras changes (one joins/leaves —
+  // the playback query polls every 5s), re-fit the grid to the new count and show
+  // all of them. Keyed on the sorted camera-id set so it only fires on real
+  // changes, leaving manual layout/selection tweaks intact between them.
+  const cameraKey = cameras.map((c) => c.cameraId).sort().join(',');
+  useEffect(() => {
+    const auto = layoutForCount(cameras.length);
+    setLayoutId(auto.id);
+    setActiveCameras(cameras.slice(0, auto.max).map((c) => c.cameraId));
+    setFocusedCamera((cur) => (cur && cameras.some((c) => c.cameraId === cur) ? cur : null));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cameraKey]);
 
   const layout = GRID_LAYOUTS.find((l) => l.id === layoutId) || GRID_LAYOUTS[2];
 
