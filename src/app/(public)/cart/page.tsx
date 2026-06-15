@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { CartPageContent } from '@/features/cart';
-import { readCartItems } from '@/features/cart/utils/read-cart.server';
+import { fetchCartServer } from '@/features/cart/services/cart.server';
 
 export const metadata: Metadata = { title: 'Carrinho' };
 
 export default async function CartPage() {
-  const initialItems = await readCartItems();
-  return <CartPageContent initialItems={initialItems} />;
+  const initialCart = await fetchCartServer();
+  return <CartPageContent initialCart={initialCart} />;
 }

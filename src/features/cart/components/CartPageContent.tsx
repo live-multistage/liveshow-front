@@ -1,29 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Building2, X, Tag, Ticket } from 'lucide-react';
+import { X, Tag, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
-import { useCartStore } from '../stores/cart.store';
 import { CAPABILITY_LABELS } from '../utils/capability-labels';
-import { computeCartTotals } from '../utils/totals';
-import type { CartItem } from '../types/cart.types';
+import { useCartQuery } from '../queries/cart.queries';
+import { useRemoveFromCartMutation } from '../mutations/cart.mutations';
+import type { CartView } from '../services/cart.service';
 import styles from './CartPageContent.module.scss';
 
 interface Props {
-  initialItems: CartItem[];
+  initialCart?: CartView;
 }
 
-export function CartPageContent({ initialItems }: Props) {
-  const storeItems = useCartStore((s) => s.items);
-  const removeItem = useCartStore((s) => s.removeItem);
+export function CartPageContent({ initialCart }: Props) {
+  const { data } = useCartQuery(initialCart);
+  const removeItem = useRemoveFromCartMutation();
 
-  // SSR with the server-read cookie items, then swap to the live store after mount.
-  // Both come from the same cookie, so there's no visible change — just no layout
-  // shift and mutations stay reactive.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  const items = mounted ? storeItems : initialItems;
+  const items = data?.items ?? [];
+  const totals = data?.totals;
 
   if (items.length === 0) {
     return (
@@ -39,8 +34,6 @@ export function CartPageContent({ initialItems }: Props) {
       </div>
     );
   }
-
-  const totals = computeCartTotals(items);
 
   return (
     <div className={styles.page}>
@@ -60,12 +53,6 @@ export function CartPageContent({ initialItems }: Props) {
                 />
 
                 <div className={styles.itemBody}>
-                  {item.organizerName && (
-                    <div className={styles.organizer}>
-                      <Building2 size={14} />
-                      <span>{item.organizerName}</span>
-                    </div>
-                  )}
                   <p className={styles.event}>{item.eventTitle}</p>
                   <p className={styles.ticket}>{item.ticketName}</p>
                   <div className={styles.badges}>
@@ -81,7 +68,8 @@ export function CartPageContent({ initialItems }: Props) {
 
                 <button
                   className={styles.removeBtn}
-                  onClick={() => removeItem(item.eventId)}
+                  onClick={() => removeItem.mutate(item.eventId)}
+                  disabled={removeItem.isPending}
                   aria-label={`Remover ${item.eventTitle}`}
                 >
                   <X size={20} />
@@ -91,7 +79,7 @@ export function CartPageContent({ initialItems }: Props) {
           </ul>
         </section>
 
-        {/* Right — order summary */}
+        {/* Right — order summary (server-computed totals) */}
         <aside className={styles.right}>
           <h2 className={styles.heading}>Continue comprando</h2>
           <div className={styles.summary}>
@@ -111,9 +99,9 @@ export function CartPageContent({ initialItems }: Props) {
                 <span className={styles.lineLabel}>
                   Subtotal ({items.length} {items.length === 1 ? 'item' : 'itens'})
                 </span>
-                <span className={styles.lineValue}>{formatPrice(totals.subtotal)}</span>
+                <span className={styles.lineValue}>{formatPrice(totals?.subtotal ?? 0)}</span>
               </div>
-              {totals.lines.map((line) => (
+              {totals?.lines.map((line) => (
                 <div key={line.key} className={styles.lineRow}>
                   <span className={styles.lineLabel}>{line.label}</span>
                   <span className={styles.lineValue}>{formatPrice(line.amount)}</span>
@@ -123,7 +111,7 @@ export function CartPageContent({ initialItems }: Props) {
 
             <div className={styles.totalRow}>
               <span>Total</span>
-              <span>{formatPrice(totals.total)}</span>
+              <span>{formatPrice(totals?.total ?? 0)}</span>
             </div>
 
             <Link href="/checkout" className={styles.checkout}>Ir para o checkout</Link>

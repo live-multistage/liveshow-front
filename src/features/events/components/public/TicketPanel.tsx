@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Ticket, Tv2, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { formatPrice } from '../../utils/event-formatters';
 import type { EventResponse, TicketProductResponse } from '../../types/event.types';
-import { useCartStore } from '@/features/cart';
+import { useAddToCartMutation } from '@/features/cart';
 import { useAuth } from '@/features/account';
 import {
   useLiveAccessQuery,
@@ -21,7 +21,7 @@ interface Props {
 export function TicketPanel({ event, tickets }: Props) {
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(tickets[0]?.id ?? null);
-  const addItem = useCartStore((s) => s.addItem);
+  const addToCart = useAddToCartMutation();
   const { isLoggedIn } = useAuth();
 
   // Entitlement checks (JWT-only) — skipped when logged out.
@@ -133,21 +133,17 @@ export function TicketPanel({ event, tickets }: Props) {
       <button
         onClick={() => {
           if (!ticket) return;
-          addItem({
-            eventId: event.id,
-            eventTitle: event.title,
-            ticketProductId: ticket.id,
-            ticketName: ticket.name,
-            price: ticket.price,
-            capabilities: ticket.capabilities,
-            camerasLimit: ticket.camerasLimit,
-            eventImage: event.thumbnailUrl ?? event.bannerUrl,
-          });
-          router.push('/cart');
+          if (!isLoggedIn) {
+            router.push('/login');
+            return;
+          }
+          // Server cart: send only the ticket id; the backend resolves the rest.
+          addToCart.mutate(ticket.id, { onSuccess: () => router.push('/cart') });
         }}
+        disabled={addToCart.isPending}
         className={styles.btnPrimary}
       >
-        <Ticket size={16} /> Comprar Ingresso
+        <Ticket size={16} /> {addToCart.isPending ? 'Adicionando…' : 'Comprar Ingresso'}
       </button>
       {isLive && (
         <div className={styles.demoLink}>

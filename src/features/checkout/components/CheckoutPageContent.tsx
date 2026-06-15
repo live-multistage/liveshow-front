@@ -3,23 +3,24 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatPrice } from '@/features/events';
-import { useCartStore, CAPABILITY_LABELS, computeCartTotals } from '@/features/cart';
+import { CAPABILITY_LABELS, useCartQuery } from '@/features/cart';
 import { useAuth } from '@/features/account';
 import { Badge } from '@/shared/components/ui/badge';
 import styles from './CheckoutPageContent.module.scss';
 
 export function CheckoutPageContent() {
   const router = useRouter();
-  const items = useCartStore((s) => s.items);
+  const { data, isLoading } = useCartQuery();
   const { user } = useAuth();
 
+  const items = data?.items ?? [];
+  const totals = data?.totals;
+
   useEffect(() => {
-    if (items.length === 0) router.replace('/cart');
-  }, [items, router]);
+    if (!isLoading && items.length === 0) router.replace('/cart');
+  }, [isLoading, items.length, router]);
 
-  if (items.length === 0) return null;
-
-  const totals = computeCartTotals(items);
+  if (items.length === 0 || !totals) return null;
 
   return (
     <div className={styles.wrap}>

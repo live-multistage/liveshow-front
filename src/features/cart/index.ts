@@ -1,6 +1,14 @@
-export { useCartStore } from './stores/cart.store';
 export { CartPageContent } from './components/CartPageContent';
 export { CAPABILITY_LABELS } from './utils/capability-labels';
-export { computeCartTotals } from './utils/totals';
-export type { CartTotals, TotalLine } from './utils/totals';
-export type { CartItem } from './types/cart.types';
+export { useCartQuery, CART_KEY } from './queries/cart.queries';
+export {
+  useAddToCartMutation,
+  useRemoveFromCartMutation,
+  useClearCartMutation,
+} from './mutations/cart.mutations';
+export type {
+  CartView,
+  CartLineView,
+  CartTotals,
+  CartTotalLine,
+} from './services/cart.service';
