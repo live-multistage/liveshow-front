@@ -1,8 +1,9 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { CartItem } from '../types/cart.types';
+import { cookieStorage } from './cookie-storage';
 
 interface CartState {
   items: CartItem[];
@@ -27,6 +28,8 @@ export const useCartStore = create<CartState>()(
     {
       name: 'ls-cart',
       version: 1,
+      // Cookie storage = readable on the server for SSR (no layout shift).
+      storage: createJSONStorage(() => cookieStorage),
       // Migrate the previous single-item shape ({ item }) to the list shape.
       migrate: (persisted: unknown) => {
         const p = persisted as { item?: CartItem; items?: CartItem[] } | undefined;
