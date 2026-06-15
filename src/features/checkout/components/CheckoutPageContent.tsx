@@ -3,20 +3,23 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatPrice } from '@/features/events';
-import { useCartStore, CAPABILITY_LABELS } from '@/features/cart';
+import { useCartStore, CAPABILITY_LABELS, computeCartTotals } from '@/features/cart';
 import { useAuth } from '@/features/account';
+import { Badge } from '@/shared/components/ui/badge';
 import styles from './CheckoutPageContent.module.scss';
 
 export function CheckoutPageContent() {
   const router = useRouter();
-  const item = useCartStore((s) => s.item);
+  const items = useCartStore((s) => s.items);
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!item) router.replace('/cart');
-  }, [item, router]);
+    if (items.length === 0) router.replace('/cart');
+  }, [items, router]);
 
-  if (!item) return null;
+  if (items.length === 0) return null;
+
+  const totals = computeCartTotals(items);
 
   return (
     <div className={styles.wrap}>
@@ -24,19 +27,37 @@ export function CheckoutPageContent() {
 
       <div className={styles.section}>
         <p className={styles.sectionTitle}>Resumo do pedido</p>
-        <p className={styles.event}>{item.eventTitle}</p>
-        <p className={styles.ticket}>{item.ticketName}</p>
-        <div className={styles.badges}>
-          {item.capabilities.map((c) => (
-            <span key={c} className={styles.badge}>{CAPABILITY_LABELS[c]}</span>
-          ))}
-          {item.camerasLimit != null && (
-            <span className={styles.badge}>{item.camerasLimit} câmeras</span>
-          )}
+        {items.map((item) => (
+          <div key={item.eventId} className={styles.orderItem}>
+            <div>
+              <p className={styles.event}>{item.eventTitle}</p>
+              <p className={styles.ticket}>{item.ticketName}</p>
+              <div className={styles.badges}>
+                {item.capabilities.map((c) => (
+                  <Badge key={c} variant="secondary">{CAPABILITY_LABELS[c]}</Badge>
+                ))}
+                {item.camerasLimit != null && (
+                  <Badge variant="outline">{item.camerasLimit} câmeras</Badge>
+                )}
+              </div>
+            </div>
+            <span className={styles.itemPrice}>{formatPrice(item.price)}</span>
+          </div>
+        ))}
+
+        <div className={styles.summaryRow}>
+          <span>Subtotal</span>
+          <span>{formatPrice(totals.subtotal)}</span>
         </div>
+        {totals.lines.map((line) => (
+          <div key={line.key} className={styles.summaryRow}>
+            <span>{line.label}</span>
+            <span>{formatPrice(line.amount)}</span>
+          </div>
+        ))}
         <div className={styles.totalRow}>
           <span>Total</span>
-          <span className={styles.total}>{formatPrice(item.price)}</span>
+          <span className={styles.total}>{formatPrice(totals.total)}</span>
         </div>
       </div>
 

@@ -16,7 +16,7 @@ interface Props {
 export function TicketPanel({ event, tickets }: Props) {
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(tickets[0]?.id ?? null);
-  const setItem = useCartStore((s) => s.setItem);
+  const addItem = useCartStore((s) => s.addItem);
 
   const ticket = tickets.find((t) => t.id === selected) ?? tickets[0];
   const isLive = event.status === 'LIVE';
@@ -70,7 +70,7 @@ export function TicketPanel({ event, tickets }: Props) {
       <button
         onClick={() => {
           if (!ticket) return;
-          setItem({
+          addItem({
             eventId: event.id,
             eventTitle: event.title,
             ticketProductId: ticket.id,

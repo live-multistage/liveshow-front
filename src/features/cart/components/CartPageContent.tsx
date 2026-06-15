@@ -1,20 +1,25 @@
 'use client';
 
 import Link from 'next/link';
+import { Trash2, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
+import { Badge } from '@/shared/components/ui/badge';
 import { useCartStore } from '../stores/cart.store';
 import { CAPABILITY_LABELS } from '../utils/capability-labels';
+import { computeCartTotals } from '../utils/totals';
 import styles from './CartPageContent.module.scss';
 
 export function CartPageContent() {
-  const item = useCartStore((s) => s.item);
+  const items = useCartStore((s) => s.items);
+  const removeItem = useCartStore((s) => s.removeItem);
   const clear = useCartStore((s) => s.clear);
 
-  if (!item) {
+  if (items.length === 0) {
     return (
       <div className={styles.wrap}>
         <h1 className={styles.title}>Carrinho</h1>
         <div className={styles.empty}>
+          <Ticket size={32} className={styles.emptyIcon} />
           <p>Seu carrinho está vazio.</p>
           <Link href="/events" className={styles.emptyLink}>Explorar eventos →</Link>
         </div>
@@ -22,28 +27,73 @@ export function CartPageContent() {
     );
   }
 
+  const totals = computeCartTotals(items);
+
   return (
     <div className={styles.wrap}>
-      <h1 className={styles.title}>Carrinho</h1>
-      <div className={styles.card}>
-        <p className={styles.event}>{item.eventTitle}</p>
-        <p className={styles.ticket}>{item.ticketName}</p>
-        <div className={styles.badges}>
-          {item.capabilities.map((c) => (
-            <span key={c} className={styles.badge}>{CAPABILITY_LABELS[c]}</span>
+      <div className={styles.head}>
+        <h1 className={styles.title}>Carrinho</h1>
+        <span className={styles.count}>
+          {items.length} {items.length === 1 ? 'ingresso' : 'ingressos'}
+        </span>
+      </div>
+
+      <div className={styles.layout}>
+        {/* Left — ticket list */}
+        <ul className={styles.list}>
+          {items.map((item) => (
+            <li key={item.eventId} className={styles.item}>
+              <div className={styles.itemMain}>
+                <p className={styles.event}>{item.eventTitle}</p>
+                <p className={styles.ticket}>{item.ticketName}</p>
+                <div className={styles.badges}>
+                  {item.capabilities.map((c) => (
+                    <Badge key={c} variant="secondary">{CAPABILITY_LABELS[c]}</Badge>
+                  ))}
+                  {item.camerasLimit != null && (
+                    <Badge variant="outline">{item.camerasLimit} câmeras</Badge>
+                  )}
+                </div>
+              </div>
+              <div className={styles.itemSide}>
+                <span className={styles.itemPrice}>{formatPrice(item.price)}</span>
+                <button
+                  className={styles.remove}
+                  onClick={() => removeItem(item.eventId)}
+                  aria-label={`Remover ${item.eventTitle}`}
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            </li>
           ))}
-          {item.camerasLimit != null && (
-            <span className={styles.badge}>{item.camerasLimit} câmeras</span>
-          )}
-        </div>
-        <div className={styles.totalRow}>
-          <span>Total</span>
-          <span className={styles.total}>{formatPrice(item.price)}</span>
-        </div>
-        <div className={styles.actions}>
-          <button onClick={clear} className={styles.remove}>Remover</button>
-          <Link href="/checkout" className={styles.primary}>Ir para o checkout</Link>
-        </div>
+        </ul>
+
+        {/* Right — order summary (extensible lines) */}
+        <aside className={styles.summary}>
+          <p className={styles.summaryTitle}>Resumo</p>
+
+          <div className={styles.summaryLines}>
+            <div className={styles.summaryRow}>
+              <span>Subtotal</span>
+              <span>{formatPrice(totals.subtotal)}</span>
+            </div>
+            {totals.lines.map((line) => (
+              <div key={line.key} className={styles.summaryRow}>
+                <span>{line.label}</span>
+                <span>{formatPrice(line.amount)}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className={styles.summaryTotal}>
+            <span>Total</span>
+            <span className={styles.summaryTotalValue}>{formatPrice(totals.total)}</span>
+          </div>
+
+          <Link href="/checkout" className={styles.checkout}>Ir para o checkout</Link>
+          <button onClick={clear} className={styles.clear}>Limpar carrinho</button>
+        </aside>
       </div>
     </div>
   );
