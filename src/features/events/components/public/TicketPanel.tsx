@@ -78,6 +78,7 @@ export function TicketPanel({ event, tickets }: Props) {
             price: ticket.price,
             capabilities: ticket.capabilities,
             camerasLimit: ticket.camerasLimit,
+            eventImage: event.thumbnailUrl ?? event.bannerUrl,
           });
           router.push('/cart');
         }}

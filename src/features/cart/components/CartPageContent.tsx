@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Trash2, Ticket } from 'lucide-react';
+import { Building2, X, Tag, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
-import { Badge } from '@/shared/components/ui/badge';
 import { useCartStore } from '../stores/cart.store';
 import { CAPABILITY_LABELS } from '../utils/capability-labels';
 import { computeCartTotals } from '../utils/totals';
@@ -12,16 +11,17 @@ import styles from './CartPageContent.module.scss';
 export function CartPageContent() {
   const items = useCartStore((s) => s.items);
   const removeItem = useCartStore((s) => s.removeItem);
-  const clear = useCartStore((s) => s.clear);
 
   if (items.length === 0) {
     return (
-      <div className={styles.wrap}>
-        <h1 className={styles.title}>Carrinho</h1>
-        <div className={styles.empty}>
-          <Ticket size={32} className={styles.emptyIcon} />
-          <p>Seu carrinho está vazio.</p>
-          <Link href="/events" className={styles.emptyLink}>Explorar eventos →</Link>
+      <div className={styles.page}>
+        <div className={styles.emptyWrap}>
+          <h1 className={styles.heading}>Carrinho</h1>
+          <div className={styles.empty}>
+            <Ticket size={32} className={styles.emptyIcon} />
+            <p>Seu carrinho está vazio.</p>
+            <Link href="/events" className={styles.emptyLink}>Explorar eventos →</Link>
+          </div>
         </div>
       </div>
     );
@@ -30,69 +30,92 @@ export function CartPageContent() {
   const totals = computeCartTotals(items);
 
   return (
-    <div className={styles.wrap}>
-      <div className={styles.head}>
-        <h1 className={styles.title}>Carrinho</h1>
-        <span className={styles.count}>
-          {items.length} {items.length === 1 ? 'ingresso' : 'ingressos'}
-        </span>
-      </div>
+    <div className={styles.page}>
+      <div className={styles.container}>
+        {/* Left — cart items */}
+        <section className={styles.left}>
+          <h1 className={styles.heading}>Carrinho</h1>
+          <ul className={styles.card}>
+            {items.map((item, i) => (
+              <li
+                key={item.eventId}
+                className={`${styles.item} ${i > 0 ? styles.itemDivided : ''}`}
+              >
+                <div
+                  className={styles.thumb}
+                  style={item.eventImage ? { backgroundImage: `url(${item.eventImage})` } : undefined}
+                />
 
-      <div className={styles.layout}>
-        {/* Left — ticket list */}
-        <ul className={styles.list}>
-          {items.map((item) => (
-            <li key={item.eventId} className={styles.item}>
-              <div className={styles.itemMain}>
-                <p className={styles.event}>{item.eventTitle}</p>
-                <p className={styles.ticket}>{item.ticketName}</p>
-                <div className={styles.badges}>
-                  {item.capabilities.map((c) => (
-                    <Badge key={c} variant="secondary">{CAPABILITY_LABELS[c]}</Badge>
-                  ))}
-                  {item.camerasLimit != null && (
-                    <Badge variant="outline">{item.camerasLimit} câmeras</Badge>
+                <div className={styles.itemBody}>
+                  {item.organizerName && (
+                    <div className={styles.organizer}>
+                      <Building2 size={14} />
+                      <span>{item.organizerName}</span>
+                    </div>
                   )}
+                  <p className={styles.event}>{item.eventTitle}</p>
+                  <p className={styles.ticket}>{item.ticketName}</p>
+                  <div className={styles.badges}>
+                    {item.capabilities.map((c) => (
+                      <span key={c} className={styles.badge}>{CAPABILITY_LABELS[c]}</span>
+                    ))}
+                    {item.camerasLimit != null && (
+                      <span className={styles.badge}>{item.camerasLimit} câmeras</span>
+                    )}
+                  </div>
+                  <p className={styles.price}>{formatPrice(item.price)}</p>
                 </div>
-              </div>
-              <div className={styles.itemSide}>
-                <span className={styles.itemPrice}>{formatPrice(item.price)}</span>
+
                 <button
-                  className={styles.remove}
+                  className={styles.removeBtn}
                   onClick={() => removeItem(item.eventId)}
                   aria-label={`Remover ${item.eventTitle}`}
                 >
-                  <Trash2 size={15} />
+                  <X size={20} />
                 </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        {/* Right — order summary (extensible lines) */}
-        <aside className={styles.summary}>
-          <p className={styles.summaryTitle}>Resumo</p>
-
-          <div className={styles.summaryLines}>
-            <div className={styles.summaryRow}>
-              <span>Subtotal</span>
-              <span>{formatPrice(totals.subtotal)}</span>
-            </div>
-            {totals.lines.map((line) => (
-              <div key={line.key} className={styles.summaryRow}>
-                <span>{line.label}</span>
-                <span>{formatPrice(line.amount)}</span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
+        </section>
 
-          <div className={styles.summaryTotal}>
-            <span>Total</span>
-            <span className={styles.summaryTotalValue}>{formatPrice(totals.total)}</span>
-          </div>
+        {/* Right — order summary */}
+        <aside className={styles.right}>
+          <h2 className={styles.heading}>Continue comprando</h2>
+          <div className={styles.summary}>
+            <p className={styles.summaryTitle}>Order Summary</p>
 
-          <Link href="/checkout" className={styles.checkout}>Ir para o checkout</Link>
-          <button onClick={clear} className={styles.clear}>Limpar carrinho</button>
+            <div className={styles.promo}>
+              <Tag size={18} className={styles.promoIcon} />
+              <input
+                className={styles.promoInput}
+                placeholder="Insira seu código promocional"
+                aria-label="Código promocional"
+              />
+            </div>
+
+            <div className={styles.lines}>
+              <div className={styles.lineRow}>
+                <span className={styles.lineLabel}>
+                  Subtotal ({items.length} {items.length === 1 ? 'item' : 'itens'})
+                </span>
+                <span className={styles.lineValue}>{formatPrice(totals.subtotal)}</span>
+              </div>
+              {totals.lines.map((line) => (
+                <div key={line.key} className={styles.lineRow}>
+                  <span className={styles.lineLabel}>{line.label}</span>
+                  <span className={styles.lineValue}>{formatPrice(line.amount)}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className={styles.totalRow}>
+              <span>Total</span>
+              <span>{formatPrice(totals.total)}</span>
+            </div>
+
+            <Link href="/checkout" className={styles.checkout}>Ir para o checkout</Link>
+            <Link href="/events" className={styles.continue}>Continuar procurando eventos</Link>
+          </div>
         </aside>
       </div>
     </div>
