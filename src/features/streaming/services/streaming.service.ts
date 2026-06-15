@@ -8,6 +8,12 @@ export const streamingService = {
     return data.authorized;
   },
 
+  // Whether the logged-in user is entitled to watch this event's replay.
+  checkReplayAccess: async (eventId: string): Promise<boolean> => {
+    const { data } = await httpClient.get<LiveAccessResponse>(`/shows/${eventId}/access/replay`);
+    return data.authorized;
+  },
+
   // Resolve the event's live cameras (each with an origin manifest path).
   // The backend 403s when not entitled; callers should gate with checkLiveAccess first.
   getLivePlayback: async (eventId: string): Promise<LivePlaybackResponse> => {

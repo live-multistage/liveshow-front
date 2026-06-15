@@ -32,6 +32,22 @@
   padding: 2rem 0;
 }
 
+// ── Owned (entitled) state ─────────────────────────────────────────
+.ownedBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $success-light;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.ownedNote {
+  color: $text-secondary;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
 // ── Ticket options ─────────────────────────────────────────────────
 .ticketOptions {
   display: flex;
