@@ -1,16 +1,29 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Building2, X, Tag, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
 import { useCartStore } from '../stores/cart.store';
 import { CAPABILITY_LABELS } from '../utils/capability-labels';
 import { computeCartTotals } from '../utils/totals';
+import type { CartItem } from '../types/cart.types';
 import styles from './CartPageContent.module.scss';
 
-export function CartPageContent() {
-  const items = useCartStore((s) => s.items);
+interface Props {
+  initialItems: CartItem[];
+}
+
+export function CartPageContent({ initialItems }: Props) {
+  const storeItems = useCartStore((s) => s.items);
   const removeItem = useCartStore((s) => s.removeItem);
+
+  // SSR with the server-read cookie items, then swap to the live store after mount.
+  // Both come from the same cookie, so there's no visible change — just no layout
+  // shift and mutations stay reactive.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const items = mounted ? storeItems : initialItems;
 
   if (items.length === 0) {
     return (
