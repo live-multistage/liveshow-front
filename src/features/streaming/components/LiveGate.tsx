@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useLiveAccessQuery, useLivePlaybackQuery } from '../queries/live.queries';
-import { LiveStreamPlayer } from './LiveStreamPlayer';
+import { LivePlayer } from './LivePlayer';
 
 interface Props {
   eventId: string;
@@ -43,9 +43,10 @@ export function LiveGate({ eventId, eventTitle }: Props) {
   }
 
   return (
-    <LiveStreamPlayer
+    <LivePlayer
       cameras={playback.data.cameras}
-      initialCameraId={playback.data.primaryCameraId ?? playback.data.cameras[0].cameraId}
+      title={eventTitle}
+      eventId={eventId}
     />
   );
 }
