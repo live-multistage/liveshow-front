@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PROTECTED_PATHS = ['/tickets', '/account', '/purchases', '/settings'];
+const PROTECTED_PATHS = ['/tickets', '/account', '/purchases', '/settings', '/checkout'];
 const DASHBOARD_PATHS = ['/dashboard'];
 
 export function middleware(request: NextRequest) {
@@ -19,5 +19,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/tickets/:path*', '/account/:path*', '/purchases/:path*', '/settings/:path*', '/dashboard/:path*'],
+  matcher: ['/tickets/:path*', '/account/:path*', '/purchases/:path*', '/settings/:path*', '/dashboard/:path*', '/checkout/:path*'],
 };
