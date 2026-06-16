@@ -10,6 +10,7 @@ import { useAuth } from '@/features/account';
 import {
   useLiveAccessQuery,
   useReplayAccessQuery,
+  useLivePlaybackQuery,
 } from '@/features/streaming/queries/live.queries';
 import styles from './TicketPanel.module.scss';
 
@@ -38,6 +39,12 @@ export function TicketPanel({ event, tickets }: Props) {
   const accessLoading =
     isLoggedIn && (liveAccess.isLoading || replayAccess.isLoading);
 
+  // Real liveness comes from the transmission (a LIVE stream with a RUNNING
+  // transcode job), NOT event.status — which only flips on an explicit
+  // "Start Event" admin action. Poll it for entitled-live viewers.
+  const playback = useLivePlaybackQuery(event.id, ownsLive);
+  const liveNow = playback.data?.live === true;
+
   if (event.status === 'CANCELLED') {
     return (
       <div className={styles.panel}>
@@ -64,7 +71,7 @@ export function TicketPanel({ event, tickets }: Props) {
         <div className={styles.ownedBadge}>
           <CheckCircle2 size={18} /> Ingresso garantido
         </div>
-        {isLive && ownsLive ? (
+        {liveNow ? (
           <>
             <button
               onClick={() => router.push(`/live/${event.id}`)}
