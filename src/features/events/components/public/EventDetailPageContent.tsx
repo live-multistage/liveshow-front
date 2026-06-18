@@ -8,10 +8,8 @@ import {
 } from 'lucide-react';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
 import { TicketPanel } from './TicketPanel';
-import {
-  formatDate, formatTime, formatDuration,
-  buildCameras, statusLabel,
-} from '../../utils/event-formatters';
+import { formatDate, formatTime, formatDuration, statusLabel } from '../../utils/event-formatters';
+import { useEventCamerasQuery } from '@/features/streams/queries/streams.queries';
 import { useOrganization } from '@/features/organizations';
 import styles from './EventDetailPageContent.module.scss';
 
@@ -25,6 +23,7 @@ export function EventDetailPageContent({ id }: Props) {
   const { data: event, isLoading, isError } = useGetEventQuery(id);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
   const { data: org } = useOrganization(event?.organizationId ?? '');
+  const { cameras, isLoading: camerasLoading } = useEventCamerasQuery(event ? id : null);
 
   if (isLoading) {
     return (
@@ -45,7 +44,6 @@ export function EventDetailPageContent({ id }: Props) {
 
   const isLive = event.status === 'LIVE';
   const isFinished = event.status === 'FINISHED';
-  const cameras = buildCameras(event.camerasCount);
   const heroImage = event.bannerUrl ?? event.thumbnailUrl;
 
   return (
@@ -90,7 +88,7 @@ export function EventDetailPageContent({ id }: Props) {
                 { icon: <Calendar size={14} />, label: t('date'), value: formatDate(event.startsAt) },
                 { icon: <Clock size={14} />, label: t('time'), value: `${formatTime(event.startsAt)} · ${formatDuration(event.startsAt, event.endsAt)}` },
                 { icon: <MapPin size={14} />, label: t('venue'), value: [event.city, event.country].filter(Boolean).join(', ') || '—' },
-                { icon: <Camera size={14} />, label: t('cameras'), value: t('angles', { count: cameras.length }) },
+                { icon: <Camera size={14} />, label: t('cameras'), value: t('angles', { count: cameras.length || event.camerasCount }) },
               ].map((info) => (
                 <div key={info.label} className={styles.infoCard}>
                   <div className={styles.infoLabel}>
@@ -125,29 +123,40 @@ export function EventDetailPageContent({ id }: Props) {
               <p className={styles.description}>{event.description}</p>
             </div>
 
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>{t('availableCameras', { count: cameras.length })}</h2>
-              <div className={styles.cameraGrid}>
-                {cameras.map((camera) => (
-                  <div key={camera.id} className={styles.cameraCard}>
-                    <div className={styles.cameraPreview} style={{ background: camera.gradient }}>
-                      <div className={styles.cameraPlayIcon}>
-                        <Play size={20} color="white" fill="white" />
-                      </div>
-                      {isLive && (
-                        <div className={styles.cameraBadge}>
-                          <span className={styles.liveDot} /> {t('live')}
+            {(cameras.length > 0 || camerasLoading) && (
+              <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t('availableCameras', { count: cameras.length })}</h2>
+                <div className={styles.cameraGrid}>
+                  {camerasLoading
+                    ? Array.from({ length: event.camerasCount || 2 }).map((_, i) => (
+                        <div key={i} className={`${styles.cameraCard} ${styles.cameraCardSkeleton}`}>
+                          <div className={styles.cameraPreview} />
+                          <div className={styles.cameraMeta}>
+                            <p className={styles.cameraName} style={{ opacity: 0 }}>—</p>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    <div className={styles.cameraMeta}>
-                      <p className={styles.cameraName}>{camera.name}</p>
-                      <p className={styles.cameraAngle}>{camera.angle}</p>
-                    </div>
-                  </div>
-                ))}
+                      ))
+                    : cameras.map((camera) => (
+                        <div key={camera.id} className={styles.cameraCard}>
+                          <div className={styles.cameraPreview}>
+                            <div className={styles.cameraPlayIcon}>
+                              <Play size={20} color="white" fill="white" />
+                            </div>
+                            {isLive && camera.enabled && (
+                              <div className={styles.cameraBadge}>
+                                <span className={styles.liveDot} /> {t('live')}
+                              </div>
+                            )}
+                          </div>
+                          <div className={styles.cameraMeta}>
+                            <p className={styles.cameraName}>{camera.name}</p>
+                            <p className={styles.cameraAngle}>{camera.stageName}</p>
+                          </div>
+                        </div>
+                      ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div className={styles.sidePanel}>

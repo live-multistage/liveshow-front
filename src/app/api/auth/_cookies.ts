@@ -7,6 +7,8 @@ const API_URL =
 
 export { API_URL };
 
+const secure = process.env.NODE_ENV === 'production';
+
 export function setAuthCookies(
   response: NextResponse,
   accessToken: string,
@@ -16,14 +18,14 @@ export function setAuthCookies(
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
-    secure: true,
+    secure,
     maxAge: 60 * 60 * 24 * 7,
   });
   response.cookies.set('refresh_token', refreshToken, {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
-    secure: true,
+    secure,
     maxAge: 60 * 60 * 24 * 30,
   });
 }

@@ -96,24 +96,26 @@ export function StreamHeader({
         </span>
         <h2 className={styles.streamTitle}>{stream.title}</h2>
         {stream.description && <p className={styles.streamDesc}>{stream.description}</p>}
-        {canEdit && (
-          <button className={styles.headerIconBtn} title="Editar" onClick={() => setEditing(true)}>
-            <Pencil size={13} />
-          </button>
-        )}
-        {canEdit && (
-          <button
-            className={styles.headerIconBtn}
-            title="Excluir"
-            onClick={() => {
-              if (confirm('Excluir esta stream? Esta ação não pode ser desfeita.')) {
-                del.mutate(stream.id);
-              }
-            }}
-          >
-            <Trash2 size={13} />
-          </button>
-        )}
+        <div className={styles.streamActionsWrap}>
+          {canEdit && (
+            <button className={styles.headerIconBtn} title="Editar" onClick={() => setEditing(true)}>
+              <Pencil size={13} />
+            </button>
+          )}
+          {canEdit && (
+            <button
+              className={styles.headerIconBtn}
+              title="Excluir"
+              onClick={() => {
+                if (confirm('Excluir esta stream? Esta ação não pode ser desfeita.')) {
+                  del.mutate(stream.id);
+                }
+              }}
+            >
+              <Trash2 size={13} />
+            </button>
+          )}
+        </div>
       </div>
 
       {!isTerminal && (
