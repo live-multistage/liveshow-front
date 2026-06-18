@@ -59,6 +59,11 @@ export const streamsService = {
     return data;
   },
 
+  rollback: async (streamId: string): Promise<StreamResponse> => {
+    const { data } = await httpClient.post<StreamResponse>(`/streams/${streamId}/rollback`);
+    return data;
+  },
+
   // ── Stages ───────────────────────────────────────────────────
   listStages: async (streamId: string): Promise<StageResponse[]> => {
     const { data } = await httpClient.get<StageResponse[]>(`/streams/${streamId}/stages`);

@@ -20,6 +20,9 @@ export function StageBody({ stage, streamStatus }: Props) {
   const deleteFeed = useDeleteFeedMutation(stage.id);
   const [expandedFeeds, setExpandedFeeds] = useState<Set<string>>(new Set());
   const isLive = streamStatus === 'LIVE';
+  const isTerminal = streamStatus === 'ENDED' || streamStatus === 'CANCELLED';
+  const canCreate = !isTerminal;
+  const canDelete = !isLive && !isTerminal;
 
   function toggleFeed(id: string) {
     setExpandedFeeds((prev) => {
@@ -43,7 +46,7 @@ export function StageBody({ stage, streamStatus }: Props) {
                 <Layers size={11} style={{ marginRight: 4, opacity: 0.6 }} />
                 {feed.name}
               </p>
-              {!isLive && (
+              {canDelete && (
                 <button
                   className={`${styles.iconBtn} ${styles.danger}`}
                   onClick={(e) => { e.stopPropagation(); deleteFeed.mutate(feed.id); }}
@@ -57,7 +60,7 @@ export function StageBody({ stage, streamStatus }: Props) {
           </div>
         );
       })}
-      {!isLive && (
+      {canCreate && (
         <InlineAddForm
           buttonLabel="Feed"
           placeholder="Nome do feed"

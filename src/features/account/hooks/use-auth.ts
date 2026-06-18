@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { tokenStore } from '@/lib/auth/token-store';
 import type { AuthUser } from '../types/account.types';
 
 export function useAuth() {
@@ -10,23 +11,40 @@ export function useAuth() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    const stored = localStorage.getItem('user');
-    if (token && stored) {
+    async function hydrate() {
+      if (tokenStore.get()) {
+        const stored = localStorage.getItem('user');
+        if (stored) {
+          try { setUser(JSON.parse(stored) as AuthUser); } catch { /* corrupted */ }
+        }
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        setUser(JSON.parse(stored) as AuthUser);
+        const res = await fetch('/api/auth/session');
+        if (res.ok) {
+          const data = await res.json() as { accessToken: string };
+          tokenStore.set(data.accessToken);
+          const stored = localStorage.getItem('user');
+          if (stored) {
+            try { setUser(JSON.parse(stored) as AuthUser); } catch { /* corrupted */ }
+          }
+        }
       } catch {
-        // corrupted storage — ignore
+        // no session — stay unauthenticated
+      } finally {
+        setIsLoading(false);
       }
     }
-    setIsLoading(false);
+
+    void hydrate();
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+  const logout = useCallback(async () => {
+    tokenStore.clear();
     localStorage.removeItem('user');
-    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
     setUser(null);
     router.push('/login');
   }, [router]);

@@ -27,13 +27,14 @@ interface Props {
   start: LifecycleAction;
   end: LifecycleAction;
   cancel: LifecycleAction;
+  rollback: LifecycleAction;
   onRename: (title: string, description?: string) => Promise<unknown>;
   isRenaming: boolean;
   onDeleted?: (id: string) => void;
 }
 
 export function StreamHeader({
-  stream, prepare, start, end, cancel, onRename, isRenaming, onDeleted,
+  stream, prepare, start, end, cancel, rollback, onRename, isRenaming, onDeleted,
 }: Props) {
   const { status } = stream;
   const isTerminal = status === 'ENDED' || status === 'CANCELLED';
@@ -128,9 +129,14 @@ export function StreamHeader({
             </Button>
           )}
           {status === 'LIVE' && (
-            <Button variant="danger" size="sm" uppercase isLoading={end.isPending} onClick={end.onClick}>
-              Encerrar
-            </Button>
+            <>
+              <Button variant="danger" size="sm" uppercase isLoading={end.isPending} onClick={end.onClick}>
+                Encerrar
+              </Button>
+              <Button variant="subtle" size="sm" uppercase isLoading={rollback.isPending} onClick={rollback.onClick}>
+                Pausar
+              </Button>
+            </>
           )}
           {(status === 'DRAFT' || status === 'READY') && (
             <Button variant="subtle" size="sm" uppercase isLoading={cancel.isPending} onClick={cancel.onClick}>

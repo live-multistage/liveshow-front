@@ -1,6 +1,7 @@
 export { CartPageContent } from './components/CartPageContent';
 export { CAPABILITY_LABELS } from './utils/capability-labels';
 export { useCartQuery, CART_KEY } from './queries/cart.queries';
+export { useCartCount } from './hooks/use-cart-count';
 export {
   useAddToCartMutation,
   useRemoveFromCartMutation,

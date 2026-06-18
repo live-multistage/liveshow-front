@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { useListEventsQuery, eventToShow } from '@/features/events';
 import { HeroSection } from '../../../../app/(public)/_components/HeroSection/HeroSection';
 import { LiveForYou } from '../../../../app/(public)/_components/LiveForYou/LiveForYou';
@@ -8,6 +9,7 @@ import { ShowsSection } from '../../../../app/(public)/_components/ShowsSection/
 import styles from '../../../../app/(public)/page.module.scss';
 
 export function HomePageContent() {
+  const t = useTranslations('home');
   const { data: events = [], isLoading } = useListEventsQuery('all');
   const shows = useMemo(() => events.map(eventToShow), [events]);
   const featuredShow = shows[0];
@@ -16,7 +18,7 @@ export function HomePageContent() {
   if (isLoading || !featuredShow) {
     return (
       <main className={styles.main}>
-        <p style={{ color: '#A1A1AA', padding: '40px 0' }}>Carregando eventos...</p>
+        <p style={{ color: '#A1A1AA', padding: '40px 0' }}>{t('loading')}</p>
       </main>
     );
   }

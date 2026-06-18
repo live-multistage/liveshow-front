@@ -1,32 +1,13 @@
-import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
-import { config as appConfig } from '@/config';
-
-function getAccessToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  const fromStorage = localStorage.getItem('access_token');
-  if (fromStorage) return fromStorage;
-  const match = document.cookie.match(/(?:^|;\s*)access_token=([^;]+)/);
-  return match ? match[1] : null;
-}
-
-function getRefreshToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('refresh_token');
-}
-
-function saveTokens(accessToken: string, refreshToken: string) {
-  localStorage.setItem('access_token', accessToken);
-  localStorage.setItem('refresh_token', refreshToken);
-  document.cookie = `access_token=${accessToken}; path=/; SameSite=Lax`;
-}
+import { tokenStore } from '@/lib/auth/token-store';
 
 function clearSession() {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
-  localStorage.removeItem('user');
-  document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-  window.location.href = '/login';
+  tokenStore.clear();
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('user');
+    fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    window.location.href = '/login';
+  }
 }
 
 let isRefreshing = false;
@@ -42,7 +23,7 @@ function processQueue(error: unknown, token: string | null) {
 
 export function applyInterceptors(client: AxiosInstance) {
   client.interceptors.request.use((req: InternalAxiosRequestConfig) => {
-    const token = getAccessToken();
+    const token = tokenStore.get();
     if (token) req.headers.set('Authorization', `Bearer ${token}`);
     return req;
   });
@@ -53,12 +34,6 @@ export function applyInterceptors(client: AxiosInstance) {
       const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
       if (error.response?.status !== 401 || original._retry) {
-        return Promise.reject(error);
-      }
-
-      const refreshToken = getRefreshToken();
-      if (!refreshToken) {
-        clearSession();
         return Promise.reject(error);
       }
 
@@ -78,12 +53,11 @@ export function applyInterceptors(client: AxiosInstance) {
       isRefreshing = true;
 
       try {
-        const { data } = await axios.post(
-          `${appConfig.apiUrl}/auth/refresh`,
-          { refreshToken },
-        );
+        const res = await fetch('/api/auth/refresh', { method: 'POST' });
+        if (!res.ok) throw new Error('refresh_failed');
 
-        saveTokens(data.accessToken, data.refreshToken);
+        const data = await res.json() as { accessToken: string };
+        tokenStore.set(data.accessToken);
         processQueue(null, data.accessToken);
         original.headers.set('Authorization', `Bearer ${data.accessToken}`);
         return client(original);

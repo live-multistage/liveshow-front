@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Ticket, ShoppingBag } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useListEventsQuery, eventToShow, ShowCard } from '@/features/events';
 import { TicketList } from './TicketList';
 import { useTickets } from '../hooks/use-tickets';
@@ -9,6 +10,7 @@ import styles from '../../../app/(user)/tickets/page.module.scss';
 
 export function MyTicketsPageContent() {
   const router = useRouter();
+  const t = useTranslations('tickets');
   const { tickets, withReplay, withoutReplay, withCamera, isLoading } = useTickets();
   const { data: events = [] } = useListEventsQuery('all');
 
@@ -32,9 +34,9 @@ export function MyTicketsPageContent() {
         <div className={styles.header}>
           <div className={styles.headerRow}>
             <Ticket size={22} />
-            <h1 className={styles.title}>Meus Ingressos</h1>
+            <h1 className={styles.title}>{t('title')}</h1>
           </div>
-          <p className={styles.subtitle}>Acesse todos os shows que você comprou</p>
+          <p className={styles.subtitle}>{t('subtitle')}</p>
         </div>
 
         {tickets.length === 0 ? (
@@ -42,12 +44,10 @@ export function MyTicketsPageContent() {
             <div className={styles.emptyIcon}>
               <ShoppingBag size={40} />
             </div>
-            <h3 className={styles.emptyTitle}>Nenhum ingresso ainda</h3>
-            <p className={styles.emptyDesc}>
-              Explore a programação e compre seu primeiro ingresso!
-            </p>
+            <h3 className={styles.emptyTitle}>{t('empty.title')}</h3>
+            <p className={styles.emptyDesc}>{t('empty.desc')}</p>
             <button onClick={() => router.push('/')} className={styles.emptyBtn}>
-              Ver Shows
+              {t('empty.cta')}
             </button>
           </div>
         ) : (
@@ -55,14 +55,12 @@ export function MyTicketsPageContent() {
             <div className={styles.stats}>
               <span className={styles.statItem}>
                 <span className={styles.statDotGreen} />
-                <span className={styles.statValue}>{tickets.length}</span>
-                ingresso{tickets.length !== 1 ? 's' : ''}
+                <span className={styles.statValue}>{t('stats.count', { count: tickets.length })}</span>
               </span>
               {withReplay.length > 0 && (
                 <span className={styles.statItem}>
                   <span className={styles.statDotBlue} />
-                  <span className={styles.statValue}>{withReplay.length}</span>
-                  com reprise
+                  <span className={styles.statValue}>{t('stats.withReplay', { count: withReplay.length })}</span>
                 </span>
               )}
             </div>
@@ -77,9 +75,9 @@ export function MyTicketsPageContent() {
             {upcomingShows.length > 0 && (
               <div className={styles.recommendations}>
                 <div className={styles.recoHeader}>
-                  <h2 className={styles.recoTitle}>Você também pode gostar</h2>
+                  <h2 className={styles.recoTitle}>{t('recommendations.title')}</h2>
                   <button onClick={() => router.push('/')} className={styles.recoLink}>
-                    Ver todos →
+                    {t('recommendations.seeAll')}
                   </button>
                 </div>
                 <div className={styles.recoGrid}>

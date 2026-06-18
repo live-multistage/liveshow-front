@@ -10,7 +10,7 @@ $card-border: rgba(255, 255, 255, 0.2);
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 4rem 1.5rem 6rem;
+  padding: 5rem 1.5rem 6rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
@@ -245,6 +245,10 @@ $card-border: rgba(255, 255, 255, 0.2);
 }
 
 .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   padding: 4rem 1rem;
   color: rgba(255, 255, 255, 0.6);

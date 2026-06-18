@@ -67,7 +67,8 @@ export function FeedBody({ feed, streamStatus }: Props) {
   const { data: cameras = [], isLoading } = useFeedCamerasQuery(feed.id);
   const createCamera = useCreateCameraMutation(feed.id);
   const isLive = streamStatus === 'LIVE';
-  const canConfigure = streamStatus === 'DRAFT' || streamStatus === 'READY';
+  const isTerminal = streamStatus === 'ENDED' || streamStatus === 'CANCELLED';
+  const canAddCamera = !isTerminal;
   const [previewPkg, setPreviewPkg] = useState<string | null>(null);
 
   return (
@@ -85,7 +86,7 @@ export function FeedBody({ feed, streamStatus }: Props) {
           onPreview={setPreviewPkg}
         />
       ))}
-      {canConfigure && (
+      {canAddCamera && (
         <InlineAddForm
           buttonLabel="Câmera"
           placeholder="Nome da câmera"

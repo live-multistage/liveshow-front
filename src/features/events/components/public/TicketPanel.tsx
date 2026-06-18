@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Ticket, Tv2, RotateCcw, CheckCircle2 } from 'lucide-react';
+import { Ticket, Tv2, RotateCcw, CheckCircle2, ShoppingCart } from 'lucide-react';
 import { formatPrice } from '../../utils/event-formatters';
 import type { EventResponse, TicketProductResponse } from '../../types/event.types';
+import { useTranslations } from 'next-intl';
 import { useAddToCartMutation } from '@/features/cart';
+import { Button } from '@/shared/components/Button';
 import { useAuth } from '@/features/account';
 import {
   useLiveAccessQuery,
@@ -22,16 +24,24 @@ interface Props {
 export function TicketPanel({ event, tickets }: Props) {
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(tickets[0]?.id ?? null);
+  const [pendingAction, setPendingAction] = useState<'buy' | 'cart' | null>(null);
   const addToCart = useAddToCartMutation();
   const { isLoggedIn } = useAuth();
+  const t = useTranslations('ticketPanel');
 
   // Entitlement checks (JWT-only) — skipped when logged out.
   const liveAccess = useLiveAccessQuery(event.id, isLoggedIn);
   const replayAccess = useReplayAccessQuery(event.id, isLoggedIn);
 
-  const ticket = tickets.find((t) => t.id === selected) ?? tickets[0];
   const isLive = event.status === 'LIVE';
   const isFinished = event.status === 'FINISHED';
+
+  // Finished events: only show tickets that include replay — live-only tickets are no longer useful.
+  const purchasableTickets = isFinished
+    ? tickets.filter((t) => t.capabilities.includes('REPLAY_VIEW'))
+    : tickets;
+
+  const ticket = purchasableTickets.find((t) => t.id === selected) ?? purchasableTickets[0];
 
   const ownsLive = liveAccess.data === true;
   const ownsReplay = replayAccess.data === true;
@@ -48,8 +58,8 @@ export function TicketPanel({ event, tickets }: Props) {
   if (event.status === 'CANCELLED') {
     return (
       <div className={styles.panel}>
-        <h3 className={styles.panelTitle}>Ingresso</h3>
-        <p className={styles.empty}>Este evento foi cancelado.</p>
+        <h3 className={styles.panelTitle}>{t('title')}</h3>
+        <p className={styles.empty}>{t('cancelled')}</p>
       </div>
     );
   }
@@ -58,8 +68,8 @@ export function TicketPanel({ event, tickets }: Props) {
   if (accessLoading) {
     return (
       <div className={styles.panel}>
-        <h3 className={styles.panelTitle}>Ingresso</h3>
-        <p className={styles.empty}>Verificando seu acesso…</p>
+        <h3 className={styles.panelTitle}>{t('title')}</h3>
+        <p className={styles.empty}>{t('verifyingAccess')}</p>
       </div>
     );
   }
@@ -69,61 +79,67 @@ export function TicketPanel({ event, tickets }: Props) {
     return (
       <div className={styles.panel}>
         <div className={styles.ownedBadge}>
-          <CheckCircle2 size={18} /> Ingresso garantido
+          <CheckCircle2 size={18} /> {t('ticketSecured')}
         </div>
         {liveNow ? (
           <>
-            <button
+            <Button
+              variant="primary"
+              fullWidth
+              icon={<Tv2 size={16} />}
+              className={styles.ticketAction}
               onClick={() => router.push(`/live/${event.id}`)}
-              className={styles.btnPrimary}
             >
-              <Tv2 size={16} /> Assistir agora
-            </button>
-            <p className={styles.ownedNote}>A transmissão está ao vivo.</p>
+              {t('watchNow')}
+            </Button>
+            <p className={styles.ownedNote}>{t('streamIsLive')}</p>
           </>
         ) : isFinished && ownsReplay ? (
           <>
-            <button
+            <Button
+              variant="primary"
+              fullWidth
+              icon={<RotateCcw size={16} />}
+              className={styles.ticketAction}
               onClick={() => router.push(`/replay/${event.id}`)}
-              className={styles.btnPrimary}
             >
-              <RotateCcw size={16} /> Ver reprise
-            </button>
-            <p className={styles.ownedNote}>Reprise disponível.</p>
+              {t('watchReplay')}
+            </Button>
+            <p className={styles.ownedNote}>{t('replayAvailable')}</p>
           </>
         ) : (
-          <p className={styles.ownedNote}>
-            Você já tem acesso. A transmissão aparecerá aqui quando começar.
-          </p>
+          <p className={styles.ownedNote}>{t('alreadyHaveAccess')}</p>
         )}
       </div>
     );
   }
 
-  if (tickets.length === 0) {
+  if (purchasableTickets.length === 0) {
     return (
       <div className={styles.panel}>
-        <h3 className={styles.panelTitle}>Ingresso</h3>
-        <p className={styles.empty}>Nenhum ingresso disponível ainda.</p>
+        <h3 className={styles.panelTitle}>{t('title')}</h3>
+        <p className={styles.empty}>
+          {isFinished ? t('noReplay') : t('noTickets')}
+        </p>
       </div>
     );
   }
 
   return (
     <div className={styles.panel}>
-      <h3 className={styles.panelTitle}>Comprar Ingresso</h3>
+      <h3 className={styles.panelTitle}>{isFinished ? t('buyReplay') : t('buyTicket')}</h3>
       <div className={styles.ticketOptions}>
-        {tickets.map((t) => (
-          <button key={t.id} onClick={() => setSelected(t.id)}
-            className={`${styles.ticketOption} ${selected === t.id ? styles.ticketOptionSelected : ''}`}>
+        {purchasableTickets.map((opt) => (
+          <button key={opt.id} onClick={() => setSelected(opt.id)}
+            className={`${styles.ticketOption} ${selected === opt.id ? styles.ticketOptionSelected : ''}`}>
             <div className={styles.ticketOptionInner}>
               <div>
-                <p className={`${styles.ticketOptionName} ${selected === t.id ? styles.ticketOptionNameSelected : ''}`}>
-                  {t.name}
+                <p className={`${styles.ticketOptionName} ${selected === opt.id ? styles.ticketOptionNameSelected : ''}`}>
+                  {opt.name}
                 </p>
-                <p className={styles.ticketOptionDesc}>{t.description}</p>
+                <p className={styles.ticketOptionDesc}>{opt.description}</p>
               </div>
-              <p className={styles.ticketOptionPrice}>{formatPrice(t.price)}</p>
+              <p className={styles.ticketOptionPrice}>{formatPrice(opt.price)}</p>
             </div>
           </button>
         ))}
@@ -131,31 +147,55 @@ export function TicketPanel({ event, tickets }: Props) {
       {ticket && (
         <div className={styles.totalRow}>
           <div className={styles.totalLine}>
-            <span className={styles.totalLabel}>Total</span>
+            <span className={styles.totalLabel}>{t('total')}</span>
             <span className={styles.totalPrice}>{formatPrice(ticket.price)}</span>
           </div>
-          <p className={styles.totalNote}>Acesso válido para uma pessoa</p>
+          <p className={styles.totalNote}>{t('validFor')}</p>
         </div>
       )}
-      <button
+      <Button
+        variant="primary"
+        fullWidth
+        isLoading={pendingAction === 'buy'}
+        loadingLabel={t('adding')}
+        icon={<Ticket size={16} />}
+        disabled={addToCart.isPending}
+        className={styles.ticketAction}
         onClick={() => {
           if (!ticket) return;
-          if (!isLoggedIn) {
-            router.push('/login');
-            return;
-          }
-          // Server cart: send only the ticket id; the backend resolves the rest.
-          addToCart.mutate(ticket.id, { onSuccess: () => router.push('/cart') });
+          if (!isLoggedIn) { router.push('/login'); return; }
+          setPendingAction('buy');
+          addToCart.mutate(ticket.id, {
+            onSuccess: () => router.push('/cart'),
+            onSettled: () => setPendingAction(null),
+          });
         }}
-        disabled={addToCart.isPending}
-        className={styles.btnPrimary}
       >
-        <Ticket size={16} /> {addToCart.isPending ? 'Adicionando…' : 'Comprar Ingresso'}
-      </button>
+        {isFinished ? t('buyReplay') : t('buyTicket')}
+      </Button>
+      <Button
+        variant="outline"
+        fullWidth
+        isLoading={pendingAction === 'cart'}
+        loadingLabel={t('adding')}
+        icon={<ShoppingCart size={16} />}
+        disabled={addToCart.isPending}
+        className={styles.ticketAction}
+        onClick={() => {
+          if (!ticket) return;
+          if (!isLoggedIn) { router.push('/login'); return; }
+          setPendingAction('cart');
+          addToCart.mutate(ticket.id, {
+            onSettled: () => setPendingAction(null),
+          });
+        }}
+      >
+        {t('addToCart')}
+      </Button>
       {isLive && (
         <div className={styles.demoLink}>
           <button onClick={() => router.push(`/live/${event.id}`)} className={styles.demoBtn}>
-            Assistir demonstração gratuita →
+            {t('freePreview')}
           </button>
         </div>
       )}

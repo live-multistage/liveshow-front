@@ -1,11 +1,14 @@
 import { Navbar } from '@/shared/components/Navbar';
+import { Providers } from '@/providers';
 import styles from './layout.module.scss';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={styles.layout}>
-      <Navbar />
-      {children}
-    </div>
+    <Providers>
+      <div className={styles.layout}>
+        <Navbar />
+        {children}
+      </div>
+    </Providers>
   );
 }

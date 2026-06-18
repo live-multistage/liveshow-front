@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Calendar, Tv2, RotateCcw, MapPin, Video } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { PurchasedTicket } from '../types/ticket.types';
 import { formatDate, formatTime } from '@/features/events';
 import styles from './TicketCard.module.scss';
@@ -10,12 +11,8 @@ interface TicketCardProps {
   ticket: PurchasedTicket;
 }
 
-function cameraLabel(limit: number | null): string {
-  if (limit === null) return 'Todas as câmeras';
-  return `${limit} câmera${limit !== 1 ? 's' : ''}`;
-}
-
 export function TicketCard({ ticket }: TicketCardProps) {
+  const t = useTranslations('ticketCard');
   const { event, capabilities, camerasLimit, ticketProductName } = ticket;
   const router = useRouter();
 
@@ -23,6 +20,10 @@ export function TicketCard({ ticket }: TicketCardProps) {
   const hasReplay = capabilities.includes('REPLAY_VIEW');
   const hasCameras = capabilities.includes('CAMERA_VIEW');
   const location = [event.venue, event.city].filter(Boolean).join(' · ');
+
+  const cameraLabel = camerasLimit === null
+    ? t('allCameras')
+    : t('cameras', { count: camerasLimit });
 
   return (
     <div className={styles.card}>
@@ -49,19 +50,19 @@ export function TicketCard({ ticket }: TicketCardProps) {
         <div className={styles.content}>
           <div className={styles.info}>
             <div className={styles.badgeRow}>
-              <span className={styles.badgeActive}>✓ INGRESSO ATIVO</span>
+              <span className={styles.badgeActive}>✓ {t('active')}</span>
               {hasReplay ? (
                 <span className={styles.badgeReplay}>
                   <RotateCcw size={10} />
-                  COM REPRISE
+                  {t('withReplay')}
                 </span>
               ) : (
-                <span className={styles.badgeLiveOnly}>📺 APENAS AO VIVO</span>
+                <span className={styles.badgeLiveOnly}>📺 {t('liveOnly')}</span>
               )}
               {hasCameras && (
                 <span className={styles.badgeCamera}>
                   <Video size={10} />
-                  {cameraLabel(camerasLimit)}
+                  {cameraLabel}
                 </span>
               )}
               <span className={styles.badgeGenre}>{ticketProductName}</span>
@@ -88,7 +89,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
               onClick={() => router.push(`/events/${event.id}`)}
               className={styles.btnDetails}
             >
-              Detalhes
+              {t('details')}
             </button>
 
             {hasReplay && (
@@ -97,7 +98,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
                 className={styles.btnReplay}
               >
                 <RotateCcw size={13} />
-                Reprise
+                {t('replay')}
               </button>
             )}
 
@@ -106,7 +107,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
               className={styles.btnWatch}
             >
               <Tv2 size={15} />
-              Assistir
+              {t('watch')}
             </button>
           </div>
         </div>

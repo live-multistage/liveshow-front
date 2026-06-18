@@ -1,0 +1,36 @@
+@use '../../styles/_variables' as *;
+
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0 10px;
+  position: relative;
+}
+
+.icon {
+  color: $text-muted;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.select {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: $text-secondary;
+  font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  outline: none;
+  transition: color 0.15s;
+
+  &:hover { color: $text-primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  option {
+    background: $surface-dark;
+    color: $text-primary;
+  }
+}

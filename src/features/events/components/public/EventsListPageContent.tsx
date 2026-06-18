@@ -2,44 +2,47 @@
 
 import { useState, useMemo } from 'react';
 import { Search, SlidersHorizontal, Calendar } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useListEventsQuery, eventToShow } from '@/features/events';
 import { ShowCard } from './ShowCard';
 import styles from '../../../../app/(public)/events/page.module.scss';
 
-const GENRES = ['Todos', 'Rock', 'Clássico', 'Eletrônica', 'Jazz', 'Ballet', 'Ópera'];
 const SORT_OPTIONS = [
-  { id: 'date', label: 'Data' },
-  { id: 'price-asc', label: 'Menor Preço' },
-  { id: 'price-desc', label: 'Maior Preço' },
-  { id: 'rating', label: 'Avaliação' },
+  { id: 'date-asc', label: 'Data (mais próxima)' },
+  { id: 'date-desc', label: 'Data (mais distante)' },
+  { id: 'name-asc', label: 'Nome (A → Z)' },
+  { id: 'name-desc', label: 'Nome (Z → A)' },
+  { id: 'live-first', label: 'Ao vivo primeiro' },
 ];
 
 export function EventsListPageContent() {
+  const t = useTranslations('events.list');
+
   const { data: events = [], isLoading, isError } = useListEventsQuery('all');
   const SHOWS = useMemo(() => events.map(eventToShow), [events]);
 
   const [search, setSearch] = useState('');
-  const [genre, setGenre] = useState('Todos');
-  const [sort, setSort] = useState('date');
+  const [sort, setSort] = useState('date-asc');
   const [liveOnly, setLiveOnly] = useState(false);
   const [replayOnly, setReplayOnly] = useState(false);
 
   let filtered = SHOWS.filter((s) => {
+    const q = search.toLowerCase();
     const matchSearch =
-      s.title.toLowerCase().includes(search.toLowerCase()) ||
-      s.artist.toLowerCase().includes(search.toLowerCase()) ||
-      s.city.toLowerCase().includes(search.toLowerCase());
-    const matchGenre = genre === 'Todos' || s.genre === genre;
+      s.title.toLowerCase().includes(q) ||
+      s.city.toLowerCase().includes(q) ||
+      s.venue.toLowerCase().includes(q);
     const matchLive = !liveOnly || s.isLive;
     const matchReplay = !replayOnly || s.hasReplay;
-    return matchSearch && matchGenre && matchLive && matchReplay;
+    return matchSearch && matchLive && matchReplay;
   });
 
   filtered = [...filtered].sort((a, b) => {
-    if (sort === 'date') return new Date(a.date).getTime() - new Date(b.date).getTime();
-    if (sort === 'price-asc') return a.price - b.price;
-    if (sort === 'price-desc') return b.price - a.price;
-    if (sort === 'rating') return (b.rating || 0) - (a.rating || 0);
+    if (sort === 'date-asc')  return new Date(a.date).getTime() - new Date(b.date).getTime();
+    if (sort === 'date-desc') return new Date(b.date).getTime() - new Date(a.date).getTime();
+    if (sort === 'name-asc')  return a.title.localeCompare(b.title, 'pt-BR');
+    if (sort === 'name-desc') return b.title.localeCompare(a.title, 'pt-BR');
+    if (sort === 'live-first') return (b.isLive ? 1 : 0) - (a.isLive ? 1 : 0);
     return 0;
   });
 
@@ -49,9 +52,9 @@ export function EventsListPageContent() {
         <div className={styles.header}>
           <div className={styles.headerRow}>
             <Calendar size={22} />
-            <h1 className={styles.headerTitle}>Programação</h1>
+            <h1 className={styles.headerTitle}>{t('title')}</h1>
           </div>
-          <p className={styles.headerSubtitle}>Shows ao vivo de todo o mundo, na palma da sua mão</p>
+          <p className={styles.headerSubtitle}>{t('subtitle')}</p>
         </div>
 
         <div className={styles.filters}>
@@ -61,24 +64,12 @@ export function EventsListPageContent() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por show, artista ou cidade..."
+              placeholder={t('searchPlaceholder')}
               className={styles.searchInput}
             />
           </div>
 
           <div className={styles.filterRow}>
-            <div className={styles.genreScroll}>
-              {GENRES.map((g) => (
-                <button
-                  key={g}
-                  onClick={() => setGenre(g)}
-                  className={`${styles.genreChip} ${genre === g ? styles.genreActive : styles.genreInactive}`}
-                >
-                  {g}
-                </button>
-              ))}
-            </div>
-
             <div className={styles.sortBox}>
               <SlidersHorizontal size={16} />
               <select
@@ -99,35 +90,35 @@ export function EventsListPageContent() {
               className={`${styles.filterBtn} ${liveOnly ? styles.filterBtnLiveActive : styles.filterBtnDefault}`}
             >
               <span className={`${styles.dot} ${liveOnly ? styles.dotActive : styles.dotDefault}`} />
-              Somente Ao Vivo
+              {t('liveOnly')}
             </button>
             <button
               onClick={() => setReplayOnly(!replayOnly)}
               className={`${styles.filterBtn} ${replayOnly ? styles.filterBtnReplayActive : styles.filterBtnDefault}`}
             >
-              ↩ Com Reprise
+              ↩ {t('withReplay')}
             </button>
           </div>
         </div>
 
         <p className={styles.count}>
-          {isLoading ? 'Carregando...' : `${filtered.length} show${filtered.length !== 1 ? 's' : ''} encontrado${filtered.length !== 1 ? 's' : ''}`}
+          {isLoading ? t('loading') : t('count', { count: filtered.length })}
         </p>
 
         {isError && (
           <div className={styles.empty}>
-            <p className={styles.emptyText}>Erro ao carregar eventos.</p>
+            <p className={styles.emptyText}>{t('error')}</p>
           </div>
         )}
 
         {!isLoading && !isError && filtered.length === 0 ? (
           <div className={styles.empty}>
-            <p className={styles.emptyText}>Nenhum show encontrado</p>
+            <p className={styles.emptyText}>{t('noResults')}</p>
             <button
-              onClick={() => { setSearch(''); setGenre('Todos'); setLiveOnly(false); setReplayOnly(false); }}
+              onClick={() => { setSearch(''); setSort('date-asc'); setLiveOnly(false); setReplayOnly(false); }}
               className={styles.clearBtn}
             >
-              Limpar filtros
+              {t('clearFilters')}
             </button>
           </div>
         ) : (

@@ -2,26 +2,35 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { accountService } from '../services/account.service';
-import { normalizeError, type AppError } from '@/lib/http/errors';
-import type { RegisterRequest, AuthResponse } from '../types/account.types';
+import type { AppError } from '@/lib/http/errors';
+import { tokenStore } from '@/lib/auth/token-store';
+import type { RegisterRequest, AuthUser } from '../types/account.types';
+
+interface RegisterResult {
+  accessToken: string;
+  user: AuthUser;
+}
 
 export function useRegisterMutation() {
   const router = useRouter();
 
-  return useMutation<AuthResponse, AppError, RegisterRequest>({
+  return useMutation<RegisterResult, AppError, RegisterRequest>({
     mutationFn: async (payload) => {
-      try {
-        return await accountService.register(payload);
-      } catch (err) {
-        throw normalizeError(err);
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json() as RegisterResult & { message?: string };
+      if (!res.ok) {
+        const err: AppError = { message: data.message ?? 'Registration failed', status: res.status };
+        throw err;
       }
+      return data;
     },
     onSuccess: (data) => {
-      localStorage.setItem('access_token', data.accessToken);
-      localStorage.setItem('refresh_token', data.refreshToken);
+      tokenStore.set(data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
-      document.cookie = `access_token=${data.accessToken}; path=/; SameSite=Lax`;
       router.push('/home');
     },
   });

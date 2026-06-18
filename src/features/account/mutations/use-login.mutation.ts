@@ -2,26 +2,35 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { accountService } from '../services/account.service';
-import { normalizeError, type AppError } from '@/lib/http/errors';
-import type { LoginRequest, AuthResponse } from '../types/account.types';
+import type { AppError } from '@/lib/http/errors';
+import { tokenStore } from '@/lib/auth/token-store';
+import type { LoginRequest, AuthUser } from '../types/account.types';
+
+interface LoginResult {
+  accessToken: string;
+  user: AuthUser;
+}
 
 export function useLoginMutation(callbackUrl?: string) {
   const router = useRouter();
 
-  return useMutation<AuthResponse, AppError, LoginRequest>({
+  return useMutation<LoginResult, AppError, LoginRequest>({
     mutationFn: async (payload) => {
-      try {
-        return await accountService.login(payload);
-      } catch (err) {
-        throw normalizeError(err);
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json() as LoginResult & { message?: string };
+      if (!res.ok) {
+        const err: AppError = { message: data.message ?? 'Login failed', status: res.status };
+        throw err;
       }
+      return data;
     },
     onSuccess: (data) => {
-      localStorage.setItem('access_token', data.accessToken);
-      localStorage.setItem('refresh_token', data.refreshToken);
+      tokenStore.set(data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
-      document.cookie = `access_token=${data.accessToken}; path=/; SameSite=Lax`;
       router.push(callbackUrl ?? '/');
     },
   });

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Calendar, Clock, MapPin, Camera, RotateCcw,
   Play, ChevronLeft, Building2,
@@ -20,6 +21,7 @@ interface Props {
 
 export function EventDetailPageContent({ id }: Props) {
   const router = useRouter();
+  const t = useTranslations('events.detail');
   const { data: event, isLoading, isError } = useGetEventQuery(id);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
   const { data: org } = useOrganization(event?.organizationId ?? '');
@@ -35,8 +37,8 @@ export function EventDetailPageContent({ id }: Props) {
   if (isError || !event) {
     return (
       <div className={styles.centered}>
-        <p className={styles.notFound}>Show não encontrado.</p>
-        <button onClick={() => router.push('/')} className={styles.backLink}>Voltar ao início</button>
+        <p className={styles.notFound}>{t('notFound')}</p>
+        <button onClick={() => router.push('/')} className={styles.backLink}>{t('backToHome')}</button>
       </div>
     );
   }
@@ -50,7 +52,7 @@ export function EventDetailPageContent({ id }: Props) {
     <div className={styles.page}>
       <div className={styles.topBar}>
         <button onClick={() => router.back()} className={styles.backBtn}>
-          <ChevronLeft size={18} /> Voltar
+          <ChevronLeft size={18} /> {t('back')}
         </button>
       </div>
 
@@ -64,12 +66,12 @@ export function EventDetailPageContent({ id }: Props) {
             <div className={styles.badgeRow}>
               {isLive && (
                 <span className={styles.badgeLive}>
-                  <span className={styles.liveDot} /> AO VIVO
+                  <span className={styles.liveDot} /> {t('live')}
                 </span>
               )}
               {isFinished && (
                 <span className={styles.badgeReplay}>
-                  <RotateCcw size={10} /> REPRISE
+                  <RotateCcw size={10} /> {t('replay')}
                 </span>
               )}
               <span className={styles.badgeGenre}>{statusLabel(event.status)}</span>
@@ -85,10 +87,10 @@ export function EventDetailPageContent({ id }: Props) {
           <div className={styles.content}>
             <div className={styles.infoGrid}>
               {[
-                { icon: <Calendar size={14} />, label: 'Data', value: formatDate(event.startsAt) },
-                { icon: <Clock size={14} />, label: 'Horário', value: `${formatTime(event.startsAt)} · ${formatDuration(event.startsAt, event.endsAt)}` },
-                { icon: <MapPin size={14} />, label: 'Local', value: [event.city, event.country].filter(Boolean).join(', ') || '—' },
-                { icon: <Camera size={14} />, label: 'Câmeras', value: `${cameras.length} ângulo${cameras.length !== 1 ? 's' : ''}` },
+                { icon: <Calendar size={14} />, label: t('date'), value: formatDate(event.startsAt) },
+                { icon: <Clock size={14} />, label: t('time'), value: `${formatTime(event.startsAt)} · ${formatDuration(event.startsAt, event.endsAt)}` },
+                { icon: <MapPin size={14} />, label: t('venue'), value: [event.city, event.country].filter(Boolean).join(', ') || '—' },
+                { icon: <Camera size={14} />, label: t('cameras'), value: t('angles', { count: cameras.length }) },
               ].map((info) => (
                 <div key={info.label} className={styles.infoCard}>
                   <div className={styles.infoLabel}>
@@ -111,20 +113,20 @@ export function EventDetailPageContent({ id }: Props) {
                     : <Building2 size={18} />}
                 </div>
                 <div className={styles.orgInfo}>
-                  <span className={styles.orgLabel}>Organização</span>
+                  <span className={styles.orgLabel}>{t('organization')}</span>
                   <span className={styles.orgName}>{org.name}</span>
                 </div>
-                <span className={styles.orgArrow}>Ver perfil →</span>
+                <span className={styles.orgArrow}>{t('viewProfile')}</span>
               </button>
             )}
 
             <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Sobre o Show</h2>
+              <h2 className={styles.sectionTitle}>{t('about')}</h2>
               <p className={styles.description}>{event.description}</p>
             </div>
 
             <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Câmeras Disponíveis ({cameras.length})</h2>
+              <h2 className={styles.sectionTitle}>{t('availableCameras', { count: cameras.length })}</h2>
               <div className={styles.cameraGrid}>
                 {cameras.map((camera) => (
                   <div key={camera.id} className={styles.cameraCard}>
@@ -134,7 +136,7 @@ export function EventDetailPageContent({ id }: Props) {
                       </div>
                       {isLive && (
                         <div className={styles.cameraBadge}>
-                          <span className={styles.liveDot} /> LIVE
+                          <span className={styles.liveDot} /> {t('live')}
                         </div>
                       )}
                     </div>

@@ -2,29 +2,29 @@
 
 import { Calendar, Clock, MapPin, Radio } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import type { EventResponse } from '@/features/events/types/event.types';
 import styles from './OrganizationPublicEventCard.module.scss';
+
+const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
 
 interface Props {
   event: EventResponse;
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-}
-
 export function OrganizationPublicEventCard({ event }: Props) {
+  const t = useTranslations('orgEventCard');
+  const locale = useLocale();
+  const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
   const router = useRouter();
   const isLive = event.status === 'LIVE';
   const isFinished = event.status === 'FINISHED';
+
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString(localeCode, { day: '2-digit', month: 'short', year: 'numeric' });
+
+  const formatTime = (iso: string) =>
+    new Date(iso).toLocaleTimeString(localeCode, { hour: '2-digit', minute: '2-digit' });
 
   return (
     <div
@@ -44,10 +44,10 @@ export function OrganizationPublicEventCard({ event }: Props) {
         {isLive && (
           <span className={styles.liveBadge}>
             <Radio size={10} />
-            Ao Vivo
+            {t('live')}
           </span>
         )}
-        {isFinished && <span className={styles.finishedBadge}>Encerrado</span>}
+        {isFinished && <span className={styles.finishedBadge}>{t('finished')}</span>}
       </div>
 
       <div className={styles.info}>

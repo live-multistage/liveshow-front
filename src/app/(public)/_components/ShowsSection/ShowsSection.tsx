@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { Show } from '@/features/events/types/show';
 import { ShowCard } from '@/features/events';
 import { Chip } from '@/shared/components/ui/chip';
@@ -15,6 +16,7 @@ interface ShowsSectionProps {
 }
 
 export function ShowsSection({ shows }: ShowsSectionProps) {
+  const t = useTranslations('home');
   const router = useRouter();
   const [selectedGenre, setSelectedGenre] = useState('All');
 
@@ -26,7 +28,7 @@ export function ShowsSection({ shows }: ShowsSectionProps) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.genreFilter}>
-        <span className={styles.genreLabel}>Find by{'\n'}genre</span>
+        <span className={styles.genreLabel}>{t('findByGenre')}</span>
         <div className={styles.genreBar}>
           {GENRES.map((genre) => (
             <Chip
@@ -34,7 +36,7 @@ export function ShowsSection({ shows }: ShowsSectionProps) {
               variant={selectedGenre === genre ? 'active' : 'default'}
               onClick={() => setSelectedGenre(genre)}
             >
-              {genre}
+              {genre === 'All' ? t('all') : genre}
             </Chip>
           ))}
         </div>

@@ -1,7 +1,8 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueries } from '@tanstack/react-query';
 import { streamsService } from '../services/streams.service';
+import type { StageResponse } from '../types/stream.types';
 
 export const STREAM_KEYS = {
   byEvent: (eventId: string) => ['streams', 'by-event', eventId] as const,
@@ -40,4 +41,24 @@ export function useFeedCamerasQuery(feedId: string | null) {
     queryFn: () => streamsService.listCameras(feedId!),
     enabled: !!feedId,
   });
+}
+
+export function useEventStagesQuery(eventId: string | null): {
+  stages: StageResponse[];
+  isLoading: boolean;
+} {
+  const streamsQuery = useEventStreamsQuery(eventId);
+  const streamIds = streamsQuery.data?.map((s) => s.id) ?? [];
+
+  const stageQueries = useQueries({
+    queries: streamIds.map((streamId) => ({
+      queryKey: STREAM_KEYS.stages(streamId),
+      queryFn: () => streamsService.listStages(streamId),
+    })),
+  });
+
+  const stages = stageQueries.flatMap((q) => q.data ?? []);
+  const isLoading = streamsQuery.isLoading || stageQueries.some((q) => q.isLoading);
+
+  return { stages, isLoading };
 }

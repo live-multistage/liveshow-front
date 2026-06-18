@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import styles from './Carousel.module.scss';
 
 interface CarouselProps {
@@ -12,6 +13,7 @@ interface CarouselProps {
 }
 
 export function Carousel({ title, showLiveDot = false, onSeeAll, children }: CarouselProps) {
+  const t = useTranslations('carousel');
   const trackRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: 'left' | 'right') => {
@@ -30,13 +32,13 @@ export function Carousel({ title, showLiveDot = false, onSeeAll, children }: Car
           </div>
           {onSeeAll && (
             <button onClick={onSeeAll} className={styles.seeAll}>
-              Ver todos →
+              {t('seeAll')}
             </button>
           )}
         </div>
       )}
 
-      <button onClick={() => scroll('left')} className={styles.arrowLeft} aria-label="Scroll esquerda">
+      <button onClick={() => scroll('left')} className={styles.arrowLeft} aria-label={t('scrollLeft')}>
         <ChevronLeft size={18} />
       </button>
 
@@ -44,7 +46,7 @@ export function Carousel({ title, showLiveDot = false, onSeeAll, children }: Car
         {children}
       </div>
 
-      <button onClick={() => scroll('right')} className={styles.arrowRight} aria-label="Scroll direita">
+      <button onClick={() => scroll('right')} className={styles.arrowRight} aria-label={t('scrollRight')}>
         <ChevronRight size={18} />
       </button>
     </div>

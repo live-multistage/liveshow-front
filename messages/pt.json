@@ -1,0 +1,250 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Ocorreu um erro.",
+    "notFound": "Não encontrado.",
+    "back": "Voltar",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "clear": "Limpar",
+    "add": "Adicionar",
+    "remove": "Remover",
+    "submit": "Enviar",
+    "close": "Fechar",
+    "total": "Total"
+  },
+  "nav": {
+    "home": "Início",
+    "schedule": "Programação",
+    "tickets": "Ingressos",
+    "dashboard": "Dashboard",
+    "account": "Minha Conta",
+    "myTickets": "Meus Ingressos",
+    "logout": "Sair",
+    "login": "Entrar",
+    "register": "Cadastrar",
+    "searchPlaceholder": "Buscar shows...",
+    "cart": "Carrinho"
+  },
+  "auth": {
+    "login": {
+      "title": "Bem-vindo de volta",
+      "subtitle": "Entre na sua conta para continuar",
+      "email": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "password": "Senha",
+      "passwordPlaceholder": "Sua senha",
+      "rememberMe": "Lembrar de mim",
+      "forgotPassword": "Esqueceu a senha?",
+      "submit": "Entrar",
+      "submitting": "Entrando...",
+      "orContinueWith": "ou continue com",
+      "continueWithGoogle": "Continuar com Google",
+      "continueWithApple": "Continuar com Apple",
+      "noAccount": "Não tem uma conta?",
+      "signUp": "Cadastre-se",
+      "errors": {
+        "INVALID_CREDENTIALS": "E-mail ou senha inválidos.",
+        "USER_BLOCKED": "Sua conta foi temporariamente suspensa. Entre em contato com o suporte.",
+        "TOO_MANY_ATTEMPTS": "Muitas tentativas de login. Tente novamente mais tarde."
+      }
+    },
+    "register": {
+      "title": "Criar conta",
+      "subtitle": "Junte-se ao Liveshow e assista shows ao vivo de todo o mundo.",
+      "email": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "displayName": "Nome de exibição",
+      "displayNamePlaceholder": "Seu nome",
+      "password": "Senha",
+      "passwordPlaceholder": "Mínimo 8 caracteres",
+      "confirmPassword": "Confirmar senha",
+      "confirmPasswordPlaceholder": "Repita sua senha",
+      "submit": "Criar conta",
+      "submitting": "Criando conta...",
+      "alreadyHaveAccount": "Já tem uma conta?",
+      "signIn": "Entrar"
+    },
+    "forgotPassword": {
+      "title": "Esqueceu a senha?",
+      "subtitle": "Digite seu e-mail e enviaremos um link de recuperação.",
+      "email": "E-mail",
+      "submit": "Enviar link",
+      "backToLogin": "Voltar ao login"
+    }
+  },
+  "cart": {
+    "title": "Carrinho",
+    "empty": "Seu carrinho está vazio.",
+    "exploreEvents": "Explorar eventos →",
+    "continueShopping": "Continue comprando",
+    "orderSummary": "Resumo do pedido",
+    "promoPlaceholder": "Insira seu código promocional",
+    "subtotal": "Subtotal ({count, plural, one {# item} other {# itens}})",
+    "goToCheckout": "Ir para o checkout",
+    "browseEvents": "Continuar procurando eventos",
+    "cameras": "{count} câmera{count, plural, one {} other {s}}",
+    "removeItem": "Remover {title}",
+    "total": "Total"
+  },
+  "events": {
+    "list": {
+      "title": "Programação",
+      "subtitle": "Shows ao vivo de todo o mundo, na palma da sua mão",
+      "searchPlaceholder": "Buscar por show, artista ou cidade...",
+      "all": "Todos",
+      "liveOnly": "Somente Ao Vivo",
+      "withReplay": "Com Reprise",
+      "loading": "Carregando...",
+      "count": "{count, plural, one {# show encontrado} other {# shows encontrados}}",
+      "error": "Erro ao carregar eventos.",
+      "noResults": "Nenhum show encontrado",
+      "clearFilters": "Limpar filtros",
+      "sortDate": "Data",
+      "sortPriceLow": "Menor Preço",
+      "sortPriceHigh": "Maior Preço",
+      "sortRating": "Avaliação"
+    },
+    "detail": {
+      "notFound": "Show não encontrado.",
+      "backToHome": "Voltar ao início",
+      "back": "Voltar",
+      "live": "AO VIVO",
+      "replay": "REPRISE",
+      "date": "Data",
+      "time": "Horário",
+      "venue": "Local",
+      "cameras": "Câmeras",
+      "angles": "{count, plural, one {# ângulo} other {# ângulos}}",
+      "organization": "Organização",
+      "viewProfile": "Ver perfil →",
+      "about": "Sobre o Show",
+      "availableCameras": "Câmeras Disponíveis ({count})",
+      "watching": "{count} watching",
+      "cameraViews": "{count} camera views"
+    },
+    "status": {
+      "PUBLISHED": "Em breve",
+      "LIVE": "Ao Vivo",
+      "FINISHED": "Finalizado",
+      "CANCELLED": "Cancelado",
+      "DRAFT": "Rascunho"
+    }
+  },
+  "ticketPanel": {
+    "title": "Ingresso",
+    "buyReplay": "Comprar Reprise",
+    "buyTicket": "Comprar Ingresso",
+    "adding": "Adicionando…",
+    "addToCart": "Adicionar ao Carrinho",
+    "validFor": "Acesso válido para uma pessoa",
+    "cancelled": "Este evento foi cancelado.",
+    "verifyingAccess": "Verificando seu acesso…",
+    "ticketSecured": "Ingresso garantido",
+    "watchNow": "Assistir agora",
+    "watchReplay": "Ver reprise",
+    "streamIsLive": "A transmissão está ao vivo.",
+    "replayAvailable": "Reprise disponível.",
+    "alreadyHaveAccess": "Você já tem acesso. A transmissão aparecerá aqui quando começar.",
+    "noReplay": "Este evento não possui reprise disponível para compra.",
+    "noTickets": "Nenhum ingresso disponível ainda.",
+    "freePreview": "Assistir demonstração gratuita →",
+    "total": "Total"
+  },
+  "tickets": {
+    "title": "Meus Ingressos",
+    "subtitle": "Acesse todos os shows que você comprou",
+    "empty": {
+      "title": "Nenhum ingresso ainda",
+      "desc": "Explore a programação e compre seu primeiro ingresso!",
+      "cta": "Ver Shows"
+    },
+    "stats": {
+      "count": "{count, plural, one {# ingresso} other {# ingressos}}",
+      "withReplay": "{count} com reprise"
+    },
+    "recommendations": {
+      "title": "Você também pode gostar",
+      "seeAll": "Ver todos →"
+    }
+  },
+  "home": {
+    "loading": "Carregando eventos...",
+    "liveNow": "Ao Vivo Agora",
+    "liveForYou": "Ao Vivo para você",
+    "findByGenre": "Filtrar por\ngênero",
+    "all": "Todos"
+  },
+  "language": {
+    "select": "Idioma",
+    "pt": "Português",
+    "en": "English",
+    "es": "Español"
+  },
+  "error": {
+    "title": "Algo deu errado",
+    "retry": "Tentar novamente"
+  },
+  "showCard": {
+    "live": "Ao Vivo",
+    "purchased": "Comprado",
+    "replay": "Reprise",
+    "watch": "Assistir",
+    "details": "Ver Mais"
+  },
+  "liveGate": {
+    "checkingAccess": "Verificando acesso",
+    "accessRequired": "Acesso necessário",
+    "needTicket": "Você precisa de um ingresso para assistir {title} ao vivo.",
+    "viewTickets": "Ver ingressos",
+    "loadingStream": "Carregando transmissão",
+    "notStarted": "A transmissão ainda não começou. Esta página atualiza sozinha quando o evento entrar ao ar."
+  },
+  "ticketCard": {
+    "allCameras": "Todas as câmeras",
+    "cameras": "{count} câmera{count, plural, one {} other {s}}",
+    "active": "INGRESSO ATIVO",
+    "withReplay": "COM REPRISE",
+    "liveOnly": "APENAS AO VIVO",
+    "details": "Detalhes",
+    "replay": "Reprise",
+    "watch": "Assistir"
+  },
+  "ticketList": {
+    "all": "Todos",
+    "withReplay": "Com Reprise",
+    "withCameras": "Com Câmeras",
+    "liveOnly": "Apenas Ao Vivo",
+    "emptyAll": "Nenhum ingresso encontrado.",
+    "emptyReplay": "Nenhum ingresso com reprise. Ingressos Pro e Ultra incluem reprise.",
+    "emptyCamera": "Nenhum ingresso com acesso a câmeras.",
+    "emptyNoReplay": "Todos os seus ingressos incluem reprise!"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "orderSummary": "Resumo do pedido",
+    "cameras": "{count} câmera{count, plural, one {} other {s}}",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "buyer": "Comprador",
+    "name": "Nome",
+    "email": "E-mail",
+    "paymentSoon": "Pagamento em breve",
+    "paymentNote": "O pagamento será habilitado em breve."
+  },
+  "carousel": {
+    "seeAll": "Ver todos →",
+    "scrollLeft": "Rolar para a esquerda",
+    "scrollRight": "Rolar para a direita"
+  },
+  "orgEventCard": {
+    "live": "Ao Vivo",
+    "finished": "Encerrado"
+  }
+}

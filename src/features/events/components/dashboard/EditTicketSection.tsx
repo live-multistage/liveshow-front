@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Lock, Pencil } from 'lucide-react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ticketSchema, type TicketFormValues } from '../../schemas/create-event.schema';
 import {
@@ -11,6 +11,7 @@ import {
   useUpdateTicketProductMutation,
 } from '../../mutations/ticket-product.mutation';
 import type { AccessCapability, TicketProductResponse } from '../../types/event.types';
+import { useEventStagesQuery } from '../../../streams/queries/streams.queries';
 import styles from './TicketSection.module.scss';
 
 interface Props {
@@ -37,6 +38,7 @@ function ticketToForm(t: TicketProductResponse): TicketFormValues {
     replayView: t.capabilities.includes('REPLAY_VIEW'),
     cameraView: t.capabilities.includes('CAMERA_VIEW'),
     camerasLimit: t.camerasLimit ?? undefined,
+    allowedStageIds: t.allowedStageIds ?? [],
   };
 }
 
@@ -45,12 +47,14 @@ const EMPTY_FORM: Partial<TicketFormValues> = {
   replayView: false,
   cameraView: false,
   camerasLimit: undefined,
+  allowedStageIds: [],
 };
 
 export function EditTicketSection({ eventId, tickets }: Props) {
   const createMutation = useCreateTicketProductMutation(eventId);
   const updateMutation = useUpdateTicketProductMutation(eventId);
   const deleteMutation = useDeleteTicketProductMutation(eventId);
+  const { stages } = useEventStagesQuery(eventId);
 
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -66,6 +70,8 @@ export function EditTicketSection({ eventId, tickets }: Props) {
   });
 
   const cameraView = useWatch({ control, name: 'cameraView' });
+  const liveView = useWatch({ control, name: 'liveView' });
+  const showStageSelector = (liveView || cameraView) && stages.length > 0;
 
   const isEditing = editingId !== null;
   const isPending = createMutation.isPending || updateMutation.isPending;
@@ -92,6 +98,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
       price: values.price,
       capabilities,
       camerasLimit: values.cameraView ? (values.camerasLimit ?? null) : null,
+      allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
     };
 
     if (editingId) {
@@ -209,6 +216,44 @@ export function EditTicketSection({ eventId, tickets }: Props) {
             Deixe em branco para liberar todas as câmeras. Informe um número para limitar pelo índice de prioridade.
           </p>
           {errors.camerasLimit && <p className={styles.error}>{errors.camerasLimit.message}</p>}
+        </div>
+      )}
+
+      {showStageSelector && (
+        <div className={styles.field}>
+          <label className={styles.label}>Palcos com Acesso</label>
+          <Controller
+            control={control}
+            name="allowedStageIds"
+            render={({ field }) => (
+              <div className={styles.checkboxGroup}>
+                {stages.map((stage) => {
+                  const checked = (field.value ?? []).includes(stage.id);
+                  return (
+                    <label key={stage.id} className={styles.checkboxLabel}>
+                      <input
+                        type="checkbox"
+                        className={styles.checkbox}
+                        checked={checked}
+                        onChange={(e) => {
+                          const current = field.value ?? [];
+                          field.onChange(
+                            e.target.checked
+                              ? [...current, stage.id]
+                              : current.filter((id) => id !== stage.id),
+                          );
+                        }}
+                      />
+                      <span>{stage.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          />
+          <p className={styles.inputHint}>
+            Sem seleção = acesso a todos os palcos.
+          </p>
         </div>
       )}
 

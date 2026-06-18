@@ -5,6 +5,7 @@ import {
   useStartStreamMutation,
   useEndStreamMutation,
   useCancelStreamMutation,
+  useRollbackStreamMutation,
   useUpdateStreamMutation,
 } from '../mutations/stream.mutations';
 import type { StreamResponse } from '../types/stream.types';
@@ -24,6 +25,7 @@ export function StreamBuilder({ stream, eventId, onStreamUpdated, onStreamDelete
   const start = useStartStreamMutation(stream.id, eventId);
   const end = useEndStreamMutation(stream.id, eventId);
   const cancel = useCancelStreamMutation(stream.id, eventId);
+  const rollback = useRollbackStreamMutation(stream.id, eventId);
   const update = useUpdateStreamMutation(eventId, onStreamUpdated);
 
   function makeAction(mut: typeof prepare) {
@@ -41,6 +43,7 @@ export function StreamBuilder({ stream, eventId, onStreamUpdated, onStreamDelete
         start={makeAction(start)}
         end={makeAction(end)}
         cancel={makeAction(cancel)}
+        rollback={makeAction(rollback)}
         onRename={(title, description) =>
           update.mutateAsync({ streamId: stream.id, payload: { title, description } })
         }
