@@ -14,6 +14,7 @@ export const ticketSchema = z
         z.coerce.number().int('Deve ser número inteiro').min(1, 'Mínimo 1 câmera').nullable(),
       )
       .optional(),
+    allowedStageIds: z.array(z.string().uuid()).optional(),
   })
   .refine((d) => d.liveView || d.replayView || d.cameraView, {
     message: 'Selecione ao menos um tipo de acesso',

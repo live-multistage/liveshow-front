@@ -1,0 +1,260 @@
+$pink: #ec4899;
+$card-border: rgba(255, 255, 255, 0.2);
+
+.page {
+  min-height: calc(100vh - 56px);
+  background: #09090b;
+  color: #fff;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 5rem 1.5rem 6rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+
+  @media (max-width: 880px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.heading {
+  font-size: 1.5rem;
+  font-weight: 300;
+  line-height: 2.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────── */
+.card,
+.summary {
+  border: 1px solid $card-border;
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.card {
+  list-style: none;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Cart item ───────────────────────────────────────────────────── */
+.item {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.25rem 0;
+}
+
+.itemDivided {
+  border-top: 1px solid $card-border;
+}
+
+.thumb {
+  flex-shrink: 0;
+  width: 140px;
+  align-self: stretch;
+  min-height: 140px;
+  border-radius: 8px;
+  background-color: #1a1a1d;
+  background-size: cover;
+  background-position: center;
+}
+
+.itemBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.organizer {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+
+  svg { flex-shrink: 0; }
+}
+
+.event {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.ticket {
+  color: #6b6b70;
+  font-size: 1rem;
+  margin-top: 0.1rem;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.badge {
+  background: $pink;
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 0.25rem;
+}
+
+.removeBtn {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* ── Order summary ───────────────────────────────────────────────── */
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  position: sticky;
+  top: 1.5rem;
+}
+
+.summaryTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.promo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #030303;
+  border: 1px solid #27272a;
+  border-radius: 6px;
+  padding: 0.8rem 0.85rem;
+}
+
+.promoIcon {
+  color: #71717a;
+  flex-shrink: 0;
+}
+
+.promoInput {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 0.9rem;
+
+  &::placeholder { color: #71717a; }
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.lineRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.lineLabel { color: rgba(255, 255, 255, 0.4); }
+.lineValue { color: #fff; }
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  padding-top: 1.05rem;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.checkout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 51px;
+  margin-top: 0.25rem;
+  background: $pink;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+
+  &:hover { filter: brightness(1.07); }
+}
+
+.continue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 51px;
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+  border: 1px solid $pink;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover { background: rgba(236, 72, 153, 0.12); }
+}
+
+/* ── Empty ───────────────────────────────────────────────────────── */
+.emptyWrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px dashed $card-border;
+  border-radius: 16px;
+}
+
+.emptyIcon { color: rgba(255, 255, 255, 0.35); margin-bottom: 0.75rem; }
+.emptyLink { display: inline-block; margin-top: 1rem; color: $pink; font-weight: 600; }

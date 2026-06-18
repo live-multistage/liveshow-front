@@ -11,6 +11,7 @@ import { EventPhotoUploader } from './EventPhotoUploader';
 import { EventInfoStep } from './steps/EventInfoStep';
 import { EventLocationStep } from './steps/EventLocationStep';
 import { EventProductionStep } from './steps/EventProductionStep';
+import { EventStreamStep } from './steps/EventStreamStep';
 import { EventTicketsStep } from './steps/EventTicketsStep';
 import type { EventResponse } from '../../types/event.types';
 import styles from './CreateEventForm.module.scss';
@@ -28,13 +29,17 @@ export function CreateEventForm({ onSuccess }: Props) {
   });
 
   const wizard = useCreateEventWizard(onSuccess);
-  const { step, setStep, tickets, setTickets, ticketsError, createdEvent, mutation } = wizard;
+  const {
+    step, setStep, tickets, setTickets, ticketsError,
+    streamConfig, setStreamConfig, createdEvent, mutation,
+  } = wizard;
 
   const stepContent: Record<number, React.ReactNode> = {
     1: <EventInfoStep register={register} errors={errors} orgs={orgs} />,
     2: <EventLocationStep register={register} errors={errors} />,
     3: <EventProductionStep register={register} errors={errors} />,
-    4: (
+    4: <EventStreamStep value={streamConfig} onChange={setStreamConfig} />,
+    5: (
       <EventTicketsStep
         tickets={tickets}
         onTicketsChange={setTickets}
@@ -44,10 +49,10 @@ export function CreateEventForm({ onSuccess }: Props) {
     ),
   };
 
-  if (step === 5 && createdEvent) {
+  if (step === 6 && createdEvent) {
     return (
       <>
-        <CreateEventStepper current={5} />
+        <CreateEventStepper current={6} />
         <EventPhotoUploader event={createdEvent} onDone={wizard.finish} />
       </>
     );
@@ -69,13 +74,13 @@ export function CreateEventForm({ onSuccess }: Props) {
 
           <div className={styles.navSpacer} />
 
-          {step < 4 && (
+          {step < 5 && (
             <button type="button" onClick={() => wizard.advance(trigger)} className={styles.btnNext}>
               Próximo <ChevronRight size={16} />
             </button>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <button type="submit" className={styles.btnNext} disabled={mutation.isPending}>
               {mutation.isPending ? 'Criando...' : 'Criar Evento'}
             </button>

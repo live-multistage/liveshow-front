@@ -261,6 +261,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+}
+
+.cameraCardSkeleton {
+  pointer-events: none;
+
+  .cameraPreview {
+    background: linear-gradient(90deg, $surface-dark 25%, $accent 50%, $surface-dark 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .cameraPlayIcon {

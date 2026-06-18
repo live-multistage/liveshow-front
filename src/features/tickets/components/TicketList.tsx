@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { RotateCcw, Tv2, Ticket, Video } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { TicketCard } from './TicketCard';
 import type { PurchasedTicket } from '../types/ticket.types';
 import styles from './TicketList.module.scss';
@@ -13,14 +14,7 @@ interface TicketListProps {
   withCamera: PurchasedTicket[];
 }
 
-const TABS = [
-  { id: 'all',       label: 'Todos',          icon: <Ticket size={14} /> },
-  { id: 'replay',    label: 'Com Reprise',     icon: <RotateCcw size={14} /> },
-  { id: 'camera',    label: 'Com Câmeras',     icon: <Video size={14} /> },
-  { id: 'no-replay', label: 'Apenas Ao Vivo',  icon: <Tv2 size={14} /> },
-] as const;
-
-type TabId = typeof TABS[number]['id'];
+type TabId = 'all' | 'replay' | 'camera' | 'no-replay';
 
 function TicketGroup({ tickets, emptyMessage }: { tickets: PurchasedTicket[]; emptyMessage: string }) {
   if (tickets.length === 0) return <p className={styles.empty}>{emptyMessage}</p>;
@@ -34,7 +28,15 @@ function TicketGroup({ tickets, emptyMessage }: { tickets: PurchasedTicket[]; em
 }
 
 export function TicketList({ tickets, withReplay, withoutReplay, withCamera }: TicketListProps) {
+  const t = useTranslations('ticketList');
   const [activeTab, setActiveTab] = useState<TabId>('all');
+
+  const TABS = [
+    { id: 'all' as TabId,       label: t('all'),         icon: <Ticket size={14} /> },
+    { id: 'replay' as TabId,    label: t('withReplay'),  icon: <RotateCcw size={14} /> },
+    { id: 'camera' as TabId,    label: t('withCameras'), icon: <Video size={14} /> },
+    { id: 'no-replay' as TabId, label: t('liveOnly'),    icon: <Tv2 size={14} /> },
+  ];
 
   const counts: Record<TabId, number> = {
     all: tickets.length,
@@ -60,25 +62,16 @@ export function TicketList({ tickets, withReplay, withoutReplay, withCamera }: T
       </div>
 
       {activeTab === 'all' && (
-        <TicketGroup tickets={tickets} emptyMessage="Nenhum ingresso encontrado." />
+        <TicketGroup tickets={tickets} emptyMessage={t('emptyAll')} />
       )}
       {activeTab === 'replay' && (
-        <TicketGroup
-          tickets={withReplay}
-          emptyMessage="Nenhum ingresso com reprise. Ingressos Pro e Ultra incluem reprise."
-        />
+        <TicketGroup tickets={withReplay} emptyMessage={t('emptyReplay')} />
       )}
       {activeTab === 'camera' && (
-        <TicketGroup
-          tickets={withCamera}
-          emptyMessage="Nenhum ingresso com acesso a câmeras."
-        />
+        <TicketGroup tickets={withCamera} emptyMessage={t('emptyCamera')} />
       )}
       {activeTab === 'no-replay' && (
-        <TicketGroup
-          tickets={withoutReplay}
-          emptyMessage="Todos os seus ingressos incluem reprise!"
-        />
+        <TicketGroup tickets={withoutReplay} emptyMessage={t('emptyNoReplay')} />
       )}
     </div>
   );

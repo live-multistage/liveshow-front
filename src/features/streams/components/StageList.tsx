@@ -21,7 +21,8 @@ export function StageList({ streamId, streamStatus }: Props) {
 
   const isLive = streamStatus === 'LIVE';
   const isTerminal = streamStatus === 'ENDED' || streamStatus === 'CANCELLED';
-  const canEdit = !isLive && !isTerminal;
+  const canCreate = !isTerminal;
+  const canDelete = !isLive && !isTerminal;
 
   function toggleStage(id: string) {
     setExpandedStages((prev) => {
@@ -38,7 +39,7 @@ export function StageList({ streamId, streamStatus }: Props) {
           <Tv size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
           Palcos ({stages.length})
         </span>
-        {canEdit && (
+        {canCreate && (
           <InlineAddForm
             buttonLabel="Palco"
             placeholder="Nome do palco"
@@ -60,7 +61,7 @@ export function StageList({ streamId, streamStatus }: Props) {
             <div className={styles.stageHeader} onClick={() => toggleStage(stage.id)}>
               <ChevronRight size={14} className={`${styles.stageChevron} ${open ? styles.open : ''}`} />
               <p className={styles.stageName}>{stage.name}</p>
-              {canEdit && (
+              {canDelete && (
                 <button
                   className={`${styles.iconBtn} ${styles.danger}`}
                   onClick={(e) => { e.stopPropagation(); deleteStage.mutate(stage.id); }}

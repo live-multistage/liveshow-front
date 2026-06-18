@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutDashboard } from 'lucide-react';
+import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutDashboard, ShoppingCart } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,8 +13,11 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
+import { useTranslations } from 'next-intl';
 import { useAuth, useAuthCheck } from '@/features/account';
 import { NotificationsDropdown } from '@/features/notifications';
+import { useCartCount } from '@/features/cart';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import styles from './Navbar.module.scss';
 
 function getInitials(name: string) {
@@ -32,6 +35,8 @@ export function Navbar() {
   const { user, isLoggedIn, isLoading, logout } = useAuth();
   const { data: dashboardCheck } = useAuthCheck('access_dashboard', {}, { enabled: isLoggedIn });
   const canAccessDashboard = dashboardCheck?.allowed === true;
+  const cartCount = useCartCount();
+  const t = useTranslations('nav');
 
   return (
     <nav className={styles.nav}>
@@ -43,10 +48,10 @@ export function Navbar() {
 
         {/* Desktop Nav */}
         <div className={styles.desktopNav}>
-          <Link href="/" className={styles.navLink}>Início</Link>
-          <Link href="/events" className={styles.navLink}>Programação</Link>
+          <Link href="/" className={styles.navLink}>{t('home')}</Link>
+          <Link href="/events" className={styles.navLink}>{t('schedule')}</Link>
           {isLoggedIn && (
-            <Link href="/tickets" className={styles.navLink}>Ingressos</Link>
+            <Link href="/tickets" className={styles.navLink}>{t('tickets')}</Link>
           )}
         </div>
 
@@ -58,7 +63,7 @@ export function Navbar() {
               <input
                 autoFocus
                 className={styles.searchInput}
-                placeholder="Buscar shows..."
+                placeholder={t('searchPlaceholder')}
                 onBlur={() => setSearchOpen(false)}
               />
             </div>
@@ -82,7 +87,7 @@ export function Navbar() {
 
                   <Link href="/tickets" className={styles.ticketsBtn}>
                     <Ticket size={14} />
-                    Ingressos
+                    {t('tickets')}
                   </Link>
 
                   <DropdownMenu>
@@ -105,38 +110,45 @@ export function Navbar() {
                         <DropdownMenuItem asChild className={styles.dropdownItem}>
                           <Link href="/dashboard">
                             <LayoutDashboard size={14} style={{ marginRight: '0.5rem' }} />
-                            Dashboard
+                            {t('dashboard')}
                           </Link>
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem asChild className={styles.dropdownItem}>
                         <Link href="/account">
                           <Settings size={14} style={{ marginRight: '0.5rem' }} />
-                          Minha Conta
+                          {t('account')}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className={styles.dropdownItem}>
                         <Link href="/tickets">
                           <Ticket size={14} style={{ marginRight: '0.5rem' }} />
-                          Meus Ingressos
+                          {t('myTickets')}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator className={styles.dropdownSeparator} />
                       <DropdownMenuItem onClick={logout} className={styles.dropdownItemDestructive}>
                         <LogOut size={14} style={{ marginRight: '0.5rem' }} />
-                        Sair
+                        {t('logout')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </>
               ) : (
                 <>
-                  <Link href="/login" className={styles.loginLink}>Entrar</Link>
-                  <Link href="/register" className={styles.registerBtn}>Cadastrar</Link>
+                  <Link href="/login" className={styles.loginLink}>{t('login')}</Link>
+                  <Link href="/register" className={styles.registerBtn}>{t('register')}</Link>
                 </>
               )}
             </>
           )}
+
+          <LanguageSwitcher />
+          
+          <Link href="/cart" className={styles.cartBtn} aria-label={t('cart')}>
+            <ShoppingCart size={16} />
+            {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
+          </Link>
 
           <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
             {menuOpen ? <X size={16} /> : <Menu size={16} />}
@@ -147,21 +159,21 @@ export function Navbar() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className={styles.mobileMenu}>
-          <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Início</Link>
-          <Link href="/events" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Programação</Link>
+          <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('home')}</Link>
+          <Link href="/events" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('schedule')}</Link>
           {isLoggedIn ? (
             <>
-              <Link href="/tickets" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Ingressos</Link>
+              <Link href="/tickets" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('tickets')}</Link>
               {canAccessDashboard && (
-                <Link href="/dashboard" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Dashboard</Link>
+                <Link href="/dashboard" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('dashboard')}</Link>
               )}
-              <Link href="/account" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Minha Conta</Link>
-              <button onClick={() => { logout(); setMenuOpen(false); }} className={styles.mobileLogout}>Sair</button>
+              <Link href="/account" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('account')}</Link>
+              <button onClick={() => { logout(); setMenuOpen(false); }} className={styles.mobileLogout}>{t('logout')}</button>
             </>
           ) : (
             <>
-              <Link href="/login" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Entrar</Link>
-              <Link href="/register" className={styles.mobileRegister} onClick={() => setMenuOpen(false)}>Cadastrar</Link>
+              <Link href="/login" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('login')}</Link>
+              <Link href="/register" className={styles.mobileRegister} onClick={() => setMenuOpen(false)}>{t('register')}</Link>
             </>
           )}
         </div>

@@ -5,14 +5,27 @@ import { streamingService } from '../services/streaming.service';
 
 export const LIVE_KEYS = {
   access: (eventId: string) => ['live', 'access', eventId] as const,
+  replayAccess: (eventId: string) => ['live', 'replay-access', eventId] as const,
   playback: (eventId: string) => ['live', 'playback', eventId] as const,
 };
 
-// One-shot (cached) entitlement check.
-export function useLiveAccessQuery(eventId: string) {
+// One-shot (cached) live entitlement check. `enabled` lets callers skip it when
+// the user is logged out (the endpoint is JWT-only).
+export function useLiveAccessQuery(eventId: string, enabled = true) {
   return useQuery({
     queryKey: LIVE_KEYS.access(eventId),
     queryFn: () => streamingService.checkLiveAccess(eventId),
+    enabled,
+    staleTime: 60_000,
+  });
+}
+
+// One-shot (cached) replay entitlement check. Same JWT gating as live access.
+export function useReplayAccessQuery(eventId: string, enabled = true) {
+  return useQuery({
+    queryKey: LIVE_KEYS.replayAccess(eventId),
+    queryFn: () => streamingService.checkReplayAccess(eventId),
+    enabled,
     staleTime: 60_000,
   });
 }

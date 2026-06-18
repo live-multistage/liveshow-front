@@ -13,6 +13,7 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   loadingLabel?: string;
   icon?: ReactNode;
   uppercase?: boolean;
+  fullWidth?: boolean;
 }
 
 export function Button({
@@ -22,6 +23,7 @@ export function Button({
   loadingLabel,
   icon,
   uppercase = false,
+  fullWidth = false,
   children,
   disabled,
   className,
@@ -32,6 +34,7 @@ export function Button({
     styles[variant],
     styles[size],
     uppercase ? styles.uppercase : '',
+    fullWidth ? styles.fullWidth : '',
     className ?? '',
   ].join(' ');
 

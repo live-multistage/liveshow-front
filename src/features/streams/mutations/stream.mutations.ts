@@ -79,6 +79,10 @@ export function useCancelStreamMutation(streamId: string, eventId: string) {
   return useLifecycleMutation(streamId, streamsService.cancel, eventId);
 }
 
+export function useRollbackStreamMutation(streamId: string, eventId: string) {
+  return useLifecycleMutation(streamId, streamsService.rollback, eventId);
+}
+
 export function useUpdateStreamMutation(eventId: string, onSuccess?: (s: StreamResponse) => void) {
   const qc = useQueryClient();
   return useMutation({

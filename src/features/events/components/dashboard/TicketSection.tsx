@@ -178,6 +178,10 @@ export function TicketSection({ tickets, onChange }: Props) {
       {tickets.length === 0 && (
         <p className={styles.emptyHint}>Nenhum ingresso adicionado ainda.</p>
       )}
+
+      <p className={styles.inputHint}>
+        O acesso a palcos específicos pode ser configurado após a criação do evento.
+      </p>
     </div>
   );
 }

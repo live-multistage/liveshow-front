@@ -1,0 +1,250 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred.",
+    "notFound": "Not found.",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "add": "Add",
+    "remove": "Remove",
+    "submit": "Submit",
+    "close": "Close",
+    "total": "Total"
+  },
+  "nav": {
+    "home": "Home",
+    "schedule": "Schedule",
+    "tickets": "Tickets",
+    "dashboard": "Dashboard",
+    "account": "My Account",
+    "myTickets": "My Tickets",
+    "logout": "Logout",
+    "login": "Sign In",
+    "register": "Sign Up",
+    "searchPlaceholder": "Search shows...",
+    "cart": "Cart"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account to continue",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "Your password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "submitting": "Signing in...",
+      "orContinueWith": "or continue with",
+      "continueWithGoogle": "Continue with Google",
+      "continueWithApple": "Continue with Apple",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "errors": {
+        "INVALID_CREDENTIALS": "Invalid email or password.",
+        "USER_BLOCKED": "Your account has been temporarily suspended. Please contact support.",
+        "TOO_MANY_ATTEMPTS": "Too many login attempts. Please try again later."
+      }
+    },
+    "register": {
+      "title": "Create account",
+      "subtitle": "Join Liveshow and watch live shows from around the world.",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Your name",
+      "password": "Password",
+      "passwordPlaceholder": "Minimum 8 characters",
+      "confirmPassword": "Confirm password",
+      "confirmPasswordPlaceholder": "Repeat your password",
+      "submit": "Create account",
+      "submitting": "Creating account...",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "forgotPassword": {
+      "title": "Forgot your password?",
+      "subtitle": "Enter your email and we'll send you a recovery link.",
+      "email": "Email",
+      "submit": "Send link",
+      "backToLogin": "Back to login"
+    }
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty.",
+    "exploreEvents": "Explore events →",
+    "continueShopping": "Continue shopping",
+    "orderSummary": "Order Summary",
+    "promoPlaceholder": "Enter your promo code",
+    "subtotal": "Subtotal ({count, plural, one {# item} other {# items}})",
+    "goToCheckout": "Go to checkout",
+    "browseEvents": "Continue browsing events",
+    "cameras": "{count} camera{count, plural, one {} other {s}}",
+    "removeItem": "Remove {title}",
+    "total": "Total"
+  },
+  "events": {
+    "list": {
+      "title": "Schedule",
+      "subtitle": "Live shows from around the world, at your fingertips",
+      "searchPlaceholder": "Search by show, artist or city...",
+      "all": "All",
+      "liveOnly": "Live Only",
+      "withReplay": "With Replay",
+      "loading": "Loading...",
+      "count": "{count, plural, one {# show found} other {# shows found}}",
+      "error": "Error loading events.",
+      "noResults": "No shows found",
+      "clearFilters": "Clear filters",
+      "sortDate": "Date",
+      "sortPriceLow": "Lowest Price",
+      "sortPriceHigh": "Highest Price",
+      "sortRating": "Rating"
+    },
+    "detail": {
+      "notFound": "Show not found.",
+      "backToHome": "Back to home",
+      "back": "Back",
+      "live": "LIVE",
+      "replay": "REPLAY",
+      "date": "Date",
+      "time": "Time",
+      "venue": "Venue",
+      "cameras": "Cameras",
+      "angles": "{count, plural, one {# angle} other {# angles}}",
+      "organization": "Organization",
+      "viewProfile": "View profile →",
+      "about": "About the Show",
+      "availableCameras": "Available Cameras ({count})",
+      "watching": "{count} watching",
+      "cameraViews": "{count} camera views"
+    },
+    "status": {
+      "PUBLISHED": "Coming Soon",
+      "LIVE": "Live",
+      "FINISHED": "Finished",
+      "CANCELLED": "Cancelled",
+      "DRAFT": "Draft"
+    }
+  },
+  "ticketPanel": {
+    "title": "Ticket",
+    "buyReplay": "Buy Replay",
+    "buyTicket": "Buy Ticket",
+    "adding": "Adding…",
+    "addToCart": "Add to Cart",
+    "validFor": "Valid access for one person",
+    "cancelled": "This event has been cancelled.",
+    "verifyingAccess": "Verifying your access…",
+    "ticketSecured": "Ticket secured",
+    "watchNow": "Watch now",
+    "watchReplay": "Watch replay",
+    "streamIsLive": "The stream is live.",
+    "replayAvailable": "Replay available.",
+    "alreadyHaveAccess": "You already have access. The stream will appear here when it starts.",
+    "noReplay": "This event has no replay available for purchase.",
+    "noTickets": "No tickets available yet.",
+    "freePreview": "Watch free preview →",
+    "total": "Total"
+  },
+  "tickets": {
+    "title": "My Tickets",
+    "subtitle": "Access all the shows you purchased",
+    "empty": {
+      "title": "No tickets yet",
+      "desc": "Explore the schedule and buy your first ticket!",
+      "cta": "Browse Shows"
+    },
+    "stats": {
+      "count": "{count, plural, one {# ticket} other {# tickets}}",
+      "withReplay": "{count} with replay"
+    },
+    "recommendations": {
+      "title": "You might also like",
+      "seeAll": "See all →"
+    }
+  },
+  "home": {
+    "loading": "Loading events...",
+    "liveNow": "Live Now",
+    "liveForYou": "Live for you",
+    "findByGenre": "Find by\ngenre",
+    "all": "All"
+  },
+  "language": {
+    "select": "Language",
+    "pt": "Português",
+    "en": "English",
+    "es": "Español"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "retry": "Try again"
+  },
+  "showCard": {
+    "live": "Live",
+    "purchased": "Purchased",
+    "replay": "Replay",
+    "watch": "Watch",
+    "details": "See More"
+  },
+  "liveGate": {
+    "checkingAccess": "Checking access",
+    "accessRequired": "Access required",
+    "needTicket": "You need a ticket to watch {title} live.",
+    "viewTickets": "View tickets",
+    "loadingStream": "Loading stream",
+    "notStarted": "The stream hasn't started yet. This page updates automatically when the event goes live."
+  },
+  "ticketCard": {
+    "allCameras": "All cameras",
+    "cameras": "{count} camera{count, plural, one {} other {s}}",
+    "active": "ACTIVE TICKET",
+    "withReplay": "WITH REPLAY",
+    "liveOnly": "LIVE ONLY",
+    "details": "Details",
+    "replay": "Replay",
+    "watch": "Watch"
+  },
+  "ticketList": {
+    "all": "All",
+    "withReplay": "With Replay",
+    "withCameras": "With Cameras",
+    "liveOnly": "Live Only",
+    "emptyAll": "No tickets found.",
+    "emptyReplay": "No tickets with replay. Pro and Ultra tickets include replay.",
+    "emptyCamera": "No tickets with camera access.",
+    "emptyNoReplay": "All your tickets include replay!"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "orderSummary": "Order Summary",
+    "cameras": "{count} camera{count, plural, one {} other {s}}",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "buyer": "Buyer",
+    "name": "Name",
+    "email": "Email",
+    "paymentSoon": "Payment coming soon",
+    "paymentNote": "Payment will be enabled soon."
+  },
+  "carousel": {
+    "seeAll": "See all →",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right"
+  },
+  "orgEventCard": {
+    "live": "Live",
+    "finished": "Finished"
+  }
+}

@@ -2,9 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { Calendar, Clock, MapPin, Camera } from "lucide-react";
+import { useTranslations, useLocale } from 'next-intl';
 import type { Show } from "../../types/show";
 import { Chip } from "@/shared/components/ui/chip";
 import styles from "./ShowCard.module.scss";
+
+const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
 
 interface ShowCardProps {
   show: Show;
@@ -14,14 +17,17 @@ interface ShowCardProps {
 
 export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowCardProps) {
   const router = useRouter();
+  const t = useTranslations('showCard');
+  const locale = useLocale();
+  const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
-    return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+    return date.toLocaleDateString(localeCode, { day: "2-digit", month: "short", year: "numeric" });
   };
 
   const formatPrice = (price: number) =>
-    price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    price.toLocaleString(localeCode, { style: "currency", currency: "BRL" });
 
   return (
     <div
@@ -35,14 +41,14 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
           <div className={styles.badgeTopLeft}>
             <span className={styles.liveBadge}>
               <span className={styles.liveDot} />
-              Ao Vivo
+              {t('live')}
             </span>
           </div>
         )}
 
         {purchased && !show.isLive && (
           <div className={styles.badgeTopLeft}>
-            <span className={styles.purchasedBadge}>Comprado</span>
+            <span className={styles.purchasedBadge}>{t('purchased')}</span>
           </div>
         )}
 
@@ -83,7 +89,7 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
         <div className={styles.cardFooter}>
           <div className={styles.chips}>
             <Chip variant="tag" asChild><span>{show.genre}</span></Chip>
-            {show.hasReplay && <Chip variant="tag" asChild><span>Reprise</span></Chip>}
+            {show.hasReplay && <Chip variant="tag" asChild><span>{t('replay')}</span></Chip>}
           </div>
 
           {purchased ? (
@@ -91,11 +97,14 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
               className={styles.btnAction}
               onClick={(e) => { e.stopPropagation(); router.push(`/live/${show.id}`); }}
             >
-              Assistir
+              {t('watch')}
             </button>
           ) : (
-            <button className={styles.btnDetails} onClick={(e) => e.stopPropagation()}>
-              Ver Mais
+            <button
+              className={styles.btnDetails}
+              onClick={(e) => { e.stopPropagation(); router.push(`/events/${show.id}`); }}
+            >
+              {t('details')}
             </button>
           )}
         </div>

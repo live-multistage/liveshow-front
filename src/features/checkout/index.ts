@@ -1,1 +1,1 @@
-export {};
+export { CheckoutPageContent } from './components/CheckoutPageContent';

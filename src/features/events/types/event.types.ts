@@ -45,6 +45,7 @@ export interface CreateTicketRequest {
   price: number;
   capabilities: AccessCapability[];
   camerasLimit?: number | null;
+  allowedStageIds?: string[];
 }
 
 export interface UpdateTicketRequest {
@@ -53,6 +54,7 @@ export interface UpdateTicketRequest {
   price?: number;
   capabilities?: AccessCapability[];
   camerasLimit?: number | null;
+  allowedStageIds?: string[];
 }
 
 export interface TicketProductResponse {
@@ -63,6 +65,7 @@ export interface TicketProductResponse {
   price: number;
   capabilities: AccessCapability[];
   camerasLimit: number | null;
+  allowedStageIds: string[];
   immutable: boolean;
 }
 

@@ -3,11 +3,14 @@
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { registerSchema, type RegisterFormValues } from '../schemas/register.schema';
 import { useRegisterMutation } from '../mutations/use-register.mutation';
 import styles from './RegisterForm.module.scss';
 
 export function RegisterForm() {
+  const t = useTranslations('auth.register');
+
   const {
     register,
     handleSubmit,
@@ -26,15 +29,15 @@ export function RegisterForm() {
 
   return (
     <div className={styles.card}>
-      <h1 className={styles.title}>Criar conta</h1>
-      <p className={styles.subtitle}>Junte-se ao Liveshow e assista shows ao vivo de todo o mundo.</p>
+      <h1 className={styles.title}>{t('title')}</h1>
+      <p className={styles.subtitle}>{t('subtitle')}</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
         <div className={styles.field}>
-          <label className={styles.label}>E-mail</label>
+          <label className={styles.label}>{t('email')}</label>
           <input
             type="email"
-            placeholder="seu@email.com"
+            placeholder={t('emailPlaceholder')}
             disabled={isPending}
             className={styles.input}
             {...register('email')}
@@ -43,10 +46,10 @@ export function RegisterForm() {
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label}>Nome de exibição</label>
+          <label className={styles.label}>{t('displayName')}</label>
           <input
             type="text"
-            placeholder="Seu nome"
+            placeholder={t('displayNamePlaceholder')}
             disabled={isPending}
             className={styles.input}
             {...register('displayName')}
@@ -55,10 +58,10 @@ export function RegisterForm() {
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label}>Senha</label>
+          <label className={styles.label}>{t('password')}</label>
           <input
             type="password"
-            placeholder="Mínimo 8 caracteres"
+            placeholder={t('passwordPlaceholder')}
             disabled={isPending}
             className={styles.input}
             {...register('password')}
@@ -67,10 +70,10 @@ export function RegisterForm() {
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label}>Confirmar senha</label>
+          <label className={styles.label}>{t('confirmPassword')}</label>
           <input
             type="password"
-            placeholder="Repita sua senha"
+            placeholder={t('confirmPasswordPlaceholder')}
             disabled={isPending}
             className={styles.input}
             {...register('confirmPassword')}
@@ -83,14 +86,14 @@ export function RegisterForm() {
         )}
 
         <button type="submit" disabled={isPending} className={styles.btnSubmit}>
-          {isPending ? 'Criando conta...' : 'Criar conta'}
+          {isPending ? t('submitting') : t('submit')}
         </button>
       </form>
 
       <p className={styles.footer}>
-        Já tem uma conta?{' '}
+        {t('alreadyHaveAccount')}{' '}
         <Link href="/login" className={styles.link}>
-          Entrar
+          {t('signIn')}
         </Link>
       </p>
     </div>

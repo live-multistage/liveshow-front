@@ -1,4 +1,4 @@
-import { Info, MapPin, Camera, Ticket, Image, Check } from 'lucide-react';
+import { Info, MapPin, Camera, Ticket, Image, Radio, Check } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import styles from './CreateEventForm.module.scss';
 
@@ -12,8 +12,9 @@ const STEPS: Step[] = [
   { id: 1, label: 'Informações', icon: Info },
   { id: 2, label: 'Local & Data', icon: MapPin },
   { id: 3, label: 'Produção', icon: Camera },
-  { id: 4, label: 'Ingressos', icon: Ticket },
-  { id: 5, label: 'Imagens', icon: Image },
+  { id: 4, label: 'Stream', icon: Radio },
+  { id: 5, label: 'Ingressos', icon: Ticket },
+  { id: 6, label: 'Imagens', icon: Image },
 ];
 
 interface Props {
@@ -31,7 +32,7 @@ export function CreateEventStepper({ current, onNavigate }: Props) {
           isLast={i === STEPS.length - 1}
           done={current > s.id}
           active={current === s.id}
-          onNavigate={s.id < 5 && current > s.id ? onNavigate : undefined}
+          onNavigate={s.id < 6 && current > s.id ? onNavigate : undefined}
         />
       ))}
     </div>

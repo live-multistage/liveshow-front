@@ -27,13 +27,14 @@ interface Props {
   start: LifecycleAction;
   end: LifecycleAction;
   cancel: LifecycleAction;
+  rollback: LifecycleAction;
   onRename: (title: string, description?: string) => Promise<unknown>;
   isRenaming: boolean;
   onDeleted?: (id: string) => void;
 }
 
 export function StreamHeader({
-  stream, prepare, start, end, cancel, onRename, isRenaming, onDeleted,
+  stream, prepare, start, end, cancel, rollback, onRename, isRenaming, onDeleted,
 }: Props) {
   const { status } = stream;
   const isTerminal = status === 'ENDED' || status === 'CANCELLED';
@@ -95,24 +96,26 @@ export function StreamHeader({
         </span>
         <h2 className={styles.streamTitle}>{stream.title}</h2>
         {stream.description && <p className={styles.streamDesc}>{stream.description}</p>}
-        {canEdit && (
-          <button className={styles.headerIconBtn} title="Editar" onClick={() => setEditing(true)}>
-            <Pencil size={13} />
-          </button>
-        )}
-        {canEdit && (
-          <button
-            className={styles.headerIconBtn}
-            title="Excluir"
-            onClick={() => {
-              if (confirm('Excluir esta stream? Esta ação não pode ser desfeita.')) {
-                del.mutate(stream.id);
-              }
-            }}
-          >
-            <Trash2 size={13} />
-          </button>
-        )}
+        <div className={styles.streamActionsWrap}>
+          {canEdit && (
+            <button className={styles.headerIconBtn} title="Editar" onClick={() => setEditing(true)}>
+              <Pencil size={13} />
+            </button>
+          )}
+          {canEdit && (
+            <button
+              className={styles.headerIconBtn}
+              title="Excluir"
+              onClick={() => {
+                if (confirm('Excluir esta stream? Esta ação não pode ser desfeita.')) {
+                  del.mutate(stream.id);
+                }
+              }}
+            >
+              <Trash2 size={13} />
+            </button>
+          )}
+        </div>
       </div>
 
       {!isTerminal && (
@@ -128,9 +131,14 @@ export function StreamHeader({
             </Button>
           )}
           {status === 'LIVE' && (
-            <Button variant="danger" size="sm" uppercase isLoading={end.isPending} onClick={end.onClick}>
-              Encerrar
-            </Button>
+            <>
+              <Button variant="danger" size="sm" uppercase isLoading={end.isPending} onClick={end.onClick}>
+                Encerrar
+              </Button>
+              <Button variant="subtle" size="sm" uppercase isLoading={rollback.isPending} onClick={rollback.onClick}>
+                Pausar
+              </Button>
+            </>
           )}
           {(status === 'DRAFT' || status === 'READY') && (
             <Button variant="subtle" size="sm" uppercase isLoading={cancel.isPending} onClick={cancel.onClick}>

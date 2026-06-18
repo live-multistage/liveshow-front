@@ -7,6 +7,7 @@ import { useEventStreamsQuery } from '../queries/streams.queries';
 import { useCreateStreamMutation } from '../mutations/stream.mutations';
 import { StreamCard } from './StreamCard';
 import { StreamBuilder } from './StreamBuilder';
+import { SimpleCustomSelect } from '@/shared/components/ui/custom-select';
 import type { StreamResponse } from '../types/stream.types';
 import styles from './StreamsPageContent.module.scss';
 
@@ -102,17 +103,13 @@ export function StreamsPageContent() {
         <h1 className={styles.heading}>Streams</h1>
         <div className={styles.eventSelector}>
           <span className={styles.eventLabel}>Evento:</span>
-          <select
-            className={styles.eventSelect}
+          <SimpleCustomSelect
             value={selectedEventId ?? ''}
-            onChange={(e) => handleEventChange(e.target.value)}
+            onValueChange={handleEventChange}
+            placeholder="Selecionar evento..."
             disabled={eventsLoading}
-          >
-            <option value="">Selecionar evento...</option>
-            {events.map((e) => (
-              <option key={e.id} value={e.id}>{e.title}</option>
-            ))}
-          </select>
+            options={events.map((e) => ({ value: e.id, label: e.title }))}
+          />
         </div>
       </div>
 
