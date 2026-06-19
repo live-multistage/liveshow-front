@@ -23,8 +23,7 @@ export function RegisterForm() {
   const { mutate, isPending, error } = useRegisterMutation();
 
   function onSubmit(values: RegisterFormValues) {
-    const { confirmPassword: _ignored, ...payload } = values;
-    mutate(payload);
+    mutate({ email: values.email, displayName: values.displayName, password: values.password });
   }
 
   return (
