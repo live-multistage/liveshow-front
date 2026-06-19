@@ -42,7 +42,7 @@ export function MembersPage({ organizationId }: Props) {
 
   const handleInvite = (values: InviteMemberValues) => {
     setInviteError(null);
-    inviteMutation.mutate(values, {
+    inviteMutation.mutate({ email: values.email, role: values.role }, {
       onSuccess: () => setInviteOpen(false),
       onError: (e) => setInviteError(e.message),
     });

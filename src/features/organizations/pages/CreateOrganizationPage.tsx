@@ -27,7 +27,7 @@ export function CreateOrganizationPage() {
 
       <div className={styles.body}>
         <OrganizationForm
-          onSubmit={(values) => mutation.mutate(values)}
+          onSubmit={(values) => mutation.mutate({ name: values.name, slug: values.slug, description: values.description })}
           isPending={mutation.isPending}
           error={mutation.error?.message}
           submitLabel="Criar Organização"

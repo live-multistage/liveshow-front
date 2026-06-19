@@ -21,7 +21,8 @@ export const ticketSchema = z
     path: ['liveView'],
   });
 
-export type TicketFormValues = z.infer<typeof ticketSchema>;
+export type TicketFormInput = z.input<typeof ticketSchema>;
+export type TicketFormValues = z.output<typeof ticketSchema>;
 
 export const createEventSchema = z
   .object({

@@ -3,7 +3,7 @@
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
-import { ticketSchema, type TicketFormValues } from '../../schemas/create-event.schema';
+import { ticketSchema, type TicketFormInput, type TicketFormValues } from '../../schemas/create-event.schema';
 import type { CreateTicketRequest, AccessCapability } from '../../types/event.types';
 import styles from './TicketSection.module.scss';
 
@@ -25,7 +25,7 @@ export function TicketSection({ tickets, onChange }: Props) {
     control,
     reset,
     formState: { errors },
-  } = useForm<TicketFormValues>({
+  } = useForm<TicketFormInput, unknown, TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: { liveView: false, replayView: false, cameraView: false, camerasLimit: undefined },
   });

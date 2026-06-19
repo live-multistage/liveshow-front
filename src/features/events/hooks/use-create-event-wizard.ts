@@ -6,7 +6,7 @@ import { useCreateEventMutation } from '../mutations/create-event.mutation';
 import { streamsService } from '@/features/streams/services/streams.service';
 import type { CreateEventFormValues } from '../schemas/create-event.schema';
 import type { EventResponse } from '../types/event.types';
-import type { AddedTicket } from '../components/TicketSection';
+import type { AddedTicket } from '../components/dashboard/TicketSection';
 import { emptyStreamConfig } from '../components/dashboard/steps/EventStreamStep';
 import type { StreamConfig } from '../components/dashboard/steps/EventStreamStep';
 

@@ -37,7 +37,7 @@ export function OrgDetailPageContent({ org, currentUserId }: Props) {
   const [searchError, setSearchError] = useState('');
   const [searching, setSearching] = useState(false);
 
-  const [addRole, setAddRole] = useState<OrganizationRole>('MEMBER');
+  const [addRole, setAddRole] = useState<OrganizationRole>('VIEWER');
   const [addError, setAddError] = useState('');
 
   const { data: members = [], isLoading } = useOrgMembersQuery(org.id);
@@ -71,7 +71,7 @@ export function OrgDetailPageContent({ org, currentUserId }: Props) {
         onSuccess: () => {
           setSearchEmail('');
           setSearchResult(null);
-          setAddRole('MEMBER');
+          setAddRole('VIEWER');
         },
         onError: (e) => setAddError(e.message),
       },

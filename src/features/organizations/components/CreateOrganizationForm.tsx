@@ -39,7 +39,7 @@ export function CreateOrganizationForm({ onSuccess }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit((v) => mutation.mutate(v))} className={styles.form}>
+    <form onSubmit={handleSubmit((v) => mutation.mutate({ name: v.name, slug: v.slug }))} className={styles.form}>
       <div className={styles.field}>
         <label className={styles.label}>Nome da Organização *</label>
         <input

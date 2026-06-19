@@ -5,7 +5,7 @@ import { Lock, Pencil } from 'lucide-react';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
-import { ticketSchema, type TicketFormValues } from '../../schemas/create-event.schema';
+import { ticketSchema, type TicketFormInput, type TicketFormValues } from '../../schemas/create-event.schema';
 import {
   useCreateTicketProductMutation,
   useDeleteTicketProductMutation,
@@ -33,7 +33,7 @@ function ticketToForm(ticket: TicketProductResponse): TicketFormValues {
   };
 }
 
-const EMPTY_FORM: Partial<TicketFormValues> = {
+const EMPTY_FORM: Partial<TicketFormInput> = {
   liveView: false,
   replayView: false,
   cameraView: false,
@@ -56,7 +56,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
     control,
     reset,
     formState: { errors },
-  } = useForm<TicketFormValues>({
+  } = useForm<TicketFormInput, unknown, TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: EMPTY_FORM,
   });
