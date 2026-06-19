@@ -33,7 +33,7 @@ export function applyInterceptors(client: AxiosInstance) {
     async (error) => {
       const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-      if (error.response?.status !== 401 || original._retry) {
+      if (error.response?.status !== 401 || original._retry || !tokenStore.get()) {
         return Promise.reject(error);
       }
 
