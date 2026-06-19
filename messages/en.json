@@ -246,5 +246,213 @@
   "orgEventCard": {
     "live": "Live",
     "finished": "Finished"
+  },
+  "dashboard": {
+    "nav": {
+      "overview": "Overview",
+      "organizations": "Organizations",
+      "events": "Events",
+      "sales": "Sales",
+      "streams": "Streams",
+      "analytics": "Analytics"
+    },
+    "roles": {
+      "ADMIN": "Admin",
+      "ORGANIZER": "Organizer",
+      "ARTIST": "Artist"
+    },
+    "userMenu": {
+      "account": "My Account",
+      "logout": "Sign out"
+    },
+    "overview": {
+      "stats": "Statistics",
+      "viewAll": "View all →",
+      "recentEvents": "Recent Events",
+      "recentStreams": "Recent Streams",
+      "emptyEvents": "No events created yet.",
+      "emptyStreams": "No streams created yet.",
+      "revenue": "Revenue",
+      "revenueSoon": "Coming soon",
+      "liveNow": "Live Now",
+      "upcoming": "Upcoming",
+      "finished": "Finished",
+      "drafts": "Drafts",
+      "total": "Total",
+      "organizer": {
+        "heading": "Organizer Overview",
+        "totalHint": "All your events",
+        "liveHint": "Currently streaming",
+        "upcomingHint": "Published & scheduled",
+        "draftsHint": "Unpublished events",
+        "finishedHint": "Completed events",
+        "revenueHint": "Coming soon"
+      },
+      "artist": {
+        "heading": "Artist Overview",
+        "totalLabel": "Total Streams",
+        "totalHint": "All your events",
+        "liveHint": "Currently on air",
+        "upcomingHint": "Scheduled streams",
+        "finishedHint": "Completed streams"
+      },
+      "admin": {
+        "heading": "Admin Overview",
+        "totalHint": "All platform events",
+        "liveHint": "Active streams",
+        "upcomingHint": "Published & scheduled",
+        "draftsHint": "Awaiting publication",
+        "finishedHint": "Completed events",
+        "revenueHint": "Coming soon"
+      }
+    }
+  },
+  "eventsPage": {
+    "heading": "Events",
+    "subheading": "Manage your events and streams",
+    "createBtn": "Create Event",
+    "createFirst": "Create first event",
+    "statTotal": "Total",
+    "statLive": "Live",
+    "statPublished": "Published",
+    "statFinished": "Finished",
+    "filterAll": "All",
+    "filterDraft": "Draft",
+    "filterPublished": "Published",
+    "filterLive": "Live",
+    "filterFinished": "Finished",
+    "filterCancelled": "Cancelled",
+    "loading": "Loading events...",
+    "error": "Error loading events.",
+    "empty": "No events found."
+  },
+  "eventCard": {
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "LIVE": "Live",
+      "FINISHED": "Finished",
+      "CANCELLED": "Cancelled"
+    },
+    "cameras": "{count, plural, one {# camera} other {# cameras}}"
+  },
+  "eventDetail": {
+    "back": "Events",
+    "notFound": "Event not found.",
+    "backLink": "Back to events",
+    "description": "Description",
+    "infoDate": "Date",
+    "infoTime": "Time",
+    "infoCameras": "Cameras",
+    "infoTickets": "Tickets",
+    "cameras": "{count, plural, one {# angle} other {# angles}}",
+    "ticketTypes": "{count, plural, one {# type} other {# types}}",
+    "editTitle": "Title *",
+    "editDescription": "Description *",
+    "editStartsAt": "Start *",
+    "editEndsAt": "End *",
+    "edit": "Edit",
+    "publish": "Publish",
+    "publishing": "Publishing...",
+    "unpublish": "Unpublish",
+    "unpublishing": "Unpublishing...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "ticketsTitle": "Tickets",
+    "allCameras": "All cameras",
+    "cameraCount": "{count, plural, one {# camera} other {# cameras}}",
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "LIVE": "Live",
+      "FINISHED": "Finished",
+      "CANCELLED": "Cancelled"
+    }
+  },
+  "createEvent": {
+    "back": "Events",
+    "heading": "Create Event",
+    "subheading": "Fill in the details for your event",
+    "steps": {
+      "info": "Info",
+      "location": "Location & Date",
+      "production": "Production",
+      "stream": "Stream",
+      "tickets": "Tickets",
+      "images": "Images"
+    },
+    "nav": {
+      "back": "Back",
+      "next": "Next",
+      "creating": "Creating...",
+      "create": "Create Event"
+    },
+    "info": {
+      "orgLabel": "Organization *",
+      "orgPlaceholder": "Select an organization",
+      "titleLabel": "Event Title *",
+      "titlePlaceholder": "e.g. Rock in Rio 2026",
+      "descLabel": "Description *",
+      "descPlaceholder": "Describe the event to the audience...",
+      "noOrgs": "Create an organization before creating events."
+    },
+    "location": {
+      "venueLabel": "Venue / Location Name",
+      "venuePlaceholder": "e.g. Madison Square Garden",
+      "cityLabel": "City",
+      "cityPlaceholder": "e.g. New York",
+      "countryLabel": "Country",
+      "countryPlaceholder": "e.g. United States",
+      "startsAtLabel": "Start *",
+      "endsAtLabel": "End *"
+    },
+    "production": {
+      "hint": "Set how many cameras will be available to the audience during the broadcast.",
+      "camerasLabel": "Number of Cameras *"
+    },
+    "stream": {
+      "hint": "Optional — you can configure this later in Dashboard → Streams.",
+      "titleLabel": "Stream Title",
+      "titlePlaceholder": "e.g. Main Broadcast",
+      "stagesLabel": "Stages",
+      "stagePlaceholder": "Stage name",
+      "addStage": "Stage",
+      "feedPlaceholder": "Feed name",
+      "addFeed": "Feed",
+      "cameraPlaceholder": "Camera name",
+      "addCamera": "Camera",
+      "removeCamera": "Remove camera",
+      "removeFeed": "Remove feed",
+      "removeStage": "Remove stage"
+    }
+  },
+  "editTicket": {
+    "title": "Tickets",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "add": "Add",
+    "adding": "Adding…",
+    "nameLabel": "Ticket Name *",
+    "namePlaceholder": "e.g. Standard Ticket",
+    "priceLabel": "Price (USD) *",
+    "descLabel": "Ticket Description *",
+    "descPlaceholder": "e.g. Access to the live show",
+    "accessLabel": "Access Type *",
+    "liveView": "Live",
+    "replayView": "Replay",
+    "cameraView": "Cameras",
+    "camerasLimitLabel": "Camera Limit",
+    "camerasLimitPlaceholder": "Empty = access to all",
+    "camerasLimitHint": "Leave blank to allow all cameras. Enter a number to limit by priority index.",
+    "stagesLabel": "Stage Access",
+    "stagesHint": "No selection = access to all stages.",
+    "allCameras": "All cameras",
+    "cameras": "{count, plural, one {# camera} other {# cameras}}",
+    "empty": "No tickets added yet.",
+    "stagesNote": "Stage-specific access can be configured after the event is created.",
+    "errorAdd": "Error adding ticket.",
+    "errorSave": "Error saving ticket."
   }
 }

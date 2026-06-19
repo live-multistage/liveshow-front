@@ -246,5 +246,213 @@
   "orgEventCard": {
     "live": "En Vivo",
     "finished": "Finalizado"
+  },
+  "dashboard": {
+    "nav": {
+      "overview": "Panel",
+      "organizations": "Organizaciones",
+      "events": "Eventos",
+      "sales": "Ventas",
+      "streams": "Streams",
+      "analytics": "Analíticas"
+    },
+    "roles": {
+      "ADMIN": "Admin",
+      "ORGANIZER": "Organizador",
+      "ARTIST": "Artista"
+    },
+    "userMenu": {
+      "account": "Mi Cuenta",
+      "logout": "Cerrar sesión"
+    },
+    "overview": {
+      "stats": "Estadísticas",
+      "viewAll": "Ver todos →",
+      "recentEvents": "Eventos Recientes",
+      "recentStreams": "Streams Recientes",
+      "emptyEvents": "Ningún evento creado aún.",
+      "emptyStreams": "Ningún stream creado aún.",
+      "revenue": "Ingresos",
+      "revenueSoon": "Próximamente",
+      "liveNow": "En Vivo",
+      "upcoming": "Programados",
+      "finished": "Finalizados",
+      "drafts": "Borradores",
+      "total": "Total",
+      "organizer": {
+        "heading": "Panel del Organizador",
+        "totalHint": "Todos tus eventos",
+        "liveHint": "Transmitiendo ahora",
+        "upcomingHint": "Publicados y programados",
+        "draftsHint": "Eventos no publicados",
+        "finishedHint": "Eventos completados",
+        "revenueHint": "Próximamente"
+      },
+      "artist": {
+        "heading": "Panel del Artista",
+        "totalLabel": "Total de Streams",
+        "totalHint": "Todos tus eventos",
+        "liveHint": "En el aire ahora",
+        "upcomingHint": "Streams programados",
+        "finishedHint": "Streams completados"
+      },
+      "admin": {
+        "heading": "Panel Admin",
+        "totalHint": "Todos los eventos de la plataforma",
+        "liveHint": "Streams activos",
+        "upcomingHint": "Publicados y programados",
+        "draftsHint": "Esperando publicación",
+        "finishedHint": "Eventos completados",
+        "revenueHint": "Próximamente"
+      }
+    }
+  },
+  "eventsPage": {
+    "heading": "Eventos",
+    "subheading": "Gestiona tus eventos y transmisiones",
+    "createBtn": "Crear Evento",
+    "createFirst": "Crear primer evento",
+    "statTotal": "Total",
+    "statLive": "En Vivo",
+    "statPublished": "Publicados",
+    "statFinished": "Finalizados",
+    "filterAll": "Todos",
+    "filterDraft": "Borrador",
+    "filterPublished": "Publicados",
+    "filterLive": "En Vivo",
+    "filterFinished": "Finalizados",
+    "filterCancelled": "Cancelados",
+    "loading": "Cargando eventos...",
+    "error": "Error al cargar eventos.",
+    "empty": "Ningún evento encontrado."
+  },
+  "eventCard": {
+    "status": {
+      "DRAFT": "Borrador",
+      "PUBLISHED": "Publicado",
+      "LIVE": "En Vivo",
+      "FINISHED": "Finalizado",
+      "CANCELLED": "Cancelado"
+    },
+    "cameras": "{count, plural, one {# cámara} other {# cámaras}}"
+  },
+  "eventDetail": {
+    "back": "Eventos",
+    "notFound": "Evento no encontrado.",
+    "backLink": "Volver a eventos",
+    "description": "Descripción",
+    "infoDate": "Fecha",
+    "infoTime": "Horario",
+    "infoCameras": "Cámaras",
+    "infoTickets": "Entradas",
+    "cameras": "{count, plural, one {# ángulo} other {# ángulos}}",
+    "ticketTypes": "{count, plural, one {# tipo} other {# tipos}}",
+    "editTitle": "Título *",
+    "editDescription": "Descripción *",
+    "editStartsAt": "Inicio *",
+    "editEndsAt": "Fin *",
+    "edit": "Editar",
+    "publish": "Publicar",
+    "publishing": "Publicando...",
+    "unpublish": "Despublicar",
+    "unpublishing": "Despublicando...",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "ticketsTitle": "Entradas",
+    "allCameras": "Todas las cámaras",
+    "cameraCount": "{count, plural, one {# cámara} other {# cámaras}}",
+    "status": {
+      "DRAFT": "Borrador",
+      "PUBLISHED": "Publicado",
+      "LIVE": "En Vivo",
+      "FINISHED": "Finalizado",
+      "CANCELLED": "Cancelado"
+    }
+  },
+  "createEvent": {
+    "back": "Eventos",
+    "heading": "Crear Evento",
+    "subheading": "Completa la información de tu evento",
+    "steps": {
+      "info": "Información",
+      "location": "Lugar & Fecha",
+      "production": "Producción",
+      "stream": "Stream",
+      "tickets": "Entradas",
+      "images": "Imágenes"
+    },
+    "nav": {
+      "back": "Volver",
+      "next": "Siguiente",
+      "creating": "Creando...",
+      "create": "Crear Evento"
+    },
+    "info": {
+      "orgLabel": "Organización *",
+      "orgPlaceholder": "Selecciona una organización",
+      "titleLabel": "Título del Evento *",
+      "titlePlaceholder": "Ej: Rock in Rio 2026",
+      "descLabel": "Descripción *",
+      "descPlaceholder": "Describe el evento para el público...",
+      "noOrgs": "Crea una organización antes de crear eventos."
+    },
+    "location": {
+      "venueLabel": "Nombre del Lugar / Venue",
+      "venuePlaceholder": "Ej: Estadio Maracaná",
+      "cityLabel": "Ciudad",
+      "cityPlaceholder": "Ej: Buenos Aires",
+      "countryLabel": "País",
+      "countryPlaceholder": "Ej: Argentina",
+      "startsAtLabel": "Inicio *",
+      "endsAtLabel": "Fin *"
+    },
+    "production": {
+      "hint": "Define cuántas cámaras estarán disponibles para el público durante la transmisión.",
+      "camerasLabel": "Cantidad de Cámaras *"
+    },
+    "stream": {
+      "hint": "Opcional — puedes configurar esto después en Dashboard → Streams.",
+      "titleLabel": "Título del Stream",
+      "titlePlaceholder": "ej: Transmisión Principal",
+      "stagesLabel": "Escenarios",
+      "stagePlaceholder": "Nombre del escenario",
+      "addStage": "Escenario",
+      "feedPlaceholder": "Nombre del feed",
+      "addFeed": "Feed",
+      "cameraPlaceholder": "Nombre de la cámara",
+      "addCamera": "Cámara",
+      "removeCamera": "Eliminar cámara",
+      "removeFeed": "Eliminar feed",
+      "removeStage": "Eliminar escenario"
+    }
+  },
+  "editTicket": {
+    "title": "Entradas",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "add": "Agregar",
+    "adding": "Agregando…",
+    "nameLabel": "Nombre de la Entrada *",
+    "namePlaceholder": "Ej: Entrada Estándar",
+    "priceLabel": "Precio *",
+    "descLabel": "Descripción de la Entrada *",
+    "descPlaceholder": "Ej: Acceso al show en vivo",
+    "accessLabel": "Tipo de Acceso *",
+    "liveView": "En Vivo",
+    "replayView": "Replay",
+    "cameraView": "Cámaras",
+    "camerasLimitLabel": "Límite de Cámaras",
+    "camerasLimitPlaceholder": "Vacío = acceso a todas",
+    "camerasLimitHint": "Deja en blanco para permitir todas las cámaras. Ingresa un número para limitar por índice de prioridad.",
+    "stagesLabel": "Acceso a Escenarios",
+    "stagesHint": "Sin selección = acceso a todos los escenarios.",
+    "allCameras": "Todas las cámaras",
+    "cameras": "{count, plural, one {# cámara} other {# cámaras}}",
+    "empty": "Ninguna entrada agregada aún.",
+    "stagesNote": "El acceso a escenarios específicos puede configurarse después de crear el evento.",
+    "errorAdd": "Error al agregar entrada.",
+    "errorSave": "Error al guardar entrada."
   }
 }

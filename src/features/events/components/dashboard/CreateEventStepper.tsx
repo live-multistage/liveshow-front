@@ -1,20 +1,21 @@
 import { Info, MapPin, Camera, Ticket, Image, Radio, Check } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import styles from './CreateEventForm.module.scss';
 
 interface Step {
   id: number;
-  label: string;
+  key: string;
   icon: LucideIcon;
 }
 
 const STEPS: Step[] = [
-  { id: 1, label: 'Informações', icon: Info },
-  { id: 2, label: 'Local & Data', icon: MapPin },
-  { id: 3, label: 'Produção', icon: Camera },
-  { id: 4, label: 'Stream', icon: Radio },
-  { id: 5, label: 'Ingressos', icon: Ticket },
-  { id: 6, label: 'Imagens', icon: Image },
+  { id: 1, key: 'info', icon: Info },
+  { id: 2, key: 'location', icon: MapPin },
+  { id: 3, key: 'production', icon: Camera },
+  { id: 4, key: 'stream', icon: Radio },
+  { id: 5, key: 'tickets', icon: Ticket },
+  { id: 6, key: 'images', icon: Image },
 ];
 
 interface Props {
@@ -23,12 +24,15 @@ interface Props {
 }
 
 export function CreateEventStepper({ current, onNavigate }: Props) {
+  const t = useTranslations('createEvent.steps');
+
   return (
     <div className={styles.stepper}>
       {STEPS.map((s, i) => (
         <StepGroup
           key={s.id}
           step={s}
+          label={t(s.key as Parameters<typeof t>[0])}
           isLast={i === STEPS.length - 1}
           done={current > s.id}
           active={current === s.id}
@@ -41,13 +45,14 @@ export function CreateEventStepper({ current, onNavigate }: Props) {
 
 interface StepGroupProps {
   step: Step;
+  label: string;
   isLast: boolean;
   done: boolean;
   active: boolean;
   onNavigate?: (step: number) => void;
 }
 
-function StepGroup({ step, isLast, done, active, onNavigate }: StepGroupProps) {
+function StepGroup({ step, label, isLast, done, active, onNavigate }: StepGroupProps) {
   const navigable = !!onNavigate;
   const Icon = step.icon;
 
@@ -72,7 +77,7 @@ function StepGroup({ step, isLast, done, active, onNavigate }: StepGroupProps) {
         <div className={styles.stepCircle}>
           {done ? <Check size={12} /> : <Icon size={12} />}
         </div>
-        <span className={styles.stepLabel}>{step.label}</span>
+        <span className={styles.stepLabel}>{label}</span>
       </div>
 
       {!isLast && (

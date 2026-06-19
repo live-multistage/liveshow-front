@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Lock, Pencil } from 'lucide-react';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { ticketSchema, type TicketFormValues } from '../../schemas/create-event.schema';
 import {
   useCreateTicketProductMutation,
@@ -19,26 +20,16 @@ interface Props {
   tickets: TicketProductResponse[];
 }
 
-function capabilitiesLabel(caps: AccessCapability[], camerasLimit: number | null): string {
-  const parts: string[] = [];
-  if (caps.includes('LIVE_VIEW')) parts.push('Ao Vivo');
-  if (caps.includes('REPLAY_VIEW')) parts.push('Replay');
-  if (caps.includes('CAMERA_VIEW')) {
-    parts.push(camerasLimit != null ? `${camerasLimit} câmera${camerasLimit !== 1 ? 's' : ''}` : 'Todas as câmeras');
-  }
-  return parts.join(' + ') || 'Sem acesso';
-}
-
-function ticketToForm(t: TicketProductResponse): TicketFormValues {
+function ticketToForm(ticket: TicketProductResponse): TicketFormValues {
   return {
-    name: t.name,
-    description: t.description,
-    price: t.price,
-    liveView: t.capabilities.includes('LIVE_VIEW'),
-    replayView: t.capabilities.includes('REPLAY_VIEW'),
-    cameraView: t.capabilities.includes('CAMERA_VIEW'),
-    camerasLimit: t.camerasLimit ?? undefined,
-    allowedStageIds: t.allowedStageIds ?? [],
+    name: ticket.name,
+    description: ticket.description,
+    price: ticket.price,
+    liveView: ticket.capabilities.includes('LIVE_VIEW'),
+    replayView: ticket.capabilities.includes('REPLAY_VIEW'),
+    cameraView: ticket.capabilities.includes('CAMERA_VIEW'),
+    camerasLimit: ticket.camerasLimit ?? undefined,
+    allowedStageIds: ticket.allowedStageIds ?? [],
   };
 }
 
@@ -51,6 +42,7 @@ const EMPTY_FORM: Partial<TicketFormValues> = {
 };
 
 export function EditTicketSection({ eventId, tickets }: Props) {
+  const t = useTranslations('editTicket');
   const createMutation = useCreateTicketProductMutation(eventId);
   const updateMutation = useUpdateTicketProductMutation(eventId);
   const deleteMutation = useDeleteTicketProductMutation(eventId);
@@ -75,6 +67,16 @@ export function EditTicketSection({ eventId, tickets }: Props) {
 
   const isEditing = editingId !== null;
   const isPending = createMutation.isPending || updateMutation.isPending;
+
+  function capabilitiesLabel(caps: AccessCapability[], camerasLimit: number | null): string {
+    const parts: string[] = [];
+    if (caps.includes('LIVE_VIEW')) parts.push(t('liveView'));
+    if (caps.includes('REPLAY_VIEW')) parts.push(t('replayView'));
+    if (caps.includes('CAMERA_VIEW')) {
+      parts.push(camerasLimit != null ? t('cameras', { count: camerasLimit }) : t('allCameras'));
+    }
+    return parts.join(' + ');
+  }
 
   const startEdit = (ticket: TicketProductResponse) => {
     setEditingId(ticket.id);
@@ -116,7 +118,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
       <div className={styles.header}>
         <h3 className={styles.sectionTitle}>
           <span className={styles.dot} />
-          Ingressos
+          {t('title')}
         </h3>
         <div className={styles.headerActions}>
           {isEditing && (
@@ -126,7 +128,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
               onClick={cancelEdit}
               disabled={isPending}
             >
-              Cancelar
+              {t('cancel')}
             </button>
           )}
           <button
@@ -136,30 +138,25 @@ export function EditTicketSection({ eventId, tickets }: Props) {
             disabled={isPending}
           >
             {isEditing
-              ? updateMutation.isPending
-                ? 'Salvando…'
-                : 'Salvar'
-              : createMutation.isPending
-                ? 'Adicionando…'
-                : 'Adicionar'}
+              ? updateMutation.isPending ? t('saving') : t('save')
+              : createMutation.isPending ? t('adding') : t('add')}
           </button>
         </div>
       </div>
 
-      {/* Add form */}
       <div className={styles.row}>
         <div className={styles.field}>
-          <label className={styles.label}>Nome do Ingresso *</label>
+          <label className={styles.label}>{t('nameLabel')}</label>
           <input
             {...register('name')}
             className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
-            placeholder="Ex: Ingresso Padrão"
+            placeholder={t('namePlaceholder')}
           />
           {errors.name && <p className={styles.error}>{errors.name.message}</p>}
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label}>Preço (R$) *</label>
+          <label className={styles.label}>{t('priceLabel')}</label>
           <input
             type="number"
             step="0.01"
@@ -173,29 +170,29 @@ export function EditTicketSection({ eventId, tickets }: Props) {
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>Descrição do Ingresso *</label>
+        <label className={styles.label}>{t('descLabel')}</label>
         <input
           {...register('description')}
           className={`${styles.input} ${errors.description ? styles.inputError : ''}`}
-          placeholder="Ex: Acesso ao show ao vivo"
+          placeholder={t('descPlaceholder')}
         />
         {errors.description && <p className={styles.error}>{errors.description.message}</p>}
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>Tipo de Acesso *</label>
+        <label className={styles.label}>{t('accessLabel')}</label>
         <div className={styles.checkboxGroup}>
           <label className={styles.checkboxLabel}>
             <input type="checkbox" {...register('liveView')} className={styles.checkbox} />
-            <span>Ao Vivo</span>
+            <span>{t('liveView')}</span>
           </label>
           <label className={styles.checkboxLabel}>
             <input type="checkbox" {...register('replayView')} className={styles.checkbox} />
-            <span>Replay</span>
+            <span>{t('replayView')}</span>
           </label>
           <label className={styles.checkboxLabel}>
             <input type="checkbox" {...register('cameraView')} className={styles.checkbox} />
-            <span>Câmeras</span>
+            <span>{t('cameraView')}</span>
           </label>
         </div>
         {errors.liveView && <p className={styles.error}>{errors.liveView.message}</p>}
@@ -203,25 +200,23 @@ export function EditTicketSection({ eventId, tickets }: Props) {
 
       {cameraView && (
         <div className={styles.field}>
-          <label className={styles.label}>Limite de Câmeras</label>
+          <label className={styles.label}>{t('camerasLimitLabel')}</label>
           <input
             type="number"
             min={1}
             step={1}
             {...register('camerasLimit')}
             className={`${styles.input} ${errors.camerasLimit ? styles.inputError : ''}`}
-            placeholder="Vazio = acesso a todas"
+            placeholder={t('camerasLimitPlaceholder')}
           />
-          <p className={styles.inputHint}>
-            Deixe em branco para liberar todas as câmeras. Informe um número para limitar pelo índice de prioridade.
-          </p>
+          <p className={styles.inputHint}>{t('camerasLimitHint')}</p>
           {errors.camerasLimit && <p className={styles.error}>{errors.camerasLimit.message}</p>}
         </div>
       )}
 
       {showStageSelector && (
         <div className={styles.field}>
-          <label className={styles.label}>Palcos com Acesso</label>
+          <label className={styles.label}>{t('stagesLabel')}</label>
           <Controller
             control={control}
             name="allowedStageIds"
@@ -251,20 +246,17 @@ export function EditTicketSection({ eventId, tickets }: Props) {
               </div>
             )}
           />
-          <p className={styles.inputHint}>
-            Sem seleção = acesso a todos os palcos.
-          </p>
+          <p className={styles.inputHint}>{t('stagesHint')}</p>
         </div>
       )}
 
       {createMutation.isError && (
-        <p className={styles.error}>{createMutation.error?.message ?? 'Erro ao adicionar ingresso.'}</p>
+        <p className={styles.error}>{createMutation.error?.message ?? t('errorAdd')}</p>
       )}
       {updateMutation.isError && (
-        <p className={styles.error}>{updateMutation.error?.message ?? 'Erro ao salvar ingresso.'}</p>
+        <p className={styles.error}>{updateMutation.error?.message ?? t('errorSave')}</p>
       )}
 
-      {/* Existing tickets */}
       {tickets.map((ticket) => (
         <div
           key={ticket.id}
@@ -283,7 +275,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
                   className={styles.editBtn}
                   onClick={() => startEdit(ticket)}
                   disabled={isPending}
-                  aria-label="Editar ingresso"
+                  aria-label="edit"
                 >
                   <Pencil size={13} />
                 </button>
@@ -292,7 +284,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
                   className={styles.removeBtn}
                   onClick={() => deleteMutation.mutate(ticket.id)}
                   disabled={deleteMutation.isPending || editingId === ticket.id}
-                  aria-label="Remover ingresso"
+                  aria-label="remove"
                 >
                   ×
                 </button>
@@ -308,7 +300,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
       ))}
 
       {tickets.length === 0 && (
-        <p className={styles.emptyHint}>Nenhum ingresso adicionado ainda.</p>
+        <p className={styles.emptyHint}>{t('empty')}</p>
       )}
     </div>
   );

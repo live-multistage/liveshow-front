@@ -24,7 +24,7 @@ interface Props {
 export function TicketPanel({ event, tickets }: Props) {
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(tickets[0]?.id ?? null);
-  const [pendingAction, setPendingAction] = useState<'buy' | 'cart' | null>(null);
+  const [pendingAction, setPendingAction] = useState<'cart' | null>(null);
   const addToCart = useAddToCartMutation();
   const { isLoggedIn } = useAuth();
   const t = useTranslations('ticketPanel');
@@ -156,19 +156,15 @@ export function TicketPanel({ event, tickets }: Props) {
       <Button
         variant="primary"
         fullWidth
-        isLoading={pendingAction === 'buy'}
-        loadingLabel={t('adding')}
         icon={<Ticket size={16} />}
-        disabled={addToCart.isPending}
         className={styles.ticketAction}
         onClick={() => {
           if (!ticket) return;
-          if (!isLoggedIn) { router.push('/login'); return; }
-          setPendingAction('buy');
-          addToCart.mutate(ticket.id, {
-            onSuccess: () => router.push('/cart'),
-            onSettled: () => setPendingAction(null),
-          });
+          if (!isLoggedIn) {
+            router.push(`/login?next=/events/${event.id}/checkout?ticketId=${ticket.id}`);
+            return;
+          }
+          router.push(`/events/${event.id}/checkout?ticketId=${ticket.id}`);
         }}
       >
         {isFinished ? t('buyReplay') : t('buyTicket')}

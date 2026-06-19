@@ -1,0 +1,50 @@
+@use '../../../styles/_variables' as *;
+
+.card {
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 1rem;
+  background: $surface;
+}
+
+.label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $text-muted;
+  margin-bottom: 0.85rem;
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: $text-secondary;
+}
+
+.lineLabel { color: $text-muted; }
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid $border;
+  padding-top: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.totalValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: $text-primary;
+}

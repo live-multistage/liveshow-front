@@ -1,16 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import type { EventResponse, EventStatus } from '../../types/event.types';
 import styles from './EventDashboardCard.module.scss';
-
-const STATUS_LABEL: Record<EventStatus, string> = {
-  DRAFT:     'Rascunho',
-  PUBLISHED: 'Publicado',
-  LIVE:      'Ao Vivo',
-  FINISHED:  'Encerrado',
-  CANCELLED: 'Cancelado',
-};
 
 const STATUS_MOD: Record<EventStatus, string> = {
   DRAFT:     styles.statusDraft,
@@ -24,16 +17,18 @@ interface Props {
   event: EventResponse;
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('pt-BR', {
-    day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
-}
-
 export function EventDashboardCard({ event }: Props) {
   const router = useRouter();
+  const t = useTranslations('eventCard');
+  const locale = useLocale();
   const location = [event.venue, event.city, event.country].filter(Boolean).join(', ');
+
+  function formatDate(iso: string) {
+    return new Date(iso).toLocaleDateString(locale, {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  }
 
   return (
     <div
@@ -46,10 +41,10 @@ export function EventDashboardCard({ event }: Props) {
       <div className={styles.cardTop}>
         <span className={`${styles.status} ${STATUS_MOD[event.status]}`}>
           {event.status === 'LIVE' && <span className={styles.livePulse} />}
-          {STATUS_LABEL[event.status]}
+          {t(`status.${event.status}`)}
         </span>
         <span className={styles.cameras}>
-          {event.camerasCount} câmera{event.camerasCount !== 1 ? 's' : ''}
+          {t('cameras', { count: event.camerasCount })}
         </span>
       </div>
 

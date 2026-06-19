@@ -1,14 +1,10 @@
 'use client';
 
 import { Globe, EyeOff, Pencil, X, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/shared/components/Button';
 import type { EventResponse } from '../../types/event.types';
 import styles from './EventDashboardDetailContent.module.scss';
-
-const STATUS_LABEL: Record<string, string> = {
-  DRAFT: 'Rascunho', PUBLISHED: 'Publicado', LIVE: 'Ao Vivo',
-  FINISHED: 'Encerrado', CANCELLED: 'Cancelado',
-};
 
 const STATUS_MOD: Record<string, string> = {
   DRAFT: styles.statusDraft, PUBLISHED: styles.statusPublished,
@@ -41,6 +37,7 @@ export function EventHeaderActions({
   onPublish,
   onUnpublish,
 }: Props) {
+  const t = useTranslations('eventDetail');
   const canEdit = event.status === 'DRAFT' || event.status === 'PUBLISHED';
   const canPublish = event.status === 'DRAFT';
   const canUnpublish = event.status === 'PUBLISHED';
@@ -49,12 +46,12 @@ export function EventHeaderActions({
     <div className={styles.headerActions}>
       <span className={`${styles.status} ${STATUS_MOD[event.status]}`}>
         {event.status === 'LIVE' && <span className={styles.livePulse} />}
-        {STATUS_LABEL[event.status]}
+        {t(`status.${event.status}`)}
       </span>
 
       {canEdit && !editing && (
         <Button variant="outline" icon={<Pencil size={14} />} onClick={onEdit}>
-          Editar
+          {t('edit')}
         </Button>
       )}
 
@@ -63,10 +60,10 @@ export function EventHeaderActions({
           variant="primary"
           icon={<Globe size={14} />}
           isLoading={isPublishing}
-          loadingLabel="Publicando..."
+          loadingLabel={t('publishing')}
           onClick={onPublish}
         >
-          Publicar
+          {t('publish')}
         </Button>
       )}
 
@@ -75,26 +72,26 @@ export function EventHeaderActions({
           variant="outline"
           icon={<EyeOff size={14} />}
           isLoading={isUnpublishing}
-          loadingLabel="Despublicando..."
+          loadingLabel={t('unpublishing')}
           onClick={onUnpublish}
         >
-          Despublicar
+          {t('unpublish')}
         </Button>
       )}
 
       {editing && (
         <>
           <Button variant="outline" icon={<X size={14} />} onClick={onCancelEdit}>
-            Cancelar
+            {t('cancel')}
           </Button>
           <Button
             variant="primary"
             icon={<Check size={14} />}
             isLoading={isSaving}
-            loadingLabel="Salvando..."
+            loadingLabel={t('saving')}
             onClick={onSave}
           >
-            Salvar
+            {t('save')}
           </Button>
         </>
       )}

@@ -1,0 +1,85 @@
+@use '../../../styles/_variables' as *;
+
+.itemCard {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.itemHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.itemIcon {
+  color: $text-muted;
+  flex-shrink: 0;
+}
+
+.itemEvent {
+  font-size: 0.8rem;
+  color: $text-muted;
+  line-height: 1.3;
+}
+
+.itemBody {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.itemTicket {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.itemPrice {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: $text-primary;
+  white-space: nowrap;
+}
+
+.itemCaps {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.itemCap {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: $text-secondary;
+
+  svg { flex-shrink: 0; color: $action; }
+}
+
+.totals {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.totalValue {
+  font-size: 1.1rem;
+}

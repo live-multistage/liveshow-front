@@ -6,6 +6,13 @@ import { Globe } from 'lucide-react';
 import { setLocale } from '@/i18n/actions';
 import type { Locale } from '@/i18n/config';
 import { LOCALES } from '@/i18n/config';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select';
 import styles from './LanguageSwitcher.module.scss';
 
 export function LanguageSwitcher() {
@@ -13,9 +20,9 @@ export function LanguageSwitcher() {
   const locale = useLocale();
   const [isPending, startTransition] = useTransition();
 
-  function handleChange(next: Locale) {
+  function handleChange(next: string) {
     startTransition(async () => {
-      await setLocale(next);
+      await setLocale(next as Locale);
       window.location.reload();
     });
   }
@@ -23,19 +30,18 @@ export function LanguageSwitcher() {
   return (
     <div className={styles.wrap}>
       <Globe size={14} className={styles.icon} />
-      <select
-        value={locale}
-        onChange={(e) => handleChange(e.target.value as Locale)}
-        disabled={isPending}
-        className={styles.select}
-        aria-label={t('select')}
-      >
-        {LOCALES.map((l) => (
-          <option key={l} value={l}>
-            {t(l)}
-          </option>
-        ))}
-      </select>
+      <Select value={locale} onValueChange={handleChange} disabled={isPending}>
+        <SelectTrigger className={styles.trigger} aria-label={t('select')}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {LOCALES.map((l) => (
+            <SelectItem key={l} value={l}>
+              {t(l)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

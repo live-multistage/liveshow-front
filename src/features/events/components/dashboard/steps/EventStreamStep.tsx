@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { ChevronRight, Layers, Video, Plus, Trash2, Radio } from 'lucide-react';
+import { ChevronRight, Layers, Trash2, Radio } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import styles from './EventStreamStep.module.scss';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -68,12 +69,14 @@ interface CameraRowProps {
 }
 
 function CameraRow({ camera, onRemove }: CameraRowProps) {
+  const t = useTranslations('createEvent.stream');
+
   return (
     <div className={styles.camera}>
       <span className={styles.cameraDot} />
       <span className={styles.cameraName}>{camera.name}</span>
       <span className={styles.cameraPriority}>P:{camera.priority}</span>
-      <button type="button" className={styles.iconBtn} onClick={onRemove} title="Remover câmera">
+      <button type="button" className={styles.iconBtn} onClick={onRemove} title={t('removeCamera')}>
         <Trash2 size={11} />
       </button>
     </div>
@@ -91,6 +94,7 @@ interface FeedNodeProps {
 
 function FeedNode({ feed, onRemove, onAddCamera, onRemoveCamera }: FeedNodeProps) {
   const [open, setOpen] = useState(true);
+  const t = useTranslations('createEvent.stream');
 
   return (
     <div className={styles.feed}>
@@ -104,7 +108,7 @@ function FeedNode({ feed, onRemove, onAddCamera, onRemoveCamera }: FeedNodeProps
           type="button"
           className={styles.iconBtn}
           onClick={(e) => { e.stopPropagation(); onRemove(); }}
-          title="Remover feed"
+          title={t('removeFeed')}
         >
           <Trash2 size={11} />
         </button>
@@ -120,8 +124,8 @@ function FeedNode({ feed, onRemove, onAddCamera, onRemoveCamera }: FeedNodeProps
             />
           ))}
           <AddInline
-            placeholder="Nome da câmera"
-            buttonLabel="Câmera"
+            placeholder={t('cameraPlaceholder')}
+            buttonLabel={t('addCamera')}
             onAdd={onAddCamera}
           />
         </div>
@@ -150,6 +154,7 @@ function StageNode({
   onRemoveCamera,
 }: StageNodeProps) {
   const [open, setOpen] = useState(true);
+  const t = useTranslations('createEvent.stream');
 
   return (
     <div className={styles.stage}>
@@ -160,7 +165,7 @@ function StageNode({
           type="button"
           className={styles.iconBtn}
           onClick={(e) => { e.stopPropagation(); onRemove(); }}
-          title="Remover palco"
+          title={t('removeStage')}
         >
           <Trash2 size={12} />
         </button>
@@ -178,8 +183,8 @@ function StageNode({
             />
           ))}
           <AddInline
-            placeholder="Nome do feed"
-            buttonLabel="Feed"
+            placeholder={t('feedPlaceholder')}
+            buttonLabel={t('addFeed')}
             onAdd={onAddFeed}
           />
         </div>
@@ -191,6 +196,8 @@ function StageNode({
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function EventStreamStep({ value, onChange }: Props) {
+  const t = useTranslations('createEvent.stream');
+
   const setTitle = useCallback(
     (title: string) => onChange({ ...value, title }),
     [value, onChange],
@@ -283,15 +290,13 @@ export function EventStreamStep({ value, onChange }: Props) {
 
   return (
     <section className={styles.section}>
-      <p className={styles.hint}>
-        Opcional — você pode configurar isso depois em Dashboard → Streams.
-      </p>
+      <p className={styles.hint}>{t('hint')}</p>
 
       <div className={styles.titleRow}>
-        <label className={styles.label}>Título da Stream</label>
+        <label className={styles.label}>{t('titleLabel')}</label>
         <input
           className={styles.titleInput}
-          placeholder="ex: Transmissão Principal"
+          placeholder={t('titlePlaceholder')}
           value={value.title}
           onChange={(e) => setTitle(e.target.value)}
         />
@@ -300,7 +305,7 @@ export function EventStreamStep({ value, onChange }: Props) {
       <div className={styles.tree}>
         <span className={styles.treeLabel}>
           <Radio size={10} />
-          Palcos
+          {t('stagesLabel')}
         </span>
 
         {value.stages.map((stage) => (
@@ -316,8 +321,8 @@ export function EventStreamStep({ value, onChange }: Props) {
         ))}
 
         <AddInline
-          placeholder="Nome do palco"
-          buttonLabel="Palco"
+          placeholder={t('stagePlaceholder')}
+          buttonLabel={t('addStage')}
           onAdd={addStage}
         />
       </div>

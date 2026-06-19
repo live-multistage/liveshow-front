@@ -16,6 +16,8 @@ export function useGetEventQuery(id: string, initialData?: EventResponse) {
     queryFn: () => eventsService.getEvent(id),
     enabled: !!id,
     initialData,
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
   });
 }
 

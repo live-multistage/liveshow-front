@@ -10,5 +10,6 @@ export function useListEventsQuery(filter: ListEventsFilter = 'all') {
   return useQuery({
     queryKey: LIST_EVENTS_KEY(filter),
     queryFn: () => eventsService.listEvents(filter),
+    staleTime: 5 * 60_000,
   });
 }

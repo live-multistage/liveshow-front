@@ -1,0 +1,96 @@
+@use '../../../styles/_variables' as *;
+
+.card {
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 1rem;
+  background: $surface;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.icon { color: $action; flex-shrink: 0; }
+
+.label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $text-muted;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.desc {
+  font-size: 0.8rem;
+  color: $text-muted;
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+
+.pricing {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.qty {
+  font-size: 0.8rem;
+  color: $text-muted;
+}
+
+.price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.capabilities {
+  border-top: 1px solid $border;
+  padding-top: 0.75rem;
+}
+
+.capLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $text-muted;
+  margin-bottom: 0.5rem;
+}
+
+.capList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.capItem {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: $text-secondary;
+}
+
+.check { color: $action; flex-shrink: 0; }

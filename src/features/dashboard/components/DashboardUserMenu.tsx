@@ -2,6 +2,7 @@
 
 import { ChevronDown, LogOut, Settings } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account';
 import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
 import {
@@ -12,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
-import { ROLE_LABEL } from '../types/dashboard.types';
 import type { UserRole } from '@/types';
 import styles from './DashboardUserMenu.module.scss';
 
@@ -26,6 +26,7 @@ function getInitials(name: string) {
 }
 
 export function DashboardUserMenu() {
+  const t = useTranslations('dashboard');
   const { user, logout } = useAuth();
 
   if (!user) return null;
@@ -44,7 +45,7 @@ export function DashboardUserMenu() {
             </Avatar>
             <div className={styles.info}>
               <span className={styles.name}>{user.displayName}</span>
-              <span className={styles.role}>{ROLE_LABEL[role]}</span>
+              <span className={styles.role}>{t(`roles.${role}`)}</span>
             </div>
           </div>
           <ChevronDown size={12} className={styles.chevron} />
@@ -59,13 +60,13 @@ export function DashboardUserMenu() {
         <DropdownMenuItem asChild className={styles.dropdownItem}>
           <Link href="/account">
             <Settings size={14} style={{ marginRight: '0.5rem' }} />
-            Minha Conta
+            {t('userMenu.account')}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator className={styles.separator} />
         <DropdownMenuItem onClick={logout} className={styles.logoutItem}>
           <LogOut size={14} style={{ marginRight: '0.5rem' }} />
-          Sair
+          {t('userMenu.logout')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import type { UseFormRegister, FieldErrors } from 'react-hook-form';
 import type { CreateEventFormValues } from '../../../schemas/create-event.schema';
 import styles from '../CreateEventForm.module.scss';
@@ -8,13 +9,13 @@ interface Props {
 }
 
 export function EventProductionStep({ register, errors }: Props) {
+  const t = useTranslations('createEvent.production');
+
   return (
     <section className={styles.section}>
-      <p className={styles.stepDesc}>
-        Defina quantas câmeras estarão disponíveis para o público durante a transmissão.
-      </p>
+      <p className={styles.stepDesc}>{t('hint')}</p>
       <div className={styles.fieldNarrow}>
-        <label className={styles.label}>Quantidade de Câmeras *</label>
+        <label className={styles.label}>{t('camerasLabel')}</label>
         <input
           type="number"
           min={1}

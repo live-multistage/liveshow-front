@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { MapPin, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
@@ -30,6 +31,7 @@ interface Props {
 
 export function EventDashboardDetailContent({ id, initialEvent }: Props) {
   const router = useRouter();
+  const t = useTranslations('eventDetail');
   const [editing, setEditing] = useState(false);
 
   const { data: event, isLoading, isError } = useGetEventQuery(id, initialEvent);
@@ -78,9 +80,9 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
   if (isError || !event) {
     return (
       <div className={styles.centered}>
-        <p className={styles.notFound}>Evento não encontrado.</p>
+        <p className={styles.notFound}>{t('notFound')}</p>
         <button onClick={() => router.push('/dashboard/events')} className={styles.backLink}>
-          Voltar aos eventos
+          {t('backLink')}
         </button>
       </div>
     );
@@ -92,7 +94,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
     <div className={styles.page}>
       <div className={styles.header}>
         <button onClick={() => router.push('/dashboard/events')} className={styles.back}>
-          <ArrowLeft size={16} /> Eventos
+          <ArrowLeft size={16} /> {t('back')}
         </button>
 
         <EventHeaderActions
@@ -135,7 +137,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
           <>
             <EventInfoGrid event={event} ticketCount={tickets.length} />
             <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Descrição</h2>
+              <h2 className={styles.sectionTitle}>{t('description')}</h2>
               <p className={styles.description}>{event.description}</p>
             </div>
           </>

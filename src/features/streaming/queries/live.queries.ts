@@ -32,11 +32,15 @@ export function useReplayAccessQuery(eventId: string, enabled = true) {
 
 // Live playback resolution. Polls every 5s while `enabled` so the player appears
 // when the event goes live / a camera starts transcoding.
+// staleTime sits just under the refetchInterval: remounts within the 5s window
+// reuse the cached response instead of firing an extra request.
 export function useLivePlaybackQuery(eventId: string, enabled: boolean) {
   return useQuery({
     queryKey: LIVE_KEYS.playback(eventId),
     queryFn: () => streamingService.getLivePlayback(eventId),
     enabled,
+    staleTime: 4_500,
     refetchInterval: enabled ? 5000 : false,
+    refetchIntervalInBackground: false,
   });
 }

@@ -246,5 +246,213 @@
   "orgEventCard": {
     "live": "Ao Vivo",
     "finished": "Encerrado"
+  },
+  "dashboard": {
+    "nav": {
+      "overview": "Painel",
+      "organizations": "Organizações",
+      "events": "Eventos",
+      "sales": "Vendas",
+      "streams": "Streams",
+      "analytics": "Análises"
+    },
+    "roles": {
+      "ADMIN": "Admin",
+      "ORGANIZER": "Organizador",
+      "ARTIST": "Artista"
+    },
+    "userMenu": {
+      "account": "Minha Conta",
+      "logout": "Sair"
+    },
+    "overview": {
+      "stats": "Estatísticas",
+      "viewAll": "Ver todos →",
+      "recentEvents": "Eventos Recentes",
+      "recentStreams": "Streams Recentes",
+      "emptyEvents": "Nenhum evento criado ainda.",
+      "emptyStreams": "Nenhum stream criado ainda.",
+      "revenue": "Receita",
+      "revenueSoon": "Em breve",
+      "liveNow": "Ao Vivo",
+      "upcoming": "Agendados",
+      "finished": "Encerrados",
+      "drafts": "Rascunhos",
+      "total": "Total",
+      "organizer": {
+        "heading": "Painel do Organizador",
+        "totalHint": "Todos os seus eventos",
+        "liveHint": "Transmitindo agora",
+        "upcomingHint": "Publicados e agendados",
+        "draftsHint": "Eventos não publicados",
+        "finishedHint": "Eventos concluídos",
+        "revenueHint": "Em breve"
+      },
+      "artist": {
+        "heading": "Painel do Artista",
+        "totalLabel": "Total de Streams",
+        "totalHint": "Todos os seus eventos",
+        "liveHint": "No ar agora",
+        "upcomingHint": "Streams agendados",
+        "finishedHint": "Streams concluídos"
+      },
+      "admin": {
+        "heading": "Painel Admin",
+        "totalHint": "Todos os eventos da plataforma",
+        "liveHint": "Streams ativos",
+        "upcomingHint": "Publicados e agendados",
+        "draftsHint": "Aguardando publicação",
+        "finishedHint": "Eventos concluídos",
+        "revenueHint": "Em breve"
+      }
+    }
+  },
+  "eventsPage": {
+    "heading": "Eventos",
+    "subheading": "Gerencie seus eventos e transmissões",
+    "createBtn": "Criar Evento",
+    "createFirst": "Criar primeiro evento",
+    "statTotal": "Total",
+    "statLive": "Ao Vivo",
+    "statPublished": "Publicados",
+    "statFinished": "Encerrados",
+    "filterAll": "Todos",
+    "filterDraft": "Rascunho",
+    "filterPublished": "Publicados",
+    "filterLive": "Ao Vivo",
+    "filterFinished": "Encerrados",
+    "filterCancelled": "Cancelados",
+    "loading": "Carregando eventos...",
+    "error": "Erro ao carregar eventos.",
+    "empty": "Nenhum evento encontrado."
+  },
+  "eventCard": {
+    "status": {
+      "DRAFT": "Rascunho",
+      "PUBLISHED": "Publicado",
+      "LIVE": "Ao Vivo",
+      "FINISHED": "Encerrado",
+      "CANCELLED": "Cancelado"
+    },
+    "cameras": "{count, plural, one {# câmera} other {# câmeras}}"
+  },
+  "eventDetail": {
+    "back": "Eventos",
+    "notFound": "Evento não encontrado.",
+    "backLink": "Voltar aos eventos",
+    "description": "Descrição",
+    "infoDate": "Data",
+    "infoTime": "Horário",
+    "infoCameras": "Câmeras",
+    "infoTickets": "Ingressos",
+    "cameras": "{count, plural, one {# ângulo} other {# ângulos}}",
+    "ticketTypes": "{count, plural, one {# tipo} other {# tipos}}",
+    "editTitle": "Título *",
+    "editDescription": "Descrição *",
+    "editStartsAt": "Início *",
+    "editEndsAt": "Fim *",
+    "edit": "Editar",
+    "publish": "Publicar",
+    "publishing": "Publicando...",
+    "unpublish": "Despublicar",
+    "unpublishing": "Despublicando...",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "ticketsTitle": "Ingressos",
+    "allCameras": "Todas as câmeras",
+    "cameraCount": "{count, plural, one {# câmera} other {# câmeras}}",
+    "status": {
+      "DRAFT": "Rascunho",
+      "PUBLISHED": "Publicado",
+      "LIVE": "Ao Vivo",
+      "FINISHED": "Encerrado",
+      "CANCELLED": "Cancelado"
+    }
+  },
+  "createEvent": {
+    "back": "Eventos",
+    "heading": "Criar Evento",
+    "subheading": "Preencha as informações do seu evento",
+    "steps": {
+      "info": "Informações",
+      "location": "Local & Data",
+      "production": "Produção",
+      "stream": "Stream",
+      "tickets": "Ingressos",
+      "images": "Imagens"
+    },
+    "nav": {
+      "back": "Voltar",
+      "next": "Próximo",
+      "creating": "Criando...",
+      "create": "Criar Evento"
+    },
+    "info": {
+      "orgLabel": "Organização *",
+      "orgPlaceholder": "Selecione uma organização",
+      "titleLabel": "Título do Evento *",
+      "titlePlaceholder": "Ex: Rock in Rio 2026",
+      "descLabel": "Descrição *",
+      "descPlaceholder": "Descreva o evento para o público...",
+      "noOrgs": "Crie uma organização antes de criar eventos."
+    },
+    "location": {
+      "venueLabel": "Nome do Local / Venue",
+      "venuePlaceholder": "Ex: Estádio do Maracanã",
+      "cityLabel": "Cidade",
+      "cityPlaceholder": "Ex: Rio de Janeiro",
+      "countryLabel": "País",
+      "countryPlaceholder": "Ex: Brasil",
+      "startsAtLabel": "Início *",
+      "endsAtLabel": "Fim *"
+    },
+    "production": {
+      "hint": "Defina quantas câmeras estarão disponíveis para o público durante a transmissão.",
+      "camerasLabel": "Quantidade de Câmeras *"
+    },
+    "stream": {
+      "hint": "Opcional — você pode configurar isso depois em Dashboard → Streams.",
+      "titleLabel": "Título da Stream",
+      "titlePlaceholder": "ex: Transmissão Principal",
+      "stagesLabel": "Palcos",
+      "stagePlaceholder": "Nome do palco",
+      "addStage": "Palco",
+      "feedPlaceholder": "Nome do feed",
+      "addFeed": "Feed",
+      "cameraPlaceholder": "Nome da câmera",
+      "addCamera": "Câmera",
+      "removeCamera": "Remover câmera",
+      "removeFeed": "Remover feed",
+      "removeStage": "Remover palco"
+    }
+  },
+  "editTicket": {
+    "title": "Ingressos",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "add": "Adicionar",
+    "adding": "Adicionando…",
+    "nameLabel": "Nome do Ingresso *",
+    "namePlaceholder": "Ex: Ingresso Padrão",
+    "priceLabel": "Preço (R$) *",
+    "descLabel": "Descrição do Ingresso *",
+    "descPlaceholder": "Ex: Acesso ao show ao vivo",
+    "accessLabel": "Tipo de Acesso *",
+    "liveView": "Ao Vivo",
+    "replayView": "Replay",
+    "cameraView": "Câmeras",
+    "camerasLimitLabel": "Limite de Câmeras",
+    "camerasLimitPlaceholder": "Vazio = acesso a todas",
+    "camerasLimitHint": "Deixe em branco para liberar todas as câmeras. Informe um número para limitar pelo índice de prioridade.",
+    "stagesLabel": "Palcos com Acesso",
+    "stagesHint": "Sem seleção = acesso a todos os palcos.",
+    "allCameras": "Todas as câmeras",
+    "cameras": "{count, plural, one {# câmera} other {# câmeras}}",
+    "empty": "Nenhum ingresso adicionado ainda.",
+    "stagesNote": "O acesso a palcos específicos pode ser configurado após a criação do evento.",
+    "errorAdd": "Erro ao adicionar ingresso.",
+    "errorSave": "Erro ao salvar ingresso."
   }
 }

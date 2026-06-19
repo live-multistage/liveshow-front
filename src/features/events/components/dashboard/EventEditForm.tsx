@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import type { UseFormRegister, FieldErrors } from 'react-hook-form';
+import { useTranslations } from 'next-intl';
 import styles from './EventDashboardDetailContent.module.scss';
 
 export const editSchema = z.object({
@@ -24,10 +25,12 @@ interface Props {
 }
 
 export function EventEditForm({ register, errors, errorMessage }: Props) {
+  const t = useTranslations('eventDetail');
+
   return (
     <div className={styles.editForm}>
       <div className={styles.field}>
-        <label className={styles.label}>Título *</label>
+        <label className={styles.label}>{t('editTitle')}</label>
         <input
           {...register('title')}
           className={`${styles.input} ${errors.title ? styles.inputError : ''}`}
@@ -36,7 +39,7 @@ export function EventEditForm({ register, errors, errorMessage }: Props) {
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>Descrição *</label>
+        <label className={styles.label}>{t('editDescription')}</label>
         <textarea
           {...register('description')}
           rows={4}
@@ -47,7 +50,7 @@ export function EventEditForm({ register, errors, errorMessage }: Props) {
 
       <div className={styles.editRow}>
         <div className={styles.field}>
-          <label className={styles.label}>Início *</label>
+          <label className={styles.label}>{t('editStartsAt')}</label>
           <input
             type="datetime-local"
             {...register('startsAt')}
@@ -56,7 +59,7 @@ export function EventEditForm({ register, errors, errorMessage }: Props) {
           {errors.startsAt && <p className={styles.error}>{errors.startsAt.message}</p>}
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>Fim *</label>
+          <label className={styles.label}>{t('editEndsAt')}</label>
           <input
             type="datetime-local"
             {...register('endsAt')}

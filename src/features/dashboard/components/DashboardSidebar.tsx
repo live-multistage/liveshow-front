@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account';
 import { NAV_BY_ROLE, DASHBOARD_ROLES } from '../types/dashboard.types';
 import { DashboardUserMenu } from './DashboardUserMenu';
@@ -10,6 +11,7 @@ import type { UserRole } from '@/types';
 import styles from './DashboardSidebar.module.scss';
 
 export function DashboardSidebar() {
+  const t = useTranslations('dashboard.nav');
   const { user } = useAuth();
   const pathname = usePathname();
 
@@ -34,7 +36,7 @@ export function DashboardSidebar() {
               className={`${styles.navItem} ${isActive ? styles.active : ''}`}
             >
               <Icon size={16} className={styles.navIcon} />
-              {item.label}
+              {t(item.navKey as Parameters<typeof t>[0])}
             </Link>
           );
         })}

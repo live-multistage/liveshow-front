@@ -2,6 +2,7 @@
 
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { ticketSchema, type TicketFormValues } from '../../schemas/create-event.schema';
 import type { CreateTicketRequest, AccessCapability } from '../../types/event.types';
 import styles from './TicketSection.module.scss';
@@ -15,17 +16,9 @@ interface Props {
   onChange: (tickets: AddedTicket[]) => void;
 }
 
-function capabilitiesLabel(caps: AccessCapability[], camerasLimit: number | null | undefined): string {
-  const parts: string[] = [];
-  if (caps.includes('LIVE_VIEW')) parts.push('Ao Vivo');
-  if (caps.includes('REPLAY_VIEW')) parts.push('Replay');
-  if (caps.includes('CAMERA_VIEW')) {
-    parts.push(camerasLimit != null ? `${camerasLimit} câmera${camerasLimit !== 1 ? 's' : ''}` : 'Todas as câmeras');
-  }
-  return parts.join(' + ') || 'Sem acesso';
-}
-
 export function TicketSection({ tickets, onChange }: Props) {
+  const t = useTranslations('editTicket');
+
   const {
     register,
     handleSubmit,
@@ -38,6 +31,16 @@ export function TicketSection({ tickets, onChange }: Props) {
   });
 
   const cameraView = useWatch({ control, name: 'cameraView' });
+
+  function capabilitiesLabel(caps: AccessCapability[], camerasLimit: number | null | undefined): string {
+    const parts: string[] = [];
+    if (caps.includes('LIVE_VIEW')) parts.push(t('liveView'));
+    if (caps.includes('REPLAY_VIEW')) parts.push(t('replayView'));
+    if (caps.includes('CAMERA_VIEW')) {
+      parts.push(camerasLimit != null ? t('cameras', { count: camerasLimit }) : t('allCameras'));
+    }
+    return parts.join(' + ');
+  }
 
   const onAdd = (values: TicketFormValues) => {
     const capabilities: AccessCapability[] = [];
@@ -59,36 +62,34 @@ export function TicketSection({ tickets, onChange }: Props) {
   };
 
   const onRemove = (key: string) => {
-    onChange(tickets.filter((t) => t._key !== key));
+    onChange(tickets.filter((ticket) => ticket._key !== key));
   };
 
   return (
     <div className={styles.wrapper}>
-      {/* Header */}
       <div className={styles.header}>
         <h3 className={styles.sectionTitle}>
           <span className={styles.dot} />
-          Ingresso
+          {t('title')}
         </h3>
         <button type="button" className={styles.addBtn} onClick={handleSubmit(onAdd)}>
-          Adicionar
+          {t('add')}
         </button>
       </div>
 
-      {/* Name + Price */}
       <div className={styles.row}>
         <div className={styles.field}>
-          <label className={styles.label}>Nome do Ingresso *</label>
+          <label className={styles.label}>{t('nameLabel')}</label>
           <input
             {...register('name')}
             className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
-            placeholder="Ex: Ingresso Padrão"
+            placeholder={t('namePlaceholder')}
           />
           {errors.name && <p className={styles.error}>{errors.name.message}</p>}
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label}>Preço (R$) *</label>
+          <label className={styles.label}>{t('priceLabel')}</label>
           <input
             type="number"
             step="0.01"
@@ -101,57 +102,51 @@ export function TicketSection({ tickets, onChange }: Props) {
         </div>
       </div>
 
-      {/* Description */}
       <div className={styles.field}>
-        <label className={styles.label}>Descrição do Ingresso *</label>
+        <label className={styles.label}>{t('descLabel')}</label>
         <input
           {...register('description')}
           className={`${styles.input} ${errors.description ? styles.inputError : ''}`}
-          placeholder="Ex: Acesso ao show ao vivo"
+          placeholder={t('descPlaceholder')}
         />
         {errors.description && <p className={styles.error}>{errors.description.message}</p>}
       </div>
 
-      {/* Access type checkboxes */}
       <div className={styles.field}>
-        <label className={styles.label}>Tipo de Acesso *</label>
+        <label className={styles.label}>{t('accessLabel')}</label>
         <div className={styles.checkboxGroup}>
           <label className={styles.checkboxLabel}>
             <input type="checkbox" {...register('liveView')} className={styles.checkbox} />
-            <span>Ao Vivo</span>
+            <span>{t('liveView')}</span>
           </label>
           <label className={styles.checkboxLabel}>
             <input type="checkbox" {...register('replayView')} className={styles.checkbox} />
-            <span>Replay</span>
+            <span>{t('replayView')}</span>
           </label>
           <label className={styles.checkboxLabel}>
             <input type="checkbox" {...register('cameraView')} className={styles.checkbox} />
-            <span>Câmeras</span>
+            <span>{t('cameraView')}</span>
           </label>
         </div>
         {errors.liveView && <p className={styles.error}>{errors.liveView.message}</p>}
       </div>
 
-      {/* Camera limit — only shown when cameraView is checked */}
       {cameraView && (
         <div className={styles.field}>
-          <label className={styles.label}>Limite de Câmeras</label>
+          <label className={styles.label}>{t('camerasLimitLabel')}</label>
           <input
             type="number"
             min={1}
             step={1}
             {...register('camerasLimit')}
             className={`${styles.input} ${errors.camerasLimit ? styles.inputError : ''}`}
-            placeholder="Vazio = acesso a todas"
+            placeholder={t('camerasLimitPlaceholder')}
           />
-          <p className={styles.inputHint}>
-            Deixe em branco para liberar todas as câmeras. Informe um número para limitar pelo índice de prioridade.
-          </p>
+          <p className={styles.inputHint}>{t('camerasLimitHint')}</p>
           {errors.camerasLimit && <p className={styles.error}>{errors.camerasLimit.message}</p>}
         </div>
       )}
 
-      {/* Added ticket cards */}
       {tickets.map((ticket) => (
         <div key={ticket._key} className={styles.ticketCard}>
           <div className={styles.ticketCardTop}>
@@ -162,7 +157,7 @@ export function TicketSection({ tickets, onChange }: Props) {
               type="button"
               className={styles.removeBtn}
               onClick={() => onRemove(ticket._key)}
-              aria-label="Remover ingresso"
+              aria-label="×"
             >
               ×
             </button>
@@ -176,12 +171,10 @@ export function TicketSection({ tickets, onChange }: Props) {
       ))}
 
       {tickets.length === 0 && (
-        <p className={styles.emptyHint}>Nenhum ingresso adicionado ainda.</p>
+        <p className={styles.emptyHint}>{t('empty')}</p>
       )}
 
-      <p className={styles.inputHint}>
-        O acesso a palcos específicos pode ser configurado após a criação do evento.
-      </p>
+      <p className={styles.inputHint}>{t('stagesNote')}</p>
     </div>
   );
 }

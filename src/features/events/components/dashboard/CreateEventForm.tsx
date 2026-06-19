@@ -2,6 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { createEventSchema, type CreateEventFormValues } from '../../schemas/create-event.schema';
 import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function CreateEventForm({ onSuccess }: Props) {
+  const t = useTranslations('createEvent');
   const { data: orgs = [] } = useMyOrganizationsQuery();
 
   const { register, handleSubmit, trigger, formState: { errors } } = useForm<CreateEventFormValues>({
@@ -68,7 +70,7 @@ export function CreateEventForm({ onSuccess }: Props) {
         <div className={styles.navRow}>
           {step > 1 && (
             <button type="button" onClick={wizard.back} className={styles.btnBack}>
-              <ChevronLeft size={16} /> Voltar
+              <ChevronLeft size={16} /> {t('nav.back')}
             </button>
           )}
 
@@ -76,13 +78,13 @@ export function CreateEventForm({ onSuccess }: Props) {
 
           {step < 5 && (
             <button type="button" onClick={() => wizard.advance(trigger)} className={styles.btnNext}>
-              Próximo <ChevronRight size={16} />
+              {t('nav.next')} <ChevronRight size={16} />
             </button>
           )}
 
           {step === 5 && (
             <button type="submit" className={styles.btnNext} disabled={mutation.isPending}>
-              {mutation.isPending ? 'Criando...' : 'Criar Evento'}
+              {mutation.isPending ? t('nav.creating') : t('nav.create')}
             </button>
           )}
         </div>

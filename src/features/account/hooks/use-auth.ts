@@ -5,6 +5,21 @@ import { useRouter } from 'next/navigation';
 import { tokenStore } from '@/lib/auth/token-store';
 import type { AuthUser } from '../types/account.types';
 
+// Coalesces parallel session fetches from multiple component mounts on first
+// page load. Without this, N concurrent useAuth() calls all fire /api/auth/session
+// before any of them sets tokenStore.
+let pendingSession: Promise<{ accessToken: string } | null> | null = null;
+
+function fetchSession(): Promise<{ accessToken: string } | null> {
+  if (!pendingSession) {
+    pendingSession = fetch('/api/auth/session')
+      .then((res) => (res.ok ? (res.json() as Promise<{ accessToken: string }>) : null))
+      .catch(() => null)
+      .finally(() => { pendingSession = null; });
+  }
+  return pendingSession;
+}
+
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,17 +37,14 @@ export function useAuth() {
       }
 
       try {
-        const res = await fetch('/api/auth/session');
-        if (res.ok) {
-          const data = await res.json() as { accessToken: string };
+        const data = await fetchSession();
+        if (data) {
           tokenStore.set(data.accessToken);
           const stored = localStorage.getItem('user');
           if (stored) {
             try { setUser(JSON.parse(stored) as AuthUser); } catch { /* corrupted */ }
           }
         }
-      } catch {
-        // no session — stay unauthenticated
       } finally {
         setIsLoading(false);
       }

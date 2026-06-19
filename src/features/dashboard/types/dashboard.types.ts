@@ -10,38 +10,32 @@ import {
 import type { UserRole } from '@/types';
 
 export interface NavItem {
-  label: string;
+  navKey: string;
   href: string;
   icon: LucideIcon;
 }
 
 export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
   ADMIN: [
-    { label: 'Overview',       href: '/dashboard',                icon: LayoutDashboard },
-    { label: 'Organizations',  href: '/dashboard/organizations',  icon: Building2 },
-    { label: 'Events',         href: '/dashboard/events',         icon: CalendarDays },
-    { label: 'Sales',          href: '/dashboard/sales',          icon: ShoppingCart },
-    { label: 'Streams',        href: '/dashboard/streams',        icon: Radio },
-    { label: 'Analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
+    { navKey: 'overview',       href: '/dashboard',                icon: LayoutDashboard },
+    { navKey: 'organizations',  href: '/dashboard/organizations',  icon: Building2 },
+    { navKey: 'events',         href: '/dashboard/events',         icon: CalendarDays },
+    { navKey: 'sales',          href: '/dashboard/sales',          icon: ShoppingCart },
+    { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
+    { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
   ],
   ORGANIZER: [
-    { label: 'Overview',       href: '/dashboard',                icon: LayoutDashboard },
-    { label: 'Organizations',  href: '/dashboard/organizations',  icon: Building2 },
-    { label: 'Events',         href: '/dashboard/events',         icon: CalendarDays },
-    { label: 'Sales',          href: '/dashboard/sales',          icon: ShoppingCart },
-    { label: 'Analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
+    { navKey: 'overview',       href: '/dashboard',                icon: LayoutDashboard },
+    { navKey: 'organizations',  href: '/dashboard/organizations',  icon: Building2 },
+    { navKey: 'events',         href: '/dashboard/events',         icon: CalendarDays },
+    { navKey: 'sales',          href: '/dashboard/sales',          icon: ShoppingCart },
+    { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
   ],
   ARTIST: [
-    { label: 'Overview',       href: '/dashboard',                icon: LayoutDashboard },
-    { label: 'Streams',        href: '/dashboard/streams',        icon: Radio },
-    { label: 'Analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
+    { navKey: 'overview',       href: '/dashboard',                icon: LayoutDashboard },
+    { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
+    { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
   ],
 };
 
 export const DASHBOARD_ROLES: UserRole[] = ['ADMIN', 'ORGANIZER', 'ARTIST'];
-
-export const ROLE_LABEL: Record<Exclude<UserRole, 'USER'>, string> = {
-  ADMIN: 'Admin',
-  ORGANIZER: 'Organizer',
-  ARTIST: 'Artist',
-};
