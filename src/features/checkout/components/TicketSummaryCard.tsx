@@ -7,9 +7,10 @@ import styles from './TicketSummaryCard.module.scss';
 interface Props {
   ticket: TicketProductResponse;
   quantity: number;
+  eventName?: string;
 }
 
-export function TicketSummaryCard({ ticket, quantity }: Props) {
+export function TicketSummaryCard({ ticket, quantity, eventName }: Props) {
   return (
     <div className={styles.card}>
       <div className={styles.header}>
