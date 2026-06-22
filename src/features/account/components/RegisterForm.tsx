@@ -8,7 +8,11 @@ import { registerSchema, type RegisterFormValues } from '../schemas/register.sch
 import { useRegisterMutation } from '../mutations/use-register.mutation';
 import styles from './RegisterForm.module.scss';
 
-export function RegisterForm() {
+interface RegisterFormProps {
+  callbackUrl?: string;
+}
+
+export function RegisterForm({ callbackUrl }: RegisterFormProps) {
   const t = useTranslations('auth.register');
 
   const {
@@ -20,7 +24,7 @@ export function RegisterForm() {
     defaultValues: { email: '', displayName: '', password: '', confirmPassword: '' },
   });
 
-  const { mutate, isPending, error } = useRegisterMutation();
+  const { mutate, isPending, error } = useRegisterMutation(callbackUrl);
 
   function onSubmit(values: RegisterFormValues) {
     mutate({ email: values.email, displayName: values.displayName, password: values.password });
@@ -91,7 +95,7 @@ export function RegisterForm() {
 
       <p className={styles.footer}>
         {t('alreadyHaveAccount')}{' '}
-        <Link href="/login" className={styles.link}>
+        <Link href={callbackUrl ? `/login?redirect=${encodeURIComponent(callbackUrl)}` : '/login'} className={styles.link}>
           {t('signIn')}
         </Link>
       </p>

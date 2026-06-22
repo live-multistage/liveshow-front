@@ -9,13 +9,13 @@ const chipVariants = cva(
   {
     variants: {
       variant: {
-        // Genre filter pill — interactive, Archivo 14px
+        // Genre filter pill — Space Mono 11px uppercase (DESIGN.md §5)
         default:
-          "rounded-full border border-[rgba(255,255,255,.1)] bg-[rgba(255,255,255,.04)] px-6 py-2 text-sm text-[#b9b9c0] font-archivo cursor-pointer hover:border-[rgba(255,46,158,.4)]",
+          "rounded-full border border-[rgba(255,255,255,.1)] bg-[rgba(255,255,255,.04)] px-[13px] py-[7px] text-[11px] leading-none font-[500] text-[#b9b9c0] font-space-mono uppercase tracking-[.05em] cursor-pointer whitespace-nowrap hover:border-[rgba(255,46,158,.4)] hover:text-white transition-colors",
         active:
-          "rounded-full border border-[#ff2e9e] bg-[#ff2e9e] px-6 py-2 text-sm text-[#0a0a0b] font-archivo font-bold cursor-pointer",
-        // Genre / tag chip — static label, Space Mono 12px
-        tag: "rounded-[8px] border border-[rgba(255,255,255,.07)] bg-transparent px-2 py-0.5 text-[12px] leading-[18px] text-[#8f8f97] font-space-mono uppercase tracking-[0.05em]",
+          "rounded-full border border-[#ff2e9e] bg-[#ff2e9e] px-[13px] py-[7px] text-[11px] leading-none font-[700] text-[#0a0a0b] font-space-mono uppercase tracking-[.05em] cursor-pointer whitespace-nowrap",
+        // Footer static tag — Space Mono 10px uppercase
+        tag: "rounded-[6px] border border-[rgba(255,255,255,.1)] bg-[rgba(255,255,255,.05)] px-[9px] py-[5px] text-[10px] leading-none font-[700] text-[#b9b9c0] font-space-mono uppercase tracking-[.08em]",
       },
     },
     defaultVariants: {

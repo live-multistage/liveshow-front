@@ -7,7 +7,7 @@ import { useAuthCheck } from '@/features/account';
 
 export function DashboardGuard({ children }: { children: React.ReactNode }) {
   const { isLoading: authLoading } = useAuth();
-  const { data, isLoading: checkLoading } = useAuthCheck('access_dashboard');
+  const { data, isLoading: checkLoading } = useAuthCheck('access_dashboard', undefined, { enabled: !authLoading });
   const router = useRouter();
 
   useEffect(() => {

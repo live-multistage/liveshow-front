@@ -2,72 +2,66 @@
 
 // ─── Nav shell ────────────────────────────────────────────────
 .nav {
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 50;
-  background-color: rgba(3, 3, 3, 0.92);
-  border-bottom: 1px solid $border;
-  backdrop-filter: blur(8px);
-  transition: background-color 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease, padding 0.3s ease;
-  padding: 0;
-}
-
-.navTransparent {
-  background-color: transparent !important;
-  border-bottom-color: transparent !important;
-  backdrop-filter: none !important;
+  background-color: rgba(8, 8, 10, 0.86);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
   transition: background-color 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease;
-  padding: 10px 5px;
 }
 
 .navInner {
   max-width: 80rem;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 16px 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 3.5rem;
 
   @media (min-width: $sm) {
-    padding-left: 3rem;
-    padding-right: 3rem;
+    padding-left: 40px;
+    padding-right: 40px;
   }
+}
+
+// ─── Left section ─────────────────────────────────────────────
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 40px;
 }
 
 // ─── Logo ─────────────────────────────────────────────────────
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 10px;
   flex-shrink: 0;
   text-decoration: none;
   color: $text-primary;
 }
 
 .logoText {
-  font-size: 0.875rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.18em;
   color: $text-primary;
-  font-family: 'Archivo', sans-serif;
-  text-transform: uppercase;
 }
 
 // ─── Desktop nav ──────────────────────────────────────────────
 .desktopNav {
   display: none;
   align-items: center;
-  gap: 2rem;
+  gap: 26px;
 
   @media (min-width: $md) { display: flex; }
 }
 
 .navLink {
-  color: $muted;
-  font-size: 0.875rem;
+  color: #c7c7cd;
+  font-size: 14px;
   text-decoration: none;
   transition: color 0.15s;
 
@@ -78,7 +72,7 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 14px;
 }
 
 .searchBox {
@@ -126,20 +120,22 @@
 .ticketsBtn {
   display: none;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
   border: 1px solid $action;
   color: $action;
-  padding: 0.375rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  padding: 9px 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-decoration: none;
-  margin-left: 0.5rem;
-  border-radius: 8px;
+  border-radius: 999px;
+  background: transparent;
   transition: background-color 0.15s, color 0.15s;
 
   &:hover {
     background-color: $action;
-    color: $text-primary;
+    color: #0a0a0b;
   }
 
   @media (min-width: $md) { display: flex; }
@@ -161,21 +157,20 @@
 }
 
 .avatar {
-  height: 1.75rem !important;
-  width: 1.75rem !important;
-  border-radius: 8px !important;
-  border: 1px solid $border !important;
+  height: 34px !important;
+  width: 34px !important;
+  border-radius: 50% !important;
+  border: none !important;
   cursor: pointer;
-  transition: border-color 0.15s;
-
-  &:hover { border-color: $action !important; }
 }
 
 .avatarFallback {
-  border-radius: 8px !important;
+  border-radius: 50% !important;
   background-color: $action !important;
-  color: $text-primary !important;
-  font-size: 0.75rem !important;
+  color: #0a0a0b !important;
+  font-family: 'Space Mono', monospace !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
 }
 
 // ─── Dropdown ─────────────────────────────────────────────────

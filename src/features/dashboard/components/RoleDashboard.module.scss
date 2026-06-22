@@ -6,11 +6,36 @@
   gap: 1.5rem;
 }
 
+.titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.upperSubTitle {
+  font-family: 'Space Mono',monospace;
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: #ff7ec2;
+  margin-bottom: 8px;
+}
+
 .heading {
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
   font-family: 'Archivo', sans-serif;
   color: $text-primary;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.actions {
+  display: flex;
 }
 
 .grid {

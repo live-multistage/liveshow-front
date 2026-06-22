@@ -119,7 +119,7 @@ export function LoginForm({ callbackUrl }: LoginFormProps) {
 
       <p className={styles.footer}>
         {t('noAccount')}{' '}
-        <Link href="/register" className={styles.link}>
+        <Link href={callbackUrl ? `/register?redirect=${encodeURIComponent(callbackUrl)}` : '/register'} className={styles.link}>
           {t('signUp')}
         </Link>
       </p>

@@ -1,5 +1,11 @@
 @use '../../../styles/_variables' as *;
 
+@keyframes lsPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .35; transform: scale(.7); }
+}
+
+// ─── Page shell ───────────────────────────────────────────────
 .page {
   min-height: 100vh;
   background-color: $bg;
@@ -10,8 +16,8 @@
   padding-right: 1.5rem;
 
   @media (min-width: $sm) {
-    padding-left: 3rem;
-    padding-right: 3rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
   }
 }
 
@@ -20,206 +26,252 @@
   margin: 0 auto;
 }
 
+// ─── Header ───────────────────────────────────────────────────
 .header {
-  margin-bottom: 2rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.875rem;
+
+  @media (max-width: $sm) { flex-direction: column; }
 }
 
-.headerRow {
+.headerLeft {
+  flex: 1;
+}
+
+.headerTitleRow {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  color: $action;
+  gap: 0.8125rem;
+  margin-bottom: 0.75rem;
 }
 
 .headerTitle {
-  font-size: 1.75rem;
-  font-weight: 500;
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
   font-family: 'Archivo', sans-serif;
   color: $text-primary;
+
+  @media (max-width: $sm) { font-size: 1.75rem; }
 }
 
 .headerSubtitle {
-  color: $muted;
-  font-size: 0.875rem;
+  margin: 0;
+  font-size: 1rem;
+  color: #9a9aa2;
 }
 
-.filters {
+.headerStats {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  align-items: center;
+  gap: 1.125rem;
+  padding-top: 0.375rem;
+  flex-shrink: 0;
 }
 
+.statItem {
+  text-align: right;
+}
+
+.statNumber {
+  font-size: 1.875rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: $text-primary;
+}
+
+.statLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  color: #7d7d85;
+  margin-top: 0.3125rem;
+}
+
+.statDivider {
+  width: 1px;
+  height: 2.625rem;
+  background: rgba(255,255,255,.1);
+}
+
+// ─── Search ───────────────────────────────────────────────────
 .searchBox {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background-color: rgba(255,255,255,0.04);
-  border: 1px solid $border;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  background: $surface;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 0.875rem;
+  padding: 0 1.125rem;
+  margin-bottom: 1.125rem;
   transition: border-color 0.15s;
-  color: $muted;
 
-  &:focus-within { border-color: $action; }
+  &:focus-within { border-color: rgba(255,46,158,.5); }
 }
 
 .searchInput {
   flex: 1;
   background: transparent;
   color: $text-primary;
-  font-size: 0.875rem;
+  font-family: 'Archivo', sans-serif;
+  font-size: 1rem;
   outline: none;
   border: none;
+  padding: 1rem 0;
 
-  &::placeholder { color: $muted; }
+  &::placeholder { color: #6f6f77; }
 }
 
-.filterRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.genreScroll {
-  display: flex;
-  gap: 0.375rem;
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
-  flex: 1;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar { display: none; }
-}
-
-.genreChip {
-  flex-shrink: 0;
-  padding: 0.375rem 0.875rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-family: 'Space Mono', monospace;
-  border: 1px solid;
+.searchClear {
+  background: rgba(255,255,255,.06);
+  border: none;
+  color: #b9b9c0;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 50%;
   cursor: pointer;
-  background: none;
-  transition: all 0.15s;
-}
-
-.genreActive {
-  background-color: $action;
-  border-color: $action;
-  color: $text-primary;
-}
-
-.genreInactive {
-  background-color: transparent;
-  border-color: rgba(255,255,255,0.2);
-  color: $muted;
-
-  &:hover {
-    border-color: rgba(255,255,255,0.4);
-    color: $text-primary;
-  }
-}
-
-.sortBox {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
   flex-shrink: 0;
-  color: $muted;
+  transition: background 0.15s;
+
+  &:hover { background: rgba(255,255,255,.12); }
+}
+
+// ─── Toolbar ──────────────────────────────────────────────────
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+  flex-wrap: wrap;
+}
+
+.sortPill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5625rem;
+  background: $surface;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 999px;
+  padding: 0.625rem 1rem;
+  cursor: pointer;
+}
+
+.sortLabel {
+  font-size: 0.8125rem;
+  color: #e7e7ea;
 }
 
 .sortSelect {
-  background-color: rgba(255,255,255,0.04);
-  border: 1px solid $border;
-  color: $text-secondary;
-  font-size: 0.75rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: 8px;
-  outline: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
   cursor: pointer;
-
-  option { background-color: $bg; }
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
 }
 
-.toggleRow {
-  display: flex;
-  gap: 0.75rem;
+.toolbarDivider {
+  width: 1px;
+  height: 1.5rem;
+  background: rgba(255,255,255,.1);
+  margin: 0 0.125rem;
 }
 
-.filterBtn {
-  display: flex;
+.toggleBtn {
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.375rem 0.875rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  border: 1px solid;
+  font-size: 0.8125rem;
   cursor: pointer;
-  background: none;
-  transition: all 0.15s;
-}
-
-.filterBtnDefault {
-  border-color: rgba(255,255,255,0.2);
-  color: $muted;
+  padding: 0.625rem 1rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  font-family: 'Archivo', sans-serif;
+  background: $surface;
+  color: #c7c7cd;
+  border: 1px solid rgba(255,255,255,.09);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 
   &:hover {
-    border-color: rgba(255,255,255,0.4);
-    color: rgba(255,255,255,0.8);
+    color: $text-primary;
+    border-color: rgba(255,255,255,.2);
   }
 }
 
-.filterBtnLiveActive {
-  background-color: rgba(220, 38, 38, 0.15);
-  border-color: $action;
-  color: $action;
+.toggleBtnActive {
+  background: rgba(255,46,158,.12);
+  color: #ff5fb4;
+  border-color: rgba(255,46,158,.45);
 }
 
-.filterBtnReplayActive {
-  background-color: rgba(220, 38, 38, 0.1);
-  border-color: rgba(220, 38, 38, 0.5);
-  color: $action;
-}
-
-.dot {
-  width: 0.375rem;
-  height: 0.375rem;
+.liveDot {
+  width: 0.4375rem;
+  height: 0.4375rem;
   border-radius: 50%;
+  background: #7d7d85;
+  flex-shrink: 0;
+  transition: background 0.15s;
 }
 
-.dotActive {
-  background-color: $action;
-  animation: pulse 2s infinite;
+.liveDotActive {
+  background: #ff2e9e;
+  animation: lsPulse 1.4s infinite;
 }
 
-.dotDefault {
-  background-color: rgba(255,255,255,0.3);
+// ─── Genre chips ──────────────────────────────────────────────
+.genreRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.375rem;
+  flex-wrap: wrap;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
-}
-
+// ─── Count ────────────────────────────────────────────────────
 .count {
-  color: $muted;
-  font-size: 0.875rem;
   font-family: 'Space Mono', monospace;
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+  color: #8f8f97;
   margin-bottom: 1.25rem;
+
+  strong {
+    color: $text-primary;
+    font-weight: 700;
+  }
 }
 
+// ─── Empty state ──────────────────────────────────────────────
 .empty {
+  padding: 4rem;
   text-align: center;
-  padding: 5rem 0;
+  border: 1px dashed rgba(255,255,255,.12);
+  border-radius: 1.125rem;
 }
 
-.emptyText {
-  color: rgba(255,255,255,0.3);
+.emptyTitle {
   font-size: 1.125rem;
+  font-weight: 700;
   margin-bottom: 0.5rem;
+  color: $text-primary;
+}
+
+.emptySubtitle {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8125rem;
+  color: #8f8f97;
+  margin-bottom: 1rem;
 }
 
 .clearBtn {
@@ -233,10 +285,11 @@
   &:hover { opacity: 0.8; }
 }
 
+// ─── Grid ─────────────────────────────────────────────────────
 .cardGrid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: 1.375rem;
 
   @media (min-width: $sm)  { grid-template-columns: repeat(2, 1fr); }
   @media (min-width: $lg)  { grid-template-columns: repeat(3, 1fr); }

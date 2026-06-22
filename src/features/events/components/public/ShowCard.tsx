@@ -1,11 +1,10 @@
 'use client';
 
-import { useRouter } from "next/navigation";
-import { Calendar, Clock, MapPin, Camera } from "lucide-react";
+import { useRouter } from 'next/navigation';
+import { MapPin, Calendar, Clock, Camera } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
-import type { Show } from "../../types/show";
-import { Chip } from "@/shared/components/ui/chip";
-import styles from "./ShowCard.module.scss";
+import type { Show } from '../../types/show';
+import styles from './ShowCard.module.scss';
 
 const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
 
@@ -22,91 +21,87 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
   const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr + "T00:00:00");
-    return date.toLocaleDateString(localeCode, { day: "2-digit", month: "short", year: "numeric" });
+    const date = new Date(dateStr + 'T00:00:00');
+    return date.toLocaleDateString(localeCode, { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
   const formatPrice = (price: number) =>
-    price.toLocaleString(localeCode, { style: "currency", currency: "BRL" });
+    price.toLocaleString(localeCode, { style: 'currency', currency: 'BRL' });
+
+  const isFree = show.price === 0;
+  const cta = purchased ? t('watch') : show.isLive ? t('watch') : t('details');
 
   return (
     <div
       className={`${styles.card} ${layout === 'horizontal' ? styles.cardHorizontal : ''}`}
       onClick={() => router.push(`/events/${show.id}`)}
     >
+      {/* Image */}
       <div className={styles.imageWrapper}>
         <img src={show.image} alt={show.title} className={styles.image} />
+        <div className={styles.imageScrim} />
 
-        {show.isLive && (
-          <div className={styles.badgeTopLeft}>
+        <div className={styles.badgesTopLeft}>
+          {show.isLive && (
             <span className={styles.liveBadge}>
               <span className={styles.liveDot} />
-              {t('live')}
+              AO VIVO
             </span>
-          </div>
-        )}
-
-        {purchased && !show.isLive && (
-          <div className={styles.badgeTopLeft}>
+          )}
+          {purchased && !show.isLive && (
             <span className={styles.purchasedBadge}>{t('purchased')}</span>
-          </div>
-        )}
+          )}
+        </div>
 
-        <div className={styles.cameraCount}>
+        <span className={styles.cameraChip}>
           <Camera size={12} />
           {show.cameras.length}
-        </div>
+        </span>
       </div>
 
+      {/* Content */}
       <div className={styles.content}>
         <div className={styles.contentHeader}>
-          <div className={styles.titleGroup}>
-            <h3 className={styles.cardTitle}>{show.title}</h3>
-            <p className={styles.cardArtist}>{show.artist}</p>
-          </div>
-          <span className={styles.cardPrice}>
-            {purchased ? "—" : formatPrice(show.price)}
+          <h3 className={styles.cardTitle}>{show.title}</h3>
+          <span className={`${styles.cardPrice} ${isFree ? styles.cardPriceFree : ''}`}>
+            {purchased ? '—' : formatPrice(show.price)}
           </span>
         </div>
 
         <div className={styles.metaList}>
-          <div className={styles.metaItem}>
-            <MapPin size={12} />
+          <span className={styles.metaItem}>
+            <MapPin size={13} className={styles.metaIconLocation} />
             <span className={styles.metaItemTruncate}>{show.venue} · {show.city}</span>
-          </div>
-          <div className={styles.metaRow}>
-            <div className={styles.metaItem}>
-              <Calendar size={12} />
-              <span>{formatDate(show.date)}</span>
-            </div>
-            <div className={styles.metaItem}>
-              <Clock size={12} />
-              <span>{show.time}</span>
-            </div>
-          </div>
+          </span>
+          <span className={styles.metaRow}>
+            <span className={styles.metaItem}>
+              <Calendar size={13} />
+              {formatDate(show.date)}
+            </span>
+            <span className={styles.metaItem}>
+              <Clock size={13} />
+              {show.time}
+            </span>
+          </span>
         </div>
 
         <div className={styles.cardFooter}>
-          <div className={styles.chips}>
-            <Chip variant="tag" asChild><span>{show.genre}</span></Chip>
-            {show.hasReplay && <Chip variant="tag" asChild><span>{t('replay')}</span></Chip>}
+          <div className={styles.footerChips}>
+            <span className={styles.chipShow}>SHOW</span>
+            {show.hasReplay && <span className={styles.chipReprise}>REPRISE</span>}
           </div>
-
-          {purchased ? (
-            <button
-              className={styles.btnAction}
-              onClick={(e) => { e.stopPropagation(); router.push(`/live/${show.id}`); }}
-            >
-              {t('watch')}
-            </button>
-          ) : (
-            <button
-              className={styles.btnDetails}
-              onClick={(e) => { e.stopPropagation(); router.push(`/events/${show.id}`); }}
-            >
-              {t('details')}
-            </button>
-          )}
+          <button
+            className={styles.btnCta}
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(purchased || show.isLive ? `/live/${show.id}` : `/events/${show.id}`);
+            }}
+          >
+            {cta}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

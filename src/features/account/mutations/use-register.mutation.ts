@@ -11,7 +11,12 @@ interface RegisterResult {
   user: AuthUser;
 }
 
-export function useRegisterMutation() {
+function safeRedirect(url: string | undefined): string {
+  if (!url || !url.startsWith('/') || url.startsWith('//')) return '/';
+  return url;
+}
+
+export function useRegisterMutation(callbackUrl?: string) {
   const router = useRouter();
 
   return useMutation<RegisterResult, AppError, RegisterRequest>({
@@ -31,7 +36,7 @@ export function useRegisterMutation() {
     onSuccess: (data) => {
       tokenStore.set(data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
-      router.push('/home');
+      router.push(safeRedirect(callbackUrl));
     },
   });
 }

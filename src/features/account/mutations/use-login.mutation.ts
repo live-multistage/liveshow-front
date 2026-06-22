@@ -11,6 +11,11 @@ interface LoginResult {
   user: AuthUser;
 }
 
+function safeRedirect(url: string | undefined): string {
+  if (!url || !url.startsWith('/') || url.startsWith('//')) return '/';
+  return url;
+}
+
 export function useLoginMutation(callbackUrl?: string) {
   const router = useRouter();
 
@@ -31,7 +36,7 @@ export function useLoginMutation(callbackUrl?: string) {
     onSuccess: (data) => {
       tokenStore.set(data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
-      router.push(callbackUrl ?? '/');
+      router.push(safeRedirect(callbackUrl));
     },
   });
 }
