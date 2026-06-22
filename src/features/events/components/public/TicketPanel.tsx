@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Ticket, Tv2, RotateCcw, CheckCircle2, ShoppingCart } from 'lucide-react';
+import { Tv2, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { formatPrice } from '../../utils/event-formatters';
 import type { EventResponse, TicketProductResponse } from '../../types/event.types';
 import { useTranslations } from 'next-intl';
@@ -29,14 +29,12 @@ export function TicketPanel({ event, tickets }: Props) {
   const { isLoggedIn } = useAuth();
   const t = useTranslations('ticketPanel');
 
-  // Entitlement checks (JWT-only) — skipped when logged out.
   const liveAccess = useLiveAccessQuery(event.id, isLoggedIn);
   const replayAccess = useReplayAccessQuery(event.id, isLoggedIn);
 
   const isLive = event.status === 'LIVE';
   const isFinished = event.status === 'FINISHED';
 
-  // Finished events: only show tickets that include replay — live-only tickets are no longer useful.
   const purchasableTickets = isFinished
     ? tickets.filter((t) => t.capabilities.includes('REPLAY_VIEW'))
     : tickets;
@@ -46,70 +44,71 @@ export function TicketPanel({ event, tickets }: Props) {
   const ownsLive = liveAccess.data === true;
   const ownsReplay = replayAccess.data === true;
   const owns = isLoggedIn && (ownsLive || ownsReplay);
-  const accessLoading =
-    isLoggedIn && (liveAccess.isLoading || replayAccess.isLoading);
+  const accessLoading = isLoggedIn && (liveAccess.isLoading || replayAccess.isLoading);
 
-  // Real liveness comes from the transmission (a LIVE stream with a RUNNING
-  // transcode job), NOT event.status — which only flips on an explicit
-  // "Start Event" admin action. Poll it for entitled-live viewers.
   const playback = useLivePlaybackQuery(event.id, ownsLive);
   const liveNow = playback.data?.live === true;
 
   if (event.status === 'CANCELLED') {
     return (
       <div className={styles.panel}>
-        <h3 className={styles.panelTitle}>{t('title')}</h3>
-        <p className={styles.empty}>{t('cancelled')}</p>
+        <div className={styles.glow} aria-hidden />
+        <div className={styles.panelContent}>
+          <p className={styles.empty}>{t('cancelled')}</p>
+        </div>
       </div>
     );
   }
 
-  // Avoid flashing the buy panel to an owner while entitlement resolves.
   if (accessLoading) {
     return (
       <div className={styles.panel}>
-        <h3 className={styles.panelTitle}>{t('title')}</h3>
-        <p className={styles.empty}>{t('verifyingAccess')}</p>
+        <div className={styles.glow} aria-hidden />
+        <div className={styles.panelContent}>
+          <p className={styles.empty}>{t('verifyingAccess')}</p>
+        </div>
       </div>
     );
   }
 
-  // Owner: surface access to the transmission instead of the purchase flow.
   if (owns) {
     return (
       <div className={styles.panel}>
-        <div className={styles.ownedBadge}>
-          <CheckCircle2 size={18} /> {t('ticketSecured')}
+        <div className={styles.glow} aria-hidden />
+        <div className={styles.panelContent}>
+          <div className={styles.ownedBadge}>
+            <CheckCircle2 size={18} /> {t('ticketSecured')}
+          </div>
+          {liveNow ? (
+            <>
+              <Button
+                variant="primary"
+                fullWidth
+                icon={<Tv2 size={16} />}
+                className={styles.ticketAction}
+                onClick={() => router.push(`/live/${event.id}`)}
+              >
+                {t('watchNow')}
+              </Button>
+              <p className={styles.ownedNote}>{t('streamIsLive')}</p>
+            </>
+          ) : isFinished && ownsReplay ? (
+            <>
+              <Button
+                variant="primary"
+                fullWidth
+                icon={<RotateCcw size={16} />}
+                className={styles.ticketAction}
+                onClick={() => router.push(`/replay/${event.id}`)}
+              >
+                {t('watchReplay')}
+              </Button>
+              <p className={styles.ownedNote}>{t('replayAvailable')}</p>
+            </>
+          ) : (
+            <p className={styles.ownedNote}>{t('alreadyHaveAccess')}</p>
+          )}
         </div>
-        {liveNow ? (
-          <>
-            <Button
-              variant="primary"
-              fullWidth
-              icon={<Tv2 size={16} />}
-              className={styles.ticketAction}
-              onClick={() => router.push(`/live/${event.id}`)}
-            >
-              {t('watchNow')}
-            </Button>
-            <p className={styles.ownedNote}>{t('streamIsLive')}</p>
-          </>
-        ) : isFinished && ownsReplay ? (
-          <>
-            <Button
-              variant="primary"
-              fullWidth
-              icon={<RotateCcw size={16} />}
-              className={styles.ticketAction}
-              onClick={() => router.push(`/replay/${event.id}`)}
-            >
-              {t('watchReplay')}
-            </Button>
-            <p className={styles.ownedNote}>{t('replayAvailable')}</p>
-          </>
-        ) : (
-          <p className={styles.ownedNote}>{t('alreadyHaveAccess')}</p>
-        )}
       </div>
     );
   }
@@ -117,84 +116,116 @@ export function TicketPanel({ event, tickets }: Props) {
   if (purchasableTickets.length === 0) {
     return (
       <div className={styles.panel}>
-        <h3 className={styles.panelTitle}>{t('title')}</h3>
-        <p className={styles.empty}>
-          {isFinished ? t('noReplay') : t('noTickets')}
-        </p>
+        <div className={styles.glow} aria-hidden />
+        <div className={styles.panelContent}>
+          <p className={styles.empty}>
+            {isFinished ? t('noReplay') : t('noTickets')}
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={styles.panel}>
-      <h3 className={styles.panelTitle}>{isFinished ? t('buyReplay') : t('buyTicket')}</h3>
-      <div className={styles.ticketOptions}>
-        {purchasableTickets.map((opt) => (
-          <button key={opt.id} onClick={() => setSelected(opt.id)}
-            className={`${styles.ticketOption} ${selected === opt.id ? styles.ticketOptionSelected : ''}`}>
-            <div className={styles.ticketOptionInner}>
-              <div>
-                <p className={`${styles.ticketOptionName} ${selected === opt.id ? styles.ticketOptionNameSelected : ''}`}>
-                  {opt.name}
-                </p>
-                <p className={styles.ticketOptionDesc}>{opt.description}</p>
+      <div className={styles.glow} aria-hidden />
+      <div className={styles.panelContent}>
+        <div className={styles.panelLabel}>
+          {isFinished ? t('buyReplay') : t('buyTicket')}
+        </div>
+
+        <div className={styles.ticketOptions}>
+          {purchasableTickets.map((opt) => (
+            <button
+              key={opt.id}
+              onClick={() => setSelected(opt.id)}
+              className={`${styles.ticketOption} ${selected === opt.id ? styles.ticketOptionSelected : styles.ticketOptionDefault}`}
+            >
+              <div className={styles.ticketOptionHeader}>
+                <span className={styles.ticketOptionName}>{opt.name}</span>
+                <span className={styles.ticketOptionPrice}>{formatPrice(opt.price)}</span>
               </div>
-              <p className={styles.ticketOptionPrice}>{formatPrice(opt.price)}</p>
+              {opt.description && (
+                <p className={styles.ticketOptionDesc}>{opt.description}</p>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div className={styles.divider} />
+
+        {ticket && (
+          <>
+            <div className={styles.totalRow}>
+              <span className={styles.totalLabel}>Total</span>
+              <div className={styles.totalRight}>
+                <span className={styles.currency}>BRL</span>
+                <span className={styles.totalAmount}>{formatPrice(ticket.price)}</span>
+              </div>
             </div>
-          </button>
-        ))}
-      </div>
-      {ticket && (
-        <div className={styles.totalRow}>
-          <div className={styles.totalLine}>
-            <span className={styles.totalLabel}>{t('total')}</span>
-            <span className={styles.totalPrice}>{formatPrice(ticket.price)}</span>
+            <p className={styles.totalNote}>{t('validFor')}</p>
+          </>
+        )}
+
+        <button
+          className={styles.buyBtn}
+          onClick={() => {
+            if (!ticket) return;
+            if (!isLoggedIn) {
+              router.push(`/login?next=/events/${event.id}/checkout?ticketId=${ticket.id}`);
+              return;
+            }
+            router.push(`/events/${event.id}/checkout?ticketId=${ticket.id}`);
+          }}
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+            <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4Z"/>
+          </svg>
+          {isFinished ? t('buyReplay') : t('buyTicket')}
+        </button>
+
+        <button
+          className={styles.cartBtn}
+          disabled={addToCart.isPending}
+          onClick={() => {
+            if (!ticket) return;
+            if (!isLoggedIn) { router.push('/login'); return; }
+            setPendingAction('cart');
+            addToCart.mutate(ticket.id, {
+              onSettled: () => setPendingAction(null),
+            });
+          }}
+        >
+          {pendingAction === 'cart' ? (
+            <><span className={styles.btnSpinner} />{t('adding')}</>
+          ) : (
+            <>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 4h2l2.5 12h11l2-8H6.5"/>
+                <circle cx="9" cy="20" r="1.4"/>
+                <circle cx="18" cy="20" r="1.4"/>
+              </svg>
+              {t('addToCart')}
+            </>
+          )}
+        </button>
+
+        {isLive && (
+          <div className={styles.demoLink}>
+            <button onClick={() => router.push(`/live/${event.id}`)} className={styles.demoBtn}>
+              {t('freePreview')}
+            </button>
           </div>
-          <p className={styles.totalNote}>{t('validFor')}</p>
+        )}
+
+        <div className={styles.secureNote}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          COMPRA 100% SEGURA
         </div>
-      )}
-      <Button
-        variant="primary"
-        fullWidth
-        icon={<Ticket size={16} />}
-        className={styles.ticketAction}
-        onClick={() => {
-          if (!ticket) return;
-          if (!isLoggedIn) {
-            router.push(`/login?next=/events/${event.id}/checkout?ticketId=${ticket.id}`);
-            return;
-          }
-          router.push(`/events/${event.id}/checkout?ticketId=${ticket.id}`);
-        }}
-      >
-        {isFinished ? t('buyReplay') : t('buyTicket')}
-      </Button>
-      <Button
-        variant="outline"
-        fullWidth
-        isLoading={pendingAction === 'cart'}
-        loadingLabel={t('adding')}
-        icon={<ShoppingCart size={16} />}
-        disabled={addToCart.isPending}
-        className={styles.ticketAction}
-        onClick={() => {
-          if (!ticket) return;
-          if (!isLoggedIn) { router.push('/login'); return; }
-          setPendingAction('cart');
-          addToCart.mutate(ticket.id, {
-            onSettled: () => setPendingAction(null),
-          });
-        }}
-      >
-        {t('addToCart')}
-      </Button>
-      {isLive && (
-        <div className={styles.demoLink}>
-          <button onClick={() => router.push(`/live/${event.id}`)} className={styles.demoBtn}>
-            {t('freePreview')}
-          </button>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
