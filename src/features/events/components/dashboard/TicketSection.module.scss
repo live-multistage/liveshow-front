@@ -28,7 +28,7 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: $text-label;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   margin: 0;
 }
 
@@ -55,7 +55,7 @@
   padding: 8px 16px;
   font-size: 0.875rem;
   font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Archivo', sans-serif;
   cursor: pointer;
   transition: opacity 0.15s;
   white-space: nowrap;
@@ -78,7 +78,7 @@
   padding: 8px 16px;
   font-size: 0.875rem;
   font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Archivo', sans-serif;
   cursor: pointer;
   transition: background-color 0.15s, color 0.15s;
   white-space: nowrap;
@@ -117,7 +117,7 @@
   color: $text-label;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
 }
 
 // ── Inputs ────────────────────────────────────────────────────────
@@ -127,7 +127,7 @@
   border-radius: 6px;
   color: $text-primary;
   font-size: 0.9rem;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   padding: 13px;
   outline: none;
   width: 100%;
@@ -169,7 +169,7 @@
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   color: $text-primary;
 }
 
@@ -202,13 +202,13 @@
 .error {
   font-size: 0.76rem;
   color: $error;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
 }
 
 .inputHint {
   font-size: 0.72rem;
   color: $text-muted;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   font-style: italic;
 }
 
@@ -269,7 +269,7 @@
 .ticketCapLabel {
   font-size: 0.688rem;
   color: $white-50;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
 }
 
 .removeBtn {
@@ -298,21 +298,21 @@
   font-size: 0.9rem;
   font-weight: 400;
   color: $text-primary;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   margin: 0;
 }
 
 .ticketDesc {
   font-size: 0.75rem;
   color: $white-50;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   margin: 0;
 }
 
 .ticketPrice {
   font-size: 0.9rem;
   color: $price;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   margin: 0;
   margin-top: 2px;
 }

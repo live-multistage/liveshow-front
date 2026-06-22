@@ -9,13 +9,13 @@ const chipVariants = cva(
   {
     variants: {
       variant: {
-        // Genre filter pill — interactive, Jost 14px
+        // Genre filter pill — interactive, Archivo 14px
         default:
-          "rounded-full border border-[#27272A] bg-[#18181b] px-6 py-2 text-sm text-white font-jost cursor-pointer hover:border-[#EC4899]",
+          "rounded-full border border-[rgba(255,255,255,.1)] bg-[rgba(255,255,255,.04)] px-6 py-2 text-sm text-[#b9b9c0] font-archivo cursor-pointer hover:border-[rgba(255,46,158,.4)]",
         active:
-          "rounded-full border border-transparent bg-[#EC4899] px-6 py-2 text-sm text-white font-jost cursor-pointer",
-        // Genre / tag chip — static label, JetBrains Mono 12px
-        tag: "rounded-[8px] border border-[#27272A] bg-transparent px-2 py-0.5 text-[12px] leading-[18px] text-[#A1A1AA] font-jetbrains uppercase tracking-[0.05em]",
+          "rounded-full border border-[#ff2e9e] bg-[#ff2e9e] px-6 py-2 text-sm text-[#0a0a0b] font-archivo font-bold cursor-pointer",
+        // Genre / tag chip — static label, Space Mono 12px
+        tag: "rounded-[8px] border border-[rgba(255,255,255,.07)] bg-transparent px-2 py-0.5 text-[12px] leading-[18px] text-[#8f8f97] font-space-mono uppercase tracking-[0.05em]",
       },
     },
     defaultVariants: {

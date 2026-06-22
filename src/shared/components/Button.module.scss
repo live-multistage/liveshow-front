@@ -100,9 +100,9 @@
   &:hover:not(:disabled) { color: $text-primary; }
 }
 
-// ── Uppercase modifier (for Oswald/caps style) ────────────────────
+// ── Uppercase modifier (Space Mono caps style) ────────────────────
 .uppercase {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Space Mono', monospace;
   text-transform: uppercase;
   letter-spacing: 0.07em;
 }

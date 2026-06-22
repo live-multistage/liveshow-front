@@ -53,7 +53,7 @@
 .slugPrefix {
   padding: 0 0.625rem;
   color: $muted;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
   font-size: 0.875rem;
   border-right: 1px solid $border;
   height: 100%;
@@ -65,7 +65,7 @@
   border: none;
   border-radius: 0;
   flex: 1;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
 
   &:focus { border-color: transparent; }
 }

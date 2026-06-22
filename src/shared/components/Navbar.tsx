@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutDashboard, ShoppingCart } from 'lucide-react';
@@ -32,14 +33,27 @@ function getInitials(name: string) {
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+
+  useEffect(() => {
+    if (!isHome) { setScrolled(false); return; }
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [isHome]);
   const { user, isLoggedIn, isLoading, logout } = useAuth();
   const { data: dashboardCheck } = useAuthCheck('access_dashboard', {}, { enabled: isLoggedIn });
   const canAccessDashboard = dashboardCheck?.allowed === true;
   const cartCount = useCartCount();
   const t = useTranslations('nav');
 
+  const transparent = isHome && !scrolled;
+
   return (
-    <nav className={styles.nav}>
+    <nav className={`${styles.nav}${transparent ? ` ${styles.navTransparent}` : ''}`}>
       <div className={styles.navInner}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>

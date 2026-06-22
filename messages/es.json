@@ -454,5 +454,36 @@
     "stagesNote": "El acceso a escenarios específicos puede configurarse después de crear el evento.",
     "errorAdd": "Error al agregar entrada.",
     "errorSave": "Error al guardar entrada."
+  },
+  "settings": {
+    "heading": "Configuración",
+    "profile": {
+      "title": "Perfil",
+      "email": "Correo electrónico",
+      "displayName": "Nombre para mostrar",
+      "save": "Guardar cambios",
+      "saving": "Guardando...",
+      "success": "Perfil actualizado correctamente."
+    },
+    "password": {
+      "title": "Seguridad",
+      "current": "Contraseña actual",
+      "new": "Nueva contraseña",
+      "confirm": "Confirmar nueva contraseña",
+      "save": "Cambiar contraseña",
+      "saving": "Cambiando...",
+      "success": "Contraseña cambiada correctamente.",
+      "errorWrongCurrent": "La contraseña actual es incorrecta.",
+      "errorGeneric": "Error al cambiar la contraseña. Inténtalo de nuevo."
+    }
+  },
+  "account": {
+    "nav": {
+      "title": "Mi cuenta",
+      "tickets": "Mis Entradas",
+      "purchases": "Compras",
+      "settings": "Configuración"
+    },
+    "logout": "Cerrar sesión"
   }
 }

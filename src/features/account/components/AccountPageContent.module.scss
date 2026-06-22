@@ -1,0 +1,161 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $bg;
+  padding-top: 5rem;
+  padding-bottom: 4rem;
+}
+
+.inner {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: $surface-card;
+  border: 1px solid $border;
+  border-radius: 0.75rem;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: $action-bg;
+  border: 1.5px solid $action;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Archivo', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: $action;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.name {
+  margin: 0;
+  font-family: 'Archivo', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.email {
+  margin: 0;
+  font-size: 0.875rem;
+  color: $text-secondary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.navList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.navCard {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: $surface-card;
+  border: 1px solid $border;
+  border-radius: 0.75rem;
+  color: $text-primary;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: $bg-hover;
+    border-color: $accent;
+  }
+}
+
+.navIcon {
+  flex-shrink: 0;
+  color: $action;
+}
+
+.navLabel {
+  flex: 1;
+  font-size: 0.9375rem;
+}
+
+.navChevron {
+  color: $text-muted;
+}
+
+.logout {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: 1px solid $danger;
+  border-radius: 0.75rem;
+  color: $danger;
+  font-size: 0.875rem;
+  cursor: pointer;
+  width: fit-content;
+  transition: background 0.15s;
+
+  &:hover {
+    background: $danger-bg;
+  }
+}
+
+.loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid $border;
+  border-top-color: $action;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

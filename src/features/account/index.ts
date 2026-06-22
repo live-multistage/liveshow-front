@@ -1,5 +1,7 @@
 export { RegisterForm } from './components/RegisterForm';
 export { LoginForm } from './components/LoginForm';
+export { AccountPageContent } from './components/AccountPageContent';
+export { SettingsPageContent } from './components/SettingsPageContent';
 export { useRegisterMutation } from './mutations/use-register.mutation';
 export { useLoginMutation } from './mutations/use-login.mutation';
 export { useAuth } from './hooks/use-auth';

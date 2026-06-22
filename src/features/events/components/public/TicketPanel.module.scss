@@ -246,7 +246,7 @@
   &:focus { border-color: $action; }
 }
 
-.mono { font-family: 'JetBrains Mono', monospace; }
+.mono { font-family: 'Space Mono', monospace; }
 
 .secureNote {
   font-size: 0.72rem;
@@ -283,7 +283,7 @@
 .successTitle {
   font-size: 1.1rem;
   font-weight: 700;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   text-transform: uppercase;
   color: $text-primary;
   margin: 0;

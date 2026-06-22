@@ -1,0 +1,39 @@
+@use '../../../../styles/_variables' as *;
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.page {
+  background: #08080a;
+  min-height: 100vh;
+}
+
+.loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #08080a;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid $border;
+  border-top-color: $action;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.empty {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #08080a;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: $text-muted;
+  padding-top: 4rem;
+}

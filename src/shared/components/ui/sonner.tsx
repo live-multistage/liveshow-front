@@ -11,7 +11,7 @@ const Toaster = ({ ...props }: ToasterProps) => (
         background: '#131316',
         border: '1px solid #27272A',
         color: '#FFFFFF',
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "'Space Mono', monospace",
         fontSize: '0.8125rem',
         borderRadius: '8px',
       },

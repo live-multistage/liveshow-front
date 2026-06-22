@@ -454,5 +454,36 @@
     "stagesNote": "Stage-specific access can be configured after the event is created.",
     "errorAdd": "Error adding ticket.",
     "errorSave": "Error saving ticket."
+  },
+  "settings": {
+    "heading": "Settings",
+    "profile": {
+      "title": "Profile",
+      "email": "Email",
+      "displayName": "Display name",
+      "save": "Save changes",
+      "saving": "Saving...",
+      "success": "Profile updated successfully."
+    },
+    "password": {
+      "title": "Security",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "save": "Change password",
+      "saving": "Changing...",
+      "success": "Password changed successfully.",
+      "errorWrongCurrent": "Current password is incorrect.",
+      "errorGeneric": "Failed to change password. Please try again."
+    }
+  },
+  "account": {
+    "nav": {
+      "title": "My account",
+      "tickets": "My Tickets",
+      "purchases": "Purchases",
+      "settings": "Settings"
+    },
+    "logout": "Sign out"
   }
 }

@@ -1,0 +1,85 @@
+@use '../../../../../styles/_variables' as *;
+
+.section {
+  padding: 0.5rem 2rem 3rem;
+
+  @media (min-width: $md) {
+    padding: 0.5rem 3rem 3rem;
+  }
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0.875rem 0 1.125rem;
+}
+
+.heading {
+  margin: 0;
+  font-family: 'Archivo', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #f4f4f5;
+}
+
+.chips {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+%chipBase {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 7px 13px;
+  border: 1px solid;
+  transition: all 0.15s;
+}
+
+.chip {
+  @extend %chipBase;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.04);
+  color: #b9b9c0;
+  border-color: rgba(255, 255, 255, 0.1);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f4f4f5;
+  }
+}
+
+.chipActive {
+  @extend %chipBase;
+  font-weight: 700;
+  background: #ff2e9e;
+  color: #0a0a0b;
+  border-color: #ff2e9e;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 200px;
+  gap: 16px;
+}
+
+.empty {
+  padding: 3rem;
+  text-align: center;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: $text-muted;
+}
