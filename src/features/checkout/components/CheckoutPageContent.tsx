@@ -89,8 +89,8 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
       <div className={styles.page}>
         <div className={styles.container}>
           <div className={styles.skeleton} />
-          <div className={styles.skeleton} style={{ height: 120 }} />
-          <div className={styles.skeleton} style={{ height: 80 }} />
+          <div className={`${styles.skeleton} ${styles.skeletonMd}`} />
+          <div className={`${styles.skeleton} ${styles.skeletonSm}`} />
         </div>
       </div>
     );

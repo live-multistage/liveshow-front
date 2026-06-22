@@ -153,6 +153,9 @@
   animation: shimmer 1.5s infinite linear;
 }
 
+.skeletonMd { height: 120px; }
+.skeletonSm { height: 80px; }
+
 @keyframes shimmer {
   0%   { background-position: 100% 0; }
   100% { background-position: -100% 0; }
@@ -170,7 +173,7 @@
   text-align: center;
   color: $text-muted;
 
-  svg { color: #f87171; }
+  svg { color: $error; }
   p { font-size: 1rem; }
 }
 
