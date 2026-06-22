@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from '@/shared/hooks/use-navigate';
 import { useTranslations } from 'next-intl';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { EventDashboardCard } from '@/features/events';
@@ -13,7 +13,7 @@ import { PlusIcon } from 'lucide-react';
 
 export function AdminDashboard() {
   const t = useTranslations('dashboard.overview');
-  const router = useRouter();
+  const navigate = useNavigate();
   const { totalEvents, liveNow, upcoming, drafts, finished, events, recentEvents, isLoading } =
     useDashboardStats();
 
@@ -28,7 +28,7 @@ export function AdminDashboard() {
           <Button
             variant="primary"
             icon={<PlusIcon />}
-            onClick={() => router.push('/dashboard/events/new')}
+            onClick={() => navigate.push('/dashboard/events/new')}
           >
             Novo evento
           </Button>
