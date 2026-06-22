@@ -1,50 +1,72 @@
 @use '../../../styles/_variables' as *;
 
 .card {
-  border: 1px solid $border;
-  border-radius: 12px;
-  padding: 1rem;
   background: $surface;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 20px;
+  padding: 22px;
 }
 
-.label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: $text-muted;
-  margin-bottom: 0.85rem;
-}
-
-.lines {
+.rows {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  margin-bottom: 0.75rem;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
-.line {
+.row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  font-size: 0.875rem;
-  color: $text-secondary;
 }
 
-.lineLabel { color: $text-muted; }
+.rowLabel {
+  font-size: 14px;
+  color: #b9b9c0;
+}
+
+.rowValue {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: $text-primary;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, .1);
+  margin-bottom: 18px;
+}
 
 .total {
   display: flex;
+  align-items: flex-end;
   justify-content: space-between;
-  align-items: center;
-  border-top: 1px solid $border;
-  padding-top: 0.75rem;
-  font-size: 0.95rem;
-  font-weight: 600;
+}
+
+.totalLabel {
+  font-size: 16px;
+  font-weight: 700;
   color: $text-primary;
 }
 
+.totalRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.currency {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #7d7d85;
+  line-height: 1.4;
+}
+
 .totalValue {
-  font-size: 1.25rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 28px;
   font-weight: 700;
-  color: $text-primary;
+  letter-spacing: -.01em;
+  color: $action;
+  line-height: 1;
 }
