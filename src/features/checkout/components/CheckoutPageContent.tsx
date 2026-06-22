@@ -11,7 +11,6 @@ import {
   usePaymentMethodsQuery,
 } from '../mutations/checkout.mutations';
 import type { CheckoutSession } from '../types/checkout.types';
-import { EventSummaryCard } from './EventSummaryCard';
 import { TicketSummaryCard } from './TicketSummaryCard';
 import { OrderSummaryCard } from './OrderSummaryCard';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
@@ -133,12 +132,13 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
   return (
     <div className={styles.page}>
       <div className={styles.inner}>
+        <div className={styles.breadcrumb}>CHECKOUT · ETAPA 2 DE 2</div>
         <h1 className={styles.title}>Finalizar compra</h1>
 
         {sessionExpiry && (
           <div className={styles.expiry}>
             <Clock size={13} />
-            Sessão expira às {sessionExpiry.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+            SESSÃO EXPIRA ÀS {sessionExpiry.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
           </div>
         )}
 
@@ -157,6 +157,10 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
               disabled={!session || !selectedMethodId || processPayment.isPending}
               aria-busy={processPayment.isPending}
             >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                <rect x="4" y="10" width="16" height="11" rx="2"/>
+                <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+              </svg>
               {processPayment.isPending
                 ? 'Processando…'
                 : session
@@ -166,13 +170,12 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
 
             <div className={styles.secure}>
               <Shield size={13} />
-              Pagamento seguro — seus dados são protegidos
+              PAGAMENTO SEGURO — SEUS DADOS SÃO PROTEGIDOS
             </div>
           </div>
 
           <aside className={styles.right}>
-            <EventSummaryCard event={event.data} />
-            <TicketSummaryCard ticket={ticket} quantity={quantity} />
+            <TicketSummaryCard ticket={ticket} quantity={quantity} eventName={event.data.title} />
             {session && <OrderSummaryCard session={session} />}
           </aside>
         </div>
