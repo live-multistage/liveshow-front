@@ -3,6 +3,7 @@ import type {
   OrganizationResponse,
   CreateOrganizationRequest,
   UpdateOrganizationRequest,
+  StripeAccountStatus,
 } from '../types/organization.types';
 import type { EventResponse } from '@/features/events/types/event.types';
 
@@ -64,6 +65,20 @@ export const organizationService = {
     const { data } = await httpClient.get<EventResponse[]>(
       `/organizations/public/by-id/${orgId}/events`,
       { params: { filter } },
+    );
+    return data;
+  },
+
+  getStripeStatus: async (orgId: string): Promise<StripeAccountStatus> => {
+    const { data } = await httpClient.get<StripeAccountStatus>(
+      `/organizations/${orgId}/stripe`,
+    );
+    return data;
+  },
+
+  initiateStripeConnect: async (orgId: string): Promise<{ url: string }> => {
+    const { data } = await httpClient.post<{ url: string }>(
+      `/organizations/${orgId}/stripe/connect`,
     );
     return data;
   },

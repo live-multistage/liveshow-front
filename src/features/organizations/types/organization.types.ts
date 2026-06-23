@@ -83,3 +83,9 @@ export interface UpdateOrganizationSettingsRequest {
   city?: string;
   timezone?: string;
 }
+
+export interface StripeAccountStatus {
+  hasAccount: boolean;
+  onboardingComplete: boolean;
+  platformFeeRate: number;
+}
