@@ -1,9 +1,14 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { X } from 'lucide-react';
+import { useAuth } from '@/features/account';
 import { OrganizationHeader } from '../components/OrganizationHeader';
 import { OrganizationForm } from '../components/OrganizationForm';
 import { OrganizationLogoUploader } from '../components/OrganizationLogoUploader';
 import { OrganizationBannerUploader } from '../components/OrganizationBannerUploader';
+import { StripeConnectSection } from '../components/StripeConnectSection';
 import { useOrganization } from '../hooks/use-organizations';
 import { useOrganizationSettings } from '../hooks/use-organization-settings';
 import { useUpdateOrganization } from '../hooks/use-update-organization';
@@ -14,10 +19,29 @@ interface Props {
   organizationId: string;
 }
 
+type StripeBannerState = 'complete' | 'refresh' | null;
+
 export function SettingsPage({ organizationId }: Props) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user } = useAuth();
+
   const { data: org, isLoading: orgLoading, isError: orgError } = useOrganization(organizationId);
   const { data: settings } = useOrganizationSettings(organizationId);
   const updateMutation = useUpdateOrganization(organizationId);
+
+  const [stripeBanner, setStripeBanner] = useState<StripeBannerState>(null);
+
+  useEffect(() => {
+    const param = searchParams.get('stripe') as StripeBannerState;
+    if (param === 'complete' || param === 'refresh') {
+      setStripeBanner(param);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('stripe');
+      const newUrl = params.size > 0 ? `?${params}` : window.location.pathname;
+      router.replace(newUrl);
+    }
+  }, [searchParams, router]);
 
   const handleGeneralSubmit = (values: CreateOrganizationValues) => {
     updateMutation.mutate(values);
@@ -27,6 +51,8 @@ export function SettingsPage({ organizationId }: Props) {
   if (orgError || !org) {
     return <p className={`${styles.state} ${styles.stateError}`}>Organização não encontrada.</p>;
   }
+
+  const isOwner = user?.id === org.ownerId;
 
   return (
     <div className={styles.page}>
@@ -81,6 +107,34 @@ export function SettingsPage({ organizationId }: Props) {
             <IdentitySettingsForm settings={settings} orgId={organizationId} />
           </div>
         </section>
+
+        {isOwner && (
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>Recebimentos (Stripe)</h2>
+            {stripeBanner && (
+              <div
+                className={styles.banner}
+                data-variant={stripeBanner === 'complete' ? 'success' : 'warning'}
+              >
+                <span>
+                  {stripeBanner === 'complete'
+                    ? 'Conta Stripe conectada com sucesso!'
+                    : 'Link expirado. Clique em continuar para tentar novamente.'}
+                </span>
+                <button
+                  className={styles.bannerClose}
+                  onClick={() => setStripeBanner(null)}
+                  aria-label="Fechar"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            )}
+            <div className={styles.sectionBody}>
+              <StripeConnectSection orgId={organizationId} />
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
