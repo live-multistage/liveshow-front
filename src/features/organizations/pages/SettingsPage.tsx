@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { X } from 'lucide-react';
 import { useAuth } from '@/features/account';
 import { OrganizationHeader } from '../components/OrganizationHeader';
@@ -23,6 +23,7 @@ type StripeBannerState = 'complete' | 'refresh' | null;
 
 export function SettingsPage({ organizationId }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user } = useAuth();
 
@@ -33,15 +34,15 @@ export function SettingsPage({ organizationId }: Props) {
   const [stripeBanner, setStripeBanner] = useState<StripeBannerState>(null);
 
   useEffect(() => {
-    const param = searchParams.get('stripe') as StripeBannerState;
+    const param = searchParams.get('stripe');
     if (param === 'complete' || param === 'refresh') {
       setStripeBanner(param);
       const params = new URLSearchParams(searchParams.toString());
       params.delete('stripe');
-      const newUrl = params.size > 0 ? `?${params}` : window.location.pathname;
+      const newUrl = params.size > 0 ? `?${params}` : pathname;
       router.replace(newUrl);
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, pathname]);
 
   const handleGeneralSubmit = (values: CreateOrganizationValues) => {
     updateMutation.mutate(values);
