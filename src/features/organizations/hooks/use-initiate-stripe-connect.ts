@@ -14,6 +14,9 @@ export function useInitiateStripeConnect(orgId: string) {
       }
     },
     onSuccess: ({ url }) => {
+      if (!url.startsWith('https://')) {
+        throw new Error('URL de redirecionamento inválida');
+      }
       window.location.href = url;
     },
   });

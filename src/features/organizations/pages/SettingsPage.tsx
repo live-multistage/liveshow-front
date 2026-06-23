@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { X } from 'lucide-react';
 import { useAuth } from '@/features/account';
@@ -32,10 +32,13 @@ export function SettingsPage({ organizationId }: Props) {
   const updateMutation = useUpdateOrganization(organizationId);
 
   const [stripeBanner, setStripeBanner] = useState<StripeBannerState>(null);
+  const bannerClearedRef = useRef(false);
 
   useEffect(() => {
+    if (bannerClearedRef.current) return;
     const param = searchParams.get('stripe');
     if (param === 'complete' || param === 'refresh') {
+      bannerClearedRef.current = true;
       setStripeBanner(param);
       const params = new URLSearchParams(searchParams.toString());
       params.delete('stripe');
