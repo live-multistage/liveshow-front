@@ -9,6 +9,8 @@ const ROLE_ICONS: Record<OrganizationRole, React.ReactNode> = {
   OWNER: <Crown size={13} />,
   ADMIN: <Shield size={13} />,
   EVENT_MANAGER: <Calendar size={13} />,
+  CONTENT_MANAGER: <Calendar size={13} />,
+  OPERATOR: <Calendar size={13} />,
   VIEWER: <Eye size={13} />,
 };
 
@@ -16,6 +18,8 @@ const ROLE_LABEL: Record<OrganizationRole, string> = {
   OWNER: 'Owner',
   ADMIN: 'Admin',
   EVENT_MANAGER: 'Gestor de Eventos',
+  CONTENT_MANAGER: 'Gestor de Conteúdo',
+  OPERATOR: 'Operador',
   VIEWER: 'Visualizador',
 };
 

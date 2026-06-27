@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, AlertCircle, Clock, Check, Ticket } from 'lucide-react';
+import { Shield, AlertCircle, Check, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
 import { useAuth } from '@/features/account';
 import { useCartQuery, CAPABILITY_LABELS, type CartLineView } from '@/features/cart';
 import { checkoutService } from '../services/checkout.service';
 import { usePaymentMethodsQuery } from '../mutations/checkout.mutations';
-import type { CheckoutSession, PaymentProvider } from '../types/checkout.types';
+import type { PaymentProvider } from '../types/checkout.types';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
 import styles from './CheckoutPageContent.module.scss';
 import cartStyles from './CartCheckoutPageContent.module.scss';
@@ -19,74 +19,33 @@ export function CartCheckoutPageContent() {
   const { data: cart, isLoading: cartLoading } = useCartQuery();
 
   const items = cart?.items ?? [];
+  const totalAmount = cart?.totals.total ?? 0;
 
-  const [sessions, setSessions] = useState<CheckoutSession[]>([]);
-  const [sessionsLoading, setSessionsLoading] = useState(false);
-  const [sessionsError, setSessionsError] = useState(false);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState(false);
 
   const paymentMethods = usePaymentMethodsQuery();
-
-  useEffect(() => {
-    if (paymentMethods.data?.length && !selectedMethodId) {
-      setSelectedMethodId(paymentMethods.data[0].id);
-    }
-  }, [paymentMethods.data]);
-
-  useEffect(() => {
-    if (!isLoggedIn && !authLoading) {
-      router.replace('/login?next=/checkout');
-    }
-  }, [isLoggedIn, authLoading, router]);
-
-  useEffect(() => {
-    if (!isLoggedIn || items.length === 0 || sessions.length > 0 || sessionsLoading) return;
-    setSessionsLoading(true);
-    Promise.all(
-      items.map((item) =>
-        checkoutService.createSession({ ticketProductId: item.ticketProductId }),
-      ),
-    )
-      .then((result) => {
-        setSessions(result);
-        setSessionsLoading(false);
-      })
-      .catch(() => {
-        setSessionsError(true);
-        setSessionsLoading(false);
-      });
-  }, [isLoggedIn, items.length]);
 
   const selectedMethod = paymentMethods.data?.find((m) => m.id === selectedMethodId);
 
   const handlePay = async () => {
-    if (sessions.length === 0 || !selectedMethod) return;
+    if (!selectedMethod || items.length === 0) return;
     setPaying(true);
+    setPayError(false);
     try {
-      const results = await Promise.all(
-        sessions.map((s) =>
-          checkoutService.processPayment({
-            sessionId: s.sessionId,
-            provider: selectedMethod.provider as PaymentProvider,
-          }),
-        ),
-      );
-      const redirect = results.find((r) => r.action.type === 'REDIRECT');
-      if (redirect && redirect.action.type === 'REDIRECT') {
-        window.location.href = redirect.action.url;
-        return;
-      }
-      router.push(`/events/${sessions[0].orderId}/checkout/success`);
+      const result = await checkoutService.createCartSession({
+        items: items.map((i) => ({ ticketProductId: i.ticketProductId, eventId: i.eventId })),
+        provider: selectedMethod.provider as PaymentProvider,
+      });
+      window.location.href = result.url;
     } catch {
-      router.push('/');
-    } finally {
+      setPayError(true);
       setPaying(false);
     }
   };
 
-  const totalAmount = sessions.reduce((sum, s) => sum + s.totalAmount, 0);
-  const isLoading = authLoading || cartLoading || sessionsLoading || paymentMethods.isLoading;
+  const isLoading = authLoading || cartLoading || paymentMethods.isLoading;
 
   if (!isLoggedIn && !authLoading) return null;
 
@@ -115,38 +74,15 @@ export function CartCheckoutPageContent() {
     );
   }
 
-  if (sessionsError) {
-    return (
-      <div className={styles.page}>
-        <div className={styles.error}>
-          <AlertCircle size={32} />
-          <p>Erro ao iniciar checkout. Tente novamente.</p>
-          <button
-            onClick={() => { setSessionsError(false); setSessions([]); }}
-            className={styles.backBtn}
-          >
-            Tentar novamente
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const earliestExpiry =
-    sessions.length > 0
-      ? new Date(Math.min(...sessions.map((s) => new Date(s.expiresAt).getTime())))
-      : null;
-
   return (
     <div className={styles.page}>
       <div className={styles.inner}>
         <h1 className={styles.title}>Finalizar compra</h1>
 
-        {earliestExpiry && (
-          <div className={styles.expiry}>
-            <Clock size={13} />
-            Sessão expira às{' '}
-            {earliestExpiry.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+        {payError && (
+          <div className={styles.error} style={{ marginBottom: '1rem' }}>
+            <AlertCircle size={20} />
+            <p>Erro ao iniciar pagamento. Tente novamente.</p>
           </div>
         )}
 
@@ -162,14 +98,10 @@ export function CartCheckoutPageContent() {
             <button
               className={styles.payBtn}
               onClick={handlePay}
-              disabled={sessions.length === 0 || !selectedMethodId || paying}
+              disabled={!selectedMethodId || paying || items.length === 0}
               aria-busy={paying}
             >
-              {paying
-                ? 'Processando…'
-                : sessions.length > 0
-                  ? `Pagar ${formatPrice(totalAmount)}`
-                  : 'Aguardando sessão…'}
+              {paying ? 'Processando…' : `Pagar ${formatPrice(totalAmount)}`}
             </button>
 
             <div className={styles.secure}>
@@ -183,14 +115,18 @@ export function CartCheckoutPageContent() {
               <CartItemCard key={item.eventId} item={item} />
             ))}
 
-            {sessions.length > 0 && (
-              <div className={cartStyles.totals}>
-                <div className={cartStyles.totalRow}>
-                  <span>Total</span>
-                  <span className={cartStyles.totalValue}>{formatPrice(totalAmount)}</span>
+            <div className={cartStyles.totals}>
+              {(cart?.totals.lines ?? []).map((line) => (
+                <div key={line.key} className={cartStyles.totalRow}>
+                  <span>{line.label}</span>
+                  <span>{formatPrice(line.amount)}</span>
                 </div>
+              ))}
+              <div className={cartStyles.totalRow}>
+                <span>Total</span>
+                <span className={cartStyles.totalValue}>{formatPrice(totalAmount)}</span>
               </div>
-            )}
+            </div>
           </aside>
         </div>
       </div>

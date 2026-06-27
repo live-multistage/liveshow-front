@@ -29,7 +29,7 @@ export function useDashboardStats(): DashboardStats {
       totalEvents: events.length,
       liveNow: events.filter((e) => e.status === 'LIVE').length,
       upcoming: events.filter(
-        (e) => e.status === 'PUBLISHED' && new Date(e.startsAt) > now,
+        (e) => (e.status === 'PUBLISHED' || e.status === 'SCHEDULED') && new Date(e.startsAt) > now,
       ).length,
       drafts: events.filter((e) => e.status === 'DRAFT').length,
       finished: events.filter((e) => e.status === 'FINISHED').length,

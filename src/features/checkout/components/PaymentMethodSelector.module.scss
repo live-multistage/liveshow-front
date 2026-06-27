@@ -1,38 +1,45 @@
 @use '../../../styles/_variables' as *;
 
-.wrap { display: flex; flex-direction: column; gap: 0.75rem; }
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
 .label {
-  font-size: 0.7rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: .14em;
+  color: $text-primary;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: $text-muted;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 12px;
 }
 
 .method {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 16px;
   width: 100%;
-  padding: 0.875rem 1rem;
-  background: $surface;
-  border: 1px solid $border;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-  color: $text-secondary;
   text-align: left;
+  background: $surface;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 16px;
+  padding: 20px 22px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  color: #e7e7ea;
+  overflow: hidden;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.18);
-    background: $bg-hover;
+    border-color: rgba(255, 46, 158, .32);
+    background: #131316;
   }
 
   &:focus-visible {
@@ -42,56 +49,84 @@
 }
 
 .methodSelected {
+  background: rgba(255, 46, 158, .07);
   border-color: $action;
-  background: $action-dim;
   color: $text-primary;
 
-  &:hover { border-color: $action; }
+  &:hover {
+    border-color: $action;
+    background: rgba(255, 46, 158, .07);
+  }
+}
+
+.selectedGlow {
+  position: absolute;
+  top: -50px;
+  right: -40px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, .16), transparent 70%);
+  pointer-events: none;
 }
 
 .methodIcon {
-  color: inherit;
-  flex-shrink: 0;
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .04);
+  color: #b9b9c0;
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
+}
+
+.methodIconSelected {
+  background: rgba(255, 46, 158, .14);
+  color: #ff5fb4;
 }
 
 .methodName {
+  position: relative;
   flex: 1;
-  font-size: 0.9rem;
+  font-size: 16px;
   font-weight: 500;
 }
 
-.radio {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid $border;
-  flex-shrink: 0;
-  transition: border-color 0.15s;
-  position: relative;
+.methodNameSelected {
+  font-weight: 600;
+  color: $text-primary;
+}
 
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 3px;
-    border-radius: 50%;
-    background: $action;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
+.radio {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .18);
+  flex-shrink: 0;
+  transition: border-color .15s;
 }
 
 .radioActive {
   border-color: $action;
 
-  &::after { opacity: 1; }
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: $action;
+  }
 }
 
 .skeleton {
   height: 200px;
-  border-radius: 10px;
-  background: linear-gradient(90deg, $surface 25%, $accent 50%, $surface 75%);
+  border-radius: 16px;
+  background: linear-gradient(90deg, $surface 25%, rgba(255, 46, 158, .08) 50%, $surface 75%);
   background-size: 400% 100%;
   animation: shimmer 1.5s infinite linear;
 }

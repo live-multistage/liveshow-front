@@ -1,125 +1,389 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { X, Tag, Ticket } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { formatPrice } from '@/features/events';
-import { CAPABILITY_LABELS } from '../utils/capability-labels';
+import { useNavigate } from '@/shared/hooks/use-navigate';
 import { useCartQuery } from '../queries/cart.queries';
 import { useRemoveFromCartMutation } from '../mutations/cart.mutations';
-import type { CartView } from '../services/cart.service';
+import { checkoutService } from '@/features/checkout/services/checkout.service';
+import type { CartLineView, CartView } from '../services/cart.service';
 import styles from './CartPageContent.module.scss';
 
 interface Props {
   initialCart?: CartView;
 }
 
+const brl = (n: number) =>
+  n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+// Mirrors backend Coupon.computeDiscount — used to recompute org-scoped discount on org subtotal
+const computeDiscount = (type: string, value: number, amount: number): number => {
+  if (type === 'PERCENTAGE') return Math.min(Math.round((amount * value) / 100 * 100) / 100, amount);
+  return Math.min(value, amount);
+};
+
+interface AppliedCoupon {
+  code: string;
+  discountAmount: number;
+  scopeOrgId: string | null;
+}
+
+interface OrgGroup {
+  orgId: string;
+  orgName: string;
+  items: CartLineView[];
+}
+
+function groupByOrg(items: CartLineView[]): OrgGroup[] {
+  const map = new Map<string, OrgGroup>();
+  for (const item of items) {
+    if (!map.has(item.organizationId)) {
+      map.set(item.organizationId, { orgId: item.organizationId, orgName: item.organizationName, items: [] });
+    }
+    map.get(item.organizationId)!.items.push(item);
+  }
+  return Array.from(map.values());
+}
+
 export function CartPageContent({ initialCart }: Props) {
-  const t = useTranslations('cart');
   const { data } = useCartQuery(initialCart);
   const removeItem = useRemoveFromCartMutation();
+  const navigate = useNavigate();
+
+  const [promoCode, setPromoCode] = useState('');
+  const [promoState, setPromoState] = useState<'idle' | 'ok' | 'error'>('idle');
+  const [promoError, setPromoError] = useState('');
+  const [isApplying, setIsApplying] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
 
   const items = data?.items ?? [];
-  const totals = data?.totals;
+  const orgGroups = useMemo(() => groupByOrg(items), [items]);
+  const subtotal = data?.totals.subtotal ?? 0;
+  const taxAmount = data?.totals.lines.find((l) => l.key === 'tax')?.amount ?? 0;
+  const discount = appliedCoupon?.discountAmount ?? 0;
 
-  if (items.length === 0) {
-    return (
-      <div className={styles.page}>
-        <div className={styles.emptyWrap}>
-          <h1 className={styles.heading}>{t('title')}</h1>
-          <div className={styles.empty}>
-            <Ticket size={32} className={styles.emptyIcon} />
-            <p>{t('empty')}</p>
-            <Link href="/events" className={styles.emptyLink}>{t('exploreEvents')}</Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const applyPromo = async () => {
+    const code = promoCode.trim().toUpperCase();
+    if (!code || items.length === 0) return;
+    setIsApplying(true);
+    setPromoError('');
+
+    let firstError: unknown = null;
+
+    for (const group of orgGroups) {
+      try {
+        // Always pass total subtotal → minimum order check compares against full cart value
+        const result = await checkoutService.previewCoupon({
+          code,
+          eventId: group.items[0].eventId,
+          orderAmount: subtotal,
+        });
+
+        const scopeOrgId = result.orgId ?? null;
+        let discountAmount = result.discountAmount; // correct for global (computed on total)
+
+        // Org-scoped: discount applies only to that org's items → recompute against org subtotal
+        if (scopeOrgId !== null) {
+          const orgSubtotal = group.items.reduce((a, i) => a + i.price, 0);
+          discountAmount = computeDiscount(result.discountType, result.discountValue, orgSubtotal);
+        }
+
+        setAppliedCoupon({ code, discountAmount, scopeOrgId });
+        setPromoState('ok');
+        setPromoCode('');
+        setIsApplying(false);
+        return;
+      } catch (err) {
+        if (!firstError) firstError = err;
+      }
+    }
+
+    const e = firstError as { response?: { data?: { message?: string } } };
+    setPromoError(e?.response?.data?.message ?? 'Cupom inválido ou expirado');
+    setPromoState('error');
+    setIsApplying(false);
+  };
+
+  const removePromo = () => {
+    setAppliedCoupon(null);
+    setPromoState('idle');
+    setPromoError('');
+  };
+
+  const total = Math.max(0, subtotal + taxAmount - discount);
+  const itemCount = items.length;
+  const itemWord = itemCount === 1 ? 'item' : 'itens';
+  const multiOrg = orgGroups.length > 1;
 
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        {/* Left — cart items */}
-        <section className={styles.left}>
-          <h1 className={styles.heading}>{t('title')}</h1>
-          <ul className={styles.card}>
-            {items.map((item, i) => (
-              <li
-                key={item.eventId}
-                className={`${styles.item} ${i > 0 ? styles.itemDivided : ''}`}
-              >
-                <div
-                  className={styles.thumb}
-                  style={item.eventImage ? { backgroundImage: `url(${item.eventImage})` } : undefined}
-                />
+        <p className={styles.eyebrow}>CHECKOUT · ETAPA 1 DE 2</p>
 
-                <div className={styles.itemBody}>
-                  <p className={styles.event}>{item.eventTitle}</p>
-                  <p className={styles.ticket}>{item.ticketName}</p>
-                  <div className={styles.badges}>
-                    {item.capabilities.map((c) => (
-                      <span key={c} className={styles.badge}>{CAPABILITY_LABELS[c]}</span>
-                    ))}
-                    {item.camerasLimit != null && (
-                      <span className={styles.badge}>{t('cameras', { count: item.camerasLimit })}</span>
-                    )}
-                  </div>
-                  <p className={styles.price}>{formatPrice(item.price)}</p>
-                </div>
+        <div className={styles.pageHeader}>
+          <h1 className={styles.heading}>Seu carrinho</h1>
+          <Link href="/events" className={styles.continueLink}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 12H5M11 18l-6-6 6-6" />
+            </svg>
+            CONTINUAR COMPRANDO
+          </Link>
+        </div>
 
-                <button
-                  className={styles.removeBtn}
-                  onClick={() => removeItem.mutate(item.eventId)}
-                  disabled={removeItem.isPending}
-                  aria-label={t('removeItem', { title: item.eventTitle })}
-                >
-                  <X size={20} />
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* Right — order summary (server-computed totals) */}
-        <aside className={styles.right}>
-          <h2 className={styles.heading}>{t('continueShopping')}</h2>
-          <div className={styles.summary}>
-            <p className={styles.summaryTitle}>{t('orderSummary')}</p>
-
-            <div className={styles.promo}>
-              <Tag size={18} className={styles.promoIcon} />
-              <input
-                className={styles.promoInput}
-                placeholder={t('promoPlaceholder')}
-                aria-label={t('promoPlaceholder')}
-              />
+        <div className={styles.grid}>
+          {/* ── Items column ───────────────────────────────── */}
+          <div>
+            <div className={styles.colHeader}>
+              <span className={styles.colTitle}>ITENS NO CARRINHO</span>
+              <span className={styles.colCount}>{itemCount} {itemWord}</span>
             </div>
 
-            <div className={styles.lines}>
-              <div className={styles.lineRow}>
-                <span className={styles.lineLabel}>
-                  {t('subtotal', { count: items.length })}
-                </span>
-                <span className={styles.lineValue}>{formatPrice(totals?.subtotal ?? 0)}</span>
+            {items.length === 0 ? (
+              <div className={styles.empty}>
+                <p className={styles.emptyTitle}>Seu carrinho está vazio</p>
+                <p className={styles.emptySubtitle}>Explore a programação e adicione um show.</p>
+                <Link href="/events" className={styles.emptyCta}>Ver programação</Link>
               </div>
-              {totals?.lines.map((line) => (
-                <div key={line.key} className={styles.lineRow}>
-                  <span className={styles.lineLabel}>{line.label}</span>
-                  <span className={styles.lineValue}>{formatPrice(line.amount)}</span>
+            ) : (
+              <div className={styles.itemsList}>
+                {orgGroups.map((group) => (
+                  <div key={group.orgId} className={styles.orgSection}>
+                    {multiOrg && (
+                      <div className={styles.orgHeader}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M3 21h18M3 7v14M21 7v14M6 11h4M14 11h4M6 15h4M14 15h4M9 21v-6h6v6" />
+                        </svg>
+                        <span>{group.orgName}</span>
+                        {appliedCoupon?.scopeOrgId === group.orgId && (
+                          <span className={styles.orgDiscountBadge}>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <path d="M20 6L9 17l-5-5" />
+                            </svg>
+                            Desconto aplicado
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <div className={styles.orgItems}>
+                      {group.items.map((item) => {
+                        const isLive = item.capabilities.includes('LIVE_VIEW');
+                        const hasReprise = item.capabilities.includes('REPLAY_VIEW');
+                        return (
+                          <div key={item.eventId} className={styles.itemCard}>
+                            <div className={styles.itemGlow} />
+
+                            <div className={styles.thumbWrap}>
+                              {item.eventImage ? (
+                                <div
+                                  className={styles.thumbArt}
+                                  style={{ backgroundImage: `url(${item.eventImage})` }}
+                                />
+                              ) : (
+                                <div className={styles.thumbArtPlaceholder} />
+                              )}
+                              <div className={styles.thumbScrim} />
+                              {isLive && (
+                                <span className={styles.liveBadge}>
+                                  <span className={styles.liveDot} />
+                                  AO VIVO
+                                </span>
+                              )}
+                            </div>
+
+                            <div className={styles.itemBody}>
+                              <div className={styles.itemTopRow}>
+                                <div className={styles.itemMeta}>
+                                  <p className={styles.itemTitle}>{item.eventTitle}</p>
+                                  <p className={styles.itemKind}>Ingresso · {item.ticketName}</p>
+                                </div>
+                                <button
+                                  className={styles.removeBtn}
+                                  onClick={() => removeItem.mutate(item.eventId)}
+                                  disabled={removeItem.isPending}
+                                  aria-label={`Remover ${item.eventTitle}`}
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
+                                  </svg>
+                                </button>
+                              </div>
+
+                              {(isLive || hasReprise) && (
+                                <div className={styles.chips}>
+                                  {isLive && <span className={styles.chipLive}>AO VIVO</span>}
+                                  {hasReprise && <span className={styles.chipReprise}>REPRISE</span>}
+                                </div>
+                              )}
+
+                              <div className={styles.itemFooter}>
+                                <div className={styles.priceBlock}>
+                                  <p className={styles.linePrice}>{brl(item.price)}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {items.length > 0 && (
+              <div className={styles.reassurance}>
+                <div className={styles.reassItem}>
+                  <span className={styles.reassIcon}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff5fb4" strokeWidth="2">
+                      <path d="M13 2L4.5 13H11l-1 9 8.5-11H12l1-9Z" />
+                    </svg>
+                  </span>
+                  Acesso imediato após a compra
                 </div>
-              ))}
-            </div>
-
-            <div className={styles.totalRow}>
-              <span>{t('total')}</span>
-              <span>{formatPrice(totals?.total ?? 0)}</span>
-            </div>
-
-            <Link href="/checkout" className={styles.checkout}>{t('goToCheckout')}</Link>
-            <Link href="/events" className={styles.continue}>{t('browseEvents')}</Link>
+                <div className={styles.reassItem}>
+                  <span className={styles.reassIcon}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff5fb4" strokeWidth="2">
+                      <path d="M3 12a9 9 0 1 1 3 6.7M3 21v-5h5" />
+                    </svg>
+                  </span>
+                  Reprise disponível por 30 dias
+                </div>
+                <div className={styles.reassItem}>
+                  <span className={styles.reassIcon}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff5fb4" strokeWidth="2">
+                      <path d="M4 12a8 8 0 1 1 8 8M4 12v-4M4 12h4" />
+                    </svg>
+                  </span>
+                  Reembolso até 24h antes
+                </div>
+              </div>
+            )}
           </div>
-        </aside>
+
+          {/* ── Summary card ───────────────────────────────── */}
+          <div className={styles.summary}>
+            <div className={styles.summaryGlow} />
+            <div className={styles.summaryInner}>
+              <p className={styles.summaryTitle}>Resumo do pedido</p>
+
+              {/* Promo — hidden once a coupon is applied */}
+              {appliedCoupon ? (
+                <div className={`${styles.promoFeedback} ${styles.promoSuccess}`}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                  <span>
+                    {appliedCoupon.code}
+                    {appliedCoupon.scopeOrgId !== null && ` · ${orgGroups.find(g => g.orgId === appliedCoupon.scopeOrgId)?.orgName ?? ''}`}
+                    {' '}— {brl(appliedCoupon.discountAmount)} de desconto
+                  </span>
+                  <button className={styles.promoRemove} onClick={removePromo} aria-label="Remover cupom">×</button>
+                </div>
+              ) : (
+                <>
+                  <div className={styles.promoWrap}>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7d7d85" strokeWidth="2">
+                      <path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0l-7.2-7.2a2 2 0 0 1-.6-1.4V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6l7.4 7.4a2 2 0 0 1 0 2.8Z" />
+                      <circle cx="7.5" cy="7.5" r="1.3" />
+                    </svg>
+                    <input
+                      className={styles.promoInput}
+                      placeholder="Inserir código promocional"
+                      value={promoCode}
+                      onChange={(e) => {
+                        setPromoCode(e.target.value.toUpperCase());
+                        setPromoState('idle');
+                        setPromoError('');
+                      }}
+                      onKeyDown={(e) => e.key === 'Enter' && applyPromo()}
+                      disabled={isApplying}
+                    />
+                    <button
+                      className={styles.promoApply}
+                      onClick={applyPromo}
+                      disabled={isApplying || !promoCode.trim() || items.length === 0}
+                    >
+                      {isApplying ? '...' : 'APLICAR'}
+                    </button>
+                  </div>
+                  {promoState === 'error' && (
+                    <div className={`${styles.promoFeedback} ${styles.promoError}`}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                      {promoError || 'Cupom inválido ou expirado'}
+                    </div>
+                  )}
+                  {promoState === 'idle' && <div className={styles.promoSpacer} />}
+                </>
+              )}
+
+              <div className={styles.summaryLines}>
+                <div className={styles.summaryLine}>
+                  <span className={styles.summaryLineLabel}>
+                    Subtotal{' '}
+                    <span className={styles.summaryLineMuted}>({itemCount} {itemWord})</span>
+                  </span>
+                  <span className={styles.summaryLineValue}>{brl(subtotal)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className={styles.summaryLine}>
+                    <span className={styles.summaryLineLabel}>
+                      Desconto
+                      {appliedCoupon?.scopeOrgId !== null && appliedCoupon?.scopeOrgId && (
+                        <span className={styles.summaryLineMuted}> · {orgGroups.find(g => g.orgId === appliedCoupon.scopeOrgId)?.orgName ?? ''}</span>
+                      )}
+                    </span>
+                    <span className={`${styles.summaryLineValue} ${styles.summaryLineDiscount}`}>
+                      −{brl(discount)}
+                    </span>
+                  </div>
+                )}
+                {taxAmount > 0 && (
+                  <div className={styles.summaryLine}>
+                    <span className={styles.summaryLineLabel}>Taxas de serviço</span>
+                    <span className={styles.summaryLineValue}>{brl(taxAmount)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className={styles.summaryDivider} />
+
+              <div className={styles.totalRow}>
+                <span className={styles.totalLabel}>Total</span>
+                <div className={styles.totalAmountBlock}>
+                  <p className={styles.totalCurrency}>BRL</p>
+                  <p className={styles.totalValue}>{brl(total)}</p>
+                </div>
+              </div>
+
+              <button
+                className={styles.checkoutBtn}
+                onClick={() => navigate.push('/checkout')}
+                disabled={items.length === 0}
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                  <rect x="2" y="5" width="20" height="14" rx="2" />
+                  <path d="M2 10h20" />
+                </svg>
+                Ir para o pagamento
+              </button>
+
+              <Link href="/events" className={styles.continueBtn}>
+                Continuar explorando eventos
+              </Link>
+
+              <div className={styles.securePayment}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="4" y="10" width="16" height="11" rx="2" />
+                  <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                </svg>
+                PAGAMENTO SEGURO E CRIPTOGRAFADO
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

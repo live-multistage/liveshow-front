@@ -93,23 +93,28 @@ hr {
 
 // Selection
 ::selection {
-  background-color: rgba(220, 38, 38, 0.25);
+  background-color: rgba(255, 46, 158, 0.25);
   color: #ffffff;
 }
 
-// Scrollbar — thin dark
+// Scrollbar
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background: #08080a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272A;
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
 
-  &:hover { background: #3f3f46; }
+  &:hover { background: rgba(255, 46, 158, 0.4); }
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) #08080a;
 }

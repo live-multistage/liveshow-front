@@ -1,33 +1,386 @@
 @use '../../../styles/_variables' as *;
 
+@keyframes lsPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .35; transform: scale(.7); }
+}
+
+// ── Page ──────────────────────────────────────────────────────────
+
 .page {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 2rem;
-  max-width: 900px;
-  margin: 0 auto;
-  width: 100%;
 }
 
-.content {
+.state { font-size: 14px; color: $text-secondary; padding: 24px 0; }
+.stateError { color: $error; }
+
+// ── Content grid ──────────────────────────────────────────────────
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 22px;
+  align-items: start;
+}
+
+.left  { display: flex; flex-direction: column; gap: 22px; }
+.right { display: flex; flex-direction: column; gap: 16px; }
+
+// ── KPI strip ─────────────────────────────────────────────────────
+
+.kpiStrip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.kpiCard {
+  position: relative;
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 16px;
+  padding: 16px 18px;
+  overflow: hidden;
+}
+
+.kpiCardAccent .kpiGlow { display: block; }
+
+.kpiGlow {
+  display: none;
+  position: absolute;
+  top: -40px;
+  right: -30px;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, .18), transparent 70%);
+  pointer-events: none;
+}
+
+.kpiLabel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: #8f8f97;
+  margin-bottom: 10px;
+}
+
+.kpiValue {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.kpiNum {
+  font-family: 'Space Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  line-height: 1;
+  color: #fff;
+}
+
+.kpiNumPink { color: #ff2e9e; }
+
+.kpiUnit {
+  font-size: 11.5px;
+  color: #7d7d85;
+}
+
+// ── Card ──────────────────────────────────────────────────────────
+
+.card {
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 18px;
+  padding: 22px;
+}
+
+// ── Section header ────────────────────────────────────────────────
+
+.sectionHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.sectionHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: #fff;
+  font-weight: 700;
+}
+
+.editBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #9a9aa2;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  cursor: pointer;
+  transition: color .15s;
+
+  &:hover { color: #ff5fb4; }
+}
+
+.inviteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #ff5fb4;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  cursor: pointer;
+  transition: color .15s;
+
+  &:hover { color: #ff2e9e; }
+}
+
+.seeAllLink {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: #ff5fb4;
+  cursor: pointer;
+  transition: color .15s;
+
+  &:hover { color: #ff2e9e; }
+}
+
+// ── About ─────────────────────────────────────────────────────────
+
+.description {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #b9b9c0;
+  margin: 0 0 18px;
+}
+
+.aboutGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+}
+
+.aboutLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: #7d7d85;
+  margin-bottom: 6px;
+}
+
+.aboutValue {
+  font-size: 13.5px;
+  color: #e7e7ea;
+  font-weight: 500;
+}
+
+// ── Event list ────────────────────────────────────────────────────
+
+.eventList {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 10px;
 }
 
-.statsGrid {
+.eventRow {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
+  grid-template-columns: 64px 1fr auto auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+  background: #0c0c0f;
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: 14px;
+  transition: border-color .15s;
+
+  &:hover { border-color: rgba(255, 46, 158, .32); }
 }
 
-.state {
-  padding: 2rem;
-  font-size: 0.875rem;
-  color: $text-secondary;
+.eventDateBox {
+  text-align: center;
+  padding: 8px 0;
+  background: rgba(255, 46, 158, .08);
+  border: 1px solid rgba(255, 46, 158, .22);
+  border-radius: 10px;
 }
 
-.stateError {
-  color: $error;
+.eventMonth {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: .1em;
+  color: #ff8ec9;
+}
+
+.eventDay {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.eventInfo { min-width: 0; }
+
+.eventTitle {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -.005em;
+  margin-bottom: 4px;
+  color: #f4f4f5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #8f8f97;
+}
+
+.midDot { color: #3f3f47; }
+
+.eventSold { text-align: right; }
+
+.eventSoldNum {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.eventSoldLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #7d7d85;
+  letter-spacing: .06em;
+}
+
+.livePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 46, 158, .14);
+  border: 1px solid rgba(255, 46, 158, .4);
+  color: #ff8ec9;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff2e9e;
+  animation: lsPulse 1.4s infinite;
+}
+
+.statusPill {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+// ── Member list ───────────────────────────────────────────────────
+
+.memberList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.memberRow {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.memberAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.memberInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.memberName {
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #f4f4f5;
+}
+
+.memberRole {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  color: #8f8f97;
+}
+
+.youBadge {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: #ff8ec9;
+  background: rgba(255, 46, 158, .1);
+  border: 1px solid rgba(255, 46, 158, .34);
+  padding: 3px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+// ── Muted text ────────────────────────────────────────────────────
+
+.muted {
+  font-size: 13px;
+  color: #7d7d85;
+  margin: 0;
+  padding: 4px 0;
 }

@@ -1,13 +1,13 @@
 'use client';
 
-import { Globe, EyeOff, Pencil, X, Check } from 'lucide-react';
+import { Globe, EyeOff, Pencil, X, Check, StopCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/shared/components/Button';
 import type { EventResponse } from '../../types/event.types';
 import styles from './EventDashboardDetailContent.module.scss';
 
 const STATUS_MOD: Record<string, string> = {
-  DRAFT: styles.statusDraft, PUBLISHED: styles.statusPublished,
+  DRAFT: styles.statusDraft, PUBLISHED: styles.statusPublished, SCHEDULED: styles.statusPublished,
   LIVE: styles.statusLive, FINISHED: styles.statusFinished,
   CANCELLED: styles.statusCancelled,
 };
@@ -18,11 +18,13 @@ interface Props {
   isSaving: boolean;
   isPublishing: boolean;
   isUnpublishing: boolean;
+  isFinishing: boolean;
   onEdit: () => void;
   onCancelEdit: () => void;
   onSave: () => void;
   onPublish: () => void;
   onUnpublish: () => void;
+  onFinish: () => void;
 }
 
 export function EventHeaderActions({
@@ -31,16 +33,19 @@ export function EventHeaderActions({
   isSaving,
   isPublishing,
   isUnpublishing,
+  isFinishing,
   onEdit,
   onCancelEdit,
   onSave,
   onPublish,
   onUnpublish,
+  onFinish,
 }: Props) {
   const t = useTranslations('eventDetail');
-  const canEdit = event.status === 'DRAFT' || event.status === 'PUBLISHED';
+  const canEdit = event.status === 'DRAFT' || event.status === 'PUBLISHED' || event.status === 'SCHEDULED';
   const canPublish = event.status === 'DRAFT';
-  const canUnpublish = event.status === 'PUBLISHED';
+  const canUnpublish = event.status === 'PUBLISHED' || event.status === 'SCHEDULED';
+  const canFinish = event.status === 'LIVE';
 
   return (
     <div className={styles.headerActions}>
@@ -76,6 +81,18 @@ export function EventHeaderActions({
           onClick={onUnpublish}
         >
           {t('unpublish')}
+        </Button>
+      )}
+
+      {canFinish && (
+        <Button
+          variant="danger"
+          icon={<StopCircle size={14} />}
+          isLoading={isFinishing}
+          loadingLabel={t('finishing')}
+          onClick={onFinish}
+        >
+          {t('finish')}
         </Button>
       )}
 

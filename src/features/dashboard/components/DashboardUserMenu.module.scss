@@ -1,87 +1,93 @@
 @use '../../../styles/_variables' as *;
 
+// ─── Trigger (spec: static user block, keeps dropdown) ────────
 .trigger {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 11px;
   width: 100%;
-  padding: 0.5rem 0.75rem;
+  padding: 12px 10px;
   background: none;
   border: none;
-  border-radius: 6px;
+  border-radius: 0;
   cursor: pointer;
+  text-align: left;
   transition: background-color 0.15s;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.06);
+    background-color: rgba(255,255,255,.04);
+    border-radius: 8px;
   }
 
   &:focus-visible {
     outline: 2px solid $action;
     outline-offset: 2px;
+    border-radius: 8px;
   }
 }
 
 .left {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 11px;
+  min-width: 0;
+  flex: 1;
 }
 
+// ─── Avatar ───────────────────────────────────────────────────
 .avatar {
-  height: 1.875rem !important;
-  width: 1.875rem !important;
+  width: 34px !important;
+  height: 34px !important;
   border-radius: 50% !important;
-  border: 1px solid $border !important;
+  border: none !important;
   flex-shrink: 0;
 }
 
 .avatarFallback {
   border-radius: 50% !important;
-  background-color: $accent !important;
-  color: $text-primary !important;
-  font-size: 0.6875rem !important;
-  font-weight: 600 !important;
+  background-color: #ff2e9e !important;
+  color: #0a0a0b !important;
+  font-family: 'Space Mono', monospace !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
 }
 
+// ─── Info ─────────────────────────────────────────────────────
 .info {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 1px;
+  min-width: 0;
 }
 
 .name {
-  font-family: 'Oswald', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 400;
+  font-size: 13px;
+  font-weight: 600;
   color: $text-primary;
-  line-height: 1.5;
-  letter-spacing: 0.04em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 8rem;
 }
 
-.role {
-  font-size: 0.625rem;
-  font-weight: 400;
-  color: $white-50;
-  line-height: 1.5;
-  text-transform: capitalize;
+.email {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #7d7d85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chevron {
   color: $text-muted;
   flex-shrink: 0;
+  opacity: 0.5;
 }
 
-// ─── Dropdown ─────────────────────────────────────────────────────
+// ─── Dropdown ─────────────────────────────────────────────────
 .dropdownContent {
   border-radius: 8px !important;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6) !important;
-  border-color: $border !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6) !important;
+  border-color: rgba(255,255,255,.07) !important;
   background-color: $surface !important;
   color: $text-primary !important;
   width: 13rem !important;
@@ -111,7 +117,7 @@
 }
 
 .separator {
-  background-color: $border !important;
+  background-color: rgba(255,255,255,.07) !important;
 }
 
 .dropdownItem {

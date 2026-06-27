@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutDashboard, ShoppingCart } from 'lucide-react';
+import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutGrid, ShoppingCart } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +18,7 @@ import { useAuth, useAuthCheck } from '@/features/account';
 import { NotificationsDropdown } from '@/features/notifications';
 import { useCartCount } from '@/features/cart';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { Logo } from './Logo';
 import styles from './Navbar.module.scss';
 
 function getInitials(name: string) {
@@ -32,27 +33,39 @@ function getInitials(name: string) {
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+
+  useEffect(() => {
+    if (!isHome) { setScrolled(false); return; }
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [isHome]);
   const { user, isLoggedIn, isLoading, logout } = useAuth();
   const { data: dashboardCheck } = useAuthCheck('access_dashboard', {}, { enabled: isLoggedIn });
   const canAccessDashboard = dashboardCheck?.allowed === true;
+
   const cartCount = useCartCount();
   const t = useTranslations('nav');
-
+  
   return (
-    <nav className={styles.nav}>
+    <nav className={`${styles.nav}`}>
       <div className={styles.navInner}>
-        {/* Logo */}
-        <Link href="/" className={styles.logo}>
-          <Image src="/logo-white.svg" alt="Liveshow" width={110} height={32} priority />
-        </Link>
+        <div className={styles.leftSection}>
+          <Link href="/" className={styles.logo}>
+            <Logo size={22} wordmarkClassName={styles.logoText} />
+          </Link>
 
-        {/* Desktop Nav */}
-        <div className={styles.desktopNav}>
-          <Link href="/" className={styles.navLink}>{t('home')}</Link>
-          <Link href="/events" className={styles.navLink}>{t('schedule')}</Link>
-          {isLoggedIn && (
-            <Link href="/tickets" className={styles.navLink}>{t('tickets')}</Link>
-          )}
+          <div className={styles.desktopNav}>
+            <Link href="/" className={styles.navLink}>{t('home')}</Link>
+            <Link href="/events" className={styles.navLink}>{t('schedule')}</Link>
+            {isLoggedIn && (
+              <Link href="/tickets" className={styles.navLink}>{t('tickets')}</Link>
+            )}
+          </div>
         </div>
 
         {/* Actions */}
@@ -69,7 +82,7 @@ export function Navbar() {
             </div>
           ) : (
             <button onClick={() => setSearchOpen(true)} className={styles.iconBtn}>
-              <Search size={16} />
+              <Search size={19} />
             </button>
           )}
 
@@ -79,14 +92,14 @@ export function Navbar() {
                 <>
                   {canAccessDashboard && (
                     <Link href="/dashboard" className={styles.iconBtn} aria-label="Dashboard">
-                      <LayoutDashboard size={16} />
+                      <LayoutGrid size={19} />
                     </Link>
                   )}
 
                   <NotificationsDropdown />
 
                   <Link href="/tickets" className={styles.ticketsBtn}>
-                    <Ticket size={14} />
+                    <Ticket size={15} />
                     {t('tickets')}
                   </Link>
 
@@ -109,7 +122,7 @@ export function Navbar() {
                       {canAccessDashboard && (
                         <DropdownMenuItem asChild className={styles.dropdownItem}>
                           <Link href="/dashboard">
-                            <LayoutDashboard size={14} style={{ marginRight: '0.5rem' }} />
+                            <LayoutGrid size={14} style={{ marginRight: '0.5rem' }} />
                             {t('dashboard')}
                           </Link>
                         </DropdownMenuItem>
@@ -136,17 +149,17 @@ export function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link href="/login" className={styles.loginLink}>{t('login')}</Link>
-                  <Link href="/register" className={styles.registerBtn}>{t('register')}</Link>
+                  <Link href={`/login?redirect=${encodeURIComponent(pathname)}`} className={styles.loginLink}>{t('login')}</Link>
+                  <Link href={`/register?redirect=${encodeURIComponent(pathname)}`} className={styles.registerBtn}>{t('register')}</Link>
                 </>
               )}
             </>
           )}
 
           <LanguageSwitcher />
-          
+
           <Link href="/cart" className={styles.cartBtn} aria-label={t('cart')}>
-            <ShoppingCart size={16} />
+            <ShoppingCart size={19} />
             {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
           </Link>
 
@@ -172,8 +185,8 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/login" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('login')}</Link>
-              <Link href="/register" className={styles.mobileRegister} onClick={() => setMenuOpen(false)}>{t('register')}</Link>
+              <Link href={`/login?redirect=${encodeURIComponent(pathname)}`} className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('login')}</Link>
+              <Link href={`/register?redirect=${encodeURIComponent(pathname)}`} className={styles.mobileRegister} onClick={() => setMenuOpen(false)}>{t('register')}</Link>
             </>
           )}
         </div>

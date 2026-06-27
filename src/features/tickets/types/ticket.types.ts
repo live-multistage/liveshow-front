@@ -2,7 +2,7 @@ import type { EventResponse, AccessCapability } from '@/features/events';
 
 export interface OrderResponse {
   orderId: string;
-  showId: string;
+  eventId: string;
   ticketProductId: string;
   ticketProductName: string;
   status: string;

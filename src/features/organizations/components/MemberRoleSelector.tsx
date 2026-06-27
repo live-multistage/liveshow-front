@@ -5,7 +5,9 @@ import styles from './MemberRoleSelector.module.scss';
 
 const ROLE_OPTIONS: { value: OrganizationRole; label: string }[] = [
   { value: 'ADMIN', label: 'Admin' },
+  { value: 'CONTENT_MANAGER', label: 'Gestor de Conteúdo' },
   { value: 'EVENT_MANAGER', label: 'Gestor de Eventos' },
+  { value: 'OPERATOR', label: 'Operador' },
   { value: 'VIEWER', label: 'Visualizador' },
 ];
 

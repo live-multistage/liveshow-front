@@ -1,35 +1,57 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useMemo, useState } from 'react';
 import { useListEventsQuery, eventToShow } from '@/features/events';
-import { HeroSection } from '../../../../app/(public)/_components/HeroSection/HeroSection';
-import { LiveForYou } from '../../../../app/(public)/_components/LiveForYou/LiveForYou';
-import { ShowsSection } from '../../../../app/(public)/_components/ShowsSection/ShowsSection';
-import styles from '../../../../app/(public)/page.module.scss';
+import { HomeHero } from './home/HomeHero';
+import { HomeLiveStrip } from './home/HomeLiveStrip';
+import { HomeExplore } from './home/HomeExplore';
+import styles from './HomePageContent.module.scss';
 
 export function HomePageContent() {
-  const t = useTranslations('home');
+  const [activeGenre, setActiveGenre] = useState('Todos');
   const { data: events = [], isLoading } = useListEventsQuery('all');
-  const shows = useMemo(() => events.map(eventToShow), [events]);
-  const featuredShow = shows[0];
-  const liveShows = shows.filter((s) => s.isLive).slice(0, 2);
 
-  if (isLoading || !featuredShow) {
+  const shows = useMemo(() => events.map(eventToShow), [events]);
+
+  const featuredShow = shows[0] ?? null;
+  const liveShows = useMemo(() => shows.filter((s) => s.isLive).slice(0, 2), [shows]);
+
+  const genres = useMemo(() => {
+    const unique = [...new Set(shows.map((s) => s.genre))].filter(Boolean);
+    return ['Todos', ...unique];
+  }, [shows]);
+
+  const filtered = useMemo(
+    () => (activeGenre === 'Todos' ? shows : shows.filter((s) => s.genre === activeGenre)),
+    [shows, activeGenre],
+  );
+
+  if (isLoading) {
     return (
-      <main className={styles.main}>
-        <p style={{ color: '#A1A1AA', padding: '40px 0' }}>{t('loading')}</p>
-      </main>
+      <div className={styles.loading}>
+        <span className={styles.spinner} />
+      </div>
+    );
+  }
+
+  if (!featuredShow) {
+    return (
+      <div className={styles.empty}>
+        <p>Nenhum show disponível no momento.</p>
+      </div>
     );
   }
 
   return (
-    <main className={styles.main}>
-      <div className={styles.heroRow}>
-        <HeroSection show={featuredShow} />
-        <LiveForYou shows={liveShows} />
-      </div>
-      <ShowsSection shows={shows} />
+    <main className={styles.page}>
+      <HomeHero show={featuredShow} />
+      <HomeLiveStrip shows={liveShows} />
+      <HomeExplore
+        shows={filtered}
+        genres={genres}
+        activeGenre={activeGenre}
+        onGenreChange={setActiveGenre}
+      />
     </main>
   );
 }

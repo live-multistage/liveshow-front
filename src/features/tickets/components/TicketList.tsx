@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { RotateCcw, Tv2, Ticket, Video } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TicketCard } from './TicketCard';
 import type { PurchasedTicket } from '../types/ticket.types';
@@ -31,11 +30,43 @@ export function TicketList({ tickets, withReplay, withoutReplay, withCamera }: T
   const t = useTranslations('ticketList');
   const [activeTab, setActiveTab] = useState<TabId>('all');
 
-  const TABS = [
-    { id: 'all' as TabId,       label: t('all'),         icon: <Ticket size={14} /> },
-    { id: 'replay' as TabId,    label: t('withReplay'),  icon: <RotateCcw size={14} /> },
-    { id: 'camera' as TabId,    label: t('withCameras'), icon: <Video size={14} /> },
-    { id: 'no-replay' as TabId, label: t('liveOnly'),    icon: <Tv2 size={14} /> },
+  const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
+    {
+      id: 'all',
+      label: t('all'),
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4Z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'replay',
+      label: t('withReplay'),
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M3 12a9 9 0 1 1 3 6.7M3 21v-5h5" />
+        </svg>
+      ),
+    },
+    {
+      id: 'camera',
+      label: t('withCameras'),
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M23 7l-7 5 7 5V7Z" /><rect x="1" y="5" width="15" height="14" rx="2" />
+        </svg>
+      ),
+    },
+    {
+      id: 'no-replay',
+      label: t('liveOnly'),
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="2" y="5" width="20" height="14" rx="2" /><path d="M12 19v3M8 22h8" />
+        </svg>
+      ),
+    },
   ];
 
   const counts: Record<TabId, number> = {
@@ -46,33 +77,30 @@ export function TicketList({ tickets, withReplay, withoutReplay, withCamera }: T
   };
 
   return (
-    <div className={styles.tabs}>
+    <div className={styles.wrapper}>
       <div className={styles.tabList}>
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`${styles.tab} ${activeTab === tab.id ? styles.tabActive : ''}`}
-          >
-            {tab.icon}
-            {tab.label}
-            <span className={styles.tabBadge}>{counts[tab.id]}</span>
-          </button>
-        ))}
+        {TABS.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`${styles.tab} ${isActive ? styles.tabActive : styles.tabInactive}`}
+            >
+              {tab.icon}
+              {tab.label}
+              <span className={isActive ? styles.badgeActive : styles.badgeInactive}>
+                {counts[tab.id]}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      {activeTab === 'all' && (
-        <TicketGroup tickets={tickets} emptyMessage={t('emptyAll')} />
-      )}
-      {activeTab === 'replay' && (
-        <TicketGroup tickets={withReplay} emptyMessage={t('emptyReplay')} />
-      )}
-      {activeTab === 'camera' && (
-        <TicketGroup tickets={withCamera} emptyMessage={t('emptyCamera')} />
-      )}
-      {activeTab === 'no-replay' && (
-        <TicketGroup tickets={withoutReplay} emptyMessage={t('emptyNoReplay')} />
-      )}
+      {activeTab === 'all' && <TicketGroup tickets={tickets} emptyMessage={t('emptyAll')} />}
+      {activeTab === 'replay' && <TicketGroup tickets={withReplay} emptyMessage={t('emptyReplay')} />}
+      {activeTab === 'camera' && <TicketGroup tickets={withCamera} emptyMessage={t('emptyCamera')} />}
+      {activeTab === 'no-replay' && <TicketGroup tickets={withoutReplay} emptyMessage={t('emptyNoReplay')} />}
     </div>
   );
 }

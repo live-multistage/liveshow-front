@@ -17,7 +17,7 @@
 .label {
   color: $text-muted;
   font-size: 0.6rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -52,7 +52,7 @@
 .tabActive {
   color: $text-primary;
   background-color: $action-bg;
-  border-color: rgba(#EC4899, 0.3);
+  border-color: rgba(#ff2e9e, 0.3);
 
   .tabCount { background-color: $action; color: $text-primary; }
 }
@@ -75,7 +75,7 @@
   background-color: rgba(255, 255, 255, 0.08);
   color: $text-muted;
   font-size: 0.6rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
   font-weight: 700;
   padding: 0.1rem 0.35rem;
   border-radius: 4px;

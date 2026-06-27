@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Camera, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
+import type { QualityLevel } from './VideoPanel';
 import styles from './CameraGrid.module.scss';
 
 const GRID_LAYOUTS = [
@@ -20,12 +21,16 @@ function layoutForCount(n: number) {
   return GRID_LAYOUTS[3];
 }
 
+export type { QualityLevel };
+
 interface CameraGridProps {
   cameras: LiveCamera[];
   title?: string;
   subtitle?: string;
   onBack?: () => void;
   onTitleClick?: () => void;
+  selectedLevel?: number;
+  onLevelsReady?: (levels: QualityLevel[]) => void;
 }
 
 export function CameraGrid({
@@ -34,6 +39,8 @@ export function CameraGrid({
   subtitle,
   onBack,
   onTitleClick,
+  selectedLevel,
+  onLevelsReady,
 }: CameraGridProps) {
   const [layoutId, setLayoutId] = useState(() => layoutForCount(cameras.length).id);
   const [activeCameras, setActiveCameras] = useState<string[]>(() =>
@@ -87,6 +94,9 @@ export function CameraGrid({
         }
       } else if (activeCameras.length < layout.max) {
         setActiveCameras([...activeCameras, cameraId]);
+      } else if (layout.max === 1) {
+        // 1x1: replace instead of add
+        setActiveCameras([cameraId]);
       }
     },
     [activeCameras, layout.max, focusedCamera],
@@ -165,6 +175,8 @@ export function CameraGrid({
               isFocused={focusedCamera === camera.cameraId}
               onSelect={() => handleCameraSelect(camera.cameraId)}
               showLabel
+              selectedLevel={selectedLevel}
+              onLevelsReady={onLevelsReady}
             />
           ))}
           {!focusedCamera &&
@@ -195,13 +207,14 @@ export function CameraGrid({
           {cameras.map((camera) => {
             const isActive = activeCameras.includes(camera.cameraId);
             const canAdd = !isActive && activeCameras.length < layout.max;
+            const canSwitch = !isActive && layout.max === 1;
             return (
               <button
                 key={camera.cameraId}
                 onClick={() => handleAddCamera(camera.cameraId)}
-                disabled={!isActive && !canAdd}
+                disabled={!isActive && !canAdd && !canSwitch}
                 className={`${styles.cameraBtn} ${
-                  isActive ? styles.cameraBtnActive : canAdd ? styles.cameraBtnCanAdd : styles.cameraBtnDisabled
+                  isActive ? styles.cameraBtnActive : (canAdd || canSwitch) ? styles.cameraBtnCanAdd : styles.cameraBtnDisabled
                 }`}
               >
                 <div className={styles.cameraThumb}>

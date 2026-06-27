@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { eventsService } from '../services/events.service';
 import type { EventResponse } from '../types/event.types';
 
+// Defined here for client hooks; the server page inlines the same strings
+// to avoid importing this 'use client' module in a Server Component.
 export const eventKeys = {
   detail: (id: string) => ['events', 'detail', id] as const,
   tickets: (eventId: string) => ['events', 'tickets', eventId] as const,

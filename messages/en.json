@@ -155,7 +155,8 @@
     "noReplay": "This event has no replay available for purchase.",
     "noTickets": "No tickets available yet.",
     "freePreview": "Watch free preview →",
-    "total": "Total"
+    "total": "Total",
+    "alreadyInCart": "Already in cart"
   },
   "tickets": {
     "title": "My Tickets",
@@ -171,6 +172,7 @@
     },
     "recommendations": {
       "title": "You might also like",
+      "subtitle": "Selected based on your history",
       "seeAll": "See all →"
     }
   },
@@ -214,7 +216,9 @@
     "liveOnly": "LIVE ONLY",
     "details": "Details",
     "replay": "Replay",
-    "watch": "Watch"
+    "watch": "Watch",
+    "watchNow": "Watch now",
+    "watchReplay": "Watch Replay"
   },
   "ticketList": {
     "all": "All",
@@ -254,7 +258,8 @@
       "events": "Events",
       "sales": "Sales",
       "streams": "Streams",
-      "analytics": "Analytics"
+      "analytics": "Analytics",
+      "coupons": "Coupons"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -368,7 +373,9 @@
       "LIVE": "Live",
       "FINISHED": "Finished",
       "CANCELLED": "Cancelled"
-    }
+    },
+    "finish": "Finish",
+    "finishing": "Finishing..."
   },
   "createEvent": {
     "back": "Events",
@@ -454,5 +461,36 @@
     "stagesNote": "Stage-specific access can be configured after the event is created.",
     "errorAdd": "Error adding ticket.",
     "errorSave": "Error saving ticket."
+  },
+  "settings": {
+    "heading": "Settings",
+    "profile": {
+      "title": "Profile",
+      "email": "Email",
+      "displayName": "Display name",
+      "save": "Save changes",
+      "saving": "Saving...",
+      "success": "Profile updated successfully."
+    },
+    "password": {
+      "title": "Security",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "save": "Change password",
+      "saving": "Changing...",
+      "success": "Password changed successfully.",
+      "errorWrongCurrent": "Current password is incorrect.",
+      "errorGeneric": "Failed to change password. Please try again."
+    }
+  },
+  "account": {
+    "nav": {
+      "title": "My account",
+      "tickets": "My Tickets",
+      "purchases": "Purchases",
+      "settings": "Settings"
+    },
+    "logout": "Sign out"
   }
 }

@@ -6,6 +6,7 @@ import {
   ShoppingCart,
   Radio,
   BarChart2,
+  Ticket,
 } from 'lucide-react';
 import type { UserRole } from '@/types';
 
@@ -21,6 +22,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'organizations',  href: '/dashboard/organizations',  icon: Building2 },
     { navKey: 'events',         href: '/dashboard/events',         icon: CalendarDays },
     { navKey: 'sales',          href: '/dashboard/sales',          icon: ShoppingCart },
+    { navKey: 'coupons',        href: '/dashboard/coupons',        icon: Ticket },
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
   ],
@@ -29,6 +31,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'organizations',  href: '/dashboard/organizations',  icon: Building2 },
     { navKey: 'events',         href: '/dashboard/events',         icon: CalendarDays },
     { navKey: 'sales',          href: '/dashboard/sales',          icon: ShoppingCart },
+    { navKey: 'coupons',        href: '/dashboard/coupons',        icon: Ticket },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
   ],
   ARTIST: [

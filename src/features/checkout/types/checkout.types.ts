@@ -3,6 +3,7 @@ export interface CheckoutSession {
   orderId: string;
   expiresAt: string;
   totalAmount: number;
+  discountAmount: number;
   currency: string;
   ticketProductName: string;
 }
@@ -48,7 +49,29 @@ export interface PaymentMethod {
 
 export interface CreateCheckoutSessionRequest {
   ticketProductId: string;
+  couponCode?: string;
   currency?: string;
+}
+
+export interface CouponPreviewRequest {
+  code: string;
+  eventId: string;
+  orderAmount: number;
+}
+
+export interface CartCheckoutResult {
+  url: string;
+  totalAmount: number;
+  orderIds: string[];
+}
+
+export interface CouponPreviewResult {
+  couponId: string;
+  discountType: string;
+  discountValue: number;
+  discountAmount: number;
+  orgId: string | null;
+  eventId: string | null;
 }
 
 export interface ProcessPaymentRequest {

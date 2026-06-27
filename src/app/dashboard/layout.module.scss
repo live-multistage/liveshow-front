@@ -1,13 +1,15 @@
 @use '../../styles/_variables' as *;
 
 .layout {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background-color: $bg;
   color: $text-primary;
 }
 
 .inner {
   display: flex;
+  height: 100%;
 }
 
 .sidebar {
@@ -22,7 +24,7 @@
 .sidebarTitle {
   color: $action;
   font-weight: 700;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-bottom: 1.5rem;
@@ -30,12 +32,15 @@
 
 .main {
   flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
   padding: 2rem;
 }
 
 .pageTitle {
   font-size: 1.5rem;
   font-weight: 500;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   color: $text-primary;
 }

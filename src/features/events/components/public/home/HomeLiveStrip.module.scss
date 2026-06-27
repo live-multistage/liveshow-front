@@ -1,0 +1,138 @@
+@use '../../../../../styles/_variables' as *;
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.7); }
+}
+
+.strip {
+  padding: 1.75rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+
+  @media (min-width: $md) {
+    padding: 1.75rem 3rem;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.pulseDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff2e9e;
+  animation: pulse 1.4s infinite;
+  flex-shrink: 0;
+}
+
+.heading {
+  margin: 0;
+  font-family: 'Archivo', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #f4f4f5;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.125rem;
+
+  @media (min-width: $md) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.card {
+  position: relative;
+  aspect-ratio: 16 / 7;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #ff2e9e;
+    outline-offset: 2px;
+  }
+}
+
+.cardArt {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.cardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, rgba(5, 4, 6, 0.9) 18%, rgba(5, 4, 6, 0.2) 62%, transparent);
+}
+
+.liveBadge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ff2e9e;
+  color: #0a0a0b;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 7px;
+  letter-spacing: 0.04em;
+}
+
+.liveDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #0a0a0b;
+  animation: pulse 1.4s infinite;
+}
+
+.cardInfo {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 16px;
+}
+
+.cardTitle {
+  font-family: 'Archivo', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  color: #f4f4f5;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #cfcfd6;
+}
+
+.viewers {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}

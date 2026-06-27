@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { Logo } from '@/shared/components/Logo';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account';
 import { NAV_BY_ROLE, DASHBOARD_ROLES } from '../types/dashboard.types';
@@ -22,9 +22,12 @@ export function DashboardSidebar() {
 
   return (
     <aside className={styles.sidebar}>
-      <Link href="/" className={styles.logoLink}>
-        <Image src="/logo-white.svg" alt="Liveshow" width={120} height={36} priority />
+      {/* Logo */}
+      <Link href="/" className={styles.logoWrapper}>
+        <Logo size={26} wordmarkClassName={styles.logoText} />
       </Link>
+
+      {/* Nav */}
       <nav className={styles.nav}>
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -35,12 +38,14 @@ export function DashboardSidebar() {
               href={item.href}
               className={`${styles.navItem} ${isActive ? styles.active : ''}`}
             >
-              <Icon size={16} className={styles.navIcon} />
+              <Icon size={18} className={styles.navIcon} />
               {t(item.navKey as Parameters<typeof t>[0])}
             </Link>
           );
         })}
       </nav>
+
+      {/* User block */}
       <div className={styles.userMenuWrapper}>
         <DashboardUserMenu />
       </div>

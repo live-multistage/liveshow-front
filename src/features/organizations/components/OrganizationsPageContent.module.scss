@@ -16,7 +16,7 @@
 .heading {
   font-size: 1.5rem;
   font-weight: 700;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: $text-primary;
@@ -92,7 +92,7 @@
 .orgName {
   font-size: 1rem;
   font-weight: 600;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   color: $text-primary;
   margin: 0;
   letter-spacing: 0.02em;
@@ -101,7 +101,7 @@
 .orgSlug {
   font-size: 0.75rem;
   color: $text-secondary;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
   margin: 0.2rem 0 0;
 }
 
@@ -148,7 +148,7 @@
 }
 
 .sheetTitle {
-  font-family: 'Oswald', sans-serif !important;
+  font-family: 'Archivo', sans-serif !important;
   text-transform: uppercase !important;
   letter-spacing: 0.06em !important;
   color: $text-primary !important;

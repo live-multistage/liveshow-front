@@ -1,4 +1,4 @@
-export type OrganizationRole = 'OWNER' | 'ADMIN' | 'EVENT_MANAGER' | 'VIEWER';
+export type OrganizationRole = 'OWNER' | 'ADMIN' | 'EVENT_MANAGER' | 'CONTENT_MANAGER' | 'OPERATOR' | 'VIEWER';
 
 export interface OrganizationResponse {
   id: string;
@@ -82,4 +82,10 @@ export interface UpdateOrganizationSettingsRequest {
   state?: string;
   city?: string;
   timezone?: string;
+}
+
+export interface StripeAccountStatus {
+  hasAccount: boolean;
+  onboardingComplete: boolean;
+  platformFeeRate: number;
 }

@@ -1,14 +1,14 @@
 // ── Base (neutral dark — surfaces carry no hue) ───────────────────
-$bg:           #09090b;
-$surface:      #131316;
-$surface-dark: #0f0f0f;
-$surface-card: #18181b;
-$accent:       #1f1f23;
+$bg:           #08080a;
+$surface:      #101013;
+$surface-dark: #0b0b0d;
+$surface-card: #101013;
+$accent:       #1a0a12;
 
 // ── Brand (magenta = energy / nightlife accent) ───────────────────
-$action:       #EC4899;
-$action-dim:   rgba(236, 72, 153, 0.14);
-$action-bg:    rgba(236, 72, 153, 0.12);
+$action:       #ff2e9e;
+$action-dim:   rgba(255, 46, 158, 0.14);
+$action-bg:    rgba(255, 46, 158, 0.12);
 $violet:       #9810fa;
 $violet-dim:   rgba(152, 16, 250, 0.8);
 $violet-glow:  rgba(152, 16, 250, 0.12);

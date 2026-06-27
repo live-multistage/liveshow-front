@@ -19,6 +19,7 @@ export interface Show {
   tags: string[];
   viewers?: number;
   rating?: number;
+  priceRange?: { min: number; max: number };
 }
 
 export interface Camera {

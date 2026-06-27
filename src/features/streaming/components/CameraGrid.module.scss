@@ -82,7 +82,7 @@
   color: $text-primary;
   font-size: 0.9rem;
   font-weight: 600;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
@@ -105,7 +105,7 @@
   color: rgba(255,255,255,0.85);
   font-size: 0.875rem;
   font-weight: 600;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
 }
 
 .backLink {
@@ -136,7 +136,7 @@
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
   cursor: pointer;
   background: none;
   border: none;
@@ -197,7 +197,7 @@
 
 .emptySlotText {
   font-size: 0.75rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
 }
 
 // ── Camera sidebar (drawer) ──────────────────────────────────
@@ -250,14 +250,14 @@
 .sidebarHeaderTitle {
   color: rgba(255,255,255,0.85);
   font-size: 0.75rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
   font-weight: 600;
 }
 
 .sidebarHeaderMeta {
   color: rgba(255,255,255,0.25);
   font-size: 0.625rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
   margin-top: 0.125rem;
 }
 

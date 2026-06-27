@@ -1,87 +1,234 @@
 @use '../../../styles/_variables' as *;
 
-.header {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  border-bottom: 1px solid $border;
-  padding-bottom: 0;
+@keyframes lsPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .35; transform: scale(.7); }
 }
 
-.top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 1.25rem;
-}
+// ── Hero wrapper ──────────────────────────────────────────────────
 
-.identity {
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-}
-
-.avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 10px;
-  background-color: $action-dim;
-  color: $action;
-  flex-shrink: 0;
+.hero {
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 20px;
   overflow: hidden;
+  margin-bottom: 24px;
+}
+
+// ── Banner ────────────────────────────────────────────────────────
+
+.banner {
+  position: relative;
+  height: 138px;
+  background: radial-gradient(120% 120% at 70% 20%, rgba(155, 123, 255, .55), transparent 55%),
+              radial-gradient(90% 120% at 12% 90%, rgba(255, 46, 158, .5), transparent 55%),
+              linear-gradient(150deg, #3a1a44 0%, #19101e 60%, #0c0a10 100%);
+}
+
+.bannerGrid {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(transparent 0 26px, rgba(255, 255, 255, .035) 26px 27px);
+  pointer-events: none;
+}
+
+// ── Identity row ──────────────────────────────────────────────────
+
+.identityRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
+  padding: 0 28px 24px;
+  align-items: flex-end;
+  margin-top: -44px;
+  position: relative;
+}
+
+.logoWrap {
+  width: 108px;
+  height: 108px;
+  flex-shrink: 0;
 }
 
 .logo {
-  width: 100%;
-  height: 100%;
+  width: 108px;
+  height: 108px;
+  border-radius: 22px;
   object-fit: cover;
+  border: 3px solid #101013;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+}
+
+.logoInitials {
+  width: 108px;
+  height: 108px;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  border: 3px solid #101013;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+}
+
+// ── Meta ──────────────────────────────────────────────────────────
+
+.meta {
+  padding-bottom: 6px;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
 }
 
 .name {
-  font-size: 1.35rem;
-  font-weight: 700;
-  font-family: 'Oswald', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: $text-primary;
   margin: 0;
+  font-family: 'Archivo', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.05;
+  color: #f4f4f5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.slug {
-  font-size: 0.75rem;
-  color: $text-muted;
-  font-family: 'JetBrains Mono', monospace;
-  margin: 0.1rem 0 0;
-}
-
-.nav {
+.metaRow {
   display: flex;
-  gap: 0;
-  margin-top: 0.5rem;
+  align-items: center;
+  gap: 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #9a9aa2;
 }
 
-.navItem {
+.dot { color: #3f3f47; }
+
+// ── Actions ───────────────────────────────────────────────────────
+
+.actions {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 6px;
+}
+
+.btnGhost {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: $text-secondary;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, .16);
+  color: #e7e7ea;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 9px 14px;
+  border-radius: 11px;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
   white-space: nowrap;
+  transition: border-color .15s, color .15s;
 
-  &:hover { color: $text-primary; }
+  &:hover { border-color: rgba(255, 46, 158, .4); color: #fff; }
 }
 
-.navItemActive {
-  color: $action;
-  border-bottom-color: $action;
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ff2e9e;
+  color: #0a0a0b;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 9px 14px;
+  border-radius: 11px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: filter .15s;
+
+  &:hover { filter: brightness(1.08); }
+}
+
+.btnIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, .16);
+  color: #e7e7ea;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+
+  &:hover { border-color: rgba(255, 46, 158, .4); color: #fff; }
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+  padding: 0 12px;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  font-family: 'Archivo', sans-serif;
+  font-size: 14px;
+  padding: 14px 18px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color .15s;
+  white-space: nowrap;
+}
+
+.tabActive {
+  color: #fff;
+  font-weight: 600;
+  border-bottom-color: #ff2e9e;
+}
+
+.tabInactive {
+  color: #9a9aa2;
+  font-weight: 500;
+
+  &:hover { color: #fff; }
+}
+
+.tabBadgeActive {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255, 46, 158, .16);
+  color: #ff8ec9;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.tabBadgeInactive {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, .06);
+  color: #c7c7cd;
+  padding: 2px 7px;
+  border-radius: 999px;
 }

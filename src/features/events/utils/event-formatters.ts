@@ -19,9 +19,24 @@ export function formatPrice(price: number) {
   return price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+export function formatPriceRange(
+  priceRange: { min: number; max: number } | undefined,
+  fallbackPrice?: number,
+): string {
+  if (!priceRange) {
+    if (fallbackPrice === undefined || fallbackPrice === 0) return 'Grátis';
+    return formatPrice(fallbackPrice);
+  }
+  const { min, max } = priceRange;
+  if (min === 0 && max === 0) return 'Grátis';
+  if (min === max) return formatPrice(min);
+  if (min === 0) return `Grátis – ${formatPrice(max)}`;
+  return `${formatPrice(min)} – ${formatPrice(max)}`;
+}
+
 export function statusLabel(status: string): string {
   const map: Record<string, string> = {
-    DRAFT: 'Rascunho', PUBLISHED: 'Em breve', LIVE: 'Ao vivo',
+    DRAFT: 'Rascunho', PUBLISHED: 'Em breve', SCHEDULED: 'Em breve', LIVE: 'Ao vivo',
     FINISHED: 'Encerrado', CANCELLED: 'Cancelado',
   };
   return map[status] ?? status;

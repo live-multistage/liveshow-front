@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Ticket, ShoppingBag } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useListEventsQuery, eventToShow, ShowCard } from '@/features/events';
 import { TicketList } from './TicketList';
@@ -32,11 +32,28 @@ export function MyTicketsPageContent() {
     <div className={styles.page}>
       <div className={styles.inner}>
         <div className={styles.header}>
-          <div className={styles.headerRow}>
-            <Ticket size={22} />
+          <div>
+            <div className={styles.eyebrow}>MINHA BIBLIOTECA</div>
             <h1 className={styles.title}>{t('title')}</h1>
+            <p className={styles.subtitle}>{t('subtitle')}</p>
           </div>
-          <p className={styles.subtitle}>{t('subtitle')}</p>
+          <div className={styles.statsRow}>
+            <div className={styles.statCard}>
+              <div className={styles.statLabel}>ATIVOS</div>
+              <div className={styles.statValue}>
+                <span className={styles.statNumber}>{tickets.length}</span>
+                <span className={styles.statUnit}>ingressos</span>
+              </div>
+            </div>
+            <div className={`${styles.statCard} ${styles.statCardReplay}`}>
+              <div className={styles.replayGlow} />
+              <div className={`${styles.statLabel} ${styles.statLabelReplay}`}>REPLAY</div>
+              <div className={styles.statValue}>
+                <span className={styles.statNumber}>{withReplay.length}</span>
+                <span className={styles.statUnit}>com reprise</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {tickets.length === 0 ? (
@@ -52,19 +69,6 @@ export function MyTicketsPageContent() {
           </div>
         ) : (
           <>
-            <div className={styles.stats}>
-              <span className={styles.statItem}>
-                <span className={styles.statDotGreen} />
-                <span className={styles.statValue}>{t('stats.count', { count: tickets.length })}</span>
-              </span>
-              {withReplay.length > 0 && (
-                <span className={styles.statItem}>
-                  <span className={styles.statDotBlue} />
-                  <span className={styles.statValue}>{t('stats.withReplay', { count: withReplay.length })}</span>
-                </span>
-              )}
-            </div>
-
             <TicketList
               tickets={tickets}
               withReplay={withReplay}
@@ -75,9 +79,12 @@ export function MyTicketsPageContent() {
             {upcomingShows.length > 0 && (
               <div className={styles.recommendations}>
                 <div className={styles.recoHeader}>
-                  <h2 className={styles.recoTitle}>{t('recommendations.title')}</h2>
+                  <div>
+                    <div className={styles.recoLabel}>{t('recommendations.title')}</div>
+                    <p className={styles.recoSub}>{t('recommendations.subtitle')}</p>
+                  </div>
                   <button onClick={() => router.push('/')} className={styles.recoLink}>
-                    {t('recommendations.seeAll')}
+                    VER TODOS →
                   </button>
                 </div>
                 <div className={styles.recoGrid}>

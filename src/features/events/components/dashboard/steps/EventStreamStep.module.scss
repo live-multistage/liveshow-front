@@ -68,7 +68,7 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: $text-muted;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -107,7 +107,7 @@
   flex: 1;
   font-size: 0.85rem;
   font-weight: 600;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Archivo', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: $text-primary;
@@ -191,7 +191,7 @@
 .cameraPriority {
   font-size: 0.7rem;
   color: $text-muted;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
 }
 
 // ── Icon button ───────────────────────────────────────────────────
@@ -243,7 +243,7 @@
   border-radius: 5px;
   font-size: 0.7rem;
   font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   border: 1px solid rgba(236, 72, 153, 0.4);

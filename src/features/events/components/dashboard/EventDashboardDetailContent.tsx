@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
 import { useUpdateEventMutation } from '../../mutations/update-event.mutation';
-import { usePublishEventMutation, useUnpublishEventMutation } from '../../mutations/publish-event.mutation';
+import { usePublishEventMutation, useUnpublishEventMutation, useFinishEventMutation } from '../../mutations/publish-event.mutation';
 import { EventHeaderActions } from './EventHeaderActions';
 import { EventEditForm, editSchema } from './EventEditForm';
 import type { EditFormValues } from './EventEditForm';
@@ -40,6 +40,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
   const updateMutation = useUpdateEventMutation(id);
   const publishMutation = usePublishEventMutation(id);
   const unpublishMutation = useUnpublishEventMutation(id);
+  const finishMutation = useFinishEventMutation(id);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<EditFormValues>({
     resolver: zodResolver(editSchema),
@@ -103,11 +104,13 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
           isSaving={updateMutation.isPending}
           isPublishing={publishMutation.isPending}
           isUnpublishing={unpublishMutation.isPending}
+          isFinishing={finishMutation.isPending}
           onEdit={startEditing}
           onCancelEdit={cancelEditing}
           onSave={handleSubmit(onSave)}
           onPublish={() => publishMutation.mutate()}
           onUnpublish={() => unpublishMutation.mutate()}
+          onFinish={() => finishMutation.mutate()}
         />
       </div>
 

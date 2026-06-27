@@ -1,96 +1,81 @@
 @use '../../../styles/_variables' as *;
 
 .card {
-  border: 1px solid $border;
-  border-radius: 12px;
-  padding: 1rem;
+  position: relative;
   background: $surface;
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 20px;
+  padding: 22px;
+  overflow: hidden;
 }
 
-.header {
+.glow {
+  position: absolute;
+  top: -60px;
+  right: -50px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(155, 123, 255, .16), transparent 70%);
+  pointer-events: none;
+}
+
+.body {
+  position: relative;
+}
+
+.eventLabel {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-}
+  gap: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: #8f8f97;
+  margin-bottom: 16px;
 
-.icon { color: $action; flex-shrink: 0; }
-
-.label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: $text-muted;
+  svg { flex-shrink: 0; }
 }
 
 .row {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  gap: 1rem;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
 .name {
-  font-size: 1rem;
+  font-size: 18px;
   font-weight: 700;
+  letter-spacing: -.01em;
+  line-height: 1.25;
   color: $text-primary;
-}
-
-.desc {
-  font-size: 0.8rem;
-  color: $text-muted;
-  margin-top: 0.2rem;
-  line-height: 1.4;
-}
-
-.pricing {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  flex-shrink: 0;
-}
-
-.qty {
-  font-size: 0.8rem;
-  color: $text-muted;
+  margin: 0;
 }
 
 .price {
-  font-size: 1.1rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 16px;
   font-weight: 700;
+  white-space: nowrap;
   color: $text-primary;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .capabilities {
-  border-top: 1px solid $border;
-  padding-top: 0.75rem;
-}
-
-.capLabel {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: $text-muted;
-  margin-bottom: 0.5rem;
-}
-
-.capList {
-  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 9px;
 }
 
 .capItem {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  color: $text-secondary;
-}
+  gap: 9px;
+  font-size: 13.5px;
+  color: #b9b9c0;
 
-.check { color: $action; flex-shrink: 0; }
+  svg { flex-shrink: 0; }
+}

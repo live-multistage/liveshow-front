@@ -1,0 +1,98 @@
+@use '../../../styles/_variables' as *;
+
+.layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: $bg;
+}
+
+// ─── Sidebar skeleton ─────────────────────────────────────────
+.sidebar {
+  width: 256px;
+  flex-shrink: 0;
+  background-color: $surface-dark;
+  border-right: 1px solid rgba(255,255,255,.07);
+  padding: 26px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+}
+
+.logoRow {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 8px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.navItem {
+  height: 42px;
+  border-radius: 12px;
+}
+
+.userBlock {
+  margin-top: auto;
+  border-top: 1px solid rgba(255,255,255,.07);
+  padding-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding-left: 10px;
+}
+
+// ─── Main skeleton ────────────────────────────────────────────
+.main {
+  flex: 1;
+  padding: 40px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.card {
+  height: 100px;
+  border-radius: 14px;
+}
+
+.chart {
+  height: 220px;
+  border-radius: 14px;
+}
+
+// ─── Shimmer ──────────────────────────────────────────────────
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,.04) 0%,
+    rgba(255,255,255,.08) 50%,
+    rgba(255,255,255,.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

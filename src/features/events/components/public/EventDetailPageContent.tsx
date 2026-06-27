@@ -2,10 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import {
-  Calendar, Clock, MapPin, Camera, RotateCcw,
-  Play, ChevronLeft, Building2,
-} from 'lucide-react';
+import { Calendar, Clock, MapPin, Camera, RotateCcw, Play } from 'lucide-react';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
 import { TicketPanel } from './TicketPanel';
 import { formatDate, formatTime, formatDuration, statusLabel } from '../../utils/event-formatters';
@@ -45,94 +42,110 @@ export function EventDetailPageContent({ id }: Props) {
   const isLive = event.status === 'LIVE';
   const isFinished = event.status === 'FINISHED';
   const heroImage = event.bannerUrl ?? event.thumbnailUrl;
+  const cameraCount = cameras.length || event.camerasCount || 0;
 
   return (
     <div className={styles.page}>
-      <div className={styles.topBar}>
+      <div className={styles.inner}>
         <button onClick={() => router.back()} className={styles.backBtn}>
-          <ChevronLeft size={18} /> {t('back')}
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 12H5M11 18l-6-6 6-6"/>
+          </svg>
+          VOLTAR
         </button>
-      </div>
 
-      <div className={styles.hero}>
-        <div className={styles.heroImageWrap}>
+        <div className={styles.hero}>
           {heroImage
-            ? <img src={heroImage} alt={event.title} className={styles.heroImage} />
-            : <div className={styles.heroImage} style={{ background: 'linear-gradient(135deg, #1a1a2e, #16213e)' }} />}
-          <div className={styles.heroOverlay} />
-          <div className={styles.heroBadges}>
-            <div className={styles.badgeRow}>
-              {isLive && (
-                <span className={styles.badgeLive}>
-                  <span className={styles.liveDot} /> {t('live')}
-                </span>
-              )}
+            ? <img src={heroImage} alt={event.title} className={styles.heroImg} />
+            : <div className={styles.heroPlaceholder} />}
+          <div className={styles.heroScrim} />
+
+          {cameraCount > 0 && (
+            <div className={styles.camerasChip}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M23 7l-7 5 7 5V7Z"/>
+                <rect x="1" y="5" width="15" height="14" rx="2"/>
+              </svg>
+              {cameraCount} CÂMERAS
+            </div>
+          )}
+
+          <div className={styles.heroContent}>
+            <div className={styles.heroBadges}>
               {isFinished && (
                 <span className={styles.badgeReplay}>
-                  <RotateCcw size={10} /> {t('replay')}
+                  <RotateCcw size={12} />REPLAY
                 </span>
               )}
-              <span className={styles.badgeGenre}>{statusLabel(event.status)}</span>
+              {isLive && (
+                <span className={styles.badgeLive}>
+                  <span className={styles.liveDot} />AO VIVO
+                </span>
+              )}
+              {!isLive && (
+                <span className={styles.badgeStatus}>{statusLabel(event.status)}</span>
+              )}
             </div>
             <h1 className={styles.heroTitle}>{event.title}</h1>
-            {event.venue && <p className={styles.heroVenue}>{event.venue}</p>}
+            {event.venue && (
+              <div className={styles.heroVenue}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff5fb4" strokeWidth="2">
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                  <circle cx="12" cy="10" r="2.6"/>
+                </svg>
+                {event.venue}
+              </div>
+            )}
           </div>
         </div>
-      </div>
 
-      <div className={styles.body}>
         <div className={styles.grid}>
-          <div className={styles.content}>
-            <div className={styles.infoGrid}>
+          <div>
+            <div className={styles.metaGrid}>
               {[
                 { icon: <Calendar size={14} />, label: t('date'), value: formatDate(event.startsAt) },
                 { icon: <Clock size={14} />, label: t('time'), value: `${formatTime(event.startsAt)} · ${formatDuration(event.startsAt, event.endsAt)}` },
                 { icon: <MapPin size={14} />, label: t('venue'), value: [event.city, event.country].filter(Boolean).join(', ') || '—' },
-                { icon: <Camera size={14} />, label: t('cameras'), value: t('angles', { count: cameras.length || event.camerasCount }) },
+                { icon: <Camera size={14} />, label: t('cameras'), value: t('angles', { count: cameraCount }) },
               ].map((info) => (
-                <div key={info.label} className={styles.infoCard}>
-                  <div className={styles.infoLabel}>
-                    {info.icon}
-                    <span className={styles.infoLabelText}>{info.label}</span>
+                <div key={info.label} className={styles.metaCard}>
+                  <div className={styles.metaLabel}>
+                    <span className={styles.metaIcon}>{info.icon}</span>
+                    {info.label}
                   </div>
-                  <p className={styles.infoValue}>{info.value}</p>
+                  <p className={styles.metaValue}>{info.value}</p>
                 </div>
               ))}
             </div>
 
             {org && (
-              <button
-                className={styles.orgCard}
-                onClick={() => router.push(`/o/${org.slug}`)}
-              >
+              <button className={styles.orgCard} onClick={() => router.push(`/o/${org.slug}`)}>
                 <div className={styles.orgAvatar}>
-                  {org.logoUrl
-                    ? <img src={org.logoUrl} alt={org.name} className={styles.orgAvatarImg} />
-                    : <Building2 size={18} />}
+                  {org.logoUrl && <img src={org.logoUrl} alt={org.name} className={styles.orgAvatarImg} />}
                 </div>
                 <div className={styles.orgInfo}>
                   <span className={styles.orgLabel}>{t('organization')}</span>
                   <span className={styles.orgName}>{org.name}</span>
                 </div>
-                <span className={styles.orgArrow}>{t('viewProfile')}</span>
+                <span className={styles.orgArrow}>VER PERFIL →</span>
               </button>
             )}
 
             <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>{t('about')}</h2>
+              <div className={styles.sectionLabel}>SOBRE O SHOW</div>
               <p className={styles.description}>{event.description}</p>
             </div>
 
             {(cameras.length > 0 || camerasLoading) && (
               <div className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t('availableCameras', { count: cameras.length })}</h2>
+                <div className={styles.sectionLabel}>{t('availableCameras', { count: cameras.length })}</div>
                 <div className={styles.cameraGrid}>
                   {camerasLoading
                     ? Array.from({ length: event.camerasCount || 2 }).map((_, i) => (
                         <div key={i} className={`${styles.cameraCard} ${styles.cameraCardSkeleton}`}>
                           <div className={styles.cameraPreview} />
                           <div className={styles.cameraMeta}>
-                            <p className={styles.cameraName} style={{ opacity: 0 }}>—</p>
+                            <p className={`${styles.cameraName} ${styles.cameraNameHidden}`}>—</p>
                           </div>
                         </div>
                       ))
@@ -159,7 +172,7 @@ export function EventDetailPageContent({ id }: Props) {
             )}
           </div>
 
-          <div className={styles.sidePanel}>
+          <div>
             <TicketPanel event={event} tickets={tickets} />
           </div>
         </div>

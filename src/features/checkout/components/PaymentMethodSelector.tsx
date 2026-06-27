@@ -3,12 +3,12 @@ import type { PaymentMethod, PaymentMethodType } from '../types/checkout.types';
 import styles from './PaymentMethodSelector.module.scss';
 
 const METHOD_ICONS: Record<PaymentMethodType, React.ReactNode> = {
-  PIX: <QrCode size={18} />,
-  CREDIT_CARD: <CreditCard size={18} />,
-  DEBIT_CARD: <CreditCard size={18} />,
-  GOOGLE_PAY: <Smartphone size={18} />,
-  APPLE_PAY: <Smartphone size={18} />,
-  STRIPE: <Wallet size={18} />,
+  PIX: <QrCode size={19} />,
+  CREDIT_CARD: <CreditCard size={19} />,
+  DEBIT_CARD: <CreditCard size={19} />,
+  GOOGLE_PAY: <Smartphone size={19} />,
+  APPLE_PAY: <Smartphone size={19} />,
+  STRIPE: <Wallet size={19} />,
 };
 
 interface Props {
@@ -22,7 +22,7 @@ export function PaymentMethodSelector({ methods, selected, onChange, isLoading }
   if (isLoading) {
     return (
       <div className={styles.wrap}>
-        <p className={styles.label}>Forma de pagamento</p>
+        <p className={styles.label}>Forma de Pagamento</p>
         <div className={styles.skeleton} />
       </div>
     );
@@ -30,7 +30,7 @@ export function PaymentMethodSelector({ methods, selected, onChange, isLoading }
 
   return (
     <div className={styles.wrap}>
-      <p className={styles.label}>Forma de pagamento</p>
+      <p className={styles.label}>Forma de Pagamento</p>
       <div className={styles.list} role="radiogroup" aria-label="Forma de pagamento">
         {methods.map((method) => {
           const isSelected = selected === method.id;
@@ -42,10 +42,13 @@ export function PaymentMethodSelector({ methods, selected, onChange, isLoading }
               onClick={() => onChange(method.id)}
               className={`${styles.method} ${isSelected ? styles.methodSelected : ''}`}
             >
-              <span className={styles.methodIcon}>
+              {isSelected && <span className={styles.selectedGlow} aria-hidden />}
+              <span className={`${styles.methodIcon} ${isSelected ? styles.methodIconSelected : ''}`}>
                 {METHOD_ICONS[method.type]}
               </span>
-              <span className={styles.methodName}>{method.displayName}</span>
+              <span className={`${styles.methodName} ${isSelected ? styles.methodNameSelected : ''}`}>
+                {method.displayName}
+              </span>
               <span className={`${styles.radio} ${isSelected ? styles.radioActive : ''}`} />
             </button>
           );

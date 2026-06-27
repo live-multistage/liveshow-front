@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { tokenStore } from '@/lib/auth/token-store';
 import type { AuthUser } from '../types/account.types';
 
@@ -24,6 +25,7 @@ export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     async function hydrate() {
@@ -57,9 +59,10 @@ export function useAuth() {
     tokenStore.clear();
     localStorage.removeItem('user');
     await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    queryClient.clear();
     setUser(null);
     router.push('/login');
-  }, [router]);
+  }, [router, queryClient]);
 
   return { user, isLoggedIn: !!user, isLoading, logout };
 }

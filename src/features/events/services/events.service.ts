@@ -83,4 +83,9 @@ export const eventsService = {
     const { data } = await httpClient.patch<EventResponse>(`/events/${eventId}/unpublish`);
     return data;
   },
+
+  finishEvent: async (eventId: string): Promise<EventResponse> => {
+    const { data } = await httpClient.patch<EventResponse>(`/events/${eventId}/finish`);
+    return data;
+  },
 };

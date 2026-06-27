@@ -1,58 +1,79 @@
-@use '../../../styles/_variables' as *;
-
-.tabs {
+.wrapper {
   display: flex;
   flex-direction: column;
 }
 
 .tabList {
   display: flex;
-  gap: 0.25rem;
-  background-color: rgba(255,255,255,0.03);
-  border: 1px solid $border;
-  border-radius: 8px;
-  padding: 0.25rem;
-  margin-bottom: 1.5rem;
-  height: auto;
+  gap: 8px;
+  padding: 6px;
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 14px;
+  margin-bottom: 24px;
+  width: fit-content;
+  flex-wrap: wrap;
 }
 
 .tab {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  background: none;
+  gap: 9px;
   border: none;
-  color: $muted;
-  transition: color 0.15s, background-color 0.15s;
+  padding: 11px 18px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
   white-space: nowrap;
 }
 
 .tabActive {
-  background-color: $action;
-  color: $text-primary;
+  background: #ff2e9e;
+  color: #0a0a0b;
+  font-weight: 700;
 }
 
-.tabBadge {
-  background-color: rgba(255,255,255,0.1);
-  font-size: 0.75rem;
-  font-family: 'JetBrains Mono', monospace;
-  padding: 0.125rem 0.375rem;
-  border-radius: 9999px;
+.tabInactive {
+  background: transparent;
+  color: #c7c7cd;
+  font-weight: 500;
+
+  &:hover {
+    background: rgba(255, 255, 255, .04);
+    color: #fff;
+  }
+}
+
+.badgeActive {
+  background: rgba(10, 10, 11, .18);
+  color: #0a0a0b;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.badgeInactive {
+  background: rgba(255, 255, 255, .06);
+  color: #c7c7cd;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
 }
 
 .ticketGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 14px;
 }
 
 .empty {
   text-align: center;
   padding: 3rem 0;
-  color: $muted;
+  color: #8f8f97;
   font-size: 0.875rem;
 }

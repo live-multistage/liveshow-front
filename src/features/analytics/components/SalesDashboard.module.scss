@@ -1,0 +1,198 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.metricCard {
+  background-color: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.metricLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $text-muted;
+  font-family: 'Archivo', sans-serif;
+}
+
+.metricValue {
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-family: 'Archivo', sans-serif;
+  color: $text-primary;
+  line-height: 1;
+}
+
+.metricRevenue { color: $action; }
+.metricPrice   { color: $price; }
+
+.chartCard {
+  background-color: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chartControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.chartViewToggle,
+.granularityToggle {
+  display: flex;
+  gap: 0.25rem;
+  background-color: $surface-dark;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.toggleBtn {
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: 'Archivo', sans-serif;
+  color: $text-muted;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.toggleActive {
+  background-color: $surface;
+  color: $text-primary;
+  border: 1px solid $border;
+}
+
+.chartWrap {
+  height: 240px;
+  position: relative;
+}
+
+.loadingWrap {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid $border;
+  border-top-color: $action;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.tableCard {
+  background-color: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tableTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $text-muted;
+  font-family: 'Archivo', sans-serif;
+  margin: 0;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Archivo', sans-serif;
+  font-size: 0.85rem;
+}
+
+.th {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $text-muted;
+  border-bottom: 1px solid $border;
+}
+
+.thRight {
+  text-align: right;
+}
+
+.tr {
+  border-bottom: 1px solid rgba($border, 0.5);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: $surface-dark;
+  }
+}
+
+.td {
+  padding: 0.6rem 0.75rem;
+  color: $text-primary;
+}
+
+.tdRight {
+  text-align: right;
+}
+
+.tdRevenue {
+  color: $action;
+  font-weight: 600;
+}
+
+.emptyCell {
+  padding: 1.5rem 0.75rem;
+  text-align: center;
+  color: $text-muted;
+  font-size: 0.85rem;
+}

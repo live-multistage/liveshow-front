@@ -1,37 +1,110 @@
 'use client';
 
-import { Building2, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { OrganizationResponse } from '../types/organization.types';
 import styles from './OrganizationCard.module.scss';
+
+// ── Helpers ───────────────────────────────────────────────────────
+
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .slice(0, 2)
+    .map((w) => w[0] ?? '')
+    .join('')
+    .toUpperCase();
+}
+
+const AVATAR_COLORS = ['#ff5fb4', '#9b7bff', '#46d6d8', '#ff2e9e', '#7fe0a0'];
+
+function avatarColor(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+// ── Component ─────────────────────────────────────────────────────
 
 interface Props {
   organization: OrganizationResponse;
 }
 
-export function OrganizationCard({ organization }: Props) {
+export function OrganizationCard({ organization: org }: Props) {
   const router = useRouter();
 
+  const initials = getInitials(org.name);
+  const bg = avatarColor(org.id);
+
+  const goToOrg = () => router.push(`/dashboard/organizations/${org.id}`);
+
   return (
-    <button
-      className={styles.card}
-      onClick={() => router.push(`/dashboard/organizations/${organization.id}`)}
-    >
-      <div className={styles.icon}>
-        {organization.logoUrl ? (
-          <img src={organization.logoUrl} alt={organization.name} className={styles.logo} />
-        ) : (
-          <Building2 size={24} />
-        )}
+    <div className={styles.card} onClick={goToOrg}>
+      {/* corner glow */}
+      <div className={styles.glow} style={{ background: `radial-gradient(circle, ${bg}28, transparent 70%)` }} />
+
+      {/* identity row */}
+      <div className={styles.identity}>
+        <div className={styles.logoWrap}>
+          {org.logoUrl ? (
+            <img src={org.logoUrl} alt={org.name} className={styles.logo} />
+          ) : (
+            <div className={styles.logoInitials} style={{ background: `${bg}22`, color: bg }}>
+              {initials}
+            </div>
+          )}
+        </div>
+        <div className={styles.identityText}>
+          <div className={styles.name}>{org.name}</div>
+          <div className={styles.handle}>@{org.slug}</div>
+        </div>
+        <button
+          className={styles.menuBtn}
+          onClick={(e) => { e.stopPropagation(); goToOrg(); }}
+          aria-label="Abrir organização"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="1.6" />
+            <circle cx="12" cy="12" r="1.6" />
+            <circle cx="19" cy="12" r="1.6" />
+          </svg>
+        </button>
       </div>
-      <div className={styles.info}>
-        <h3 className={styles.name}>{organization.name}</h3>
-        <p className={styles.slug}>@{organization.slug}</p>
-        {organization.description && (
-          <p className={styles.description}>{organization.description}</p>
-        )}
+
+      {/* description */}
+      <p className={styles.description}>
+        {org.description ?? 'Sem descrição.'}
+      </p>
+
+      {/* stats row */}
+      <div className={styles.stats}>
+        <div className={styles.stat}>
+          <div className={styles.statLabel}>EVENTOS</div>
+          <div className={styles.statValue}>—</div>
+        </div>
+        <div className={styles.stat}>
+          <div className={styles.statLabel}>EQUIPE</div>
+          <div className={styles.statValue}>—</div>
+        </div>
+        <div className={styles.stat}>
+          <div className={styles.statLabel}>VENDAS</div>
+          <div className={`${styles.statValue} ${styles.statValuePink}`}>—</div>
+        </div>
       </div>
-      <ChevronRight size={16} className={styles.arrow} />
-    </button>
+
+      {/* footer */}
+      <div className={styles.footer}>
+        <div className={styles.avatarStack}>
+          <div
+            className={styles.avatar}
+            style={{ background: bg, color: '#0a0a0b', marginLeft: 0 }}
+          >
+            {initials.charAt(0)}
+          </div>
+        </div>
+        <span className={styles.statusBadge}>ATIVO</span>
+      </div>
+    </div>
   );
 }

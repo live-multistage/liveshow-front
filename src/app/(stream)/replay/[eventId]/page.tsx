@@ -1,13 +1,20 @@
-'use client';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { getEventCached } from '@/features/events/queries/get-event.server';
+import { ReplayGate } from '@/features/streaming/components/ReplayGate';
 
-import { useParams } from 'next/navigation';
-import styles from './page.module.scss';
+interface Props {
+  params: Promise<{ eventId: string }>;
+}
 
-export default function ReplayPage() {
-  const { eventId } = useParams() as { eventId: string };
-  return (
-    <div className={styles.page}>
-      <p className={styles.text}>Replay: {eventId}</p>
-    </div>
-  );
+export const metadata: Metadata = { title: 'Replay' };
+
+export default async function ReplayPage({ params }: Props) {
+  const { eventId } = await params;
+  try {
+    const event = await getEventCached(eventId);
+    return <ReplayGate eventId={eventId} eventTitle={event.title} />;
+  } catch {
+    notFound();
+  }
 }

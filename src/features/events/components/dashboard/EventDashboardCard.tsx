@@ -8,6 +8,7 @@ import styles from './EventDashboardCard.module.scss';
 const STATUS_MOD: Record<EventStatus, string> = {
   DRAFT:     styles.statusDraft,
   PUBLISHED: styles.statusPublished,
+  SCHEDULED: styles.statusPublished,
   LIVE:      styles.statusLive,
   FINISHED:  styles.statusFinished,
   CANCELLED: styles.statusCancelled,

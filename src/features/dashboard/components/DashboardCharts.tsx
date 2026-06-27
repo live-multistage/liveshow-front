@@ -13,6 +13,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import type { EventResponse } from '@/features/events';
+import { useGetMySalesQuery } from '@/features/analytics/hooks/use-my-sales';
 import styles from './DashboardCharts.module.scss';
 
 ChartJS.register(
@@ -32,7 +33,7 @@ const CHART_OPTIONS = {
   plugins: {
     legend: { display: false },
     tooltip: {
-      backgroundColor: '#1a0505',
+      backgroundColor: '#101013',
       borderColor: '#27272A',
       borderWidth: 1,
       titleColor: '#FFFFFF',
@@ -77,10 +78,6 @@ function buildEventsData(events: EventResponse[]) {
   );
 }
 
-// Mock: replace with real API data when endpoint is available
-const MOCK_SALES = [12, 19, 8, 24, 17, 31];
-const MOCK_REVENUE = [1200, 1900, 800, 2400, 1700, 3100];
-
 interface Props {
   events: EventResponse[];
   eventsOnly?: boolean;
@@ -89,6 +86,12 @@ interface Props {
 export function DashboardCharts({ events, eventsOnly = false }: Props) {
   const months = getLast6Months().map((m) => m.label);
   const eventsData = buildEventsData(events);
+  const { data: salesData } = useGetMySalesQuery('month');
+
+  // Sales API returns 12 months; take last 6 to match the events chart window
+  const last6Sales = salesData?.data.slice(-6) ?? [];
+  const salesValues = last6Sales.map((p) => p.orders);
+  const revenueValues = last6Sales.map((p) => p.revenue);
 
   const eventsChartData = {
     labels: months,
@@ -96,13 +99,13 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
       {
         label: 'Eventos',
         data: eventsData,
-        borderColor: '#DC2626',
-        backgroundColor: 'rgba(220,38,38,0.08)',
+        borderColor: '#ff2e9e',
+        backgroundColor: 'rgba(255,46,158,0.08)',
         fill: true,
         tension: 0.4,
         pointRadius: 4,
-        pointBackgroundColor: '#DC2626',
-        pointBorderColor: '#030303',
+        pointBackgroundColor: '#ff2e9e',
+        pointBorderColor: '#08080a',
         pointBorderWidth: 2,
       },
     ],
@@ -113,14 +116,14 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
     datasets: [
       {
         label: 'Vendas',
-        data: MOCK_SALES,
+        data: salesValues,
         borderColor: '#9810fa',
         backgroundColor: 'rgba(152,16,250,0.08)',
         fill: true,
         tension: 0.4,
         pointRadius: 4,
         pointBackgroundColor: '#9810fa',
-        pointBorderColor: '#030303',
+        pointBorderColor: '#08080a',
         pointBorderWidth: 2,
       },
     ],
@@ -130,15 +133,15 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
     labels: months,
     datasets: [
       {
-        label: 'Revenue (R$)',
-        data: MOCK_REVENUE,
+        label: 'Receita (R$)',
+        data: revenueValues,
         borderColor: '#FB64B6',
         backgroundColor: 'rgba(251,100,182,0.08)',
         fill: true,
         tension: 0.4,
         pointRadius: 4,
         pointBackgroundColor: '#FB64B6',
-        pointBorderColor: '#030303',
+        pointBorderColor: '#08080a',
         pointBorderWidth: 2,
       },
     ],
@@ -162,7 +165,6 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
             <div className={styles.chartHeader}>
               <span className={`${styles.dot} ${styles.dotViolet}`} />
               <h3 className={styles.chartTitle}>Vendas</h3>
-              <span className={styles.mock}>dados de exemplo</span>
             </div>
             <div className={styles.chartWrap}>
               <Line data={salesChartData} options={CHART_OPTIONS} />
@@ -172,8 +174,7 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
           <div className={styles.chartCard}>
             <div className={styles.chartHeader}>
               <span className={`${styles.dot} ${styles.dotPink}`} />
-              <h3 className={styles.chartTitle}>Revenue</h3>
-              <span className={styles.mock}>dados de exemplo</span>
+              <h3 className={styles.chartTitle}>Receita</h3>
             </div>
             <div className={styles.chartWrap}>
               <Line data={revenueChartData} options={CHART_OPTIONS} />

@@ -17,7 +17,7 @@ export function EventsPageContent() {
 
   const total = events.length;
   const live = events.filter((e) => e.status === 'LIVE').length;
-  const upcoming = events.filter((e) => e.status === 'PUBLISHED').length;
+  const upcoming = events.filter((e) => e.status === 'PUBLISHED' || e.status === 'SCHEDULED').length;
   const finished = events.filter((e) => e.status === 'FINISHED').length;
 
   const filtered = activeFilter === 'all'
