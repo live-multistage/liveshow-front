@@ -7,6 +7,8 @@ import type { LiveCamera, LiveStage } from '../types/live.types';
 import { CameraGrid } from './CameraGrid';
 import type { QualityLevel } from './CameraGrid';
 import { StageSelector } from './StageSelector';
+import { useAuth } from '@/features/account/hooks/use-auth';
+import { useTrackStream } from '../hooks/use-track-stream';
 import styles from './LivePlayer.module.scss';
 
 interface LivePlayerProps {
@@ -40,6 +42,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const { user } = useAuth();
+  useTrackStream(eventId, user?.id);
 
   const stages = useStages(cameras, rawStages);
   const [activeStageId, setActiveStageId] = useState<string>(() => initialStageId(stages, primaryCameraId));

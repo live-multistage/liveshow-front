@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import { useAddToCartMutation, useCartQuery } from '@/features/cart';
 import { Button } from '@/shared/components/Button';
 import { useAuth } from '@/features/account';
+import { trackCartAdd } from '@/features/cart/hooks/use-track-cart';
 import {
   useLiveAccessQuery,
   useReplayAccessQuery,
@@ -26,7 +27,7 @@ export function TicketPanel({ event, tickets }: Props) {
   const [selected, setSelected] = useState<string | null>(tickets[0]?.id ?? null);
   const [pendingAction, setPendingAction] = useState<'cart' | 'buy' | null>(null);
   const addToCart = useAddToCartMutation();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const { data: cart } = useCartQuery();
   const isInCart = isLoggedIn && (cart?.items.some((i) => i.eventId === event.id) ?? false);
   const isTicketInCart = (ticketId: string) =>
@@ -186,7 +187,10 @@ export function TicketPanel({ event, tickets }: Props) {
             }
             setPendingAction('buy');
             addToCart.mutate(ticket.id, {
-              onSuccess: () => router.push('/checkout'),
+              onSuccess: () => {
+                trackCartAdd(event.id, ticket.id, ticket.price, user?.id);
+                router.push('/checkout');
+              },
               onSettled: () => setPendingAction(null),
             });
           }}
@@ -211,6 +215,7 @@ export function TicketPanel({ event, tickets }: Props) {
             if (!isLoggedIn) { router.push('/login'); return; }
             setPendingAction('cart');
             addToCart.mutate(ticket.id, {
+              onSuccess: () => trackCartAdd(event.id, ticket.id, ticket.price, user?.id),
               onSettled: () => setPendingAction(null),
             });
           }}
