@@ -4,19 +4,11 @@ import type { StreamResponse, StreamStatus } from '../types/stream.types';
 import styles from './StreamCard.module.scss';
 
 const STATUS_LABEL: Record<StreamStatus, string> = {
-  DRAFT:     'Rascunho',
-  READY:     'Pronto',
-  LIVE:      'Ao Vivo',
-  ENDED:     'Encerrado',
-  CANCELLED: 'Cancelado',
-};
-
-const STATUS_MOD: Record<StreamStatus, string> = {
-  DRAFT:     styles.badgeDraft,
-  READY:     styles.badgeReady,
-  LIVE:      styles.badgeLive,
-  ENDED:     styles.badgeEnded,
-  CANCELLED: styles.badgeCancelled,
+  DRAFT:     'RASCUNHO',
+  READY:     'PRONTO',
+  LIVE:      'AO VIVO',
+  ENDED:     'ENCERRADO',
+  CANCELLED: 'CANCELADO',
 };
 
 interface Props {
@@ -26,24 +18,33 @@ interface Props {
 }
 
 export function StreamCard({ stream, active, onClick }: Props) {
+  const isLive = stream.status === 'LIVE';
+
   return (
-    <div
+    <button
+      type="button"
       className={`${styles.card} ${active ? styles.active : ''}`}
       onClick={onClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
+      {active && <div className={styles.glow} />}
+
       <div className={styles.top}>
-        <p className={styles.title}>{stream.title}</p>
-        <span className={`${styles.badge} ${STATUS_MOD[stream.status]}`}>
-          {stream.status === 'LIVE' && <span className={styles.pulse} />}
-          {STATUS_LABEL[stream.status]}
-        </span>
+        <span className={styles.title}>{stream.title}</span>
+        {isLive ? (
+          <span className={styles.liveBadge}>
+            <span className={styles.liveDot} />
+            AO VIVO
+          </span>
+        ) : (
+          <span className={`${styles.statusBadge} ${styles[`status${stream.status}`]}`}>
+            {STATUS_LABEL[stream.status]}
+          </span>
+        )}
       </div>
+
       {stream.description && (
         <p className={styles.description}>{stream.description}</p>
       )}
-    </div>
+    </button>
   );
 }

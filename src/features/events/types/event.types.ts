@@ -1,6 +1,15 @@
-export type EventStatus = 'DRAFT' | 'PUBLISHED' | 'LIVE' | 'FINISHED' | 'CANCELLED';
+export type EventStatus = 'DRAFT' | 'PUBLISHED' | 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'CANCELLED';
 
 export type ListEventsFilter = 'upcoming' | 'live' | 'finished' | 'all';
+
+export interface VenueData {
+  name: string;
+  address: string | null;
+  city: string;
+  country: string;
+  timezone: string;
+  coordinates: { lat: number; lng: number } | null;
+}
 
 export interface EventResponse {
   id: string;
@@ -15,6 +24,10 @@ export interface EventResponse {
   venue: string | null;
   city: string | null;
   country: string | null;
+  venueData: VenueData | null;
+  visibility: 'PRIVATE' | 'UNLISTED' | 'PUBLIC';
+  domain: 'ENTERTAINMENT' | 'SPORTS' | 'CORPORATE' | 'EDUCATION' | 'RELIGIOUS' | 'OTHER' | null;
+  subtype: string | null;
   camerasCount: number;
 }
 
@@ -27,7 +40,18 @@ export interface CreateEventRequest {
   venue?: string;
   city?: string;
   country?: string;
+  venueName?: string;
+  venueData?: {
+    name: string;
+    address?: string;
+    city: string;
+    country: string;
+    timezone: string;
+    coordinates?: { lat: number; lng: number };
+  };
   camerasCount?: number;
+  domain?: 'ENTERTAINMENT' | 'SPORTS' | 'CORPORATE' | 'EDUCATION' | 'RELIGIOUS' | 'OTHER';
+  subtype?: string;
 }
 
 export interface UpdateEventRequest {
@@ -59,7 +83,8 @@ export interface UpdateTicketRequest {
 
 export interface TicketProductResponse {
   id: string;
-  showId: string;
+  eventId: string;
+  showId?: string;
   name: string;
   description: string;
   price: number;

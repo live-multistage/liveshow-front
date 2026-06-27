@@ -4,10 +4,10 @@ import styles from './OrderSummaryCard.module.scss';
 
 interface Props {
   session: CheckoutSession;
+  discountAmount?: number;
 }
 
-export function OrderSummaryCard({ session }: Props) {
-  const subtotal = session.totalAmount;
+export function OrderSummaryCard({ session, discountAmount = 0 }: Props) {
   const serviceFee = 0;
 
   return (
@@ -15,8 +15,14 @@ export function OrderSummaryCard({ session }: Props) {
       <div className={styles.rows}>
         <div className={styles.row}>
           <span className={styles.rowLabel}>Subtotal</span>
-          <span className={styles.rowValue}>{formatPrice(subtotal)}</span>
+          <span className={styles.rowValue}>{formatPrice(session.totalAmount + discountAmount)}</span>
         </div>
+        {discountAmount > 0 && (
+          <div className={styles.row}>
+            <span className={styles.rowLabel}>Desconto</span>
+            <span className={`${styles.rowValue} ${styles.discount}`}>−{formatPrice(discountAmount)}</span>
+          </div>
+        )}
         <div className={styles.row}>
           <span className={styles.rowLabel}>Taxas de serviço</span>
           <span className={styles.rowValue}>{serviceFee ? formatPrice(serviceFee) : 'Grátis'}</span>

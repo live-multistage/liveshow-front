@@ -11,10 +11,6 @@ export const metadata: Metadata = { title: 'Ao vivo' };
 
 export default async function LivePage({ params }: Props) {
   const { eventId } = await params;
-  try {
-    const event = await getEventCached(eventId);
-    return <LiveGate eventId={eventId} eventTitle={event.title} />;
-  } catch {
-    notFound();
-  }
+  
+  return <LiveGate eventId={eventId} />;
 }

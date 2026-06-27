@@ -1,266 +1,442 @@
-@use '../../../styles/_variables' as *;
+@keyframes lsPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .35; transform: scale(.7); }
+}
+
+// ── Page ──────────────────────────────────────────────────────────
 
 .page {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  height: calc(100vh - 4rem);
-  overflow: hidden;
+  gap: 18px;
 }
 
-// ── Top bar ───────────────────────────────────────────────────────
-.topBar {
+// ── Header ────────────────────────────────────────────────────────
+
+.header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  flex-shrink: 0;
+  gap: 24px;
+}
+
+.breadcrumb {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: #ff7ec2;
+  margin-bottom: 8px;
 }
 
 .heading {
-  font-size: 1.5rem;
-  font-weight: 500;
-  font-family: 'Archivo', sans-serif;
-  color: $text-primary;
   margin: 0;
+  font-family: 'Archivo', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -.025em;
+  line-height: 1;
+  color: #f4f4f5;
 }
 
-.eventSelector {
+.eventSelectorWrap {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 10px;
 }
 
 .eventLabel {
-  font-size: 0.78rem;
-  color: $text-secondary;
-  white-space: nowrap;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  color: #8f8f97;
 }
 
-.eventSelect {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid $border;
-  background: $surface-dark;
-  color: $text-primary;
-  font-size: 0.82rem;
-  outline: none;
-  cursor: pointer;
-  min-width: 200px;
-  transition: border-color 0.15s;
-
-  &:focus { border-color: rgba(220,38,38,0.4); }
-}
-
-// ── Main split layout ─────────────────────────────────────────────
-.split {
+.eventSelectorBox {
   display: flex;
-  gap: 0;
-  flex: 1;
-  border: 1px solid $border;
-  border-radius: 10px;
-  overflow: hidden;
-  background: $surface-dark;
-  min-height: 0;
+  align-items: center;
+  gap: 9px;
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 12px;
+  padding: 0 4px 0 10px;
+  min-width: 280px;
+  transition: border-color .15s;
+
+  &:focus-within { border-color: rgba(255, 46, 158, .32); }
+
+  // Override SimpleCustomSelect trigger to blend in
+  > * { flex: 1; }
 }
 
-// ── Left: stream list ─────────────────────────────────────────────
-.sidebar {
-  width: 280px;
+.eventDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff2e9e;
   flex-shrink: 0;
-  border-right: 1px solid $border;
+  flex: 0;
+  animation: lsPulse 1.4s infinite;
+}
+
+// ── Stats strip ───────────────────────────────────────────────────
+
+.statsStrip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.statCard {
+  position: relative;
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 14px;
+  padding: 14px 16px;
+  overflow: hidden;
+}
+
+.statCardLive {
+  border-color: rgba(255, 46, 158, .34);
+}
+
+.statCardGlow {
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, .22), transparent 70%);
+  pointer-events: none;
+}
+
+.statLabel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: #8f8f97;
+  margin-bottom: 8px;
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff2e9e;
+  flex-shrink: 0;
+  animation: lsPulse 1.4s infinite;
+}
+
+.offlineDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8f8f97;
+  flex-shrink: 0;
+}
+
+.statValue {
+  position: relative;
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.statUnit {
+  font-size: 13px;
+  color: #8f8f97;
+}
+
+.statHealthRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.healthDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7fe0a0;
+  flex-shrink: 0;
+}
+
+// ── Layout ────────────────────────────────────────────────────────
+
+.layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────
+
+.sidebar {
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 18px;
+  padding: 16px;
+  position: sticky;
+  top: 20px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  gap: 0;
 }
 
 .sidebarHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.875rem 1rem;
-  border-bottom: 1px solid $border;
-  flex-shrink: 0;
+  padding: 0 4px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+  margin-bottom: 12px;
 }
 
 .sidebarTitle {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: $text-muted;
-  font-family: 'Archivo', sans-serif;
-}
-
-.btnCreate {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 5px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  font-family: 'Archivo', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border: 1px solid rgba(220,38,38,0.4);
-  background: rgba(220,38,38,0.08);
-  color: $action;
-  cursor: pointer;
-  transition: background 0.15s;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .12em;
+  color: #fff;
+  font-weight: 700;
+}
 
-  &:hover { background: rgba(220,38,38,0.16); }
+.sidebarDot {
+  color: #7d7d85;
+}
+
+.sidebarCount {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #7d7d85;
+}
+
+.btnNova {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ff2e9e;
+  color: #0a0a0b;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  border: none;
+  padding: 7px 11px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: filter .15s;
+
+  &:hover { filter: brightness(1.08); }
 }
 
 .streamList {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.625rem;
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: 8px;
+  min-height: 40px;
+  margin-bottom: 10px;
 }
 
 .emptyList {
-  padding: 2rem 1rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #7d7d85;
   text-align: center;
-  color: $text-muted;
-  font-size: 0.82rem;
   line-height: 1.6;
+  padding: 16px 8px;
+  margin: 0;
 }
 
-.loadingText {
-  padding: 1.5rem 1rem;
-  text-align: center;
-  color: $text-muted;
-  font-size: 0.82rem;
+.btnNovaTransmissao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: transparent;
+  border: 1.5px dashed rgba(255, 255, 255, .12);
+  border-radius: 12px;
+  padding: 12px;
+  color: #9a9aa2;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+
+  &:hover {
+    border-color: #ff2e9e;
+    color: #fff;
+  }
 }
 
-// ── Right: builder ────────────────────────────────────────────────
-.content {
-  flex: 1;
-  overflow: hidden;
+// ── Workspace ─────────────────────────────────────────────────────
+
+.workspace {
   display: flex;
   flex-direction: column;
 }
 
 .placeholder {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  color: $text-muted;
+  gap: 16px;
+  padding: 80px 40px;
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 18px;
 }
 
 .placeholderIcon {
-  opacity: 0.2;
+  opacity: .18;
+  color: #fff;
 }
 
 .placeholderText {
-  font-size: 0.875rem;
-  color: $text-muted;
+  font-size: 14px;
+  color: #9a9aa2;
   text-align: center;
   line-height: 1.6;
+  margin: 0;
 }
 
-// ── Create form (inline modal-like panel) ─────────────────────────
+.btnTutorial {
+  background: transparent;
+  border: 1px solid rgba(255, 46, 158, .35);
+  border-radius: 10px;
+  padding: 9px 20px;
+  color: #ff2e9e;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+
+  &:hover {
+    background: rgba(255, 46, 158, .08);
+    border-color: rgba(255, 46, 158, .6);
+  }
+}
+
+// ── Create form ───────────────────────────────────────────────────
+
 .createForm {
-  padding: 1.25rem;
-  border-bottom: 1px solid $border;
-  background: rgba(220,38,38,0.03);
-  flex-shrink: 0;
+  padding: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+  margin-bottom: 12px;
+  background: rgba(255, 46, 158, .03);
+  border-radius: 12px;
 }
 
 .createFormTitle {
-  font-size: 0.85rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
   font-weight: 700;
-  font-family: 'Archivo', sans-serif;
+  letter-spacing: .1em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: $text-primary;
-  margin: 0 0 0.75rem;
+  color: #fff;
+  margin: 0 0 12px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 0.625rem;
+  gap: 4px;
+  margin-bottom: 10px;
 }
 
 .fieldLabel {
-  font-size: 0.72rem;
-  color: $text-secondary;
-  font-weight: 600;
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: .1em;
+  color: #7d7d85;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
 }
 
 .fieldInput {
-  padding: 7px 10px;
-  border-radius: 6px;
-  border: 1px solid $border;
-  background: $surface-dark;
-  color: $text-primary;
-  font-size: 0.82rem;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: #0c0c0f;
+  color: #f4f4f5;
+  font-size: 13px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color .15s;
 
-  &::placeholder { color: $text-muted; }
-  &:focus { border-color: rgba(220,38,38,0.4); }
+  &::placeholder { color: #7d7d85; }
+  &:focus { border-color: rgba(255, 46, 158, .4); }
 }
 
 .fieldTextarea {
-  @extend .fieldInput;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: #0c0c0f;
+  color: #f4f4f5;
+  font-size: 13px;
+  outline: none;
+  transition: border-color .15s;
   resize: vertical;
   min-height: 60px;
+
+  &::placeholder { color: #7d7d85; }
+  &:focus { border-color: rgba(255, 46, 158, .4); }
 }
 
 .formActions {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .btnSubmit {
-  padding: 6px 16px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  font-family: 'Archivo', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
   border: none;
-  background: $action;
-  color: $text-primary;
+  background: #ff2e9e;
+  color: #0a0a0b;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: filter .15s;
 
-  &:hover { opacity: 0.85; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover { filter: brightness(1.08); }
+  &:disabled { opacity: .5; cursor: not-allowed; }
 }
 
 .btnDismiss {
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  font-family: 'Archivo', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border: 1px solid $border;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  border: 1px solid rgba(255, 255, 255, .12);
   background: transparent;
-  color: $text-muted;
+  color: #9a9aa2;
   cursor: pointer;
-  transition: color 0.15s;
+  transition: color .15s;
 
-  &:hover { color: $text-primary; }
+  &:hover { color: #fff; }
 }
 
 .errorMsg {
-  font-size: 0.75rem;
-  color: $error;
-  margin-top: 0.5rem;
+  font-size: 12px;
+  color: #f87171;
+  margin-top: 6px;
 }

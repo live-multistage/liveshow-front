@@ -8,17 +8,19 @@ import { config } from '@/config';
 import type { LiveCamera } from '../types/live.types';
 import styles from './VideoPanel.module.scss';
 
+export interface QualityLevel {
+  index: number;
+  height: number;
+}
+
 interface VideoPanelProps {
   camera: LiveCamera;
   isActive?: boolean;
   onSelect?: () => void;
   isFocused?: boolean;
   showLabel?: boolean;
-}
-
-interface QualityLevel {
-  index: number;
-  height: number;
+  selectedLevel?: number;
+  onLevelsReady?: (levels: QualityLevel[]) => void;
 }
 
 export function VideoPanel({
@@ -27,22 +29,19 @@ export function VideoPanel({
   onSelect,
   isFocused = false,
   showLabel = true,
+  selectedLevel,
+  onLevelsReady,
 }: VideoPanelProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const [muted, setMuted] = useState(true);
   const [error, setError] = useState(false);
-  const [levels, setLevels] = useState<QualityLevel[]>([]);
-  const [currentLevel, setCurrentLevel] = useState(-1);
-  const [showQuality, setShowQuality] = useState(false);
   const src = `${config.apiUrl}${camera.manifestPath}`;
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !src) return;
     setError(false);
-    setLevels([]);
-    setCurrentLevel(-1);
 
     if (!Hls.isSupported()) {
       if (video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -73,11 +72,10 @@ export function VideoPanel({
     hls.loadSource(src);
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      setLevels(
-        hls.levels
-          .map((l, i) => ({ index: i, height: l.height }))
-          .sort((a, b) => b.height - a.height),
-      );
+      const sorted = hls.levels
+        .map((l, i) => ({ index: i, height: l.height }))
+        .sort((a, b) => b.height - a.height);
+      onLevelsReady?.(sorted);
       void video.play().catch(() => {});
     });
     hls.on(Hls.Events.ERROR, (_evt, data) => {
@@ -94,7 +92,6 @@ export function VideoPanel({
     return () => {
       hls.destroy();
       hlsRef.current = null;
-      setLevels([]);
     };
   }, [src]);
 
@@ -102,14 +99,11 @@ export function VideoPanel({
     if (videoRef.current) videoRef.current.muted = muted;
   }, [muted]);
 
-  const selectLevel = (level: number) => {
-    if (hlsRef.current) hlsRef.current.currentLevel = level;
-    setCurrentLevel(level);
-    setShowQuality(false);
-  };
-
-  const activeLevel = levels.find((l) => l.index === currentLevel);
-  const qualityLabel = currentLevel === -1 ? 'Auto' : activeLevel ? `${activeLevel.height}p` : 'Auto';
+  useEffect(() => {
+    if (hlsRef.current && selectedLevel !== undefined) {
+      hlsRef.current.currentLevel = selectedLevel;
+    }
+  }, [selectedLevel]);
 
   const panelClass = [
     styles.panel,
@@ -145,36 +139,6 @@ export function VideoPanel({
           {muted ? <VolumeX size={12} /> : <Volume2 size={12} />}
         </button>
       </div>
-
-      {levels.length > 0 && (
-        <div className={styles.qualityWrapper}>
-          {showQuality && (
-            <div className={styles.qualityMenu}>
-              <button
-                className={currentLevel === -1 ? styles.qualityItemActive : styles.qualityItem}
-                onClick={(e) => { e.stopPropagation(); selectLevel(-1); }}
-              >
-                Auto
-              </button>
-              {levels.map(({ index, height }) => (
-                <button
-                  key={index}
-                  className={index === currentLevel ? styles.qualityItemActive : styles.qualityItem}
-                  onClick={(e) => { e.stopPropagation(); selectLevel(index); }}
-                >
-                  {height}p
-                </button>
-              ))}
-            </div>
-          )}
-          <button
-            className={styles.qualityBtn}
-            onClick={(e) => { e.stopPropagation(); setShowQuality((s) => !s); }}
-          >
-            {qualityLabel}
-          </button>
-        </div>
-      )}
 
       {onSelect && (
         <div className={styles.hoverExpand}>

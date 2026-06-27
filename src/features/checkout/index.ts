@@ -14,5 +14,7 @@ export type {
   PaymentStatus,
   ProcessPaymentResult,
   CreateCheckoutSessionRequest,
+  CouponPreviewRequest,
+  CouponPreviewResult,
   ProcessPaymentRequest,
 } from './types/checkout.types';

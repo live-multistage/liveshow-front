@@ -1,9 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { MapPin, Calendar, Clock, Camera } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Show } from '../../types/show';
+import { formatPriceRange } from '../../utils/event-formatters';
 import styles from './ShowCard.module.scss';
 
 const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
@@ -28,7 +28,8 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
   const formatPrice = (price: number) =>
     price.toLocaleString(localeCode, { style: 'currency', currency: 'BRL' });
 
-  const isFree = show.price === 0;
+  const isFree = show.priceRange ? show.priceRange.min === 0 && show.priceRange.max === 0 : show.price === 0;
+  const priceLabel = purchased ? '—' : formatPriceRange(show.priceRange, show.price);
   const cta = purchased ? t('watch') : show.isLive ? t('watch') : t('details');
 
   return (
@@ -36,59 +37,74 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
       className={`${styles.card} ${layout === 'horizontal' ? styles.cardHorizontal : ''}`}
       onClick={() => router.push(`/events/${show.id}`)}
     >
-      {/* Image */}
       <div className={styles.imageWrapper}>
         <img src={show.image} alt={show.title} className={styles.image} />
         <div className={styles.imageScrim} />
 
-        <div className={styles.badgesTopLeft}>
-          {show.isLive && (
-            <span className={styles.liveBadge}>
-              <span className={styles.liveDot} />
-              AO VIVO
-            </span>
-          )}
-          {purchased && !show.isLive && (
-            <span className={styles.purchasedBadge}>{t('purchased')}</span>
-          )}
-        </div>
+        {show.isLive ? (
+          <div className={styles.liveBadge}>
+            <span className={styles.liveDot} />
+            AO VIVO
+          </div>
+        ) : show.hasReplay ? (
+          <div className={styles.replayBadge}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+              <path d="M3 12a9 9 0 1 1 3 6.7M3 21v-5h5" />
+            </svg>
+            REPRISE
+          </div>
+        ) : null}
+
+        {purchased && !show.isLive && !show.hasReplay && (
+          <div className={styles.purchasedBadge}>{t('purchased')}</div>
+        )}
 
         <span className={styles.cameraChip}>
-          <Camera size={12} />
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M23 7l-7 5 7 5V7Z" /><rect x="1" y="5" width="15" height="14" rx="2" />
+          </svg>
           {show.cameras.length}
         </span>
+
+        {show.genre && (
+          <span className={styles.genreLabel}>{show.genre.toUpperCase()}</span>
+        )}
       </div>
 
-      {/* Content */}
       <div className={styles.content}>
         <div className={styles.contentHeader}>
           <h3 className={styles.cardTitle}>{show.title}</h3>
-          <span className={`${styles.cardPrice} ${isFree ? styles.cardPriceFree : ''}`}>
-            {purchased ? '—' : formatPrice(show.price)}
-          </span>
+          <span className={styles.cardPrice}>{priceLabel}</span>
         </div>
 
         <div className={styles.metaList}>
           <span className={styles.metaItem}>
-            <MapPin size={13} className={styles.metaIconLocation} />
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ff5fb4" strokeWidth="2" className={styles.metaIcon}>
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="2.6" />
+            </svg>
             <span className={styles.metaItemTruncate}>{show.venue} · {show.city}</span>
           </span>
-          <span className={styles.metaRow}>
-            <span className={styles.metaItem}>
-              <Calendar size={13} />
-              {formatDate(show.date)}
-            </span>
-            <span className={styles.metaItem}>
-              <Clock size={13} />
-              {show.time}
-            </span>
+          <span className={styles.metaItem}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ff5fb4" strokeWidth="2" className={styles.metaIcon}>
+              <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" />
+            </svg>
+            {formatDate(show.date)} · {show.time}
           </span>
         </div>
 
         <div className={styles.cardFooter}>
           <div className={styles.footerChips}>
-            <span className={styles.chipShow}>SHOW</span>
-            {show.hasReplay && <span className={styles.chipReprise}>REPRISE</span>}
+            {show.tags.length > 0
+              ? show.tags.slice(0, 2).map((tag) => (
+                  <span key={tag} className={styles.chipTag}>{tag}</span>
+                ))
+              : (
+                <>
+                  <span className={styles.chipTag}>SHOW</span>
+                  {show.hasReplay && <span className={styles.chipTagReplay}>REPRISE</span>}
+                </>
+              )
+            }
           </div>
           <button
             className={styles.btnCta}
@@ -98,7 +114,7 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
             }}
           >
             {cta}
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" aria-hidden="true">
               <path d="M5 12h14M13 6l6 6-6 6" />
             </svg>
           </button>

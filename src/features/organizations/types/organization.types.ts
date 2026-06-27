@@ -1,4 +1,4 @@
-export type OrganizationRole = 'OWNER' | 'ADMIN' | 'EVENT_MANAGER' | 'VIEWER';
+export type OrganizationRole = 'OWNER' | 'ADMIN' | 'EVENT_MANAGER' | 'CONTENT_MANAGER' | 'OPERATOR' | 'VIEWER';
 
 export interface OrganizationResponse {
   id: string;

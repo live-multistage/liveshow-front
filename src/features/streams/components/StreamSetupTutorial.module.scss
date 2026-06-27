@@ -1,0 +1,329 @@
+// ── Overlay ───────────────────────────────────────────────────────
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 8, 10, .72);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+// ── Modal ─────────────────────────────────────────────────────────
+
+.modal {
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .6);
+}
+
+// ── Header ────────────────────────────────────────────────────────
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.headerLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: #ff2e9e;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  color: #b9b9c0;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+
+  &:hover { background: rgba(255, 255, 255, .1); color: #f4f4f5; }
+  &:disabled { opacity: .4; cursor: not-allowed; }
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  color: #6b6b76;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+
+  &:hover { background: rgba(255, 255, 255, .06); color: #f4f4f5; }
+}
+
+// ── Progress ──────────────────────────────────────────────────────
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 24px 0;
+}
+
+.progressDot {
+  height: 3px;
+  flex: 1;
+  border-radius: 9999px;
+  transition: background .3s;
+}
+
+.progressDotDone  { background: #ff2e9e; }
+.progressDotActive { background: #ff2e9e; opacity: .55; }
+.progressDotIdle  { background: rgba(255, 255, 255, .12); }
+
+// ── Body ──────────────────────────────────────────────────────────
+
+.body {
+  padding: 28px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.stepIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background: rgba(255, 46, 158, .1);
+  border: 1px solid rgba(255, 46, 158, .22);
+  border-radius: 14px;
+  color: #ff2e9e;
+  margin-bottom: 4px;
+}
+
+.stepTitle {
+  font-family: 'Archivo', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: #f4f4f5;
+  margin: 0;
+}
+
+.stepSubtitle {
+  font-size: 14px;
+  color: #9a9aa2;
+  margin: 0 0 8px;
+  line-height: 1.55;
+}
+
+// ── Welcome steps ─────────────────────────────────────────────────
+
+.welcomeSteps {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.welcomeStep {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.welcomeStepNum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 46, 158, .15);
+  border: 1px solid rgba(255, 46, 158, .3);
+  border-radius: 999px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ff2e9e;
+}
+
+.welcomeStepIcon { color: #9a9aa2; }
+
+.welcomeStepLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: #c9c9d1;
+}
+
+.welcomeStepArrow { color: #3f3f48; }
+
+// ── Form ──────────────────────────────────────────────────────────
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+
+.fieldLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: #9a9aa2;
+}
+
+.fieldInput,
+.fieldTextarea {
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 10px;
+  padding: 11px 14px;
+  color: #f4f4f5;
+  font-family: 'Archivo', sans-serif;
+  font-size: 14px;
+  outline: none;
+  resize: none;
+  transition: border-color .15s;
+
+  &::placeholder { color: #4a4a55; }
+  &:focus { border-color: rgba(255, 46, 158, .5); }
+}
+
+// ── OBS section ───────────────────────────────────────────────────
+
+.obsWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.obsSteps {
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.obsStepsTitle {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: #9a9aa2;
+  margin: 0 0 12px;
+}
+
+.obsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 18px;
+  margin: 0 0 12px;
+
+  li {
+    font-size: 13px;
+    color: #c9c9d1;
+    line-height: 1.5;
+
+    strong { color: #f4f4f5; font-weight: 600; }
+  }
+}
+
+.obsNote {
+  font-size: 12px;
+  color: #6b6b76;
+  margin: 0;
+  line-height: 1.55;
+}
+
+// ── Error ─────────────────────────────────────────────────────────
+
+.errorMsg {
+  font-size: 13px;
+  color: #f87171;
+  background: rgba(248, 113, 113, .08);
+  border: 1px solid rgba(248, 113, 113, .2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 4px 0 0;
+}
+
+// ── Footer ────────────────────────────────────────────────────────
+
+.footer {
+  padding: 16px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid rgba(255, 255, 255, .06);
+}
+
+.btnNext {
+  width: 100%;
+  height: 48px;
+  background: #ff2e9e;
+  color: #08080a;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: filter .15s, opacity .15s;
+
+  &:hover:not(:disabled) { filter: brightness(1.08); }
+  &:disabled { opacity: .45; cursor: not-allowed; }
+}
+
+.btnSkip {
+  background: transparent;
+  border: none;
+  color: #6b6b76;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  cursor: pointer;
+  text-align: center;
+  padding: 4px;
+  transition: color .15s;
+
+  &:hover { color: #9a9aa2; }
+}

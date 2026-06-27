@@ -155,7 +155,8 @@
     "noReplay": "Este evento no tiene repetición disponible para compra.",
     "noTickets": "Aún no hay entradas disponibles.",
     "freePreview": "Ver vista previa gratis →",
-    "total": "Total"
+    "total": "Total",
+    "alreadyInCart": "Ya en el carrito"
   },
   "tickets": {
     "title": "Mis Entradas",
@@ -171,6 +172,7 @@
     },
     "recommendations": {
       "title": "También te puede gustar",
+      "subtitle": "Seleccionado según tu historial",
       "seeAll": "Ver todos →"
     }
   },
@@ -214,7 +216,9 @@
     "liveOnly": "SOLO EN VIVO",
     "details": "Detalles",
     "replay": "Repetición",
-    "watch": "Ver"
+    "watch": "Ver",
+    "watchNow": "Ver ahora",
+    "watchReplay": "Ver repetición"
   },
   "ticketList": {
     "all": "Todos",
@@ -254,7 +258,8 @@
       "events": "Eventos",
       "sales": "Ventas",
       "streams": "Streams",
-      "analytics": "Analíticas"
+      "analytics": "Analíticas",
+      "coupons": "Cupones"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -368,7 +373,9 @@
       "LIVE": "En Vivo",
       "FINISHED": "Finalizado",
       "CANCELLED": "Cancelado"
-    }
+    },
+    "finish": "Finalizar",
+    "finishing": "Finalizando..."
   },
   "createEvent": {
     "back": "Eventos",

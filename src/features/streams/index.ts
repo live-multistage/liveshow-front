@@ -1,6 +1,7 @@
 export { StreamsPageContent } from './components/StreamsPageContent';
 export { StreamCard } from './components/StreamCard';
 export { StreamBuilder } from './components/StreamBuilder';
+export { StreamSetupTutorial } from './components/StreamSetupTutorial';
 
 export { useEventStreamsQuery, useStreamStagesQuery, useStageFeedsQuery, useFeedCamerasQuery, STREAM_KEYS } from './queries/streams.queries';
 

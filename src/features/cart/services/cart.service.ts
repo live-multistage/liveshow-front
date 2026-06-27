@@ -10,6 +10,8 @@ export interface CartLineView {
   price: number;
   capabilities: AccessCapability[];
   camerasLimit: number | null;
+  organizationId: string;
+  organizationName: string;
 }
 
 export interface CartTotalLine {

@@ -1,0 +1,203 @@
+@keyframes lsPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .35; transform: scale(.7); }
+}
+
+.marketingPanel {
+  position: relative;
+  background: #08080a;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+}
+
+.glowPink {
+  position: absolute;
+  top: -120px;
+  left: -80px;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, .18), transparent 65%);
+  pointer-events: none;
+}
+
+.glowPurple {
+  position: absolute;
+  bottom: -100px;
+  right: -60px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(120, 40, 200, .14), transparent 65%);
+  pointer-events: none;
+}
+
+.marketingContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px 56px;
+  width: 100%;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logoWordmark {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  color: #f4f4f5;
+}
+
+.marketingBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.marketingEyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: #ff7ec2;
+  margin-bottom: 20px;
+}
+
+.marketingTitle {
+  font-family: 'Archivo', sans-serif;
+  font-size: 62px;
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1.04;
+  color: #f4f4f5;
+  margin: 0 0 20px;
+
+  @media (max-width: 1200px) {
+    font-size: 48px;
+  }
+}
+
+.marketingDesc {
+  font-size: 16px;
+  color: #9a9aa2;
+  line-height: 1.6;
+  max-width: 380px;
+  margin: 0;
+}
+
+.ticker {
+  background: rgba(16, 16, 19, .7);
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 14px;
+  padding: 14px 18px;
+  overflow: hidden;
+}
+
+.tickerLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: #ff7ec2;
+  margin-bottom: 12px;
+}
+
+.tickerDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff2e9e;
+  flex-shrink: 0;
+  animation: lsPulse 1.4s ease-in-out infinite;
+}
+
+.tickerTrack {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.tickerItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.tickerThumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 7px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.tickerName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e7e7ea;
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.marketingStats {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+}
+
+.marketingStat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.marketingStatNum {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -.01em;
+  line-height: 1;
+}
+
+.marketingStatLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: #8f8f97;
+}
+
+.marketingStatDivider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, .08);
+}

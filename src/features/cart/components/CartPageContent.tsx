@@ -1,21 +1,49 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useNavigate } from '@/shared/hooks/use-navigate';
 import { useCartQuery } from '../queries/cart.queries';
 import { useRemoveFromCartMutation } from '../mutations/cart.mutations';
-import type { CartView } from '../services/cart.service';
+import { checkoutService } from '@/features/checkout/services/checkout.service';
+import type { CartLineView, CartView } from '../services/cart.service';
 import styles from './CartPageContent.module.scss';
 
 interface Props {
   initialCart?: CartView;
 }
 
-const brl = (cents: number) =>
-  'R$ ' + (cents / 100).toFixed(2).replace('.', ',');
+const brl = (n: number) =>
+  n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-const SERVICE_FEE = 499;
+// Mirrors backend Coupon.computeDiscount — used to recompute org-scoped discount on org subtotal
+const computeDiscount = (type: string, value: number, amount: number): number => {
+  if (type === 'PERCENTAGE') return Math.min(Math.round((amount * value) / 100 * 100) / 100, amount);
+  return Math.min(value, amount);
+};
+
+interface AppliedCoupon {
+  code: string;
+  discountAmount: number;
+  scopeOrgId: string | null;
+}
+
+interface OrgGroup {
+  orgId: string;
+  orgName: string;
+  items: CartLineView[];
+}
+
+function groupByOrg(items: CartLineView[]): OrgGroup[] {
+  const map = new Map<string, OrgGroup>();
+  for (const item of items) {
+    if (!map.has(item.organizationId)) {
+      map.set(item.organizationId, { orgId: item.organizationId, orgName: item.organizationName, items: [] });
+    }
+    map.get(item.organizationId)!.items.push(item);
+  }
+  return Array.from(map.values());
+}
 
 export function CartPageContent({ initialCart }: Props) {
   const { data } = useCartQuery(initialCart);
@@ -24,27 +52,68 @@ export function CartPageContent({ initialCart }: Props) {
 
   const [promoCode, setPromoCode] = useState('');
   const [promoState, setPromoState] = useState<'idle' | 'ok' | 'error'>('idle');
-  const [discount, setDiscount] = useState(0);
+  const [promoError, setPromoError] = useState('');
+  const [isApplying, setIsApplying] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
 
   const items = data?.items ?? [];
+  const orgGroups = useMemo(() => groupByOrg(items), [items]);
+  const subtotal = data?.totals.subtotal ?? 0;
+  const taxAmount = data?.totals.lines.find((l) => l.key === 'tax')?.amount ?? 0;
+  const discount = appliedCoupon?.discountAmount ?? 0;
 
-  const applyPromo = () => {
+  const applyPromo = async () => {
     const code = promoCode.trim().toUpperCase();
-    const sub = items.reduce((a, it) => a + it.price, 0);
-    if (code === 'LIVE10') {
-      setDiscount(Math.round(sub * 0.1));
-      setPromoState('ok');
-    } else {
-      setDiscount(0);
-      setPromoState('error');
+    if (!code || items.length === 0) return;
+    setIsApplying(true);
+    setPromoError('');
+
+    let firstError: unknown = null;
+
+    for (const group of orgGroups) {
+      try {
+        // Always pass total subtotal → minimum order check compares against full cart value
+        const result = await checkoutService.previewCoupon({
+          code,
+          eventId: group.items[0].eventId,
+          orderAmount: subtotal,
+        });
+
+        const scopeOrgId = result.orgId ?? null;
+        let discountAmount = result.discountAmount; // correct for global (computed on total)
+
+        // Org-scoped: discount applies only to that org's items → recompute against org subtotal
+        if (scopeOrgId !== null) {
+          const orgSubtotal = group.items.reduce((a, i) => a + i.price, 0);
+          discountAmount = computeDiscount(result.discountType, result.discountValue, orgSubtotal);
+        }
+
+        setAppliedCoupon({ code, discountAmount, scopeOrgId });
+        setPromoState('ok');
+        setPromoCode('');
+        setIsApplying(false);
+        return;
+      } catch (err) {
+        if (!firstError) firstError = err;
+      }
     }
+
+    const e = firstError as { response?: { data?: { message?: string } } };
+    setPromoError(e?.response?.data?.message ?? 'Cupom inválido ou expirado');
+    setPromoState('error');
+    setIsApplying(false);
   };
 
-  const subtotal = items.reduce((a, it) => a + it.price, 0);
-  const fees = items.length > 0 ? SERVICE_FEE : 0;
-  const total = Math.max(0, subtotal - discount) + fees;
+  const removePromo = () => {
+    setAppliedCoupon(null);
+    setPromoState('idle');
+    setPromoError('');
+  };
+
+  const total = Math.max(0, subtotal + taxAmount - discount);
   const itemCount = items.length;
   const itemWord = itemCount === 1 ? 'item' : 'itens';
+  const multiOrg = orgGroups.length > 1;
 
   return (
     <div className={styles.page}>
@@ -77,72 +146,91 @@ export function CartPageContent({ initialCart }: Props) {
               </div>
             ) : (
               <div className={styles.itemsList}>
-                {items.map((item) => {
-                  const isLive = item.capabilities.includes('LIVE_VIEW');
-                  const hasReprise = item.capabilities.includes('REPLAY_VIEW');
-
-                  return (
-                    <div key={item.eventId} className={styles.itemCard}>
-                      <div className={styles.itemGlow} />
-
-                      {/* Thumb */}
-                      <div className={styles.thumbWrap}>
-                        {item.eventImage ? (
-                          <div
-                            className={styles.thumbArt}
-                            style={{ backgroundImage: `url(${item.eventImage})` }}
-                          />
-                        ) : (
-                          <div className={styles.thumbArtPlaceholder} />
-                        )}
-                        <div className={styles.thumbScrim} />
-                        {isLive && (
-                          <span className={styles.liveBadge}>
-                            <span className={styles.liveDot} />
-                            AO VIVO
+                {orgGroups.map((group) => (
+                  <div key={group.orgId} className={styles.orgSection}>
+                    {multiOrg && (
+                      <div className={styles.orgHeader}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M3 21h18M3 7v14M21 7v14M6 11h4M14 11h4M6 15h4M14 15h4M9 21v-6h6v6" />
+                        </svg>
+                        <span>{group.orgName}</span>
+                        {appliedCoupon?.scopeOrgId === group.orgId && (
+                          <span className={styles.orgDiscountBadge}>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <path d="M20 6L9 17l-5-5" />
+                            </svg>
+                            Desconto aplicado
                           </span>
                         )}
                       </div>
+                    )}
 
-                      {/* Body */}
-                      <div className={styles.itemBody}>
-                        <div className={styles.itemTopRow}>
-                          <div className={styles.itemMeta}>
-                            <p className={styles.itemTitle}>{item.eventTitle}</p>
-                            <p className={styles.itemKind}>Ingresso · {item.ticketName}</p>
-                          </div>
-                          <button
-                            className={styles.removeBtn}
-                            onClick={() => removeItem.mutate(item.eventId)}
-                            disabled={removeItem.isPending}
-                            aria-label={`Remover ${item.eventTitle}`}
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
-                            </svg>
-                          </button>
-                        </div>
+                    <div className={styles.orgItems}>
+                      {group.items.map((item) => {
+                        const isLive = item.capabilities.includes('LIVE_VIEW');
+                        const hasReprise = item.capabilities.includes('REPLAY_VIEW');
+                        return (
+                          <div key={item.eventId} className={styles.itemCard}>
+                            <div className={styles.itemGlow} />
 
-                        {(isLive || hasReprise) && (
-                          <div className={styles.chips}>
-                            {isLive && <span className={styles.chipLive}>AO VIVO</span>}
-                            {hasReprise && <span className={styles.chipReprise}>REPRISE</span>}
-                          </div>
-                        )}
+                            <div className={styles.thumbWrap}>
+                              {item.eventImage ? (
+                                <div
+                                  className={styles.thumbArt}
+                                  style={{ backgroundImage: `url(${item.eventImage})` }}
+                                />
+                              ) : (
+                                <div className={styles.thumbArtPlaceholder} />
+                              )}
+                              <div className={styles.thumbScrim} />
+                              {isLive && (
+                                <span className={styles.liveBadge}>
+                                  <span className={styles.liveDot} />
+                                  AO VIVO
+                                </span>
+                              )}
+                            </div>
 
-                        <div className={styles.itemFooter}>
-                          <div className={styles.priceBlock}>
-                            <p className={styles.linePrice}>{brl(item.price)}</p>
+                            <div className={styles.itemBody}>
+                              <div className={styles.itemTopRow}>
+                                <div className={styles.itemMeta}>
+                                  <p className={styles.itemTitle}>{item.eventTitle}</p>
+                                  <p className={styles.itemKind}>Ingresso · {item.ticketName}</p>
+                                </div>
+                                <button
+                                  className={styles.removeBtn}
+                                  onClick={() => removeItem.mutate(item.eventId)}
+                                  disabled={removeItem.isPending}
+                                  aria-label={`Remover ${item.eventTitle}`}
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
+                                  </svg>
+                                </button>
+                              </div>
+
+                              {(isLive || hasReprise) && (
+                                <div className={styles.chips}>
+                                  {isLive && <span className={styles.chipLive}>AO VIVO</span>}
+                                  {hasReprise && <span className={styles.chipReprise}>REPRISE</span>}
+                                </div>
+                              )}
+
+                              <div className={styles.itemFooter}>
+                                <div className={styles.priceBlock}>
+                                  <p className={styles.linePrice}>{brl(item.price)}</p>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             )}
 
-            {/* Reassurance strip */}
             {items.length > 0 && (
               <div className={styles.reassurance}>
                 <div className={styles.reassItem}>
@@ -179,44 +267,58 @@ export function CartPageContent({ initialCart }: Props) {
             <div className={styles.summaryInner}>
               <p className={styles.summaryTitle}>Resumo do pedido</p>
 
-              {/* Promo */}
-              <div className={styles.promoWrap}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7d7d85" strokeWidth="2">
-                  <path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0l-7.2-7.2a2 2 0 0 1-.6-1.4V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6l7.4 7.4a2 2 0 0 1 0 2.8Z" />
-                  <circle cx="7.5" cy="7.5" r="1.3" />
-                </svg>
-                <input
-                  className={styles.promoInput}
-                  placeholder="Inserir código promocional"
-                  value={promoCode}
-                  onChange={(e) => {
-                    setPromoCode(e.target.value);
-                    setPromoState('idle');
-                  }}
-                  onKeyDown={(e) => e.key === 'Enter' && applyPromo()}
-                />
-                <button className={styles.promoApply} onClick={applyPromo}>APLICAR</button>
-              </div>
-
-              {promoState === 'ok' && (
+              {/* Promo — hidden once a coupon is applied */}
+              {appliedCoupon ? (
                 <div className={`${styles.promoFeedback} ${styles.promoSuccess}`}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
                     <path d="M20 6L9 17l-5-5" />
                   </svg>
-                  Código aplicado — 10% de desconto
+                  <span>
+                    {appliedCoupon.code}
+                    {appliedCoupon.scopeOrgId !== null && ` · ${orgGroups.find(g => g.orgId === appliedCoupon.scopeOrgId)?.orgName ?? ''}`}
+                    {' '}— {brl(appliedCoupon.discountAmount)} de desconto
+                  </span>
+                  <button className={styles.promoRemove} onClick={removePromo} aria-label="Remover cupom">×</button>
                 </div>
+              ) : (
+                <>
+                  <div className={styles.promoWrap}>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7d7d85" strokeWidth="2">
+                      <path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0l-7.2-7.2a2 2 0 0 1-.6-1.4V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6l7.4 7.4a2 2 0 0 1 0 2.8Z" />
+                      <circle cx="7.5" cy="7.5" r="1.3" />
+                    </svg>
+                    <input
+                      className={styles.promoInput}
+                      placeholder="Inserir código promocional"
+                      value={promoCode}
+                      onChange={(e) => {
+                        setPromoCode(e.target.value.toUpperCase());
+                        setPromoState('idle');
+                        setPromoError('');
+                      }}
+                      onKeyDown={(e) => e.key === 'Enter' && applyPromo()}
+                      disabled={isApplying}
+                    />
+                    <button
+                      className={styles.promoApply}
+                      onClick={applyPromo}
+                      disabled={isApplying || !promoCode.trim() || items.length === 0}
+                    >
+                      {isApplying ? '...' : 'APLICAR'}
+                    </button>
+                  </div>
+                  {promoState === 'error' && (
+                    <div className={`${styles.promoFeedback} ${styles.promoError}`}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                      {promoError || 'Cupom inválido ou expirado'}
+                    </div>
+                  )}
+                  {promoState === 'idle' && <div className={styles.promoSpacer} />}
+                </>
               )}
-              {promoState === 'error' && (
-                <div className={`${styles.promoFeedback} ${styles.promoError}`}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
-                    <path d="M18 6L6 18M6 6l12 12" />
-                  </svg>
-                  Código inválido ou expirado
-                </div>
-              )}
-              {promoState === 'idle' && <div className={styles.promoSpacer} />}
 
-              {/* Lines */}
               <div className={styles.summaryLines}>
                 <div className={styles.summaryLine}>
                   <span className={styles.summaryLineLabel}>
@@ -227,16 +329,23 @@ export function CartPageContent({ initialCart }: Props) {
                 </div>
                 {discount > 0 && (
                   <div className={styles.summaryLine}>
-                    <span className={styles.summaryLineLabel}>Desconto</span>
+                    <span className={styles.summaryLineLabel}>
+                      Desconto
+                      {appliedCoupon?.scopeOrgId !== null && appliedCoupon?.scopeOrgId && (
+                        <span className={styles.summaryLineMuted}> · {orgGroups.find(g => g.orgId === appliedCoupon.scopeOrgId)?.orgName ?? ''}</span>
+                      )}
+                    </span>
                     <span className={`${styles.summaryLineValue} ${styles.summaryLineDiscount}`}>
                       −{brl(discount)}
                     </span>
                   </div>
                 )}
-                <div className={styles.summaryLine}>
-                  <span className={styles.summaryLineLabel}>Taxas de serviço</span>
-                  <span className={styles.summaryLineValue}>{brl(fees)}</span>
-                </div>
+                {taxAmount > 0 && (
+                  <div className={styles.summaryLine}>
+                    <span className={styles.summaryLineLabel}>Taxas de serviço</span>
+                    <span className={styles.summaryLineValue}>{brl(taxAmount)}</span>
+                  </div>
+                )}
               </div>
 
               <div className={styles.summaryDivider} />

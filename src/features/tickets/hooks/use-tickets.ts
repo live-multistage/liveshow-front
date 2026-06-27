@@ -3,17 +3,22 @@
 import { useMemo } from 'react';
 import { useMyOrdersQuery } from '../queries/get-my-orders';
 import { useListEventsQuery } from '@/features/events';
+import { useAuth } from '@/features/account';
 import type { PurchasedTicket } from '../types/ticket.types';
 
 export function useTickets() {
-  const { data: orders = [], isLoading: ordersLoading } = useMyOrdersQuery();
+  const { isLoggedIn, isLoading: authLoading } = useAuth();
+  const { data: orders = [], isLoading: ordersLoading } = useMyOrdersQuery({
+    enabled: isLoggedIn && !authLoading,
+  });
   const { data: events = [], isLoading: eventsLoading } = useListEventsQuery('all');
 
   const tickets = useMemo<PurchasedTicket[]>(() => {
     const eventsById = Object.fromEntries(events.map((e) => [e.id, e]));
+    console.log(orders)
     return orders
       .map((order) => {
-        const event = eventsById[order.showId];
+        const event = eventsById[order.eventId];
         if (!event) return null;
         return {
           orderId: order.orderId,
@@ -33,6 +38,6 @@ export function useTickets() {
     withReplay: tickets.filter((t) => t.capabilities.includes('REPLAY_VIEW')),
     withoutReplay: tickets.filter((t) => !t.capabilities.includes('REPLAY_VIEW')),
     withCamera: tickets.filter((t) => t.capabilities.includes('CAMERA_VIEW')),
-    isLoading: ordersLoading || eventsLoading,
+    isLoading: authLoading || ordersLoading || eventsLoading,
   };
 }

@@ -6,7 +6,7 @@ import { Tv2, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { formatPrice } from '../../utils/event-formatters';
 import type { EventResponse, TicketProductResponse } from '../../types/event.types';
 import { useTranslations } from 'next-intl';
-import { useAddToCartMutation } from '@/features/cart';
+import { useAddToCartMutation, useCartQuery } from '@/features/cart';
 import { Button } from '@/shared/components/Button';
 import { useAuth } from '@/features/account';
 import {
@@ -24,9 +24,13 @@ interface Props {
 export function TicketPanel({ event, tickets }: Props) {
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(tickets[0]?.id ?? null);
-  const [pendingAction, setPendingAction] = useState<'cart' | null>(null);
+  const [pendingAction, setPendingAction] = useState<'cart' | 'buy' | null>(null);
   const addToCart = useAddToCartMutation();
   const { isLoggedIn } = useAuth();
+  const { data: cart } = useCartQuery();
+  const isInCart = isLoggedIn && (cart?.items.some((i) => i.eventId === event.id) ?? false);
+  const isTicketInCart = (ticketId: string) =>
+    isLoggedIn && (cart?.items.some((i) => i.ticketProductId === ticketId) ?? false);
   const t = useTranslations('ticketPanel');
 
   const liveAccess = useLiveAccessQuery(event.id, isLoggedIn);
@@ -169,24 +173,39 @@ export function TicketPanel({ event, tickets }: Props) {
 
         <button
           className={styles.buyBtn}
+          disabled={pendingAction === 'buy'}
           onClick={() => {
             if (!ticket) return;
             if (!isLoggedIn) {
               router.push(`/login?next=/events/${event.id}/checkout?ticketId=${ticket.id}`);
               return;
             }
-            router.push(`/events/${event.id}/checkout?ticketId=${ticket.id}`);
+            if (isTicketInCart(ticket.id)) {
+              router.push('/checkout');
+              return;
+            }
+            setPendingAction('buy');
+            addToCart.mutate(ticket.id, {
+              onSuccess: () => router.push('/checkout'),
+              onSettled: () => setPendingAction(null),
+            });
           }}
         >
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-            <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4Z"/>
-          </svg>
-          {isFinished ? t('buyReplay') : t('buyTicket')}
+          {pendingAction === 'buy' ? (
+            <><span className={styles.btnSpinner} />{t('adding')}</>
+          ) : (
+            <>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4Z"/>
+              </svg>
+              {isFinished ? t('buyReplay') : t('buyTicket')}
+            </>
+          )}
         </button>
 
         <button
           className={styles.cartBtn}
-          disabled={addToCart.isPending}
+          disabled={addToCart.isPending || isInCart}
           onClick={() => {
             if (!ticket) return;
             if (!isLoggedIn) { router.push('/login'); return; }
@@ -198,6 +217,13 @@ export function TicketPanel({ event, tickets }: Props) {
         >
           {pendingAction === 'cart' ? (
             <><span className={styles.btnSpinner} />{t('adding')}</>
+          ) : isInCart ? (
+            <>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+              {t('alreadyInCart')}
+            </>
           ) : (
             <>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

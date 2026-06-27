@@ -59,7 +59,9 @@ export function OrganizationSlugField({ control, excludeId, initialSlug }: Props
     <div className={styles.field}>
       <label className={styles.label}>Slug (URL única) *</label>
       <div className={`${styles.wrapper} ${hasError ? styles.wrapperError : ''} ${status === 'available' ? styles.wrapperOk : ''}`}>
-        <span className={styles.prefix}>@</span>
+        <div className={styles.prefix}>
+        <span>@</span>
+        </div>
         <input
           {...field}
           className={styles.input}

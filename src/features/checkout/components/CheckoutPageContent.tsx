@@ -14,6 +14,7 @@ import type { CheckoutSession } from '../types/checkout.types';
 import { TicketSummaryCard } from './TicketSummaryCard';
 import { OrderSummaryCard } from './OrderSummaryCard';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
+import { CouponInput } from './CouponInput';
 import styles from './CheckoutPageContent.module.scss';
 
 interface Props {
@@ -22,11 +23,39 @@ interface Props {
   quantity?: number;
 }
 
-function handlePaymentAction(action: { type: string; url?: string }, router: ReturnType<typeof useRouter>, eventId: string) {
+interface SuccessSummary {
+  name: string;
+  ticket: string;
+  total: number;
+  qty: number;
+}
+
+interface AppliedCoupon {
+  code: string;
+  discountAmount: number;
+}
+
+function handlePaymentAction(
+  action: { type: string; url?: string },
+  router: ReturnType<typeof useRouter>,
+  eventId: string,
+  summary?: SuccessSummary,
+) {
   if (action.type === 'REDIRECT' && action.url) {
     window.location.href = action.url;
   } else if (action.type === 'COMPLETED') {
-    router.push(`/events/${eventId}/checkout/success`);
+    const base = `/events/${eventId}/checkout/success`;
+    if (summary) {
+      const q = new URLSearchParams({
+        name: summary.name,
+        ticket: summary.ticket,
+        total: String(summary.total),
+        qty: String(summary.qty),
+      });
+      router.push(`${base}?${q}`);
+    } else {
+      router.push(base);
+    }
   } else {
     router.push(`/events/${eventId}/checkout/pending`);
   }
@@ -42,6 +71,7 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
 
   const [session, setSession] = useState<CheckoutSession | null>(null);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
 
   const paymentMethods = usePaymentMethodsQuery();
   const createSession = useCreateCheckoutSessionMutation();
@@ -62,19 +92,36 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
   useEffect(() => {
     if (!isLoggedIn || !ticketProductId || session) return;
     createSession.mutate(
-      { ticketProductId },
+      { ticketProductId, couponCode: appliedCoupon?.code },
       { onSuccess: (s) => setSession(s) },
     );
-  }, [isLoggedIn, ticketProductId]);
+  }, [isLoggedIn, ticketProductId, session]);
 
   const selectedMethod = paymentMethods.data?.find((m) => m.id === selectedMethodId);
+
+  const handleCouponApply = (coupon: AppliedCoupon) => {
+    setAppliedCoupon(coupon);
+    setSession(null);
+  };
+
+  const handleCouponRemove = () => {
+    setAppliedCoupon(null);
+    setSession(null);
+  };
 
   const handlePay = () => {
     if (!session || !selectedMethod) return;
     processPayment.mutate(
       { sessionId: session.sessionId, provider: selectedMethod.provider },
       {
-        onSuccess: ({ action }) => handlePaymentAction(action as any, router, eventId),
+        onSuccess: ({ action }) => handlePaymentAction(
+          action as any,
+          router,
+          eventId,
+          event.data && ticket && session
+            ? { name: event.data.title, ticket: ticket.name, total: session.totalAmount, qty: quantity }
+            : undefined,
+        ),
         onError: () => router.push(`/events/${eventId}/checkout/failed`),
       },
     );
@@ -151,6 +198,17 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
               isLoading={paymentMethods.isLoading}
             />
 
+            <CouponInput
+              eventId={eventId}
+              orderAmount={session?.totalAmount ?? 0}
+              applied={appliedCoupon
+                ? { code: appliedCoupon.code, discountAmount: session?.discountAmount ?? appliedCoupon.discountAmount }
+                : null}
+              onApply={handleCouponApply}
+              onRemove={handleCouponRemove}
+              disabled={!session}
+            />
+
             <button
               className={styles.payBtn}
               onClick={handlePay}
@@ -176,7 +234,7 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
 
           <aside className={styles.right}>
             <TicketSummaryCard ticket={ticket} quantity={quantity} eventName={event.data.title} />
-            {session && <OrderSummaryCard session={session} />}
+            {session && <OrderSummaryCard session={session} discountAmount={session.discountAmount} />}
           </aside>
         </div>
       </div>

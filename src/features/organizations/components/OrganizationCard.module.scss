@@ -1,86 +1,221 @@
-@use '../../../styles/_variables' as *;
+@keyframes lsPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .35; transform: scale(.7); }
+}
+
+// ── Card ──────────────────────────────────────────────────────────
 
 .card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  background-color: $surface-dark;
-  border: 1px solid $border;
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
+  position: relative;
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 18px;
+  padding: 20px;
   cursor: pointer;
-  text-align: left;
-  transition: border-color 0.15s, background-color 0.15s;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  transition: border-color .18s ease, transform .18s ease;
 
   &:hover {
-    border-color: $action;
-    background-color: rgba(220, 38, 38, 0.04);
+    border-color: rgba(255, 46, 158, .34);
+    transform: translateY(-2px);
   }
 }
 
-.icon {
+// ── Glow ──────────────────────────────────────────────────────────
+
+.glow {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+// ── Identity ──────────────────────────────────────────────────────
+
+.identity {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background-color: $action-dim;
-  color: $action;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.logoWrap {
+  width: 52px;
+  height: 52px;
   flex-shrink: 0;
-  overflow: hidden;
 }
 
 .logo {
-  width: 100%;
-  height: 100%;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
   object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, .08);
 }
 
-.info {
-  flex: 1;
+.logoInitials {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
   display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.identityText {
+  flex: 1;
+  min-width: 0;
 }
 
 .name {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: $text-primary;
   font-family: 'Archivo', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  line-height: 1.2;
+  color: #f4f4f5;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.slug {
-  font-size: 0.72rem;
-  color: $text-muted;
-  font-family: 'Space Mono', monospace;
   margin: 0;
 }
+
+.handle {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #9a9aa2;
+  margin-top: 3px;
+}
+
+.menuBtn {
+  background: transparent;
+  border: none;
+  color: #8f8f97;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color .15s;
+
+  &:hover { color: #fff; }
+}
+
+// ── Description ───────────────────────────────────────────────────
 
 .description {
-  font-size: 0.78rem;
-  color: $text-secondary;
-  margin: 0.25rem 0 0;
+  position: relative;
+  font-size: 13.5px;
+  color: #b9b9c0;
+  line-height: 1.5;
+  margin: 0 0 18px;
+  min-height: 42px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.arrow {
-  color: $text-muted;
-  flex-shrink: 0;
-  transition: color 0.15s;
+// ── Stats ─────────────────────────────────────────────────────────
 
-  .card:hover & {
-    color: $action;
-  }
+.stats {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
+  margin-bottom: 14px;
+}
+
+.stat {}
+
+.statLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: .1em;
+  color: #7d7d85;
+  margin-bottom: 3px;
+}
+
+.statValue {
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.statValuePink { color: #ff2e9e; }
+
+// ── Footer ────────────────────────────────────────────────────────
+
+.footer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.avatarStack {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  border: 2px solid #101013;
+  margin-left: -6px;
+
+  &:first-child { margin-left: 0; }
+}
+
+.statusBadge {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: #7d7d85;
+}
+
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 46, 158, .12);
+  border: 1px solid rgba(255, 46, 158, .4);
+  color: #ff8ec9;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 4px 9px;
+  border-radius: 999px;
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff2e9e;
+  animation: lsPulse 1.4s infinite;
 }

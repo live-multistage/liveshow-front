@@ -28,3 +28,15 @@ export function useUnpublishEventMutation(eventId: string) {
     },
   });
 }
+
+export function useFinishEventMutation(eventId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => eventsService.finishEvent(eventId),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(eventKeys.detail(eventId), updated);
+      queryClient.invalidateQueries({ queryKey: MY_EVENTS_KEY });
+    },
+  });
+}
