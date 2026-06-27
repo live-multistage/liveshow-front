@@ -8,6 +8,8 @@ import { TicketPanel } from './TicketPanel';
 import { formatDate, formatTime, formatDuration, statusLabel } from '../../utils/event-formatters';
 import { useEventCamerasQuery } from '@/features/streams/queries/streams.queries';
 import { useOrganization } from '@/features/organizations';
+import { useAuth } from '@/features/account/hooks/use-auth';
+import { useTrackEventView } from '../../hooks/use-track-event-view';
 import styles from './EventDetailPageContent.module.scss';
 
 interface Props {
@@ -21,6 +23,8 @@ export function EventDetailPageContent({ id }: Props) {
   const { data: tickets = [] } = useListTicketProductsQuery(id);
   const { data: org } = useOrganization(event?.organizationId ?? '');
   const { cameras, isLoading: camerasLoading } = useEventCamerasQuery(event ? id : null);
+  const { user } = useAuth();
+  useTrackEventView(id, user?.id);
 
   if (isLoading) {
     return (

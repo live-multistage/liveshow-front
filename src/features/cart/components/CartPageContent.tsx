@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useNavigate } from '@/shared/hooks/use-navigate';
 import { useCartQuery } from '../queries/cart.queries';
 import { useRemoveFromCartMutation } from '../mutations/cart.mutations';
+import { trackCartRemove } from '../hooks/use-track-cart';
+import { useAuth } from '@/features/account/hooks/use-auth';
 import { checkoutService } from '@/features/checkout/services/checkout.service';
 import type { CartLineView, CartView } from '../services/cart.service';
 import styles from './CartPageContent.module.scss';
@@ -49,6 +51,7 @@ export function CartPageContent({ initialCart }: Props) {
   const { data } = useCartQuery(initialCart);
   const removeItem = useRemoveFromCartMutation();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [promoCode, setPromoCode] = useState('');
   const [promoState, setPromoState] = useState<'idle' | 'ok' | 'error'>('idle');
@@ -199,7 +202,11 @@ export function CartPageContent({ initialCart }: Props) {
                                 </div>
                                 <button
                                   className={styles.removeBtn}
-                                  onClick={() => removeItem.mutate(item.eventId)}
+                                  onClick={() => {
+                                    removeItem.mutate(item.eventId, {
+                                      onSuccess: () => trackCartRemove(item.eventId, user?.id),
+                                    });
+                                  }}
                                   disabled={removeItem.isPending}
                                   aria-label={`Remover ${item.eventTitle}`}
                                 >
