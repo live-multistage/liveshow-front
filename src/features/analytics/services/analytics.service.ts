@@ -1,5 +1,6 @@
 import { httpClient } from '@/lib/http/client';
 import type { SalesSummary, SalesGranularity, EventSalesResult } from '../types/sales.types';
+import type { EventMetricsResult } from '../types/analytics.types';
 
 export const analyticsService = {
   getMySales: async (granularity: SalesGranularity): Promise<SalesSummary> => {
@@ -8,6 +9,10 @@ export const analyticsService = {
   },
   getEventSales: async (): Promise<EventSalesResult> => {
     const { data } = await httpClient.get<EventSalesResult>('/sales/events');
+    return data;
+  },
+  getEventMetrics: async (eventId: string): Promise<EventMetricsResult> => {
+    const { data } = await httpClient.get<EventMetricsResult>(`/analytics/events/${eventId}/metrics`);
     return data;
   },
 };
