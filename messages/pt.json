@@ -259,7 +259,8 @@
       "sales": "Vendas",
       "streams": "Streams",
       "analytics": "Análises",
-      "coupons": "Cupons"
+      "coupons": "Cupons",
+      "advertisement": "Anúncios"
     },
     "roles": {
       "ADMIN": "Admin",

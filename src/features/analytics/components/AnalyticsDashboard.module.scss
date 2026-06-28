@@ -1,0 +1,612 @@
+@use '../../../styles/_variables' as *;
+
+@keyframes lsPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .35; transform: scale(.7); }
+}
+
+// ── Page shell ─────────────────────────────────────────────────────
+.page {
+  padding: 30px 40px 56px;
+  min-height: 100%;
+  color: $text-primary;
+}
+
+// ── Breadcrumb ─────────────────────────────────────────────────────
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: #9a9aa2;
+  margin-bottom: 20px;
+}
+.breadcrumbLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #9a9aa2;
+  text-decoration: none;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  &:hover { color: #fff; }
+}
+.breadcrumbSep { color: #3f3f47; }
+.breadcrumbActive { color: #ff7ec2; }
+
+// ── Header ─────────────────────────────────────────────────────────
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.headerMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,46,158,.12);
+  border: 1px solid rgba(255,46,158,.4);
+  color: #ff8ec9;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  padding: 5px 11px;
+  border-radius: 999px;
+}
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $action;
+  animation: lsPulse 1.4s infinite;
+}
+.headerSince {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: #8f8f97;
+}
+.title {
+  margin: 0 0 6px;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -.025em;
+  line-height: 1;
+}
+.titleMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #9a9aa2;
+}
+.dot { color: #3f3f47; }
+.headerActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.rangePicker {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #101013;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+}
+.rangeBtn {
+  background: transparent;
+  border: none;
+  color: #9a9aa2;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 9px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: color 0.15s;
+  &:hover { color: #fff; }
+}
+.rangeBtnActive {
+  background: rgba(255,46,158,.14);
+  color: #ff5fb4;
+}
+.exportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.14);
+  color: #e7e7ea;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  padding: 0 16px;
+  height: 40px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  &:hover { border-color: rgba(255,46,158,.4); color: #fff; }
+}
+
+// ── KPI Grid ───────────────────────────────────────────────────────
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+  @media (max-width: 1200px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: $sm) { grid-template-columns: 1fr; }
+}
+.kpiCard {
+  position: relative;
+  background: #101013;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  padding: 20px;
+  overflow: hidden;
+}
+.kpiGlow {
+  position: absolute;
+  top: -50px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,46,158,.2), transparent 70%);
+  pointer-events: none;
+}
+.kpiTop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.kpiIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+.kpiDelta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 999px;
+}
+.kpiDeltaUp   { color: #7fe0a0; background: rgba(127,224,160,.1); }
+.kpiDeltaDown { color: #ef6b6b; background: rgba(239,107,107,.1); }
+.kpiLabel {
+  position: relative;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  color: #8f8f97;
+  margin-bottom: 8px;
+}
+.kpiValue {
+  position: relative;
+  font-family: 'Space Mono', monospace;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  line-height: 1;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.kpiSub {
+  position: relative;
+  font-size: 12.5px;
+  color: #7d7d85;
+}
+
+// ── Card shell ─────────────────────────────────────────────────────
+.card {
+  background: #101013;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 22px;
+}
+.cardNomarg { margin-bottom: 0; }
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.cardSub { font-size: 13px; color: #8f8f97; }
+.cardLink {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: #ff5fb4;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  &:hover { color: $action; }
+}
+.cardStat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #9a9aa2;
+}
+.cardStatVal {
+  color: #ff5fb4;
+  font-weight: 700;
+}
+
+// ── Funnel ─────────────────────────────────────────────────────────
+.funnelGrid {
+  display: grid;
+  grid-template-columns: 1fr 28px 1fr 28px 1fr 28px 1fr;
+  align-items: end;
+}
+.funnelStep {}
+.funnelMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.funnelMetaLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  color: #9a9aa2;
+}
+.funnelMetaRate {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  color: #ff8ec9;
+  font-weight: 700;
+}
+.funnelValue {
+  font-family: 'Space Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -.01em;
+  margin-bottom: 10px;
+  line-height: 1;
+}
+.funnelBar {
+  height: 64px;
+  background: rgba(255,255,255,.04);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+.funnelFill {
+  position: absolute;
+  left: 0; bottom: 0; right: 0;
+  background: linear-gradient(180deg, rgba(155,123,255,.85) 0%, #ff2e9e 100%);
+  border-radius: 10px;
+}
+.funnelArrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding-bottom: 6px;
+  gap: 5px;
+}
+.funnelDrop {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  color: #5f5f67;
+  letter-spacing: .06em;
+  white-space: nowrap;
+}
+
+// ── Two-column rows ────────────────────────────────────────────────
+.twoCol {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+  margin-bottom: 22px;
+  @media (max-width: $lg) { grid-template-columns: 1fr; }
+}
+.twoColBottom {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+  @media (max-width: $lg) { grid-template-columns: 1fr; }
+}
+
+// ── Engagement chart ───────────────────────────────────────────────
+.chartHeaderRight {
+  display: flex;
+  gap: 14px;
+}
+.chartLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #c7c7cd;
+}
+.legendSolid {
+  width: 14px;
+  height: 3px;
+  background: $action;
+  border-radius: 2px;
+}
+.legendDashed {
+  width: 14px;
+  border-top: 2px dashed #bba6ff;
+}
+.chartWrap {
+  position: relative;
+  height: 230px;
+}
+.chartPeak {
+  position: absolute;
+  top: 8px;
+  left: 53%;
+  transform: translateX(-50%);
+  background: rgba(255,46,158,.14);
+  border: 1px solid rgba(255,46,158,.4);
+  color: #ff8ec9;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  padding: 5px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
+}
+
+// ── Origin donut ───────────────────────────────────────────────────
+.donutWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.donutSvgWrap {
+  position: relative;
+  width: 170px;
+  height: 170px;
+}
+.donutCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.donutCenterLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  color: #7d7d85;
+  letter-spacing: .1em;
+}
+.donutCenterValue {
+  font-family: 'Space Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+}
+.originList {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.originItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.originDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex: none;
+}
+.originLabel { flex: 1; font-size: 13px; color: #e7e7ea; }
+.originPct {
+  font-family: 'Space Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fff;
+}
+
+// ── Ticket table ───────────────────────────────────────────────────
+.ticketCols { grid-template-columns: 1.6fr .8fr 1.4fr 1.1fr .8fr; }
+.ticketHead {
+  display: grid;
+  padding: 10px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: #7d7d85;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  grid-template-columns: 1.6fr .8fr 1.4fr 1.1fr .8fr;
+}
+.thR { text-align: right; }
+.ticketRow {
+  display: grid;
+  align-items: center;
+  padding: 16px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  cursor: pointer;
+  transition: background 0.1s;
+  grid-template-columns: 1.6fr .8fr 1.4fr 1.1fr .8fr;
+  &:last-of-type { border-bottom: none; }
+  &:hover { background: rgba(255,255,255,.02); }
+}
+.ticketName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ticketCode {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  color: #7d7d85;
+  letter-spacing: .04em;
+}
+.ticketPrice {
+  text-align: right;
+  font-family: 'Space Mono', monospace;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #e7e7ea;
+}
+.ticketSoldLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11.5px;
+}
+.ticketSoldCount { color: #fff; font-weight: 700; }
+.ticketSoldPct   { color: #7d7d85; }
+.ticketProgress {
+  height: 5px;
+  background: rgba(255,255,255,.06);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+.ticketProgressFill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  border-radius: 999px;
+}
+.ticketRevenue {
+  text-align: right;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: $action;
+}
+.ticketConv {
+  text-align: right;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #e7e7ea;
+}
+.ticketTotals {
+  display: grid;
+  align-items: center;
+  padding: 18px 14px 4px;
+  font-family: 'Space Mono', monospace;
+  grid-template-columns: 1.6fr .8fr 1.4fr 1.1fr .8fr;
+}
+.ticketTotalLabel { font-size: 11px; letter-spacing: .12em; color: #9a9aa2; }
+.ticketTotalOrders { font-size: 13px; color: #fff; font-weight: 700; }
+.ticketTotalRevenue { text-align: right; font-size: 15px; font-weight: 700; color: $action; }
+.ticketTotalConv { text-align: right; font-size: 13px; color: #fff; font-weight: 700; }
+
+// ── Notifications ──────────────────────────────────────────────────
+.notifList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.notifCard {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  background: #0c0c0f;
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+  transition: border-color 0.15s;
+  &:hover { border-color: rgba(255,46,158,.32); }
+}
+.notifIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  font-size: 16px;
+}
+.notifTitle {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 3px;
+}
+.notifMeta {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #8f8f97;
+  letter-spacing: .04em;
+}
+.notifRate {
+  font-family: 'Space Mono', monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.notifRateOk   { color: #7fe0a0; background: rgba(127,224,160,.1); border: 1px solid rgba(127,224,160,.3); }
+.notifRateWarn { color: #ffd166; background: rgba(255,209,102,.1); border: 1px solid rgba(255,209,102,.3); }
+
+// ── Loading / Empty ────────────────────────────────────────────────
+.loadingRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  color: #5f5f67;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .1em;
+}

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import styles from '../layout.module.scss';
+import { AnalyticsListPage } from '@/features/analytics/components/AnalyticsListPage';
 
 export const metadata: Metadata = { title: 'Análises' };
 
 export default function DashboardAnalyticsPage() {
-  return <h1 className={styles.pageTitle}>Analytics</h1>;
+  return <AnalyticsListPage />;
 }

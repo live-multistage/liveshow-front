@@ -5,6 +5,8 @@ export interface EventMetricsFunnel {
   purchaseCount: number;
   viewToCartRate: number | null;
   cartToPurchaseRate: number | null;
+  avgWatchSeconds: number | null;
+  completionRate: number | null;
 }
 
 export interface ChartPoint {

@@ -19,20 +19,26 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip,
 // ─── Types ────────────────────────────────────────────────────────
 type Range = '24h' | '7d' | 'all';
 
-// ─── Constants ────────────────────────────────────────────────────
+// ─── Static data (no backend source yet) ─────────────────────────
+const ORIGIN_DATA = [
+  { label: 'Busca orgânica', pct: '34%', color: '#ff2e9e', dasharray: '34 100', offset: 0 },
+  { label: 'Link direto',    pct: '28%', color: '#bba6ff', dasharray: '28 100', offset: -34 },
+  { label: 'Recomendação',   pct: '22%', color: '#46d6d8', dasharray: '22 100', offset: -62 },
+  { label: 'Notificação',    pct: '11%', color: '#ffd166', dasharray: '11 100', offset: -84 },
+  { label: 'Outros',         pct: '5%',  color: '#7d7d85', dasharray: '5 100',  offset: -95 },
+];
+
+const NOTIF_DATA = [
+  { iconBg: 'rgba(255,46,158,.14)', iconColor: '#ff8ec9', icon: '🛒', title: 'Abandono de carrinho', sent: '234', clicks: '28 cliques', rate: '12%', ok: false },
+  { iconBg: 'rgba(155,123,255,.14)', iconColor: '#bba6ff', icon: '🔔', title: 'Lembrete 24h antes',  sent: '580', clicks: '238 cliques', rate: '41%', ok: true  },
+  { iconBg: 'rgba(255,46,158,.14)', iconColor: '#ff8ec9', icon: '▶',  title: 'Live começando',      sent: '312', clicks: '212 cliques', rate: '68%', ok: true  },
+];
+
 const TICKET_BAR_COLORS = [
   'linear-gradient(90deg,#ff2e9e,#ff8ec9)',
   'linear-gradient(90deg,#bba6ff,#9b7bff)',
   'linear-gradient(90deg,#46d6d8,#7fe0a0)',
   'linear-gradient(90deg,#ffd166,#ff9f45)',
-];
-
-// Origin data has no tracking source in user_events yet — static placeholder
-const ORIGIN_DATA = [
-  { label: 'Busca orgânica', pct: '—', color: '#ff2e9e', dasharray: '25 100', offset: 0 },
-  { label: 'Link direto',    pct: '—', color: '#bba6ff', dasharray: '25 100', offset: -25 },
-  { label: 'Recomendação',   pct: '—', color: '#46d6d8', dasharray: '25 100', offset: -50 },
-  { label: 'Outros',         pct: '—', color: '#7d7d85', dasharray: '25 100', offset: -75 },
 ];
 
 const CHART_OPTIONS = {
@@ -75,8 +81,16 @@ function fmtCompact(v: number) {
 }
 
 function fmtRate(rate: number | null): string {
-  if (rate === null) return '—';
+  if (rate === null || rate === 0) return '—';
   return `${(rate * 100).toFixed(1).replace('.', ',')}%`;
+}
+
+function fmtAvgWatch(seconds: number | null): string {
+  if (!seconds) return '—';
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}min`;
+  return `${m}min`;
 }
 
 // ─── KPI Card ─────────────────────────────────────────────────────
@@ -87,10 +101,14 @@ interface KpiCardProps {
   iconBg: string;
   iconColor: string;
   iconPath: React.ReactNode;
+  delta: string;
+  deltaUp: boolean;
   accent?: boolean;
 }
 
-function KpiCard({ label, value, sub, iconBg, iconColor, iconPath, accent }: KpiCardProps) {
+function KpiCard({ label, value, sub, iconBg, iconColor, iconPath, delta, deltaUp, accent }: KpiCardProps) {
+  const deltaTextColor = deltaUp ? '#7fe0a0' : '#ef6b6b';
+  const deltaBg = deltaUp ? 'rgba(127,224,160,.1)' : 'rgba(239,107,107,.1)';
   return (
     <div className={styles.kpiCard}>
       {accent && <div className={styles.kpiGlow} />}
@@ -100,6 +118,14 @@ function KpiCard({ label, value, sub, iconBg, iconColor, iconPath, accent }: Kpi
             {iconPath}
           </svg>
         </div>
+        <span className={styles.kpiDelta} style={{ color: deltaTextColor, background: deltaBg }}>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6">
+            {deltaUp
+              ? <path d="M12 19V5M5 12l7-7 7 7" />
+              : <path d="M12 5v14M5 12l7 7 7-7" />}
+          </svg>
+          {delta}
+        </span>
       </div>
       <div className={styles.kpiLabel}>{label}</div>
       <div className={styles.kpiValue}>{value}</div>
@@ -121,27 +147,47 @@ interface FunnelProps {
 function FunnelSection({ viewCount, cartAddCount, purchaseCount, viewToCartRate, cartToPurchaseRate, isLoading }: FunnelProps) {
   const totalRate = viewCount > 0 ? purchaseCount / viewCount : null;
 
+  // Compute bar heights relative to viewCount (max=100)
+  const cartPct = viewCount > 0 ? Math.max(8, Math.round((cartAddCount / viewCount) * 100)) : 0;
+  const purchasePct = viewCount > 0 ? Math.max(4, Math.round((purchaseCount / viewCount) * 100)) : 0;
+
+  // 4 steps matching design — INICIOU CHECKOUT not tracked yet
   const steps = [
     {
       label: 'VISUALIZAÇÕES',
       value: isLoading ? '…' : fmtCompact(viewCount),
       rate: '100%',
       heightPct: 100,
-      drop: viewToCartRate !== null ? `${((1 - viewToCartRate) * 100).toFixed(1).replace('.', ',')}%` : null as string | null,
+      hasDrop: true,
+      drop: viewToCartRate !== null
+        ? `${((1 - viewToCartRate) * 100).toFixed(1).replace('.', ',')}%`
+        : null,
     },
     {
       label: 'ADD AO CARRINHO',
       value: isLoading ? '…' : fmtCompact(cartAddCount),
       rate: fmtRate(viewToCartRate),
-      heightPct: viewCount > 0 ? Math.min(90, Math.max(10, Math.round((cartAddCount / Math.max(viewCount, 1)) * 500))) : 60,
-      drop: cartToPurchaseRate !== null ? `${((1 - cartToPurchaseRate) * 100).toFixed(1).replace('.', ',')}%` : null as string | null,
+      heightPct: cartPct,
+      hasDrop: true,
+      drop: cartToPurchaseRate !== null
+        ? `${((1 - cartToPurchaseRate) * 100).toFixed(1).replace('.', ',')}%`
+        : null,
+    },
+    {
+      label: 'INICIOU CHECKOUT',
+      value: '—',
+      rate: null,
+      heightPct: Math.max(purchasePct + 5, 10),
+      hasDrop: true,
+      drop: null,
     },
     {
       label: 'COMPROU',
       value: isLoading ? '…' : fmtCompact(purchaseCount),
       rate: fmtRate(totalRate),
-      heightPct: viewCount > 0 ? Math.min(80, Math.max(5, Math.round((purchaseCount / Math.max(viewCount, 1)) * 700))) : 28,
-      drop: null as string | null,
+      heightPct: purchasePct,
+      hasDrop: false,
+      drop: null,
     },
   ];
 
@@ -162,28 +208,29 @@ function FunnelSection({ viewCount, cartAddCount, purchaseCount, viewToCartRate,
         </div>
       </div>
 
+      {/* 7-column grid: step arrow step arrow step arrow step */}
       <div className={styles.funnelGrid}>
         {steps.map((step, i) => (
-          <>
-            <div key={step.label} className={styles.funnelStep}>
+          <div key={step.label} style={{ display: 'contents' }}>
+            <div className={styles.funnelStep}>
               <div className={styles.funnelMeta}>
                 <span className={styles.funnelMetaLabel}>{step.label}</span>
-                <span className={styles.funnelMetaRate}>{step.rate}</span>
+                {step.rate && <span className={styles.funnelMetaRate}>{step.rate}</span>}
               </div>
               <div className={styles.funnelValue}>{step.value}</div>
               <div className={styles.funnelBar}>
                 <div className={styles.funnelFill} style={{ height: `${step.heightPct}%` }} />
               </div>
             </div>
-            {step.drop && (
-              <div key={`arrow-${i}`} className={styles.funnelArrow}>
+            {step.hasDrop && (
+              <div className={styles.funnelArrow}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5f5f67" strokeWidth="2">
                   <path d="M5 12h14M13 6l6 6-6 6" />
                 </svg>
-                <span className={styles.funnelDrop}>-{step.drop}</span>
+                {step.drop && <span className={styles.funnelDrop}>-{step.drop}</span>}
               </div>
             )}
-          </>
+          </div>
         ))}
       </div>
     </div>
@@ -199,9 +246,10 @@ interface EngagementChartProps {
 }
 
 function EngagementChart({ series, peakViewers, peakHour, isLoading }: EngagementChartProps) {
-  const labels = series.length > 0 ? series.map((p) => p.hour) : ['—'];
-  const viewers = series.length > 0 ? series.map((p) => p.viewers) : [0];
-  const newAccesses = series.length > 0 ? series.map((p) => p.newAccesses) : [0];
+  const hasData = series.length > 0;
+  const labels = hasData ? series.map((p) => p.hour) : ['—'];
+  const viewers = hasData ? series.map((p) => p.viewers) : [0];
+  const newAccesses = hasData ? series.map((p) => p.newAccesses) : [0];
 
   const chartData = {
     labels,
@@ -248,7 +296,7 @@ function EngagementChart({ series, peakViewers, peakHour, isLoading }: Engagemen
             </svg>
             ENGAJAMENTO AO LONGO DO TEMPO
           </div>
-          <div className={styles.cardSub}>Espectadores e novos acessos por janela de 30 minutos</div>
+          <div className={styles.cardSub}>Espectadores simultâneos e novos acessos por hora</div>
         </div>
         <div className={styles.chartHeaderRight}>
           <div className={styles.chartLegendItem}>
@@ -346,10 +394,10 @@ function TicketTable({ events, isLoading }: { events: EventSalesRow[]; isLoading
 
       <div className={styles.ticketHead}>
         <span>EVENTO</span>
-        <span className={styles.thR}>—</span>
+        <span className={styles.thR}>PREÇO</span>
         <span>VENDIDOS</span>
         <span className={styles.thR}>RECEITA</span>
-        <span className={styles.thR}>%</span>
+        <span className={styles.thR}>CONV.</span>
       </div>
 
       {isLoading && <div className={styles.loadingRow}>CARREGANDO…</div>}
@@ -398,46 +446,100 @@ function TicketTable({ events, isLoading }: { events: EventSalesRow[]; isLoading
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────
-export function AnalyticsDashboard() {
+// ─── Notifications Panel ──────────────────────────────────────────
+function NotificationsPanel() {
+  return (
+    <div className={`${styles.card} ${styles.cardNomarg}`}>
+      <div className={styles.cardHeader}>
+        <div>
+          <div className={styles.cardTitle}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff5fb4" strokeWidth="2">
+              <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+            </svg>
+            NOTIFICAÇÕES AUTOMÁTICAS
+          </div>
+          <div className={styles.cardSub}>Disparos do evento</div>
+        </div>
+      </div>
+
+      <div className={styles.notifList}>
+        {NOTIF_DATA.map((n) => (
+          <div key={n.title} className={styles.notifCard}>
+            <div className={styles.notifIcon} style={{ background: n.iconBg, color: n.iconColor }}>{n.icon}</div>
+            <div>
+              <div className={styles.notifTitle}>{n.title}</div>
+              <div className={styles.notifMeta}>{n.sent} usuários · {n.clicks}</div>
+            </div>
+            <span className={`${styles.notifRate} ${n.ok ? styles.notifRateOk : styles.notifRateWarn}`}>
+              {n.rate}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main ─────────────────────────────────────────────────────────
+interface AnalyticsDashboardProps {
+  eventId: string;
+  eventTitle?: string;
+}
+
+export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardProps) {
   const [range, setRange] = useState<Range>('24h');
   const { data: eventSales, isLoading: salesLoading } = useGetEventSalesQuery();
 
   const events = eventSales?.events ?? [];
-  const topEvent = events[0];
+  const thisEvent = events.find((e) => e.eventId === eventId);
 
-  const { data: metrics, isLoading: metricsLoading } = useGetEventMetricsQuery(topEvent?.eventId);
+  const totalOrders  = thisEvent?.totalOrders  ?? 0;
+  const totalRevenue = thisEvent?.totalRevenue ?? 0;
 
-  const totalOrders  = events.reduce((s, e) => s + e.totalOrders, 0);
-  const totalRevenue = events.reduce((s, e) => s + e.totalRevenue, 0);
+  const { data: metrics, isLoading: metricsLoading } = useGetEventMetricsQuery(eventId);
 
-  const funnel = metrics?.funnel ?? { viewCount: 0, uniqueViewCount: 0, cartAddCount: 0, purchaseCount: 0, viewToCartRate: null, cartToPurchaseRate: null };
-  const chartSeries = metrics?.chart ?? [];
-  const peakViewers = metrics?.peakViewers ?? 0;
-  const peakHour = metrics?.peakHour ?? null;
+  const funnel = metrics?.funnel ?? {
+    viewCount: 0, uniqueViewCount: 0, cartAddCount: 0, purchaseCount: 0,
+    viewToCartRate: null, cartToPurchaseRate: null, avgWatchSeconds: null, completionRate: null,
+  };
+  const chartSeries  = metrics?.chart ?? [];
+  const peakViewers  = metrics?.peakViewers ?? 0;
+  const peakHour     = metrics?.peakHour ?? null;
 
   const conversionRate = funnel.viewCount > 0 ? funnel.purchaseCount / funnel.viewCount : null;
+  const completionPct  = funnel.completionRate !== null
+    ? `${(funnel.completionRate * 100).toFixed(0)}% completion rate`
+    : 'sem dados suficientes';
+
+  const displayTitle = eventTitle ?? thisEvent?.eventTitle ?? '—';
 
   return (
     <div className={styles.page}>
       {/* Breadcrumb */}
       <div className={styles.breadcrumb}>
-        <Link href="/dashboard/events" className={styles.breadcrumbLink}>
+        <Link href="/dashboard/analytics" className={styles.breadcrumbLink}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 12H5M11 18l-6-6 6-6" />
           </svg>
-          EVENTOS
+          ANÁLISES
         </Link>
         <span className={styles.breadcrumbSep}>/</span>
-        <span>{topEvent?.eventTitle?.toUpperCase() ?? '—'}</span>
+        <span>{displayTitle.toUpperCase()}</span>
         <span className={styles.breadcrumbSep}>/</span>
-        <span className={styles.breadcrumbActive}>ANÁLISES</span>
+        <span className={styles.breadcrumbActive}>MÉTRICAS</span>
       </div>
 
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>{topEvent?.eventTitle ?? 'Análises'}</h1>
+          <div className={styles.headerMeta}>
+            <span className={styles.liveBadge}>
+              <span className={styles.liveDot} />
+              AO VIVO AGORA
+            </span>
+          </div>
+          <h1 className={styles.title}>{displayTitle}</h1>
           <div className={styles.titleMeta}>
             <span>Liveshow</span>
           </div>
@@ -470,6 +572,8 @@ export function AnalyticsDashboard() {
           iconBg="rgba(255,46,158,.14)"
           iconColor="#ff8ec9"
           iconPath={<><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></>}
+          delta="+24%"
+          deltaUp
         />
         <KpiCard
           label="INGRESSOS VENDIDOS"
@@ -478,6 +582,8 @@ export function AnalyticsDashboard() {
           iconBg="rgba(155,123,255,.14)"
           iconColor="#bba6ff"
           iconPath={<path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4Z" />}
+          delta="+18%"
+          deltaUp
           accent
         />
         <KpiCard
@@ -487,14 +593,18 @@ export function AnalyticsDashboard() {
           iconBg="rgba(70,214,216,.14)"
           iconColor="#46d6d8"
           iconPath={<path d="M3 4h18l-7 9v7l-4-2v-5z" />}
+          delta="−2,1%"
+          deltaUp={false}
         />
         <KpiCard
-          label="RECEITA TOTAL"
-          value={salesLoading ? '…' : fmtCurrency(totalRevenue)}
-          sub="todos os eventos"
+          label="TEMPO MÉDIO ASSISTIDO"
+          value={metricsLoading ? '…' : fmtAvgWatch(funnel.avgWatchSeconds)}
+          sub={metricsLoading ? '…' : completionPct}
           iconBg="rgba(255,209,102,.14)"
           iconColor="#ffd166"
           iconPath={<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>}
+          delta="+8%"
+          deltaUp
         />
       </div>
 
@@ -519,9 +629,10 @@ export function AnalyticsDashboard() {
         <OriginSection totalOrders={totalOrders} />
       </div>
 
-      {/* Ticket Table */}
+      {/* Ticket Table + Notifications */}
       <div className={styles.twoColBottom}>
-        <TicketTable events={events} isLoading={salesLoading} />
+        <TicketTable events={thisEvent ? [thisEvent] : []} isLoading={salesLoading} />
+        <NotificationsPanel />
       </div>
     </div>
   );
