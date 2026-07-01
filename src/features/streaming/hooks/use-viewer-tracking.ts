@@ -16,12 +16,15 @@ export function useViewerTracking(
     viewerTrackingService.join(eventId, sessionId, userId);
     track({ eventType: 'stream.started', entityType: 'event', entityId: eventId, userId: userId ?? undefined });
 
-    const interval = setInterval(async () => {
-      const res = await viewerTrackingService.heartbeat(eventId, sessionId);
-      if (res.status === 404) {
-        // session expired on server — re-join
-        viewerTrackingService.join(eventId, sessionId, userId);
-      }
+    const interval = setInterval(() => {
+      viewerTrackingService.heartbeat(eventId, sessionId)
+        .then((res) => {
+          if (res.status === 404) {
+            // session expired on server — re-join
+            viewerTrackingService.join(eventId, sessionId, userId);
+          }
+        })
+        .catch(() => {});
     }, 20_000);
 
     return () => {
