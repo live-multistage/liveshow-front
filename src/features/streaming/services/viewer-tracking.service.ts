@@ -8,7 +8,7 @@ export const viewerTrackingService = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sessionId, userId: userId ?? undefined }),
-    }).then(() => {}).catch(() => {});
+    }).then(() => {}, () => {});
   },
 
   heartbeat(eventId: string, sessionId: string): Promise<Response> {
@@ -25,7 +25,7 @@ export const viewerTrackingService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sessionId }),
       keepalive: true,
-    }).then(() => {}).catch(() => {});
+    }).then(() => {}, () => {});
   },
 
   async getViewers(eventId: string): Promise<{ currentViewers: number; totalViews: number }> {
