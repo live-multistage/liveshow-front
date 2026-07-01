@@ -8,7 +8,8 @@ import { CameraGrid } from './CameraGrid';
 import type { QualityLevel } from './CameraGrid';
 import { StageSelector } from './StageSelector';
 import { useAuth } from '@/features/account/hooks/use-auth';
-import { useTrackStream } from '../hooks/use-track-stream';
+import { useViewerTracking } from '../hooks/use-viewer-tracking';
+import { useViewerCount } from '../hooks/use-viewer-count';
 import styles from './LivePlayer.module.scss';
 
 interface LivePlayerProps {
@@ -17,6 +18,11 @@ interface LivePlayerProps {
   primaryCameraId?: string | null;
   title: string;
   eventId: string;
+}
+
+function fmtCompact(v: number): string {
+  if (v >= 1000) return `${(v / 1000).toFixed(1).replace('.', ',')}k`;
+  return v.toLocaleString('pt-BR');
 }
 
 function useStages(cameras: LiveCamera[], rawStages?: LiveStage[]): LiveStage[] {
@@ -43,7 +49,9 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { user } = useAuth();
-  useTrackStream(eventId, user?.id);
+
+  useViewerTracking(eventId, user?.id);
+  const { currentViewers } = useViewerCount(eventId);
 
   const stages = useStages(cameras, rawStages);
   const [activeStageId, setActiveStageId] = useState<string>(() => initialStageId(stages, primaryCameraId));
@@ -52,12 +60,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
   const [currentLevel, setCurrentLevel] = useState(-1);
   const [showQuality, setShowQuality] = useState(false);
 
-  const activeStage =
-    stages.find((s) => s.stageId === activeStageId) ?? stages[0];
-
-  const handleStageChange = (stageId: string) => {
-    setActiveStageId(stageId);
-  };
+  const activeStage = stages.find((s) => s.stageId === activeStageId) ?? stages[0];
 
   const toggleFullscreen = () => {
     if (!isFullscreen) containerRef.current?.requestFullscreen?.();
@@ -75,7 +78,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
         <StageSelector
           stages={stages}
           activeId={activeStageId}
-          onChange={handleStageChange}
+          onChange={setActiveStageId}
         />
       )}
 
@@ -102,6 +105,15 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
               <span className={styles.liveIndicator} />
               AO VIVO
             </div>
+            {currentViewers > 0 && (
+              <div className={styles.viewerBadge}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                {fmtCompact(currentViewers)} assistindo
+              </div>
+            )}
           </div>
 
           <div className={styles.rightControls}>
@@ -126,10 +138,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
                     ))}
                   </div>
                 )}
-                <button
-                  className={styles.qualityBtn}
-                  onClick={() => setShowQuality((s) => !s)}
-                >
+                <button className={styles.qualityBtn} onClick={() => setShowQuality((s) => !s)}>
                   {qualityLabel}
                 </button>
               </div>
