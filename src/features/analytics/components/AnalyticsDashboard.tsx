@@ -10,8 +10,11 @@ import {
 import { Line } from 'react-chartjs-2';
 import { useGetEventSalesQuery } from '../hooks/use-event-sales';
 import { useGetEventMetricsQuery } from '../hooks/use-event-metrics';
+import { useGetEventQuery } from '@/features/events/queries/get-event';
+import { useViewerAnalyticsQuery } from '../hooks/use-viewer-analytics';
 import type { EventSalesRow } from '../types/sales.types';
 import type { ChartPoint } from '../types/analytics.types';
+import type { ViewerAnalyticsResult } from '../types/viewer-analytics.types';
 import styles from './AnalyticsDashboard.module.scss';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
@@ -371,6 +374,112 @@ function OriginSection({ totalOrders }: { totalOrders: number }) {
   );
 }
 
+// ─── Viewers Section ──────────────────────────────────────────────
+interface ViewersSectionProps {
+  data: ViewerAnalyticsResult | undefined;
+  isLoading: boolean;
+}
+
+function ViewersSection({ data, isLoading }: ViewersSectionProps) {
+  const loading = isLoading || !data;
+
+  const peakLabel = data?.peakAt
+    ? new Date(data.peakAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    : null;
+
+  const hourlyLabels = data?.hourlyBreakdown.map((p) => {
+    const d = new Date(p.hour);
+    return `${d.getHours().toString().padStart(2, '0')}h`;
+  }) ?? ['—'];
+
+  const hourlyViewers = data?.hourlyBreakdown.map((p) => p.viewers) ?? [0];
+
+  const chartData = {
+    labels: hourlyLabels,
+    datasets: [
+      {
+        label: 'Espectadores/hora',
+        data: hourlyViewers,
+        borderColor: '#46d6d8',
+        backgroundColor: 'rgba(70,214,216,0.15)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        pointBackgroundColor: '#46d6d8',
+        borderWidth: 2.5,
+      },
+    ],
+  };
+
+  return (
+    <div className={styles.card}>
+      <div className={styles.cardHeader}>
+        <div>
+          <div className={styles.cardTitle}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#46d6d8" strokeWidth="2">
+              <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            ESPECTADORES
+          </div>
+          <div className={styles.cardSub}>Presença ao vivo e histórico de views</div>
+        </div>
+      </div>
+
+      <div className={styles.kpiGrid} style={{ marginBottom: '1.5rem' }}>
+        <KpiCard
+          label="PICO SIMULTÂNEO"
+          value={loading ? '…' : fmtCompact(data.peakViewers)}
+          sub={peakLabel ? `às ${peakLabel}` : '—'}
+          iconBg="rgba(70,214,216,.14)"
+          iconColor="#46d6d8"
+          iconPath={<><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></>}
+          delta=""
+          deltaUp
+        />
+        <KpiCard
+          label="TOTAL DE VIEWS"
+          value={loading ? '…' : fmtCompact(data.totalViews)}
+          sub="views históricos"
+          iconBg="rgba(255,46,158,.14)"
+          iconColor="#ff8ec9"
+          iconPath={<><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></>}
+          delta=""
+          deltaUp
+        />
+        <KpiCard
+          label="TEMPO MÉDIO"
+          value={loading ? '…' : fmtAvgWatch(data.avgDurationSeconds)}
+          sub="por sessão"
+          iconBg="rgba(255,209,102,.14)"
+          iconColor="#ffd166"
+          iconPath={<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>}
+          delta=""
+          deltaUp
+        />
+        <KpiCard
+          label="AO VIVO AGORA"
+          value={loading ? '…' : fmtCompact(data.currentViewers)}
+          sub="espectadores simultâneos"
+          iconBg="rgba(127,224,160,.14)"
+          iconColor="#7fe0a0"
+          iconPath={<circle cx="12" cy="12" r="3" />}
+          delta=""
+          deltaUp
+        />
+      </div>
+
+      <div className={styles.chartWrap}>
+        {loading
+          ? <div className={styles.loadingRow}>CARREGANDO…</div>
+          : <Line data={chartData} options={CHART_OPTIONS} />
+        }
+      </div>
+    </div>
+  );
+}
+
 // ─── Ticket Table ─────────────────────────────────────────────────
 function TicketTable({ events, isLoading }: { events: EventSalesRow[]; isLoading: boolean }) {
   const totalOrders  = events.reduce((s, e) => s + e.totalOrders, 0);
@@ -499,6 +608,10 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
 
   const { data: metrics, isLoading: metricsLoading } = useGetEventMetricsQuery(eventId);
 
+  const { data: eventData } = useGetEventQuery(eventId);
+  const orgId = eventData?.organizationId;
+  const { data: viewerAnalytics, isLoading: viewersLoading } = useViewerAnalyticsQuery(orgId, eventId);
+
   const funnel = metrics?.funnel ?? {
     viewCount: 0, uniqueViewCount: 0, cartAddCount: 0, purchaseCount: 0,
     viewToCartRate: null, cartToPurchaseRate: null, avgWatchSeconds: null, completionRate: null,
@@ -607,6 +720,9 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
           deltaUp
         />
       </div>
+
+      {/* Viewers */}
+      <ViewersSection data={viewerAnalytics} isLoading={viewersLoading} />
 
       {/* Funnel */}
       <FunnelSection
