@@ -21,6 +21,15 @@ interface VideoPanelProps {
   showLabel?: boolean;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
+  // Real aspect ratio (videoWidth/videoHeight), reported once known and again
+  // on any resolution change. CameraGrid uses this to row-justify the grid —
+  // sizing here is entirely up to the wrapper it's rendered in.
+  onAspectRatioReady?: (cameraId: string, ratio: number) => void;
+  // Controlled from LivePlayer's toolbar — one mute switch for every tile,
+  // not a per-panel local toggle (there was no way to reach that from the
+  // toolbar where AO VIVO/fullscreen live, so it was effectively hidden).
+  muted: boolean;
+  onMutedChange: (muted: boolean) => void;
 }
 
 export function VideoPanel({
@@ -31,12 +40,33 @@ export function VideoPanel({
   showLabel = true,
   selectedLevel,
   onLevelsReady,
+  onAspectRatioReady,
+  muted,
+  onMutedChange,
 }: VideoPanelProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
-  const [muted, setMuted] = useState(true);
   const [error, setError] = useState(false);
   const src = `${config.apiUrl}${camera.manifestPath}`;
+
+  // Real dimensions from the video element itself — works whether hls.js or
+  // native HLS attached the source, and 'resize' also catches ABR quality
+  // switches that change resolution mid-stream.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !onAspectRatioReady) return;
+    const report = () => {
+      if (video.videoWidth && video.videoHeight) {
+        onAspectRatioReady(camera.cameraId, video.videoWidth / video.videoHeight);
+      }
+    };
+    video.addEventListener('loadedmetadata', report);
+    video.addEventListener('resize', report);
+    return () => {
+      video.removeEventListener('loadedmetadata', report);
+      video.removeEventListener('resize', report);
+    };
+  }, [camera.cameraId, onAspectRatioReady]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -115,7 +145,7 @@ export function VideoPanel({
 
   return (
     <div className={panelClass} onClick={onSelect}>
-      <video ref={videoRef} className={styles.video} autoPlay muted playsInline />
+      <video ref={videoRef} className={styles.video} autoPlay playsInline />
 
       {error && <div className={styles.panelError}>Sem sinal</div>}
 
@@ -133,7 +163,7 @@ export function VideoPanel({
           className={styles.muteBtn}
           onClick={(e) => {
             e.stopPropagation();
-            setMuted((m) => !m);
+            onMutedChange(!muted);
           }}
         >
           {muted ? <VolumeX size={12} /> : <Volume2 size={12} />}

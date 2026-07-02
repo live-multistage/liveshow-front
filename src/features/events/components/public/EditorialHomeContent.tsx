@@ -6,6 +6,7 @@ import { useLocale } from 'next-intl';
 import { useListEventsQuery, eventToShow, useEventsPriceMap, formatPriceRange } from '@/features/events';
 import type { Show } from '@/features/events/types/show';
 import styles from './EditorialHomeContent.module.scss';
+import { AdBanner } from '@/features/advertisements/components/AdBanner';
 
 const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
 
@@ -308,6 +309,10 @@ export function EditorialHomeContent() {
             </div>
           </div>
         )}
+
+       <div className={styles.adBannerWrapper}>
+        <AdBanner placement="FEED" className={styles.feedAd} />
+       </div>
 
         {/* Genre filter + grid */}
         <div className={styles.gridSection}>

@@ -127,7 +127,6 @@ function CreateStreamForm({ eventId, onSuccess, onCancel }: CreateFormProps) {
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────
 export function StreamsPageContent() {
   const { data: events = [], isLoading: eventsLoading } = useMyEventsQuery();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -164,16 +163,14 @@ export function StreamsPageContent() {
         </div>
         <div className={styles.eventSelectorWrap}>
           <span className={styles.eventLabel}>EVENTO</span>
-          <div className={styles.eventSelectorBox}>
-            {activeEvent && <span className={styles.eventDot} />}
-            <SimpleCustomSelect
-              value={selectedEventId ?? ''}
-              onValueChange={handleEventChange}
-              placeholder="Selecionar evento..."
-              disabled={eventsLoading}
-              options={events.map((e) => ({ value: e.id, label: e.title }))}
-            />
-          </div>
+          <SimpleCustomSelect
+            value={selectedEventId ?? ''}
+            onValueChange={handleEventChange}
+            placeholder="Selecionar evento..."
+            disabled={eventsLoading}
+            options={events.map((e) => ({ value: e.id, label: e.title }))}
+            leadingIcon={activeEvent && <span className={styles.eventDot} />}
+          />
         </div>
       </div>
 
@@ -248,6 +245,7 @@ export function StreamsPageContent() {
             <StreamBuilder
               stream={selectedStream}
               eventId={selectedEventId!}
+              eventTitle={activeEvent?.title}
               onStreamUpdated={handleStreamUpdated}
               onStreamDeleted={() => setSelectedStream(null)}
             />

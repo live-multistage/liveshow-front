@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, Ticket, ArrowRight, Compass } from 'lucide-react';
 import { formatPrice } from '@/features/events';
+import { AdBanner } from '@/features/advertisements';
 import styles from './CheckoutSuccessContent.module.scss';
 
 interface Props {
@@ -62,6 +63,9 @@ export function CheckoutSuccessContent(_: Props) {
             )}
           </div>
         )}
+
+        {/* Post-purchase ad */}
+        <AdBanner placement="POST_PURCHASE" />
 
         {/* Next Steps */}
         <div className={styles.stepsSection}>

@@ -21,6 +21,7 @@
   min-height: 100vh;
 }
 
+
 .inner {
   max-width: 1280px;
   margin: 0 auto;
@@ -100,6 +101,10 @@
 .tickerSep {
   color: #5a3a4a;
   margin-left: 8px;
+}
+
+.adBannerWrapper {
+  padding: 32px 40px 8px;
 }
 
 // ── Inner layout ──────────────────────────────────────────────────
@@ -480,7 +485,7 @@
 // ── Genre + Grid section ──────────────────────────────────────────
 
 .gridSection {
-  padding: 22px 40px 56px;
+  padding: 0 40px 56px;
 
   @media (max-width: 767px) {
     padding: 20px 20px 48px;
@@ -774,4 +779,12 @@
   transition: border-color .15s, color .15s;
 
   &:hover { border-color: rgba(255, 46, 158, .4); color: #ff7ec2; }
+}
+
+// ── Feed ad banner ────────────────────────────────────────────
+.feedAd {
+  margin: 0 0 32px;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
 }

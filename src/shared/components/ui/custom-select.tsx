@@ -13,11 +13,17 @@ const CustomSelectValue = SelectPrimitive.Value;
 
 // ── Trigger ─────────────────────────────────────────────────────────────────
 
+interface CustomSelectTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> {
+  leadingIcon?: React.ReactNode;
+}
+
 const CustomSelectTrigger = React.forwardRef<
   React.ComponentRef<typeof SelectPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ children, ...props }, ref) => (
+  CustomSelectTriggerProps
+>(({ children, leadingIcon, ...props }, ref) => (
   <SelectPrimitive.Trigger ref={ref} className={styles.trigger} {...props}>
+    {leadingIcon && <span className={styles.triggerLeadingIcon}>{leadingIcon}</span>}
     <span className={styles.triggerValue}>{children}</span>
     <SelectPrimitive.Icon asChild>
       <ChevronDownIcon size={14} className={styles.triggerIcon} />
@@ -140,6 +146,7 @@ interface SimpleCustomSelectProps {
   disabled?: boolean;
   options?: SelectOption[];
   groups?: SelectOptionGroup[];
+  leadingIcon?: React.ReactNode;
 }
 
 function SimpleCustomSelect({
@@ -149,10 +156,11 @@ function SimpleCustomSelect({
   disabled,
   options,
   groups,
+  leadingIcon,
 }: SimpleCustomSelectProps) {
   return (
     <CustomSelect value={value} onValueChange={onValueChange} disabled={disabled}>
-      <CustomSelectTrigger>
+      <CustomSelectTrigger leadingIcon={leadingIcon}>
         <CustomSelectValue placeholder={placeholder} />
       </CustomSelectTrigger>
       <CustomSelectContent>

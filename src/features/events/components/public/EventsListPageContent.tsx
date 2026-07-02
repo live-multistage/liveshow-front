@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useListEventsQuery, eventToShow, useEventsPriceMap } from '@/features/events';
+import { AdBanner } from '@/features/advertisements';
 import { ShowCard } from './ShowCard';
 import styles from '../../../../app/(public)/events/page.module.scss';
 
@@ -275,6 +276,9 @@ export function EventsListPageContent() {
             </button>
           </div>
         )}
+
+        {/* Ad banner — FEED placement */}
+        <AdBanner placement="FEED" className={styles.feedAd} />
 
         {/* Grid */}
         {!isLoading && !isError && filtered.length > 0 && (

@@ -10,6 +10,7 @@ import { useEventCamerasQuery } from '@/features/streams/queries/streams.queries
 import { useOrganization } from '@/features/organizations';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { useTrackEventView } from '../../hooks/use-track-event-view';
+import { AdBanner } from '@/features/advertisements';
 import styles from './EventDetailPageContent.module.scss';
 
 interface Props {
@@ -176,8 +177,9 @@ export function EventDetailPageContent({ id }: Props) {
             )}
           </div>
 
-          <div>
+          <div className={styles.sidebarCol}>
             <TicketPanel event={event} tickets={tickets} />
+            <AdBanner placement="EVENT_DETAIL" className={styles.sidebarAd} />
           </div>
         </div>
       </div>

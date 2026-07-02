@@ -169,13 +169,31 @@
   &:hover { color: $text-primary; background-color: rgba(255,255,255,0.08); }
 }
 
-// Video grid
+// Video grid — row-justified layout (see justified-grid.ts): a flex column
+// of rows, each row's height/width computed in JS from the real aspect
+// ratios of the cameras in it. Centered on both axes so under-filled rows
+// (width-capped) or an under-filled grid (few cameras) sit centered instead
+// of pinned to a corner with a stray gap.
 .videoGrid {
   flex: 1;
   min-height: 0;
-  display: grid;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 2px;
   background-color: rgba(255,255,255,0.05);
+}
+
+.videoRow {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.focusedCell {
+  width: 100%;
+  height: 100%;
 }
 
 .emptySlot {

@@ -458,3 +458,13 @@
   text-overflow: ellipsis;
   margin: 0;
 }
+
+.sidebarCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sidebarAd {
+  width: 100%;
+}

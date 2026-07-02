@@ -1,17 +1,6 @@
 import { config } from '@/config';
 import { tokenStore } from '@/lib/auth/token-store';
-
-const SESSION_KEY = 'ls_session_id';
-
-function getSessionId(): string {
-  if (typeof window === 'undefined') return 'ssr';
-  let id = sessionStorage.getItem(SESSION_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
-    sessionStorage.setItem(SESSION_KEY, id);
-  }
-  return id;
-}
+import { getSessionId } from './session-id';
 
 type TrackParams = {
   eventType: string;

@@ -1,0 +1,476 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  padding: 2rem;
+  max-width: 1200px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $text-primary;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.25rem;
+}
+
+.subtitle {
+  font-size: 0.8125rem;
+  color: $text-muted;
+  margin: 0;
+}
+
+.createBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: $action;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: opacity 0.15s;
+
+  &:hover { opacity: 0.88; }
+}
+
+// ── KPI strip ─────────────────────────────────────────────────
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.kpiCard {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.kpiCardAccent {
+  border-color: rgba(255,46,158,0.3);
+  background: rgba(255,46,158,0.06);
+}
+
+.kpiLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  color: $text-muted;
+}
+
+.kpiValue {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: $text-primary;
+  line-height: 1;
+}
+
+.kpiFooter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kpiSub {
+  font-size: 0.6875rem;
+  color: $text-muted;
+}
+
+.deltaUp {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  color: #7fe0a0;
+}
+
+.deltaDown {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  color: #ff6b6b;
+}
+
+// ── Toolbar ───────────────────────────────────────────────────
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.125rem;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: $text-muted;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { color: $text-primary; background: $bg-hover; }
+}
+
+.tabActive {
+  color: $text-primary;
+  background: $surface;
+  border-color: $border;
+}
+
+.tabCount {
+  background: $bg-hover;
+  border-radius: 10px;
+  padding: 0 0.375rem;
+  font-size: 0.625rem;
+  color: $text-muted;
+
+  .tabActive & {
+    background: $action-dim;
+    color: $action;
+  }
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.searchInput {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+  font-size: 0.8125rem;
+  color: $text-primary;
+  width: 220px;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &::placeholder { color: $text-muted; }
+  &:focus { border-color: $action; }
+}
+
+.formatFilter {
+  display: flex;
+  gap: 0.125rem;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.formatBtn {
+  padding: 0.375rem 0.625rem;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  color: $text-muted;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { color: $text-primary; }
+}
+
+.formatBtnActive {
+  background: $bg-hover;
+  color: $text-primary;
+}
+
+// ── Ad list ───────────────────────────────────────────────────
+.adList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem;
+  color: $text-muted;
+  font-size: 0.875rem;
+}
+
+.loadingRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem;
+  color: $text-muted;
+  font-size: 0.875rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.adRow {
+  display: grid;
+  grid-template-columns: 80px 1fr 130px 280px 180px;
+  align-items: center;
+  gap: 1.25rem;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  transition: border-color 0.15s;
+
+  &:hover { border-color: rgba(255,46,158,0.2); }
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 64px 1fr;
+    grid-template-rows: auto auto auto;
+  }
+}
+
+.adPreview {
+  width: 80px;
+  height: 56px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.adPreviewLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.5625rem;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.04em;
+}
+
+.adInfo { min-width: 0; }
+
+.adMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.adId {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625rem;
+  color: $action;
+  letter-spacing: 0.04em;
+}
+
+.adFormat {
+  font-size: 0.625rem;
+  color: $text-muted;
+  background: $bg-hover;
+  border-radius: 4px;
+  padding: 0.125rem 0.375rem;
+}
+
+.adName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adPeriod {
+  font-size: 0.75rem;
+  color: $text-muted;
+  margin: 0;
+}
+
+.adStatus { display: flex; align-items: center; }
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 100px;
+  border: 1px solid;
+  letter-spacing: 0.02em;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.adMetrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.metric { display: flex; flex-direction: column; gap: 2px; }
+
+.metricLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.5625rem;
+  letter-spacing: 0.08em;
+  color: $text-muted;
+}
+
+.metricValue {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.metricUp { color: #7fe0a0; }
+.metricDown { color: #ff6b6b; }
+
+.adActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+// ── Toggle ───────────────────────────────────────────────────
+.toggle {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: $border;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggleOn { background: $action; }
+
+.toggleThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.2s;
+
+  .toggleOn & { left: 19px; }
+}
+
+.reportBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.875rem;
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  color: $text-secondary;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: $action;
+    color: $action;
+  }
+}
+
+// ── Pagination ────────────────────────────────────────────────
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.paginationInfo {
+  font-size: 0.75rem;
+  color: $text-muted;
+}
+
+.paginationBtns {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.pageBtn {
+  padding: 0.375rem 0.75rem;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  color: $text-muted;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) { color: $text-primary; border-color: $action; }
+  &:disabled { opacity: 0.4; cursor: default; }
+}
+
+.pageBtnActive {
+  background: $action;
+  border-color: $action;
+  color: #fff;
+}

@@ -1,0 +1,156 @@
+@use '../../../styles/_variables' as *;
+
+@keyframes lsPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .35; transform: scale(.7); }
+}
+
+.panel {
+  background: $surface-card;
+  border: 1px solid $border;
+  border-radius: 18px;
+  overflow: hidden;
+  margin: 1.25rem 1.5rem 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+}
+
+// ── Live thumbnail ─────────────────────────────────────────────────
+
+.thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  // Visible behind the video while it's connecting, and as the backdrop
+  // for the "no camera on air" empty state.
+  background:
+    radial-gradient(120% 120% at 70% 30%, rgba(155, 123, 255, .45), transparent 55%),
+    radial-gradient(90% 120% at 20% 90%, rgba(255, 46, 158, .4), transparent 55%),
+    linear-gradient(150deg, #1f1228, #0c0810);
+}
+
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.liveBadge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: $action;
+  color: #0a0a0b;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 6px 11px;
+  border-radius: 999px;
+}
+
+.pgmBadge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(8, 8, 10, .6);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, .16);
+  color: #fff;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0a0a0b;
+  animation: lsPulse 1.4s ease-in-out infinite;
+}
+
+.noSignal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: $text-muted;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: .06em;
+}
+
+// ── Info column ───────────────────────────────────────────────────
+
+.info {
+  display: flex;
+  flex-direction: column;
+  padding: 22px 22px 18px;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  color: #ff7ec2;
+  margin-bottom: 8px;
+
+  .dot { background: $action; }
+}
+
+.title {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.1;
+  color: $text-primary;
+}
+
+.subtitle {
+  font-family: 'Space Mono', monospace;
+  font-size: 11.5px;
+  color: $text-muted;
+  margin-bottom: 18px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px dashed $border;
+}
+
+.statLabel { color: $text-muted; }
+
+.statValue {
+  font-family: 'Space Mono', monospace;
+  color: $text-primary;
+  font-weight: 700;
+}

@@ -5,6 +5,9 @@
   50%       { opacity: 0.5; }
 }
 
+// Always fills its wrapper exactly — CameraGrid computes that wrapper's
+// pixel size (row-justified per real aspect ratio, or full-frame when
+// focused), so the panel itself doesn't need to know or care about aspect.
 .panel {
   position: relative;
   width: 100%;
@@ -15,13 +18,15 @@
   background-color: $bg;
 }
 
-// Real HLS video fills the tile (replaces the mock gradient/noise layers).
+// contain, not cover — the wrapper is already sized to the camera's real
+// aspect ratio in grid mode, so this mostly matters for focused mode, where
+// the frame's aspect rarely matches the camera's exactly.
 .video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   background: #000;
 }
 

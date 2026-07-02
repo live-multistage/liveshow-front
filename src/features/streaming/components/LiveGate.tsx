@@ -1,11 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { useLiveAccessQuery, useLivePlaybackQuery } from '../queries/live.queries';
 import { LivePlayer } from './LivePlayer';
 import { LiveGateLoading } from './LiveGateLoading';
+import { LiveNoAccess } from './LiveNoAccess';
 
 interface Props {
   eventId: string;
@@ -14,7 +14,7 @@ interface Props {
 
 export function LiveGate({ eventId, eventTitle }: Props) {
   const t = useTranslations('liveGate');
-  const { isLoading: authLoading } = useAuth();
+  const { isLoggedIn, isLoading: authLoading } = useAuth();
   const access = useLiveAccessQuery(eventId, !authLoading);
   const authorized = access.data === true;
   const playback = useLivePlaybackQuery(eventId, authorized);
@@ -24,13 +24,7 @@ export function LiveGate({ eventId, eventTitle }: Props) {
   }
 
   if (!authorized) {
-    return (
-      <div style={{ padding: 40, textAlign: 'center' }}>
-        <h2>{t('accessRequired')}</h2>
-        <p>{t('needTicket', { title: eventTitle })}</p>
-        <Link href={`/events/${eventId}`}>{t('viewTickets')}</Link>
-      </div>
-    );
+    return <LiveNoAccess eventId={eventId} eventTitle={eventTitle} isLoggedIn={isLoggedIn} />;
   }
 
   if (playback.isLoading) {
