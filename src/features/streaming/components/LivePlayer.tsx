@@ -1,11 +1,11 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Maximize, Minimize, Volume2, VolumeX, Settings } from 'lucide-react';
 import type { LiveCamera, LiveStage } from '../types/live.types';
 import { CameraGrid } from './CameraGrid';
-import type { QualityLevel } from './CameraGrid';
+import type { QualityLevel, ViewMode } from './CameraGrid';
 import { StageSelector } from './StageSelector';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { useViewerTracking } from '../hooks/use-viewer-tracking';
@@ -54,6 +54,13 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
   const [globalMuted, setGlobalMuted] = useState(true);
   const [audioCameraId, setAudioCameraId] = useState<string | null>(null);
   const [showAudioMenu, setShowAudioMenu] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
+  const [mainCameraId, setMainCameraId] = useState<string | null>(null);
+  // Every camera in the active stage is visible by default — no more
+  // artificial cap tied to a fixed grid shape (see design spec). Reset
+  // whenever the active stage changes, mirroring the existing
+  // activeStageId-driven reset pattern already used elsewhere in this file.
+  const [activeCameraIds, setActiveCameraIds] = useState<string[]>([]);
   const { user } = useAuth();
 
   useViewerTracking(eventId, user?.id);
@@ -67,6 +74,12 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
   const [showQuality, setShowQuality] = useState(false);
 
   const activeStage = stages.find((s) => s.stageId === activeStageId) ?? stages[0];
+
+  const stageCameraKey = (activeStage?.cameras ?? []).map((c) => c.cameraId).sort().join(',');
+  useEffect(() => {
+    setActiveCameraIds((activeStage?.cameras ?? []).map((c) => c.cameraId));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stageCameraKey]);
 
   const toggleFullscreen = () => {
     if (!isFullscreen) containerRef.current?.requestFullscreen?.();
@@ -85,6 +98,15 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
     audioCameraId && activeStage?.cameras.some((c) => c.cameraId === audioCameraId)
       ? audioCameraId
       : (activeStage?.cameras[0]?.cameraId ?? null);
+
+  const effectiveMainCameraId =
+    mainCameraId && activeCameraIds.includes(mainCameraId)
+      ? mainCameraId
+      : (activeCameraIds[0] ?? null);
+
+  // Main+Rail/Grid have nothing meaningful to show alongside a single
+  // camera — force Solo regardless of the user's last-picked mode.
+  const effectiveViewMode: ViewMode = activeCameraIds.length <= 1 ? 'solo' : viewMode;
 
   return (
     <div ref={containerRef} className={styles.player}>
@@ -111,6 +133,12 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
               onGlobalMutedChange={setGlobalMuted}
               audioCameraId={effectiveAudioCameraId}
               onAudioCameraChange={(id) => { setAudioCameraId(id); setGlobalMuted(false); }}
+              viewMode={effectiveViewMode}
+              onViewModeChange={setViewMode}
+              mainCameraId={effectiveMainCameraId}
+              onMainCameraChange={setMainCameraId}
+              activeCameraIds={activeCameraIds}
+              onActiveCameraIdsChange={setActiveCameraIds}
             />
           )}
         </div>
