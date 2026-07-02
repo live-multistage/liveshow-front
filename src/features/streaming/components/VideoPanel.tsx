@@ -30,6 +30,14 @@ interface VideoPanelProps {
   // toolbar where AO VIVO/fullscreen live, so it was effectively hidden).
   muted: boolean;
   onMutedChange: (muted: boolean) => void;
+  // 'contain' (default) never crops — used for full-bleed playback (Solo,
+  // Main, Grid tiles). 'cover' fills a fixed small box even if it crops —
+  // used for utility thumbnails (PIP, rail) where showing the whole frame
+  // matters less than a tidy uniform tile.
+  fit?: 'contain' | 'cover';
+  // Small thumbnails (PIP, rail) don't get their own mute toggle — audio is
+  // one global choice (LivePlayer's cog menu), not per-tile at that size.
+  showMuteButton?: boolean;
 }
 
 export function VideoPanel({
@@ -43,6 +51,8 @@ export function VideoPanel({
   onAspectRatioReady,
   muted,
   onMutedChange,
+  fit = 'contain',
+  showMuteButton = true,
 }: VideoPanelProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -145,7 +155,14 @@ export function VideoPanel({
 
   return (
     <div className={panelClass} onClick={onSelect}>
-      <video ref={videoRef} className={styles.video} autoPlay playsInline />
+      <video
+        ref={videoRef}
+        className={styles.video}
+        style={{ objectFit: fit }}
+        autoPlay
+        muted
+        playsInline
+      />
 
       {error && <div className={styles.panelError}>Sem sinal</div>}
 
@@ -159,15 +176,17 @@ export function VideoPanel({
             <span className={styles.cameraLabel}>{camera.name}</span>
           </div>
         )}
-        <button
-          className={styles.muteBtn}
-          onClick={(e) => {
-            e.stopPropagation();
-            onMutedChange(!muted);
-          }}
-        >
-          {muted ? <VolumeX size={12} /> : <Volume2 size={12} />}
-        </button>
+        {showMuteButton && (
+          <button
+            className={styles.muteBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMutedChange(!muted);
+            }}
+          >
+            {muted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+          </button>
+        )}
       </div>
 
       {onSelect && (
