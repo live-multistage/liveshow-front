@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { X, Check, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { X, Check, ChevronLeft, ChevronRight, Loader2, ImagePlus } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import styles from './CreateAdDrawer.module.scss';
 import { useCreateAdMutation } from '../mutations/use-create-ad.mutation';
+import { advertisementsService } from '../services/advertisements.service';
 import { eventsService } from '@/features/events/services/events.service';
-import type { AdFormat, AdPlacement, AdBillingModel } from '../types/advertisement.types';
+import type { AdFormat, AdPlacement, AdBillingModel, FrequencyCapWindow } from '../types/advertisement.types';
 
 interface CreateAdDrawerProps {
   open: boolean;
@@ -93,6 +94,16 @@ function buildRequest(form: FormState, orgId: string) {
     .filter((i) => form[i.key])
     .map((i) => i.domain);
 
+  let frequencyCapMax: number | undefined;
+  let frequencyCapWindow: FrequencyCapWindow | undefined;
+  if (form.frequency === 'limit3') {
+    frequencyCapMax = 3;
+    frequencyCapWindow = 'day';
+  } else if (form.frequency === 'once') {
+    frequencyCapMax = 1;
+    frequencyCapWindow = 'total';
+  }
+
   return {
     organizationId: orgId,
     eventId: form.eventId || undefined,
@@ -101,6 +112,8 @@ function buildRequest(form: FormState, orgId: string) {
     placements,
     targetDomains,
     targetCategories: [] as string[],
+    frequencyCapMax,
+    frequencyCapWindow,
     billingModel: form.billing.toUpperCase() as AdBillingModel,
     bidCents: Math.round(form.bidAmount * 100),
     dailyBudgetCents: Math.round(form.dailyBudget * 100),
@@ -113,6 +126,8 @@ function buildRequest(form: FormState, orgId: string) {
 export function CreateAdDrawer({ open, orgId, onClose }: CreateAdDrawerProps) {
   const [step, setStep] = useState<Step>(1);
   const [form, setForm] = useState<FormState>(INITIAL);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const createMutation = useCreateAdMutation(orgId);
 
@@ -130,6 +145,7 @@ export function CreateAdDrawer({ open, orgId, onClose }: CreateAdDrawerProps) {
   function handleClose() {
     setStep(1);
     setForm(INITIAL);
+    setBannerFile(null);
     createMutation.reset();
     onClose();
   }
@@ -152,7 +168,6 @@ export function CreateAdDrawer({ open, orgId, onClose }: CreateAdDrawerProps) {
     if (!orgId) return;
     const payload = buildRequest(form, orgId);
 
-    // Fetch event title if an event is selected
     const selectedEvent = myEvents.find((e) => e.id === form.eventId);
     if (selectedEvent) {
       payload.title = `${selectedEvent.title} — ${payload.format === 'HORIZONTAL_728x90' ? 'Banner Topo' : 'Sidebar'}`;
@@ -160,7 +175,19 @@ export function CreateAdDrawer({ open, orgId, onClose }: CreateAdDrawerProps) {
       payload.title = 'Novo Anúncio';
     }
 
-    createMutation.mutate(payload, { onSuccess: handleClose });
+    createMutation.mutate(payload, {
+      onSuccess: async (created) => {
+        if (bannerFile && created?.id) {
+          setUploading(true);
+          try {
+            await advertisementsService.uploadBanner(created.id, bannerFile);
+          } finally {
+            setUploading(false);
+          }
+        }
+        handleClose();
+      },
+    });
   }
 
   const canNext =
@@ -205,6 +232,8 @@ export function CreateAdDrawer({ open, orgId, onClose }: CreateAdDrawerProps) {
               set={set}
               events={myEvents}
               eventsLoading={eventsLoading}
+              bannerFile={bannerFile}
+              onBannerChange={setBannerFile}
             />
           )}
           {step === 2 && (
@@ -230,14 +259,14 @@ export function CreateAdDrawer({ open, orgId, onClose }: CreateAdDrawerProps) {
           )}
           <button
             className={styles.nextBtn}
-            disabled={!canNext || createMutation.isPending}
+            disabled={!canNext || createMutation.isPending || uploading}
             onClick={() => {
               if (step < 3) setStep((s) => (s + 1) as Step);
               else void handleSubmit();
             }}
           >
-            {createMutation.isPending ? (
-              <><Loader2 size={14} className={styles.btnSpinner} /> Criando...</>
+            {(createMutation.isPending || uploading) ? (
+              <><Loader2 size={14} className={styles.btnSpinner} /> {uploading ? 'Enviando banner...' : 'Criando...'}</>
             ) : step === 3 ? (
               'Criar Anúncio'
             ) : (
@@ -257,14 +286,57 @@ function Step1({
   set,
   events,
   eventsLoading,
+  bannerFile,
+  onBannerChange,
 }: {
   form: FormState;
   set: <K extends keyof FormState>(k: K, v: FormState[K]) => void;
   events: { id: string; title: string }[];
   eventsLoading: boolean;
+  bannerFile: File | null;
+  onBannerChange: (f: File | null) => void;
 }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const preview = bannerFile ? URL.createObjectURL(bannerFile) : null;
+
   return (
     <div className={styles.stepContent}>
+      <section className={styles.section}>
+        <label className={styles.sectionLabel}>BANNER DO ANÚNCIO</label>
+        <div
+          className={styles.bannerDrop}
+          onClick={() => fileRef.current?.click()}
+          style={preview ? { backgroundImage: `url(${preview})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+        >
+          {!preview && (
+            <>
+              <ImagePlus size={24} className={styles.bannerIcon} />
+              <span className={styles.bannerHint}>Clique para selecionar (JPG, PNG, WEBP · máx 5 MB)</span>
+            </>
+          )}
+          {preview && (
+            <button
+              className={styles.bannerRemove}
+              onClick={(e) => { e.stopPropagation(); onBannerChange(null); }}
+              type="button"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className={styles.fileInput}
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f && f.size <= 5 * 1024 * 1024) onBannerChange(f);
+            e.target.value = '';
+          }}
+        />
+      </section>
+
       <section className={styles.section}>
         <label className={styles.sectionLabel}>EVENTO (OPCIONAL)</label>
         <select
@@ -304,17 +376,17 @@ function Step1({
 
       <section className={styles.section}>
         <label className={styles.sectionLabel}>POSICIONAMENTO</label>
-        <div className={styles.checkList}>
+        <div className={styles.optionGrid}>
           {PLACEMENTS.map((p) => (
-            <label key={p.key} className={styles.checkRow}>
-              <input
-                type="checkbox"
-                className={styles.checkbox}
-                checked={form[p.key]}
-                onChange={(e) => set(p.key, e.target.checked)}
-              />
-              <span className={styles.checkLabel}>{p.label}</span>
-            </label>
+            <button
+              key={p.key}
+              type="button"
+              className={`${styles.optionCard} ${form[p.key] ? styles.optionCardActive : ''}`}
+              onClick={() => set(p.key, !form[p.key])}
+            >
+              <span className={`${styles.optionDot} ${styles.optionDotCheck}`} />
+              <span className={styles.optionCardLabel}>{p.label}</span>
+            </button>
           ))}
         </div>
       </section>
@@ -392,23 +464,23 @@ function Step2({
 
       <section className={styles.section}>
         <label className={styles.sectionLabel}>FREQUÊNCIA</label>
-        <div className={styles.radioList}>
+        <div className={styles.optionGrid}>
           {(
             [
               { v: 'unlimited', label: 'Sem limite' },
-              { v: 'limit3',    label: 'Máx 3× por usuário/dia' },
+              { v: 'limit3',    label: 'Máx 3× / dia' },
               { v: 'once',      label: '1× por usuário' },
             ] as const
           ).map((opt) => (
-            <label key={opt.v} className={styles.radioRow}>
-              <input
-                type="radio"
-                className={styles.radio}
-                checked={form.frequency === opt.v}
-                onChange={() => set('frequency', opt.v)}
-              />
-              <span className={styles.radioLabel}>{opt.label}</span>
-            </label>
+            <button
+              key={opt.v}
+              type="button"
+              className={`${styles.optionCard} ${form.frequency === opt.v ? styles.optionCardActive : ''}`}
+              onClick={() => set('frequency', opt.v)}
+            >
+              <span className={styles.optionDot} />
+              <span className={styles.optionCardLabel}>{opt.label}</span>
+            </button>
           ))}
         </div>
       </section>
@@ -516,6 +588,14 @@ function Step3({ form, set }: { form: FormState; set: <K extends keyof FormState
           <SummaryRow
             label="PERÍODO"
             value={form.startDay && form.endDay ? `${form.startDay}–${form.endDay} Jul 2026` : '—'}
+          />
+          <SummaryRow
+            label="FREQUÊNCIA"
+            value={
+              form.frequency === 'limit3' ? 'Máx 3× / dia'
+              : form.frequency === 'once' ? '1× por usuário'
+              : 'Sem limite'
+            }
           />
           <SummaryRow label="LANCE" value={`R$ ${form.bidAmount.toFixed(2)} / ${form.billing === 'cpm' ? '1k imp.' : 'clique'}`} />
           <SummaryRow label="ORÇAMENTO" value={`R$ ${form.dailyBudget}/dia · Total R$ ${form.totalLimit}`} />

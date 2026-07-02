@@ -42,6 +42,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
+
+  // The select itself (SimpleCustomSelect) — was previously constrained by
+  // the now-removed eventSelectorBox wrapper.
+  > :last-child { min-width: 280px; }
 }
 
 .eventLabel {
@@ -49,23 +53,6 @@
   font-size: 10.5px;
   letter-spacing: .1em;
   color: #8f8f97;
-}
-
-.eventSelectorBox {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  background: #101013;
-  border: 1px solid rgba(255, 255, 255, .08);
-  border-radius: 12px;
-  padding: 0 4px 0 10px;
-  min-width: 280px;
-  transition: border-color .15s;
-
-  &:focus-within { border-color: rgba(255, 46, 158, .32); }
-
-  // Override SimpleCustomSelect trigger to blend in
-  > * { flex: 1; }
 }
 
 .eventDot {

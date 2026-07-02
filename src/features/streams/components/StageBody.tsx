@@ -35,8 +35,8 @@ export function StageBody({ stage, streamStatus }: Props) {
   return (
     <div className={styles.stageBody}>
       {isLoading && <p className={styles.loading}>Carregando...</p>}
-      {feeds.length === 0 && !isLoading && <p className={styles.emptyHint}>Nenhum feed</p>}
-      {feeds.map((feed) => {
+      {feeds?.length === 0 && !isLoading && <p className={styles.emptyHint}>Nenhum feed</p>}
+      {feeds?.map((feed) => {
         const open = expandedFeeds.has(feed.id);
         return (
           <div key={feed.id} className={styles.feed}>

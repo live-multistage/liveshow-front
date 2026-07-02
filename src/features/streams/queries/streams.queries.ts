@@ -15,6 +15,16 @@ export const STREAM_KEYS = {
   stages: (streamId: string) => ['streams', streamId, 'stages'] as const,
   feeds: (stageId: string) => ['stages', stageId, 'feeds'] as const,
   cameras: (feedId: string) => ['feeds', feedId, 'cameras'] as const,
+  // Distinct from feeds/cameras above on purpose: useStageFeedsQuery and
+  // useFeedCamerasQuery cache bare FeedResponse[]/CameraResponse[] under
+  // those keys (StageBody/FeedBody .map() over them directly).
+  // useEventCamerasQuery's internal queries below return a differently-
+  // shaped {feeds, stage}/CameraWithContext[]-with-extra-fields wrapper —
+  // sharing a key let whichever query won the cache race overwrite the
+  // other with the wrong shape (crashed StageBody with "feeds.map is not
+  // a function" once both hooks mounted on the same page).
+  eventCamerasFeeds: (stageId: string) => ['event-cameras', 'feeds', stageId] as const,
+  eventCamerasCameras: (feedId: string) => ['event-cameras', 'cameras', feedId] as const,
 };
 
 export function useEventStreamsQuery(eventId: string | null) {
@@ -90,7 +100,7 @@ export function useEventCamerasQuery(eventId: string | null): {
 
   const feedQueries = useQueries({
     queries: stages.map((stage) => ({
-      queryKey: STREAM_KEYS.feeds(stage.id),
+      queryKey: STREAM_KEYS.eventCamerasFeeds(stage.id),
       queryFn: async (): Promise<{ feeds: FeedResponse[]; stage: StageResponse }> => ({
         feeds: await streamsService.listFeeds(stage.id),
         stage,
@@ -106,7 +116,7 @@ export function useEventCamerasQuery(eventId: string | null): {
 
   const cameraQueries = useQueries({
     queries: feedsWithStage.map(({ feed, stage }) => ({
-      queryKey: STREAM_KEYS.cameras(feed.id),
+      queryKey: STREAM_KEYS.eventCamerasCameras(feed.id),
       queryFn: async (): Promise<CameraWithContext[]> => {
         const cams = await streamsService.listCameras(feed.id);
         return cams.map((c) => ({

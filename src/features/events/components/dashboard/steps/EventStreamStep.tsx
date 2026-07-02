@@ -173,7 +173,7 @@ function StageNode({
 
       {open && (
         <div className={styles.stageBody}>
-          {stage.feeds.map((feed) => (
+          {stage.feeds?.map((feed) => (
             <FeedNode
               key={feed._key}
               feed={feed}
@@ -250,7 +250,7 @@ export function EventStreamStep({ value, onChange }: Props) {
             ? s
             : {
                 ...s,
-                feeds: s.feeds.map((f) =>
+                feeds: s.feeds?.map((f) =>
                   f._key !== feedKey
                     ? f
                     : {
@@ -277,7 +277,7 @@ export function EventStreamStep({ value, onChange }: Props) {
             ? s
             : {
                 ...s,
-                feeds: s.feeds.map((f) =>
+                feeds: s.feeds?.map((f) =>
                   f._key !== feedKey
                     ? f
                     : { ...f, cameras: f.cameras.filter((c) => c._key !== camKey) },

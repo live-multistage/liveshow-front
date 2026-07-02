@@ -3,6 +3,7 @@ export type AdFormat = 'HORIZONTAL_728x90' | 'VERTICAL_300x600';
 export type AdPlacement = 'FEED' | 'EVENT_DETAIL' | 'CHECKOUT' | 'POST_PURCHASE';
 export type AdBillingModel = 'CPM' | 'CPC';
 export type AdStatusAction = 'submit' | 'activate' | 'pause' | 'end';
+export type FrequencyCapWindow = 'day' | 'total';
 
 export interface AdResponse {
   id: string;
@@ -14,6 +15,9 @@ export interface AdResponse {
   placements: AdPlacement[];
   targetDomains: string[];
   targetCategories: string[];
+  bannerUrl: string | null;
+  frequencyCapMax: number | null;
+  frequencyCapWindow: FrequencyCapWindow | null;
   billingModel: AdBillingModel;
   bidCents: number;
   dailyBudgetCents: number;
@@ -34,6 +38,8 @@ export interface CreateAdRequest {
   placements: AdPlacement[];
   targetDomains: string[];
   targetCategories: string[];
+  frequencyCapMax?: number;
+  frequencyCapWindow?: FrequencyCapWindow;
   billingModel: AdBillingModel;
   bidCents: number;
   dailyBudgetCents: number;
@@ -48,6 +54,8 @@ export interface UpdateAdRequest {
   placements?: AdPlacement[];
   targetDomains?: string[];
   targetCategories?: string[];
+  frequencyCapMax?: number;
+  frequencyCapWindow?: FrequencyCapWindow;
   billingModel?: AdBillingModel;
   bidCents?: number;
   dailyBudgetCents?: number;
@@ -76,4 +84,13 @@ export interface AdReportResponse {
   ctr: number | null;
   spendCents: number;
   dailyBreakdown: AdDailyBreakdown[];
+}
+
+export interface ServedAd {
+  adId: string;
+  title: string;
+  format: string;
+  organizationId: string;
+  eventId: string | null;
+  bannerUrl: string | null;
 }

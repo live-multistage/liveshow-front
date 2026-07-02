@@ -206,7 +206,20 @@
     "needTicket": "Necesitas una entrada para ver {title} en vivo.",
     "viewTickets": "Ver entradas",
     "loadingStream": "Cargando transmisión",
-    "notStarted": "La transmisión aún no ha comenzado. Esta página se actualiza automáticamente cuando el evento entre en vivo."
+    "notStarted": "La transmisión aún no ha comenzado. Esta página se actualiza automáticamente cuando el evento entre en vivo.",
+    "restricted": "Acceso restringido",
+    "liveEyebrow": "Transmisión en vivo",
+    "headline": "Necesitas una entrada para entrar.",
+    "buyTicket": "Comprar entrada",
+    "login": "¿Ya tienes cuenta? Entrar",
+    "securePayment": "Pago seguro",
+    "instantAccess": "Acceso inmediato",
+    "liveNow": "En vivo ahora",
+    "camerasCount": "{count} cámaras",
+    "watching": "Viendo",
+    "endsIn": "Termina en",
+    "startsAt": "Comienza a las",
+    "startingFrom": "Desde"
   },
   "ticketCard": {
     "allCameras": "Todas las cámaras",

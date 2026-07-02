@@ -1,0 +1,4 @@
+// Base sizing only — each consumer's className adds context-specific layout
+// (aspect-ratio box for the modal, absolute-fill for the inline panel).
+.video { width: 100%; display: block; background: #000; }
+.error { color: #fca5a5; padding: 40px; text-align: center; font-size: 14px; }

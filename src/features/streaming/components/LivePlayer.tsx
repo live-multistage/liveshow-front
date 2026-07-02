@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Maximize, Minimize } from 'lucide-react';
+import { Maximize, Minimize, Volume2, VolumeX, Settings } from 'lucide-react';
 import type { LiveCamera, LiveStage } from '../types/live.types';
 import { CameraGrid } from './CameraGrid';
 import type { QualityLevel } from './CameraGrid';
@@ -48,6 +48,12 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // Starts muted — browser autoplay policy requires it. Master on/off switch;
+  // which single camera's audio plays while unmuted is audioCameraId below
+  // (multiple simultaneous tile audio tracks would be a cacophony).
+  const [globalMuted, setGlobalMuted] = useState(true);
+  const [audioCameraId, setAudioCameraId] = useState<string | null>(null);
+  const [showAudioMenu, setShowAudioMenu] = useState(false);
   const { user } = useAuth();
 
   useViewerTracking(eventId, user?.id);
@@ -72,6 +78,14 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
   const activeLevel = levels.find((l) => l.index === currentLevel);
   const qualityLabel = currentLevel === -1 ? 'Auto' : activeLevel ? `${activeLevel.height}p` : 'Auto';
 
+  // Falls back to the primary/first camera in the active stage — handles
+  // both "never picked one" and "picked one, then switched to a stage that
+  // doesn't have it."
+  const effectiveAudioCameraId =
+    audioCameraId && activeStage?.cameras.some((c) => c.cameraId === audioCameraId)
+      ? audioCameraId
+      : (activeStage?.cameras[0]?.cameraId ?? null);
+
   return (
     <div ref={containerRef} className={styles.player}>
       {stages.length > 1 && (
@@ -93,6 +107,10 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
               onBack={() => router.push(`/events/${eventId}`)}
               selectedLevel={currentLevel}
               onLevelsReady={setLevels}
+              globalMuted={globalMuted}
+              onGlobalMutedChange={setGlobalMuted}
+              audioCameraId={effectiveAudioCameraId}
+              onAudioCameraChange={(id) => { setAudioCameraId(id); setGlobalMuted(false); }}
             />
           )}
         </div>
@@ -117,6 +135,43 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
           </div>
 
           <div className={styles.rightControls}>
+            <button
+              onClick={() => setGlobalMuted((m) => !m)}
+              className={styles.skipBtn}
+              aria-label={globalMuted ? 'Ativar som' : 'Silenciar'}
+              title={globalMuted ? 'Ativar som' : 'Silenciar'}
+            >
+              {globalMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            </button>
+            {activeStage && activeStage.cameras.length > 1 && (
+              <div className={styles.qualityWrapper}>
+                {showAudioMenu && (
+                  <div className={styles.qualityMenu}>
+                    {activeStage.cameras.map((cam) => (
+                      <button
+                        key={cam.cameraId}
+                        className={cam.cameraId === effectiveAudioCameraId ? styles.qualityItemActive : styles.qualityItem}
+                        onClick={() => {
+                          setAudioCameraId(cam.cameraId);
+                          setGlobalMuted(false);
+                          setShowAudioMenu(false);
+                        }}
+                      >
+                        {cam.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <button
+                  className={styles.skipBtn}
+                  onClick={() => setShowAudioMenu((s) => !s)}
+                  aria-label="Escolher câmera com áudio"
+                  title="Escolher câmera com áudio"
+                >
+                  <Settings size={16} />
+                </button>
+              </div>
+            )}
             {levels.length > 0 && (
               <div className={styles.qualityWrapper}>
                 {showQuality && (

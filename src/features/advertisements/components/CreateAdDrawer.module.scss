@@ -239,23 +239,54 @@
 }
 
 // ── Checkboxes ────────────────────────────────────────────────
-.checkList { display: flex; flex-direction: column; gap: 0.5rem; }
+.optionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
 
-.checkRow {
+.optionCard {
   display: flex;
   align-items: center;
   gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: 8px;
   cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: left;
+
+  &:hover { border-color: rgba(255,255,255,.22); }
 }
 
-.checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: $action;
-  cursor: pointer;
+.optionCardActive {
+  border-color: $action !important;
+  background: rgba(255,46,158,.08);
+
+  .optionDot { background: $action; box-shadow: 0 0 0 3px rgba(255,46,158,.25); }
+  .optionCardLabel { color: #fff; }
 }
 
-.checkLabel { font-size: 0.8125rem; color: $text-secondary; }
+.optionDot {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid #5f5f67;
+  background: transparent;
+  transition: background 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.optionDotCheck {
+  border-radius: 3px;
+}
+
+.optionCardLabel {
+  font-size: 0.8125rem;
+  color: $text-secondary;
+  transition: color 0.15s;
+}
 
 // ── Calendar ──────────────────────────────────────────────────
 .calendar {
@@ -349,24 +380,7 @@
   color: $action;
 }
 
-// ── Radios ────────────────────────────────────────────────────
-.radioList { display: flex; flex-direction: column; gap: 0.5rem; }
-
-.radioRow {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  cursor: pointer;
-}
-
-.radio {
-  width: 16px;
-  height: 16px;
-  accent-color: $action;
-  cursor: pointer;
-}
-
-.radioLabel { font-size: 0.8125rem; color: $text-secondary; }
+// ── Radios (reuse optionGrid/optionCard) ──────────────────────
 
 // ── Billing cards ─────────────────────────────────────────────
 .billingCards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
@@ -510,4 +524,61 @@
 
   &:hover:not(:disabled) { opacity: 0.88; }
   &:disabled { opacity: 0.4; cursor: default; }
+}
+
+// ── Banner upload ─────────────────────────────────────────────
+.bannerDrop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 120px;
+  border: 1.5px dashed rgba(255,255,255,.18);
+  border-radius: 12px;
+  background: rgba(255,255,255,.03);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  overflow: hidden;
+
+  &:hover {
+    border-color: rgba(255,46,158,.5);
+    background: rgba(255,46,158,.04);
+  }
+}
+
+.bannerIcon {
+  color: #5f5f67;
+}
+
+.bannerHint {
+  font-size: 11px;
+  color: #5f5f67;
+  text-align: center;
+  padding: 0 16px;
+}
+
+.bannerRemove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.6);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+
+  &:hover { opacity: 1; }
+}
+
+.fileInput {
+  display: none;
 }

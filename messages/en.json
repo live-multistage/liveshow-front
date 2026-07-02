@@ -206,7 +206,20 @@
     "needTicket": "You need a ticket to watch {title} live.",
     "viewTickets": "View tickets",
     "loadingStream": "Loading stream",
-    "notStarted": "The stream hasn't started yet. This page updates automatically when the event goes live."
+    "notStarted": "The stream hasn't started yet. This page updates automatically when the event goes live.",
+    "restricted": "Access restricted",
+    "liveEyebrow": "Live stream",
+    "headline": "You need a ticket to get in.",
+    "buyTicket": "Buy ticket",
+    "login": "Already have an account? Log in",
+    "securePayment": "Secure payment",
+    "instantAccess": "Instant access",
+    "liveNow": "Live now",
+    "camerasCount": "{count} cameras",
+    "watching": "Watching",
+    "endsIn": "Ends in",
+    "startsAt": "Starts at",
+    "startingFrom": "Starting from"
   },
   "ticketCard": {
     "allCameras": "All cameras",

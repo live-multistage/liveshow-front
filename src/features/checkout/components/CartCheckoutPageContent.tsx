@@ -10,6 +10,7 @@ import { checkoutService } from '../services/checkout.service';
 import { usePaymentMethodsQuery } from '../mutations/checkout.mutations';
 import type { PaymentProvider } from '../types/checkout.types';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
+import { AdBanner } from '@/features/advertisements';
 import styles from './CheckoutPageContent.module.scss';
 import cartStyles from './CartCheckoutPageContent.module.scss';
 
@@ -114,6 +115,8 @@ export function CartCheckoutPageContent() {
             {items.map((item) => (
               <CartItemCard key={item.eventId} item={item} />
             ))}
+
+            <AdBanner placement="CHECKOUT" />
 
             <div className={cartStyles.totals}>
               {(cart?.totals.lines ?? []).map((line) => (

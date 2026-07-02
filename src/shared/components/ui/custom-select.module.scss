@@ -40,6 +40,12 @@
   text-overflow: ellipsis;
 }
 
+.triggerLeadingIcon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .triggerIcon {
   color: $text-muted;
   flex-shrink: 0;

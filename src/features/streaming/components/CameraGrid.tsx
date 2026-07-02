@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Camera, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
 import type { QualityLevel } from './VideoPanel';
+import { computeJustifiedRows } from './justified-grid';
 import styles from './CameraGrid.module.scss';
+
+const GRID_GAP = 2; // px — matches .videoGrid's gap in CameraGrid.module.scss
 
 const GRID_LAYOUTS = [
   { id: '1x1', label: '1 Câmera', cols: 1, rows: 1, max: 1 },
@@ -31,6 +34,14 @@ interface CameraGridProps {
   onTitleClick?: () => void;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
+  // Master on/off switch (toolbar volume icon).
+  globalMuted: boolean;
+  onGlobalMutedChange: (muted: boolean) => void;
+  // Which single camera's audio plays while unmuted (toolbar cog menu) —
+  // every other tile stays silent regardless of globalMuted, so audio from
+  // multiple simultaneous tiles never overlaps.
+  audioCameraId: string | null;
+  onAudioCameraChange: (cameraId: string) => void;
 }
 
 export function CameraGrid({
@@ -41,6 +52,10 @@ export function CameraGrid({
   onTitleClick,
   selectedLevel,
   onLevelsReady,
+  globalMuted,
+  onGlobalMutedChange,
+  audioCameraId,
+  onAudioCameraChange,
 }: CameraGridProps) {
   const [layoutId, setLayoutId] = useState(() => layoutForCount(cameras.length).id);
   const [activeCameras, setActiveCameras] = useState<string[]>(() =>
@@ -48,6 +63,24 @@ export function CameraGrid({
   );
   const [focusedCamera, setFocusedCamera] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [aspectRatios, setAspectRatios] = useState<Record<string, number>>({});
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const handleAspectRatioReady = useCallback((cameraId: string, ratio: number) => {
+    setAspectRatios((prev) => (prev[cameraId] === ratio ? prev : { ...prev, [cameraId]: ratio }));
+  }, []);
+
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setContainerSize((prev) => (prev.width === width && prev.height === height ? prev : { width, height }));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const cameraKey = cameras.map((c) => c.cameraId).sort().join(',');
   useEffect(() => {
@@ -106,12 +139,45 @@ export function CameraGrid({
     ? cameras.filter((c) => c.cameraId === focusedCamera)
     : cameras.filter((c) => activeCameras.includes(c.cameraId)).slice(0, layout.max);
 
-  const gridStyle = focusedCamera
-    ? { gridTemplateColumns: '1fr', gridTemplateRows: '1fr' }
-    : {
-        gridTemplateColumns: `repeat(${layout.cols}, 1fr)`,
-        gridTemplateRows: `repeat(${layout.rows}, 1fr)`,
-      };
+  const cameraById = useMemo(
+    () => new Map(cameras.map((c) => [c.cameraId, c])),
+    [cameras],
+  );
+
+  // A tile plays audio only if the master switch is on AND it's the chosen
+  // audio camera. Clicking a tile's own mute icon to unmute it makes it the
+  // audio camera (that's the only way for a non-selected tile to un-silence
+  // itself); muting the currently-selected one just flips the master switch.
+  const isTileMuted = (cameraId: string) => globalMuted || cameraId !== audioCameraId;
+  const handleTileMutedChange = (cameraId: string, wantMuted: boolean) => {
+    if (!wantMuted) {
+      onAudioCameraChange(cameraId);
+      onGlobalMutedChange(false);
+    } else if (cameraId === audioCameraId) {
+      onGlobalMutedChange(true);
+    }
+  };
+
+  // Row-justified layout: each row's height is picked so its cells (at
+  // their real aspect ratio) exactly fill the container width, then capped
+  // to that row's even share of the container height — guarantees the grid
+  // never overflows vertically, even with mixed 16:9/9:16 cameras. Skipped
+  // entirely in focused mode (single tile just fills the frame).
+  const justifiedRows = useMemo(
+    () =>
+      focusedCamera
+        ? []
+        : computeJustifiedRows(
+            displayCameras.map((c) => c.cameraId),
+            aspectRatios,
+            layout.cols,
+            layout.rows,
+            containerSize.width,
+            containerSize.height,
+            GRID_GAP,
+          ),
+    [focusedCamera, displayCameras, aspectRatios, layout.cols, layout.rows, containerSize],
+  );
 
   return (
     <div className={styles.root}>
@@ -167,27 +233,63 @@ export function CameraGrid({
           </button>
         </div>
 
-        <div className={styles.videoGrid} style={gridStyle}>
-          {displayCameras.map((camera) => (
-            <VideoPanel
-              key={camera.cameraId}
-              camera={camera}
-              isFocused={focusedCamera === camera.cameraId}
-              onSelect={() => handleCameraSelect(camera.cameraId)}
-              showLabel
-              selectedLevel={selectedLevel}
-              onLevelsReady={onLevelsReady}
-            />
-          ))}
-          {!focusedCamera &&
-            Array.from({ length: Math.max(0, layout.max - displayCameras.length) }).map((_, i) => (
-              <div key={`empty-${i}`} className={styles.emptySlot}>
-                <div className={styles.emptySlotIcon}>
-                  <Camera size={20} />
-                  <p className={styles.emptySlotText}>Slot vazio</p>
-                </div>
+        <div className={styles.videoGrid} ref={gridRef}>
+          {focusedCamera ? (
+            displayCameras.map((camera) => (
+              <div key={camera.cameraId} className={styles.focusedCell}>
+                <VideoPanel
+                  camera={camera}
+                  isFocused
+                  onSelect={() => handleCameraSelect(camera.cameraId)}
+                  showLabel
+                  selectedLevel={selectedLevel}
+                  onLevelsReady={onLevelsReady}
+                  muted={isTileMuted(camera.cameraId)}
+                  onMutedChange={(m) => handleTileMutedChange(camera.cameraId, m)}
+                />
               </div>
-            ))}
+            ))
+          ) : (
+            justifiedRows.map((row, ri) => (
+              <div
+                key={ri}
+                className={styles.videoRow}
+                style={{ height: row.height, width: row.width, gap: GRID_GAP }}
+              >
+                {row.cells.map((cell, ci) => {
+                  const camera = cell.cameraId ? cameraById.get(cell.cameraId) : undefined;
+                  if (camera) {
+                    return (
+                      <div key={cell.cameraId} style={{ width: cell.width, height: cell.height }}>
+                        <VideoPanel
+                          camera={camera}
+                          onSelect={() => handleCameraSelect(camera.cameraId)}
+                          showLabel
+                          selectedLevel={selectedLevel}
+                          onLevelsReady={onLevelsReady}
+                          onAspectRatioReady={handleAspectRatioReady}
+                          muted={isTileMuted(camera.cameraId)}
+                          onMutedChange={(m) => handleTileMutedChange(camera.cameraId, m)}
+                        />
+                      </div>
+                    );
+                  }
+                  return (
+                    <div
+                      key={`empty-${ri}-${ci}`}
+                      className={styles.emptySlot}
+                      style={{ width: cell.width, height: cell.height }}
+                    >
+                      <div className={styles.emptySlotIcon}>
+                        <Camera size={20} />
+                        <p className={styles.emptySlotText}>Slot vazio</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))
+          )}
         </div>
       </div>
 

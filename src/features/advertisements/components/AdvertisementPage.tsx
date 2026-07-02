@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Plus, Search, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Plus, Search, Loader2, ExternalLink } from 'lucide-react';
 import styles from './AdvertisementPage.module.scss';
-import { CreateAdDrawer } from './CreateAdDrawer';
 import { AdReportModal, type ReportAdRef } from './AdReportModal';
 import { useListAdsQuery } from '../queries/use-list-ads';
 import { useChangeAdStatusMutation } from '../mutations/use-change-ad-status.mutation';
@@ -75,10 +75,10 @@ type TabKey = 'all' | 'active' | 'paused' | 'ended';
 // ── Main component ─────────────────────────────────────────────
 
 export function AdvertisementPage() {
+  const router = useRouter();
   const [tab, setTab] = useState<TabKey>('all');
   const [formatFilter, setFormatFilter] = useState<'all' | DisplayFormat>('all');
   const [search, setSearch] = useState('');
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [reportAd, setReportAd] = useState<ReportAdRef | null>(null);
 
   const { data: orgs } = useMyOrganizationsQuery();
@@ -146,7 +146,7 @@ export function AdvertisementPage() {
           <h1 className={styles.title}>Anúncios</h1>
           <p className={styles.subtitle}>Gerencie e acompanhe seus anúncios</p>
         </div>
-        <button className={styles.createBtn} onClick={() => setDrawerOpen(true)}>
+        <button className={styles.createBtn} onClick={() => router.push('/dashboard/advertisement/new')}>
           <Plus size={16} />
           Criar Anúncio
         </button>
@@ -222,8 +222,14 @@ export function AdvertisementPage() {
 
           return (
             <div key={ad.id} className={styles.adRow}>
-              <div className={styles.adPreview} style={{ background: gradientFor(ad.id) }}>
-                <span className={styles.adPreviewLabel}>{fmt?.preview ?? '—'}</span>
+              <div
+                className={styles.adPreview}
+                style={ad.bannerUrl
+                  ? { backgroundImage: `url(${ad.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                  : { background: gradientFor(ad.id) }
+                }
+              >
+                {!ad.bannerUrl && <span className={styles.adPreviewLabel}>{fmt?.preview ?? '—'}</span>}
               </div>
 
               <div className={styles.adInfo}>
@@ -260,8 +266,15 @@ export function AdvertisementPage() {
                     <span className={styles.toggleThumb} />
                   </button>
                 )}
+                <button
+                  className={styles.reportBtn}
+                  onClick={() => router.push(`/dashboard/advertisement/${ad.id}`)}
+                >
+                  <ExternalLink size={12} />
+                  DETALHES
+                </button>
                 <button className={styles.reportBtn} onClick={() => openReport(ad)}>
-                  VER RELATÓRIO
+                  RELATÓRIO
                 </button>
               </div>
             </div>
@@ -275,11 +288,6 @@ export function AdvertisementPage() {
         </span>
       </div>
 
-      <CreateAdDrawer
-        open={drawerOpen}
-        orgId={orgId}
-        onClose={() => setDrawerOpen(false)}
-      />
       {reportAd && (
         <AdReportModal ad={reportAd} onClose={() => setReportAd(null)} />
       )}

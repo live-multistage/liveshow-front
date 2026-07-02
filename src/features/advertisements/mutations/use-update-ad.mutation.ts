@@ -2,16 +2,15 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { advertisementsService } from '../services/advertisements.service';
-import { adsKey } from '../queries/use-list-ads';
 import { adKey } from '../queries/use-get-ad';
-import type { AdStatusAction } from '../types/advertisement.types';
+import { adsKey } from '../queries/use-list-ads';
+import type { UpdateAdRequest } from '../types/advertisement.types';
 
-export function useChangeAdStatusMutation(orgId: string | undefined) {
+export function useUpdateAdMutation(adId: string, orgId?: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ adId, action }: { adId: string; action: AdStatusAction }) =>
-      advertisementsService.changeStatus(adId, { action }),
-    onSuccess: (_, { adId }) => {
+    mutationFn: (payload: UpdateAdRequest) => advertisementsService.update(adId, payload),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adKey(adId) });
       if (orgId) queryClient.invalidateQueries({ queryKey: adsKey(orgId) });
     },
