@@ -73,7 +73,7 @@ export function CameraGrid({
     }
   };
 
-  const mainCamera = (mainCameraId && cameraById.get(mainCameraId)) || activeCameras[0];
+  const mainCamera = activeCameras.find((c) => c.cameraId === mainCameraId) || activeCameras[0];
   const otherCameras = mainCamera ? activeCameras.filter((c) => c.cameraId !== mainCamera.cameraId) : [];
 
   const mainMuted = mainCamera ? globalMuted || mainCamera.cameraId !== audioCameraId : true;
