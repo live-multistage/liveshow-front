@@ -1,5 +1,19 @@
 export const DEFAULT_ASPECT = 16 / 9;
 
+// Standard video-conferencing auto-tile heuristic (Zoom/Meet use the same
+// shape): as close to a square grid as possible. Replaces the old
+// GRID_LAYOUTS lookup table that mapped camera *count* to a fixed shape
+// with no awareness of aspect ratio — see
+// docs/superpowers/specs/2026-07-02-live-viewer-camera-modes-design.md for
+// why that table was removed. This doesn't make every camera count perfect
+// (e.g. 3 cameras still becomes a 2-column grid with one empty slot) — the
+// real fix for awkward counts is that Grid is no longer the only mode;
+// Main+Rail (the new default) doesn't tile full-size videos at all.
+export function pickColumnCount(cameraCount: number): number {
+  if (cameraCount <= 1) return 1;
+  return Math.ceil(Math.sqrt(cameraCount));
+}
+
 export interface JustifiedCell {
   cameraId: string | null; // null = empty slot placeholder
   width: number;
