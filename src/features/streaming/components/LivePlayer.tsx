@@ -130,7 +130,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
 
   const effectiveViewMode: ViewMode = activeCameraIds.length <= 1 ? 'solo' : viewMode;
 
-  const metaLine = [activeStage?.name, qualityLabel].filter(Boolean).join(' · ');
+  const mainCameraName = activeStage?.cameras.find((c) => c.cameraId === effectiveMainCameraId)?.name;
+  const metaLine = [activeStage?.name, mainCameraName, qualityLabel].filter(Boolean).join(' · ');
 
   const handleAudioCameraChange = (id: string) => {
     setAudioCameraId(id);

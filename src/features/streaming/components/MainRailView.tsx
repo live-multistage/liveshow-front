@@ -38,7 +38,8 @@ export function MainRailView({
         <VideoPanel
           camera={mainCamera}
           isFocused
-          showLabel
+          showLabel={false}
+          showMuteButton={false}
           muted={muted}
           onMutedChange={onMutedChange}
           volume={volume}
