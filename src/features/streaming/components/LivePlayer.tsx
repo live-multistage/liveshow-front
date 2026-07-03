@@ -187,35 +187,37 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
         />
       </div>
 
-      {activeStage && (
-        <CameraStrip
-          cameras={activeStage.cameras}
-          activeCameraIds={activeCameraIds}
-          onToggleCamera={handleToggleCamera}
-          isModeLocked={activeCameraIds.length <= 1}
-          effectiveMode={effectiveViewMode}
-          onViewModeChange={setViewMode}
-          open={cameraStripOpen}
-          onClose={() => setCameraStripOpen(false)}
-        />
-      )}
+      <div className={styles.bottomStack}>
+        {activeStage && (
+          <CameraStrip
+            cameras={activeStage.cameras}
+            activeCameraIds={activeCameraIds}
+            onToggleCamera={handleToggleCamera}
+            isModeLocked={activeCameraIds.length <= 1}
+            effectiveMode={effectiveViewMode}
+            onViewModeChange={setViewMode}
+            open={cameraStripOpen}
+            onClose={() => setCameraStripOpen(false)}
+          />
+        )}
 
-      <TransportBar
-        globalMuted={globalMuted}
-        onToggleMute={() => setGlobalMuted((m) => !m)}
-        volume={volume}
-        onVolumeChange={setVolume}
-        audioCameras={activeStage?.cameras ?? []}
-        effectiveAudioCameraId={effectiveAudioCameraId}
-        onAudioCameraChange={handleAudioCameraChange}
-        levels={levels}
-        currentLevel={currentLevel}
-        qualityLabel={qualityLabel}
-        onSelectLevel={setCurrentLevel}
-        onTogglePip={handleTogglePip}
-        isFullscreen={isFullscreen}
-        onToggleFullscreen={toggleFullscreen}
-      />
+        <TransportBar
+          globalMuted={globalMuted}
+          onToggleMute={() => setGlobalMuted((m) => !m)}
+          volume={volume}
+          onVolumeChange={setVolume}
+          audioCameras={activeStage?.cameras ?? []}
+          effectiveAudioCameraId={effectiveAudioCameraId}
+          onAudioCameraChange={handleAudioCameraChange}
+          levels={levels}
+          currentLevel={currentLevel}
+          qualityLabel={qualityLabel}
+          onSelectLevel={setCurrentLevel}
+          onTogglePip={handleTogglePip}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={toggleFullscreen}
+        />
+      </div>
 
       <ReactionsTicker totalReactions={chat.totalReactions} />
     </div>

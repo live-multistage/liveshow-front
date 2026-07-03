@@ -1,23 +1,41 @@
 @use '../../../styles/_variables' as *;
 
+// Full-bleed video stage, matching the v2 mockup: Header/bottomStack/chat
+// all float as absolute overlays on top of a video layer that always fills
+// the whole viewport, instead of being flex siblings that shrink it.
 .player {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background-color: $bg;
-  display: flex;
-  flex-direction: column;
 }
 
 .main {
-  flex: 1;
-  display: flex;
-  min-height: 0;
-  position: relative;
+  position: absolute;
+  inset: 0;
 }
 
 .gridArea {
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
+  position: absolute;
+  inset: 0;
+}
+
+// Groups CameraStrip + TransportBar so they stack via normal flow inside one
+// bottom-anchored overlay — avoids hardcoding a pixel offset for the strip
+// to clear the transport bar's height.
+.bottomStack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
   display: flex;
+  flex-direction: column;
+  padding-top: 2rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 20%, rgba(0, 0, 0, 0.6) 60%, transparent);
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
 }
