@@ -13,6 +13,7 @@ interface Props {
   onSelectMain: (cameraId: string) => void;
   muted: boolean;
   onMutedChange: (muted: boolean) => void;
+  volume?: number;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
 }
@@ -27,6 +28,7 @@ export function MainRailView({
   onSelectMain,
   muted,
   onMutedChange,
+  volume = 1,
   selectedLevel,
   onLevelsReady,
 }: Props) {
@@ -39,6 +41,7 @@ export function MainRailView({
           showLabel
           muted={muted}
           onMutedChange={onMutedChange}
+          volume={volume}
           selectedLevel={selectedLevel}
           onLevelsReady={onLevelsReady}
         />

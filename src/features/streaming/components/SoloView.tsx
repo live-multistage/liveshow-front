@@ -9,6 +9,7 @@ interface Props {
   camera: LiveCamera;
   muted: boolean;
   onMutedChange: (muted: boolean) => void;
+  volume?: number;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
 }
@@ -16,7 +17,7 @@ interface Props {
 // One camera, fills the whole player area. Used for viewMode 'solo', and
 // forced whenever there's only one active camera regardless of the
 // selected viewMode (CameraGrid handles that fallback).
-export function SoloView({ camera, muted, onMutedChange, selectedLevel, onLevelsReady }: Props) {
+export function SoloView({ camera, muted, onMutedChange, volume = 1, selectedLevel, onLevelsReady }: Props) {
   return (
     <div className={styles.solo}>
       <VideoPanel
@@ -25,6 +26,7 @@ export function SoloView({ camera, muted, onMutedChange, selectedLevel, onLevels
         showLabel
         muted={muted}
         onMutedChange={onMutedChange}
+        volume={volume}
         selectedLevel={selectedLevel}
         onLevelsReady={onLevelsReady}
       />
