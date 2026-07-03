@@ -2,11 +2,14 @@
 
 import { useMemo, useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Maximize, Minimize, Volume2, VolumeX, Settings } from 'lucide-react';
+import { toast } from 'sonner';
 import type { LiveCamera, LiveStage } from '../types/live.types';
 import { CameraGrid } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
-import { StageSelector } from './StageSelector';
+import { Header } from './Header';
+import { CameraStrip } from './CameraStrip';
+import { TransportBar } from './TransportBar';
+import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { useViewerTracking } from '../hooks/use-viewer-tracking';
 import { useViewerCount } from '../hooks/use-viewer-count';
@@ -18,11 +21,6 @@ interface LivePlayerProps {
   primaryCameraId?: string | null;
   title: string;
   eventId: string;
-}
-
-function fmtCompact(v: number): string {
-  if (v >= 1000) return `${(v / 1000).toFixed(1).replace('.', ',')}k`;
-  return v.toLocaleString('pt-BR');
 }
 
 function useStages(cameras: LiveCamera[], rawStages?: LiveStage[]): LiveStage[] {
@@ -48,31 +46,26 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  // Starts muted — browser autoplay policy requires it. Master on/off switch;
-  // which single camera's audio plays while unmuted is audioCameraId below
-  // (multiple simultaneous tile audio tracks would be a cacophony).
+  // Starts muted — browser autoplay policy requires it.
   const [globalMuted, setGlobalMuted] = useState(true);
+  const [volume, setVolume] = useState(1);
   const [audioCameraId, setAudioCameraId] = useState<string | null>(null);
-  const [showAudioMenu, setShowAudioMenu] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
   const [mainCameraId, setMainCameraId] = useState<string | null>(null);
-  // Starts with just the first camera (Solo) — the viewer opts into more via
-  // the camera drawer, and the grid/rail expands automatically as they add
-  // cameras (see effectiveMode in CameraGrid.tsx). Reset whenever the active
-  // stage changes, mirroring the existing activeStageId-driven reset pattern
-  // already used elsewhere in this file.
   const [activeCameraIds, setActiveCameraIds] = useState<string[]>([]);
+  const [cameraStripOpen, setCameraStripOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const { user } = useAuth();
 
   useViewerTracking(eventId, activeCameraIds, user?.id);
   const { currentViewers } = useViewerCount(eventId);
+  const chat = useChat(eventId);
 
   const stages = useStages(cameras, rawStages);
   const [activeStageId, setActiveStageId] = useState<string>(() => initialStageId(stages, primaryCameraId));
 
   const [levels, setLevels] = useState<QualityLevel[]>([]);
   const [currentLevel, setCurrentLevel] = useState(-1);
-  const [showQuality, setShowQuality] = useState(false);
 
   const activeStage = stages.find((s) => s.stageId === activeStageId) ?? stages[0];
 
@@ -89,13 +82,42 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
     setIsFullscreen(!isFullscreen);
   };
 
-  const activeCameraCount = activeStage?.cameras.length ?? 0;
+  const handleTogglePip = async () => {
+    const video = containerRef.current?.querySelector<HTMLVideoElement>('video[data-focused="true"]');
+    if (!video) return;
+    try {
+      if (document.pictureInPictureElement) await document.exitPictureInPicture();
+      else await video.requestPictureInPicture();
+    } catch {
+      // PiP unsupported or blocked by the browser — no-op.
+    }
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+      } catch {
+        // User cancelled the native share sheet.
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copiado');
+    }
+  };
+
+  const handleToggleCamera = (cameraId: string) => {
+    if (activeCameraIds.includes(cameraId)) {
+      if (activeCameraIds.length > 1) setActiveCameraIds(activeCameraIds.filter((id) => id !== cameraId));
+    } else {
+      setActiveCameraIds([...activeCameraIds, cameraId]);
+    }
+  };
+
   const activeLevel = levels.find((l) => l.index === currentLevel);
   const qualityLabel = currentLevel === -1 ? 'Auto' : activeLevel ? `${activeLevel.height}p` : 'Auto';
 
-  // Falls back to the primary/first camera in the active stage — handles
-  // both "never picked one" and "picked one, then switched to a stage that
-  // doesn't have it."
   const effectiveAudioCameraId =
     audioCameraId && activeStage?.cameras.some((c) => c.cameraId === audioCameraId)
       ? audioCameraId
@@ -106,17 +128,33 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
       ? mainCameraId
       : (activeCameraIds[0] ?? null);
 
-  // Main+Rail/Grid have nothing meaningful to show alongside a single
-  // camera — force Solo regardless of the user's last-picked mode.
   const effectiveViewMode: ViewMode = activeCameraIds.length <= 1 ? 'solo' : viewMode;
+
+  const mainCameraName = activeStage?.cameras.find((c) => c.cameraId === effectiveMainCameraId)?.name;
+  const metaLine = [activeStage?.name, mainCameraName, qualityLabel].filter(Boolean).join(' · ');
+
+  const handleAudioCameraChange = (id: string) => {
+    setAudioCameraId(id);
+    setGlobalMuted(false);
+  };
 
   return (
     <div ref={containerRef} className={styles.player}>
-      <StageSelector
+      <Header
+        eventTitle={title}
+        metaLine={metaLine}
         stages={stages}
-        activeId={activeStageId}
-        onChange={setActiveStageId}
-        onBack={() => router.push(`/events/${eventId}`)}
+        activeStageId={activeStageId}
+        onStageChange={setActiveStageId}
+        onExit={() => router.push(`/events/${eventId}`)}
+        currentViewers={currentViewers}
+        cameraCount={activeStage?.cameras.length ?? 0}
+        cameraStripOpen={cameraStripOpen}
+        onToggleCameraStrip={() => setCameraStripOpen((o) => !o)}
+        chatOpen={chatOpen}
+        onToggleChat={() => setChatOpen((o) => !o)}
+        chatMessageCount={chat.messages.length}
+        onShare={handleShare}
       />
 
       <div className={styles.main}>
@@ -125,113 +163,66 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
             <CameraGrid
               key={activeStage.stageId}
               cameras={activeStage.cameras}
-              title={title}
-              subtitle={`${activeCameraCount} ${activeCameraCount === 1 ? 'câmera' : 'câmeras'} ao vivo`}
               selectedLevel={currentLevel}
               onLevelsReady={setLevels}
               globalMuted={globalMuted}
               onGlobalMutedChange={setGlobalMuted}
               audioCameraId={effectiveAudioCameraId}
-              onAudioCameraChange={(id) => { setAudioCameraId(id); setGlobalMuted(false); }}
+              onAudioCameraChange={handleAudioCameraChange}
+              volume={volume}
               viewMode={effectiveViewMode}
               onViewModeChange={setViewMode}
               mainCameraId={effectiveMainCameraId}
               onMainCameraChange={setMainCameraId}
               activeCameraIds={activeCameraIds}
-              onActiveCameraIdsChange={setActiveCameraIds}
             />
           )}
         </div>
+
+        <ChatDock
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
+          messages={chat.messages}
+          onSend={chat.sendMessage}
+          onReact={chat.react}
+        />
       </div>
 
-      <div className={styles.bottomBar}>
-        <div className={styles.controls}>
-          <div className={styles.timeArea}>
-            <div className={styles.liveBadge}>
-              <span className={styles.liveIndicator} />
-              AO VIVO
-            </div>
-            {currentViewers > 0 && (
-              <div className={styles.viewerBadge}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-                {fmtCompact(currentViewers)} assistindo
-              </div>
-            )}
-          </div>
+      <div className={styles.bottomStack}>
+        {activeStage && (
+          <CameraStrip
+            cameras={activeStage.cameras}
+            activeCameraIds={activeCameraIds}
+            mainCameraId={effectiveMainCameraId}
+            onToggleCamera={handleToggleCamera}
+            onSelectMain={setMainCameraId}
+            isModeLocked={activeCameraIds.length <= 1}
+            effectiveMode={effectiveViewMode}
+            onViewModeChange={setViewMode}
+            open={cameraStripOpen}
+            onClose={() => setCameraStripOpen(false)}
+          />
+        )}
 
-          <div className={styles.rightControls}>
-            <button
-              onClick={() => setGlobalMuted((m) => !m)}
-              className={styles.skipBtn}
-              aria-label={globalMuted ? 'Ativar som' : 'Silenciar'}
-              title={globalMuted ? 'Ativar som' : 'Silenciar'}
-            >
-              {globalMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-            </button>
-            {activeStage && activeStage.cameras.length > 1 && (
-              <div className={styles.qualityWrapper}>
-                {showAudioMenu && (
-                  <div className={styles.qualityMenu}>
-                    {activeStage.cameras.map((cam) => (
-                      <button
-                        key={cam.cameraId}
-                        className={cam.cameraId === effectiveAudioCameraId ? styles.qualityItemActive : styles.qualityItem}
-                        onClick={() => {
-                          setAudioCameraId(cam.cameraId);
-                          setGlobalMuted(false);
-                          setShowAudioMenu(false);
-                        }}
-                      >
-                        {cam.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <button
-                  className={styles.skipBtn}
-                  onClick={() => setShowAudioMenu((s) => !s)}
-                  aria-label="Escolher câmera com áudio"
-                  title="Escolher câmera com áudio"
-                >
-                  <Settings size={16} />
-                </button>
-              </div>
-            )}
-            {levels.length > 0 && (
-              <div className={styles.qualityWrapper}>
-                {showQuality && (
-                  <div className={styles.qualityMenu}>
-                    <button
-                      className={currentLevel === -1 ? styles.qualityItemActive : styles.qualityItem}
-                      onClick={() => { setCurrentLevel(-1); setShowQuality(false); }}
-                    >
-                      Auto
-                    </button>
-                    {levels.map(({ index, height }) => (
-                      <button
-                        key={index}
-                        className={index === currentLevel ? styles.qualityItemActive : styles.qualityItem}
-                        onClick={() => { setCurrentLevel(index); setShowQuality(false); }}
-                      >
-                        {height}p
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <button className={styles.qualityBtn} onClick={() => setShowQuality((s) => !s)}>
-                  {qualityLabel}
-                </button>
-              </div>
-            )}
-            <button onClick={toggleFullscreen} className={styles.skipBtn}>
-              {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
-            </button>
-          </div>
-        </div>
+        <TransportBar
+          globalMuted={globalMuted}
+          onToggleMute={() => setGlobalMuted((m) => !m)}
+          volume={volume}
+          onVolumeChange={setVolume}
+          audioCameras={activeStage?.cameras ?? []}
+          effectiveAudioCameraId={effectiveAudioCameraId}
+          onAudioCameraChange={handleAudioCameraChange}
+          levels={levels}
+          currentLevel={currentLevel}
+          qualityLabel={qualityLabel}
+          onSelectLevel={setCurrentLevel}
+          onTogglePip={handleTogglePip}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={toggleFullscreen}
+        />
       </div>
+
+      <ReactionsTicker totalReactions={chat.totalReactions} />
     </div>
   );
 }

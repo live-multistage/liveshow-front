@@ -16,6 +16,7 @@ interface Props {
   globalMuted: boolean;
   audioCameraId: string | null;
   onAudioCameraChange: (cameraId: string) => void;
+  volume?: number;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
 }
@@ -31,6 +32,7 @@ export function GridView({
   globalMuted,
   audioCameraId,
   onAudioCameraChange,
+  volume = 1,
   selectedLevel,
   onLevelsReady,
 }: Props) {
@@ -94,6 +96,8 @@ export function GridView({
                     camera={camera}
                     onSelect={() => onSelectCamera(camera.cameraId)}
                     showLabel
+                    isFocused={camera.cameraId === audioCameraId}
+                    volume={volume}
                     selectedLevel={selectedLevel}
                     onLevelsReady={onLevelsReady}
                     onAspectRatioReady={handleAspectRatioReady}

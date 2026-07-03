@@ -1,0 +1,31 @@
+@use '../../../styles/_variables' as *;
+
+.ticker {
+  position: absolute;
+  // Clears the floating TransportBar card (LivePlayer's .bottomStack) —
+  // sits just above it rather than behind its fade.
+  bottom: 5.5rem;
+  left: 1.25rem;
+  z-index: 21;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.6875rem;
+  background: rgba(10, 10, 12, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid $border;
+  border-radius: 20px;
+  font-size: 0.8125rem;
+}
+
+.count {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.59375rem;
+  letter-spacing: 0.1em;
+  color: $muted;
+
+  strong {
+    color: $text-primary;
+    font-weight: 700;
+  }
+}

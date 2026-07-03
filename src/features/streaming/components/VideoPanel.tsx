@@ -38,6 +38,11 @@ interface VideoPanelProps {
   // Small thumbnails (PIP, rail) don't get their own mute toggle — audio is
   // one global choice (LivePlayer's cog menu), not per-tile at that size.
   showMuteButton?: boolean;
+  // Applied via video.volume. Independent from `muted` — mute is a hard
+  // on/off switch, volume only matters once unmuted. Optional: utility
+  // thumbnails (PIP, rail, CameraStrip) never pass it and get the browser
+  // default of 1, which is irrelevant since they're always muted anyway.
+  volume?: number;
 }
 
 export function VideoPanel({
@@ -53,6 +58,7 @@ export function VideoPanel({
   onMutedChange,
   fit = 'contain',
   showMuteButton = true,
+  volume = 1,
 }: VideoPanelProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -146,6 +152,10 @@ export function VideoPanel({
   }, [muted]);
 
   useEffect(() => {
+    if (videoRef.current) videoRef.current.volume = volume;
+  }, [volume]);
+
+  useEffect(() => {
     if (hlsRef.current && selectedLevel !== undefined) {
       hlsRef.current.currentLevel = selectedLevel;
     }
@@ -165,6 +175,7 @@ export function VideoPanel({
         ref={videoRef}
         className={styles.video}
         style={{ objectFit: fit }}
+        data-focused={isFocused}
         autoPlay
         muted
         playsInline
