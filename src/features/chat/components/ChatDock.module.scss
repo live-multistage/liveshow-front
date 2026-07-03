@@ -1,0 +1,75 @@
+@use '../../../styles/_variables' as *;
+
+.dock {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  flex-shrink: 0;
+  background-color: rgba(10, 10, 12, 0.9);
+  border-left: 1px solid $border;
+
+  // Mobile: the dock has no room to sit beside the video, so it becomes a
+  // fullscreen overlay instead — same breakpoint LivePlayer.module.scss
+  // already uses elsewhere in this feature.
+  @media (max-width: 639px) {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    width: auto;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid $border;
+  flex-shrink: 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.title {
+  font-family: 'Archivo', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.count {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: $muted;
+}
+
+.closeBtn {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: $muted;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s;
+
+  &:hover {
+    color: $text-primary;
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.inputArea {
+  padding: 0.625rem 0.875rem 0.75rem;
+  border-top: 1px solid $border;
+  flex-shrink: 0;
+}
