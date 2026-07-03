@@ -193,7 +193,9 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
           <CameraStrip
             cameras={activeStage.cameras}
             activeCameraIds={activeCameraIds}
+            mainCameraId={effectiveMainCameraId}
             onToggleCamera={handleToggleCamera}
+            onSelectMain={setMainCameraId}
             isModeLocked={activeCameraIds.length <= 1}
             effectiveMode={effectiveViewMode}
             onViewModeChange={setViewMode}

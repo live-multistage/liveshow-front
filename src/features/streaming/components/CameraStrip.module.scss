@@ -113,6 +113,34 @@
   animation: pulse 1.2s ease-in-out infinite;
 }
 
+// Shown on cameras that are active but not the featured/main one — distinct
+// from .thumbBadge (ATIVA) so it's clear at a glance which thumbnail to
+// click to bring a camera to the front.
+.thumbBadgeLive {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(10, 10, 11, 0.65);
+  backdrop-filter: blur(4px);
+  color: #7fe0a0;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.thumbDotLive {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #7fe0a0;
+}
+
 .thumbInfo {
   position: absolute;
   bottom: 0;

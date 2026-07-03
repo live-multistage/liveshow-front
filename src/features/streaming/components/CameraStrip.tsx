@@ -14,7 +14,9 @@ const MODES: { id: ViewMode; label: string; icon: typeof Square }[] = [
 interface Props {
   cameras: LiveCamera[];
   activeCameraIds: string[];
+  mainCameraId: string | null;
   onToggleCamera: (cameraId: string) => void;
+  onSelectMain: (cameraId: string) => void;
   isModeLocked: boolean;
   effectiveMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
@@ -25,7 +27,9 @@ interface Props {
 export function CameraStrip({
   cameras,
   activeCameraIds,
+  mainCameraId,
   onToggleCamera,
+  onSelectMain,
   isModeLocked,
   effectiveMode,
   onViewModeChange,
@@ -33,6 +37,23 @@ export function CameraStrip({
   onClose,
 }: Props) {
   if (!open) return null;
+
+  // Inactive -> activate it and bring it to the front (the whole point of
+  // clicking a thumbnail is "show me this one"). Already the main/featured
+  // one -> turn it off (guarded upstream: the last active camera can't be
+  // removed). Active but not featured -> just switch focus to it, without
+  // touching which cameras are active.
+  const handleClick = (camera: LiveCamera) => {
+    const isActive = activeCameraIds.includes(camera.cameraId);
+    if (!isActive) {
+      onToggleCamera(camera.cameraId);
+      onSelectMain(camera.cameraId);
+    } else if (camera.cameraId === mainCameraId) {
+      onToggleCamera(camera.cameraId);
+    } else {
+      onSelectMain(camera.cameraId);
+    }
+  };
 
   return (
     <div className={styles.strip}>
@@ -49,18 +70,24 @@ export function CameraStrip({
       <div className={styles.thumbs}>
         {cameras.map((camera) => {
           const isActive = activeCameraIds.includes(camera.cameraId);
+          const isMain = camera.cameraId === mainCameraId;
           return (
             <button
               key={camera.cameraId}
-              onClick={() => onToggleCamera(camera.cameraId)}
-              className={`${styles.thumb} ${isActive ? styles.thumbActive : ''}`}
+              onClick={() => handleClick(camera)}
+              className={`${styles.thumb} ${isMain ? styles.thumbActive : ''}`}
             >
-              {isActive && (
+              {isMain ? (
                 <span className={styles.thumbBadge}>
                   <span className={styles.thumbDot} />
                   ATIVA
                 </span>
-              )}
+              ) : isActive ? (
+                <span className={styles.thumbBadgeLive}>
+                  <span className={styles.thumbDotLive} />
+                  LIVE
+                </span>
+              ) : null}
               <div className={styles.thumbInfo}>
                 <p className={styles.thumbName}>{camera.name}</p>
                 <p className={styles.thumbAngle}>{camera.slug}</p>
