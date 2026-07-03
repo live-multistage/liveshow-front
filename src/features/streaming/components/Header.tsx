@@ -15,6 +15,7 @@ interface Props {
   cameraCount: number;
   cameraStripOpen: boolean;
   onToggleCameraStrip: () => void;
+  chatEnabled: boolean;
   chatOpen: boolean;
   onToggleChat: () => void;
   chatMessageCount: number;
@@ -39,6 +40,7 @@ export function Header({
   cameraCount,
   cameraStripOpen,
   onToggleCameraStrip,
+  chatEnabled,
   chatOpen,
   onToggleChat,
   chatMessageCount,
@@ -96,15 +98,17 @@ export function Header({
           Câmeras
           <span className={styles.badge}>{cameraCount}</span>
         </button>
-        <button
-          className={`${styles.drawerBtn} ${chatOpen ? styles.drawerBtnActive : ''}`}
-          onClick={onToggleChat}
-          title="Alternar chat"
-        >
-          <MessageSquare size={13} />
-          Chat
-          <span className={styles.badge}>{chatMessageCount}</span>
-        </button>
+        {chatEnabled && (
+          <button
+            className={`${styles.drawerBtn} ${chatOpen ? styles.drawerBtnActive : ''}`}
+            onClick={onToggleChat}
+            title="Alternar chat"
+          >
+            <MessageSquare size={13} />
+            Chat
+            <span className={styles.badge}>{chatMessageCount}</span>
+          </button>
+        )}
         <button className={styles.iconBtn} onClick={onShare} title="Compartilhar" aria-label="Compartilhar">
           <Share2 size={14} />
         </button>

@@ -21,6 +21,7 @@ interface LivePlayerProps {
   primaryCameraId?: string | null;
   title: string;
   eventId: string;
+  chatEnabled: boolean;
 }
 
 function useStages(cameras: LiveCamera[], rawStages?: LiveStage[]): LiveStage[] {
@@ -42,7 +43,7 @@ function initialStageId(stages: LiveStage[], primaryCameraId?: string | null): s
   return stages.find((s) => s.cameras.length > 0)?.stageId ?? stages[0]?.stageId ?? '__main__';
 }
 
-export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title, eventId }: LivePlayerProps) {
+export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title, eventId, chatEnabled }: LivePlayerProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -151,6 +152,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
         cameraCount={activeStage?.cameras.length ?? 0}
         cameraStripOpen={cameraStripOpen}
         onToggleCameraStrip={() => setCameraStripOpen((o) => !o)}
+        chatEnabled={chatEnabled}
         chatOpen={chatOpen}
         onToggleChat={() => setChatOpen((o) => !o)}
         chatMessageCount={chat.messages.length}
@@ -179,13 +181,15 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
           )}
         </div>
 
-        <ChatDock
-          open={chatOpen}
-          onClose={() => setChatOpen(false)}
-          messages={chat.messages}
-          onSend={chat.sendMessage}
-          onReact={chat.react}
-        />
+        {chatEnabled && (
+          <ChatDock
+            open={chatOpen}
+            onClose={() => setChatOpen(false)}
+            messages={chat.messages}
+            onSend={chat.sendMessage}
+            onReact={chat.react}
+          />
+        )}
       </div>
 
       <div className={styles.bottomStack}>
