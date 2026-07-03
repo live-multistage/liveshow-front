@@ -1,0 +1,170 @@
+@use '../../../styles/_variables' as *;
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.strip {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background-color: $surface;
+  border-top: 1px solid $border;
+  flex-shrink: 0;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.sideTop {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
+  color: $text-muted;
+}
+
+.closeBtn {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: $muted;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover { color: $text-primary; background-color: rgba(255, 255, 255, 0.12); }
+}
+
+.count {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.thumbs {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  overflow-x: auto;
+  min-width: 0;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.thumb {
+  position: relative;
+  width: 150px;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  background: linear-gradient(135deg, #1a2b3a, #3a5a7a 55%, #0a1520);
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+
+  &:hover { border-color: rgba(255, 46, 158, 0.5); }
+}
+
+.thumbActive {
+  border-color: $action;
+  box-shadow: 0 0 0 3px rgba(255, 46, 158, 0.15);
+}
+
+.thumbBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: $action;
+  color: #0a0a0b;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.thumbDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #0a0a0b;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.thumbInfo {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 6px 8px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+  text-align: left;
+}
+
+.thumbName {
+  color: #fff;
+  font-family: 'Archivo', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.thumbAngle {
+  color: $text-secondary;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.modeGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  border: 1px solid $border;
+  padding: 0.25rem;
+}
+
+.modeBtn {
+  padding: 0.375rem 0.5rem;
+  border-radius: 5px;
+  background: none;
+  border: none;
+  color: $muted;
+  cursor: pointer;
+  display: flex;
+  transition: color 0.15s, background-color 0.15s;
+
+  &:hover { color: $text-primary; background-color: rgba(255, 255, 255, 0.08); }
+}
+
+.modeBtnActive {
+  background-color: $action;
+  color: $text-primary;
+}
