@@ -3,6 +3,7 @@
 import { X, Square, PanelRight, LayoutGrid } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import type { ViewMode } from './CameraGrid';
+import { VideoPanel } from './VideoPanel';
 import styles from './CameraStrip.module.scss';
 
 const MODES: { id: ViewMode; label: string; icon: typeof Square }[] = [
@@ -77,6 +78,14 @@ export function CameraStrip({
               onClick={() => handleClick(camera)}
               className={`${styles.thumb} ${isMain ? styles.thumbActive : ''}`}
             >
+              <VideoPanel
+                camera={camera}
+                showLabel={false}
+                showMuteButton={false}
+                fit="cover"
+                muted
+                onMutedChange={() => {}}
+              />
               {isMain ? (
                 <span className={styles.thumbBadge}>
                   <span className={styles.thumbDot} />
