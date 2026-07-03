@@ -3,7 +3,6 @@
 import { useMemo } from 'react';
 import type { LiveCamera } from '../types/live.types';
 import type { QualityLevel } from './VideoPanel';
-import { SoloView } from './SoloView';
 import { MainRailView } from './MainRailView';
 import { GridView } from './GridView';
 import styles from './CameraGrid.module.scss';
@@ -53,11 +52,21 @@ export function CameraGrid({
   );
 
   const mainCamera = activeCameras.find((c) => c.cameraId === mainCameraId) || activeCameras[0];
-  const otherCameras = mainCamera ? activeCameras.filter((c) => c.cameraId !== mainCamera.cameraId) : [];
 
   // Only 1 active camera forces Solo — CameraStrip hides the multiview
   // picker in that same case (its own isModeLocked prop).
   const effectiveMode: ViewMode = activeCameras.length <= 1 ? 'solo' : viewMode;
+
+  // Solo and Main+Rail both render through MainRailView so the main
+  // camera's VideoPanel never remounts when effectiveMode flips between the
+  // two (e.g. the moment a 2nd camera gets added) — only whether the pip/rail
+  // siblings appear changes. Solo means "hide the others", so it always
+  // passes an empty otherCameras, whether Solo is forced (<=1 active) or
+  // explicitly picked via CameraStrip's mode picker with 2+ active.
+  const otherCameras =
+    mainCamera && effectiveMode !== 'solo'
+      ? activeCameras.filter((c) => c.cameraId !== mainCamera.cameraId)
+      : [];
 
   const mainMuted = mainCamera ? globalMuted || mainCamera.cameraId !== audioCameraId : true;
   const handleMainMutedChange = (m: boolean) => {
@@ -70,16 +79,7 @@ export function CameraGrid({
     <div className={styles.videoArea}>
       {!mainCamera ? (
         <div className={styles.emptyState}>Nenhuma câmera ativa</div>
-      ) : effectiveMode === 'solo' ? (
-        <SoloView
-          camera={mainCamera}
-          muted={mainMuted}
-          onMutedChange={handleMainMutedChange}
-          volume={volume}
-          selectedLevel={selectedLevel}
-          onLevelsReady={onLevelsReady}
-        />
-      ) : effectiveMode === 'main-rail' ? (
+      ) : effectiveMode !== 'grid' ? (
         <MainRailView
           mainCamera={mainCamera}
           otherCameras={otherCameras}
