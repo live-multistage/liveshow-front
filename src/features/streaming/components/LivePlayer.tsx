@@ -56,14 +56,15 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
   const [showAudioMenu, setShowAudioMenu] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
   const [mainCameraId, setMainCameraId] = useState<string | null>(null);
-  // Every camera in the active stage is visible by default — no more
-  // artificial cap tied to a fixed grid shape (see design spec). Reset
-  // whenever the active stage changes, mirroring the existing
-  // activeStageId-driven reset pattern already used elsewhere in this file.
+  // Starts with just the first camera (Solo) — the viewer opts into more via
+  // the camera drawer, and the grid/rail expands automatically as they add
+  // cameras (see effectiveMode in CameraGrid.tsx). Reset whenever the active
+  // stage changes, mirroring the existing activeStageId-driven reset pattern
+  // already used elsewhere in this file.
   const [activeCameraIds, setActiveCameraIds] = useState<string[]>([]);
   const { user } = useAuth();
 
-  useViewerTracking(eventId, user?.id);
+  useViewerTracking(eventId, activeCameraIds, user?.id);
   const { currentViewers } = useViewerCount(eventId);
 
   const stages = useStages(cameras, rawStages);
@@ -77,7 +78,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
 
   const stageCameraKey = (activeStage?.cameras ?? []).map((c) => c.cameraId).sort().join(',');
   useEffect(() => {
-    setActiveCameraIds((activeStage?.cameras ?? []).map((c) => c.cameraId));
+    const first = activeStage?.cameras[0]?.cameraId;
+    setActiveCameraIds(first ? [first] : []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stageCameraKey]);
 
@@ -110,13 +112,12 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
 
   return (
     <div ref={containerRef} className={styles.player}>
-      {stages.length > 1 && (
-        <StageSelector
-          stages={stages}
-          activeId={activeStageId}
-          onChange={setActiveStageId}
-        />
-      )}
+      <StageSelector
+        stages={stages}
+        activeId={activeStageId}
+        onChange={setActiveStageId}
+        onBack={() => router.push(`/events/${eventId}`)}
+      />
 
       <div className={styles.main}>
         <div className={styles.gridArea}>
@@ -126,7 +127,6 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
               cameras={activeStage.cameras}
               title={title}
               subtitle={`${activeCameraCount} ${activeCameraCount === 1 ? 'câmera' : 'câmeras'} ao vivo`}
-              onBack={() => router.push(`/events/${eventId}`)}
               selectedLevel={currentLevel}
               onLevelsReady={setLevels}
               globalMuted={globalMuted}

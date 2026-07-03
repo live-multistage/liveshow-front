@@ -21,15 +21,28 @@
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-// ── Controls bar ─────────────────────────────────────────────
+// ── Controls bar (floats over the video, F1 TV-style; fades out when idle
+// — see the controlsVisible/showControls logic in CameraGrid.tsx) ────────
 .controlsBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 0.75rem;
-  background-color: $surface;
-  border-bottom: 1px solid $border;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), transparent);
   gap: 0.5rem;
+  opacity: 1;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.controlsBarHidden {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
 }
 
 .gridMain {
@@ -37,6 +50,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  position: relative;
 }
 
 .statusRow {
@@ -45,22 +59,6 @@
   gap: 0.5rem;
   min-width: 0;
   color: $action;
-}
-
-.backBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: $text-primary;
-  background-color: rgba(255, 255, 255, 0.04);
-  border: none;
-  border-radius: 6px;
-  padding: 0.25rem;
-  cursor: pointer;
-  transition: background-color 0.15s;
-
-  &:hover { background-color: rgba(255, 255, 255, 0.1); }
 }
 
 .titleBtn {
@@ -245,6 +243,20 @@
   font-size: 0.625rem;
   font-family: 'Space Mono', monospace;
   margin-top: 0.125rem;
+}
+
+.sidebarModeSection {
+  padding: 0.75rem;
+  border-bottom: 1px solid $border;
+}
+
+.sidebarModeLabel {
+  color: rgba(255,255,255,0.25);
+  font-size: 0.625rem;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
 }
 
 .sidebarList {

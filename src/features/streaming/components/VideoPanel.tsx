@@ -57,7 +57,13 @@ export function VideoPanel({
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const [error, setError] = useState(false);
-  const src = `${config.apiUrl}${camera.manifestPath}`;
+  // manifestPath is null while the camera is broadcasting but not yet
+  // transcoding (WAITING_VIEWERS/QUEUED/STARTING on the backend) — this
+  // viewer joining is what triggers the backend to start it. The parent's
+  // live-playback query keeps polling every 5s, so this becomes non-null on
+  // its own once the backend promotes the job to RUNNING.
+  const connecting = camera.manifestPath === null;
+  const src = connecting ? null : `${config.apiUrl}${camera.manifestPath}`;
 
   // Real dimensions from the video element itself — works whether hls.js or
   // native HLS attached the source, and 'resize' also catches ABR quality
@@ -164,7 +170,8 @@ export function VideoPanel({
         playsInline
       />
 
-      {error && <div className={styles.panelError}>Sem sinal</div>}
+      {connecting && <div className={styles.panelError}>Conectando…</div>}
+      {!connecting && error && <div className={styles.panelError}>Sem sinal</div>}
 
       <div className={styles.topBar}>
         {showLabel && (

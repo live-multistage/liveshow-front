@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X, Square, PanelRight, LayoutGrid } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import type { QualityLevel } from './VideoPanel';
@@ -16,7 +16,6 @@ interface CameraGridProps {
   cameras: LiveCamera[];
   title?: string;
   subtitle?: string;
-  onBack?: () => void;
   onTitleClick?: () => void;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
@@ -42,7 +41,6 @@ export function CameraGrid({
   cameras,
   title,
   subtitle,
-  onBack,
   onTitleClick,
   selectedLevel,
   onLevelsReady,
@@ -58,6 +56,23 @@ export function CameraGrid({
   onActiveCameraIdsChange,
 }: CameraGridProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // F1 TV-style overlay chrome: the controls bar floats over the video and
+  // fades out after a few seconds of no mouse movement, reappearing on the
+  // next move. Stays visible while the camera drawer is open (it holds the
+  // "Ocultar" button that closes it).
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showControls = () => {
+    setControlsVisible(true);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => setControlsVisible(false), 2500);
+  };
+  useEffect(() => {
+    showControls();
+    return () => { if (hideTimerRef.current) clearTimeout(hideTimerRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const cameraById = useMemo(() => new Map(cameras.map((c) => [c.cameraId, c])), [cameras]);
   const activeCameras = useMemo(
@@ -76,6 +91,13 @@ export function CameraGrid({
   const mainCamera = activeCameras.find((c) => c.cameraId === mainCameraId) || activeCameras[0];
   const otherCameras = mainCamera ? activeCameras.filter((c) => c.cameraId !== mainCamera.cameraId) : [];
 
+  // Only 1 active camera forces Solo (nothing else to show alongside it).
+  // Above that, Main+Rail (rail grows to fit however many "other" cameras
+  // there are, see CameraRail.module.scss) and Grid stay freely toggleable
+  // from the toolbar at any camera count.
+  const isModeLocked = activeCameras.length <= 1;
+  const effectiveMode: ViewMode = activeCameras.length <= 1 ? 'solo' : viewMode;
+
   const mainMuted = mainCamera ? globalMuted || mainCamera.cameraId !== audioCameraId : true;
   const handleMainMutedChange = (m: boolean) => {
     if (!mainCamera) return;
@@ -84,42 +106,19 @@ export function CameraGrid({
   };
 
   return (
-    <div className={styles.root}>
+    <div className={styles.root} onMouseMove={showControls}>
       <div className={styles.gridMain}>
-        <div className={styles.controlsBar}>
+        <div
+          className={`${styles.controlsBar} ${controlsVisible || sidebarOpen ? '' : styles.controlsBarHidden}`}
+        >
           <div className={styles.statusRow}>
-            {onBack && (
-              <button onClick={onBack} className={styles.backBtn} aria-label="Voltar">
-                <ChevronLeft size={20} />
-              </button>
-            )}
-            {title ? (
+            {title && (
               <button onClick={onTitleClick} className={styles.titleBtn} title="Ver informações">
                 <span className={styles.titleText}>{title}</span>
                 {subtitle && <span className={styles.subtitleText}>{subtitle}</span>}
               </button>
-            ) : (
-              <span className={styles.statusText}>
-                {`${activeCameras.length} câmera${activeCameras.length !== 1 ? 's' : ''} ativas`}
-              </span>
-            )}
+            ) }
           </div>
-
-          {activeCameras.length > 1 && (
-            <div className={styles.layoutPicker}>
-              {MODES.map(({ id, label, icon: Icon }) => (
-                <button
-                  key={id}
-                  onClick={() => onViewModeChange(id)}
-                  title={label}
-                  aria-label={label}
-                  className={`${styles.layoutBtn} ${viewMode === id ? styles.layoutBtnActive : ''}`}
-                >
-                  <Icon size={14} />
-                </button>
-              ))}
-            </div>
-          )}
 
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className={styles.sidebarToggle}>
             {sidebarOpen ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
@@ -130,7 +129,7 @@ export function CameraGrid({
         <div className={styles.videoArea}>
           {!mainCamera ? (
             <div className={styles.emptyState}>Nenhuma câmera ativa</div>
-          ) : activeCameras.length <= 1 || viewMode === 'solo' ? (
+          ) : effectiveMode === 'solo' ? (
             <SoloView
               camera={mainCamera}
               muted={mainMuted}
@@ -138,7 +137,7 @@ export function CameraGrid({
               selectedLevel={selectedLevel}
               onLevelsReady={onLevelsReady}
             />
-          ) : viewMode === 'main-rail' ? (
+          ) : effectiveMode === 'main-rail' ? (
             <MainRailView
               mainCamera={mainCamera}
               otherCameras={otherCameras}
@@ -179,6 +178,26 @@ export function CameraGrid({
             <X size={16} />
           </button>
         </div>
+
+        {!isModeLocked && (
+          <div className={styles.sidebarModeSection}>
+            <p className={styles.sidebarModeLabel}>MODO DE VISUALIZAÇÃO</p>
+            <div className={styles.layoutPicker}>
+              {MODES.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => onViewModeChange(id)}
+                  title={label}
+                  aria-label={label}
+                  className={`${styles.layoutBtn} ${effectiveMode === id ? styles.layoutBtnActive : ''}`}
+                >
+                  <Icon size={14} />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className={styles.sidebarList}>
           {cameras.map((camera) => {
             const isActive = activeCameraIds.includes(camera.cameraId);

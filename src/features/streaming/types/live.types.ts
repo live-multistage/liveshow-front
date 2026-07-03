@@ -3,7 +3,12 @@ export interface LiveCamera {
   name: string;
   slug: string;
   priority: number;
-  manifestPath: string; // e.g. '/origin/<pkg>/master.m3u8' (relative to API base)
+  // e.g. '/origin/<pkg>/master.m3u8' (relative to API base). Null while the
+  // camera is broadcasting but not yet transcoding (a viewer hasn't
+  // triggered the first start yet, or it's still spinning up) — the camera
+  // is selectable, the player should show a connecting state and this
+  // becomes non-null once the backend's queue processor promotes the job.
+  manifestPath: string | null;
 }
 
 export interface LiveStage {
