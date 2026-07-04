@@ -23,6 +23,7 @@ interface Props {
   onViewModeChange: (mode: ViewMode) => void;
   open: boolean;
   onClose: () => void;
+  mode?: 'live' | 'replay';
 }
 
 export function CameraStrip({
@@ -36,6 +37,7 @@ export function CameraStrip({
   onViewModeChange,
   open,
   onClose,
+  mode = 'live',
 }: Props) {
   if (!open) return null;
 
@@ -85,13 +87,14 @@ export function CameraStrip({
                 fit="cover"
                 muted
                 onMutedChange={() => {}}
+                mode={mode}
               />
               {isMain ? (
                 <span className={styles.thumbBadge}>
                   <span className={styles.thumbDot} />
                   ATIVA
                 </span>
-              ) : isActive ? (
+              ) : isActive && mode === 'live' ? (
                 <span className={styles.thumbBadgeLive}>
                   <span className={styles.thumbDotLive} />
                   LIVE

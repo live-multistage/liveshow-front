@@ -7,6 +7,7 @@ export const LIVE_KEYS = {
   access: (eventId: string) => ['live', 'access', eventId] as const,
   replayAccess: (eventId: string) => ['live', 'replay-access', eventId] as const,
   playback: (eventId: string) => ['live', 'playback', eventId] as const,
+  replayPlayback: (eventId: string) => ['live', 'replay-playback', eventId] as const,
 };
 
 // One-shot (cached) live entitlement check. `enabled` lets callers skip it when
@@ -42,5 +43,16 @@ export function useLivePlaybackQuery(eventId: string, enabled: boolean) {
     staleTime: 4_500,
     refetchInterval: enabled ? 5000 : false,
     refetchIntervalInBackground: false,
+  });
+}
+
+// Replay playback resolution. One-shot, no polling — an archived broadcast's
+// camera list doesn't change while a viewer is watching it.
+export function useReplayPlaybackQuery(eventId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: LIVE_KEYS.replayPlayback(eventId),
+    queryFn: () => streamingService.getReplayPlayback(eventId),
+    enabled,
+    staleTime: 60_000,
   });
 }

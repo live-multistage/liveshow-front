@@ -16,6 +16,7 @@ interface Props {
   volume?: number;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
+  mode?: 'live' | 'replay';
 }
 
 // F1 TV-style layout: big main video + either a PIP overlay (exactly 1
@@ -31,6 +32,7 @@ export function MainRailView({
   volume = 1,
   selectedLevel,
   onLevelsReady,
+  mode = 'live',
 }: Props) {
   return (
     <div className={styles.wrap}>
@@ -45,12 +47,13 @@ export function MainRailView({
           volume={volume}
           selectedLevel={selectedLevel}
           onLevelsReady={onLevelsReady}
+          mode={mode}
         />
         {otherCameras.length === 1 && (
-          <PipOverlay camera={otherCameras[0]} onSelect={() => onSelectMain(otherCameras[0].cameraId)} />
+          <PipOverlay camera={otherCameras[0]} onSelect={() => onSelectMain(otherCameras[0].cameraId)} mode={mode} />
         )}
       </div>
-      {otherCameras.length >= 2 && <CameraRail cameras={otherCameras} onSelect={onSelectMain} />}
+      {otherCameras.length >= 2 && <CameraRail cameras={otherCameras} onSelect={onSelectMain} mode={mode} />}
     </div>
   );
 }

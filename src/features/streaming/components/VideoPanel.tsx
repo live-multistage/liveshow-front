@@ -5,6 +5,7 @@ import Hls from 'hls.js';
 import { toast } from 'sonner';
 import { Maximize2, Volume2, VolumeX } from 'lucide-react';
 import { config } from '@/config';
+import { tokenStore } from '@/lib/auth/token-store';
 import type { LiveCamera } from '../types/live.types';
 import styles from './VideoPanel.module.scss';
 
@@ -43,6 +44,14 @@ interface VideoPanelProps {
   // thumbnails (PIP, rail, CameraStrip) never pass it and get the browser
   // default of 1, which is irrelevant since they're always muted anyway.
   volume?: number;
+  // 'live' (default): unchanged existing behavior — auto-plays muted, seeks
+  // to the live edge on Safari's native HLS path, custom mute-only overlay.
+  // 'replay': VOD playback — no live-edge seek, native <video controls> for
+  // play/pause/seek/volume (a VOD HLS stream supports scrubbing for free
+  // once the browser has the full segment list), and every hls.js request
+  // (manifest + segments) carries the viewer's bearer token, since replay
+  // routes are JWT-gated unlike live's public /origin/* serving.
+  mode?: 'live' | 'replay';
 }
 
 export function VideoPanel({
@@ -59,6 +68,7 @@ export function VideoPanel({
   fit = 'contain',
   showMuteButton = true,
   volume = 1,
+  mode = 'live',
 }: VideoPanelProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -98,28 +108,43 @@ export function VideoPanel({
     if (!Hls.isSupported()) {
       if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = src;
-        const seekLive = () => {
-          const s = video.seekable;
-          if (s.length) video.currentTime = s.end(s.length - 1);
-        };
         const onErr = () => setError(true);
-        video.addEventListener('loadedmetadata', seekLive);
         video.addEventListener('error', onErr);
-        return () => {
-          video.removeEventListener('loadedmetadata', seekLive);
-          video.removeEventListener('error', onErr);
-        };
+        // Live only: jump to the live edge once metadata loads. Replay is a
+        // closed VOD timeline — starting at 0 (the browser default) is correct.
+        if (mode === 'live') {
+          const seekLive = () => {
+            const s = video.seekable;
+            if (s.length) video.currentTime = s.end(s.length - 1);
+          };
+          video.addEventListener('loadedmetadata', seekLive);
+          return () => {
+            video.removeEventListener('loadedmetadata', seekLive);
+            video.removeEventListener('error', onErr);
+          };
+        }
+        return () => video.removeEventListener('error', onErr);
       }
       setError(true);
       return;
     }
 
     const hls = new Hls({
-      lowLatencyMode: true,
+      lowLatencyMode: mode === 'live',
       liveSyncDurationCount: 2,
       liveMaxLatencyDurationCount: 6,
       backBufferLength: 10,
       maxLiveSyncPlaybackRate: 1.5,
+      // Replay routes (manifest + segments) are JWT-gated, unlike live's
+      // public /origin/* origin serving — attach the bearer token to every
+      // request hls.js makes. No-op for live (mode default), so live's
+      // network behavior is unchanged.
+      ...(mode === 'replay' && {
+        xhrSetup: (xhr: XMLHttpRequest) => {
+          const token = tokenStore.get();
+          if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        },
+      }),
     });
     hls.loadSource(src);
     hls.attachMedia(video);
@@ -176,25 +201,32 @@ export function VideoPanel({
         className={styles.video}
         style={{ objectFit: fit }}
         data-focused={isFocused}
-        autoPlay
-        muted
+        autoPlay={mode !== 'replay'}
+        muted={mode !== 'replay'}
+        controls={mode === 'replay'}
         playsInline
       />
 
-      {connecting && <div className={styles.panelError}>Conectando…</div>}
+      {connecting && (
+        <div className={styles.panelError}>
+          {mode === 'replay' ? 'Replay indisponível' : 'Conectando…'}
+        </div>
+      )}
       {!connecting && error && <div className={styles.panelError}>Sem sinal</div>}
 
       <div className={styles.topBar}>
         {showLabel && (
           <div className={styles.topLeft}>
-            <span className={styles.liveBadge}>
-              <span className={styles.liveDot} />
-              LIVE
-            </span>
+            {mode === 'live' && (
+              <span className={styles.liveBadge}>
+                <span className={styles.liveDot} />
+                LIVE
+              </span>
+            )}
             <span className={styles.cameraLabel}>{camera.name}</span>
           </div>
         )}
-        {showMuteButton && (
+        {showMuteButton && mode === 'live' && (
           <button
             className={styles.muteBtn}
             onClick={(e) => {

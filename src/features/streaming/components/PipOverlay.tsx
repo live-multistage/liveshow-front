@@ -7,6 +7,7 @@ import styles from './PipOverlay.module.scss';
 interface Props {
   camera: LiveCamera;
   onSelect: () => void;
+  mode?: 'live' | 'replay';
 }
 
 // Small floating box over the bottom-right corner of the main video — used
@@ -14,7 +15,7 @@ interface Props {
 // cameras (main + 1 other). A 1-item vertical rail looked sparse; F1 TV's
 // own player uses this exact PIP treatment for the 2-camera case (see
 // design spec for the reference screenshot).
-export function PipOverlay({ camera, onSelect }: Props) {
+export function PipOverlay({ camera, onSelect, mode = 'live' }: Props) {
   return (
     <div className={styles.pip} onClick={onSelect}>
       <VideoPanel
@@ -24,6 +25,7 @@ export function PipOverlay({ camera, onSelect }: Props) {
         fit="cover"
         muted
         onMutedChange={() => {}}
+        mode={mode}
       />
     </div>
   );

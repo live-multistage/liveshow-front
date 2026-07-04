@@ -24,6 +24,7 @@ interface CameraGridProps {
   mainCameraId: string | null;
   onMainCameraChange: (cameraId: string) => void;
   activeCameraIds: string[];
+  mode?: 'live' | 'replay';
 }
 
 // Pure view-mode dispatcher now — camera selection lives in CameraStrip,
@@ -44,6 +45,7 @@ export function CameraGrid({
   mainCameraId,
   onMainCameraChange,
   activeCameraIds,
+  mode = 'live',
 }: CameraGridProps) {
   const cameraById = useMemo(() => new Map(cameras.map((c) => [c.cameraId, c])), [cameras]);
   const activeCameras = useMemo(
@@ -89,6 +91,7 @@ export function CameraGrid({
           volume={volume}
           selectedLevel={selectedLevel}
           onLevelsReady={onLevelsReady}
+          mode={mode}
         />
       ) : (
         <GridView
@@ -103,6 +106,7 @@ export function CameraGrid({
           volume={volume}
           selectedLevel={selectedLevel}
           onLevelsReady={onLevelsReady}
+          mode={mode}
         />
       )}
     </div>

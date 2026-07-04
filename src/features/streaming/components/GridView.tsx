@@ -19,6 +19,7 @@ interface Props {
   volume?: number;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
+  mode?: 'live' | 'replay';
 }
 
 // Row-justified mosaic: every active camera at once, each cell sized to its
@@ -35,6 +36,7 @@ export function GridView({
   volume = 1,
   selectedLevel,
   onLevelsReady,
+  mode = 'live',
 }: Props) {
   const [aspectRatios, setAspectRatios] = useState<Record<string, number>>({});
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
@@ -103,6 +105,7 @@ export function GridView({
                     onAspectRatioReady={handleAspectRatioReady}
                     muted={isTileMuted(camera.cameraId)}
                     onMutedChange={(m) => handleTileMutedChange(camera.cameraId, m)}
+                    mode={mode}
                   />
                 </div>
               );

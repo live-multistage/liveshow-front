@@ -32,3 +32,29 @@ export interface LivePlaybackResponse {
 export interface LiveAccessResponse {
   authorized: boolean;
 }
+
+export interface ReplayCameraPlayback {
+  cameraId: string;
+  name: string;
+  slug: string;
+  priority: number;
+  // e.g. '/packages/<packageId>/replay/master.m3u8' (relative to API base).
+  // Null when this camera has no archived, replayable broadcast yet.
+  replayPath: string | null;
+}
+
+export interface ReplayStagePlayback {
+  stageId: string;
+  name: string;
+  slug: string;
+  position: number;
+  cameras: ReplayCameraPlayback[];
+}
+
+export interface ReplayPlaybackResponse {
+  eventId: string;
+  available: boolean;
+  stages: ReplayStagePlayback[];
+  cameras: ReplayCameraPlayback[];
+  primaryCameraId: string | null;
+}
