@@ -260,7 +260,7 @@
 
 .adRow {
   display: grid;
-  grid-template-columns: 80px 1fr 130px 280px 180px;
+  grid-template-columns: 80px 1fr 110px 360px 140px;
   align-items: center;
   gap: 1.25rem;
   background: $surface;
@@ -374,6 +374,7 @@
   font-size: 0.875rem;
   font-weight: 700;
   color: $text-primary;
+  white-space: nowrap;
 }
 
 .metricUp { color: #7fe0a0; }
@@ -417,17 +418,16 @@
 .reportBtn {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem 0.875rem;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 0;
   background: transparent;
   border: 1px solid $border;
   border-radius: 6px;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.06em;
   color: $text-secondary;
   cursor: pointer;
-  white-space: nowrap;
   transition: all 0.15s;
 
   &:hover {

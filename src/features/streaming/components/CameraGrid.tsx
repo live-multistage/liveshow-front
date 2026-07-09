@@ -25,6 +25,12 @@ interface CameraGridProps {
   onMainCameraChange: (cameraId: string) => void;
   activeCameraIds: string[];
   mode?: 'live' | 'replay';
+  // Replay only — see VideoPanel's own prop docs. Applied to every active
+  // camera; onProgress/onEnded only fire from the current main camera.
+  paused?: boolean;
+  seekCommand?: { time: number; token: number } | null;
+  onProgress?: (currentTime: number, duration: number) => void;
+  onEnded?: () => void;
 }
 
 // Pure view-mode dispatcher now — camera selection lives in CameraStrip,
@@ -46,6 +52,10 @@ export function CameraGrid({
   onMainCameraChange,
   activeCameraIds,
   mode = 'live',
+  paused,
+  seekCommand,
+  onProgress,
+  onEnded,
 }: CameraGridProps) {
   const cameraById = useMemo(() => new Map(cameras.map((c) => [c.cameraId, c])), [cameras]);
   const activeCameras = useMemo(
@@ -92,6 +102,10 @@ export function CameraGrid({
           selectedLevel={selectedLevel}
           onLevelsReady={onLevelsReady}
           mode={mode}
+          paused={paused}
+          seekCommand={seekCommand}
+          onProgress={onProgress}
+          onEnded={onEnded}
         />
       ) : (
         <GridView
@@ -107,6 +121,11 @@ export function CameraGrid({
           selectedLevel={selectedLevel}
           onLevelsReady={onLevelsReady}
           mode={mode}
+          paused={paused}
+          seekCommand={seekCommand}
+          timeSourceCameraId={mainCamera?.cameraId ?? null}
+          onProgress={onProgress}
+          onEnded={onEnded}
         />
       )}
     </div>

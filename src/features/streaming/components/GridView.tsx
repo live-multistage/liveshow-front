@@ -20,6 +20,14 @@ interface Props {
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
   mode?: 'live' | 'replay';
+  paused?: boolean;
+  seekCommand?: { time: number; token: number } | null;
+  // Only this camera's VideoPanel reports progress/end — same "one clock"
+  // rule as MainRailView's isTimeSource, just picked by id instead of
+  // structurally (grid mode has no single visually-main tile).
+  timeSourceCameraId?: string | null;
+  onProgress?: (currentTime: number, duration: number) => void;
+  onEnded?: () => void;
 }
 
 // Row-justified mosaic: every active camera at once, each cell sized to its
@@ -37,6 +45,11 @@ export function GridView({
   selectedLevel,
   onLevelsReady,
   mode = 'live',
+  paused,
+  seekCommand,
+  timeSourceCameraId = null,
+  onProgress,
+  onEnded,
 }: Props) {
   const [aspectRatios, setAspectRatios] = useState<Record<string, number>>({});
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
@@ -106,6 +119,11 @@ export function GridView({
                     muted={isTileMuted(camera.cameraId)}
                     onMutedChange={(m) => handleTileMutedChange(camera.cameraId, m)}
                     mode={mode}
+                    paused={paused}
+                    seekCommand={seekCommand}
+                    isTimeSource={camera.cameraId === timeSourceCameraId}
+                    onProgress={onProgress}
+                    onEnded={onEnded}
                   />
                 </div>
               );

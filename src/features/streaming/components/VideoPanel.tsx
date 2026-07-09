@@ -46,12 +46,26 @@ interface VideoPanelProps {
   volume?: number;
   // 'live' (default): unchanged existing behavior — auto-plays muted, seeks
   // to the live edge on Safari's native HLS path, custom mute-only overlay.
-  // 'replay': VOD playback — no live-edge seek, native <video controls> for
-  // play/pause/seek/volume (a VOD HLS stream supports scrubbing for free
-  // once the browser has the full segment list), and every hls.js request
-  // (manifest + segments) carries the viewer's bearer token, since replay
-  // routes are JWT-gated unlike live's public /origin/* serving.
+  // 'replay': VOD playback — no live-edge seek, every hls.js request
+  // (manifest + segments) carries the viewer's bearer token (replay routes
+  // are JWT-gated unlike live's public /origin/* serving), and play/pause/seek
+  // are driven entirely by ReplayTransportBar via the props below — no native
+  // <video controls>, matching the live player's own custom-chrome look.
   mode?: 'live' | 'replay';
+  // Replay only. Controlled like `muted` above — every active camera's
+  // <video> gets the same paused state so switching the main camera mid-
+  // playback doesn't leave a background tile still running.
+  paused?: boolean;
+  // Replay only. A new object (even with the same `time`) re-applies the
+  // seek — the token is what triggers the effect, not the time value alone,
+  // so re-seeking to a position already reached still works.
+  seekCommand?: { time: number; token: number } | null;
+  // Replay only. True for exactly one active camera's panel (the current
+  // main/focused one) — only that panel's native playback events drive
+  // ReplayTransportBar's clock and end-of-video handling.
+  isTimeSource?: boolean;
+  onProgress?: (currentTime: number, duration: number) => void;
+  onEnded?: () => void;
 }
 
 export function VideoPanel({
@@ -69,9 +83,20 @@ export function VideoPanel({
   showMuteButton = true,
   volume = 1,
   mode = 'live',
+  paused,
+  seekCommand,
+  isTimeSource = false,
+  onProgress,
+  onEnded,
 }: VideoPanelProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
+  // MANIFEST_PARSED's handler is created once per `src` (see the hls effect's
+  // own deps below) and fires asynchronously — its closure would otherwise
+  // see the `paused` value from whenever that effect last ran, not whatever
+  // it is by the time the manifest actually finishes parsing.
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
   const [error, setError] = useState(false);
   // manifestPath is null while the camera is broadcasting but not yet
   // transcoding (WAITING_VIEWERS/QUEUED/STARTING on the backend) — this
@@ -153,7 +178,11 @@ export function VideoPanel({
         .map((l, i) => ({ index: i, height: l.height }))
         .sort((a, b) => b.height - a.height);
       onLevelsReady?.(sorted);
-      void video.play().catch(() => {});
+      // Live always autoplays; replay only if not currently paused (a fresh
+      // camera thumbnail/tile shouldn't start itself just because its own
+      // manifest happened to finish parsing after the shared paused state
+      // was already set).
+      if (mode !== 'replay' || !pausedRef.current) void video.play().catch(() => {});
     });
     hls.on(Hls.Events.ERROR, (_evt, data) => {
       if (data.fatal) {
@@ -186,6 +215,39 @@ export function VideoPanel({
     }
   }, [selectedLevel]);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || mode !== 'replay' || paused === undefined) return;
+    if (paused) video.pause();
+    else void video.play().catch(() => {});
+  }, [paused, mode]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !seekCommand) return;
+    video.currentTime = seekCommand.time;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seekCommand?.token]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !isTimeSource || !onProgress) return;
+    const report = () => onProgress(video.currentTime, video.duration || 0);
+    video.addEventListener('timeupdate', report);
+    video.addEventListener('durationchange', report);
+    return () => {
+      video.removeEventListener('timeupdate', report);
+      video.removeEventListener('durationchange', report);
+    };
+  }, [isTimeSource, onProgress]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !isTimeSource || !onEnded) return;
+    video.addEventListener('ended', onEnded);
+    return () => video.removeEventListener('ended', onEnded);
+  }, [isTimeSource, onEnded]);
+
   const panelClass = [
     styles.panel,
     isFocused ? styles.panelFocused : '',
@@ -202,8 +264,7 @@ export function VideoPanel({
         style={{ objectFit: fit }}
         data-focused={isFocused}
         autoPlay={mode !== 'replay'}
-        muted={mode !== 'replay'}
-        controls={mode === 'replay'}
+        muted={muted}
         playsInline
       />
 

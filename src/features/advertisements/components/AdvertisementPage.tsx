@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Search, Loader2, ExternalLink } from 'lucide-react';
+import { Plus, Search, Loader2, ExternalLink, BarChart3 } from 'lucide-react';
 import styles from './AdvertisementPage.module.scss';
 import { AdReportModal, type ReportAdRef } from './AdReportModal';
 import { useListAdsQuery } from '../queries/use-list-ads';
@@ -269,12 +269,18 @@ export function AdvertisementPage() {
                 <button
                   className={styles.reportBtn}
                   onClick={() => router.push(`/dashboard/advertisement/${ad.id}`)}
+                  aria-label="Detalhes"
+                  title="Detalhes"
                 >
-                  <ExternalLink size={12} />
-                  DETALHES
+                  <ExternalLink size={14} />
                 </button>
-                <button className={styles.reportBtn} onClick={() => openReport(ad)}>
-                  RELATÓRIO
+                <button
+                  className={styles.reportBtn}
+                  onClick={() => openReport(ad)}
+                  aria-label="Relatório"
+                  title="Relatório"
+                >
+                  <BarChart3 size={14} />
                 </button>
               </div>
             </div>

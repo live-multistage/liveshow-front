@@ -1,0 +1,86 @@
+@use '../../../styles/_variables' as *;
+
+.replayBadge {
+  padding: 0.375rem 0.625rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: $text-secondary;
+  flex-shrink: 0;
+}
+
+.seekGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+// A bare <input type="range"> renders as just a thumb on an invisible track
+// in Chrome/Safari — accent-color alone only tints the thumb + WebKit's
+// filled portion, and WebKit has no equivalent to Firefox's ::-moz-range-
+// progress, so the played/remaining split has to be painted as an inline
+// gradient on the input itself (percent computed in ReplayTransportBar.tsx)
+// with the track pseudo-elements left transparent so that gradient shows.
+.seekSlider {
+  flex: 1;
+  min-width: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.15); // Firefox track fallback
+
+  &::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: transparent;
+  }
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    margin-top: -4px;
+    border-radius: 50%;
+    background: $action;
+    cursor: pointer;
+  }
+
+  &::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  &::-moz-range-progress {
+    height: 4px;
+    border-radius: 2px;
+    background: $action;
+  }
+
+  &::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border: none;
+    border-radius: 50%;
+    background: $action;
+    cursor: pointer;
+  }
+}
+
+.timeLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  color: $muted;
+  flex-shrink: 0;
+  min-width: 2.5rem;
+  text-align: center;
+}

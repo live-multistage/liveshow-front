@@ -24,6 +24,8 @@ interface Props {
   open: boolean;
   onClose: () => void;
   mode?: 'live' | 'replay';
+  paused?: boolean;
+  seekCommand?: { time: number; token: number } | null;
 }
 
 export function CameraStrip({
@@ -38,6 +40,8 @@ export function CameraStrip({
   open,
   onClose,
   mode = 'live',
+  paused,
+  seekCommand,
 }: Props) {
   if (!open) return null;
 
@@ -88,6 +92,8 @@ export function CameraStrip({
                 muted
                 onMutedChange={() => {}}
                 mode={mode}
+                paused={paused}
+                seekCommand={seekCommand}
               />
               {isMain ? (
                 <span className={styles.thumbBadge}>

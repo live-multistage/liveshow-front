@@ -1,12 +1,13 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Video } from 'lucide-react';
+import { ChevronLeft, Play, Video } from 'lucide-react';
 import type { ReplayCameraPlayback, LiveCamera } from '../types/live.types';
 import { CameraGrid } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
 import { CameraStrip } from './CameraStrip';
+import { ReplayTransportBar } from './ReplayTransportBar';
 import styles from './ReplayPlayer.module.scss';
 
 interface ReplayPlayerProps {
@@ -15,19 +16,21 @@ interface ReplayPlayerProps {
   eventId: string;
 }
 
-// Replay's grid/camera-switching UX intentionally mirrors LivePlayer's (same
-// CameraGrid/CameraStrip components, mode="replay"), but drops what's
-// live-only: viewer tracking, chat, TransportBar. A VOD HLS stream gets
-// play/pause/seek/volume for free from the browser's native <video controls>
-// once VideoPanel renders them (see VideoPanel's mode prop) — no custom
-// transport bar needed.
+// Replay's grid/camera-switching UX mirrors LivePlayer's (same
+// CameraGrid/CameraStrip components, mode="replay"), drops what's live-only
+// (viewer tracking, chat), and adds its own ReplayTransportBar for
+// play/pause/seek — no native <video controls> (see VideoPanel's mode prop),
+// matching the live player's custom-chrome look exactly.
 //
-// Known scope cut: switching the main camera does NOT carry over playback
-// position — each camera's <video> is its own independent VOD timeline, not
-// synced to the others. Multi-camera synchronized scrubbing is a real,
-// harder problem deliberately left for later.
+// paused/seekCommand are applied to every active camera's <video> (see
+// VideoPanel), so switching the main camera mid-playback doesn't leave a
+// background tile still running or arbitrarily far out of sync — but each
+// camera is still its own independent VOD timeline underneath (no frame-
+// accurate cross-camera sync), a real, harder problem deliberately left for
+// later.
 export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlayerProps) {
   const router = useRouter();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
   const [mainCameraId, setMainCameraId] = useState<string | null>(null);
   const [activeCameraIds, setActiveCameraIds] = useState<string[]>(() => {
@@ -40,6 +43,15 @@ export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlay
   const [audioCameraId, setAudioCameraId] = useState<string | null>(null);
   const [levels, setLevels] = useState<QualityLevel[]>([]);
   const [currentLevel, setCurrentLevel] = useState(-1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  // Starts paused: a VOD stream autoplaying with sound the moment the page
+  // loads (no direct user gesture on this element) is exactly what browser
+  // autoplay policies block anyway — same big-play-button pattern as any
+  // VOD player.
+  const [paused, setPaused] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [seekCommand, setSeekCommand] = useState<{ time: number; token: number } | null>(null);
 
   // CameraGrid/VideoPanel consume LiveCamera (manifestPath), not
   // ReplayCameraPlayback (replayPath) — same shape, different field name for
@@ -69,6 +81,41 @@ export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlay
     }
   };
 
+  const handleSeek = (time: number) => {
+    setCurrentTime(time);
+    setSeekCommand({ time, token: Date.now() });
+  };
+
+  const handleEnded = () => setPaused(true);
+
+  const toggleFullscreen = () => {
+    if (!isFullscreen) containerRef.current?.requestFullscreen?.();
+    else document.exitFullscreen?.();
+    setIsFullscreen(!isFullscreen);
+  };
+
+  const handleTogglePip = async () => {
+    const video = containerRef.current?.querySelector<HTMLVideoElement>('video[data-focused="true"]');
+    if (!video) return;
+    try {
+      if (document.pictureInPictureElement) await document.exitPictureInPicture();
+      else await video.requestPictureInPicture();
+    } catch {
+      // PiP unsupported or blocked by the browser — no-op.
+    }
+  };
+
+  const activeLevel = levels.find((l) => l.index === currentLevel);
+  const qualityLabel = currentLevel === -1 ? 'Auto' : activeLevel ? `${activeLevel.height}p` : 'Auto';
+
+  const handleAudioCameraChange = (id: string) => {
+    setAudioCameraId(id);
+    setGlobalMuted(false);
+  };
+
+  const effectiveAudioCameraId =
+    audioCameraId && cameras.some((c) => c.cameraId === audioCameraId) ? audioCameraId : (cameras[0]?.cameraId ?? null);
+
   if (playableCameras.length === 0) {
     return (
       <div className={styles.emptyState}>
@@ -79,7 +126,7 @@ export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlay
   }
 
   return (
-    <div className={styles.player}>
+    <div ref={containerRef} className={styles.player}>
       <header className={styles.header}>
         <button className={styles.backBtn} onClick={() => router.push(`/events/${eventId}`)} aria-label="Voltar">
           <ChevronLeft size={16} />
@@ -104,8 +151,8 @@ export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlay
             onLevelsReady={setLevels}
             globalMuted={globalMuted}
             onGlobalMutedChange={setGlobalMuted}
-            audioCameraId={audioCameraId}
-            onAudioCameraChange={setAudioCameraId}
+            audioCameraId={effectiveAudioCameraId}
+            onAudioCameraChange={handleAudioCameraChange}
             volume={volume}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
@@ -113,8 +160,23 @@ export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlay
             onMainCameraChange={setMainCameraId}
             activeCameraIds={activeCameraIds}
             mode="replay"
+            paused={paused}
+            seekCommand={seekCommand}
+            onProgress={(t, d) => {
+              setCurrentTime(t);
+              setDuration(d);
+            }}
+            onEnded={handleEnded}
           />
         </div>
+
+        {paused && (
+          <button className={styles.centerPlayOverlay} onClick={() => setPaused(false)} aria-label="Reproduzir">
+            <span className={styles.centerPlayBtn}>
+              <Play size={28} fill="currentColor" />
+            </span>
+          </button>
+        )}
       </div>
 
       <div className={styles.bottomStack}>
@@ -130,6 +192,30 @@ export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlay
           open={cameraStripOpen}
           onClose={() => setCameraStripOpen(false)}
           mode="replay"
+          paused={paused}
+          seekCommand={seekCommand}
+        />
+
+        <ReplayTransportBar
+          paused={paused}
+          onTogglePlay={() => setPaused((p) => !p)}
+          currentTime={currentTime}
+          duration={duration}
+          onSeek={handleSeek}
+          globalMuted={globalMuted}
+          onToggleMute={() => setGlobalMuted((m) => !m)}
+          volume={volume}
+          onVolumeChange={setVolume}
+          audioCameras={cameras}
+          effectiveAudioCameraId={effectiveAudioCameraId}
+          onAudioCameraChange={handleAudioCameraChange}
+          levels={levels}
+          currentLevel={currentLevel}
+          qualityLabel={qualityLabel}
+          onSelectLevel={setCurrentLevel}
+          onTogglePip={handleTogglePip}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={toggleFullscreen}
         />
       </div>
     </div>
