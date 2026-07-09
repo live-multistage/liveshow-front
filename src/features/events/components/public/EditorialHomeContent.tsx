@@ -3,8 +3,10 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { useListEventsQuery, eventToShow, useEventsPriceMap, formatPriceRange } from '@/features/events';
+import { useListEventsQuery, useRecommendedEventsQuery, eventToShow, useEventsPriceMap, formatPriceRange } from '@/features/events';
 import type { Show } from '@/features/events/types/show';
+import type { EventResponse, RecommendedEventsResponse } from '@/features/events';
+import { useAuth } from '@/features/account';
 import styles from './EditorialHomeContent.module.scss';
 import { AdBanner } from '@/features/advertisements/components/AdBanner';
 
@@ -166,19 +168,31 @@ function EditorialCard({
 
 // ── Main ────────────────────────────────────────────────────────────
 
-export function EditorialHomeContent() {
+interface Props {
+  initialEvents?: EventResponse[];
+  initialRecommended?: RecommendedEventsResponse;
+}
+
+export function EditorialHomeContent({ initialEvents, initialRecommended }: Props) {
   const router = useRouter();
   const locale = useLocale();
   const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
 
   const [activeGenre, setActiveGenre] = useState('Todos');
 
-  const { data: events = [], isLoading } = useListEventsQuery('all');
+  const { data: events = [], isLoading } = useListEventsQuery('all', initialEvents);
   const eventIds = useMemo(() => events.map((e) => e.id), [events]);
   const priceMap = useEventsPriceMap(eventIds);
   const shows = useMemo(
     () => events.map((e) => ({ ...eventToShow(e), priceRange: priceMap[e.id] ?? undefined })),
     [events, priceMap],
+  );
+
+  const { isLoggedIn } = useAuth();
+  const { data: recommended } = useRecommendedEventsQuery(initialRecommended);
+  const recommendedShows = useMemo(
+    () => (recommended?.items ?? []).map((e) => ({ ...eventToShow(e), priceRange: priceMap[e.id] ?? undefined })),
+    [recommended, priceMap],
   );
 
   const liveShows = useMemo(() => shows.filter((s) => s.isLive), [shows]);
@@ -306,6 +320,32 @@ export function EditorialHomeContent() {
               >
                 VER TODA A PROGRAMAÇÃO AO VIVO →
               </button>
+            </div>
+          </div>
+        )}
+
+        {recommendedShows.length > 0 && (
+          <div className={styles.gridSection}>
+            <div className={styles.sectionHeader}>
+              <div>
+                <div className={styles.sectionEyebrow}>
+                  {isLoggedIn ? 'PARA VOCÊ' : 'DESTAQUES'}
+                </div>
+                <div className={styles.sectionTitle}>
+                  {isLoggedIn ? 'Recomendados para você' : 'Em alta agora'}
+                </div>
+              </div>
+            </div>
+            <div className={styles.eventGrid}>
+              {recommendedShows.map((show) => (
+                <EditorialCard
+                  key={show.id}
+                  show={show}
+                  localeCode={localeCode}
+                  onWatch={() => goWatch(show)}
+                  onInfo={() => goInfo(show)}
+                />
+              ))}
             </div>
           </div>
         )}
