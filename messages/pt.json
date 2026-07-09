@@ -446,6 +446,14 @@
       "removeCamera": "Remover câmera",
       "removeFeed": "Remover feed",
       "removeStage": "Remover palco"
+    },
+    "preview": {
+      "heading": "Prévia da página do evento",
+      "badge": "PRÉVIA",
+      "titlePlaceholder": "Título do evento",
+      "noOrg": "Selecione uma organização",
+      "ticketsHeading": "INGRESSOS",
+      "ticketsEmpty": "Nenhum ingresso configurado ainda"
     }
   },
   "editTicket": {

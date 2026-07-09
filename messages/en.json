@@ -446,6 +446,14 @@
       "removeCamera": "Remove camera",
       "removeFeed": "Remove feed",
       "removeStage": "Remove stage"
+    },
+    "preview": {
+      "heading": "Event page preview",
+      "badge": "PREVIEW",
+      "titlePlaceholder": "Event title",
+      "noOrg": "Select an organization",
+      "ticketsHeading": "TICKETS",
+      "ticketsEmpty": "No tickets configured yet"
     }
   },
   "editTicket": {
