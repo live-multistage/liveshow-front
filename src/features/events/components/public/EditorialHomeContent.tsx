@@ -9,6 +9,7 @@ import type { EventResponse, RecommendedEventsResponse } from '@/features/events
 import { useAuth } from '@/features/account';
 import styles from './EditorialHomeContent.module.scss';
 import { AdBanner } from '@/features/advertisements/components/AdBanner';
+import { Carousel } from '@/app/(public)/_components/Carousel/Carousel';
 
 const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
 
@@ -331,17 +332,18 @@ export function EditorialHomeContent({ initialEvents, initialRecommended }: Prop
                 </div>
               </div>
             </div>
-            <div className={styles.eventGrid}>
+            <Carousel onSeeAll={() => router.push('/events')}>
               {recommendedShows.map((show) => (
-                <EditorialCard
-                  key={show.id}
-                  show={show}
-                  localeCode={localeCode}
-                  onWatch={() => goWatch(show)}
-                  onInfo={() => goInfo(show)}
-                />
+                <div key={show.id} className={styles.recommendedItem}>
+                  <EditorialCard
+                    show={show}
+                    localeCode={localeCode}
+                    onWatch={() => goWatch(show)}
+                    onInfo={() => goInfo(show)}
+                  />
+                </div>
               ))}
-            </div>
+            </Carousel>
           </div>
         )}
 
