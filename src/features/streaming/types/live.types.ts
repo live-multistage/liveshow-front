@@ -3,7 +3,12 @@ export interface LiveCamera {
   name: string;
   slug: string;
   priority: number;
-  manifestPath: string; // e.g. '/origin/<pkg>/master.m3u8' (relative to API base)
+  // e.g. '/origin/<pkg>/master.m3u8' (relative to API base). Null while the
+  // camera is broadcasting but not yet transcoding (a viewer hasn't
+  // triggered the first start yet, or it's still spinning up) — the camera
+  // is selectable, the player should show a connecting state and this
+  // becomes non-null once the backend's queue processor promotes the job.
+  manifestPath: string | null;
 }
 
 export interface LiveStage {
@@ -26,4 +31,30 @@ export interface LivePlaybackResponse {
 
 export interface LiveAccessResponse {
   authorized: boolean;
+}
+
+export interface ReplayCameraPlayback {
+  cameraId: string;
+  name: string;
+  slug: string;
+  priority: number;
+  // e.g. '/packages/<packageId>/replay/master.m3u8' (relative to API base).
+  // Null when this camera has no archived, replayable broadcast yet.
+  replayPath: string | null;
+}
+
+export interface ReplayStagePlayback {
+  stageId: string;
+  name: string;
+  slug: string;
+  position: number;
+  cameras: ReplayCameraPlayback[];
+}
+
+export interface ReplayPlaybackResponse {
+  eventId: string;
+  available: boolean;
+  stages: ReplayStagePlayback[];
+  cameras: ReplayCameraPlayback[];
+  primaryCameraId: string | null;
 }

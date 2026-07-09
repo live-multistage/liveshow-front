@@ -10,9 +10,10 @@ import { LiveNoAccess } from './LiveNoAccess';
 interface Props {
   eventId: string;
   eventTitle?: string;
+  chatEnabled: boolean;
 }
 
-export function LiveGate({ eventId, eventTitle }: Props) {
+export function LiveGate({ eventId, eventTitle, chatEnabled }: Props) {
   const t = useTranslations('liveGate');
   const { isLoggedIn, isLoading: authLoading } = useAuth();
   const access = useLiveAccessQuery(eventId, !authLoading);
@@ -48,6 +49,7 @@ export function LiveGate({ eventId, eventTitle }: Props) {
       primaryCameraId={playback.data.primaryCameraId}
       title={eventTitle}
       eventId={eventId}
+      chatEnabled={chatEnabled}
     />
   );
 }

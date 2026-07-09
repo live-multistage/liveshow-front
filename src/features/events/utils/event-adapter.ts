@@ -34,6 +34,16 @@ export function eventToShow(event: EventResponse): Show {
       ? `${Math.floor(durationMin / 60)}h${durationMin % 60 > 0 ? ` ${durationMin % 60}min` : ''}`
       : `${durationMin}min`;
 
+  // priceFromCents/priceToCents are only present when the event has at
+  // least one ticket product (see GetFeedUseCase, live-show-orchestrator) —
+  // absent means "no ticket data," rendered the same as free (price: 0),
+  // matching this component's pre-existing behavior for that case.
+  const price = event.priceFromCents !== undefined ? event.priceFromCents / 100 : 0;
+  const priceRange =
+    event.priceToCents !== undefined && event.priceToCents !== event.priceFromCents
+      ? { min: price, max: event.priceToCents / 100 }
+      : undefined;
+
   return {
     id: event.id,
     title: event.title,
@@ -46,7 +56,8 @@ export function eventToShow(event: EventResponse): Show {
     time: startsAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
     duration: durationLabel,
     image: event.thumbnailUrl ?? event.bannerUrl ?? FALLBACK_IMAGE,
-    price: 0,
+    price,
+    priceRange,
     currency: 'BRL',
     isLive: event.status === 'LIVE',
     hasReplay: event.status === 'FINISHED',

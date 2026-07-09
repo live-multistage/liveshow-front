@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { useListEventsQuery, eventToShow, useEventsPriceMap } from '@/features/events';
+import { useListEventsQuery, eventToShow } from '@/features/events';
 import { AdBanner } from '@/features/advertisements';
 import { ShowCard } from './ShowCard';
 import styles from '../../../../app/(public)/events/page.module.scss';
@@ -33,12 +33,7 @@ export function EventsListPageContent() {
   const t = useTranslations('events.list');
 
   const { data: events = [], isLoading, isError } = useListEventsQuery('all');
-  const eventIds = useMemo(() => events.map((e) => e.id), [events]);
-  const priceMap = useEventsPriceMap(eventIds);
-  const SHOWS = useMemo(
-    () => events.map((e) => ({ ...eventToShow(e), priceRange: priceMap[e.id] ?? undefined })),
-    [events, priceMap],
-  );
+  const SHOWS = useMemo(() => events.map(eventToShow), [events]);
 
   const [search, setSearch] = useState('');
   const [sort, setSort]     = useState('date-asc');

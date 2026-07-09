@@ -7,7 +7,7 @@ import type { EventResponse, TicketProductResponse } from '../types/event.types'
 // API_INTERNAL_URL hits the backend directly over the docker network in prod/staging;
 // falls back to NEXT_PUBLIC_API_URL in local dev where there's only one host.
 const apiBase = () =>
-  (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api').replace(/\/$/, '');
+  (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api').replace(/\/$/, '');
 
 export const fetchEvent = cache(async (id: string): Promise<EventResponse> => {
   const res = await fetch(`${apiBase()}/events/${id}`, { next: { revalidate: 30 } });

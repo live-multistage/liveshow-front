@@ -1,0 +1,23 @@
+@use '../../../styles/_variables' as *;
+
+.pip {
+  position: absolute;
+  right: 1rem;
+  // Clears LivePlayer's floating .bottomStack (camera strip + transport bar
+  // card) — the video is full-bleed now, so this would otherwise render
+  // underneath that overlay instead of just above it.
+  bottom: 5.5rem;
+  width: 220px;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  z-index: 21;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: $action;
+  }
+}

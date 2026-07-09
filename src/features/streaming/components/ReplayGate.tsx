@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
-import { useReplayAccessQuery } from '../queries/live.queries';
+import { useReplayAccessQuery, useReplayPlaybackQuery } from '../queries/live.queries';
 import { LiveGateLoading } from './LiveGateLoading';
+import { ReplayPlayer } from './ReplayPlayer';
 
 interface Props {
   eventId: string;
@@ -15,6 +16,7 @@ export function ReplayGate({ eventId, eventTitle }: Props) {
   const t = useTranslations('liveGate');
   const { isLoading: authLoading } = useAuth();
   const access = useReplayAccessQuery(eventId, !authLoading);
+  const playback = useReplayPlaybackQuery(eventId, access.data === true);
 
   if (authLoading || access.isLoading) {
     return <LiveGateLoading message={t('checkingAccess')} />;
@@ -30,11 +32,18 @@ export function ReplayGate({ eventId, eventTitle }: Props) {
     );
   }
 
-  // Replay playback is not yet implemented — gate is enforced, player is WIP.
-  return (
-    <div style={{ padding: 40, textAlign: 'center' }}>
-      <h2>{eventTitle}</h2>
-      <p>Replay em breve.</p>
-    </div>
-  );
+  if (playback.isLoading) {
+    return <LiveGateLoading message={t('checkingAccess')} />;
+  }
+
+  if (!playback.data?.available) {
+    return (
+      <div style={{ padding: 40, textAlign: 'center' }}>
+        <h2>{eventTitle}</h2>
+        <p>Replay em breve.</p>
+      </div>
+    );
+  }
+
+  return <ReplayPlayer cameras={playback.data.cameras} title={eventTitle} eventId={eventId} />;
 }

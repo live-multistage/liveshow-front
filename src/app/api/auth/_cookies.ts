@@ -3,7 +3,7 @@ import type { NextResponse } from 'next/server';
 const API_URL = (
   process.env.API_URL ??
   process.env.NEXT_PUBLIC_API_URL ??
-  'http://localhost:3001/api'
+  'http://localhost:8080/api'
 ).replace(/\/$/, '');
 
 export { API_URL };

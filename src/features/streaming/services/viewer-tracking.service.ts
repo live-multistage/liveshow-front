@@ -3,11 +3,11 @@ import { config } from '@/config';
 const base = () => config.apiUrl;
 
 export const viewerTrackingService = {
-  join(eventId: string, sessionId: string, userId?: string | null): Promise<void> {
+  join(eventId: string, sessionId: string, cameraId: string, userId?: string | null): Promise<void> {
     return fetch(`${base()}/events/${eventId}/viewers/join`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, userId: userId ?? undefined }),
+      body: JSON.stringify({ sessionId, cameraId, userId: userId ?? undefined }),
     }).then(() => {}, () => {});
   },
 

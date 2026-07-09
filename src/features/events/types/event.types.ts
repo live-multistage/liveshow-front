@@ -29,6 +29,15 @@ export interface EventResponse {
   domain: 'ENTERTAINMENT' | 'SPORTS' | 'CORPORATE' | 'EDUCATION' | 'RELIGIOUS' | 'OTHER' | null;
   subtype: string | null;
   camerasCount: number;
+  priceFromCents?: number;
+  priceToCents?: number;
+}
+
+export interface RecommendedEventsResponse {
+  items: EventResponse[];
+  page: number;
+  pageSize: number;
+  total: number;
 }
 
 export interface CreateEventRequest {

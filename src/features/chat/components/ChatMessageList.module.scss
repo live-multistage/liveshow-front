@@ -1,0 +1,19 @@
+@use '../../../styles/_variables' as *;
+
+.list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.75rem 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.empty {
+  margin: auto;
+  color: $muted;
+  font-size: 0.75rem;
+  font-family: 'Space Mono', monospace;
+  text-align: center;
+}
