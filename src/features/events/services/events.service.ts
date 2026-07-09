@@ -1,5 +1,5 @@
 import { httpClient } from '@/lib/http/client';
-import type { CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, TicketProductResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
+import type { CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, RecommendedEventsResponse, TicketProductResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
 
 interface FeedOutput {
   events: Array<{ event: EventResponse; score: number }>;
@@ -10,6 +10,13 @@ export const eventsService = {
   listEvents: async (filter: ListEventsFilter = 'all'): Promise<EventResponse[]> => {
     const { data } = await httpClient.get<FeedOutput>('/v1/feed', { params: { filter } });
     return data.events.map((item) => item.event);
+  },
+
+  getRecommendedEvents: async (): Promise<RecommendedEventsResponse> => {
+    const { data } = await httpClient.get<RecommendedEventsResponse>('/events/recommended', {
+      params: { page: 1, pageSize: 10 },
+    });
+    return data;
   },
 
   searchEvents: async (title: string): Promise<EventResponse[]> => {
