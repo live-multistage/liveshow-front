@@ -36,7 +36,8 @@ export function EventPreviewPanel({ control, orgs, tickets }: Props) {
   const camerasCountRaw = useWatch({ control, name: 'camerasCount' });
   const organizationId = useWatch({ control, name: 'organizationId' });
 
-  const camerasCount = Number.isFinite(camerasCountRaw) && camerasCountRaw > 0 ? camerasCountRaw : 1;
+  const camerasCountNum = Number(camerasCountRaw);
+  const camerasCount = Number.isFinite(camerasCountNum) && camerasCountNum > 0 ? camerasCountNum : 1;
   const org = orgs.find((o) => o.id === organizationId) ?? null;
   const datesValid = hasValidDate(startsAt) && hasValidDate(endsAt);
   const venueLine = [city, country].filter(Boolean).join(', ') || '—';
