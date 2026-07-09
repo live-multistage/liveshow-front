@@ -4,6 +4,7 @@ import { isServer, QueryClient, QueryClientProvider } from '@tanstack/react-quer
 import { Toaster } from '@/shared/components/ui/sonner';
 import { NavigationEvents } from '@/shared/components/NavigationEvents';
 import { NavigationOverlay } from '@/shared/components/NavigationOverlay';
+import { AuthProvider } from '@/features/account/context/AuthProvider';
 
 function makeQueryClient() {
   return new QueryClient({
@@ -23,14 +24,21 @@ function getQueryClient() {
   return browserQueryClient;
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+interface ProvidersProps {
+  children: React.ReactNode;
+  initialIsLoggedIn: boolean;
+}
+
+export function Providers({ children, initialIsLoggedIn }: ProvidersProps) {
   const queryClient = getQueryClient();
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <Toaster />
-      <NavigationEvents />
-      <NavigationOverlay />
+      <AuthProvider initialIsLoggedIn={initialIsLoggedIn}>
+        {children}
+        <Toaster />
+        <NavigationEvents />
+        <NavigationOverlay />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

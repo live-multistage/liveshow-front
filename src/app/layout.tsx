@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getLocale } from 'next-intl/server';
 import { Providers } from '@/providers';
+import { getInitialIsLoggedIn } from '@/features/account/queries/get-auth-state.server';
 import '@/styles/index.css';
 
 export const metadata: Metadata = {
@@ -15,12 +16,13 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const initialIsLoggedIn = await getInitialIsLoggedIn();
 
   return (
     <html lang={locale} className="dark">
       <body>
         <NextIntlClientProvider messages={messages}>
-          <Providers>{children}</Providers>
+          <Providers initialIsLoggedIn={initialIsLoggedIn}>{children}</Providers>
         </NextIntlClientProvider>
       </body>
     </html>
