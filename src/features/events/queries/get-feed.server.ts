@@ -5,7 +5,7 @@ import type { EventResponse } from '../types/event.types';
 // 'use client' and carries browser-only auth interceptors). Public endpoint —
 // no Authorization header needed.
 const apiBase = () =>
-  (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api').replace(/\/$/, '');
+  (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api').replace(/\/$/, '');
 
 interface FeedOutput {
   events: Array<{ event: EventResponse; score: number }>;

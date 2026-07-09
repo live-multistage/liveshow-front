@@ -5,7 +5,7 @@ import { DEFAULT_FEATURE_FLAGS } from '../types/feature-flags.types';
 // Server-only, on purpose — flag resolution must never happen client-side.
 // See docs/superpowers/specs/2026-07-03-feature-flags-design.md.
 const apiBase = () =>
-  (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api').replace(/\/$/, '');
+  (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api').replace(/\/$/, '');
 
 export const fetchFeatureFlags = cache(async (): Promise<FeatureFlags> => {
   try {

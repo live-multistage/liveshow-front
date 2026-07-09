@@ -3,7 +3,7 @@
 // pre-populates the client cache and TicketPanel renders without a loading flash.
 
 const apiBase = () =>
-  (process.env.API_INTERNAL_URL ?? process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api').replace(/\/$/, '');
+  (process.env.API_INTERNAL_URL ?? process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api').replace(/\/$/, '');
 
 type AccessResponse = { authorized: boolean };
 

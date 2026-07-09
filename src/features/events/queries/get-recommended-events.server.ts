@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import type { RecommendedEventsResponse } from '../types/event.types';
 
 const apiBase = () =>
-  (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api').replace(/\/$/, '');
+  (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api').replace(/\/$/, '');
 
 const EMPTY: RecommendedEventsResponse = { items: [], page: 1, pageSize: 10, total: 0 };
 
