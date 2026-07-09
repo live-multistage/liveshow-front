@@ -9,6 +9,7 @@ import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my
 import { useCreateEventWizard } from '../../hooks/use-create-event-wizard';
 import { CreateEventStepper } from './CreateEventStepper';
 import { EventPhotoUploader } from './EventPhotoUploader';
+import { EventPreviewPanel } from './EventPreviewPanel';
 import { EventInfoStep } from './steps/EventInfoStep';
 import { EventLocationStep } from './steps/EventLocationStep';
 import { EventProductionStep } from './steps/EventProductionStep';
@@ -64,31 +65,37 @@ export function CreateEventForm({ onSuccess }: Props) {
     <div className={styles.wizard}>
       <CreateEventStepper current={step} onNavigate={setStep} />
 
-      <form onSubmit={handleSubmit(wizard.submit)} className={styles.form}>
-        {stepContent[step]}
+      <div className={styles.layout}>
+        <form onSubmit={handleSubmit(wizard.submit)} className={styles.form}>
+          {stepContent[step]}
 
-        <div className={styles.navRow}>
-          {step > 1 && (
-            <button type="button" onClick={wizard.back} className={styles.btnBack}>
-              <ChevronLeft size={16} /> {t('nav.back')}
-            </button>
-          )}
+          <div className={styles.navRow}>
+            {step > 1 && (
+              <button type="button" onClick={wizard.back} className={styles.btnBack}>
+                <ChevronLeft size={16} /> {t('nav.back')}
+              </button>
+            )}
 
-          <div className={styles.navSpacer} />
+            <div className={styles.navSpacer} />
 
-          {step < 5 && (
-            <button type="button" onClick={() => wizard.advance(trigger)} className={styles.btnNext}>
-              {t('nav.next')} <ChevronRight size={16} />
-            </button>
-          )}
+            {step < 5 && (
+              <button type="button" onClick={() => wizard.advance(trigger)} className={styles.btnNext}>
+                {t('nav.next')} <ChevronRight size={16} />
+              </button>
+            )}
 
-          {step === 5 && (
-            <button type="submit" className={styles.btnNext} disabled={mutation.isPending}>
-              {mutation.isPending ? t('nav.creating') : t('nav.create')}
-            </button>
-          )}
+            {step === 5 && (
+              <button type="submit" className={styles.btnNext} disabled={mutation.isPending}>
+                {mutation.isPending ? t('nav.creating') : t('nav.create')}
+              </button>
+            )}
+          </div>
+        </form>
+
+        <div className={styles.previewCol}>
+          <EventPreviewPanel control={control} orgs={orgs} tickets={tickets} />
         </div>
-      </form>
+      </div>
     </div>
   );
 }
