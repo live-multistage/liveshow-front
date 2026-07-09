@@ -25,7 +25,7 @@ export function CreateEventForm({ onSuccess }: Props) {
   const t = useTranslations('createEvent');
   const { data: orgs = [] } = useMyOrganizationsQuery();
 
-  const { register, handleSubmit, trigger, formState: { errors } } = useForm<CreateEventFormValues>({
+  const { register, control, handleSubmit, trigger, formState: { errors } } = useForm<CreateEventFormValues>({
     resolver: zodResolver(createEventSchema),
     defaultValues: { camerasCount: 1 },
   });
@@ -38,7 +38,7 @@ export function CreateEventForm({ onSuccess }: Props) {
 
   const stepContent: Record<number, React.ReactNode> = {
     1: <EventInfoStep register={register} errors={errors} orgs={orgs} />,
-    2: <EventLocationStep register={register} errors={errors} />,
+    2: <EventLocationStep register={register} errors={errors} control={control} />,
     3: <EventProductionStep register={register} errors={errors} />,
     4: <EventStreamStep value={streamConfig} onChange={setStreamConfig} />,
     5: (
