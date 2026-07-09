@@ -1,15 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { API_URL, setAuthCookies, clearAuthCookies } from '../_cookies';
-
-function isTokenExpired(token: string): boolean {
-  try {
-    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-    return payload.exp * 1000 < Date.now();
-  } catch {
-    return true;
-  }
-}
+import { isTokenExpired } from '@/lib/auth/jwt.server';
 
 export async function GET() {
   const cookieStore = await cookies();
