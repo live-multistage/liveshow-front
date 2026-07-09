@@ -1,0 +1,277 @@
+@use '../../../styles/_variables' as *;
+
+// ── Trigger ───────────────────────────────────────────────────────
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  background-color: $bg;
+  border: 1px solid $border;
+  border-radius: 6px;
+  color: $text-primary;
+  font-size: 0.9rem;
+  font-family: inherit;
+  padding: 0.625rem 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    border-color: $text-secondary;
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: $action;
+    box-shadow: 0 0 0 3px $action-dim;
+  }
+}
+
+.triggerError {
+  border-color: $error;
+}
+
+.triggerIcon {
+  color: $text-muted;
+  flex-shrink: 0;
+}
+
+.triggerValue {
+  color: $text-primary;
+}
+
+.triggerPlaceholder {
+  color: $text-muted;
+}
+
+// ── Popover surface ───────────────────────────────────────────────
+.content {
+  background-color: $surface-dark !important;
+  border: 1px solid $border !important;
+  border-radius: 10px !important;
+  padding: 1rem !important;
+  width: 320px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  color: $text-primary;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: $text-secondary;
+  margin-bottom: 0.75rem;
+}
+
+// ── Calendar (react-day-picker theming) ────────────────────────────
+.calendar {
+  width: 100%;
+  margin: 0;
+}
+
+.months {
+  display: block;
+}
+
+.month {
+  width: 100%;
+}
+
+.caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+
+.captionLabel {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.nav {
+  display: flex;
+}
+
+.navButton {
+  background: transparent;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: color 0.15s, background-color 0.15s;
+
+  &:hover {
+    color: $text-primary;
+    background-color: $bg-hover;
+  }
+}
+
+.navButtonPrev {
+  position: absolute;
+  left: 0;
+}
+
+.navButtonNext {
+  position: absolute;
+  right: 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.headRow {
+  display: flex;
+}
+
+.headCell {
+  flex: 1;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: $text-muted;
+  text-transform: uppercase;
+  padding-bottom: 0.5rem;
+}
+
+.calendarRow {
+  display: flex;
+  width: 100%;
+}
+
+.cell {
+  flex: 1;
+  text-align: center;
+  padding: 2px;
+}
+
+.day {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: $text-primary;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+
+  &:hover:not([disabled]) {
+    background-color: $bg-hover;
+  }
+}
+
+.daySelected {
+  background-color: $action !important;
+  color: white !important;
+  font-weight: 700;
+}
+
+.dayToday {
+  color: $action;
+  font-weight: 700;
+}
+
+.dayOutside {
+  color: $text-muted;
+  opacity: 0.5;
+}
+
+.dayDisabled {
+  color: $text-muted;
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+// ── Divider ───────────────────────────────────────────────────────
+.divider {
+  height: 1px;
+  background-color: $border;
+  margin: 1rem 0;
+}
+
+// ── Time section ──────────────────────────────────────────────────
+.timeHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: $text-muted;
+  margin-bottom: 0.625rem;
+}
+
+.timeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wheelGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  flex: 1;
+}
+
+.wheelLabel {
+  font-size: 0.65rem;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wheelSep {
+  color: $text-muted;
+  font-weight: 700;
+  padding-top: 1.25rem;
+}
+
+.liveReadout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: $bg;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: $action;
+  min-width: 72px;
+}
+
+// ── Confirm ───────────────────────────────────────────────────────
+.confirmBtn {
+  width: 100%;
+  margin-top: 1rem;
+  background-color: $action;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover:not(:disabled) {
+    opacity: 0.88;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
