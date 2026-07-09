@@ -1,0 +1,63 @@
+@use '../../../styles/_variables' as *;
+
+.wheel {
+  position: relative;
+  height: 120px; // 3 rows × 40px — matches ROW_HEIGHT in the component
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  outline: none;
+  border-radius: 8px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // Highlight band for the centered (selected) slot — a fixed overlay, not
+  // tied to scroll position, since the middle row is always the selection.
+  &::before {
+    content: '';
+    position: absolute;
+    top: 40px;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: $action-dim;
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+.pad {
+  height: 40px;
+  scroll-snap-align: none;
+}
+
+.row {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem;
+  color: $text-muted;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  transition: color 0.15s;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
+
+.rowSelected {
+  color: $action;
+  font-weight: 700;
+
+  &:hover {
+    color: $action;
+  }
+}
