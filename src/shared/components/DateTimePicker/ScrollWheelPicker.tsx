@@ -22,14 +22,23 @@ interface Props {
 export function ScrollWheelPicker({ value, min, max, onChange, ariaLabel }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const values = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+  // Known limitation: if a user interrupts an in-flight programmatic smooth
+  // scroll (e.g. grabs the wheel right after clicking a row) before it settles,
+  // that interruption's real end position can still be misread as the
+  // programmatic scroll's own settle and get swallowed. No native browser
+  // signal distinguishes "still finishing my own smooth-scroll" from "user
+  // grabbed it mid-animation" — accepted as a rare, low-consequence edge case
+  // (the next scroll interaction self-corrects it).
   const isProgrammaticScroll = useRef(false);
 
   const scrollToValue = useCallback((v: number, smooth: boolean) => {
     const container = containerRef.current;
     if (!container) return;
     const index = v - min;
+    const target = index * ROW_HEIGHT;
+    if (container.scrollTop === target) return;
     isProgrammaticScroll.current = true;
-    container.scrollTo({ top: index * ROW_HEIGHT, behavior: smooth ? 'smooth' : 'auto' });
+    container.scrollTo({ top: target, behavior: smooth ? 'smooth' : 'auto' });
   }, [min]);
 
   // Sync scroll position to `value` once, on mount — this component is
@@ -58,15 +67,26 @@ export function ScrollWheelPicker({ value, min, max, onChange, ariaLabel }: Prop
     const container = containerRef.current;
     if (!container) return;
     let timeout: ReturnType<typeof setTimeout>;
-    const onScroll = () => {
+    let settled = false;
+
+    const settle = () => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timeout);
-      timeout = setTimeout(handleScrollEnd, 120);
+      handleScrollEnd();
     };
-    container.addEventListener('scrollend', handleScrollEnd);
+
+    const onScroll = () => {
+      settled = false;
+      clearTimeout(timeout);
+      timeout = setTimeout(settle, 120);
+    };
+
+    container.addEventListener('scrollend', settle);
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       clearTimeout(timeout);
-      container.removeEventListener('scrollend', handleScrollEnd);
+      container.removeEventListener('scrollend', settle);
       container.removeEventListener('scroll', onScroll);
     };
   }, [handleScrollEnd]);
