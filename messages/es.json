@@ -416,6 +416,23 @@
       "titlePlaceholder": "Ej: Rock in Rio 2026",
       "descLabel": "Descripción *",
       "descPlaceholder": "Describe el evento para el público...",
+      "categoryLabel": "Categoría *",
+      "categoryPlaceholder": "Selecciona una categoría",
+      "categories": {
+        "MUSIC": "Música",
+        "COMEDY": "Comedia",
+        "THEATER": "Teatro",
+        "DANCE": "Danza",
+        "SPORTS": "Deportes",
+        "TALK": "Charla",
+        "RELIGIOUS": "Religioso",
+        "EDUCATION": "Educación",
+        "OTHER": "Otro"
+      },
+      "tagsLabel": "Etiquetas",
+      "tagsPlaceholder": "Escribe y presiona Enter",
+      "tagsHint": "Hasta 20 etiquetas. Ayudan a posicionar el evento en las recomendaciones.",
+      "tagsRemove": "Eliminar etiqueta: {tag}",
       "noOrgs": "Crea una organización antes de crear eventos."
     },
     "location": {

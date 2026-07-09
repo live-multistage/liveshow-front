@@ -24,11 +24,21 @@ export const ticketSchema = z
 export type TicketFormInput = z.input<typeof ticketSchema>;
 export type TicketFormValues = z.output<typeof ticketSchema>;
 
+export const EVENT_CATEGORY_VALUES = [
+  'MUSIC', 'COMEDY', 'THEATER', 'DANCE', 'SPORTS',
+  'TALK', 'RELIGIOUS', 'EDUCATION', 'OTHER',
+] as const;
+
 export const createEventSchema = z
   .object({
     organizationId: z.string().uuid('Selecione uma organização'),
     title: z.string().min(3, 'Mínimo 3 caracteres').max(255),
     description: z.string().min(10, 'Mínimo 10 caracteres'),
+    category: z.enum(EVENT_CATEGORY_VALUES, {
+      required_error: 'Selecione uma categoria',
+      invalid_type_error: 'Selecione uma categoria',
+    }),
+    tags: z.array(z.string().min(1).max(80)).max(20).default([]),
     startsAt: z.string().min(1, 'Obrigatório'),
     endsAt: z.string().min(1, 'Obrigatório'),
     venue: z.string().max(255).optional(),
