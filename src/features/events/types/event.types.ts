@@ -31,6 +31,13 @@ export interface EventResponse {
   camerasCount: number;
 }
 
+export interface RecommendedEventsResponse {
+  items: EventResponse[];
+  page: number;
+  pageSize: number;
+  total: number;
+}
+
 export interface CreateEventRequest {
   organizationId: string;
   title: string;
