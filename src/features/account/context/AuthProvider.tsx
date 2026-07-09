@@ -15,6 +15,10 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+// Coalesces parallel session fetches from multiple component mounts on first
+// page load. Kept even though there's now a single Provider instance (not N
+// independent hook instances) — React Strict Mode double-invokes effects in
+// development, which would otherwise double-fire this fetch on every mount.
 let pendingSession: Promise<{ accessToken: string } | null> | null = null;
 
 function fetchSession(): Promise<{ accessToken: string } | null> {
