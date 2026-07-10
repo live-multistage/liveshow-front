@@ -13,6 +13,6 @@ export async function POST(req: NextRequest) {
   if (!upstream.ok) return NextResponse.json(data, { status: upstream.status });
 
   const response = NextResponse.json({ accessToken: data.accessToken, user: data.user });
-  setAuthCookies(response, data.accessToken, data.refreshToken);
+  setAuthCookies(response, data.accessToken, data.refreshToken, body.rememberMe);
   return response;
 }

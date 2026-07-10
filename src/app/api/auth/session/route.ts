@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { API_URL, setAuthCookies, clearAuthCookies } from '../_cookies';
-import { isTokenExpired } from '@/lib/auth/jwt.server';
+import { isTokenExpired, getTokenRememberMe } from '@/lib/auth/jwt.server';
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -36,6 +36,6 @@ export async function GET() {
 
   const data = await upstream.json() as { accessToken: string; refreshToken: string };
   const response = NextResponse.json({ accessToken: data.accessToken, authenticated: true });
-  setAuthCookies(response, data.accessToken, data.refreshToken);
+  setAuthCookies(response, data.accessToken, data.refreshToken, getTokenRememberMe(data.refreshToken));
   return response;
 }

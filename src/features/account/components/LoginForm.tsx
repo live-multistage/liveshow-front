@@ -33,8 +33,8 @@ export function LoginForm({ callbackUrl }: LoginFormProps) {
 
   const { mutate, isPending, error } = useLoginMutation(callbackUrl);
 
-  function onSubmit({ rememberMe: _ignored, ...payload }: LoginFormValues) {
-    mutate({ email: payload.email, password: payload.password });
+  function onSubmit(payload: LoginFormValues) {
+    mutate({ email: payload.email, password: payload.password, rememberMe: payload.rememberMe });
   }
 
   const getErrorMessage = (code: string) =>
