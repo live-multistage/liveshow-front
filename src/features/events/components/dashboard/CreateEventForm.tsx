@@ -38,7 +38,7 @@ export function CreateEventForm({ onSuccess }: Props) {
   } = wizard;
 
   const stepContent: Record<number, React.ReactNode> = {
-    1: <EventInfoStep register={register} errors={errors} orgs={orgs} />,
+    1: <EventInfoStep register={register} errors={errors} orgs={orgs} control={control} />,
     2: <EventLocationStep register={register} errors={errors} control={control} />,
     3: <EventProductionStep register={register} errors={errors} />,
     4: <EventStreamStep value={streamConfig} onChange={setStreamConfig} />,
