@@ -52,7 +52,8 @@
       "errors": {
         "INVALID_CREDENTIALS": "Invalid email or password.",
         "USER_BLOCKED": "Your account has been temporarily suspended. Please contact support.",
-        "TOO_MANY_ATTEMPTS": "Too many login attempts. Please try again later."
+        "TOO_MANY_ATTEMPTS": "Too many login attempts. Please try again later.",
+        "GOOGLE_FAILED": "Couldn't continue with Google. Please try again."
       }
     },
     "register": {
@@ -416,6 +417,23 @@
       "titlePlaceholder": "e.g. Rock in Rio 2026",
       "descLabel": "Description *",
       "descPlaceholder": "Describe the event to the audience...",
+      "categoryLabel": "Category *",
+      "categoryPlaceholder": "Select a category",
+      "categories": {
+        "MUSIC": "Music",
+        "COMEDY": "Comedy",
+        "THEATER": "Theater",
+        "DANCE": "Dance",
+        "SPORTS": "Sports",
+        "TALK": "Talk",
+        "RELIGIOUS": "Religious",
+        "EDUCATION": "Education",
+        "OTHER": "Other"
+      },
+      "tagsLabel": "Tags",
+      "tagsPlaceholder": "Type and press Enter",
+      "tagsHint": "Up to 20 tags. Helps position the event in recommendations.",
+      "tagsRemove": "Remove tag: {tag}",
       "noOrgs": "Create an organization before creating events."
     },
     "location": {
@@ -446,6 +464,14 @@
       "removeCamera": "Remove camera",
       "removeFeed": "Remove feed",
       "removeStage": "Remove stage"
+    },
+    "preview": {
+      "heading": "Event page preview",
+      "badge": "PREVIEW",
+      "titlePlaceholder": "Event title",
+      "noOrg": "Select an organization",
+      "ticketsHeading": "TICKETS",
+      "ticketsEmpty": "No tickets configured yet"
     }
   },
   "editTicket": {

@@ -8,3 +8,12 @@ export function isTokenExpired(token: string): boolean {
     return true;
   }
 }
+
+export function getTokenRememberMe(token: string): boolean {
+  try {
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    return payload.rememberMe === true;
+  } catch {
+    return false;
+  }
+}

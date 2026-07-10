@@ -62,9 +62,6 @@ export function Navbar() {
           <div className={styles.desktopNav}>
             <Link href="/" className={styles.navLink}>{t('home')}</Link>
             <Link href="/events" className={styles.navLink}>{t('schedule')}</Link>
-            {isLoggedIn && (
-              <Link href="/tickets" className={styles.navLink}>{t('tickets')}</Link>
-            )}
           </div>
         </div>
 

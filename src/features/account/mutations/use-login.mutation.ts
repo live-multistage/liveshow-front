@@ -4,16 +4,12 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import type { AppError } from '@/lib/http/errors';
 import { tokenStore } from '@/lib/auth/token-store';
+import { safeRedirect } from '@/lib/auth/safe-redirect';
 import type { LoginRequest, AuthUser } from '../types/account.types';
 
 interface LoginResult {
   accessToken: string;
   user: AuthUser;
-}
-
-function safeRedirect(url: string | undefined): string {
-  if (!url || !url.startsWith('/') || url.startsWith('//')) return '/';
-  return url;
 }
 
 export function useLoginMutation(callbackUrl?: string) {

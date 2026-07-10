@@ -17,6 +17,10 @@ interface Props {
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
   mode?: 'live' | 'replay';
+  paused?: boolean;
+  seekCommand?: { time: number; token: number } | null;
+  onProgress?: (currentTime: number, duration: number) => void;
+  onEnded?: () => void;
 }
 
 // F1 TV-style layout: big main video + either a PIP overlay (exactly 1
@@ -33,6 +37,10 @@ export function MainRailView({
   selectedLevel,
   onLevelsReady,
   mode = 'live',
+  paused,
+  seekCommand,
+  onProgress,
+  onEnded,
 }: Props) {
   return (
     <div className={styles.wrap}>
@@ -48,12 +56,25 @@ export function MainRailView({
           selectedLevel={selectedLevel}
           onLevelsReady={onLevelsReady}
           mode={mode}
+          paused={paused}
+          seekCommand={seekCommand}
+          isTimeSource
+          onProgress={onProgress}
+          onEnded={onEnded}
         />
         {otherCameras.length === 1 && (
-          <PipOverlay camera={otherCameras[0]} onSelect={() => onSelectMain(otherCameras[0].cameraId)} mode={mode} />
+          <PipOverlay
+            camera={otherCameras[0]}
+            onSelect={() => onSelectMain(otherCameras[0].cameraId)}
+            mode={mode}
+            paused={paused}
+            seekCommand={seekCommand}
+          />
         )}
       </div>
-      {otherCameras.length >= 2 && <CameraRail cameras={otherCameras} onSelect={onSelectMain} mode={mode} />}
+      {otherCameras.length >= 2 && (
+        <CameraRail cameras={otherCameras} onSelect={onSelectMain} mode={mode} paused={paused} seekCommand={seekCommand} />
+      )}
     </div>
   );
 }

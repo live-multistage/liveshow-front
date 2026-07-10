@@ -1,16 +1,20 @@
 import { useTranslations } from 'next-intl';
-import type { UseFormRegister, FieldErrors } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
+import type { UseFormRegister, FieldErrors, Control } from 'react-hook-form';
 import type { OrganizationResponse } from '@/features/organizations/types/organization.types';
 import type { CreateEventFormValues } from '../../../schemas/create-event.schema';
+import { EVENT_CATEGORIES } from '../../../types/event.types';
+import { TagsInput } from '../TagsInput';
 import styles from '../CreateEventForm.module.scss';
 
 interface Props {
   register: UseFormRegister<CreateEventFormValues>;
   errors: FieldErrors<CreateEventFormValues>;
   orgs: OrganizationResponse[];
+  control: Control<CreateEventFormValues>;
 }
 
-export function EventInfoStep({ register, errors, orgs }: Props) {
+export function EventInfoStep({ register, errors, orgs, control }: Props) {
   const t = useTranslations('createEvent.info');
 
   return (
@@ -43,6 +47,20 @@ export function EventInfoStep({ register, errors, orgs }: Props) {
       </div>
 
       <div className={styles.field}>
+        <label className={styles.label}>{t('categoryLabel')}</label>
+        <select
+          {...register('category')}
+          className={`${styles.input} ${errors.category ? styles.inputError : ''}`}
+        >
+          <option value="">{t('categoryPlaceholder')}</option>
+          {EVENT_CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>{t(`categories.${cat}`)}</option>
+          ))}
+        </select>
+        {errors.category && <p className={styles.error}>{errors.category.message}</p>}
+      </div>
+
+      <div className={styles.field}>
         <label className={styles.label}>{t('descLabel')}</label>
         <textarea
           {...register('description')}
@@ -51,6 +69,17 @@ export function EventInfoStep({ register, errors, orgs }: Props) {
           rows={4}
         />
         {errors.description && <p className={styles.error}>{errors.description.message}</p>}
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>{t('tagsLabel')}</label>
+        <Controller
+          control={control}
+          name="tags"
+          render={({ field }) => (
+            <TagsInput value={field.value} onChange={field.onChange} />
+          )}
+        />
       </div>
     </section>
   );

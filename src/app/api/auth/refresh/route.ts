@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { API_URL, setAuthCookies, clearAuthCookies } from '../_cookies';
+import { getTokenRememberMe } from '@/lib/auth/jwt.server';
 
 export async function POST() {
   const cookieStore = await cookies();
@@ -24,6 +25,6 @@ export async function POST() {
 
   const data = await upstream.json();
   const response = NextResponse.json({ accessToken: data.accessToken });
-  setAuthCookies(response, data.accessToken, data.refreshToken);
+  setAuthCookies(response, data.accessToken, data.refreshToken, getTokenRememberMe(data.refreshToken));
   return response;
 }

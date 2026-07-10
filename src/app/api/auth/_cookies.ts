@@ -14,20 +14,22 @@ export function setAuthCookies(
   response: NextResponse,
   accessToken: string,
   refreshToken: string,
+  rememberMe?: boolean,
 ) {
+  const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7;
   response.cookies.set('access_token', accessToken, {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
     secure,
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge,
   });
   response.cookies.set('refresh_token', refreshToken, {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
     secure,
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge,
   });
 }
 

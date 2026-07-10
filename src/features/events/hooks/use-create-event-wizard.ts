@@ -11,7 +11,7 @@ import { emptyStreamConfig } from '../components/dashboard/steps/EventStreamStep
 import type { StreamConfig } from '../components/dashboard/steps/EventStreamStep';
 
 const STEP_FIELDS: Partial<Record<number, (keyof CreateEventFormValues)[]>> = {
-  1: ['organizationId', 'title', 'description'],
+  1: ['organizationId', 'title', 'category', 'description'],
   2: ['startsAt', 'endsAt'],
   3: ['camerasCount'],
   // step 4 (stream) has no required form fields
@@ -71,6 +71,8 @@ export function useCreateEventWizard(onSuccess?: (event: EventResponse) => void)
         organizationId: values.organizationId,
         title: values.title,
         description: values.description,
+        category: values.category,
+        tags: values.tags,
         startsAt: new Date(values.startsAt).toISOString(),
         endsAt: new Date(values.endsAt).toISOString(),
         venue: values.venue || undefined,

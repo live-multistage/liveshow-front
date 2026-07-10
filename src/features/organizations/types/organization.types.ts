@@ -87,5 +87,6 @@ export interface UpdateOrganizationSettingsRequest {
 export interface StripeAccountStatus {
   hasAccount: boolean;
   onboardingComplete: boolean;
-  platformFeeRate: number;
+  feeRateOverride: number | null;
+  effectiveFeeRate: number;
 }

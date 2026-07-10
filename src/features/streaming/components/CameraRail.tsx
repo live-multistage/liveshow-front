@@ -8,11 +8,13 @@ interface Props {
   cameras: LiveCamera[]; // every active camera except the current main
   onSelect: (cameraId: string) => void;
   mode?: 'live' | 'replay';
+  paused?: boolean;
+  seekCommand?: { time: number; token: number } | null;
 }
 
 // Vertical list of small fixed-size camera thumbnails — used instead of
 // PipOverlay once there are 3+ active cameras (main + 2 or more others).
-export function CameraRail({ cameras, onSelect, mode = 'live' }: Props) {
+export function CameraRail({ cameras, onSelect, mode = 'live', paused, seekCommand }: Props) {
   return (
     <div className={styles.rail}>
       {cameras.map((camera) => (
@@ -25,6 +27,8 @@ export function CameraRail({ cameras, onSelect, mode = 'live' }: Props) {
             muted
             onMutedChange={() => {}}
             mode={mode}
+            paused={paused}
+            seekCommand={seekCommand}
           />
         </div>
       ))}

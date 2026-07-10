@@ -2,6 +2,15 @@ export type EventStatus = 'DRAFT' | 'PUBLISHED' | 'SCHEDULED' | 'LIVE' | 'FINISH
 
 export type ListEventsFilter = 'upcoming' | 'live' | 'finished' | 'all';
 
+export type EventCategory =
+  | 'MUSIC' | 'COMEDY' | 'THEATER' | 'DANCE' | 'SPORTS'
+  | 'TALK' | 'RELIGIOUS' | 'EDUCATION' | 'OTHER';
+
+export const EVENT_CATEGORIES: EventCategory[] = [
+  'MUSIC', 'COMEDY', 'THEATER', 'DANCE', 'SPORTS',
+  'TALK', 'RELIGIOUS', 'EDUCATION', 'OTHER',
+];
+
 export interface VenueData {
   name: string;
   address: string | null;
@@ -44,6 +53,8 @@ export interface CreateEventRequest {
   organizationId: string;
   title: string;
   description: string;
+  category: EventCategory;
+  tags?: string[];
   startsAt: string;
   endsAt: string;
   venue?: string;

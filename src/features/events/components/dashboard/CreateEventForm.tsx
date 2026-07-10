@@ -9,6 +9,7 @@ import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my
 import { useCreateEventWizard } from '../../hooks/use-create-event-wizard';
 import { CreateEventStepper } from './CreateEventStepper';
 import { EventPhotoUploader } from './EventPhotoUploader';
+import { EventPreviewPanel } from './EventPreviewPanel';
 import { EventInfoStep } from './steps/EventInfoStep';
 import { EventLocationStep } from './steps/EventLocationStep';
 import { EventProductionStep } from './steps/EventProductionStep';
@@ -25,9 +26,9 @@ export function CreateEventForm({ onSuccess }: Props) {
   const t = useTranslations('createEvent');
   const { data: orgs = [] } = useMyOrganizationsQuery();
 
-  const { register, handleSubmit, trigger, formState: { errors } } = useForm<CreateEventFormValues>({
+  const { register, control, handleSubmit, trigger, formState: { errors } } = useForm<CreateEventFormValues>({
     resolver: zodResolver(createEventSchema),
-    defaultValues: { camerasCount: 1 },
+    defaultValues: { camerasCount: 1, tags: [] },
   });
 
   const wizard = useCreateEventWizard(onSuccess);
@@ -37,8 +38,8 @@ export function CreateEventForm({ onSuccess }: Props) {
   } = wizard;
 
   const stepContent: Record<number, React.ReactNode> = {
-    1: <EventInfoStep register={register} errors={errors} orgs={orgs} />,
-    2: <EventLocationStep register={register} errors={errors} />,
+    1: <EventInfoStep register={register} errors={errors} orgs={orgs} control={control} />,
+    2: <EventLocationStep register={register} errors={errors} control={control} />,
     3: <EventProductionStep register={register} errors={errors} />,
     4: <EventStreamStep value={streamConfig} onChange={setStreamConfig} />,
     5: (
@@ -64,31 +65,37 @@ export function CreateEventForm({ onSuccess }: Props) {
     <div className={styles.wizard}>
       <CreateEventStepper current={step} onNavigate={setStep} />
 
-      <form onSubmit={handleSubmit(wizard.submit)} className={styles.form}>
-        {stepContent[step]}
+      <div className={styles.layout}>
+        <form onSubmit={handleSubmit(wizard.submit)} className={styles.form}>
+          {stepContent[step]}
 
-        <div className={styles.navRow}>
-          {step > 1 && (
-            <button type="button" onClick={wizard.back} className={styles.btnBack}>
-              <ChevronLeft size={16} /> {t('nav.back')}
-            </button>
-          )}
+          <div className={styles.navRow}>
+            {step > 1 && (
+              <button type="button" onClick={wizard.back} className={styles.btnBack}>
+                <ChevronLeft size={16} /> {t('nav.back')}
+              </button>
+            )}
 
-          <div className={styles.navSpacer} />
+            <div className={styles.navSpacer} />
 
-          {step < 5 && (
-            <button type="button" onClick={() => wizard.advance(trigger)} className={styles.btnNext}>
-              {t('nav.next')} <ChevronRight size={16} />
-            </button>
-          )}
+            {step < 5 && (
+              <button type="button" onClick={() => wizard.advance(trigger)} className={styles.btnNext}>
+                {t('nav.next')} <ChevronRight size={16} />
+              </button>
+            )}
 
-          {step === 5 && (
-            <button type="submit" className={styles.btnNext} disabled={mutation.isPending}>
-              {mutation.isPending ? t('nav.creating') : t('nav.create')}
-            </button>
-          )}
+            {step === 5 && (
+              <button type="submit" className={styles.btnNext} disabled={mutation.isPending}>
+                {mutation.isPending ? t('nav.creating') : t('nav.create')}
+              </button>
+            )}
+          </div>
+        </form>
+
+        <div className={styles.previewCol}>
+          <EventPreviewPanel control={control} orgs={orgs} tickets={tickets} />
         </div>
-      </form>
+      </div>
     </div>
   );
 }
