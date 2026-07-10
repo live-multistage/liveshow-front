@@ -10,6 +10,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoggedIn: boolean;
   isLoading: boolean;
+  login: (user: AuthUser) => void;
   logout: () => Promise<void>;
 }
 
@@ -89,6 +90,16 @@ export function AuthProvider({ children, initialIsLoggedIn, initialUser }: AuthP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Called by useLoginMutation on success. tokenStore/localStorage are
+  // written there too, but neither triggers a re-render — this is what
+  // actually updates the Navbar/isLoggedIn state without needing a full
+  // page reload (the root layout that computes initialUser doesn't re-run
+  // on client-side navigation).
+  const login = useCallback((loggedInUser: AuthUser) => {
+    setUser(loggedInUser);
+    setIsLoading(false);
+  }, []);
+
   const logout = useCallback(async () => {
     tokenStore.clear();
     localStorage.removeItem('user');
@@ -106,8 +117,8 @@ export function AuthProvider({ children, initialIsLoggedIn, initialUser }: AuthP
   const isLoggedIn = isLoading ? initialIsLoggedIn : !!user;
 
   const value = useMemo(
-    () => ({ user, isLoggedIn, isLoading, logout }),
-    [user, isLoggedIn, isLoading, logout],
+    () => ({ user, isLoggedIn, isLoading, login, logout }),
+    [user, isLoggedIn, isLoading, login, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
