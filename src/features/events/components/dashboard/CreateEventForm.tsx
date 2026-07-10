@@ -28,7 +28,7 @@ export function CreateEventForm({ onSuccess }: Props) {
 
   const { register, control, handleSubmit, trigger, formState: { errors } } = useForm<CreateEventFormValues>({
     resolver: zodResolver(createEventSchema),
-    defaultValues: { camerasCount: 1 },
+    defaultValues: { camerasCount: 1, tags: [] },
   });
 
   const wizard = useCreateEventWizard(onSuccess);

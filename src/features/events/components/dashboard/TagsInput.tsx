@@ -13,7 +13,7 @@ interface Props {
   onChange: (tags: string[]) => void;
 }
 
-export function TagsInput({ value, onChange }: Props) {
+export function TagsInput({ value = [], onChange }: Props) {
   const t = useTranslations('createEvent.info');
   const [draft, setDraft] = useState('');
 
