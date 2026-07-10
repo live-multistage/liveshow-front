@@ -1,22 +1,32 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/features/account';
 import { useAuthCheck } from '@/features/account';
 import { DashboardLoading } from './DashboardLoading';
 
 export function DashboardGuard({ children }: { children: React.ReactNode }) {
-  const { isLoading: authLoading } = useAuth();
-  const { data, isLoading: checkLoading } = useAuthCheck('access_dashboard', undefined, { enabled: !authLoading });
+  const { isLoading: authLoading, isLoggedIn } = useAuth();
+  const pathname = usePathname();
+  const { data, isLoading: checkLoading } = useAuthCheck('access_dashboard', undefined, {
+    enabled: !authLoading && isLoggedIn,
+  });
   const router = useRouter();
 
   useEffect(() => {
-    if (authLoading || checkLoading) return;
+    if (authLoading) return;
+    if (!isLoggedIn) {
+      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+      return;
+    }
+    if (checkLoading) return;
     if (!data?.allowed) router.replace('/');
-  }, [data, authLoading, checkLoading, router]);
+  }, [authLoading, isLoggedIn, checkLoading, data, pathname, router]);
 
-  if (authLoading || checkLoading) return <DashboardLoading />;
+  if (authLoading) return <DashboardLoading />;
+  if (!isLoggedIn) return null;
+  if (checkLoading) return <DashboardLoading />;
   if (!data?.allowed) return null;
 
   return <>{children}</>;
