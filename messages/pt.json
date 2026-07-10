@@ -52,7 +52,8 @@
       "errors": {
         "INVALID_CREDENTIALS": "E-mail ou senha inválidos.",
         "USER_BLOCKED": "Sua conta foi temporariamente suspensa. Entre em contato com o suporte.",
-        "TOO_MANY_ATTEMPTS": "Muitas tentativas de login. Tente novamente mais tarde."
+        "TOO_MANY_ATTEMPTS": "Muitas tentativas de login. Tente novamente mais tarde.",
+        "GOOGLE_FAILED": "Não foi possível continuar com o Google. Tente novamente."
       }
     },
     "register": {
