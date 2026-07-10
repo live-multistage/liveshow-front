@@ -94,7 +94,9 @@ export function StripeConnectSection({ orgId }: Props) {
       </p>
       <div className={styles.feeRow}>
         <span className={styles.feeLabel}>Taxa da plataforma</span>
-        <span className={styles.feeValue}>{status.platformFeeRate}%</span>
+        <span className={styles.feeValue}>
+          {Number((status.effectiveFeeRate * 100).toFixed(2))}%
+        </span>
       </div>
     </div>
   );
