@@ -85,7 +85,7 @@ export function DateTimePicker({ value, onChange, error, placeholder = 'Selecion
         </button>
       </PopoverTrigger>
 
-      <PopoverContent className={styles.content} align="start">
+      <PopoverContent className={styles.content} align="start" collisionPadding={16}>
         <div className={styles.header}>
           <CalendarIcon size={15} />
           Selecionar data e horário
