@@ -32,7 +32,7 @@ export function LanguageSwitcher() {
       <Globe size={14} className={styles.icon} />
       <Select value={locale} onValueChange={handleChange} disabled={isPending}>
         <SelectTrigger className={styles.trigger} aria-label={t('select')}>
-          <SelectValue />
+          <SelectValue>{t(locale)}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {LOCALES.map((l) => (

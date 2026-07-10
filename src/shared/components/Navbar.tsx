@@ -44,7 +44,11 @@ export function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [isHome]);
-  const { user, isLoggedIn, isLoading, logout } = useAuth();
+  // isLoading intentionally not gated on here: isLoggedIn is already correct
+  // from the very first server-rendered paint (see AuthProvider's SSR seed),
+  // so waiting on isLoading before rendering the real nav actions would just
+  // reintroduce the "Loading" placeholder flash this was meant to remove.
+  const { user, isLoggedIn, logout } = useAuth();
   const { data: dashboardCheck } = useAuthCheck('access_dashboard', {}, { enabled: isLoggedIn });
   const canAccessDashboard = dashboardCheck?.allowed === true;
 
@@ -83,73 +87,69 @@ export function Navbar() {
             </button>
           )}
 
-          {!isLoading && (
+          {isLoggedIn ? (
             <>
-              {isLoggedIn ? (
-                <>
-                  {canAccessDashboard && (
-                    <Link href="/dashboard" className={styles.iconBtn} aria-label="Dashboard">
-                      <LayoutGrid size={19} />
-                    </Link>
-                  )}
-
-                  <NotificationsDropdown />
-
-                  <Link href="/tickets" className={styles.ticketsBtn}>
-                    <Ticket size={15} />
-                    {t('tickets')}
-                  </Link>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className={styles.avatarBtn}>
-                        <Avatar className={styles.avatar}>
-                          <AvatarFallback className={styles.avatarFallback}>
-                            {user ? getInitials(user.displayName) : <User size={14} />}
-                          </AvatarFallback>
-                        </Avatar>
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className={styles.dropdownContent}>
-                      <DropdownMenuLabel className={styles.dropdownLabel}>
-                        <p className={styles.dropdownLabelName}>{user?.displayName}</p>
-                        <p className={styles.dropdownLabelEmail}>{user?.email}</p>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator className={styles.dropdownSeparator} />
-                      {canAccessDashboard && (
-                        <DropdownMenuItem asChild className={styles.dropdownItem}>
-                          <Link href="/dashboard">
-                            <LayoutGrid size={14} style={{ marginRight: '0.5rem' }} />
-                            {t('dashboard')}
-                          </Link>
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem asChild className={styles.dropdownItem}>
-                        <Link href="/account">
-                          <Settings size={14} style={{ marginRight: '0.5rem' }} />
-                          {t('account')}
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className={styles.dropdownItem}>
-                        <Link href="/tickets">
-                          <Ticket size={14} style={{ marginRight: '0.5rem' }} />
-                          {t('myTickets')}
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator className={styles.dropdownSeparator} />
-                      <DropdownMenuItem onClick={logout} className={styles.dropdownItemDestructive}>
-                        <LogOut size={14} style={{ marginRight: '0.5rem' }} />
-                        {t('logout')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
-              ) : (
-                <>
-                  <Link href={`/login?redirect=${encodeURIComponent(pathname)}`} className={styles.loginLink}>{t('login')}</Link>
-                  <Link href={`/register?redirect=${encodeURIComponent(pathname)}`} className={styles.registerBtn}>{t('register')}</Link>
-                </>
+              {canAccessDashboard && (
+                <Link href="/dashboard" className={styles.iconBtn} aria-label="Dashboard">
+                  <LayoutGrid size={19} />
+                </Link>
               )}
+
+              <NotificationsDropdown />
+
+              <Link href="/tickets" className={styles.ticketsBtn}>
+                <Ticket size={15} />
+                {t('tickets')}
+              </Link>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className={styles.avatarBtn}>
+                    <Avatar className={styles.avatar}>
+                      <AvatarFallback className={styles.avatarFallback}>
+                        {user ? getInitials(user.displayName) : <User size={14} />}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className={styles.dropdownContent}>
+                  <DropdownMenuLabel className={styles.dropdownLabel}>
+                    <p className={styles.dropdownLabelName}>{user?.displayName}</p>
+                    <p className={styles.dropdownLabelEmail}>{user?.email}</p>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className={styles.dropdownSeparator} />
+                  {canAccessDashboard && (
+                    <DropdownMenuItem asChild className={styles.dropdownItem}>
+                      <Link href="/dashboard">
+                        <LayoutGrid size={14} style={{ marginRight: '0.5rem' }} />
+                        {t('dashboard')}
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem asChild className={styles.dropdownItem}>
+                    <Link href="/account">
+                      <Settings size={14} style={{ marginRight: '0.5rem' }} />
+                      {t('account')}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className={styles.dropdownItem}>
+                    <Link href="/tickets">
+                      <Ticket size={14} style={{ marginRight: '0.5rem' }} />
+                      {t('myTickets')}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className={styles.dropdownSeparator} />
+                  <DropdownMenuItem onClick={logout} className={styles.dropdownItemDestructive}>
+                    <LogOut size={14} style={{ marginRight: '0.5rem' }} />
+                    {t('logout')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <Link href={`/login?redirect=${encodeURIComponent(pathname)}`} className={styles.loginLink}>{t('login')}</Link>
+              <Link href={`/register?redirect=${encodeURIComponent(pathname)}`} className={styles.registerBtn}>{t('register')}</Link>
             </>
           )}
 
