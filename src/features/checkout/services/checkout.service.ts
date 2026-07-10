@@ -10,6 +10,7 @@ import type {
   PaymentMethod,
   PaymentStatusResponse,
   PaymentProvider,
+  ClaimFreeTicketResult,
 } from '../types/checkout.types';
 
 export const checkoutService = {
@@ -47,6 +48,11 @@ export const checkoutService = {
     currency?: string;
   }): Promise<CartCheckoutResult> => {
     const { data } = await httpClient.post<CartCheckoutResult>('/payments/cart-session', payload);
+    return data;
+  },
+
+  claimFreeTicket: async (eventId: string): Promise<ClaimFreeTicketResult> => {
+    const { data } = await httpClient.post<ClaimFreeTicketResult>('/orders/free-ticket', { eventId });
     return data;
   },
 };

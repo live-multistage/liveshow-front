@@ -15,6 +15,7 @@ import {
   useReplayAccessQuery,
   useLivePlaybackQuery,
 } from '@/features/streaming/queries/live.queries';
+import { useClaimFreeTicketMutation } from '@/features/streaming/mutations/free-ticket.mutations';
 import styles from './TicketPanel.module.scss';
 
 interface Props {
@@ -50,6 +51,8 @@ export function TicketPanel({ event, tickets }: Props) {
   const ownsReplay = replayAccess.data === true;
   const owns = isLoggedIn && (ownsLive || ownsReplay);
   const accessLoading = isLoggedIn && (liveAccess.isLoading || replayAccess.isLoading);
+
+  const claimFreeTicket = useClaimFreeTicketMutation(event.id);
 
   const playback = useLivePlaybackQuery(event.id, ownsLive);
   const liveNow = playback.data?.live === true;
@@ -113,6 +116,32 @@ export function TicketPanel({ event, tickets }: Props) {
           ) : (
             <p className={styles.ownedNote}>{t('alreadyHaveAccess')}</p>
           )}
+        </div>
+      </div>
+    );
+  }
+
+  if (event.isFree) {
+    return (
+      <div className={styles.panel}>
+        <div className={styles.glow} aria-hidden />
+        <div className={styles.panelContent}>
+          <p className={styles.panelLabel}>{t('freeEvent')}</p>
+          <Button
+            variant="primary"
+            fullWidth
+            className={styles.ticketAction}
+            disabled={claimFreeTicket.isPending}
+            onClick={() => {
+              if (!isLoggedIn) {
+                router.push(`/login?next=/events/${event.id}`);
+                return;
+              }
+              claimFreeTicket.mutate();
+            }}
+          >
+            {claimFreeTicket.isPending ? t('adding') : t('watchNow')}
+          </Button>
         </div>
       </div>
     );

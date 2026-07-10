@@ -92,3 +92,7 @@ export interface PaymentStatusResponse {
   paymentId: string;
   status: PaymentStatus;
 }
+
+export interface ClaimFreeTicketResult {
+  granted: boolean;
+}

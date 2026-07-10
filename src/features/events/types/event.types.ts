@@ -38,6 +38,7 @@ export interface EventResponse {
   domain: 'ENTERTAINMENT' | 'SPORTS' | 'CORPORATE' | 'EDUCATION' | 'RELIGIOUS' | 'OTHER' | null;
   subtype: string | null;
   camerasCount: number;
+  isFree: boolean;
   priceFromCents?: number;
   priceToCents?: number;
 }
