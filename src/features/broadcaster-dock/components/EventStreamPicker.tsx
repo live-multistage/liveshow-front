@@ -2,14 +2,17 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { CalendarX, ChevronLeft, VideoOff } from 'lucide-react';
+import { CalendarX, ChevronLeft, Plus, VideoOff } from 'lucide-react';
 import { eventsService } from '@/features/events/services/events.service';
 import { useEventStreamsQuery } from '@/features/streams/queries/streams.queries';
 import { STATUS_LABEL } from '@/features/streams/components/StreamCard';
+import type { StreamResponse } from '@/features/streams/types/stream.types';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { EventStreamCard } from './EventStreamCard';
+import { StreamCreateForm } from './StreamCreateForm';
+import { StageFeedManager } from './StageFeedManager';
 
 export interface ActiveStreamSelection {
   eventId: string;
@@ -22,8 +25,12 @@ interface EventStreamPickerProps {
   userId: string;
 }
 
+type Phase = 'stream-list' | 'create-stream' | 'stage-feed';
+
 export function EventStreamPicker({ callVendorRequest, onSelected, userId }: EventStreamPickerProps) {
   const [eventId, setEventId] = useState<string | null>(null);
+  const [phase, setPhase] = useState<Phase>('stream-list');
+  const [selectedStream, setSelectedStream] = useState<StreamResponse | null>(null);
   const [saving, setSaving] = useState(false);
 
   const eventsQuery = useQuery({
@@ -32,15 +39,25 @@ export function EventStreamPicker({ callVendorRequest, onSelected, userId }: Eve
   });
   const streamsQuery = useEventStreamsQuery(eventId);
 
-  async function handleSelectStream(streamId: string) {
-    if (!eventId) return;
+  async function handleContinue() {
+    if (!eventId || !selectedStream) return;
     setSaving(true);
     try {
-      await callVendorRequest('SetActiveStream', { userId, eventId, streamId });
-      onSelected({ eventId, streamId });
+      await callVendorRequest('SetActiveStream', { userId, eventId, streamId: selectedStream.id });
+      onSelected({ eventId, streamId: selectedStream.id });
     } finally {
       setSaving(false);
     }
+  }
+
+  function handlePickExisting(stream: StreamResponse) {
+    setSelectedStream(stream);
+    setPhase('stage-feed');
+  }
+
+  function handleCreated(stream: StreamResponse) {
+    setSelectedStream(stream);
+    setPhase('stage-feed');
   }
 
   if (!eventId) {
@@ -80,6 +97,26 @@ export function EventStreamPicker({ callVendorRequest, onSelected, userId }: Eve
     );
   }
 
+  if (phase === 'create-stream') {
+    return (
+      <StreamCreateForm
+        eventId={eventId}
+        onCreated={handleCreated}
+        onCancel={() => setPhase('stream-list')}
+      />
+    );
+  }
+
+  if (phase === 'stage-feed' && selectedStream) {
+    return (
+      <StageFeedManager
+        streamId={selectedStream.id}
+        streamStatus={selectedStream.status}
+        onContinue={handleContinue}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col gap-2 p-4">
       <Button variant="ghost" size="sm" onClick={() => setEventId(null)}>
@@ -87,6 +124,10 @@ export function EventStreamPicker({ callVendorRequest, onSelected, userId }: Eve
         Voltar
       </Button>
       <h2 className="text-sm font-semibold">Escolha uma stream</h2>
+      <Button variant="outline" size="sm" onClick={() => setPhase('create-stream')}>
+        <Plus className="h-4 w-4" />
+        Criar nova stream
+      </Button>
       {streamsQuery.isLoading && (
         <>
           <Skeleton className="h-14 w-full rounded-lg" />
@@ -108,7 +149,7 @@ export function EventStreamPicker({ callVendorRequest, onSelected, userId }: Eve
               ? { label: 'AO VIVO', variant: 'live' }
               : { label: STATUS_LABEL[stream.status], variant: 'default' }
           }
-          onClick={() => handleSelectStream(stream.id)}
+          onClick={() => handlePickExisting(stream)}
           disabled={saving}
         />
       ))}
