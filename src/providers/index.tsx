@@ -5,6 +5,7 @@ import { Toaster } from '@/shared/components/ui/sonner';
 import { NavigationEvents } from '@/shared/components/NavigationEvents';
 import { NavigationOverlay } from '@/shared/components/NavigationOverlay';
 import { AuthProvider } from '@/features/account/context/AuthProvider';
+import { NotificationsStreamListener } from '@/features/notifications/components/NotificationsStreamListener';
 import type { AuthUser } from '@/features/account';
 
 function makeQueryClient() {
@@ -47,6 +48,7 @@ export function Providers({ children, initialIsLoggedIn, initialUser, dehydrated
           <Toaster />
           <NavigationEvents />
           <NavigationOverlay />
+          <NotificationsStreamListener />
         </AuthProvider>
       </HydrationBoundary>
     </QueryClientProvider>
