@@ -113,6 +113,10 @@ export function EventStreamPicker({ callVendorRequest, onSelected, userId }: Eve
         streamId={selectedStream.id}
         streamStatus={selectedStream.status}
         onContinue={handleContinue}
+        onBack={() => {
+          setPhase('stream-list');
+          setSelectedStream(null);
+        }}
       />
     );
   }

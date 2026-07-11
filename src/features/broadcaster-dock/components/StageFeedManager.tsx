@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus } from 'lucide-react';
+import { ChevronLeft, Plus } from 'lucide-react';
 import { useStreamStagesQuery } from '@/features/streams/queries/streams.queries';
 import { useCreateStageMutation, useDeleteStageMutation } from '@/features/streams/mutations/stage.mutations';
 import type { StreamStatus } from '@/features/streams/types/stream.types';
@@ -13,9 +13,10 @@ interface StageFeedManagerProps {
   streamId: string;
   streamStatus: StreamStatus;
   onContinue: () => void;
+  onBack: () => void;
 }
 
-export function StageFeedManager({ streamId, streamStatus, onContinue }: StageFeedManagerProps) {
+export function StageFeedManager({ streamId, streamStatus, onContinue, onBack }: StageFeedManagerProps) {
   const stagesQuery = useStreamStagesQuery(streamId);
   const createStage = useCreateStageMutation(streamId);
   const deleteStage = useDeleteStageMutation(streamId);
@@ -27,13 +28,23 @@ export function StageFeedManager({ streamId, streamStatus, onContinue }: StageFe
 
   function submitNewStage() {
     if (!newStageName.trim()) return;
-    createStage.mutate({ name: newStageName.trim() });
-    setNewStageName('');
-    setCreatingOpen(false);
+    createStage.mutate(
+      { name: newStageName.trim() },
+      {
+        onSuccess: () => {
+          setNewStageName('');
+          setCreatingOpen(false);
+        },
+      }
+    );
   }
 
   return (
     <div className="flex flex-col gap-2 p-4">
+      <Button variant="ghost" size="sm" onClick={onBack}>
+        <ChevronLeft className="h-4 w-4" />
+        Voltar
+      </Button>
       <h2 className="text-sm font-semibold">Palcos e feeds</h2>
       {stagesQuery.isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
       {!stagesQuery.isLoading && !stagesQuery.data?.length && (
@@ -55,21 +66,26 @@ export function StageFeedManager({ streamId, streamStatus, onContinue }: StageFe
         </Button>
       )}
       {canCreate && creatingOpen && (
-        <div className="flex items-center gap-2">
-          <Input
-            value={newStageName}
-            onChange={(e) => setNewStageName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') submitNewStage();
-              if (e.key === 'Escape') setCreatingOpen(false);
-            }}
-            placeholder="Nome do palco"
-            autoFocus
-            disabled={createStage.isPending}
-          />
-          <Button size="sm" onClick={submitNewStage} disabled={createStage.isPending || !newStageName.trim()}>
-            Adicionar
-          </Button>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <Input
+              value={newStageName}
+              onChange={(e) => setNewStageName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') submitNewStage();
+                if (e.key === 'Escape') setCreatingOpen(false);
+              }}
+              placeholder="Nome do palco"
+              autoFocus
+              disabled={createStage.isPending}
+            />
+            <Button size="sm" onClick={submitNewStage} disabled={createStage.isPending || !newStageName.trim()}>
+              Adicionar
+            </Button>
+          </div>
+          {createStage.error?.message && (
+            <p className="text-xs text-destructive">{createStage.error.message}</p>
+          )}
         </div>
       )}
       <Button className="mt-2" onClick={onContinue}>

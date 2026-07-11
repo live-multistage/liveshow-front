@@ -12,18 +12,20 @@ import { Card } from '@/shared/components/ui/card';
 interface InlineCreateRowProps {
   placeholder: string;
   isPending: boolean;
-  onCreate: (name: string) => void;
+  error: string | null;
+  onCreate: (name: string, onSuccess: () => void) => void;
 }
 
-function InlineCreateRow({ placeholder, isPending, onCreate }: InlineCreateRowProps) {
+function InlineCreateRow({ placeholder, isPending, error, onCreate }: InlineCreateRowProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
 
   function submit() {
     if (!name.trim()) return;
-    onCreate(name.trim());
-    setName('');
-    setOpen(false);
+    onCreate(name.trim(), () => {
+      setName('');
+      setOpen(false);
+    });
   }
 
   if (!open) {
@@ -36,21 +38,24 @@ function InlineCreateRow({ placeholder, isPending, onCreate }: InlineCreateRowPr
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') submit();
-          if (e.key === 'Escape') setOpen(false);
-        }}
-        placeholder={placeholder}
-        autoFocus
-        disabled={isPending}
-      />
-      <Button size="sm" onClick={submit} disabled={isPending || !name.trim()}>
-        Adicionar
-      </Button>
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') submit();
+            if (e.key === 'Escape') setOpen(false);
+          }}
+          placeholder={placeholder}
+          autoFocus
+          disabled={isPending}
+        />
+        <Button size="sm" onClick={submit} disabled={isPending || !name.trim()}>
+          Adicionar
+        </Button>
+      </div>
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }
@@ -136,7 +141,8 @@ export function StageRow({ stage, canCreate, canDelete, onDeleteStage }: StageRo
               <InlineCreateRow
                 placeholder="Feed"
                 isPending={createFeed.isPending}
-                onCreate={(name) => createFeed.mutate({ name })}
+                error={createFeed.error?.message ?? null}
+                onCreate={(name, onSuccess) => createFeed.mutate({ name }, { onSuccess })}
               />
             </div>
           )}
