@@ -4,12 +4,29 @@ export type ListEventsFilter = 'upcoming' | 'live' | 'finished' | 'all';
 
 export type EventCategory =
   | 'MUSIC' | 'COMEDY' | 'THEATER' | 'DANCE' | 'SPORTS'
+  | 'FOOTBALL' | 'MOTORSPORT' | 'CORPORATE'
   | 'TALK' | 'RELIGIOUS' | 'EDUCATION' | 'OTHER';
 
 export const EVENT_CATEGORIES: EventCategory[] = [
   'MUSIC', 'COMEDY', 'THEATER', 'DANCE', 'SPORTS',
+  'FOOTBALL', 'MOTORSPORT', 'CORPORATE',
   'TALK', 'RELIGIOUS', 'EDUCATION', 'OTHER',
 ];
+
+export const EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
+  MUSIC: 'Música',
+  COMEDY: 'Comédia',
+  THEATER: 'Teatro',
+  DANCE: 'Dança',
+  SPORTS: 'Esportes',
+  FOOTBALL: 'Futebol',
+  MOTORSPORT: 'Automobilismo',
+  CORPORATE: 'Corporativo',
+  TALK: 'Palestra',
+  RELIGIOUS: 'Religioso',
+  EDUCATION: 'Educação',
+  OTHER: 'Outro',
+};
 
 export interface VenueData {
   name: string;
@@ -20,11 +37,20 @@ export interface VenueData {
   coordinates: { lat: number; lng: number } | null;
 }
 
+export interface EventOrganization {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl: string | null;
+}
+
 export interface EventResponse {
   id: string;
   title: string;
   description: string;
+  category: EventCategory;
   organizationId: string;
+  organization: EventOrganization | null;
   startsAt: string;
   endsAt: string;
   status: EventStatus;
@@ -43,12 +69,14 @@ export interface EventResponse {
   priceToCents?: number;
 }
 
-export interface RecommendedEventsResponse {
+export interface PaginatedEventsResponse {
   items: EventResponse[];
   page: number;
   pageSize: number;
   total: number;
 }
+
+export type RecommendedEventsResponse = PaginatedEventsResponse;
 
 export interface CreateEventRequest {
   organizationId: string;

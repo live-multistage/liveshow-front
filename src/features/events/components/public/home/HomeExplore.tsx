@@ -49,7 +49,7 @@ export function HomeExplore({ shows, genres, activeGenre, onGenreChange }: HomeE
           ))}
         </div>
       ) : (
-        <div className={styles.empty}>Nenhum evento neste gênero ainda — em breve.</div>
+        <div className={styles.empty}>Nenhum evento nesta categoria ainda — em breve.</div>
       )}
     </section>
   );

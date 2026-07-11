@@ -35,7 +35,7 @@ export function HomeHero({ show }: HomeHeroProps) {
 
       {/* watermark */}
       <span className={styles.watermark} aria-hidden="true">
-        {show.genre.toUpperCase()}
+        {show.category.toUpperCase()}
       </span>
 
       <div className={styles.content}>

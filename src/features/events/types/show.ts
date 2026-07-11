@@ -2,7 +2,7 @@ export interface Show {
   id: string;
   title: string;
   artist: string;
-  genre: string;
+  category: string;
   venue: string;
   city: string;
   country: string;
@@ -82,7 +82,7 @@ export const SHOWS: Show[] = [
     id: "1",
     title: "Thunder World Tour 2025",
     artist: "The Voltage",
-    genre: "Rock",
+    category: "Rock",
     venue: "Madison Square Garden",
     city: "Nova York",
     country: "EUA",
@@ -104,7 +104,7 @@ export const SHOWS: Show[] = [
     id: "2",
     title: "Noite de Gala Sinfônica",
     artist: "Filarmônica de Berlim",
-    genre: "Clássico",
+    category: "Clássico",
     venue: "Berliner Philharmonie",
     city: "Berlim",
     country: "Alemanha",
@@ -126,7 +126,7 @@ export const SHOWS: Show[] = [
     id: "3",
     title: "Aurora Festival 2025",
     artist: "Vários Artistas",
-    genre: "Eletrônica",
+    category: "Eletrônica",
     venue: "Parque Olímpico",
     city: "Londres",
     country: "Reino Unido",
@@ -148,7 +148,7 @@ export const SHOWS: Show[] = [
     id: "4",
     title: "Blue Note Sessions",
     artist: "Marcus Carter Quartet",
-    genre: "Jazz",
+    category: "Jazz",
     venue: "Blue Note Jazz Club",
     city: "Nova Orleans",
     country: "EUA",
@@ -170,7 +170,7 @@ export const SHOWS: Show[] = [
     id: "5",
     title: "Lago dos Cisnes – Gala Especial",
     artist: "Ballet Imperial de Moscou",
-    genre: "Ballet",
+    category: "Ballet",
     venue: "Teatro Bolshoi",
     city: "Moscou",
     country: "Rússia",
@@ -192,7 +192,7 @@ export const SHOWS: Show[] = [
     id: "6",
     title: "Madama Butterfly",
     artist: "Teatro La Scala",
-    genre: "Ópera",
+    category: "Ópera",
     venue: "Teatro alla Scala",
     city: "Milão",
     country: "Itália",

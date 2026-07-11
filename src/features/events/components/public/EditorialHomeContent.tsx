@@ -196,12 +196,12 @@ export function EditorialHomeContent({ initialEvents, initialRecommended }: Prop
   const featured = useMemo(() => liveShows[0] ?? shows[0] ?? null, [liveShows, shows]);
 
   const genres = useMemo(() => {
-    const unique = [...new Set(shows.map((s) => s.genre))].filter(Boolean);
+    const unique = [...new Set(shows.map((s) => s.category))].filter(Boolean);
     return ['Todos', ...unique];
   }, [shows]);
 
   const filtered = useMemo(
-    () => (activeGenre === 'Todos' ? shows : shows.filter((s) => s.genre === activeGenre)),
+    () => (activeGenre === 'Todos' ? shows : shows.filter((s) => s.category === activeGenre)),
     [shows, activeGenre],
   );
 
@@ -246,7 +246,7 @@ export function EditorialHomeContent({ initialEvents, initialRecommended }: Prop
 
               <div className={styles.heroContent}>
                 <div className={styles.heroGenre}>
-                  {featured.genre.toUpperCase()} · {featured.venue.toUpperCase()}
+                  {featured.category.toUpperCase()} · {featured.venue.toUpperCase()}
                 </div>
                 <h1 className={styles.heroTitle}>{featured.title}</h1>
                 <div className={styles.heroMeta}>
@@ -355,7 +355,7 @@ export function EditorialHomeContent({ initialEvents, initialRecommended }: Prop
         <div className={styles.gridSection}>
           {/* Genre chips */}
           <div className={styles.genreRow}>
-            <span className={styles.genreLabel}>Filtrar por gênero</span>
+            <span className={styles.genreLabel}>Filtrar por categoria</span>
             {genres.map((g) => (
               <button
                 key={g}

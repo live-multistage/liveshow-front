@@ -23,7 +23,7 @@ export function ShowsSection({ shows }: ShowsSectionProps) {
   const filtered =
     selectedGenre === 'All'
       ? shows
-      : shows.filter((s) => s.genre === selectedGenre);
+      : shows.filter((s) => s.category === selectedGenre);
 
   return (
     <div className={styles.wrapper}>

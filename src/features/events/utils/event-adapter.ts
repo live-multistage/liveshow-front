@@ -1,3 +1,4 @@
+import { EVENT_CATEGORY_LABELS } from '../types/event.types';
 import type { EventResponse } from '../types/event.types';
 import type { Show, Camera } from '../types/show';
 
@@ -48,7 +49,7 @@ export function eventToShow(event: EventResponse): Show {
     id: event.id,
     title: event.title,
     artist: '',
-    genre: 'Show',
+    category: EVENT_CATEGORY_LABELS[event.category] ?? event.category,
     venue: event.venue ?? '',
     city: event.city ?? '',
     country: event.country ?? '',

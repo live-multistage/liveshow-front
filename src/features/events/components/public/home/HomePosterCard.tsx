@@ -53,7 +53,7 @@ export function HomePosterCard({ show, span }: HomePosterCardProps) {
       </div>
 
       <div className={styles.bottom}>
-        <div className={styles.genre}>{show.genre}</div>
+        <div className={styles.genre}>{show.category}</div>
         <div className={styles.title} style={{ fontSize: span.titleSize }}>
           {show.title}
         </div>

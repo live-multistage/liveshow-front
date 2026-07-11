@@ -26,6 +26,7 @@ export type TicketFormValues = z.output<typeof ticketSchema>;
 
 export const EVENT_CATEGORY_VALUES = [
   'MUSIC', 'COMEDY', 'THEATER', 'DANCE', 'SPORTS',
+  'FOOTBALL', 'MOTORSPORT', 'CORPORATE',
   'TALK', 'RELIGIOUS', 'EDUCATION', 'OTHER',
 ] as const;
 
