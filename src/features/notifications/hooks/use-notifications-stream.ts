@@ -22,12 +22,19 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 export function useNotificationsStream() {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading } = useAuth();
   const queryClient = useQueryClient();
   const sourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
-    if (!isLoggedIn) return;
+    // isLoading gates the initial read: AuthProvider's hydrate() effect
+    // (child effects fire before parent effects, so it hasn't run yet on
+    // this hook's first render) sets tokenStore before flipping isLoading
+    // to false. For an already-logged-in page load, isLoggedIn is true
+    // from the SSR snapshot on the very first render and never transitions
+    // once hydration resolves — so isLoading is what re-triggers this
+    // effect once tokenStore is actually populated.
+    if (!isLoggedIn || isLoading) return;
 
     let cancelled = false;
 
@@ -62,5 +69,5 @@ export function useNotificationsStream() {
       sourceRef.current?.close();
       sourceRef.current = null;
     };
-  }, [isLoggedIn, queryClient]);
+  }, [isLoggedIn, isLoading, queryClient]);
 }
