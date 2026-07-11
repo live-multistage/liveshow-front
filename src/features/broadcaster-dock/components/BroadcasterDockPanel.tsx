@@ -41,6 +41,15 @@ export function BroadcasterDockPanel() {
       connectToObs(detail.password);
     }
 
+    // setStartupScript's dispatchEvent runs in CEF's OnLoadEnd, which can fire before
+    // this listener is attached — check the durable stash it also writes first.
+    const stashed = (window as unknown as { liveshowObsCredentials?: { password: string } })
+      .liveshowObsCredentials;
+    if (stashed?.password) {
+      connectToObs(stashed.password);
+      return;
+    }
+
     window.addEventListener('liveshow-obs-credentials', handleCredentials);
     return () => window.removeEventListener('liveshow-obs-credentials', handleCredentials);
     // eslint-disable-next-line react-hooks/exhaustive-deps
