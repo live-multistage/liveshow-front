@@ -14,9 +14,10 @@ export interface ActiveStreamSelection {
 interface EventStreamPickerProps {
   callVendorRequest: (requestType: string, requestData?: Record<string, unknown>) => Promise<Record<string, unknown>>;
   onSelected: (stream: ActiveStreamSelection) => void;
+  userId: string;
 }
 
-export function EventStreamPicker({ callVendorRequest, onSelected }: EventStreamPickerProps) {
+export function EventStreamPicker({ callVendorRequest, onSelected, userId }: EventStreamPickerProps) {
   const [eventId, setEventId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -30,7 +31,7 @@ export function EventStreamPicker({ callVendorRequest, onSelected }: EventStream
     if (!eventId) return;
     setSaving(true);
     try {
-      await callVendorRequest('SetActiveStream', { eventId, streamId });
+      await callVendorRequest('SetActiveStream', { userId, eventId, streamId });
       onSelected({ eventId, streamId });
     } finally {
       setSaving(false);

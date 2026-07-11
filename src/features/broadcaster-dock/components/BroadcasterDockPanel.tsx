@@ -18,10 +18,10 @@ export function BroadcasterDockPanel() {
   const canBroadcast = isLoggedIn && !!user && ALLOWED_ROLES.includes(user.role);
 
   useEffect(() => {
-    if (status !== 'connected' || !canBroadcast || contextLoaded) return;
+    if (status !== 'connected' || !canBroadcast || contextLoaded || !user) return;
 
     let cancelled = false;
-    callVendorRequest('GetActiveStream')
+    callVendorRequest('GetActiveStream', { userId: user.id })
       .then((data) => {
         if (cancelled) return;
         if (typeof data.eventId === 'string' && typeof data.streamId === 'string') {
@@ -65,8 +65,20 @@ export function BroadcasterDockPanel() {
   }
 
   if (!activeStream) {
-    return <EventStreamPicker callVendorRequest={callVendorRequest} onSelected={setActiveStream} />;
+    return (
+      <EventStreamPicker
+        callVendorRequest={callVendorRequest}
+        onSelected={setActiveStream}
+        userId={user.id}
+      />
+    );
   }
 
-  return <ActiveStreamConfirmation eventId={activeStream.eventId} streamId={activeStream.streamId} />;
+  return (
+    <ActiveStreamConfirmation
+      eventId={activeStream.eventId}
+      streamId={activeStream.streamId}
+      onChangeStream={() => setActiveStream(null)}
+    />
+  );
 }
