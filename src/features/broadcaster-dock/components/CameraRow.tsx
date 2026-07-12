@@ -35,8 +35,12 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
     setCreating(true);
     setError(null);
     try {
-      await callVendorRequest('CreateCameraCanvas', { cameraId });
-      setCanvasExists(true);
+      const data = await callVendorRequest('CreateCameraCanvas', { cameraId });
+      if (typeof data.canvasName === 'string' && data.canvasName) {
+        setCanvasExists(true);
+      } else {
+        setError('Falha ao criar canvas.');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Falha ao criar canvas.');
     } finally {

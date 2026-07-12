@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronRight, Trash2 } from 'lucide-react';
 import { useFeedCamerasQuery } from '@/features/streams/queries/streams.queries';
+import { streamsService } from '@/features/streams/services/streams.service';
 import { CameraRow } from './CameraRow';
 import { CameraCreateForm } from './CameraCreateForm';
 
@@ -20,6 +21,18 @@ export function FeedRow({ feedId, feedName, canDelete, onDelete, callVendorReque
   const [expanded, setExpanded] = useState(false);
   const camerasQuery = useFeedCamerasQuery(expanded ? feedId : null);
 
+  async function handleDeleteFeed() {
+    try {
+      const cameras = await streamsService.listCameras(feedId);
+      await Promise.allSettled(
+        cameras.map((camera) => callVendorRequest('RemoveCameraCanvas', { cameraId: camera.id })),
+      );
+    } catch {
+      // best-effort cleanup only — a failure here should never block deleting the feed itself
+    }
+    onDelete(feedId);
+  }
+
   return (
     <div className="flex flex-col gap-1 py-1 pl-6">
       <div className="flex items-center justify-between gap-2">
@@ -34,7 +47,7 @@ export function FeedRow({ feedId, feedName, canDelete, onDelete, callVendorReque
         {canDelete && (
           <button
             type="button"
-            onClick={() => onDelete(feedId)}
+            onClick={handleDeleteFeed}
             className="text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="h-3.5 w-3.5" />
