@@ -37,7 +37,9 @@ export interface OrgFeatureFlagView {
   isOverride: boolean;
 }
 
-export type PlatformRole = 'USER' | 'ARTIST' | 'ORGANIZER' | 'ADMIN' | 'SUPER_ADMIN';
+// BROADCASTER is deprecated backend-side (use ARTIST) but legacy rows can still hold it,
+// so it stays in the type for safe display; it must never be added to an assignable-role list.
+export type PlatformRole = 'USER' | 'ARTIST' | 'ORGANIZER' | 'ADMIN' | 'SUPER_ADMIN' | 'BROADCASTER';
 
 export interface PlatformUserResult {
   id: string;
