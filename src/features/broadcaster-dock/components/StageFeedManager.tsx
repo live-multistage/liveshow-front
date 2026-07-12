@@ -12,8 +12,8 @@ import { useState } from 'react';
 interface StageFeedManagerProps {
   streamId: string;
   streamStatus: StreamStatus;
-  onContinue: () => void;
-  onBack: () => void;
+  onContinue?: () => void;
+  onBack?: () => void;
   callVendorRequest: (requestType: string, requestData?: Record<string, unknown>) => Promise<Record<string, unknown>>;
 }
 
@@ -42,10 +42,12 @@ export function StageFeedManager({ streamId, streamStatus, onContinue, onBack, c
 
   return (
     <div className="flex flex-col gap-2 p-4">
-      <Button variant="ghost" size="sm" onClick={onBack}>
-        <ChevronLeft className="h-4 w-4" />
-        Voltar
-      </Button>
+      {onBack && (
+        <Button variant="ghost" size="sm" onClick={onBack}>
+          <ChevronLeft className="h-4 w-4" />
+          Voltar
+        </Button>
+      )}
       <h2 className="text-sm font-semibold">Palcos e feeds</h2>
       {stagesQuery.isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
       {!stagesQuery.isLoading && !stagesQuery.data?.length && (
@@ -90,9 +92,11 @@ export function StageFeedManager({ streamId, streamStatus, onContinue, onBack, c
           )}
         </div>
       )}
-      <Button className="mt-2" onClick={onContinue}>
-        Continuar
-      </Button>
+      {onContinue && (
+        <Button className="mt-2" onClick={onContinue}>
+          Continuar
+        </Button>
+      )}
     </div>
   );
 }

@@ -78,6 +78,8 @@ export function BroadcasterDockPanel() {
     <ActiveStreamConfirmation
       eventId={activeStream.eventId}
       streamId={activeStream.streamId}
+      obsConnected={status === 'connected'}
+      callVendorRequest={callVendorRequest}
       onChangeStream={() => setActiveStream(null)}
     />
   );
