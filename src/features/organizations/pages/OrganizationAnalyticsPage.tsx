@@ -120,7 +120,7 @@ export function OrganizationAnalyticsPage({ organizationId }: Props) {
   const [granularity, setGranularity] = useState<SalesGranularity>('month');
 
   const { data: org, isLoading: orgLoading, isError: orgError } = useOrganization(organizationId);
-  const { data: analytics, isLoading: analyticsLoading } = useOrganizationAnalytics(organizationId, granularity);
+  const { data: analytics, isLoading: analyticsLoading, isError: analyticsError } = useOrganizationAnalytics(organizationId, granularity);
 
   if (orgLoading) return <p className={styles.state}>Carregando...</p>;
   if (orgError || !org) return <p className={`${styles.state} ${styles.stateError}`}>Organização não encontrada.</p>;
@@ -131,6 +131,12 @@ export function OrganizationAnalyticsPage({ organizationId }: Props) {
   return (
     <div className={styles.page}>
       <OrganizationHeader organization={org} />
+
+      {analyticsError && (
+        <p className={styles.errorNotice}>
+          Não foi possível carregar os dados de análise agora. Os números abaixo podem estar incompletos.
+        </p>
+      )}
 
       <div className={styles.card}>
         <SectionHeader label="VENDAS" icon="sales" />

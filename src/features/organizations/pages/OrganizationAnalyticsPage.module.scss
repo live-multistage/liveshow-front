@@ -7,6 +7,16 @@
 .state { font-size: 14px; color: #7d7d85; padding: 24px 0; }
 .stateError { color: #ef6b6b; }
 
+.errorNotice {
+  background: rgba(220, 38, 38, .08);
+  border: 1px solid rgba(220, 38, 38, .28);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #f87171;
+  margin: 0;
+}
+
 .card {
   background: #101013;
   border: 1px solid rgba(255, 255, 255, .08);
