@@ -42,7 +42,7 @@ function summarize(result: OrchestrationResult): string {
 
 export function StreamLifecycleBar({ stream, eventId, obsConnected, callVendorRequest }: StreamLifecycleBarProps) {
   const queryClient = useQueryClient();
-  const { cameras } = useStreamCamerasQuery(stream.id);
+  const { cameras, isLoading: camerasLoading } = useStreamCamerasQuery(stream.id);
 
   const prepare = usePrepareStreamMutation(stream.id, eventId);
   const start = useStartStreamMutation(stream.id, eventId);
@@ -69,21 +69,27 @@ export function StreamLifecycleBar({ stream, eventId, obsConnected, callVendorRe
   async function handleEnd() {
     setSummary(null);
     setOrchestrating(true);
-    const result = await stopAllCameras(cameras, callVendorRequest, queryClient);
-    setOrchestrating(false);
-    setSummary(summarize(result));
-    // Camera-stop failures never block ending the Stream itself — same
-    // acceptance as an obs-websocket disconnect mid-transmission (D4 Phase 3).
-    await end.mutateAsync().catch(() => {});
+    try {
+      const result = await stopAllCameras(cameras, callVendorRequest, queryClient);
+      setSummary(summarize(result));
+      // Camera-stop failures never block ending the Stream itself — same
+      // acceptance as an obs-websocket disconnect mid-transmission (D4 Phase 3).
+      await end.mutateAsync().catch(() => {});
+    } finally {
+      setOrchestrating(false);
+    }
   }
 
   async function handleRollback() {
     setSummary(null);
     setOrchestrating(true);
-    const result = await stopAllCameras(cameras, callVendorRequest, queryClient);
-    setOrchestrating(false);
-    setSummary(summarize(result));
-    await rollback.mutateAsync().catch(() => {});
+    try {
+      const result = await stopAllCameras(cameras, callVendorRequest, queryClient);
+      setSummary(summarize(result));
+      await rollback.mutateAsync().catch(() => {});
+    } finally {
+      setOrchestrating(false);
+    }
   }
 
   const disabled = !obsConnected || orchestrating;
@@ -102,7 +108,7 @@ export function StreamLifecycleBar({ stream, eventId, obsConnected, callVendorRe
           </Button>
         )}
         {stream.status === 'READY' && (
-          <Button size="sm" onClick={handleStart} disabled={disabled || start.isPending}>
+          <Button size="sm" onClick={handleStart} disabled={disabled || start.isPending || camerasLoading}>
             {start.isPending || orchestrating ? 'Iniciando...' : 'Iniciar transmissão'}
           </Button>
         )}
