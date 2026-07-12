@@ -275,12 +275,15 @@
       "streams": "Streams",
       "analytics": "Análises",
       "coupons": "Cupons",
-      "advertisement": "Anúncios"
+      "advertisement": "Anúncios",
+      "platformOrganizations": "Organizações",
+      "platformUsers": "Usuários e Papéis"
     },
     "roles": {
       "ADMIN": "Admin",
       "ORGANIZER": "Organizador",
-      "ARTIST": "Artista"
+      "ARTIST": "Artista",
+      "SUPER_ADMIN": "Super Admin"
     },
     "userMenu": {
       "account": "Minha Conta",

@@ -8,6 +8,8 @@ import {
   BarChart2,
   Ticket,
   Megaphone,
+  ShieldCheck,
+  Users,
 } from 'lucide-react';
 import type { UserRole } from '@/types';
 
@@ -42,6 +44,10 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
   ],
+  SUPER_ADMIN: [
+    { navKey: 'platformOrganizations', href: '/dashboard/platform/organizations', icon: ShieldCheck },
+    { navKey: 'platformUsers',         href: '/dashboard/platform/users',        icon: Users },
+  ],
 };
 
-export const DASHBOARD_ROLES: UserRole[] = ['ADMIN', 'ORGANIZER', 'ARTIST'];
+export const DASHBOARD_ROLES: UserRole[] = ['ADMIN', 'ORGANIZER', 'ARTIST', 'SUPER_ADMIN'];

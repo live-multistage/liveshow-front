@@ -1,4 +1,4 @@
-export type UserRole = 'USER' | 'ORGANIZER' | 'ARTIST' | 'ADMIN';
+export type UserRole = 'USER' | 'ORGANIZER' | 'ARTIST' | 'ADMIN' | 'SUPER_ADMIN';
 
 export interface PaginatedResponse<T> {
   data: T[];
