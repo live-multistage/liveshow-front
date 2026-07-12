@@ -21,7 +21,12 @@ export function CameraCreateForm({ feedId, callVendorRequest }: CameraCreateForm
   function submit() {
     if (!name.trim()) return;
     createCamera.mutate(
-      { name: name.trim() },
+      // API requires a valid integer priority >= 1 despite CreateCameraRequest's
+      // priority being typed optional — the web dashboard's InlineAddForm always
+      // sends priority ?? 1 for the same reason (FeedBody.tsx). Dock has no
+      // priority UI (out of scope, single-camera-per-feed is the common case),
+      // so it defaults to 1 the same way.
+      { name: name.trim(), priority: 1 },
       {
         onSuccess: (camera) => {
           // Fire-and-forget: CreateCameraCanvas is idempotent, and if it fails
