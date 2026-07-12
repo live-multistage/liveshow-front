@@ -9,6 +9,7 @@ interface FormValues {
   code: string;
   discountType: DiscountType;
   discountValue: number;
+  eventId: string;
   minOrderAmount: string;
   maxUses: string;
   expiresAt: string;
@@ -17,13 +18,14 @@ interface FormValues {
 interface Props {
   isOpen: boolean;
   orgId: string;
+  events: { id: string; title: string }[];
   isPending: boolean;
   error?: string | null;
   onClose: () => void;
   onCreate: (payload: CreateCouponRequest) => void;
 }
 
-export function CreateCouponModal({ isOpen, orgId, isPending, error, onClose, onCreate }: Props) {
+export function CreateCouponModal({ isOpen, orgId, events, isPending, error, onClose, onCreate }: Props) {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     defaultValues: { discountType: 'PERCENTAGE' },
   });
@@ -37,6 +39,7 @@ export function CreateCouponModal({ isOpen, orgId, isPending, error, onClose, on
       discountValue: Number(values.discountValue),
       orgId,
     };
+    if (values.eventId) payload.eventId = values.eventId;
     if (values.minOrderAmount) payload.minOrderAmount = Number(values.minOrderAmount);
     if (values.maxUses) payload.maxUses = Number(values.maxUses);
     if (values.expiresAt) payload.expiresAt = new Date(values.expiresAt).toISOString();
@@ -67,6 +70,16 @@ export function CreateCouponModal({ isOpen, orgId, isPending, error, onClose, on
               />
               {errors.code && <p className={styles.error}>{errors.code.message}</p>}
             </div>
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Evento (opcional)</label>
+            <select {...register('eventId')} className={styles.select} defaultValue="">
+              <option value="">Toda a organização</option>
+              {events.map((e) => (
+                <option key={e.id} value={e.id}>{e.title}</option>
+              ))}
+            </select>
           </div>
 
           <div className={styles.row}>

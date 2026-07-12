@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Plus, PowerOff, Tag } from 'lucide-react';
 import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
+import { useMyEventsQuery } from '@/features/events';
 import { useListCouponsQuery } from '../queries/use-coupons';
 import { useCreateCouponMutation, useDeactivateCouponMutation } from '../mutations/coupon.mutations';
 import { CreateCouponModal } from './CreateCouponModal';
@@ -35,8 +36,24 @@ export function CouponsDashboard() {
   const orgId = orgs[0]?.id;
 
   const { data: coupons = [], isLoading: couponsLoading } = useListCouponsQuery(orgId);
+  const { data: myEvents } = useMyEventsQuery();
   const createMutation = useCreateCouponMutation(orgId);
   const deactivateMutation = useDeactivateCouponMutation(orgId);
+
+  // Only upcoming/ongoing events of this org make sense as coupon targets
+  const eventOptions = useMemo(
+    () =>
+      (myEvents ?? [])
+        .filter((e) => e.organizationId === orgId)
+        .filter((e) => new Date(e.endsAt ?? e.startsAt) >= new Date())
+        .map((e) => ({ id: e.id, title: e.title })),
+    [myEvents, orgId],
+  );
+
+  const scopeLabel = (coupon: CouponResponse) =>
+    coupon.eventId
+      ? (myEvents?.find((e) => e.id === coupon.eventId)?.title ?? coupon.eventId.slice(0, 8))
+      : 'Org toda';
 
   const isLoading = orgsLoading || couponsLoading;
 
@@ -98,6 +115,7 @@ export function CouponsDashboard() {
             <thead>
               <tr>
                 <th className={styles.th}>Código</th>
+                <th className={styles.th}>Escopo</th>
                 <th className={styles.th}>Desconto</th>
                 <th className={styles.th}>Usos</th>
                 <th className={styles.th}>Pedido mín.</th>
@@ -112,6 +130,7 @@ export function CouponsDashboard() {
                   <td className={styles.td}>
                     <span className={styles.code}>{coupon.code}</span>
                   </td>
+                  <td className={styles.td}>{scopeLabel(coupon)}</td>
                   <td className={styles.td}>{formatDiscount(coupon)}</td>
                   <td className={styles.td}>
                     {coupon.usesCount}
@@ -147,6 +166,7 @@ export function CouponsDashboard() {
         <CreateCouponModal
           isOpen={modalOpen}
           orgId={orgId}
+          events={eventOptions}
           isPending={createMutation.isPending}
           error={createError}
           onClose={() => setModalOpen(false)}
