@@ -1,9 +1,14 @@
+// src/features/broadcaster-dock/components/CameraRow.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { Settings, Video } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
-import { streamsService } from '@/features/streams/services/streams.service';
+import {
+  useCameraOutputStatusQuery,
+  useStartCameraOutputMutation,
+  useStopCameraOutputMutation,
+} from '../hooks/use-camera-output';
 
 type CallVendorRequest = (requestType: string, requestData?: Record<string, unknown>) => Promise<Record<string, unknown>>;
 
@@ -11,30 +16,6 @@ interface CameraRowProps {
   cameraId: string;
   cameraName: string;
   callVendorRequest: CallVendorRequest;
-}
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-// StartCameraOutput's response only confirms OBS accepted the start command —
-// live testing during D4 Phase 3's Task 1 found that an unreachable SRT
-// target fails ASYNCHRONOUSLY, roughly 3 seconds after obs_output_start()
-// already returned true. A single successful response is not proof the
-// stream is actually reaching the ingest server. Poll GetCameraOutputStatus
-// for a few seconds (5 checks, 1s apart — comfortably past the observed ~3s
-// failure window) to confirm it's still active before the UI commits to
-// "Transmitindo".
-async function pollUntilSettled(
-  cameraId: string,
-  callVendorRequest: CallVendorRequest,
-): Promise<boolean> {
-  for (let i = 0; i < 5; i++) {
-    await delay(1000);
-    const data = await callVendorRequest('GetCameraOutputStatus', { cameraId }).catch(() => ({ active: false }));
-    if (data.active !== true) return false;
-  }
-  return true;
 }
 
 type SourceType = 'camera' | 'screen';
@@ -48,9 +29,17 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
   const [attaching, setAttaching] = useState<SourceType | null>(null);
   const [sourceError, setSourceError] = useState<string | null>(null);
 
-  const [transmitting, setTransmitting] = useState(false);
-  const [outputPending, setOutputPending] = useState<'start' | 'stop' | null>(null);
-  const [outputError, setOutputError] = useState<string | null>(null);
+  const outputStatus = useCameraOutputStatusQuery(cameraId, sourceType !== null, callVendorRequest);
+  const startMutation = useStartCameraOutputMutation(cameraId, callVendorRequest);
+  const stopMutation = useStopCameraOutputMutation(cameraId, callVendorRequest);
+
+  const transmitting = outputStatus.data === true;
+  const outputPending: 'start' | 'stop' | null = startMutation.isPending
+    ? 'start'
+    : stopMutation.isPending
+      ? 'stop'
+      : null;
+  const outputError = (startMutation.error ?? stopMutation.error)?.message ?? null;
 
   useEffect(() => {
     let cancelled = false;
@@ -83,23 +72,6 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
       cancelled = true;
     };
   }, [cameraId, canvasExists, callVendorRequest]);
-
-  useEffect(() => {
-    if (sourceType === null) return;
-    let cancelled = false;
-    callVendorRequest('GetCameraOutputStatus', { cameraId })
-      .then((data) => {
-        if (!cancelled) setTransmitting(data.active === true);
-      })
-      .catch(() => {
-        // leave transmitting as-is — a failed status check isn't reason enough
-        // to assume it stopped, and the Start/Stop buttons will self-correct
-        // on the next attempt either way
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [cameraId, sourceType, callVendorRequest]);
 
   async function handleCreateCanvas() {
     setCreating(true);
@@ -136,51 +108,17 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
   }
 
   async function handleOpenProperties() {
-    // Best-effort: the dialog is a native OBS window, not something this
-    // component can reflect state from — a failure here just means the click
-    // didn't open anything, retrying is the only recovery available.
     await callVendorRequest('OpenCameraSourceProperties', { cameraId }).catch(() => {});
   }
 
-  async function handleStartTransmission() {
-    setOutputPending('start');
-    setOutputError(null);
-    try {
-      const ingest = await streamsService.getCameraIngest(cameraId);
-      const data = await callVendorRequest('StartCameraOutput', {
-        cameraId,
-        url: ingest.ingest.url,
-        streamId: ingest.ingest.streamId,
-        streamKey: ingest.streamKey,
-      });
-      if (data.active !== true) {
-        setOutputError(typeof data.error === 'string' ? data.error : 'Falha ao iniciar transmissão.');
-        return;
-      }
-      const settled = await pollUntilSettled(cameraId, callVendorRequest);
-      if (settled) {
-        setTransmitting(true);
-      } else {
-        setOutputError('A transmissão parou logo após iniciar — verifique as credenciais de ingest.');
-      }
-    } catch (err) {
-      setOutputError(err instanceof Error ? err.message : 'Falha ao iniciar transmissão.');
-    } finally {
-      setOutputPending(null);
-    }
+  function handleStartTransmission() {
+    stopMutation.reset();
+    startMutation.mutate();
   }
 
-  async function handleStopTransmission() {
-    setOutputPending('stop');
-    setOutputError(null);
-    try {
-      await callVendorRequest('StopCameraOutput', { cameraId });
-      setTransmitting(false);
-    } catch (err) {
-      setOutputError(err instanceof Error ? err.message : 'Falha ao parar transmissão.');
-    } finally {
-      setOutputPending(null);
-    }
+  function handleStopTransmission() {
+    startMutation.reset();
+    stopMutation.mutate();
   }
 
   return (
