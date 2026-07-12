@@ -11,8 +11,7 @@ import {
   Filler,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { useGetMySalesQuery } from '../hooks/use-my-sales';
-import type { SalesGranularity } from '../types/sales.types';
+import type { SalesGranularity, SalesSummary } from '../types/sales.types';
 import { EventSalesTable } from './EventSalesTable';
 import styles from './SalesDashboard.module.scss';
 
@@ -63,10 +62,16 @@ function formatLabel(date: string, granularity: SalesGranularity): string {
 
 type ChartView = 'orders' | 'revenue';
 
-export function SalesDashboard() {
-  const [granularity, setGranularity] = useState<SalesGranularity>('month');
+interface SalesDashboardProps {
+  data: SalesSummary | undefined;
+  isLoading: boolean;
+  granularity: SalesGranularity;
+  onGranularityChange: (g: SalesGranularity) => void;
+  showEventTable?: boolean;
+}
+
+export function SalesDashboard({ data, isLoading, granularity, onGranularityChange, showEventTable = true }: SalesDashboardProps) {
   const [chartView, setChartView] = useState<ChartView>('orders');
-  const { data, isLoading } = useGetMySalesQuery(granularity);
 
   const avgTicket =
     data && data.totalOrders > 0 ? data.totalRevenue / data.totalOrders : 0;
@@ -137,13 +142,13 @@ export function SalesDashboard() {
           <div className={styles.granularityToggle}>
             <button
               className={`${styles.toggleBtn} ${granularity === 'day' ? styles.toggleActive : ''}`}
-              onClick={() => setGranularity('day')}
+              onClick={() => onGranularityChange('day')}
             >
               Dia
             </button>
             <button
               className={`${styles.toggleBtn} ${granularity === 'month' ? styles.toggleActive : ''}`}
-              onClick={() => setGranularity('month')}
+              onClick={() => onGranularityChange('month')}
             >
               Mês
             </button>
@@ -161,7 +166,7 @@ export function SalesDashboard() {
         </div>
       </div>
 
-      <EventSalesTable />
+      {showEventTable && <EventSalesTable />}
     </div>
   );
 }
