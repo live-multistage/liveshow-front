@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Download } from 'lucide-react';
 import {
@@ -658,11 +658,14 @@ interface AnalyticsDashboardProps {
 
 export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardProps) {
   const [range, setRange] = useState<Range>('24h');
-  const now = new Date();
-  const rangeWindow = range === 'all' ? undefined : {
-    from: new Date(now.getTime() - (range === '24h' ? 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000)),
-    to: now,
-  };
+  const rangeWindow = useMemo(() => {
+    if (range === 'all') return undefined;
+    const now = new Date();
+    return {
+      from: new Date(now.getTime() - (range === '24h' ? 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000)),
+      to: now,
+    };
+  }, [range]);
   const { data: eventSales, isLoading: salesLoading } = useGetEventSalesQuery();
 
   const events = eventSales?.events ?? [];
