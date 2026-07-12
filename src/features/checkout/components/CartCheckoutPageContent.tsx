@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, AlertCircle, Check, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
@@ -25,8 +25,25 @@ export function CartCheckoutPageContent() {
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState(false);
+  const [coupon, setCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
 
   const paymentMethods = usePaymentMethodsQuery();
+
+  // Coupon applied on the cart page travels here via sessionStorage;
+  // re-validate against the server so a stale/expired code is dropped silently.
+  useEffect(() => {
+    const raw = typeof window !== 'undefined' ? sessionStorage.getItem('cart:coupon') : null;
+    if (!raw || items.length === 0) return;
+    const { code } = JSON.parse(raw) as { code: string };
+    checkoutService
+      .previewCartCoupon({ code, items: items.map((i) => ({ eventId: i.eventId, amount: i.price })) })
+      .then((r) => setCoupon({ code, discountAmount: r.discountAmount }))
+      .catch(() => {
+        sessionStorage.removeItem('cart:coupon');
+        setCoupon(null);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
 
   const selectedMethod = paymentMethods.data?.find((m) => m.id === selectedMethodId);
 
@@ -38,7 +55,9 @@ export function CartCheckoutPageContent() {
       const result = await checkoutService.createCartSession({
         items: items.map((i) => ({ ticketProductId: i.ticketProductId, eventId: i.eventId })),
         provider: selectedMethod.provider as PaymentProvider,
+        couponCode: coupon?.code,
       });
+      sessionStorage.removeItem('cart:coupon');
       window.location.href = result.url;
     } catch {
       setPayError(true);
@@ -102,7 +121,7 @@ export function CartCheckoutPageContent() {
               disabled={!selectedMethodId || paying || items.length === 0}
               aria-busy={paying}
             >
-              {paying ? 'Processando…' : `Pagar ${formatPrice(totalAmount)}`}
+              {paying ? 'Processando…' : `Pagar ${formatPrice(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)))}`}
             </button>
 
             <div className={styles.secure}>
@@ -125,9 +144,17 @@ export function CartCheckoutPageContent() {
                   <span>{formatPrice(line.amount)}</span>
                 </div>
               ))}
+              {coupon && (
+                <div className={cartStyles.totalRow}>
+                  <span>Cupom {coupon.code}</span>
+                  <span>−{formatPrice(coupon.discountAmount)}</span>
+                </div>
+              )}
               <div className={cartStyles.totalRow}>
                 <span>Total</span>
-                <span className={cartStyles.totalValue}>{formatPrice(totalAmount)}</span>
+                <span className={cartStyles.totalValue}>
+                  {formatPrice(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)))}
+                </span>
               </div>
             </div>
           </aside>

@@ -18,16 +18,11 @@ interface Props {
 const brl = (n: number) =>
   n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-// Mirrors backend Coupon.computeDiscount — used to recompute org-scoped discount on org subtotal
-const computeDiscount = (type: string, value: number, amount: number): number => {
-  if (type === 'PERCENTAGE') return Math.min(Math.round((amount * value) / 100 * 100) / 100, amount);
-  return Math.min(value, amount);
-};
-
 interface AppliedCoupon {
   code: string;
   discountAmount: number;
   scopeOrgId: string | null;
+  eligibleEventIds: string[];
 }
 
 interface OrgGroup {
@@ -70,45 +65,33 @@ export function CartPageContent({ initialCart }: Props) {
     if (!code || items.length === 0) return;
     setIsApplying(true);
     setPromoError('');
-
-    let firstError: unknown = null;
-
-    for (const group of orgGroups) {
-      try {
-        // Always pass total subtotal → minimum order check compares against full cart value
-        const result = await checkoutService.previewCoupon({
-          code,
-          eventId: group.items[0].eventId,
-          orderAmount: subtotal,
-        });
-
-        const scopeOrgId = result.orgId ?? null;
-        let discountAmount = result.discountAmount; // correct for global (computed on total)
-
-        // Org-scoped: discount applies only to that org's items → recompute against org subtotal
-        if (scopeOrgId !== null) {
-          const orgSubtotal = group.items.reduce((a, i) => a + i.price, 0);
-          discountAmount = computeDiscount(result.discountType, result.discountValue, orgSubtotal);
-        }
-
-        setAppliedCoupon({ code, discountAmount, scopeOrgId });
-        setPromoState('ok');
-        setPromoCode('');
-        setIsApplying(false);
-        return;
-      } catch (err) {
-        if (!firstError) firstError = err;
-      }
+    try {
+      // Server-side scoped validation: discount computed only on eligible items
+      const result = await checkoutService.previewCartCoupon({
+        code,
+        items: items.map((i) => ({ eventId: i.eventId, amount: i.price })),
+      });
+      setAppliedCoupon({
+        code,
+        discountAmount: result.discountAmount,
+        scopeOrgId: result.orgId ?? null,
+        eligibleEventIds: result.eligibleEventIds,
+      });
+      sessionStorage.setItem('cart:coupon', JSON.stringify({ code }));
+      setPromoState('ok');
+      setPromoCode('');
+    } catch (err) {
+      const e = err as { response?: { data?: { message?: string } } };
+      setPromoError(e?.response?.data?.message ?? 'Cupom inválido ou expirado');
+      setPromoState('error');
+    } finally {
+      setIsApplying(false);
     }
-
-    const e = firstError as { response?: { data?: { message?: string } } };
-    setPromoError(e?.response?.data?.message ?? 'Cupom inválido ou expirado');
-    setPromoState('error');
-    setIsApplying(false);
   };
 
   const removePromo = () => {
     setAppliedCoupon(null);
+    sessionStorage.removeItem('cart:coupon');
     setPromoState('idle');
     setPromoError('');
   };
@@ -157,7 +140,7 @@ export function CartPageContent({ initialCart }: Props) {
                           <path d="M3 21h18M3 7v14M21 7v14M6 11h4M14 11h4M6 15h4M14 15h4M9 21v-6h6v6" />
                         </svg>
                         <span>{group.orgName}</span>
-                        {appliedCoupon?.scopeOrgId === group.orgId && (
+                        {group.items.some((i) => appliedCoupon?.eligibleEventIds.includes(i.eventId)) && (
                           <span className={styles.orgDiscountBadge}>
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                               <path d="M20 6L9 17l-5-5" />
