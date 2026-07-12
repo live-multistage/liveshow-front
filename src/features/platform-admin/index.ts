@@ -1,4 +1,7 @@
 export { PlatformAdminGuard } from './components/PlatformAdminGuard';
+export { OrganizationDirectoryPage } from './components/OrganizationDirectoryPage';
+export { OrganizationStatusBadge } from './components/OrganizationStatusBadge';
+export { PendingOrgsBadge } from './components/PendingOrgsBadge';
 export { useOrganizationDirectoryQuery } from './queries/get-organization-directory';
 export { useOrganizationDetailQuery } from './queries/get-organization-detail';
 export { useOrganizationMembersQuery } from './queries/get-organization-members';

@@ -40,6 +40,7 @@ export function DashboardSidebar() {
             >
               <Icon size={18} className={styles.navIcon} />
               {t(item.navKey as Parameters<typeof t>[0])}
+              {item.badge?.()}
             </Link>
           );
         })}

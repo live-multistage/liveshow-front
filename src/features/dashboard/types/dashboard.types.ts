@@ -1,3 +1,4 @@
+import { createElement, type ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   LayoutDashboard,
@@ -12,11 +13,13 @@ import {
   Users,
 } from 'lucide-react';
 import type { UserRole } from '@/types';
+import { PendingOrgsBadge } from '@/features/platform-admin/components/PendingOrgsBadge';
 
 export interface NavItem {
   navKey: string;
   href: string;
   icon: LucideIcon;
+  badge?: () => ReactNode;
 }
 
 export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
@@ -45,7 +48,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
   ],
   SUPER_ADMIN: [
-    { navKey: 'platformOrganizations', href: '/dashboard/platform/organizations', icon: ShieldCheck },
+    { navKey: 'platformOrganizations', href: '/dashboard/platform/organizations', icon: ShieldCheck, badge: () => createElement(PendingOrgsBadge) },
     { navKey: 'platformUsers',         href: '/dashboard/platform/users',        icon: Users },
   ],
 };
