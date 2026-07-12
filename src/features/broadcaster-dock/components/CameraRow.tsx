@@ -76,8 +76,12 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
     setAttaching(type);
     setSourceError(null);
     try {
-      await callVendorRequest('AttachCameraSource', { cameraId, sourceType: type });
-      setSourceType(type);
+      const data = await callVendorRequest('AttachCameraSource', { cameraId, sourceType: type });
+      if (data.sourceType === type) {
+        setSourceType(type);
+      } else {
+        setSourceError('Falha ao anexar fonte.');
+      }
     } catch (err) {
       setSourceError(err instanceof Error ? err.message : 'Falha ao anexar fonte.');
     } finally {
