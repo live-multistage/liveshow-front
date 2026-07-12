@@ -3,6 +3,7 @@ import type { SalesSummary, SalesGranularity, EventSalesResult } from '../types/
 import type { EventMetricsResult } from '../types/analytics.types';
 import type { ViewerAnalyticsResult } from '../types/viewer-analytics.types';
 import type { CameraBreakdownRow } from '../types/camera-breakdown.types';
+import type { NotificationBreakdownRow } from '../types/notification-breakdown.types';
 
 export const analyticsService = {
   getMySales: async (granularity: SalesGranularity): Promise<SalesSummary> => {
@@ -13,8 +14,9 @@ export const analyticsService = {
     const { data } = await httpClient.get<EventSalesResult>('/sales/events');
     return data;
   },
-  getEventMetrics: async (eventId: string): Promise<EventMetricsResult> => {
-    const { data } = await httpClient.get<EventMetricsResult>(`/analytics/events/${eventId}/metrics`);
+  getEventMetrics: async (eventId: string, range?: { from: Date; to: Date }): Promise<EventMetricsResult> => {
+    const params = range ? { from: range.from.toISOString(), to: range.to.toISOString() } : undefined;
+    const { data } = await httpClient.get<EventMetricsResult>(`/analytics/events/${eventId}/metrics`, { params });
     return data;
   },
   getViewerAnalytics: async (orgId: string, eventId: string): Promise<ViewerAnalyticsResult> => {
@@ -30,6 +32,10 @@ export const analyticsService = {
     const { data } = await httpClient.get<CameraBreakdownRow[]>(
       `/organizations/${orgId}/events/${eventId}/analytics/viewers/cameras`,
     );
+    return data;
+  },
+  getNotificationBreakdown: async (eventId: string): Promise<NotificationBreakdownRow[]> => {
+    const { data } = await httpClient.get<NotificationBreakdownRow[]>(`/analytics/events/${eventId}/notifications`);
     return data;
   },
 };

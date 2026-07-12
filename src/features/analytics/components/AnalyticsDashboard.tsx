@@ -13,10 +13,12 @@ import { useGetEventMetricsQuery } from '../hooks/use-event-metrics';
 import { useGetEventQuery } from '@/features/events/queries/get-event';
 import { useViewerAnalyticsQuery } from '../hooks/use-viewer-analytics';
 import { useCameraBreakdownQuery } from '../hooks/use-camera-breakdown';
+import { useNotificationBreakdownQuery } from '../hooks/use-notification-breakdown';
 import type { EventSalesRow } from '../types/sales.types';
 import type { ChartPoint } from '../types/analytics.types';
 import type { ViewerAnalyticsResult } from '../types/viewer-analytics.types';
 import type { CameraBreakdownRow } from '../types/camera-breakdown.types';
+import type { NotificationBreakdownRow } from '../types/notification-breakdown.types';
 import styles from './AnalyticsDashboard.module.scss';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
@@ -31,12 +33,6 @@ const ORIGIN_DATA = [
   { label: 'Recomendação',   pct: '22%', color: '#46d6d8', dasharray: '22 100', offset: -62 },
   { label: 'Notificação',    pct: '11%', color: '#ffd166', dasharray: '11 100', offset: -84 },
   { label: 'Outros',         pct: '5%',  color: '#7d7d85', dasharray: '5 100',  offset: -95 },
-];
-
-const NOTIF_DATA = [
-  { iconBg: 'rgba(255,46,158,.14)', iconColor: '#ff8ec9', icon: '🛒', title: 'Abandono de carrinho', sent: '234', clicks: '28 cliques', rate: '12%', ok: false },
-  { iconBg: 'rgba(155,123,255,.14)', iconColor: '#bba6ff', icon: '🔔', title: 'Lembrete 24h antes',  sent: '580', clicks: '238 cliques', rate: '41%', ok: true  },
-  { iconBg: 'rgba(255,46,158,.14)', iconColor: '#ff8ec9', icon: '▶',  title: 'Live começando',      sent: '312', clicks: '212 cliques', rate: '68%', ok: true  },
 ];
 
 const TICKET_BAR_COLORS = [
@@ -96,6 +92,13 @@ function fmtAvgWatch(seconds: number | null): string {
   const m = Math.floor((seconds % 3600) / 60);
   if (h > 0) return `${h}h ${m}min`;
   return `${m}min`;
+}
+
+function computeDelta(current: number, previous: number): { delta: string; deltaUp: boolean } | null {
+  if (previous === 0) return current > 0 ? { delta: '+100%', deltaUp: true } : null;
+  const pct = ((current - previous) / previous) * 100;
+  const sign = pct >= 0 ? '+' : '−';
+  return { delta: `${sign}${Math.abs(pct).toFixed(1).replace('.', ',')}%`, deltaUp: pct >= 0 };
 }
 
 // ─── KPI Card ─────────────────────────────────────────────────────
@@ -598,7 +601,15 @@ function CameraBreakdownSection({ rows, isLoading }: { rows: CameraBreakdownRow[
 }
 
 // ─── Notifications Panel ──────────────────────────────────────────
-function NotificationsPanel() {
+const NOTIFICATION_TYPE_LABEL: Record<string, string> = {
+  EVENT: 'Evento',
+  TICKET: 'Ingresso',
+  PAYMENT: 'Pagamento',
+  SYSTEM: 'Sistema',
+  RECOMMENDATION: 'Recomendação',
+};
+
+function NotificationsPanel({ rows, isLoading }: { rows: NotificationBreakdownRow[]; isLoading: boolean }) {
   return (
     <div className={`${styles.card} ${styles.cardNomarg}`}>
       <div className={styles.cardHeader}>
@@ -608,22 +619,29 @@ function NotificationsPanel() {
               <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.7 21a2 2 0 0 1-3.4 0" />
             </svg>
-            NOTIFICAÇÕES AUTOMÁTICAS
+            NOTIFICAÇÕES
           </div>
-          <div className={styles.cardSub}>Disparos do evento</div>
+          <div className={styles.cardSub}>Entregas e cliques por tipo</div>
         </div>
       </div>
 
+      {isLoading && <div className={styles.loadingRow}>CARREGANDO…</div>}
+      {!isLoading && rows.length === 0 && <div className={styles.loadingRow}>Nenhuma notificação enviada</div>}
+
       <div className={styles.notifList}>
-        {NOTIF_DATA.map((n) => (
-          <div key={n.title} className={styles.notifCard}>
-            <div className={styles.notifIcon} style={{ background: n.iconBg, color: n.iconColor }}>{n.icon}</div>
-            <div>
-              <div className={styles.notifTitle}>{n.title}</div>
-              <div className={styles.notifMeta}>{n.sent} usuários · {n.clicks}</div>
+        {rows.map((row) => (
+          <div key={row.notificationType} className={styles.notifCard}>
+            <div className={styles.notifIcon} style={{ background: 'rgba(155,123,255,.14)', color: '#bba6ff' }}>
+              🔔
             </div>
-            <span className={`${styles.notifRate} ${n.ok ? styles.notifRateOk : styles.notifRateWarn}`}>
-              {n.rate}
+            <div>
+              <div className={styles.notifTitle}>{NOTIFICATION_TYPE_LABEL[row.notificationType] ?? row.notificationType}</div>
+              <div className={styles.notifMeta}>
+                {row.deliveredCount.toLocaleString('pt-BR')} enviadas · {row.clickedCount.toLocaleString('pt-BR')} cliques
+              </div>
+            </div>
+            <span className={`${styles.notifRate} ${(row.clickRate ?? 0) >= 0.3 ? styles.notifRateOk : styles.notifRateWarn}`}>
+              {row.clickRate !== null ? `${(row.clickRate * 100).toFixed(0)}%` : '—'}
             </span>
           </div>
         ))}
@@ -640,6 +658,11 @@ interface AnalyticsDashboardProps {
 
 export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardProps) {
   const [range, setRange] = useState<Range>('24h');
+  const now = new Date();
+  const rangeWindow = range === 'all' ? undefined : {
+    from: new Date(now.getTime() - (range === '24h' ? 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000)),
+    to: now,
+  };
   const { data: eventSales, isLoading: salesLoading } = useGetEventSalesQuery();
 
   const events = eventSales?.events ?? [];
@@ -648,12 +671,13 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
   const totalOrders  = thisEvent?.totalOrders  ?? 0;
   const totalRevenue = thisEvent?.totalRevenue ?? 0;
 
-  const { data: metrics, isLoading: metricsLoading } = useGetEventMetricsQuery(eventId);
+  const { data: metrics, isLoading: metricsLoading } = useGetEventMetricsQuery(eventId, rangeWindow);
 
   const { data: eventData } = useGetEventQuery(eventId);
   const orgId = eventData?.organizationId;
   const { data: viewerAnalytics, isLoading: viewersLoading } = useViewerAnalyticsQuery(orgId, eventId);
   const { data: cameraBreakdown, isLoading: cameraBreakdownLoading } = useCameraBreakdownQuery(orgId, eventId);
+  const { data: notificationBreakdown, isLoading: notificationsLoading } = useNotificationBreakdownQuery(eventId);
 
   const funnel = metrics?.funnel ?? {
     viewCount: 0, uniqueViewCount: 0, cartAddCount: 0, purchaseCount: 0,
@@ -668,6 +692,19 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
   const completionPct  = funnel.completionRate !== null
     ? `${(funnel.completionRate * 100).toFixed(0)}% completion rate`
     : 'sem dados suficientes';
+
+  const current = metrics?.currentWindow ?? null;
+  const previous = metrics?.previousWindow ?? null;
+  const viewsDelta = current && previous ? computeDelta(current.viewCount, previous.viewCount) : null;
+  const conversionDelta = current && previous && current.viewCount > 0 && previous.viewCount > 0
+    ? computeDelta(
+        current.purchaseCount / current.viewCount,
+        previous.purchaseCount / previous.viewCount,
+      )
+    : null;
+  const avgWatchDelta = current && previous && current.avgWatchSeconds !== null && previous.avgWatchSeconds !== null
+    ? computeDelta(current.avgWatchSeconds, previous.avgWatchSeconds)
+    : null;
 
   const displayTitle = eventTitle ?? thisEvent?.eventTitle ?? '—';
 
@@ -729,8 +766,8 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
           iconBg="rgba(255,46,158,.14)"
           iconColor="#ff8ec9"
           iconPath={<><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></>}
-          delta="+24%"
-          deltaUp
+          delta={viewsDelta?.delta ?? ''}
+          deltaUp={viewsDelta?.deltaUp ?? true}
         />
         <KpiCard
           label="INGRESSOS VENDIDOS"
@@ -750,8 +787,8 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
           iconBg="rgba(70,214,216,.14)"
           iconColor="#46d6d8"
           iconPath={<path d="M3 4h18l-7 9v7l-4-2v-5z" />}
-          delta="−2,1%"
-          deltaUp={false}
+          delta={conversionDelta?.delta ?? ''}
+          deltaUp={conversionDelta?.deltaUp ?? true}
         />
         <KpiCard
           label="TEMPO MÉDIO ASSISTIDO"
@@ -760,8 +797,8 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
           iconBg="rgba(255,209,102,.14)"
           iconColor="#ffd166"
           iconPath={<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>}
-          delta="+8%"
-          deltaUp
+          delta={avgWatchDelta?.delta ?? ''}
+          deltaUp={avgWatchDelta?.deltaUp ?? true}
         />
         <KpiCard
           label="TROCAS DE CÂMERA"
@@ -805,7 +842,7 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
       {/* Ticket Table + Notifications */}
       <div className={styles.twoColBottom}>
         <TicketTable events={thisEvent ? [thisEvent] : []} isLoading={salesLoading} />
-        <NotificationsPanel />
+        <NotificationsPanel rows={notificationBreakdown ?? []} isLoading={notificationsLoading} />
       </div>
     </div>
   );
