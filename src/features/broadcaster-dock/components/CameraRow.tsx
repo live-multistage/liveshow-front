@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Video } from 'lucide-react';
+import { Settings, Video } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 
 type CallVendorRequest = (requestType: string, requestData?: Record<string, unknown>) => Promise<Record<string, unknown>>;
@@ -12,10 +12,16 @@ interface CameraRowProps {
   callVendorRequest: CallVendorRequest;
 }
 
+type SourceType = 'camera' | 'screen';
+
 export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRowProps) {
   const [canvasExists, setCanvasExists] = useState<boolean | null>(null);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [sourceType, setSourceType] = useState<SourceType | null>(null);
+  const [attaching, setAttaching] = useState<SourceType | null>(null);
+  const [sourceError, setSourceError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -30,6 +36,24 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
       cancelled = true;
     };
   }, [cameraId, callVendorRequest]);
+
+  useEffect(() => {
+    if (!canvasExists) return;
+    let cancelled = false;
+    callVendorRequest('GetCameraSourceStatus', { cameraId })
+      .then((data) => {
+        if (cancelled) return;
+        if (data.attached === true && (data.sourceType === 'camera' || data.sourceType === 'screen')) {
+          setSourceType(data.sourceType);
+        }
+      })
+      .catch(() => {
+        // leave sourceType as null — picker shows, worst case is re-picking
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [cameraId, canvasExists, callVendorRequest]);
 
   async function handleCreateCanvas() {
     setCreating(true);
@@ -48,6 +72,26 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
     }
   }
 
+  async function handleAttachSource(type: SourceType) {
+    setAttaching(type);
+    setSourceError(null);
+    try {
+      await callVendorRequest('AttachCameraSource', { cameraId, sourceType: type });
+      setSourceType(type);
+    } catch (err) {
+      setSourceError(err instanceof Error ? err.message : 'Falha ao anexar fonte.');
+    } finally {
+      setAttaching(null);
+    }
+  }
+
+  async function handleOpenProperties() {
+    // Best-effort: the dialog is a native OBS window, not something this
+    // component can reflect state from — a failure here just means the click
+    // didn't open anything, retrying is the only recovery available.
+    await callVendorRequest('OpenCameraSourceProperties', { cameraId }).catch(() => {});
+  }
+
   return (
     <div className="flex flex-col gap-1 py-1 pl-6">
       <div className="flex items-center justify-between gap-2 text-sm">
@@ -56,7 +100,6 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
           {cameraName}
         </span>
         {canvasExists === null && <span className="text-xs text-muted-foreground">Verificando...</span>}
-        {canvasExists === true && <span className="text-xs text-primary">Canvas ativo</span>}
         {canvasExists === false && (
           <Button size="sm" variant="outline" onClick={handleCreateCanvas} disabled={creating}>
             {creating ? 'Criando...' : 'Criar canvas'}
@@ -64,6 +107,35 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
         )}
       </div>
       {error && <p className="pl-5 text-xs text-destructive">{error}</p>}
+
+      {canvasExists === true && (
+        <div className="flex items-center justify-between gap-2 pl-5 text-xs">
+          {sourceType === null ? (
+            <div className="flex gap-2">
+              <Button size="sm" variant="ghost" onClick={() => handleAttachSource('camera')} disabled={attaching !== null}>
+                {attaching === 'camera' ? 'Anexando...' : 'Câmera'}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => handleAttachSource('screen')} disabled={attaching !== null}>
+                {attaching === 'screen' ? 'Anexando...' : 'Tela'}
+              </Button>
+            </div>
+          ) : (
+            <>
+              <span className="text-muted-foreground">Fonte: {sourceType === 'camera' ? 'Câmera' : 'Tela'}</span>
+              <div className="flex gap-2">
+                <Button size="sm" variant="ghost" onClick={handleOpenProperties}>
+                  <Settings className="h-3.5 w-3.5" />
+                  Configurar no OBS
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setSourceType(null)}>
+                  Trocar
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+      {sourceError && <p className="pl-5 text-xs text-destructive">{sourceError}</p>}
     </div>
   );
 }
