@@ -2,6 +2,7 @@
 export { OrganizationListPage } from './pages/OrganizationListPage';
 export { CreateOrganizationPage } from './pages/CreateOrganizationPage';
 export { OrganizationDashboardPage } from './pages/OrganizationDashboardPage';
+export { OrganizationAnalyticsPage } from './pages/OrganizationAnalyticsPage';
 export { MembersPage } from './pages/MembersPage';
 export { SettingsPage } from './pages/SettingsPage';
 export { PublicPreviewPage } from './pages/PublicPreviewPage';
