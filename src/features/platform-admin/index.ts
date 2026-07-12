@@ -6,6 +6,7 @@ export { CreateOrganizationDialog } from './components/CreateOrganizationDialog'
 export { ApproveOrgDialog } from './components/ApproveOrgDialog';
 export { RejectOrgDialog } from './components/RejectOrgDialog';
 export { OrgMembersPanel } from './components/OrgMembersPanel';
+export { OrgFeatureFlagsPanel } from './components/OrgFeatureFlagsPanel';
 export { OrganizationDetailPage } from './components/OrganizationDetailPage';
 export { useOrganizationDirectoryQuery } from './queries/get-organization-directory';
 export { useOrganizationDetailQuery } from './queries/get-organization-detail';
