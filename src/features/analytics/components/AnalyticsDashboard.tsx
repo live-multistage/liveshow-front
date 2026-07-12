@@ -12,9 +12,11 @@ import { useGetEventSalesQuery } from '../hooks/use-event-sales';
 import { useGetEventMetricsQuery } from '../hooks/use-event-metrics';
 import { useGetEventQuery } from '@/features/events/queries/get-event';
 import { useViewerAnalyticsQuery } from '../hooks/use-viewer-analytics';
+import { useCameraBreakdownQuery } from '../hooks/use-camera-breakdown';
 import type { EventSalesRow } from '../types/sales.types';
 import type { ChartPoint } from '../types/analytics.types';
 import type { ViewerAnalyticsResult } from '../types/viewer-analytics.types';
+import type { CameraBreakdownRow } from '../types/camera-breakdown.types';
 import styles from './AnalyticsDashboard.module.scss';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
@@ -555,6 +557,46 @@ function TicketTable({ events, isLoading }: { events: EventSalesRow[]; isLoading
   );
 }
 
+// ─── Camera Breakdown ──────────────────────────────────────────────
+function fmtDuration(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}min`;
+  return `${m}min`;
+}
+
+function CameraBreakdownSection({ rows, isLoading }: { rows: CameraBreakdownRow[]; isLoading: boolean }) {
+  return (
+    <div className={`${styles.card} ${styles.cardNomarg}`}>
+      <div className={styles.cardHeader}>
+        <div>
+          <div className={styles.cardTitle}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff5fb4" strokeWidth="2">
+              <rect x="3" y="5" width="14" height="14" rx="2" /><path d="M17 9l4-2v10l-4-2" />
+            </svg>
+            CÂMERAS
+          </div>
+          <div className={styles.cardSub}>Uso por câmera durante o evento</div>
+        </div>
+      </div>
+
+      {isLoading && <div className={styles.loadingRow}>CARREGANDO…</div>}
+      {!isLoading && rows.length === 0 && <div className={styles.loadingRow}>Nenhuma visualização registrada</div>}
+
+      {rows.map((row) => (
+        <div key={row.cameraId} className={styles.ticketRow}>
+          <div>
+            <div className={styles.ticketName}>{row.cameraName}</div>
+          </div>
+          <div className={styles.ticketRevenue}>{row.viewCount.toLocaleString('pt-BR')} views</div>
+          <div className={styles.ticketRevenue}>{row.uniqueVisits.toLocaleString('pt-BR')} visitas únicas</div>
+          <div className={styles.ticketRevenue}>{fmtDuration(row.totalDurationSeconds)}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ─── Notifications Panel ──────────────────────────────────────────
 function NotificationsPanel() {
   return (
@@ -611,10 +653,12 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
   const { data: eventData } = useGetEventQuery(eventId);
   const orgId = eventData?.organizationId;
   const { data: viewerAnalytics, isLoading: viewersLoading } = useViewerAnalyticsQuery(orgId, eventId);
+  const { data: cameraBreakdown, isLoading: cameraBreakdownLoading } = useCameraBreakdownQuery(orgId, eventId);
 
   const funnel = metrics?.funnel ?? {
     viewCount: 0, uniqueViewCount: 0, cartAddCount: 0, purchaseCount: 0,
     viewToCartRate: null, cartToPurchaseRate: null, avgWatchSeconds: null, completionRate: null,
+    cameraSwitchCount: 0,
   };
   const chartSeries  = metrics?.chart ?? [];
   const peakViewers  = metrics?.peakViewers ?? 0;
@@ -719,6 +763,16 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
           delta="+8%"
           deltaUp
         />
+        <KpiCard
+          label="TROCAS DE CÂMERA"
+          value={metricsLoading ? '…' : fmtCompact(funnel.cameraSwitchCount)}
+          sub="mudanças de ângulo/grade"
+          iconBg="rgba(187,166,255,.14)"
+          iconColor="#bba6ff"
+          iconPath={<><rect x="3" y="5" width="14" height="14" rx="2" /><path d="M17 9l4-2v10l-4-2" /></>}
+          delta=""
+          deltaUp
+        />
       </div>
 
       {/* Viewers */}
@@ -733,6 +787,9 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
         cartToPurchaseRate={funnel.cartToPurchaseRate}
         isLoading={metricsLoading}
       />
+
+      {/* Cameras */}
+      <CameraBreakdownSection rows={cameraBreakdown ?? []} isLoading={cameraBreakdownLoading} />
 
       {/* Engagement + Origin */}
       <div className={styles.twoCol}>
