@@ -74,6 +74,21 @@ export interface CouponPreviewResult {
   eventId: string | null;
 }
 
+export interface CartCouponPreviewRequest {
+  code: string;
+  items: { eventId: string; amount: number }[];
+}
+
+export interface CartCouponPreviewResult {
+  couponId: string;
+  discountType: string;
+  discountValue: number;
+  discountAmount: number;
+  orgId: string | null;
+  eventId: string | null;
+  eligibleEventIds: string[];
+}
+
 export interface ProcessPaymentRequest {
   sessionId: string;
   provider: PaymentProvider;

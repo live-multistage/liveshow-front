@@ -5,6 +5,8 @@ import type {
   CartCheckoutResult,
   CouponPreviewRequest,
   CouponPreviewResult,
+  CartCouponPreviewRequest,
+  CartCouponPreviewResult,
   ProcessPaymentRequest,
   ProcessPaymentResult,
   PaymentMethod,
@@ -42,10 +44,16 @@ export const checkoutService = {
     return data;
   },
 
+  previewCartCoupon: async (payload: CartCouponPreviewRequest): Promise<CartCouponPreviewResult> => {
+    const { data } = await httpClient.post<CartCouponPreviewResult>('/coupons/preview-cart', payload);
+    return data;
+  },
+
   createCartSession: async (payload: {
     items: { ticketProductId: string; eventId: string }[];
     provider: PaymentProvider;
     currency?: string;
+    couponCode?: string;
   }): Promise<CartCheckoutResult> => {
     const { data } = await httpClient.post<CartCheckoutResult>('/payments/cart-session', payload);
     return data;
