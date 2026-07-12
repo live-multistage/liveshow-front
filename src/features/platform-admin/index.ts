@@ -8,6 +8,7 @@ export { RejectOrgDialog } from './components/RejectOrgDialog';
 export { OrgMembersPanel } from './components/OrgMembersPanel';
 export { OrgFeatureFlagsPanel } from './components/OrgFeatureFlagsPanel';
 export { OrganizationDetailPage } from './components/OrganizationDetailPage';
+export { UserRoleSearchPage } from './components/UserRoleSearchPage';
 export { useOrganizationDirectoryQuery } from './queries/get-organization-directory';
 export { useOrganizationDetailQuery } from './queries/get-organization-detail';
 export { useOrganizationMembersQuery } from './queries/get-organization-members';
