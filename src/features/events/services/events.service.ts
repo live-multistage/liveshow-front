@@ -1,15 +1,12 @@
 import { httpClient } from '@/lib/http/client';
-import type { CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, RecommendedEventsResponse, TicketProductResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
-
-interface FeedOutput {
-  events: Array<{ event: EventResponse; score: number }>;
-  total: number;
-}
+import type { CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
 
 export const eventsService = {
-  listEvents: async (filter: ListEventsFilter = 'all'): Promise<EventResponse[]> => {
-    const { data } = await httpClient.get<FeedOutput>('/v1/feed', { params: { filter } });
-    return data.events.map((item) => item.event);
+  listEvents: async (filter: ListEventsFilter = 'all', page = 1, pageSize = 50): Promise<PaginatedEventsResponse> => {
+    const { data } = await httpClient.get<PaginatedEventsResponse>('/events', {
+      params: { filter, page, pageSize },
+    });
+    return data;
   },
 
   getRecommendedEvents: async (): Promise<RecommendedEventsResponse> => {
@@ -19,8 +16,10 @@ export const eventsService = {
     return data;
   },
 
-  searchEvents: async (title: string): Promise<EventResponse[]> => {
-    const { data } = await httpClient.get<EventResponse[]>('/events/search', { params: { title } });
+  searchEvents: async (title: string, page = 1, pageSize = 20): Promise<PaginatedEventsResponse> => {
+    const { data } = await httpClient.get<PaginatedEventsResponse>('/events/search', {
+      params: { title, page, pageSize },
+    });
     return data;
   },
 

@@ -7,17 +7,21 @@ import type { EventResponse } from '../types/event.types';
 const apiBase = () =>
   (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api').replace(/\/$/, '');
 
-interface FeedOutput {
-  events: Array<{ event: EventResponse; score: number }>;
+interface PaginatedEventsOutput {
+  items: EventResponse[];
+  page: number;
+  pageSize: number;
   total: number;
 }
 
+// First page only (pageSize 50, the API max) — seeds useListEventsQuery,
+// which fetches the same page client-side.
 export const fetchFeed = cache(async (): Promise<EventResponse[]> => {
   try {
-    const res = await fetch(`${apiBase()}/v1/feed?filter=all`, { next: { revalidate: 30 } });
+    const res = await fetch(`${apiBase()}/events?filter=all&pageSize=50`, { next: { revalidate: 30 } });
     if (!res.ok) return [];
-    const data = (await res.json()) as FeedOutput;
-    return data.events.map((item) => item.event);
+    const data = (await res.json()) as PaginatedEventsOutput;
+    return data.items;
   } catch {
     return [];
   }
