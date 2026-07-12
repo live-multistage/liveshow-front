@@ -1,0 +1,33 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.slug {
+  color: var(--muted-foreground);
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.rejectionReason {
+  color: var(--destructive);
+  font-size: 0.9rem;
+}

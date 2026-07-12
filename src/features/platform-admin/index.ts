@@ -5,6 +5,8 @@ export { PendingOrgsBadge } from './components/PendingOrgsBadge';
 export { CreateOrganizationDialog } from './components/CreateOrganizationDialog';
 export { ApproveOrgDialog } from './components/ApproveOrgDialog';
 export { RejectOrgDialog } from './components/RejectOrgDialog';
+export { OrgMembersPanel } from './components/OrgMembersPanel';
+export { OrganizationDetailPage } from './components/OrganizationDetailPage';
 export { useOrganizationDirectoryQuery } from './queries/get-organization-directory';
 export { useOrganizationDetailQuery } from './queries/get-organization-detail';
 export { useOrganizationMembersQuery } from './queries/get-organization-members';
