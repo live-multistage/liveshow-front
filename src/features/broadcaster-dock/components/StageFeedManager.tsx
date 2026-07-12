@@ -14,9 +14,10 @@ interface StageFeedManagerProps {
   streamStatus: StreamStatus;
   onContinue: () => void;
   onBack: () => void;
+  callVendorRequest: (requestType: string, requestData?: Record<string, unknown>) => Promise<Record<string, unknown>>;
 }
 
-export function StageFeedManager({ streamId, streamStatus, onContinue, onBack }: StageFeedManagerProps) {
+export function StageFeedManager({ streamId, streamStatus, onContinue, onBack, callVendorRequest }: StageFeedManagerProps) {
   const stagesQuery = useStreamStagesQuery(streamId);
   const createStage = useCreateStageMutation(streamId);
   const deleteStage = useDeleteStageMutation(streamId);
@@ -57,6 +58,7 @@ export function StageFeedManager({ streamId, streamStatus, onContinue, onBack }:
           canCreate={canCreate}
           canDelete={canDelete}
           onDeleteStage={(id) => deleteStage.mutate(id)}
+          callVendorRequest={callVendorRequest}
         />
       ))}
       {canCreate && !creatingOpen && (

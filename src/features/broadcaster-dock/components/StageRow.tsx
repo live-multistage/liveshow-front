@@ -8,6 +8,9 @@ import type { StageResponse } from '@/features/streams/types/stream.types';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Card } from '@/shared/components/ui/card';
+import { FeedRow } from './FeedRow';
+
+type CallVendorRequest = (requestType: string, requestData?: Record<string, unknown>) => Promise<Record<string, unknown>>;
 
 interface InlineCreateRowProps {
   placeholder: string;
@@ -60,41 +63,15 @@ function InlineCreateRow({ placeholder, isPending, error, onCreate }: InlineCrea
   );
 }
 
-function FeedRow({
-  feedId,
-  feedName,
-  canDelete,
-  onDelete,
-}: {
-  feedId: string;
-  feedName: string;
-  canDelete: boolean;
-  onDelete: (id: string) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-2 py-1 pl-6 text-sm">
-      <span className="truncate">{feedName}</span>
-      {canDelete && (
-        <button
-          type="button"
-          onClick={() => onDelete(feedId)}
-          className="text-muted-foreground hover:text-destructive"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
-      )}
-    </div>
-  );
-}
-
 interface StageRowProps {
   stage: StageResponse;
   canCreate: boolean;
   canDelete: boolean;
   onDeleteStage: (id: string) => void;
+  callVendorRequest: CallVendorRequest;
 }
 
-export function StageRow({ stage, canCreate, canDelete, onDeleteStage }: StageRowProps) {
+export function StageRow({ stage, canCreate, canDelete, onDeleteStage, callVendorRequest }: StageRowProps) {
   const [expanded, setExpanded] = useState(false);
   const feedsQuery = useStageFeedsQuery(expanded ? stage.id : null);
   const createFeed = useCreateFeedMutation(stage.id);
@@ -134,6 +111,7 @@ export function StageRow({ stage, canCreate, canDelete, onDeleteStage }: StageRo
               feedName={feed.name}
               canDelete={canDelete}
               onDelete={(id) => deleteFeed.mutate(id)}
+              callVendorRequest={callVendorRequest}
             />
           ))}
           {canCreate && (

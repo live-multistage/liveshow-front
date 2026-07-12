@@ -117,6 +117,7 @@ export function EventStreamPicker({ callVendorRequest, onSelected, userId }: Eve
           setPhase('stream-list');
           setSelectedStream(null);
         }}
+        callVendorRequest={callVendorRequest}
       />
     );
   }
