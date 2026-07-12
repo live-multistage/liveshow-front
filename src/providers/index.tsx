@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import { isServer, QueryClient, QueryClientProvider, HydrationBoundary, type DehydratedState } from '@tanstack/react-query';
+import { captureAttribution } from '@/lib/analytics/attribution';
 import { Toaster } from '@/shared/components/ui/sonner';
 import { NavigationEvents } from '@/shared/components/NavigationEvents';
 import { NavigationOverlay } from '@/shared/components/NavigationOverlay';
@@ -40,6 +42,11 @@ interface ProvidersProps {
 
 export function Providers({ children, initialIsLoggedIn, initialUser, dehydratedState }: ProvidersProps) {
   const queryClient = getQueryClient();
+
+  useEffect(() => {
+    captureAttribution();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <HydrationBoundary state={dehydratedState}>
