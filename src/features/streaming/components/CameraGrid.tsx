@@ -194,13 +194,24 @@ export function CameraGrid({
   // measured. Rendering it only once mainCamera exists left the ref unattached
   // (the effect had already run against the empty-state branch), so `size`
   // stayed 0 and the grid layout, which needs it, produced nothing.
+  //
+  // We render a VideoPanel for EVERY stage camera (not just the active ones),
+  // keyed by cameraId. Cameras not in the active selection sit at HIDDEN_STYLE
+  // (opacity 0, decoding in the background). So the first time the page mounts,
+  // all cameras load their HLS once and keep playing at the live edge —
+  // adding/selecting one from the picker just reveals it (a role/rect change),
+  // never a fresh hls.js load, so there is no reload jump or desync.
+  //
+  // ponytail: every stage camera streams from page load. Fine for the handful a
+  // stage has; cap or lower-rendition the hidden ones if a big stage hurts
+  // bandwidth/CPU.
   return (
     <div ref={stageRef} className={styles.stage} data-mode={effectiveMode}>
       {!mainCamera && <div className={styles.emptyState}>Nenhuma câmera ativa</div>}
-      {mainCamera && activeCameras.map((cam) => {
+      {cameras.map((cam) => {
         const slot = layouts.get(cam.cameraId) ?? { role: 'hidden' as Role, style: HIDDEN_STYLE };
         const { role } = slot;
-        const isPrimary = cam.cameraId === mainCamera.cameraId;
+        const isPrimary = !!mainCamera && cam.cameraId === mainCamera.cameraId;
         const clickable = role === 'pip' || role === 'rail' || role === 'grid';
 
         const onSelect = clickable
