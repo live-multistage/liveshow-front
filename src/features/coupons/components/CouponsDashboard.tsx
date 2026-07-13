@@ -1,46 +1,84 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Plus, Power, PowerOff, Tag } from 'lucide-react';
+import { Plus, Search, Ticket, Building2, Calendar, CheckCheck, Gift, TimerOff, ChevronDown } from 'lucide-react';
 import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
 import { useMyEventsQuery } from '@/features/events';
 import { useListCouponsQuery } from '../queries/use-coupons';
-import { useCreateCouponMutation, useDeactivateCouponMutation, useActivateCouponMutation } from '../mutations/coupon.mutations';
+import {
+  useCreateCouponMutation,
+  useDeactivateCouponMutation,
+  useActivateCouponMutation,
+} from '../mutations/coupon.mutations';
 import { CreateCouponModal } from './CreateCouponModal';
 import type { CreateCouponRequest, CouponResponse } from '../types/coupon.types';
 import styles from './CouponsDashboard.module.scss';
 
-function formatDiscount(coupon: CouponResponse): string {
-  if (coupon.discountType === 'PERCENTAGE') return `${coupon.discountValue}%`;
-  return coupon.discountValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+type TabId = 'all' | 'active' | 'inactive';
+
+const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+function daysUntil(expiresAt: string | null): number | null {
+  if (!expiresAt) return null;
+  return Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 86_400_000);
 }
 
-function formatExpiry(expiresAt: string | null): string {
-  if (!expiresAt) return '—';
-  return new Date(expiresAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-}
+const isExpired = (coupon: CouponResponse) => {
+  const days = daysUntil(coupon.expiresAt);
+  return days !== null && days < 0;
+};
 
-function StatusBadge({ isActive }: { isActive: boolean }) {
+const isLive = (coupon: CouponResponse) => coupon.isActive && !isExpired(coupon);
+
+function KpiCard({ icon, label, value, sub, accent }: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  sub: string;
+  accent?: boolean;
+}) {
   return (
-    <span className={`${styles.badge} ${isActive ? styles.badgeActive : styles.badgeInactive}`}>
-      {isActive ? 'Ativo' : 'Inativo'}
-    </span>
+    <div className={styles.kpiCard}>
+      {accent && <div className={styles.kpiGlow} />}
+      <div className={styles.kpiLabel}>{icon}{label}</div>
+      <div className={styles.kpiValue}>{value}</div>
+      <div className={styles.kpiSub}>{sub}</div>
+    </div>
   );
+}
+
+function StatusPill({ coupon }: { coupon: CouponResponse }) {
+  if (isExpired(coupon)) {
+    return <span className={`${styles.statusPill} ${styles.statusExpired}`}>EXPIRADO</span>;
+  }
+  if (coupon.isActive) {
+    return (
+      <span className={`${styles.statusPill} ${styles.statusActive}`}>
+        <span className={styles.pulseDotGreen} />ATIVO
+      </span>
+    );
+  }
+  return <span className={`${styles.statusPill} ${styles.statusInactive}`}>INATIVO</span>;
 }
 
 export function CouponsDashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>(undefined);
+  const [tab, setTab] = useState<TabId>('all');
+  const [query, setQuery] = useState('');
 
   const { data: orgs = [], isLoading: orgsLoading } = useMyOrganizationsQuery();
-  const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>(undefined);
   const orgId = selectedOrgId ?? orgs[0]?.id;
+  const orgName = orgs.find((o) => o.id === orgId)?.name ?? '';
 
   const { data: coupons = [], isLoading: couponsLoading } = useListCouponsQuery(orgId);
   const { data: myEvents } = useMyEventsQuery();
   const createMutation = useCreateCouponMutation(orgId);
   const deactivateMutation = useDeactivateCouponMutation(orgId);
   const activateMutation = useActivateCouponMutation(orgId);
+
+  const isLoading = orgsLoading || couponsLoading;
 
   // Only upcoming/ongoing events of this org make sense as coupon targets
   const eventOptions = useMemo(
@@ -52,14 +90,46 @@ export function CouponsDashboard() {
     [myEvents, orgId],
   );
 
-  const scopeLabel = (coupon: CouponResponse) =>
-    coupon.eventId
-      ? (myEvents?.find((e) => e.id === coupon.eventId)?.title ?? coupon.eventId.slice(0, 8))
-      : (coupon.orgIds?.length ?? 0) > 1 // stale cached payloads may predate orgIds
-        ? 'Todas as orgs'
-        : 'Org toda';
+  const counts = useMemo(() => ({
+    all: coupons.length,
+    active: coupons.filter(isLive).length,
+    inactive: coupons.filter((c) => !isLive(c)).length,
+  }), [coupons]);
 
-  const isLoading = orgsLoading || couponsLoading;
+  const totalUses = useMemo(() => coupons.reduce((sum, c) => sum + c.usesCount, 0), [coupons]);
+  const expiringSoon = useMemo(
+    () => coupons.filter((c) => {
+      const days = daysUntil(c.expiresAt);
+      return isLive(c) && days !== null && days <= 30;
+    }).length,
+    [coupons],
+  );
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toUpperCase();
+    return coupons.filter((c) => {
+      if (tab === 'active' && !isLive(c)) return false;
+      if (tab === 'inactive' && isLive(c)) return false;
+      if (q && !c.code.includes(q)) return false;
+      return true;
+    });
+  }, [coupons, tab, query]);
+
+  const scopeOf = (coupon: CouponResponse): { label: string; kind: 'event' | 'org' } => {
+    if (coupon.eventId) {
+      return {
+        label: myEvents?.find((e) => e.id === coupon.eventId)?.title ?? coupon.eventId.slice(0, 8),
+        kind: 'event',
+      };
+    }
+    return { label: (coupon.orgIds?.length ?? 0) > 1 ? 'Todas as orgs' : 'Org toda', kind: 'org' };
+  };
+
+  const toggle = (coupon: CouponResponse) => {
+    if (coupon.isActive) deactivateMutation.mutate(coupon.id);
+    else activateMutation.mutate(coupon.id);
+  };
+  const toggling = deactivateMutation.isPending || activateMutation.isPending;
 
   const handleCreate = (payload: CreateCouponRequest) => {
     setCreateError(null);
@@ -72,120 +142,210 @@ export function CouponsDashboard() {
     });
   };
 
-  const handleDeactivate = (id: string) => {
-    deactivateMutation.mutate(id);
-  };
-
   if (!orgsLoading && orgs.length === 0) {
     return (
       <div className={styles.empty}>
-        <Tag size={32} className={styles.emptyIcon} />
-        <p className={styles.emptyText}>Nenhuma organização encontrada.</p>
+        <div className={styles.emptyIcon}><Ticket size={24} /></div>
+        <div className={styles.emptyTitle}>Nenhuma organização encontrada</div>
+        <div className={styles.emptyText}>Crie uma organização para gerenciar cupons.</div>
       </div>
     );
   }
 
+  const tabs: { id: TabId; label: string }[] = [
+    { id: 'all', label: 'TODOS' },
+    { id: 'active', label: 'ATIVOS' },
+    { id: 'inactive', label: 'INATIVOS' },
+  ];
+
   return (
     <div className={styles.page}>
-      <div className={styles.toolbar}>
-        <p className={styles.subtitle}>
-          {!isLoading && `${coupons.length} cupom${coupons.length !== 1 ? 'ns' : ''}`}
-        </p>
-        {orgs.length > 1 && (
-          <select
-            className={styles.orgSelect}
-            value={orgId ?? ''}
-            onChange={(e) => setSelectedOrgId(e.target.value)}
-            aria-label="Organização"
-          >
-            {orgs.map((o) => (
-              <option key={o.id} value={o.id}>{o.name}</option>
-            ))}
-          </select>
-        )}
-        <button
-          className={styles.createBtn}
-          onClick={() => { setCreateError(null); setModalOpen(true); }}
-          disabled={!orgId}
-        >
-          <Plus size={15} />
-          Criar Cupom
-        </button>
+      <div className={styles.breadcrumb}>
+        <span>PAINEL</span>
+        <span className={styles.crumbSep}>/</span>
+        <span className={styles.crumbCurrent}>CUPONS</span>
       </div>
 
-      {isLoading ? (
-        <div className={styles.loadingWrap}>
-          <span className={styles.spinner} />
+      <div className={styles.pageHeader}>
+        <div>
+          <div className={styles.headerMeta}>
+            <span className={styles.activeBadge}>
+              <span className={styles.pulseDot} />
+              {counts.active} ATIVOS
+            </span>
+            <span className={styles.headerCount}>
+              {counts.all} cupons{orgName ? ` · ${orgName}` : ''}
+            </span>
+          </div>
+          <h1 className={styles.title}>Cupons</h1>
+          <div className={styles.subtitle}>
+            Códigos de desconto para toda a organização ou eventos específicos.
+          </div>
         </div>
-      ) : coupons.length === 0 ? (
-        <div className={styles.empty}>
-          <Tag size={32} className={styles.emptyIcon} />
-          <p className={styles.emptyText}>Nenhum cupom criado ainda.</p>
-          <button className={styles.createBtn} onClick={() => setModalOpen(true)}>
-            <Plus size={15} /> Criar primeiro cupom
+
+        <div className={styles.headerActions}>
+          {orgs.length > 1 && (
+            <div className={styles.orgSelectWrap}>
+              <Building2 size={15} />
+              <select
+                value={orgId ?? ''}
+                onChange={(e) => setSelectedOrgId(e.target.value)}
+                aria-label="Organização"
+              >
+                {orgs.map((o) => (
+                  <option key={o.id} value={o.id}>{o.name}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className={styles.chevron} />
+            </div>
+          )}
+          <button
+            className={styles.createBtn}
+            onClick={() => { setCreateError(null); setModalOpen(true); }}
+            disabled={!orgId}
+          >
+            <Plus size={15} strokeWidth={2.6} />
+            Criar Cupom
           </button>
         </div>
-      ) : (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.th}>Código</th>
-                <th className={styles.th}>Escopo</th>
-                <th className={styles.th}>Desconto</th>
-                <th className={styles.th}>Usos</th>
-                <th className={styles.th}>Pedido mín.</th>
-                <th className={styles.th}>Validade</th>
-                <th className={styles.th}>Status</th>
-                <th className={styles.th}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {coupons.map((coupon) => (
-                <tr key={coupon.id} className={styles.tr}>
-                  <td className={styles.td}>
-                    <span className={styles.code}>{coupon.code}</span>
-                  </td>
-                  <td className={styles.td}>{scopeLabel(coupon)}</td>
-                  <td className={styles.td}>{formatDiscount(coupon)}</td>
-                  <td className={styles.td}>
-                    {coupon.usesCount}
-                    {coupon.maxUses != null && <span className={styles.muted}> / {coupon.maxUses}</span>}
-                  </td>
-                  <td className={styles.td}>
-                    {coupon.minOrderAmount != null
-                      ? coupon.minOrderAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-                      : '—'}
-                  </td>
-                  <td className={styles.td}>{formatExpiry(coupon.expiresAt)}</td>
-                  <td className={styles.td}><StatusBadge isActive={coupon.isActive} /></td>
-                  <td className={styles.td}>
-                    {coupon.isActive ? (
-                      <button
-                        className={styles.deactivateBtn}
-                        onClick={() => handleDeactivate(coupon.id)}
-                        disabled={deactivateMutation.isPending}
-                        title="Desativar cupom"
-                      >
-                        <PowerOff size={14} />
-                      </button>
-                    ) : (
-                      <button
-                        className={styles.deactivateBtn}
-                        onClick={() => activateMutation.mutate(coupon.id)}
-                        disabled={activateMutation.isPending}
-                        title="Reativar cupom"
-                      >
-                        <Power size={14} />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      </div>
+
+      <div className={styles.kpiGrid}>
+        <KpiCard icon={<Ticket size={13} />} label="TOTAL DE CUPONS" value={String(counts.all)} sub="nesta organização" accent />
+        <KpiCard icon={<CheckCheck size={13} />} label="CUPONS ATIVOS" value={String(counts.active)} sub={`${counts.inactive} inativos / expirados`} />
+        <KpiCard icon={<Gift size={13} />} label="RESGATES" value={totalUses.toLocaleString('pt-BR')} sub="usos acumulados" />
+        <KpiCard icon={<TimerOff size={13} />} label="EXPIRAM EM BREVE" value={String(expiringSoon)} sub="próximos 30 dias" />
+      </div>
+
+      <div className={styles.filtersBar}>
+        <div className={styles.tabs}>
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              className={`${styles.tab} ${tab === t.id ? styles.tabActive : ''}`}
+              onClick={() => setTab(t.id)}
+            >
+              {t.label}
+              <span className={styles.tabCount}>{counts[t.id]}</span>
+            </button>
+          ))}
         </div>
-      )}
+
+        <div className={styles.searchBox}>
+          <Search size={14} />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar por código..."
+            aria-label="Buscar cupom por código"
+          />
+        </div>
+      </div>
+
+      <div className={styles.list}>
+        <div className={styles.listHeader}>
+          <span>CÓDIGO</span>
+          <span>ESCOPO</span>
+          <span>DESCONTO</span>
+          <span>USOS</span>
+          <span>PEDIDO MÍN.</span>
+          <span>VALIDADE</span>
+          <span className={styles.thRight}>STATUS</span>
+        </div>
+
+        {isLoading ? (
+          <div className={styles.loadingWrap}><span className={styles.spinner} /></div>
+        ) : filtered.length === 0 ? (
+          <div className={styles.empty}>
+            <div className={styles.emptyIcon}><Ticket size={24} /></div>
+            <div className={styles.emptyTitle}>Nenhum cupom encontrado</div>
+            <div className={styles.emptyText}>
+              {counts.all === 0 ? 'Crie seu primeiro cupom para começar.' : 'Ajuste os filtros ou crie um novo cupom.'}
+            </div>
+          </div>
+        ) : (
+          filtered.map((coupon) => {
+            const expired = isExpired(coupon);
+            const scope = scopeOf(coupon);
+            const days = daysUntil(coupon.expiresAt);
+            const usesPct = coupon.maxUses
+              ? Math.min(100, Math.round((coupon.usesCount / coupon.maxUses) * 100))
+              : 0;
+
+            return (
+              <div key={coupon.id} className={`${styles.row} ${expired ? styles.expired : ''}`}>
+                <div className={styles.codeCell}>
+                  <div className={styles.codeIcon}><Ticket size={16} /></div>
+                  <span className={styles.codeChip}>{coupon.code}</span>
+                </div>
+
+                <div className={styles.scopeCell}>
+                  {scope.kind === 'event' ? <Calendar size={13} /> : <Building2 size={13} />}
+                  {scope.label}
+                </div>
+
+                <div>
+                  <div className={styles.discountValue}>
+                    {coupon.discountType === 'PERCENTAGE' ? `${coupon.discountValue}%` : brl(coupon.discountValue)}
+                  </div>
+                  <div className={styles.discountKind}>
+                    {coupon.discountType === 'PERCENTAGE' ? 'PERCENTUAL' : 'VALOR FIXO'}
+                  </div>
+                </div>
+
+                <div>
+                  <div className={styles.usesValue}>
+                    {coupon.usesCount}
+                    {coupon.maxUses != null && <span> / {coupon.maxUses}</span>}
+                  </div>
+                  {coupon.maxUses != null ? (
+                    <div className={styles.usesBar}><div style={{ width: `${usesPct}%` }} /></div>
+                  ) : (
+                    <div className={styles.usesUnlimited}>ILIMITADO</div>
+                  )}
+                </div>
+
+                <div className={`${styles.minOrder} ${coupon.minOrderAmount == null ? styles.minEmpty : ''}`}>
+                  {coupon.minOrderAmount != null ? brl(coupon.minOrderAmount) : '—'}
+                </div>
+
+                <div>
+                  <div className={styles.expiryDate}>
+                    {coupon.expiresAt
+                      ? new Date(coupon.expiresAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                      : '—'}
+                  </div>
+                  {days !== null && (
+                    <div
+                      className={`${styles.expiryRemain} ${days < 0 ? styles.remainOver : days <= 30 ? styles.remainSoon : ''}`}
+                    >
+                      {days < 0 ? 'ENCERRADO' : days <= 30 ? `EXPIRA EM ${days}D` : `${days} DIAS REST.`}
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.statusCell}>
+                  <StatusPill coupon={coupon} />
+                  {expired ? (
+                    <div className={styles.togglePlaceholder} />
+                  ) : (
+                    <button
+                      className={`${styles.toggle} ${coupon.isActive ? styles.toggleOn : ''}`}
+                      onClick={() => toggle(coupon)}
+                      disabled={toggling}
+                      role="switch"
+                      aria-checked={coupon.isActive}
+                      title={coupon.isActive ? 'Desativar cupom' : 'Reativar cupom'}
+                      aria-label={coupon.isActive ? `Desativar cupom ${coupon.code}` : `Reativar cupom ${coupon.code}`}
+                    />
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
 
       {orgId && (
         <CreateCouponModal
