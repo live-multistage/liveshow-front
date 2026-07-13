@@ -32,15 +32,18 @@
 }
 
 // ── Horizontal layout ─────────────────────────────────────────────
-// note: cardLink carries the row layout (not .card) so cardFooter stays
-// a full-width block below the image+content row instead of a 3rd flex
-// item beside it — visual compromise, see task-2-report.md.
+// cardLink carries the row layout (not .card) so cardFooter can live
+// outside the anchor. min-height stays on the card (as originally),
+// and the footer margins reproduce the original text-column insets
+// (200px image + 20px content padding).
 
 .cardHorizontal {
+  min-height: 162px;
+
   & .cardLink {
     display: flex;
     flex-direction: row;
-    min-height: 162px;
+    flex: 1;
   }
 
   & .imageWrapper {
@@ -53,6 +56,12 @@
   & .content {
     flex: 1;
     min-width: 0;
+  }
+
+  & .cardFooter {
+    margin-left: 220px;
+    margin-right: 20px;
+    padding: 14px 0 20px;
   }
 
   & .genreLabel { display: none; }
