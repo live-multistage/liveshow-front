@@ -239,6 +239,9 @@ export function CameraGrid({
               onMutedChange={onMutedChange}
               volume={volume}
               selectedLevel={selectedLevel}
+              // Background/small tiles decode at the lowest rendition to save
+              // CPU/bandwidth; the main view and full-size grid tiles stay full.
+              lowQuality={role === 'hidden' || role === 'pip' || role === 'rail'}
               onLevelsReady={isPrimary ? onLevelsReady : undefined}
               onAspectRatioReady={handleAspectRatioReady}
               mode={mode}

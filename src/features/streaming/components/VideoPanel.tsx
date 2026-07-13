@@ -22,6 +22,12 @@ interface VideoPanelProps {
   showLabel?: boolean;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
+  // Pin this panel to the smallest rendition, overriding selectedLevel. Used
+  // for background/thumbnail panels (hidden, PIP, rail, strip previews) that
+  // stay decoding for instant switching but don't need full quality — cuts
+  // their CPU/bandwidth. Cleared (→ auto/selectedLevel) the moment the panel
+  // becomes the main view, which upshifts over a segment or two, no reload.
+  lowQuality?: boolean;
   // Real aspect ratio (videoWidth/videoHeight), reported once known and again
   // on any resolution change. CameraGrid uses this to row-justify the grid —
   // sizing here is entirely up to the wrapper it's rendered in.
@@ -68,6 +74,17 @@ interface VideoPanelProps {
   onEnded?: () => void;
 }
 
+// Index of the smallest-height rendition in a parsed hls instance (-1 if none).
+function lowestLevelIndex(hls: Hls): number {
+  const levels = hls.levels;
+  if (!levels || levels.length === 0) return -1;
+  let min = 0;
+  for (let i = 1; i < levels.length; i++) {
+    if (levels[i].height < levels[min].height) min = i;
+  }
+  return min;
+}
+
 export function VideoPanel({
   camera,
   isActive = false,
@@ -76,6 +93,7 @@ export function VideoPanel({
   showLabel = true,
   selectedLevel,
   onLevelsReady,
+  lowQuality = false,
   onAspectRatioReady,
   muted,
   onMutedChange,
@@ -97,6 +115,19 @@ export function VideoPanel({
   // it is by the time the manifest actually finishes parsing.
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
+  // Refs so MANIFEST_PARSED (fires async, once per src) applies the current
+  // quality choice rather than whatever it was when the load effect ran.
+  const lowQualityRef = useRef(lowQuality);
+  lowQualityRef.current = lowQuality;
+  const selectedLevelRef = useRef(selectedLevel);
+  selectedLevelRef.current = selectedLevel;
+
+  const applyLevel = (hls: Hls) => {
+    if (!hls.levels || hls.levels.length === 0) return;
+    hls.currentLevel = lowQualityRef.current
+      ? lowestLevelIndex(hls)
+      : (selectedLevelRef.current ?? -1);
+  };
   const [error, setError] = useState(false);
   // manifestPath is null while the camera is broadcasting but not yet
   // transcoding (WAITING_VIEWERS/QUEUED/STARTING on the backend) — this
@@ -178,6 +209,7 @@ export function VideoPanel({
         .map((l, i) => ({ index: i, height: l.height }))
         .sort((a, b) => b.height - a.height);
       onLevelsReady?.(sorted);
+      applyLevel(hls);
       // Live always autoplays; replay only if not currently paused (a fresh
       // camera thumbnail/tile shouldn't start itself just because its own
       // manifest happened to finish parsing after the shared paused state
@@ -210,10 +242,9 @@ export function VideoPanel({
   }, [volume]);
 
   useEffect(() => {
-    if (hlsRef.current && selectedLevel !== undefined) {
-      hlsRef.current.currentLevel = selectedLevel;
-    }
-  }, [selectedLevel]);
+    if (hlsRef.current) applyLevel(hlsRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lowQuality, selectedLevel]);
 
   useEffect(() => {
     const video = videoRef.current;

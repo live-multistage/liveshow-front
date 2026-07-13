@@ -98,6 +98,7 @@ export function CameraStrip({
                 fit="cover"
                 muted
                 onMutedChange={() => {}}
+                lowQuality
                 mode={mode}
                 paused={paused}
                 seekCommand={seekCommand}
