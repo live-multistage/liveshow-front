@@ -74,7 +74,7 @@ export function AdBanner({ placement, className }: Props) {
 
       <button
         className={styles.closeBtn}
-        onClick={(e) => { e.stopPropagation(); setDismissed(true); }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissed(true); }}
         aria-label="Fechar anúncio"
       >
         <X size={12} />
