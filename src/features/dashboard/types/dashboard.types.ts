@@ -39,6 +39,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'events',         href: '/dashboard/events',         icon: CalendarDays },
     { navKey: 'sales',          href: '/dashboard/sales',          icon: ShoppingCart },
     { navKey: 'coupons',        href: '/dashboard/coupons',        icon: Ticket },
+    { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
     { navKey: 'advertisement',  href: '/dashboard/advertisement',  icon: Megaphone },
   ],
