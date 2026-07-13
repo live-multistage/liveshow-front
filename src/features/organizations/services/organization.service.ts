@@ -4,6 +4,7 @@ import type {
   CreateOrganizationRequest,
   UpdateOrganizationRequest,
   StripeAccountStatus,
+  OrganizationLedgerResponse,
 } from '../types/organization.types';
 import type { EventResponse } from '@/features/events/types/event.types';
 import type { OrganizationAnalyticsResponse } from '../types/organization-analytics.types';
@@ -74,6 +75,13 @@ export const organizationService = {
   getStripeStatus: async (orgId: string): Promise<StripeAccountStatus> => {
     const { data } = await httpClient.get<StripeAccountStatus>(
       `/organizations/${orgId}/stripe`,
+    );
+    return data;
+  },
+
+  getLedger: async (orgId: string): Promise<OrganizationLedgerResponse> => {
+    const { data } = await httpClient.get<OrganizationLedgerResponse>(
+      `/organizations/${orgId}/ledger`,
     );
     return data;
   },

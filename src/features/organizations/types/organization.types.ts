@@ -90,3 +90,27 @@ export interface StripeAccountStatus {
   feeRateOverride: number | null;
   effectiveFeeRate: number;
 }
+
+export type OrganizationLedgerEntryType = 'SALE' | 'REFUND' | 'PAYOUT';
+
+export interface OrganizationLedgerEntry {
+  id: string;
+  organizationId: string;
+  type: OrganizationLedgerEntryType;
+  amount: number;
+  currency: string;
+  orderId: string | null;
+  paymentId: string | null;
+  transferId: string | null;
+  gross: number | null;
+  buyerFee: number | null;
+  commissionRate: number | null;
+  commissionAmount: number | null;
+  createdAt: string;
+}
+
+export interface OrganizationLedgerResponse {
+  balance: number;
+  currency: string;
+  entries: OrganizationLedgerEntry[];
+}
