@@ -4,6 +4,7 @@ import type { EventMetricsResult } from '../types/analytics.types';
 import type { ViewerAnalyticsResult } from '../types/viewer-analytics.types';
 import type { CameraBreakdownRow } from '../types/camera-breakdown.types';
 import type { NotificationBreakdownRow } from '../types/notification-breakdown.types';
+import type { SalesOriginResult } from '../types/sales-origin.types';
 
 export const analyticsService = {
   getMySales: async (granularity: SalesGranularity): Promise<SalesSummary> => {
@@ -36,6 +37,12 @@ export const analyticsService = {
   },
   getNotificationBreakdown: async (eventId: string): Promise<NotificationBreakdownRow[]> => {
     const { data } = await httpClient.get<NotificationBreakdownRow[]>(`/analytics/events/${eventId}/notifications`);
+    return data;
+  },
+  getSalesOrigin: async (orgId: string, eventId: string): Promise<SalesOriginResult> => {
+    const { data } = await httpClient.get<SalesOriginResult>(
+      `/organizations/${orgId}/events/${eventId}/analytics/sales-origin`,
+    );
     return data;
   },
 };
