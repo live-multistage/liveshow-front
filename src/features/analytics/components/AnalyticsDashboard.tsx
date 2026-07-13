@@ -126,14 +126,16 @@ function KpiCard({ label, value, sub, iconBg, iconColor, iconPath, delta, deltaU
             {iconPath}
           </svg>
         </div>
-        <span className={styles.kpiDelta} style={{ color: deltaTextColor, background: deltaBg }}>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6">
-            {deltaUp
-              ? <path d="M12 19V5M5 12l7-7 7 7" />
-              : <path d="M12 5v14M5 12l7 7 7-7" />}
-          </svg>
-          {delta}
-        </span>
+        {delta && (
+          <span className={styles.kpiDelta} style={{ color: deltaTextColor, background: deltaBg }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6">
+              {deltaUp
+                ? <path d="M12 19V5M5 12l7-7 7 7" />
+                : <path d="M12 5v14M5 12l7 7 7-7" />}
+            </svg>
+            {delta}
+          </span>
+        )}
       </div>
       <div className={styles.kpiLabel}>{label}</div>
       <div className={styles.kpiValue}>{value}</div>
