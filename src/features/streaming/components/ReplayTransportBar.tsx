@@ -119,6 +119,9 @@ export function ReplayTransportBar({
             if (globalMuted) onToggleMute();
           }}
           className={transportStyles.volumeSlider}
+          style={{
+            background: `linear-gradient(to right, #ff2e9e ${(globalMuted ? 0 : volume) * 100}%, rgba(255, 255, 255, 0.15) ${(globalMuted ? 0 : volume) * 100}%)`,
+          }}
           aria-label="Volume"
         />
       </div>
