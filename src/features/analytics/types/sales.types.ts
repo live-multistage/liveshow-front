@@ -15,6 +15,10 @@ export interface SalesSummary {
 export interface EventSalesRow {
   eventId: string;
   eventTitle: string;
+  startsAt: string;
+  venue: string | null;
+  city: string | null;
+  thumbnailUrl: string | null;
   totalOrders: number;
   totalRevenue: number;
 }
