@@ -14,11 +14,13 @@ import { useGetEventQuery } from '@/features/events/queries/get-event';
 import { useViewerAnalyticsQuery } from '../hooks/use-viewer-analytics';
 import { useCameraBreakdownQuery } from '../hooks/use-camera-breakdown';
 import { useNotificationBreakdownQuery } from '../hooks/use-notification-breakdown';
+import { useSalesOriginQuery } from '../hooks/use-sales-origin';
 import type { EventSalesRow } from '../types/sales.types';
 import type { ChartPoint } from '../types/analytics.types';
 import type { ViewerAnalyticsResult } from '../types/viewer-analytics.types';
 import type { CameraBreakdownRow } from '../types/camera-breakdown.types';
 import type { NotificationBreakdownRow } from '../types/notification-breakdown.types';
+import type { SalesOriginResult, SalesChannel } from '../types/sales-origin.types';
 import styles from './AnalyticsDashboard.module.scss';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
@@ -26,14 +28,14 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip,
 // ─── Types ────────────────────────────────────────────────────────
 type Range = '24h' | '7d' | 'all';
 
-// ─── Static data (no backend source yet) ─────────────────────────
-const ORIGIN_DATA = [
-  { label: 'Busca orgânica', pct: '34%', color: '#ff2e9e', dasharray: '34 100', offset: 0 },
-  { label: 'Link direto',    pct: '28%', color: '#bba6ff', dasharray: '28 100', offset: -34 },
-  { label: 'Recomendação',   pct: '22%', color: '#46d6d8', dasharray: '22 100', offset: -62 },
-  { label: 'Notificação',    pct: '11%', color: '#ffd166', dasharray: '11 100', offset: -84 },
-  { label: 'Outros',         pct: '5%',  color: '#7d7d85', dasharray: '5 100',  offset: -95 },
-];
+// ─── Origin channel display metadata ─────────────────────────────
+const ORIGIN_CHANNEL_META: Record<SalesChannel, { label: string; color: string }> = {
+  ORGANIC_SEARCH: { label: 'Busca orgânica', color: '#ff2e9e' },
+  DIRECT:         { label: 'Link direto',    color: '#bba6ff' },
+  RECOMMENDATION: { label: 'Recomendação',   color: '#46d6d8' },
+  NOTIFICATION:   { label: 'Notificação',    color: '#ffd166' },
+  OTHER:          { label: 'Outros',         color: '#7d7d85' },
+};
 
 const TICKET_BAR_COLORS = [
   'linear-gradient(90deg,#ff2e9e,#ff8ec9)',
@@ -330,7 +332,17 @@ function EngagementChart({ series, peakViewers, peakHour, isLoading }: Engagemen
 }
 
 // ─── Origin Donut ─────────────────────────────────────────────────
-function OriginSection({ totalOrders }: { totalOrders: number }) {
+function OriginSection({ data, isLoading }: { data: SalesOriginResult | undefined; isLoading: boolean }) {
+  const breakdown = data?.breakdown ?? [];
+  const total = data?.totalPaidOrders ?? 0;
+
+  let cumulative = 0;
+  const arcs = breakdown.map((row) => {
+    const arc = { ...row, offset: -cumulative };
+    cumulative += row.pct;
+    return arc;
+  });
+
   return (
     <div className={`${styles.card} ${styles.cardNomarg}`}>
       <div className={styles.cardHeader}>
@@ -349,34 +361,42 @@ function OriginSection({ totalOrders }: { totalOrders: number }) {
         <div className={styles.donutSvgWrap}>
           <svg viewBox="0 0 42 42" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
             <circle cx="21" cy="21" r="15.9155" fill="none" stroke="rgba(255,255,255,.04)" strokeWidth="6" />
-            {ORIGIN_DATA.map((o) => (
+            {!isLoading && total > 0 && arcs.map((arc) => (
               <circle
-                key={o.label}
+                key={arc.channel}
                 cx="21" cy="21" r="15.9155"
                 fill="none"
-                stroke={o.color}
+                stroke={ORIGIN_CHANNEL_META[arc.channel].color}
                 strokeWidth="6"
-                strokeDasharray={o.dasharray}
-                strokeDashoffset={o.offset}
+                strokeDasharray={`${arc.pct} 100`}
+                strokeDashoffset={arc.offset}
               />
             ))}
           </svg>
           <div className={styles.donutCenter}>
             <span className={styles.donutCenterLabel}>VENDAS</span>
-            <span className={styles.donutCenterValue}>{totalOrders > 0 ? fmtCompact(totalOrders) : '—'}</span>
+            <span className={styles.donutCenterValue}>{isLoading ? '…' : total > 0 ? total.toLocaleString('pt-BR') : '—'}</span>
           </div>
         </div>
       </div>
 
-      <div className={styles.originList}>
-        {ORIGIN_DATA.map((o) => (
-          <div key={o.label} className={styles.originItem}>
-            <span className={styles.originDot} style={{ background: o.color }} />
-            <span className={styles.originLabel}>{o.label}</span>
-            <span className={styles.originPct}>{o.pct}</span>
-          </div>
-        ))}
-      </div>
+      {isLoading && <div className={styles.loadingRow}>CARREGANDO…</div>}
+
+      {!isLoading && total === 0 && (
+        <div className={styles.loadingRow}>Nenhuma venda registrada</div>
+      )}
+
+      {!isLoading && total > 0 && (
+        <div className={styles.originList}>
+          {breakdown.map((row) => (
+            <div key={row.channel} className={styles.originItem}>
+              <span className={styles.originDot} style={{ background: ORIGIN_CHANNEL_META[row.channel].color }} />
+              <span className={styles.originLabel}>{ORIGIN_CHANNEL_META[row.channel].label}</span>
+              <span className={styles.originPct}>{row.pct}%</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -681,6 +701,7 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
   const { data: eventData } = useGetEventQuery(eventId);
   const orgId = eventData?.organizationId;
   const { data: viewerAnalytics, isLoading: viewersLoading } = useViewerAnalyticsQuery(orgId, eventId);
+  const { data: salesOrigin, isLoading: salesOriginLoading } = useSalesOriginQuery(orgId, eventId);
   const { data: cameraBreakdown, isLoading: cameraBreakdownLoading } = useCameraBreakdownQuery(orgId, eventId);
   const { data: notificationBreakdown, isLoading: notificationsLoading } = useNotificationBreakdownQuery(eventId);
 
@@ -841,7 +862,7 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
           peakHour={peakHour}
           isLoading={metricsLoading}
         />
-        <OriginSection totalOrders={totalOrders} />
+        <OriginSection data={salesOrigin} isLoading={salesOriginLoading} />
       </div>
 
       {/* Ticket Table + Notifications */}
