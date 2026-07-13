@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
+import { X } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
 import type { QualityLevel } from './VideoPanel';
@@ -18,13 +19,15 @@ const PIP_H = (PIP_W * 9) / 16;
 const PIP_RIGHT = 16;
 const PIP_BOTTOM = 88; // clears LivePlayer's floating bottom stack (5.5rem)
 const GAP = 2;
+const STRIP_H = 132;       // bottom picker band height (px)
+const STRIP_TILE_W = 168;  // strip tile width (px)
 
 // Off-screen-but-alive: opacity 0 (not visibility:hidden / display:none, which
 // browsers throttle or pause) so a hidden camera keeps decoding at the live
 // edge and reveals in sync when it becomes a PIP/rail/main — no reload jump.
 const HIDDEN_STYLE = { inset: 0, opacity: 0, pointerEvents: 'none', zIndex: -1 } as const;
 
-type Role = 'main' | 'pip' | 'rail' | 'grid' | 'hidden';
+type Role = 'main' | 'pip' | 'rail' | 'grid' | 'strip' | 'hidden';
 interface Slot {
   role: Role;
   style: CSSProperties;
@@ -49,6 +52,8 @@ interface CameraGridProps {
   seekCommand?: { time: number; token: number } | null;
   onProgress?: (currentTime: number, duration: number) => void;
   onEnded?: () => void;
+  pickerOpen?: boolean;
+  onToggleCamera?: (cameraId: string) => void;
 }
 
 // One persistent VideoPanel per active camera, positioned absolutely by its
@@ -79,6 +84,8 @@ export function CameraGrid({
   seekCommand,
   onProgress,
   onEnded,
+  pickerOpen = false,
+  onToggleCamera = () => {},
 }: CameraGridProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -114,6 +121,37 @@ export function CameraGrid({
   const layouts = useMemo<Map<string, Slot>>(() => {
     const map = new Map<string, Slot>();
     const { width: W, height: H } = size;
+
+    // Picker open: MAIN inset on top + a bottom band of every non-main camera
+    // (active AND inactive), reusing the same persistent panels. Suspends the
+    // rail/pip/grid layouts while open. Absolute tiles, capped to what fits.
+    if (pickerOpen && mainCamera) {
+      map.set(mainCamera.cameraId, {
+        role: 'main',
+        style: { left: 0, top: 0, right: 0, bottom: STRIP_H, zIndex: 0 },
+      });
+      const stripCams = cameras.filter((c) => c.cameraId !== mainCamera.cameraId);
+      const tileH = STRIP_H - GAP * 2;
+      const maxTiles =
+        W > 0 ? Math.max(0, Math.floor(W / (STRIP_TILE_W + GAP))) : stripCams.length;
+      stripCams.forEach((c, i) => {
+        if (i >= maxTiles) {
+          map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
+          return;
+        }
+        map.set(c.cameraId, {
+          role: 'strip',
+          style: {
+            left: GAP + i * (STRIP_TILE_W + GAP),
+            top: H - STRIP_H + GAP,
+            width: STRIP_TILE_W,
+            height: tileH,
+            zIndex: 2,
+          },
+        });
+      });
+      return map;
+    }
 
     if (effectiveMode === 'grid') {
       const cols = pickColumnCount(activeCameras.length);
@@ -179,13 +217,14 @@ export function CameraGrid({
       });
     }
     return map;
-  }, [effectiveMode, activeCameras, otherCameras, mainCamera, size, aspectRatios]);
+  }, [effectiveMode, activeCameras, otherCameras, mainCamera, size, aspectRatios, pickerOpen, cameras]);
 
   const roleClass: Record<Role, string> = {
     main: styles.mainSlot,
     pip: styles.pipSlot,
     rail: styles.railSlot,
     grid: styles.gridSlot,
+    strip: styles.stripSlot,
     hidden: styles.hiddenSlot,
   };
 
@@ -214,6 +253,13 @@ export function CameraGrid({
         const isPrimary = !!mainCamera && cam.cameraId === mainCamera.cameraId;
         const clickable = role === 'pip' || role === 'rail' || role === 'grid';
 
+        const isActiveCam = activeCameraIds.includes(cam.cameraId);
+
+        const onStripSelect = () => {
+          if (!isActiveCam) onToggleCamera(cam.cameraId);
+          onMainCameraChange(cam.cameraId);
+        };
+
         const onSelect = clickable
           ? () => {
               onMainCameraChange(cam.cameraId);
@@ -227,19 +273,24 @@ export function CameraGrid({
         };
 
         return (
-          <div key={cam.cameraId} className={`${styles.slot} ${roleClass[role]}`} style={slot.style}>
+          <div
+            key={cam.cameraId}
+            className={`${styles.slot} ${roleClass[role]}`}
+            style={slot.style}
+            onClick={role === 'strip' ? onStripSelect : undefined}
+          >
             <VideoPanel
               camera={cam}
-              onSelect={onSelect}
+              onSelect={role === 'strip' ? undefined : onSelect}
               // Focus (and its live-edge seek) tracks the MAIN video only. Do
               // not couple it to audioCameraId: selecting a non-main camera as
               // the audio source would flip isFocused → trigger a currentTime
               // jump to the live edge → brief stall + audible desync. The audio
               // panel keeps riding live via maxLiveSyncPlaybackRate, no seek.
               isFocused={role === 'main'}
-              showLabel={role !== 'main' && role !== 'hidden'}
+              showLabel={role !== 'main' && role !== 'hidden' && role !== 'strip'}
               showMuteButton={role === 'grid'}
-              fit={role === 'pip' || role === 'rail' ? 'cover' : 'contain'}
+              fit={role === 'pip' || role === 'rail' || role === 'strip' ? 'cover' : 'contain'}
               // Audio comes from the main element's selected alternate-audio
               // track (hls.audioTrack), not from unmuting a background element.
               muted={globalMuted || !isPrimary}
@@ -260,6 +311,33 @@ export function CameraGrid({
               onProgress={isPrimary ? onProgress : undefined}
               onEnded={isPrimary ? onEnded : undefined}
             />
+            {role === 'strip' && (
+              <>
+                {isActiveCam && mode === 'live' && (
+                  <span className={styles.stripBadge}>
+                    <span className={styles.stripDot} />
+                    LIVE
+                  </span>
+                )}
+                {isActiveCam && activeCameraIds.length > 1 && (
+                  <button
+                    type="button"
+                    className={styles.stripClose}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleCamera(cam.cameraId);
+                    }}
+                    aria-label={`Desativar ${cam.name}`}
+                  >
+                    <X size={11} />
+                  </button>
+                )}
+                <div className={styles.stripInfo}>
+                  <p className={styles.stripName}>{cam.name}</p>
+                  <p className={styles.stripAngle}>{cam.slug}</p>
+                </div>
+              </>
+            )}
           </div>
         );
       })}

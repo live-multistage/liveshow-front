@@ -73,3 +73,93 @@
   font-family: 'Space Mono', monospace;
   font-size: 0.875rem;
 }
+
+.stripSlot {
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, left 0.28s ease, top 0.28s ease,
+    width 0.28s ease, height 0.28s ease;
+
+  &:hover {
+    border-color: $action;
+  }
+}
+
+.stripBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(10, 10, 11, 0.65);
+  backdrop-filter: blur(4px);
+  color: #7fe0a0;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.stripDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #7fe0a0;
+}
+
+.stripClose {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 5px;
+  background: rgba(10, 10, 11, 0.6);
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+
+  &:hover {
+    background: $danger;
+  }
+}
+
+.stripInfo {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 5px 7px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+  text-align: left;
+  pointer-events: none;
+}
+
+.stripName {
+  color: #fff;
+  font-family: 'Archivo', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stripAngle {
+  color: $text-secondary;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin: 0;
+}
