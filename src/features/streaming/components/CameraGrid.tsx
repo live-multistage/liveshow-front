@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, KeyboardEvent } from 'react';
 import { X } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
@@ -21,6 +21,14 @@ const PIP_BOTTOM = 88; // clears LivePlayer's floating bottom stack (5.5rem)
 const GAP = 2;
 const STRIP_H = 132;       // bottom picker band height (px)
 const STRIP_TILE_W = 168;  // strip tile width (px)
+
+// Height reserved at the stage bottom for the floating bottomStack overlay
+// (StripControls + transport bar, which sit at z-index 20). The strip band is
+// lifted above this so its tiles aren't painted behind the controls.
+// ponytail: tuned constant — bump if the band still overlaps/floats off the
+// controls; the robust alternative is measuring bottomStack and passing its
+// height in, not needed yet.
+const STRIP_BAND_BOTTOM = 150;
 
 // Off-screen-but-alive: opacity 0 (not visibility:hidden / display:none, which
 // browsers throttle or pause) so a hidden camera keeps decoding at the live
@@ -128,12 +136,13 @@ export function CameraGrid({
     if (pickerOpen && mainCamera) {
       map.set(mainCamera.cameraId, {
         role: 'main',
-        style: { left: 0, top: 0, right: 0, bottom: STRIP_H, zIndex: 0 },
+        style: { left: 0, top: 0, right: 0, bottom: STRIP_BAND_BOTTOM + STRIP_H, zIndex: 0 },
       });
       const stripCams = cameras.filter((c) => c.cameraId !== mainCamera.cameraId);
       const tileH = STRIP_H - GAP * 2;
       const maxTiles =
         W > 0 ? Math.max(0, Math.floor(W / (STRIP_TILE_W + GAP))) : stripCams.length;
+      const bandTop = H - STRIP_BAND_BOTTOM - STRIP_H + GAP;
       stripCams.forEach((c, i) => {
         if (i >= maxTiles) {
           map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
@@ -143,10 +152,11 @@ export function CameraGrid({
           role: 'strip',
           style: {
             left: GAP + i * (STRIP_TILE_W + GAP),
-            top: H - STRIP_H + GAP,
+            top: bandTop,
             width: STRIP_TILE_W,
             height: tileH,
-            zIndex: 2,
+            zIndex: 21,
+            visibility: H > 0 ? 'visible' : 'hidden',
           },
         });
       });
@@ -278,6 +288,18 @@ export function CameraGrid({
             className={`${styles.slot} ${roleClass[role]}`}
             style={slot.style}
             onClick={role === 'strip' ? onStripSelect : undefined}
+            {...(role === 'strip'
+              ? {
+                  role: 'button' as const,
+                  tabIndex: 0,
+                  onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onStripSelect();
+                    }
+                  },
+                }
+              : {})}
           >
             <VideoPanel
               camera={cam}
