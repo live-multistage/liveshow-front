@@ -8,6 +8,9 @@ import type { AuthUser } from '../types/account.types';
 
 interface UpdateProfilePayload {
   displayName?: string;
+  phone?: string;
+  cpf?: string;
+  bio?: string;
 }
 
 export function useUpdateProfileMutation() {
