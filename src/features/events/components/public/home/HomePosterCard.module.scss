@@ -7,10 +7,13 @@
 
 .card {
   position: relative;
+  display: block;
   border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s ease;
+  text-decoration: none;
+  color: inherit;
 
   &:hover {
     transform: translateY(-4px);

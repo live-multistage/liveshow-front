@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Camera } from 'lucide-react';
 import type { Show } from '../../../types/show';
 import styles from './HomePosterCard.module.scss';
@@ -17,19 +17,14 @@ interface HomePosterCardProps {
 }
 
 export function HomePosterCard({ show, span }: HomePosterCardProps) {
-  const router = useRouter();
-
   const priceLabel = show.price === 0 ? 'Gratuito' : `R$ ${Math.round(show.price)}`;
   const isFree = show.price === 0;
 
   return (
-    <div
+    <Link
+      href={`/events/${show.id}`}
       className={styles.card}
       style={{ gridColumn: span.gridColumn, gridRow: span.gridRow }}
-      onClick={() => router.push(`/events/${show.id}`)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && router.push(`/events/${show.id}`)}
     >
       <div className={styles.art} style={{ backgroundImage: `url(${show.image})` }} />
       <div className={styles.overlay} />
@@ -64,6 +59,6 @@ export function HomePosterCard({ show, span }: HomePosterCardProps) {
           <span className={isFree ? styles.priceFree : styles.price}>{priceLabel}</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

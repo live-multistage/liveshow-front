@@ -123,6 +123,7 @@
   border-radius: 999px;
   cursor: pointer;
   transition: opacity 0.15s;
+  text-decoration: none;
 
   &:hover {
     opacity: 0.88;
@@ -142,6 +143,7 @@
   border-radius: 999px;
   cursor: pointer;
   transition: background 0.15s;
+  text-decoration: none;
 
   &:hover {
     background: rgba(255, 255, 255, 0.13);

@@ -12,7 +12,6 @@
   border: 1px solid rgba(255, 255, 255, .08);
   border-radius: 18px;
   overflow: hidden;
-  cursor: pointer;
   transition: transform .18s ease, border-color .18s ease;
   height: 100%;
 
@@ -26,11 +25,23 @@
   }
 }
 
+.cardLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
 // ── Horizontal layout ─────────────────────────────────────────────
+// note: cardLink carries the row layout (not .card) so cardFooter stays
+// a full-width block below the image+content row instead of a 3rd flex
+// item beside it — visual compromise, see task-2-report.md.
 
 .cardHorizontal {
-  flex-direction: row;
-  min-height: 162px;
+  & .cardLink {
+    display: flex;
+    flex-direction: row;
+    min-height: 162px;
+  }
 
   & .imageWrapper {
     width: 200px;
@@ -166,7 +177,7 @@
 // ── Content ───────────────────────────────────────────────────────
 
 .content {
-  padding: 20px;
+  padding: 20px 20px 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -234,7 +245,7 @@
   align-items: center;
   justify-content: space-between;
   margin-top: auto;
-  padding-top: 14px;
+  padding: 14px 20px 20px;
   border-top: 1px solid rgba(255, 255, 255, .06);
 }
 
@@ -283,6 +294,7 @@
   cursor: pointer;
   transition: filter .15s;
   white-space: nowrap;
+  text-decoration: none;
 
   &:hover { filter: brightness(1.08); }
 }

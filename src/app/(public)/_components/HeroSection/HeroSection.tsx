@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Play, Eye, Camera } from 'lucide-react';
 import type { Show } from '@/features/events/types/show';
 import styles from './HeroSection.module.scss';
@@ -11,7 +11,6 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ show }: HeroSectionProps) {
-  const router = useRouter();
   const [activeCamIdx, setActiveCamIdx] = useState(0);
 
   const previewCameras = show.cameras.slice(0, 4);
@@ -46,13 +45,9 @@ export function HeroSection({ show }: HeroSectionProps) {
         </div>
       </div>
 
-      <button
-        className={styles.playBtn}
-        onClick={() => router.push(`/live/${show.id}`)}
-        aria-label="Play"
-      >
+      <Link href={`/live/${show.id}`} className={styles.playBtn} aria-label="Play">
         <Play size={30} fill="white" />
-      </button>
+      </Link>
 
       {previewCameras.length > 1 && (
         <div className={styles.cameraStrip}>

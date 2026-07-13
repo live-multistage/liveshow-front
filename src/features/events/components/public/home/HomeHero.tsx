@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Play, Calendar, Eye } from 'lucide-react';
 import type { Show } from '../../../types/show';
 import styles from './HomeHero.module.scss';
@@ -10,8 +10,6 @@ interface HomeHeroProps {
 }
 
 export function HomeHero({ show }: HomeHeroProps) {
-  const router = useRouter();
-
   const priceLabel =
     show.price === 0 ? 'Explorar evento' : `Comprar ingresso · R$ ${Math.round(show.price)}`;
 
@@ -64,12 +62,12 @@ export function HomeHero({ show }: HomeHeroProps) {
 
         <div className={styles.ctas}>
           {show.isLive && (
-            <button className={styles.btnPrimary} onClick={() => router.push(`/live/${show.id}`)}>
+            <Link href={`/live/${show.id}`} className={styles.btnPrimary}>
               <Play size={18} fill="currentColor" />
               Assistir ao vivo
-            </button>
+            </Link>
           )}
-          <button className={styles.btnSecondary} onClick={() => router.push(`/events/${show.id}`)}>
+          <Link href={`/events/${show.id}`} className={styles.btnSecondary}>
             {show.price > 0 ? (
               <>
                 Comprar ingresso ·{' '}
@@ -78,7 +76,7 @@ export function HomeHero({ show }: HomeHeroProps) {
             ) : (
               'Explorar evento'
             )}
-          </button>
+          </Link>
         </div>
       </div>
     </section>

@@ -51,11 +51,14 @@
 
 .card {
   position: relative;
+  display: block;
   aspect-ratio: 16 / 7;
   border-radius: 18px;
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s ease;
+  text-decoration: none;
+  color: inherit;
 
   &:hover {
     transform: translateY(-3px);

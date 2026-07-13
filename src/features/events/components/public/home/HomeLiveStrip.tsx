@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Eye } from 'lucide-react';
 import type { Show } from '../../../types/show';
 import styles from './HomeLiveStrip.module.scss';
@@ -10,8 +10,6 @@ interface HomeLiveStripProps {
 }
 
 export function HomeLiveStrip({ shows }: HomeLiveStripProps) {
-  const router = useRouter();
-
   if (shows.length === 0) return null;
 
   return (
@@ -23,14 +21,7 @@ export function HomeLiveStrip({ shows }: HomeLiveStripProps) {
 
       <div className={styles.grid}>
         {shows.map((show) => (
-          <div
-            key={show.id}
-            className={styles.card}
-            onClick={() => router.push(`/live/${show.id}`)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && router.push(`/live/${show.id}`)}
-          >
+          <Link key={show.id} href={`/live/${show.id}`} className={styles.card}>
             <div
               className={styles.cardArt}
               style={{ backgroundImage: `url(${show.image})` }}
@@ -54,7 +45,7 @@ export function HomeLiveStrip({ shows }: HomeLiveStripProps) {
                 )}
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>
