@@ -6,7 +6,6 @@ import { ChevronLeft, Play, Video } from 'lucide-react';
 import type { ReplayCameraPlayback, LiveCamera } from '../types/live.types';
 import { CameraGrid } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
-import { StripControls } from './StripControls';
 import { ReplayTransportBar } from './ReplayTransportBar';
 import styles from './ReplayPlayer.module.scss';
 
@@ -160,6 +159,7 @@ export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlay
             activeCameraIds={activeCameraIds}
             pickerOpen={cameraStripOpen}
             onToggleCamera={handleToggleCamera}
+            onClosePicker={() => setCameraStripOpen(false)}
             mode="replay"
             paused={paused}
             seekCommand={seekCommand}
@@ -181,15 +181,6 @@ export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlay
       </div>
 
       <div className={styles.bottomStack}>
-        <StripControls
-          count={cameras.length}
-          isModeLocked={activeCameraIds.length <= 1}
-          effectiveMode={viewMode}
-          onViewModeChange={setViewMode}
-          open={cameraStripOpen}
-          onClose={() => setCameraStripOpen(false)}
-        />
-
         <ReplayTransportBar
           paused={paused}
           onTogglePlay={() => setPaused((p) => !p)}

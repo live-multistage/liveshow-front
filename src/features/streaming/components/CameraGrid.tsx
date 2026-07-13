@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, KeyboardEvent } from 'react';
-import { X } from 'lucide-react';
+import { X, Square, PanelRight, LayoutGrid } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
 import type { QualityLevel } from './VideoPanel';
@@ -19,16 +19,19 @@ const PIP_H = (PIP_W * 9) / 16;
 const PIP_RIGHT = 16;
 const PIP_BOTTOM = 88; // clears LivePlayer's floating bottom stack (5.5rem)
 const GAP = 2;
-const STRIP_H = 132;       // bottom picker band height (px)
-const STRIP_TILE_W = 168;  // strip tile width (px)
 
-// Height reserved at the stage bottom for the floating bottomStack overlay
-// (StripControls + transport bar, which sit at z-index 20). The strip band is
-// lifted above this so its tiles aren't painted behind the controls.
-// ponytail: tuned constant — bump if the band still overlaps/floats off the
-// controls; the robust alternative is measuring bottomStack and passing its
-// height in, not needed yet.
-const STRIP_BAND_BOTTOM = 150;
+// Right picker drawer (MULTICAM). Floats over the right edge of the stage;
+// thumbnails stack vertically inside, reusing the persistent panels.
+const DRAWER_W = 300;        // drawer width (px)
+const DRAWER_HEADER_H = 52;  // header row (title + modes + close)
+const DRAWER_PAD = 12;
+const DRAWER_BOTTOM = 96;    // clear the floating transport bar at the bottom
+
+const MODES: { id: ViewMode; label: string; icon: typeof Square }[] = [
+  { id: 'solo', label: 'Solo', icon: Square },
+  { id: 'main-rail', label: 'Principal + trilha', icon: PanelRight },
+  { id: 'grid', label: 'Grade', icon: LayoutGrid },
+];
 
 // Off-screen-but-alive: opacity 0 (not visibility:hidden / display:none, which
 // browsers throttle or pause) so a hidden camera keeps decoding at the live
@@ -62,6 +65,7 @@ interface CameraGridProps {
   onEnded?: () => void;
   pickerOpen?: boolean;
   onToggleCamera?: (cameraId: string) => void;
+  onClosePicker?: () => void;
 }
 
 // One persistent VideoPanel per active camera, positioned absolutely by its
@@ -94,6 +98,7 @@ export function CameraGrid({
   onEnded,
   pickerOpen = false,
   onToggleCamera = () => {},
+  onClosePicker = () => {},
 }: CameraGridProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -130,19 +135,20 @@ export function CameraGrid({
     const map = new Map<string, Slot>();
     const { width: W, height: H } = size;
 
-    // Picker open: MAIN inset on top + a bottom band of every non-main camera
-    // (active AND inactive), reusing the same persistent panels. Suspends the
-    // rail/pip/grid layouts while open. Absolute tiles, capped to what fits.
+    // Picker open: a right drawer floats over the stage. The main stays full
+    // behind it; every non-main camera (active AND inactive) gets a `strip`
+    // tile stacked vertically in the drawer body, reusing its persistent panel.
     if (pickerOpen && mainCamera) {
       map.set(mainCamera.cameraId, {
         role: 'main',
-        style: { left: 0, top: 0, right: 0, bottom: STRIP_BAND_BOTTOM + STRIP_H, zIndex: 0 },
+        style: { left: 0, top: 0, right: 0, bottom: 0, zIndex: 0 },
       });
       const stripCams = cameras.filter((c) => c.cameraId !== mainCamera.cameraId);
-      const tileH = STRIP_H - GAP * 2;
+      const tileW = DRAWER_W - DRAWER_PAD * 2;
+      const tileH = Math.round((tileW * 9) / 16);
+      const avail = H - DRAWER_HEADER_H - DRAWER_BOTTOM;
       const maxTiles =
-        W > 0 ? Math.max(0, Math.floor(W / (STRIP_TILE_W + GAP))) : stripCams.length;
-      const bandTop = H - STRIP_BAND_BOTTOM - STRIP_H + GAP;
+        H > 0 ? Math.max(1, Math.floor((avail + GAP) / (tileH + GAP))) : stripCams.length;
       stripCams.forEach((c, i) => {
         if (i >= maxTiles) {
           map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
@@ -151,11 +157,11 @@ export function CameraGrid({
         map.set(c.cameraId, {
           role: 'strip',
           style: {
-            left: GAP + i * (STRIP_TILE_W + GAP),
-            top: bandTop,
-            width: STRIP_TILE_W,
+            right: DRAWER_PAD,
+            top: DRAWER_HEADER_H + i * (tileH + GAP),
+            width: tileW,
             height: tileH,
-            zIndex: 21,
+            zIndex: 22, // above the drawer bg (21) and the bottomStack overlay (20)
             visibility: H > 0 ? 'visible' : 'hidden',
           },
         });
@@ -257,6 +263,42 @@ export function CameraGrid({
   return (
     <div ref={stageRef} className={styles.stage} data-mode={effectiveMode}>
       {!mainCamera && <div className={styles.emptyState}>Nenhuma câmera ativa</div>}
+      {pickerOpen && mainCamera && (
+        <div className={styles.drawer} style={{ width: DRAWER_W, bottom: DRAWER_BOTTOM }}>
+          <div className={styles.drawerHeader}>
+            <div className={styles.drawerTitle}>
+              <span className={styles.drawerLabel}>MULTICAM</span>
+              <span className={styles.drawerCount}>{cameras.length}</span>
+            </div>
+            <div className={styles.drawerActions}>
+              {activeCameraIds.length > 1 && (
+                <div className={styles.drawerModes}>
+                  {MODES.map(({ id, label, icon: Icon }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => onViewModeChange(id)}
+                      title={label}
+                      aria-label={label}
+                      className={`${styles.modeBtn} ${effectiveMode === id ? styles.modeBtnActive : ''}`}
+                    >
+                      <Icon size={14} />
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button
+                type="button"
+                className={styles.drawerClose}
+                onClick={onClosePicker}
+                aria-label="Fechar câmeras"
+              >
+                <X size={13} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {cameras.map((cam) => {
         const slot = layouts.get(cam.cameraId) ?? { role: 'hidden' as Role, style: HIDDEN_STYLE };
         const { role } = slot;

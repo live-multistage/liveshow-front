@@ -7,7 +7,6 @@ import type { LiveCamera, LiveStage } from '../types/live.types';
 import { CameraGrid } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
 import { Header } from './Header';
-import { StripControls } from './StripControls';
 import { TransportBar } from './TransportBar';
 import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
 import { useAuth } from '@/features/account/hooks/use-auth';
@@ -179,6 +178,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
               activeCameraIds={activeCameraIds}
               pickerOpen={cameraStripOpen}
               onToggleCamera={handleToggleCamera}
+              onClosePicker={() => setCameraStripOpen(false)}
             />
           )}
         </div>
@@ -195,17 +195,6 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
       </div>
 
       <div className={styles.bottomStack}>
-        {activeStage && (
-          <StripControls
-            count={activeStage.cameras.length}
-            isModeLocked={activeCameraIds.length <= 1}
-            effectiveMode={effectiveViewMode}
-            onViewModeChange={setViewMode}
-            open={cameraStripOpen}
-            onClose={() => setCameraStripOpen(false)}
-          />
-        )}
-
         <TransportBar
           globalMuted={globalMuted}
           onToggleMute={() => setGlobalMuted((m) => !m)}
