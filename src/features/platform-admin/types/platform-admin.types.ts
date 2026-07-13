@@ -5,6 +5,8 @@ export interface PlatformOrganization {
   name: string;
   slug: string;
   ownerId: string;
+  ownerEmail: string | null;
+  ownerDisplayName: string | null;
   status: OrganizationStatus;
   description: string | null;
   rejectionReason: string | null;
@@ -53,6 +55,11 @@ export interface CreateOrganizationRequest {
   slug: string;
   description?: string;
   ownerEmail: string;
+}
+
+export interface AddOrgMemberRequest {
+  email: string;
+  role: PlatformOrganizationRole;
 }
 
 export interface OrganizationDirectoryFilter {

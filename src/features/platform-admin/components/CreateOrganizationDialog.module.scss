@@ -1,3 +1,22 @@
+.headRow {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.iconWrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 46, 158, .12);
+  border: 1px solid rgba(255, 46, 158, .32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff5fb4;
+  flex: none;
+}
+
 .form {
   display: flex;
   flex-direction: column;
@@ -11,8 +30,10 @@
 }
 
 .label {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: #c7c7cd;
 }
 
 .input {
@@ -24,6 +45,44 @@
   padding: 0 0.75rem;
 }
 
+.slugWrapper {
+  position: relative;
+}
+
+.slugPrefix {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #6f6f77;
+  pointer-events: none;
+}
+
+.slugInput {
+  padding-left: 30px;
+  padding-right: 34px;
+  width: 100%;
+}
+
+.slugIcon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.slugMsg {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  margin-top: 4px;
+}
+
+.slugMsgError { color: var(--destructive); }
+.slugMsgOk { color: #7fe0a0; }
+.slugMsgNeutral { color: var(--muted-foreground); }
+
 .error {
   font-size: 0.8rem;
   color: var(--destructive);
@@ -32,4 +91,20 @@
 .hint {
   font-size: 0.8rem;
   color: var(--muted-foreground);
+}
+
+.infoBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 4px 0;
+  padding: 12px 14px;
+  background: rgba(255, 46, 158, .06);
+  border: 1px solid rgba(255, 46, 158, .2);
+  border-radius: 12px;
+  color: #ff8ec9;
+  font-size: 12.5px;
+  line-height: 1.5;
+
+  strong { color: #ff8ec9; }
 }

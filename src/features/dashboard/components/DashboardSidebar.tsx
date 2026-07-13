@@ -29,6 +29,7 @@ export function DashboardSidebar() {
 
       {/* Nav */}
       <nav className={styles.nav}>
+        {role === 'SUPER_ADMIN' && <div className={styles.navSectionLabel}>PLATAFORMA</div>}
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));

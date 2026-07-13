@@ -40,6 +40,14 @@
   gap: 4px;
 }
 
+.navSectionLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: .16em;
+  color: #5a5a62;
+  padding: 2px 12px 8px;
+}
+
 .navItem {
   display: flex;
   align-items: center;

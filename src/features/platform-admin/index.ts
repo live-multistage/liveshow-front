@@ -20,4 +20,8 @@ export { useRejectOrganizationMutation } from './mutations/reject-organization.m
 export { useSetOrganizationStatusMutation } from './mutations/set-organization-status.mutation';
 export { useSetOrgFeatureFlagMutation } from './mutations/set-org-feature-flag.mutation';
 export { useChangeUserRoleMutation } from './mutations/change-user-role.mutation';
+export { useAddOrgMemberMutation } from './mutations/add-org-member.mutation';
+export { useChangeOrgMemberRoleMutation } from './mutations/change-org-member-role.mutation';
+export { AddOrgMemberDialog } from './components/AddOrgMemberDialog';
+export { RolePill } from './components/RolePill';
 export type * from './types/platform-admin.types';

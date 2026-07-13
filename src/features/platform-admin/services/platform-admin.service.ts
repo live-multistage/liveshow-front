@@ -4,9 +4,11 @@ import type {
   OrganizationDirectoryResult,
   OrganizationDirectoryFilter,
   PlatformOrganizationMember,
+  PlatformOrganizationRole,
   OrgFeatureFlagView,
   PlatformUserResult,
   CreateOrganizationRequest,
+  AddOrgMemberRequest,
   OrganizationStatus,
   PlatformRole,
 } from '../types/platform-admin.types';
@@ -65,5 +67,25 @@ export const platformAdminService = {
 
   changeUserRole: async (userId: string, role: PlatformRole): Promise<void> => {
     await httpClient.put(`/platform-admin/users/${userId}/role`, { role });
+  },
+
+  addMember: async (organizationId: string, payload: AddOrgMemberRequest): Promise<PlatformOrganizationMember> => {
+    const { data } = await httpClient.post<PlatformOrganizationMember>(
+      `/platform-admin/organizations/${organizationId}/members`,
+      payload,
+    );
+    return data;
+  },
+
+  changeMemberRole: async (
+    organizationId: string,
+    memberId: string,
+    role: PlatformOrganizationRole,
+  ): Promise<PlatformOrganizationMember> => {
+    const { data } = await httpClient.put<PlatformOrganizationMember>(
+      `/platform-admin/organizations/${organizationId}/members/${memberId}/role`,
+      { role },
+    );
+    return data;
   },
 };

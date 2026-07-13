@@ -13,10 +13,12 @@ export function PendingOrgsBadge() {
         background: 'var(--primary)',
         color: 'var(--primary-foreground)',
         borderRadius: '999px',
-        fontSize: '0.7rem',
-        padding: '0 6px',
-        lineHeight: '1.4rem',
-        minWidth: '1.4rem',
+        fontFamily: "'Space Mono', monospace",
+        fontWeight: 700,
+        fontSize: '10px',
+        padding: '2px 6px',
+        lineHeight: '1',
+        minWidth: '20px',
         textAlign: 'center',
       }}
     >

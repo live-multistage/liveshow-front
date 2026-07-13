@@ -4,32 +4,54 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(8, 8, 10, 0.45);
-  backdrop-filter: blur(1px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: rgba(8, 8, 10, .72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fadeIn .12s ease forwards;
+}
+
+.spinnerWrap {
+  position: relative;
+  width: 76px;
+  height: 76px;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn 0.12s ease forwards;
 }
 
-.bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 2px;
-  background: $action;
-  z-index: 10000;
-  animation: progress 1.8s ease-in-out infinite;
-  box-shadow: 0 0 8px rgba(255, 46, 158, 0.6);
+.ring {
+  position: absolute;
+  inset: 0;
+  animation: loRingCycle var(--lo-dur) linear both;
 }
 
-.spinner {
-  width: 36px;
-  height: 36px;
-  border: 2px solid rgba(255, 255, 255, 0.08);
-  border-top-color: $action;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
+.ringSvg {
+  position: absolute;
+  inset: 0;
+  animation: loSpin .9s linear infinite;
+}
+
+.icon {
+  transform-origin: center;
+  animation: loIconSettle var(--lo-dur) cubic-bezier(.3, .6, .25, 1) both;
+}
+
+.iconPath {
+  stroke-dasharray: 1;
+  animation: loIconDraw var(--lo-dur) linear both;
+}
+
+.caption {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .2em;
+  color: #8f8f97;
 }
 
 @keyframes fadeIn {
@@ -37,12 +59,31 @@
   to   { opacity: 1; }
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+@keyframes loSpin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-@keyframes progress {
-  0%   { width: 0%; left: 0; }
-  50%  { width: 70%; left: 0; }
-  100% { width: 30%; left: 70%; }
+// ring: full spinner during swap, collapses while icon is shown
+@keyframes loRingCycle {
+  0%        { opacity: 1;   transform: scale(1); }
+  26%       { opacity: .12; transform: scale(.82); }
+  72%       { opacity: .12; transform: scale(.82); }
+  92%, 100% { opacity: 1;   transform: scale(1); }
+}
+
+// icon draws on as rotation settles, holds, then un-draws spinning away
+@keyframes loIconDraw {
+  0%        { stroke-dashoffset: 1;  opacity: 0; }
+  10%       { opacity: 1; }
+  34%       { stroke-dashoffset: 0; }
+  72%       { stroke-dashoffset: 0;  opacity: 1; }
+  94%, 100% { stroke-dashoffset: -1; opacity: 0; }
+}
+
+@keyframes loIconSettle {
+  0%   { transform: rotate(-200deg) scale(.5); }
+  34%  { transform: rotate(0deg) scale(1); }
+  72%  { transform: rotate(0deg) scale(1); }
+  100% { transform: rotate(200deg) scale(.5); }
 }

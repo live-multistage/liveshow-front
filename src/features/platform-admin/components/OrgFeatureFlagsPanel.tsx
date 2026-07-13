@@ -1,30 +1,39 @@
 'use client';
 
+import { toast } from 'sonner';
 import { Switch } from '@/shared/components/ui/switch';
 import { useOrgFeatureFlagsQuery } from '../queries/get-org-feature-flags';
 import { useSetOrgFeatureFlagMutation } from '../mutations/set-org-feature-flag.mutation';
+import styles from './OrgFeatureFlagsPanel.module.scss';
 
 export function OrgFeatureFlagsPanel({ organizationId }: { organizationId: string }) {
   const { data, isLoading, isError } = useOrgFeatureFlagsQuery(organizationId);
   const setFlag = useSetOrgFeatureFlagMutation(organizationId);
 
-  if (isLoading) return <p>Carregando feature flags...</p>;
-  if (isError || !data) return <p>Erro ao carregar feature flags.</p>;
+  if (isLoading) return <div className={styles.empty}>Carregando feature flags...</div>;
+  if (isError || !data) return <div className={styles.empty}>Erro ao carregar feature flags.</div>;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className={styles.list}>
       {data.map((flag) => (
-        <div key={flag.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className={styles.card} key={flag.key}>
           <div>
-            <p style={{ fontWeight: 500 }}>{flag.key}</p>
-            <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
-              {flag.isOverride ? 'Configuração específica desta organização' : 'Usando o padrão global'}
-            </p>
+            <div className={styles.labelRow}>
+              <span className={styles.label}>{flag.key}</span>
+              <span className={flag.isOverride ? `${styles.tag} ${styles.tagOverride}` : `${styles.tag} ${styles.tagGlobal}`}>
+                {flag.isOverride ? 'OVERRIDE' : 'USANDO PADRÃO GLOBAL'}
+              </span>
+            </div>
           </div>
           <Switch
             checked={flag.enabled}
             disabled={setFlag.isPending}
-            onCheckedChange={(checked) => setFlag.mutate({ key: flag.key, enabled: checked })}
+            onCheckedChange={(checked) =>
+              setFlag.mutate(
+                { key: flag.key, enabled: checked },
+                { onSuccess: () => toast.success(`${flag.key} ${checked ? 'ativado' : 'desativado'} para esta organização.`) },
+              )
+            }
           />
         </div>
       ))}
