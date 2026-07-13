@@ -24,9 +24,9 @@ interface VideoPanelProps {
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
   // Camera whose audio track should play through this panel's hls instance
-  // (live only — Safari's native HLS path has no `hls.audioTrack` to set, so
-  // it's a no-op there). Only the primary/unmuted panel gets this — see
-  // Task 12.
+  // (live AND replay — both use hls.js; only Safari's native HLS path, which
+  // has no hls instance, is a no-op). Only the primary/unmuted panel gets
+  // this — see Task 12.
   selectedAudioCameraId?: string;
   // Pin this panel to the smallest rendition, overriding selectedLevel. Used
   // for background/thumbnail panels (hidden, PIP, rail, strip previews) that
@@ -270,7 +270,7 @@ export function VideoPanel({
 
   useEffect(() => {
     const hls = hlsRef.current;
-    if (!hls || mode !== 'live') return;
+    if (!hls) return;
     const idx = audioTrackIndexForCamera(
       hls.audioTracks.map((t) => ({ id: t.id, name: t.name })),
       selectedAudioCameraId,
