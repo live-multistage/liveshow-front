@@ -33,22 +33,29 @@
 
 // ── Horizontal layout ─────────────────────────────────────────────
 // cardLink carries the row layout (not .card) so cardFooter can live
-// outside the anchor. min-height stays on the card (as originally),
-// and the footer margins reproduce the original text-column insets
-// (200px image + 20px content padding).
+// outside the anchor. The image is absolutely positioned against the
+// card so it spans the FULL card height (alongside the footer band,
+// matching the original); it stays inside the Link markup so it
+// remains clickable. Footer margins reproduce the original
+// text-column insets (200px image + 20px content padding).
 
 .cardHorizontal {
+  position: relative;
   min-height: 162px;
 
   & .cardLink {
     display: flex;
     flex-direction: row;
     flex: 1;
+    margin-left: 200px;
   }
 
   & .imageWrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
     width: 200px;
-    flex-shrink: 0;
     border-radius: 18px 0 0 18px;
     aspect-ratio: unset;
   }
