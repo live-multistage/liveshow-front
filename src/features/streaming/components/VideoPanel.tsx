@@ -28,7 +28,6 @@ interface VideoPanelProps {
   // it's a no-op there). Only the primary/unmuted panel gets this — see
   // Task 12.
   selectedAudioCameraId?: string;
-  onAudioTracksReady?: (tracks: { id: number; name: string }[]) => void;
   // Pin this panel to the smallest rendition, overriding selectedLevel. Used
   // for background/thumbnail panels (hidden, PIP, rail, strip previews) that
   // stay decoding for instant switching but don't need full quality — cuts
@@ -101,7 +100,6 @@ export function VideoPanel({
   selectedLevel,
   onLevelsReady,
   selectedAudioCameraId,
-  onAudioTracksReady,
   lowQuality = false,
   onAspectRatioReady,
   muted,
@@ -218,7 +216,6 @@ export function VideoPanel({
         .map((l, i) => ({ index: i, height: l.height }))
         .sort((a, b) => b.height - a.height);
       onLevelsReady?.(sorted);
-      onAudioTracksReady?.(hls.audioTracks.map((t) => ({ id: t.id, name: t.name })));
       applyLevel(hls);
       // Live always autoplays; replay only if not currently paused (a fresh
       // camera thumbnail/tile shouldn't start itself just because its own
