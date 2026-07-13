@@ -1,11 +1,11 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Plus, PowerOff, Tag } from 'lucide-react';
+import { Plus, Power, PowerOff, Tag } from 'lucide-react';
 import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
 import { useMyEventsQuery } from '@/features/events';
 import { useListCouponsQuery } from '../queries/use-coupons';
-import { useCreateCouponMutation, useDeactivateCouponMutation } from '../mutations/coupon.mutations';
+import { useCreateCouponMutation, useDeactivateCouponMutation, useActivateCouponMutation } from '../mutations/coupon.mutations';
 import { CreateCouponModal } from './CreateCouponModal';
 import type { CreateCouponRequest, CouponResponse } from '../types/coupon.types';
 import styles from './CouponsDashboard.module.scss';
@@ -40,6 +40,7 @@ export function CouponsDashboard() {
   const { data: myEvents } = useMyEventsQuery();
   const createMutation = useCreateCouponMutation(orgId);
   const deactivateMutation = useDeactivateCouponMutation(orgId);
+  const activateMutation = useActivateCouponMutation(orgId);
 
   // Only upcoming/ongoing events of this org make sense as coupon targets
   const eventOptions = useMemo(
@@ -159,7 +160,7 @@ export function CouponsDashboard() {
                   <td className={styles.td}>{formatExpiry(coupon.expiresAt)}</td>
                   <td className={styles.td}><StatusBadge isActive={coupon.isActive} /></td>
                   <td className={styles.td}>
-                    {coupon.isActive && (
+                    {coupon.isActive ? (
                       <button
                         className={styles.deactivateBtn}
                         onClick={() => handleDeactivate(coupon.id)}
@@ -167,6 +168,15 @@ export function CouponsDashboard() {
                         title="Desativar cupom"
                       >
                         <PowerOff size={14} />
+                      </button>
+                    ) : (
+                      <button
+                        className={styles.deactivateBtn}
+                        onClick={() => activateMutation.mutate(coupon.id)}
+                        disabled={activateMutation.isPending}
+                        title="Reativar cupom"
+                      >
+                        <Power size={14} />
                       </button>
                     )}
                   </td>

@@ -26,6 +26,10 @@ export const couponsService = {
     await httpClient.delete(`/coupons/${id}`);
   },
 
+  activate: async (id: string): Promise<void> => {
+    await httpClient.post(`/coupons/${id}/activate`);
+  },
+
   usages: async (id: string): Promise<CouponUsage[]> => {
     const { data } = await httpClient.get<CouponUsage[]>(`/coupons/${id}/usages`);
     return data;
