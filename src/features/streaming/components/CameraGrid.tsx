@@ -19,6 +19,11 @@ const PIP_RIGHT = 16;
 const PIP_BOTTOM = 88; // clears LivePlayer's floating bottom stack (5.5rem)
 const GAP = 2;
 
+// Off-screen-but-alive: opacity 0 (not visibility:hidden / display:none, which
+// browsers throttle or pause) so a hidden camera keeps decoding at the live
+// edge and reveals in sync when it becomes a PIP/rail/main — no reload jump.
+const HIDDEN_STYLE = { inset: 0, opacity: 0, pointerEvents: 'none', zIndex: -1 } as const;
+
 type Role = 'main' | 'pip' | 'rail' | 'grid' | 'hidden';
 interface Slot {
   role: Role;
@@ -134,7 +139,7 @@ export function CameraGrid({
       // Any camera the (capped) grid couldn't place stays mounted but hidden.
       for (const c of activeCameras) {
         if (!map.has(c.cameraId)) {
-          map.set(c.cameraId, { role: 'hidden', style: { inset: 0, visibility: 'hidden', zIndex: -1 } });
+          map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
         }
       }
       return map;
@@ -153,7 +158,7 @@ export function CameraGrid({
 
     if (effectiveMode === 'solo') {
       for (const c of otherCameras) {
-        map.set(c.cameraId, { role: 'hidden', style: { inset: 0, visibility: 'hidden', zIndex: -1 } });
+        map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
       }
     } else if (pipPresent) {
       map.set(otherCameras[0].cameraId, {
@@ -184,18 +189,16 @@ export function CameraGrid({
     hidden: styles.hiddenSlot,
   };
 
-  if (!mainCamera) {
-    return (
-      <div className={styles.stage}>
-        <div className={styles.emptyState}>Nenhuma câmera ativa</div>
-      </div>
-    );
-  }
-
+  // The stage (with the ResizeObserver ref) is ALWAYS rendered — even before
+  // cameras load — so the observer attaches on first mount and `size` is
+  // measured. Rendering it only once mainCamera exists left the ref unattached
+  // (the effect had already run against the empty-state branch), so `size`
+  // stayed 0 and the grid layout, which needs it, produced nothing.
   return (
     <div ref={stageRef} className={styles.stage} data-mode={effectiveMode}>
-      {activeCameras.map((cam) => {
-        const slot = layouts.get(cam.cameraId) ?? { role: 'hidden' as Role, style: { inset: 0, visibility: 'hidden' } };
+      {!mainCamera && <div className={styles.emptyState}>Nenhuma câmera ativa</div>}
+      {mainCamera && activeCameras.map((cam) => {
+        const slot = layouts.get(cam.cameraId) ?? { role: 'hidden' as Role, style: HIDDEN_STYLE };
         const { role } = slot;
         const isPrimary = cam.cameraId === mainCamera.cameraId;
         const clickable = role === 'pip' || role === 'rail' || role === 'grid';
