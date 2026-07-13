@@ -25,6 +25,7 @@ export function DashboardSidebar() {
       {/* Logo */}
       <Link href="/" className={styles.logoWrapper}>
         <Logo size={26} wordmarkClassName={styles.logoText} />
+        <span className={styles.logoBadge}>{role === 'SUPER_ADMIN' ? 'ADMIN' : 'STUDIO'}</span>
       </Link>
 
       {/* Nav */}
