@@ -104,8 +104,9 @@ export function StreamsHowItWorks() {
             </div>
             <p className={styles.note}>
               Streamlabs, vMix e ffmpeg seguem o mesmo padrão SRT — use o Servidor e a Stream Key nos
-              campos equivalentes. Precisa invalidar uma key vazada? Use <strong>Rotacionar key</strong> na
-              câmera; a key anterior para de funcionar na hora.
+              campos equivalentes. Vazou uma key? Use <strong>Rotacionar key</strong> na câmera: novas
+              conexões com a key antiga passam a ser recusadas na hora e uma transmissão ativa com ela é
+              encerrada.
             </p>
           </div>
         </div>
