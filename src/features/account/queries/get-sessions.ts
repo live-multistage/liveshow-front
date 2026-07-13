@@ -7,7 +7,7 @@ import type { SessionView } from '../types/session.types';
 export const sessionsKey = ['account', 'sessions'] as const;
 
 async function getSessions(): Promise<SessionView[]> {
-  const { data } = await httpClient.get<SessionView[]>('/auth/me/sessions');
+  const { data } = await httpClient.get<SessionView[]>('/auth/sessions');
   return data;
 }
 
