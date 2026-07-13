@@ -100,6 +100,7 @@ export function AdBanner({ placement, className }: Props) {
     <div
       className={bannerClassName}
       style={{ background: bg }}
+      onClick={handleClick}
       aria-label={`Anúncio: ${ad.title}`}
     >
       {content}
