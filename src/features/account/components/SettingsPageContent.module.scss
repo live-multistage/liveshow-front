@@ -117,7 +117,10 @@ $ok: #7fe0a0;
 .profileCard { background: $card; border: 1px solid $line; border-radius: 18px; overflow: hidden; scroll-margin-top: 24px; }
 .cover { height: 96px; background: linear-gradient(120deg, #2a0f22, #1a1030); position: relative;
   &::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 120%, rgba(255, 46, 158, 0.4), transparent 55%); } }
-.profileRow { padding: 0 26px 26px; margin-top: -38px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+// position/z-index so the row paints ABOVE .cover — the cover is
+// position:relative (for its ::after), which would otherwise paint over the
+// name/email that sit in the negative-margin overlap.
+.profileRow { position: relative; z-index: 1; padding: 0 26px 26px; margin-top: -38px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
 .profileIdent { display: flex; align-items: flex-end; gap: 18px; }
 .profileAvatar {
   width: 84px; height: 84px; border-radius: 50%; flex: none; overflow: hidden;
