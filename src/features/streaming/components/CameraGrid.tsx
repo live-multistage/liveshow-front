@@ -98,6 +98,8 @@ export function CameraGrid({
           onSelectMain={onMainCameraChange}
           muted={mainMuted}
           onMutedChange={handleMainMutedChange}
+          audioCameraId={audioCameraId}
+          globalMuted={globalMuted}
           volume={volume}
           selectedLevel={selectedLevel}
           onLevelsReady={onLevelsReady}

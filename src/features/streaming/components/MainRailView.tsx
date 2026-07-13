@@ -13,6 +13,10 @@ interface Props {
   onSelectMain: (cameraId: string) => void;
   muted: boolean;
   onMutedChange: (muted: boolean) => void;
+  // Audio context for the non-main tiles (PIP / rail) so audio can follow the
+  // selected audio camera even when it isn't the maximized one.
+  audioCameraId: string | null;
+  globalMuted: boolean;
   volume?: number;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
@@ -33,6 +37,8 @@ export function MainRailView({
   onSelectMain,
   muted,
   onMutedChange,
+  audioCameraId,
+  globalMuted,
   volume = 1,
   selectedLevel,
   onLevelsReady,
@@ -66,6 +72,9 @@ export function MainRailView({
           <PipOverlay
             camera={otherCameras[0]}
             onSelect={() => onSelectMain(otherCameras[0].cameraId)}
+            audioCameraId={audioCameraId}
+            globalMuted={globalMuted}
+            volume={volume}
             mode={mode}
             paused={paused}
             seekCommand={seekCommand}
@@ -73,7 +82,16 @@ export function MainRailView({
         )}
       </div>
       {otherCameras.length >= 2 && (
-        <CameraRail cameras={otherCameras} onSelect={onSelectMain} mode={mode} paused={paused} seekCommand={seekCommand} />
+        <CameraRail
+          cameras={otherCameras}
+          onSelect={onSelectMain}
+          audioCameraId={audioCameraId}
+          globalMuted={globalMuted}
+          volume={volume}
+          mode={mode}
+          paused={paused}
+          seekCommand={seekCommand}
+        />
       )}
     </div>
   );
