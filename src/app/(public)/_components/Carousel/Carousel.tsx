@@ -2,17 +2,18 @@
 
 import { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import styles from './Carousel.module.scss';
 
 interface CarouselProps {
   title?: string;
   showLiveDot?: boolean;
-  onSeeAll?: () => void;
+  seeAllHref?: string;
   children: React.ReactNode;
 }
 
-export function Carousel({ title, showLiveDot = false, onSeeAll, children }: CarouselProps) {
+export function Carousel({ title, showLiveDot = false, seeAllHref, children }: CarouselProps) {
   const t = useTranslations('carousel');
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -24,16 +25,16 @@ export function Carousel({ title, showLiveDot = false, onSeeAll, children }: Car
 
   return (
     <div className={styles.section}>
-      {(title || onSeeAll) && (
+      {(title || seeAllHref) && (
         <div className={styles.header}>
           <div className={styles.titleRow}>
             {showLiveDot && <span className={styles.liveDot} />}
             {title && <h2 className={styles.title}>{title}</h2>}
           </div>
-          {onSeeAll && (
-            <button onClick={onSeeAll} className={styles.seeAll}>
+          {seeAllHref && (
+            <Link href={seeAllHref} className={styles.seeAll}>
               {t('seeAll')}
-            </button>
+            </Link>
           )}
         </div>
       )}

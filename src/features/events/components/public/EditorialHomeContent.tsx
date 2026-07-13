@@ -332,7 +332,7 @@ export function EditorialHomeContent({ initialEvents, initialRecommended }: Prop
                 </div>
               </div>
             </div>
-            <Carousel onSeeAll={() => router.push('/events')}>
+            <Carousel seeAllHref="/events">
               {recommendedShows.map((show) => (
                 <div key={show.id} className={styles.recommendedItem}>
                   <EditorialCard

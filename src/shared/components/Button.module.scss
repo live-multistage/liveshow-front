@@ -17,6 +17,7 @@
   white-space: nowrap;
   transition: opacity 0.15s, background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
   border: 1px solid transparent;
+  text-decoration: none;
 
   &:disabled {
     opacity: 0.45;
