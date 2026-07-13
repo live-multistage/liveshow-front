@@ -1,16 +1,71 @@
 @use '../../../styles/_variables' as *;
 
-.videoArea {
-  flex: 1;
-  min-height: 0;
-  min-width: 0;
-  height: 100%;
+.stage {
   position: relative;
-  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background-color: #000;
+}
+
+// Every camera panel is an absolutely-positioned slot. The transition animates
+// the rect change when a camera moves between roles (thumbnail → main, grid →
+// rail, …) so the swap reads as a smooth move of the same element, not a cut.
+.slot {
+  position: absolute;
+  overflow: hidden;
+  transition: left 0.28s ease, top 0.28s ease, right 0.28s ease,
+    bottom 0.28s ease, width 0.28s ease, height 0.28s ease;
+}
+
+.mainSlot {
+  z-index: 0;
+}
+
+.pipSlot {
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: border-color 0.15s, left 0.28s ease, top 0.28s ease,
+    right 0.28s ease, bottom 0.28s ease, width 0.28s ease, height 0.28s ease;
+
+  &:hover {
+    border-color: $action;
+  }
+}
+
+.railSlot {
+  border: 1px solid $border;
+  cursor: pointer;
+  transition: border-color 0.15s, left 0.28s ease, top 0.28s ease,
+    right 0.28s ease, bottom 0.28s ease, width 0.28s ease, height 0.28s ease;
+
+  &:hover {
+    border-color: $action;
+  }
+}
+
+.gridSlot {
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: border-color 0.15s, left 0.28s ease, top 0.28s ease,
+    width 0.28s ease, height 0.28s ease;
+
+  &:hover {
+    border-color: $action;
+  }
+}
+
+.hiddenSlot {
+  pointer-events: none;
 }
 
 .emptyState {
-  flex: 1;
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
