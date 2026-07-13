@@ -24,9 +24,9 @@ export function MarketingPanel() {
 
         <div className={styles.marketingBody}>
           <p className={styles.marketingEyebrow}>STREAMING AO VIVO</p>
-          <h1 className={styles.marketingTitle}>A música acontece em tempo real.</h1>
+          <h1 className={styles.marketingTitle}>Viva o evento em tempo real.</h1>
           <p className={styles.marketingDesc}>
-            Acesse shows exclusivos ao vivo e replays com múltiplas câmeras.
+            Acesse eventos exclusivos ao vivo e replays com múltiplas câmeras.
           </p>
         </div>
 
@@ -55,7 +55,7 @@ export function MarketingPanel() {
           <div className={styles.marketingStatDivider} />
           <div className={styles.marketingStat}>
             <span className={styles.marketingStatNum}>{shows.length}</span>
-            <span className={styles.marketingStatLabel}>SHOWS</span>
+            <span className={styles.marketingStatLabel}>EVENTOS</span>
           </div>
           <div className={styles.marketingStatDivider} />
           <div className={styles.marketingStat}>
