@@ -1,5 +1,6 @@
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { tokenStore } from '@/lib/auth/token-store';
+import { getAttribution } from '@/lib/analytics/attribution';
 
 function clearSession() {
   tokenStore.clear();
@@ -25,6 +26,16 @@ export function applyInterceptors(client: AxiosInstance) {
   client.interceptors.request.use((req: InternalAxiosRequestConfig) => {
     const token = tokenStore.get();
     if (token) req.headers.set('Authorization', `Bearer ${token}`);
+
+    const attribution = getAttribution();
+    if (attribution) {
+      req.headers.set('x-attribution-channel', attribution.channel);
+      if (attribution.utmSource) req.headers.set('x-attribution-source', attribution.utmSource);
+      if (attribution.utmMedium) req.headers.set('x-attribution-medium', attribution.utmMedium);
+      if (attribution.utmCampaign) req.headers.set('x-attribution-campaign', attribution.utmCampaign);
+      if (attribution.referrerHost) req.headers.set('x-attribution-referrer', attribution.referrerHost);
+    }
+
     return req;
   });
 
