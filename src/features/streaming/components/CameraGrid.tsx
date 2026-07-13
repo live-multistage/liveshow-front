@@ -239,9 +239,10 @@ export function CameraGrid({
               onMutedChange={onMutedChange}
               volume={volume}
               selectedLevel={selectedLevel}
-              // Background/small tiles decode at the lowest rendition to save
-              // CPU/bandwidth; the main view and full-size grid tiles stay full.
-              lowQuality={role === 'hidden' || role === 'pip' || role === 'rail'}
+              // In-player panels stay full quality even when hidden/small: any
+              // of them can be promoted to main, and forcing a rendition switch
+              // on promote (low → full) flushes the buffer and stalls ~1s. Only
+              // the camera-strip previews (never the playback source) go low.
               onLevelsReady={isPrimary ? onLevelsReady : undefined}
               onAspectRatioReady={handleAspectRatioReady}
               mode={mode}

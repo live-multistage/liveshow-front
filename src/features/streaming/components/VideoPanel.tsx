@@ -241,6 +241,21 @@ export function VideoPanel({
     if (videoRef.current) videoRef.current.volume = volume;
   }, [volume]);
 
+  // When this panel becomes the focused/main view (live), snap it to the live
+  // edge. Background panels stay alive but can drift a second or two behind
+  // live, so promoting one would otherwise reveal it slightly out of sync with
+  // real time / the other tiles. Only nudges FORWARD, and only on a real gap.
+  useEffect(() => {
+    if (mode !== 'live' || !isFocused) return;
+    const hls = hlsRef.current;
+    const video = videoRef.current;
+    if (!hls || !video) return;
+    const live = hls.liveSyncPosition;
+    if (typeof live === 'number' && Number.isFinite(live) && live - video.currentTime > 1) {
+      video.currentTime = live;
+    }
+  }, [isFocused, mode]);
+
   useEffect(() => {
     if (hlsRef.current) applyLevel(hlsRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
