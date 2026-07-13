@@ -30,7 +30,8 @@
     "login": "Entrar",
     "register": "Cadastrar",
     "searchPlaceholder": "Buscar shows...",
-    "cart": "Carrinho"
+    "cart": "Carrinho",
+    "loggingOut": "Saindo..."
   },
   "auth": {
     "login": {
@@ -287,7 +288,8 @@
     },
     "userMenu": {
       "account": "Minha Conta",
-      "logout": "Sair"
+      "logout": "Sair",
+      "loggingOut": "Saindo..."
     },
     "overview": {
       "stats": "Estatísticas",
@@ -535,6 +537,7 @@
       "purchases": "Compras",
       "settings": "Configurações"
     },
-    "logout": "Sair da conta"
+    "logout": "Sair da conta",
+    "loggingOut": "Saindo..."
   }
 }

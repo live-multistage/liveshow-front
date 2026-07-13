@@ -30,7 +30,8 @@
     "login": "Sign In",
     "register": "Sign Up",
     "searchPlaceholder": "Search shows...",
-    "cart": "Cart"
+    "cart": "Cart",
+    "loggingOut": "Signing out..."
   },
   "auth": {
     "login": {
@@ -287,7 +288,8 @@
     },
     "userMenu": {
       "account": "My Account",
-      "logout": "Sign out"
+      "logout": "Sign out",
+      "loggingOut": "Signing out..."
     },
     "overview": {
       "stats": "Statistics",
@@ -535,6 +537,7 @@
       "purchases": "Purchases",
       "settings": "Settings"
     },
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "loggingOut": "Signing out..."
   }
 }

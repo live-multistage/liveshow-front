@@ -4,12 +4,14 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo } 
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { tokenStore } from '@/lib/auth/token-store';
+import { LogoutOverlay } from '../components/LogoutOverlay';
 import type { AuthUser } from '../types/account.types';
 
 interface AuthContextValue {
   user: AuthUser | null;
   isLoggedIn: boolean;
   isLoading: boolean;
+  isLoggingOut: boolean;
   login: (user: AuthUser) => void;
   logout: () => Promise<void>;
 }
@@ -50,6 +52,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children, initialIsLoggedIn, initialUser }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(initialUser);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -101,12 +104,21 @@ export function AuthProvider({ children, initialIsLoggedIn, initialUser }: AuthP
   }, []);
 
   const logout = useCallback(async () => {
+    // Flip the UI immediately — the cookie-revoke round-trip below takes
+    // seconds and used to run before any state change, so the click felt
+    // dead. isLoggingOut lets buttons that stay mounted show a pending
+    // label and guard double-clicks.
+    setIsLoggingOut(true);
     tokenStore.clear();
     localStorage.removeItem('user');
-    await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
-    queryClient.clear();
     setUser(null);
-    router.push('/login');
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+      queryClient.clear();
+      router.push('/login');
+    } finally {
+      setIsLoggingOut(false);
+    }
   }, [router, queryClient]);
 
   // While hydration is still in flight, trust the server-decoded snapshot
@@ -117,11 +129,16 @@ export function AuthProvider({ children, initialIsLoggedIn, initialUser }: AuthP
   const isLoggedIn = isLoading ? initialIsLoggedIn : !!user;
 
   const value = useMemo(
-    () => ({ user, isLoggedIn, isLoading, login, logout }),
-    [user, isLoggedIn, isLoading, login, logout],
+    () => ({ user, isLoggedIn, isLoading, isLoggingOut, login, logout }),
+    [user, isLoggedIn, isLoading, isLoggingOut, login, logout],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      {isLoggingOut && <LogoutOverlay />}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuthContextValue(): AuthContextValue {

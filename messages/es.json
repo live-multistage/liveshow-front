@@ -30,7 +30,8 @@
     "login": "Iniciar sesión",
     "register": "Registrarse",
     "searchPlaceholder": "Buscar shows...",
-    "cart": "Carrito"
+    "cart": "Carrito",
+    "loggingOut": "Cerrando sesión..."
   },
   "auth": {
     "login": {
@@ -287,7 +288,8 @@
     },
     "userMenu": {
       "account": "Mi Cuenta",
-      "logout": "Cerrar sesión"
+      "logout": "Cerrar sesión",
+      "loggingOut": "Cerrando sesión..."
     },
     "overview": {
       "stats": "Estadísticas",
@@ -535,6 +537,7 @@
       "purchases": "Compras",
       "settings": "Configuración"
     },
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "loggingOut": "Cerrando sesión..."
   }
 }
