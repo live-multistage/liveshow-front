@@ -43,8 +43,6 @@ export function CameraStrip({
   paused,
   seekCommand,
 }: Props) {
-  if (!open) return null;
-
   // Inactive -> activate it and bring it to the front (the whole point of
   // clicking a thumbnail is "show me this one"). Already the main/featured
   // one -> turn it off (guarded upstream: the last active camera can't be
@@ -62,7 +60,16 @@ export function CameraStrip({
     }
   };
 
+  // The strip stays mounted whether or not it's open — collapsing via
+  // max-height (NOT unmounting / display:none / visibility:hidden) keeps the
+  // thumbnail <video>s at their real size so they keep decoding at the live
+  // edge in the background. Reopening reveals already-playing, in-sync
+  // thumbnails instead of remounting them (which reloaded HLS and desynced).
   return (
+    <div
+      className={`${styles.collapse} ${open ? styles.collapseOpen : styles.collapseClosed}`}
+      aria-hidden={!open}
+    >
     <div className={styles.strip}>
       <div className={styles.side}>
         <div className={styles.sideTop}>
@@ -130,6 +137,7 @@ export function CameraStrip({
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }

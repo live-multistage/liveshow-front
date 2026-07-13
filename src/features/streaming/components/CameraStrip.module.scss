@@ -5,6 +5,24 @@
   50%       { opacity: 0.4; }
 }
 
+// Collapses the strip without unmounting it, so the thumbnail videos keep
+// their size (and keep decoding) while hidden. overflow:hidden also clips
+// hit-testing, so the 0-height closed state can't be clicked through.
+.collapse {
+  overflow: hidden;
+  transition: max-height 0.22s ease, opacity 0.22s ease;
+}
+
+.collapseOpen {
+  max-height: 220px;
+  opacity: 1;
+}
+
+.collapseClosed {
+  max-height: 0;
+  opacity: 0;
+}
+
 .strip {
   display: flex;
   align-items: flex-end;
