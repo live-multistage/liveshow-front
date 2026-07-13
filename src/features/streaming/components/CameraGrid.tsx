@@ -231,11 +231,19 @@ export function CameraGrid({
             <VideoPanel
               camera={cam}
               onSelect={onSelect}
-              isFocused={role === 'main' || cam.cameraId === audioCameraId}
+              // Focus (and its live-edge seek) tracks the MAIN video only. Do
+              // not couple it to audioCameraId: selecting a non-main camera as
+              // the audio source would flip isFocused → trigger a currentTime
+              // jump to the live edge → brief stall + audible desync. The audio
+              // panel keeps riding live via maxLiveSyncPlaybackRate, no seek.
+              isFocused={role === 'main'}
               showLabel={role !== 'main' && role !== 'hidden'}
               showMuteButton={role === 'grid'}
               fit={role === 'pip' || role === 'rail' ? 'cover' : 'contain'}
-              muted={globalMuted || cam.cameraId !== audioCameraId}
+              // Audio comes from the main element's selected alternate-audio
+              // track (hls.audioTrack), not from unmuting a background element.
+              muted={globalMuted || !isPrimary}
+              selectedAudioCameraId={isPrimary ? audioCameraId ?? undefined : undefined}
               onMutedChange={onMutedChange}
               volume={volume}
               selectedLevel={selectedLevel}
