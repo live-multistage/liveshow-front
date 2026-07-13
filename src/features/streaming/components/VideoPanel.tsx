@@ -7,6 +7,7 @@ import { Maximize2, Volume2, VolumeX } from 'lucide-react';
 import { config } from '@/config';
 import { tokenStore } from '@/lib/auth/token-store';
 import type { LiveCamera } from '../types/live.types';
+import { audioTrackIndexForCamera } from './audio-track';
 import styles from './VideoPanel.module.scss';
 
 export interface QualityLevel {
@@ -22,6 +23,12 @@ interface VideoPanelProps {
   showLabel?: boolean;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
+  // Camera whose audio track should play through this panel's hls instance
+  // (live only — Safari's native HLS path has no `hls.audioTrack` to set, so
+  // it's a no-op there). Only the primary/unmuted panel gets this — see
+  // Task 12.
+  selectedAudioCameraId?: string;
+  onAudioTracksReady?: (tracks: { id: number; name: string }[]) => void;
   // Pin this panel to the smallest rendition, overriding selectedLevel. Used
   // for background/thumbnail panels (hidden, PIP, rail, strip previews) that
   // stay decoding for instant switching but don't need full quality — cuts
@@ -93,6 +100,8 @@ export function VideoPanel({
   showLabel = true,
   selectedLevel,
   onLevelsReady,
+  selectedAudioCameraId,
+  onAudioTracksReady,
   lowQuality = false,
   onAspectRatioReady,
   muted,
@@ -209,6 +218,7 @@ export function VideoPanel({
         .map((l, i) => ({ index: i, height: l.height }))
         .sort((a, b) => b.height - a.height);
       onLevelsReady?.(sorted);
+      onAudioTracksReady?.(hls.audioTracks.map((t) => ({ id: t.id, name: t.name })));
       applyLevel(hls);
       // Live always autoplays; replay only if not currently paused (a fresh
       // camera thumbnail/tile shouldn't start itself just because its own
@@ -260,6 +270,17 @@ export function VideoPanel({
     if (hlsRef.current) applyLevel(hlsRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lowQuality, selectedLevel]);
+
+  useEffect(() => {
+    const hls = hlsRef.current;
+    if (!hls || mode !== 'live') return;
+    const idx = audioTrackIndexForCamera(
+      hls.audioTracks.map((t) => ({ id: t.id, name: t.name })),
+      selectedAudioCameraId,
+    );
+    if (idx >= 0 && hls.audioTrack !== idx) hls.audioTrack = idx;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAudioCameraId]);
 
   useEffect(() => {
     const video = videoRef.current;
