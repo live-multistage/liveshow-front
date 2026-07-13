@@ -7,6 +7,7 @@ import { useCreateStreamMutation } from '../mutations/stream.mutations';
 import { StreamCard } from './StreamCard';
 import { StreamBuilder } from './StreamBuilder';
 import { StreamSetupTutorial } from './StreamSetupTutorial';
+import { StreamsHowItWorks } from './StreamsHowItWorks';
 import { SimpleCustomSelect } from '@/shared/components/ui/custom-select';
 import type { StreamResponse } from '../types/stream.types';
 import styles from './StreamsPageContent.module.scss';
@@ -173,6 +174,9 @@ export function StreamsPageContent() {
           />
         </div>
       </div>
+
+      {/* How-it-works doc panel */}
+      <StreamsHowItWorks />
 
       {/* Stats strip — only when a stream is selected */}
       {selectedStream && <StatsStrip stream={selectedStream} />}
