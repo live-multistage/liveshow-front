@@ -9,6 +9,8 @@
   flex-direction: column;
   gap: 0.625rem;
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
   transition: border-color 0.15s, transform 0.1s;
 
   &:hover {

@@ -142,6 +142,7 @@
   color: $text-secondary;
   font-size: 0.875rem;
   cursor: pointer;
+  text-decoration: none;
   padding: 0;
   transition: color 0.15s;
 
@@ -396,6 +397,8 @@
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
   transition: color 0.15s, border-color 0.15s;
 
   &:hover { color: $text-primary; border-color: $text-secondary; }

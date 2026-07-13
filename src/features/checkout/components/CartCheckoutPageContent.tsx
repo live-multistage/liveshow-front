@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Shield, AlertCircle, Check, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
 import { useAuth } from '@/features/account';
@@ -15,7 +15,6 @@ import styles from './CheckoutPageContent.module.scss';
 import cartStyles from './CartCheckoutPageContent.module.scss';
 
 export function CartCheckoutPageContent() {
-  const router = useRouter();
   const { isLoggedIn, isLoading: authLoading } = useAuth();
   const { data: cart, isLoading: cartLoading } = useCartQuery();
 
@@ -86,9 +85,9 @@ export function CartCheckoutPageContent() {
         <div className={styles.error}>
           <AlertCircle size={32} />
           <p>Seu carrinho está vazio.</p>
-          <button onClick={() => router.push('/events')} className={styles.backBtn}>
+          <Link href="/events" className={styles.backBtn}>
             Explorar eventos
-          </button>
+          </Link>
         </div>
       </div>
     );

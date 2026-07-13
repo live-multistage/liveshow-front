@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Shield, AlertCircle, Clock } from 'lucide-react';
 import { useGetEventQuery, useListTicketProductsQuery, formatPrice } from '@/features/events';
 import { useAuth } from '@/features/account';
@@ -149,9 +150,9 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
         <div className={styles.error}>
           <AlertCircle size={32} />
           <p>Ingresso não encontrado.</p>
-          <button onClick={() => router.push(`/events/${eventId}`)} className={styles.backBtn}>
+          <Link href={`/events/${eventId}`} className={styles.backBtn}>
             Voltar ao evento
-          </button>
+          </Link>
         </div>
       </div>
     );

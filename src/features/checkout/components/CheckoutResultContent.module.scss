@@ -114,6 +114,11 @@
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   transition: filter 0.15s;
 
   &:hover { filter: brightness(1.08); }
@@ -129,6 +134,11 @@
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   transition: border-color 0.15s, color 0.15s;
 
   &:hover { border-color: $text-muted; color: $text-primary; }

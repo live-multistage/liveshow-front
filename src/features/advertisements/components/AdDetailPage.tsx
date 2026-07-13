@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ChevronLeft, Pencil, Check, X, Loader2, AlertCircle } from 'lucide-react';
 import { useGetAdQuery } from '../queries/use-get-ad';
 import { useAdReportQuery } from '../queries/use-ad-report';
@@ -140,7 +140,6 @@ function editStateToRequest(s: EditState): UpdateAdRequest {
 interface Props { id: string }
 
 export function AdDetailPage({ id }: Props) {
-  const router = useRouter();
   const { data: ad, isLoading, isError } = useGetAdQuery(id);
   const { data: report } = useAdReportQuery(id);
   const changeStatus = useChangeAdStatusMutation(ad?.organizationId);
@@ -200,9 +199,9 @@ export function AdDetailPage({ id }: Props) {
       <div className={styles.centered}>
         <AlertCircle size={24} />
         <p>Anúncio não encontrado.</p>
-        <button className={styles.backLink} onClick={() => router.push('/dashboard/advertisement')}>
+        <Link href="/dashboard/advertisement" className={styles.backLink}>
           Voltar para anúncios
-        </button>
+        </Link>
       </div>
     );
   }
@@ -222,10 +221,10 @@ export function AdDetailPage({ id }: Props) {
     <div className={styles.page}>
       {/* Top bar */}
       <div className={styles.topBar}>
-        <button className={styles.backBtn} onClick={() => router.push('/dashboard/advertisement')}>
+        <Link href="/dashboard/advertisement" className={styles.backBtn}>
           <ChevronLeft size={16} />
           ANÚNCIOS
-        </button>
+        </Link>
 
         <div className={styles.topBarRight}>
           {canEdit && !editing && (

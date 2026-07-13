@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Plus, Search, Loader2, ExternalLink, BarChart3 } from 'lucide-react';
 import styles from './AdvertisementPage.module.scss';
 import { AdReportModal, type ReportAdRef } from './AdReportModal';
@@ -75,7 +75,6 @@ type TabKey = 'all' | 'active' | 'paused' | 'ended';
 // ── Main component ─────────────────────────────────────────────
 
 export function AdvertisementPage() {
-  const router = useRouter();
   const [tab, setTab] = useState<TabKey>('all');
   const [formatFilter, setFormatFilter] = useState<'all' | DisplayFormat>('all');
   const [search, setSearch] = useState('');
@@ -146,10 +145,10 @@ export function AdvertisementPage() {
           <h1 className={styles.title}>Anúncios</h1>
           <p className={styles.subtitle}>Gerencie e acompanhe seus anúncios</p>
         </div>
-        <button className={styles.createBtn} onClick={() => router.push('/dashboard/advertisement/new')}>
+        <Link href="/dashboard/advertisement/new" className={styles.createBtn}>
           <Plus size={16} />
           Criar Anúncio
-        </button>
+        </Link>
       </header>
 
       {/* KPI strip — aggregate computed from list; impressions/clicks require report */}
@@ -266,14 +265,14 @@ export function AdvertisementPage() {
                     <span className={styles.toggleThumb} />
                   </button>
                 )}
-                <button
+                <Link
+                  href={`/dashboard/advertisement/${ad.id}`}
                   className={styles.reportBtn}
-                  onClick={() => router.push(`/dashboard/advertisement/${ad.id}`)}
                   aria-label="Detalhes"
                   title="Detalhes"
                 >
                   <ExternalLink size={14} />
-                </button>
+                </Link>
                 <button
                   className={styles.reportBtn}
                   onClick={() => openReport(ad)}

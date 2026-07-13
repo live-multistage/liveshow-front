@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Check, Loader2, ImagePlus, X } from 'lucide-react';
 import { useCreateAdMutation } from '../mutations/use-create-ad.mutation';
@@ -199,10 +200,10 @@ export function AdCreatePage() {
     <div className={styles.page}>
       {/* Top bar */}
       <div className={styles.topBar}>
-        <button className={styles.backBtn} onClick={() => router.push('/dashboard/advertisement')}>
+        <Link href="/dashboard/advertisement" className={styles.backBtn}>
           <ChevronLeft size={16} />
           ANÚNCIOS
-        </button>
+        </Link>
         <h1 className={styles.pageTitle}>Criar Anúncio</h1>
       </div>
 

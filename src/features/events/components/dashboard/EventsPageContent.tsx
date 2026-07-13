@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Plus, CalendarDays, Radio, CheckCircle2, Clock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMyEventsQuery } from '../../queries/get-my-events';
@@ -12,7 +12,6 @@ import styles from './EventsPageContent.module.scss';
 export function EventsPageContent() {
   const t = useTranslations('eventsPage');
   const [activeFilter, setActiveFilter] = useState<EventStatus | 'all'>('all');
-  const router = useRouter();
   const { data: events = [], isLoading, isError } = useMyEventsQuery();
 
   const total = events.length;
@@ -40,10 +39,10 @@ export function EventsPageContent() {
           <h1 className={styles.heading}>{t('heading')}</h1>
           <p className={styles.subheading}>{t('subheading')}</p>
         </div>
-        <button className={styles.createBtn} onClick={() => router.push('/dashboard/events/new')}>
+        <Link href="/dashboard/events/new" className={styles.createBtn}>
           <Plus size={16} />
           {t('createBtn')}
-        </button>
+        </Link>
       </div>
 
       <div className={styles.stats}>
@@ -96,9 +95,9 @@ export function EventsPageContent() {
         <div className={styles.empty}>
           <CalendarDays size={40} className={styles.emptyIcon} />
           <p>{t('empty')}</p>
-          <button className={styles.createBtn} onClick={() => router.push('/dashboard/events/new')}>
+          <Link href="/dashboard/events/new" className={styles.createBtn}>
             <Plus size={14} /> {t('createFirst')}
-          </button>
+          </Link>
         </div>
       )}
 

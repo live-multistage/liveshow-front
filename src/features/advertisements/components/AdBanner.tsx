@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { X } from 'lucide-react';
 import styles from './AdBanner.module.scss';
@@ -29,7 +29,6 @@ function gradientFor(id: string): string {
 }
 
 export function AdBanner({ placement, className }: Props) {
-  const router = useRouter();
   const [dismissed, setDismissed] = useState(false);
   const impressionFired = useRef(false);
 
@@ -58,19 +57,12 @@ export function AdBanner({ placement, className }: Props) {
 
   function handleClick() {
     advertisementsService.recordClick(ad!.adId);
-    if (ad!.eventId) router.push(`/events/${ad!.eventId}`);
   }
 
-  return (
-    <div
-      className={`${styles.banner} ${isVertical ? styles.bannerV : styles.bannerH} ${className ?? ''}`}
-      style={{ background: bg }}
-      onClick={handleClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && handleClick()}
-      aria-label={`Anúncio: ${ad.title}`}
-    >
+  const bannerClassName = `${styles.banner} ${isVertical ? styles.bannerV : styles.bannerH} ${className ?? ''}`;
+
+  const content = (
+    <>
       <span className={styles.sponsored}>PATROCINADO</span>
 
       <div className={styles.content}>
@@ -87,6 +79,30 @@ export function AdBanner({ placement, className }: Props) {
       >
         <X size={12} />
       </button>
+    </>
+  );
+
+  if (ad.eventId) {
+    return (
+      <Link
+        href={`/events/${ad.eventId}`}
+        className={bannerClassName}
+        style={{ background: bg }}
+        onClick={handleClick}
+        aria-label={`Anúncio: ${ad.title}`}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div
+      className={bannerClassName}
+      style={{ background: bg }}
+      aria-label={`Anúncio: ${ad.title}`}
+    >
+      {content}
     </div>
   );
 }

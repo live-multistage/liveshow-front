@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import type { EventResponse, EventStatus } from '../../types/event.types';
 import styles from './EventDashboardCard.module.scss';
@@ -19,7 +19,6 @@ interface Props {
 }
 
 export function EventDashboardCard({ event }: Props) {
-  const router = useRouter();
   const t = useTranslations('eventCard');
   const locale = useLocale();
   const location = [event.venue, event.city, event.country].filter(Boolean).join(', ');
@@ -32,13 +31,7 @@ export function EventDashboardCard({ event }: Props) {
   }
 
   return (
-    <div
-      className={styles.card}
-      onClick={() => router.push(`/dashboard/events/${event.id}`)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') router.push(`/dashboard/events/${event.id}`); }}
-    >
+    <Link href={`/dashboard/events/${event.id}`} className={styles.card}>
       <div className={styles.cardTop}>
         <span className={`${styles.status} ${STATUS_MOD[event.status]}`}>
           {event.status === 'LIVE' && <span className={styles.livePulse} />}
@@ -60,6 +53,6 @@ export function EventDashboardCard({ event }: Props) {
         <span className={styles.dateSep}>→</span>
         <span>{formatDate(event.endsAt)}</span>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { MapPin, ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,7 +30,6 @@ interface Props {
 }
 
 export function EventDashboardDetailContent({ id, initialEvent }: Props) {
-  const router = useRouter();
   const t = useTranslations('eventDetail');
   const [editing, setEditing] = useState(false);
 
@@ -82,9 +81,9 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
     return (
       <div className={styles.centered}>
         <p className={styles.notFound}>{t('notFound')}</p>
-        <button onClick={() => router.push('/dashboard/events')} className={styles.backLink}>
+        <Link href="/dashboard/events" className={styles.backLink}>
           {t('backLink')}
-        </button>
+        </Link>
       </div>
     );
   }
@@ -94,9 +93,9 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <button onClick={() => router.push('/dashboard/events')} className={styles.back}>
+        <Link href="/dashboard/events" className={styles.back}>
           <ArrowLeft size={16} /> {t('back')}
-        </button>
+        </Link>
 
         <EventHeaderActions
           event={event}
