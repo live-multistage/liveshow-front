@@ -7,7 +7,7 @@ import type { LiveCamera, LiveStage } from '../types/live.types';
 import { CameraGrid } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
 import { Header } from './Header';
-import { CameraStrip } from './CameraStrip';
+import { StripControls } from './StripControls';
 import { TransportBar } from './TransportBar';
 import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
 import { useAuth } from '@/features/account/hooks/use-auth';
@@ -177,6 +177,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
               mainCameraId={effectiveMainCameraId}
               onMainCameraChange={setMainCameraId}
               activeCameraIds={activeCameraIds}
+              pickerOpen={cameraStripOpen}
+              onToggleCamera={handleToggleCamera}
             />
           )}
         </div>
@@ -194,12 +196,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
 
       <div className={styles.bottomStack}>
         {activeStage && (
-          <CameraStrip
-            cameras={activeStage.cameras}
-            activeCameraIds={activeCameraIds}
-            mainCameraId={effectiveMainCameraId}
-            onToggleCamera={handleToggleCamera}
-            onSelectMain={setMainCameraId}
+          <StripControls
+            count={activeStage.cameras.length}
             isModeLocked={activeCameraIds.length <= 1}
             effectiveMode={effectiveViewMode}
             onViewModeChange={setViewMode}
