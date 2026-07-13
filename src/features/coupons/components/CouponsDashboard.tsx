@@ -54,7 +54,7 @@ export function CouponsDashboard() {
   const scopeLabel = (coupon: CouponResponse) =>
     coupon.eventId
       ? (myEvents?.find((e) => e.id === coupon.eventId)?.title ?? coupon.eventId.slice(0, 8))
-      : coupon.orgIds.length > 1
+      : (coupon.orgIds?.length ?? 0) > 1 // stale cached payloads may predate orgIds
         ? 'Todas as orgs'
         : 'Org toda';
 
