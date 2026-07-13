@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Calendar, Clock, MapPin, Camera, RotateCcw, Play } from 'lucide-react';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
@@ -39,7 +40,7 @@ export function EventDetailPageContent({ id }: Props) {
     return (
       <div className={styles.centered}>
         <p className={styles.notFound}>{t('notFound')}</p>
-        <button onClick={() => router.push('/')} className={styles.backLink}>{t('backToHome')}</button>
+        <Link href="/" className={styles.backLink}>{t('backToHome')}</Link>
       </div>
     );
   }
@@ -124,7 +125,7 @@ export function EventDetailPageContent({ id }: Props) {
             </div>
 
             {org && (
-              <button className={styles.orgCard} onClick={() => router.push(`/o/${org.slug}`)}>
+              <Link href={`/o/${org.slug}`} className={styles.orgCard}>
                 <div className={styles.orgAvatar}>
                   {org.logoUrl && <img src={org.logoUrl} alt={org.name} className={styles.orgAvatarImg} />}
                 </div>
@@ -133,7 +134,7 @@ export function EventDetailPageContent({ id }: Props) {
                   <span className={styles.orgName}>{org.name}</span>
                 </div>
                 <span className={styles.orgArrow}>VER PERFIL →</span>
-              </button>
+              </Link>
             )}
 
             <div className={styles.section}>

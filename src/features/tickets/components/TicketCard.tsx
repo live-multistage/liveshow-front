@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { PurchasedTicket } from '../types/ticket.types';
 import { formatDate, formatTime } from '@/features/events';
@@ -13,7 +13,6 @@ interface TicketCardProps {
 export function TicketCard({ ticket }: TicketCardProps) {
   const t = useTranslations('ticketCard');
   const { event, capabilities, camerasLimit, ticketProductName } = ticket;
-  const router = useRouter();
 
   const isLive = event.status === 'LIVE';
   const hasReplay = capabilities.includes('REPLAY_VIEW');
@@ -97,22 +96,24 @@ export function TicketCard({ ticket }: TicketCardProps) {
         </div>
 
         <div className={styles.actions}>
-          <button
-            className={styles.btnWatch}
-            disabled={!watchHref}
-            onClick={() => watchHref && router.push(watchHref)}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-            {watchLabel}
-          </button>
-          <button
-            className={styles.btnDetails}
-            onClick={() => router.push(`/events/${event.id}`)}
-          >
+          {watchHref ? (
+            <Link className={styles.btnWatch} href={watchHref}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              {watchLabel}
+            </Link>
+          ) : (
+            <button className={styles.btnWatch} disabled>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              {watchLabel}
+            </button>
+          )}
+          <Link className={styles.btnDetails} href={`/events/${event.id}`}>
             {t('details')}
-          </button>
+          </Link>
         </div>
       </div>
     </div>

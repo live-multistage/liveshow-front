@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ChevronLeft, Play, Video } from 'lucide-react';
 import type { ReplayCameraPlayback, LiveCamera } from '../types/live.types';
 import { CameraGrid } from './CameraGrid';
@@ -29,7 +29,6 @@ interface ReplayPlayerProps {
 // accurate cross-camera sync), a real, harder problem deliberately left for
 // later.
 export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlayerProps) {
-  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
   const [mainCameraId, setMainCameraId] = useState<string | null>(null);
@@ -128,9 +127,9 @@ export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlay
   return (
     <div ref={containerRef} className={styles.player}>
       <header className={styles.header}>
-        <button className={styles.backBtn} onClick={() => router.push(`/events/${eventId}`)} aria-label="Voltar">
+        <Link href={`/events/${eventId}`} className={styles.backBtn} aria-label="Voltar">
           <ChevronLeft size={16} />
-        </button>
+        </Link>
         <div className={styles.titleGroup}>
           <span className={styles.title}>{title}</span>
           <span className={styles.replayBadge}>REPLAY</span>

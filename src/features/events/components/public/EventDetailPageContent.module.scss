@@ -28,6 +28,7 @@
 .notFound { color: $text-muted; font-size: 1rem; }
 
 .backLink {
+  display: inline-block;
   background: none;
   border: 1px solid $border;
   color: $text-secondary;
@@ -35,6 +36,7 @@
   padding: .6rem 1.25rem;
   cursor: pointer;
   font-size: .9rem;
+  text-decoration: none;
 }
 
 // ── Page ────────────────────────────────────────────────────────
@@ -283,6 +285,8 @@
   margin-bottom: 28px;
   cursor: pointer;
   text-align: left;
+  text-decoration: none;
+  color: inherit;
   transition: border-color .15s;
 
   &:hover { border-color: rgba(255, 46, 158, .28); }

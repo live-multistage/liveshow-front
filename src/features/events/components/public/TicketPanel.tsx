@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Tv2, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { formatPrice } from '../../utils/event-formatters';
 import type { EventResponse, TicketProductResponse } from '../../types/event.types';
@@ -94,7 +95,7 @@ export function TicketPanel({ event, tickets }: Props) {
                 fullWidth
                 icon={<Tv2 size={16} />}
                 className={styles.ticketAction}
-                onClick={() => router.push(`/live/${event.id}`)}
+                href={`/live/${event.id}`}
               >
                 {t('watchNow')}
               </Button>
@@ -107,7 +108,7 @@ export function TicketPanel({ event, tickets }: Props) {
                 fullWidth
                 icon={<RotateCcw size={16} />}
                 className={styles.ticketAction}
-                onClick={() => router.push(`/replay/${event.id}`)}
+                href={`/replay/${event.id}`}
               >
                 {t('watchReplay')}
               </Button>
@@ -272,9 +273,9 @@ export function TicketPanel({ event, tickets }: Props) {
 
         {isLive && (
           <div className={styles.demoLink}>
-            <button onClick={() => router.push(`/live/${event.id}`)} className={styles.demoBtn}>
+            <Link href={`/live/${event.id}`} className={styles.demoBtn}>
               {t('freePreview')}
-            </button>
+            </Link>
           </div>
         )}
 

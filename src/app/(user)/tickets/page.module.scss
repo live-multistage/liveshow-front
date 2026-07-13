@@ -179,6 +179,7 @@
 }
 
 .emptyBtn {
+  display: inline-block;
   background: #ff2e9e;
   color: #0a0a0b;
   border: none;
@@ -187,6 +188,7 @@
   font-weight: 700;
   font-size: 0.875rem;
   cursor: pointer;
+  text-decoration: none;
   transition: filter 0.15s;
 
   &:hover { filter: brightness(1.08); }
@@ -222,6 +224,7 @@
 }
 
 .recoLink {
+  display: inline-block;
   font-family: 'Space Mono', monospace;
   font-size: 12px;
   letter-spacing: .08em;
@@ -229,6 +232,7 @@
   background: none;
   border: none;
   cursor: pointer;
+  text-decoration: none;
   transition: color 0.15s;
   white-space: nowrap;
   flex-shrink: 0;
