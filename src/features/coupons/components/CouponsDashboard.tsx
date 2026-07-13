@@ -33,7 +33,8 @@ export function CouponsDashboard() {
   const [createError, setCreateError] = useState<string | null>(null);
 
   const { data: orgs = [], isLoading: orgsLoading } = useMyOrganizationsQuery();
-  const orgId = orgs[0]?.id;
+  const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>(undefined);
+  const orgId = selectedOrgId ?? orgs[0]?.id;
 
   const { data: coupons = [], isLoading: couponsLoading } = useListCouponsQuery(orgId);
   const { data: myEvents } = useMyEventsQuery();
@@ -53,7 +54,9 @@ export function CouponsDashboard() {
   const scopeLabel = (coupon: CouponResponse) =>
     coupon.eventId
       ? (myEvents?.find((e) => e.id === coupon.eventId)?.title ?? coupon.eventId.slice(0, 8))
-      : 'Org toda';
+      : coupon.orgIds.length > 1
+        ? 'Todas as orgs'
+        : 'Org toda';
 
   const isLoading = orgsLoading || couponsLoading;
 
@@ -87,6 +90,18 @@ export function CouponsDashboard() {
         <p className={styles.subtitle}>
           {!isLoading && `${coupons.length} cupom${coupons.length !== 1 ? 'ns' : ''}`}
         </p>
+        {orgs.length > 1 && (
+          <select
+            className={styles.orgSelect}
+            value={orgId ?? ''}
+            onChange={(e) => setSelectedOrgId(e.target.value)}
+            aria-label="Organização"
+          >
+            {orgs.map((o) => (
+              <option key={o.id} value={o.id}>{o.name}</option>
+            ))}
+          </select>
+        )}
         <button
           className={styles.createBtn}
           onClick={() => { setCreateError(null); setModalOpen(true); }}
@@ -165,7 +180,8 @@ export function CouponsDashboard() {
       {orgId && (
         <CreateCouponModal
           isOpen={modalOpen}
-          orgId={orgId}
+          orgs={orgs.map((o) => ({ id: o.id, name: o.name }))}
+          defaultOrgId={orgId}
           events={eventOptions}
           isPending={createMutation.isPending}
           error={createError}

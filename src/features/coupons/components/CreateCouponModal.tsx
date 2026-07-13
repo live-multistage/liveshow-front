@@ -9,6 +9,7 @@ interface FormValues {
   code: string;
   discountType: DiscountType;
   discountValue: number;
+  orgChoice: string;
   eventId: string;
   minOrderAmount: string;
   maxUses: string;
@@ -17,7 +18,8 @@ interface FormValues {
 
 interface Props {
   isOpen: boolean;
-  orgId: string;
+  orgs: { id: string; name: string }[];
+  defaultOrgId: string;
   events: { id: string; title: string }[];
   isPending: boolean;
   error?: string | null;
@@ -25,21 +27,28 @@ interface Props {
   onCreate: (payload: CreateCouponRequest) => void;
 }
 
-export function CreateCouponModal({ isOpen, orgId, events, isPending, error, onClose, onCreate }: Props) {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
-    defaultValues: { discountType: 'PERCENTAGE' },
+const ALL_ORGS = '__ALL__';
+
+export function CreateCouponModal({ isOpen, orgs, defaultOrgId, events, isPending, error, onClose, onCreate }: Props) {
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<FormValues>({
+    defaultValues: { discountType: 'PERCENTAGE', orgChoice: defaultOrgId },
   });
 
-  const handleClose = () => { reset(); onClose(); };
+  const orgChoice = watch('orgChoice');
+
+  const handleClose = () => {
+    reset({ discountType: 'PERCENTAGE', orgChoice: defaultOrgId });
+    onClose();
+  };
 
   const onSubmit = (values: FormValues) => {
     const payload: CreateCouponRequest = {
       code: values.code.trim().toUpperCase(),
       discountType: values.discountType,
       discountValue: Number(values.discountValue),
-      orgId,
+      orgIds: values.orgChoice === ALL_ORGS ? orgs.map((o) => o.id) : [values.orgChoice],
     };
-    if (values.eventId) payload.eventId = values.eventId;
+    if (values.eventId && values.orgChoice !== ALL_ORGS) payload.eventId = values.eventId;
     if (values.minOrderAmount) payload.minOrderAmount = Number(values.minOrderAmount);
     if (values.maxUses) payload.maxUses = Number(values.maxUses);
     if (values.expiresAt) payload.expiresAt = new Date(values.expiresAt).toISOString();
@@ -73,8 +82,23 @@ export function CreateCouponModal({ isOpen, orgId, events, isPending, error, onC
           </div>
 
           <div className={styles.field}>
+            <label className={styles.label}>Organização *</label>
+            <select {...register('orgChoice')} className={styles.select}>
+              {orgs.map((o) => (
+                <option key={o.id} value={o.id}>{o.name}</option>
+              ))}
+              {orgs.length > 1 && <option value={ALL_ORGS}>Todas as minhas organizações</option>}
+            </select>
+          </div>
+
+          <div className={styles.field}>
             <label className={styles.label}>Evento (opcional)</label>
-            <select {...register('eventId')} className={styles.select} defaultValue="">
+            <select
+              {...register('eventId')}
+              className={styles.select}
+              defaultValue=""
+              disabled={orgChoice === ALL_ORGS}
+            >
               <option value="">Toda a organização</option>
               {events.map((e) => (
                 <option key={e.id} value={e.id}>{e.title}</option>

@@ -21,7 +21,7 @@ const brl = (n: number) =>
 interface AppliedCoupon {
   code: string;
   discountAmount: number;
-  scopeOrgId: string | null;
+  scopeOrgIds: string[];
   eligibleEventIds: string[];
 }
 
@@ -74,7 +74,7 @@ export function CartPageContent({ initialCart }: Props) {
       setAppliedCoupon({
         code,
         discountAmount: result.discountAmount,
-        scopeOrgId: result.orgId ?? null,
+        scopeOrgIds: result.orgIds,
         eligibleEventIds: result.eligibleEventIds,
       });
       sessionStorage.setItem('cart:coupon', JSON.stringify({ code }));
@@ -265,7 +265,8 @@ export function CartPageContent({ initialCart }: Props) {
                   </svg>
                   <span>
                     {appliedCoupon.code}
-                    {appliedCoupon.scopeOrgId !== null && ` · ${orgGroups.find(g => g.orgId === appliedCoupon.scopeOrgId)?.orgName ?? ''}`}
+                    {appliedCoupon.scopeOrgIds.length === 1 && ` · ${orgGroups.find(g => g.orgId === appliedCoupon.scopeOrgIds[0])?.orgName ?? ''}`}
+                    {appliedCoupon.scopeOrgIds.length > 1 && ' · várias organizações'}
                     {' '}— {brl(appliedCoupon.discountAmount)} de desconto
                   </span>
                   <button className={styles.promoRemove} onClick={removePromo} aria-label="Remover cupom">×</button>
@@ -321,8 +322,11 @@ export function CartPageContent({ initialCart }: Props) {
                   <div className={styles.summaryLine}>
                     <span className={styles.summaryLineLabel}>
                       Desconto
-                      {appliedCoupon?.scopeOrgId !== null && appliedCoupon?.scopeOrgId && (
-                        <span className={styles.summaryLineMuted}> · {orgGroups.find(g => g.orgId === appliedCoupon.scopeOrgId)?.orgName ?? ''}</span>
+                      {appliedCoupon && appliedCoupon.scopeOrgIds.length === 1 && (
+                        <span className={styles.summaryLineMuted}> · {orgGroups.find(g => g.orgId === appliedCoupon.scopeOrgIds[0])?.orgName ?? ''}</span>
+                      )}
+                      {appliedCoupon && appliedCoupon.scopeOrgIds.length > 1 && (
+                        <span className={styles.summaryLineMuted}> · várias organizações</span>
                       )}
                     </span>
                     <span className={`${styles.summaryLineValue} ${styles.summaryLineDiscount}`}>

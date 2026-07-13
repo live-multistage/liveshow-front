@@ -70,7 +70,7 @@ export interface CouponPreviewResult {
   discountType: string;
   discountValue: number;
   discountAmount: number;
-  orgId: string | null;
+  orgIds: string[];
   eventId: string | null;
 }
 
@@ -84,7 +84,7 @@ export interface CartCouponPreviewResult {
   discountType: string;
   discountValue: number;
   discountAmount: number;
-  orgId: string | null;
+  orgIds: string[];
   eventId: string | null;
   eligibleEventIds: string[];
 }

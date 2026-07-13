@@ -18,6 +18,20 @@
   margin: 0;
 }
 
+.orgSelect {
+  background-color: $bg;
+  border: 1px solid $border;
+  border-radius: 6px;
+  color: $text-primary;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  margin-left: auto;
+  margin-right: 0.75rem;
+}
+
+.orgSelect option { background-color: $surface-dark; }
+
 .createBtn {
   display: flex;
   align-items: center;

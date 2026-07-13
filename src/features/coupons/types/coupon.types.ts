@@ -6,7 +6,7 @@ export interface CouponResponse {
   discountType: DiscountType;
   discountValue: number;
   eventId: string | null;
-  orgId: string | null;
+  orgIds: string[];
   minOrderAmount: number | null;
   maxUses: number | null;
   usesCount: number;
@@ -21,7 +21,7 @@ export interface CreateCouponRequest {
   code: string;
   discountType: DiscountType;
   discountValue: number;
-  orgId?: string;
+  orgIds: string[];
   eventId?: string;
   minOrderAmount?: number;
   maxUses?: number;
