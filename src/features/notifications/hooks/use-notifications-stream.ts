@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { createElement, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { config } from '@/config';
@@ -13,6 +13,14 @@ import type { NotificationResponse } from '../types/notification.types';
 // dead SSE endpoint (with a healthy refresh route) can't turn into a
 // tight refresh->connect->error busy-loop.
 const RECONNECT_DELAY_MS = 3000;
+
+// Live "Ao Vivo" toast state: play glyph in the icon chip + .ls-live class
+// drives the pink accent, pulsing ring and "AO VIVO" eyebrow (see sonner.css).
+const livePlayIcon = createElement(
+  'svg',
+  { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'currentColor' },
+  createElement('path', { d: 'M8 5v14l11-7z' }),
+);
 
 async function refreshAccessToken(): Promise<string | null> {
   try {
@@ -52,7 +60,11 @@ export function useNotificationsStream() {
         try {
           const notification = JSON.parse(event.data) as NotificationResponse;
           queryClient.invalidateQueries({ queryKey: notificationKeys.all });
-          toast(notification.title, { description: notification.message });
+          toast(notification.title, {
+            description: notification.message,
+            className: 'ls-live',
+            icon: livePlayIcon,
+          });
         } catch {
           // Malformed frame — ignore, next notification will still arrive fine.
         }
