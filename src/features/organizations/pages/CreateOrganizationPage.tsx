@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { OrganizationForm } from '../components/OrganizationForm';
 import { useCreateOrganization } from '../hooks/use-create-organization';
@@ -15,10 +16,10 @@ export function CreateOrganizationPage() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <button className={styles.back} onClick={() => router.push('/dashboard/organizations')}>
+        <Link href="/dashboard/organizations" className={styles.back}>
           <ArrowLeft size={16} />
           Organizações
-        </button>
+        </Link>
         <div>
           <h1 className={styles.heading}>Nova Organização</h1>
           <p className={styles.subheading}>Crie uma organização e adicione membros</p>

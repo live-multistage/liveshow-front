@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { OrganizationHeader } from '../components/OrganizationHeader';
 import { useOrganization } from '../hooks/use-organizations';
 import { useOrganizationMembers } from '../hooks/use-organization-members';
@@ -129,8 +129,6 @@ interface Props {
 }
 
 export function OrganizationDashboardPage({ organizationId }: Props) {
-  const router = useRouter();
-
   const { data: org,      isLoading: orgLoading,     isError: orgError  } = useOrganization(organizationId);
   const { data: members = [],                                            } = useOrganizationMembers(organizationId);
   const { data: events  = [], isLoading: eventsLoading                   } = useOrganizationEvents(organizationId, 'all');
@@ -169,15 +167,15 @@ export function OrganizationDashboardPage({ organizationId }: Props) {
               label="SOBRE A ORGANIZAÇÃO"
               icon="info"
               action={
-                <button
+                <Link
+                  href={`/dashboard/organizations/${organizationId}/settings`}
                   className={styles.editBtn}
-                  onClick={() => router.push(`/dashboard/organizations/${organizationId}/settings`)}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
                   </svg>
                   EDITAR
-                </button>
+                </Link>
               }
             />
             <p className={styles.description}>{org.description || 'Sem descrição.'}</p>
@@ -199,12 +197,12 @@ export function OrganizationDashboardPage({ organizationId }: Props) {
               label="PRÓXIMOS EVENTOS"
               icon="calendar"
               action={
-                <a
+                <Link
+                  href={`/dashboard/organizations/${organizationId}/eventos`}
                   className={styles.seeAllLink}
-                  onClick={() => router.push(`/dashboard/organizations/${organizationId}/eventos`)}
                 >
                   VER TODOS →
-                </a>
+                </Link>
               }
             />
             {eventsLoading && <p className={styles.muted}>Carregando eventos...</p>}
@@ -228,15 +226,15 @@ export function OrganizationDashboardPage({ organizationId }: Props) {
               label="EQUIPE"
               icon="team"
               action={
-                <button
+                <Link
+                  href={`/dashboard/organizations/${organizationId}/members`}
                   className={styles.inviteBtn}
-                  onClick={() => router.push(`/dashboard/organizations/${organizationId}/members`)}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
                     <path d="M12 5v14M5 12h14" />
                   </svg>
                   CONVIDAR
-                </button>
+                </Link>
               }
             />
             <div className={styles.memberList}>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Calendar, Clock, MapPin, Radio } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import type { EventResponse } from '@/features/events/types/event.types';
 import styles from './OrganizationPublicEventCard.module.scss';
@@ -16,7 +16,6 @@ export function OrganizationPublicEventCard({ event }: Props) {
   const t = useTranslations('orgEventCard');
   const locale = useLocale();
   const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
-  const router = useRouter();
   const isLive = event.status === 'LIVE';
   const isFinished = event.status === 'FINISHED';
 
@@ -27,9 +26,9 @@ export function OrganizationPublicEventCard({ event }: Props) {
     new Date(iso).toLocaleTimeString(localeCode, { hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div
+    <Link
+      href={`/events/${event.id}`}
       className={`${styles.card} ${isFinished ? styles.cardFinished : ''}`}
-      onClick={() => router.push(`/events/${event.id}`)}
     >
       <div className={styles.thumb}>
         {event.thumbnailUrl || event.bannerUrl ? (
@@ -72,6 +71,6 @@ export function OrganizationPublicEventCard({ event }: Props) {
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

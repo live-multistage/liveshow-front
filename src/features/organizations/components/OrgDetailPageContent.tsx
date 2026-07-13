@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { UserPlus, Trash2, Crown, Shield, User, Music, ArrowLeft, Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useOrgMembersQuery } from '../queries/get-members';
 import { useAddMemberMutation } from '../mutations/add-member.mutation';
 import { useRemoveMemberMutation } from '../mutations/remove-member.mutation';
@@ -34,8 +34,6 @@ interface Props {
 }
 
 export function OrgDetailPageContent({ org, currentUserId }: Props) {
-  const router = useRouter();
-
   const [searchEmail, setSearchEmail] = useState('');
   const [searchResult, setSearchResult] = useState<UserSearchResult | null>(null);
   const [searchError, setSearchError] = useState('');
@@ -84,9 +82,9 @@ export function OrgDetailPageContent({ org, currentUserId }: Props) {
 
   return (
     <div className={styles.page}>
-      <button className={styles.back} onClick={() => router.push('/dashboard/organizations')}>
+      <Link href="/dashboard/organizations" className={styles.back}>
         <ArrowLeft size={16} /> Organizações
-      </button>
+      </Link>
 
       <div className={styles.header}>
         <div>

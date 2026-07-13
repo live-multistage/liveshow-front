@@ -1,19 +1,14 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import styles from './CreateOrganizationButton.module.scss';
 
 export function CreateOrganizationButton() {
-  const router = useRouter();
-
   return (
-    <button
-      className={styles.btn}
-      onClick={() => router.push('/dashboard/organizations/new')}
-    >
+    <Link href="/dashboard/organizations/new" className={styles.btn}>
       <Plus size={16} />
       Nova Organização
-    </button>
+    </Link>
   );
 }

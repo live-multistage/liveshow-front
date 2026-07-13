@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/features/account';
 import { useOrganizations } from '../hooks/use-organizations';
@@ -31,7 +31,6 @@ function KpiIcon({ kind }: { kind: 'org' | 'event' | 'team' | 'sales' }) {
 // ── Main ─────────────────────────────────────────────────────────
 
 export function OrganizationListPage() {
-  const router = useRouter();
   const { user } = useAuth();
   const { data: orgs = [], isLoading, isError } = useOrganizations();
 
@@ -78,10 +77,10 @@ export function OrganizationListPage() {
           <h1 className={styles.heading}>Organizações</h1>
           <p className={styles.subheading}>Gerencie suas organizações, equipes e permissões</p>
         </div>
-        <button className={styles.btnCreate} onClick={() => router.push('/dashboard/organizations/new')}>
+        <Link href="/dashboard/organizations/new" className={styles.btnCreate}>
           <Plus size={16} strokeWidth={2.6} />
           Nova Organização
-        </button>
+        </Link>
       </div>
 
       {/* KPI strip */}
@@ -167,10 +166,7 @@ export function OrganizationListPage() {
           {filtered.map((org) => (
             <OrganizationCard key={org.id} organization={org} />
           ))}
-          <button
-            className={styles.createCard}
-            onClick={() => router.push('/dashboard/organizations/new')}
-          >
+          <Link href="/dashboard/organizations/new" className={styles.createCard}>
             <div className={styles.createCardIcon}>
               <Plus size={22} strokeWidth={2.4} />
             </div>
@@ -178,7 +174,7 @@ export function OrganizationListPage() {
               <div className={styles.createCardTitle}>Criar Organização</div>
               <div className={styles.createCardSub}>Convide sua equipe e comece a vender</div>
             </div>
-          </button>
+          </Link>
         </div>
       )}
     </div>
