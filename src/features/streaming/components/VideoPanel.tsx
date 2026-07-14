@@ -128,6 +128,15 @@ export function VideoPanel({
   lowQualityRef.current = lowQuality;
   const selectedLevelRef = useRef(selectedLevel);
   selectedLevelRef.current = selectedLevel;
+  // llPath carries a fresh ?token= on every 5s playback poll — a new string
+  // each time. The build effect must NOT depend on it (that rebuilt the
+  // player every poll); it depends on the stable hasLl boolean below and
+  // reads the current URL through this ref at build time. Token refreshes
+  // therefore apply on the next legitimate rebuild only; if the in-flight
+  // token expires mid-session (1h TTL), the resulting fatal error lands on
+  // the existing fallback latch — viewer degrades to STANDARD, by design.
+  const llPathRef = useRef(camera.llPath);
+  llPathRef.current = camera.llPath;
 
   const applyLevel = (hls: Hls) => {
     if (!hls.levels || hls.levels.length === 0) return;
@@ -150,6 +159,10 @@ export function VideoPanel({
   useEffect(() => {
     setForceStandard(false);
   }, [src]);
+  // Stable selector for the build effect below — camera.llPath itself changes
+  // on every 5s poll (fresh token), so it can't be a dep without rebuilding
+  // the player every poll (see llPathRef above).
+  const hasLl = mode === 'live' && !!camera.llPath && !forceStandard;
 
   // Real dimensions from the video element itself — works whether hls.js or
   // native HLS attached the source, and 'resize' also catches ABR quality
@@ -205,8 +218,7 @@ export function VideoPanel({
     // ladder, so bad bandwidth must degrade to it rather than freeze.
     // STANDARD events (llPath null) and replay always use the STANDARD
     // tuning below, unchanged from before this fallback existed.
-    const useLl = mode === 'live' && !!camera.llPath && !forceStandard;
-    const activeSrc = useLl ? `${config.apiUrl}${camera.llPath}` : src;
+    const activeSrc = hasLl ? `${config.apiUrl}${llPathRef.current}` : src;
 
     // ~3 segments (~6s) behind the live edge on the STANDARD tuning.
     // lowLatencyMode/tighter sync only makes sense against the LL-HLS
@@ -215,9 +227,9 @@ export function VideoPanel({
     // buffer tuning that stalls on any hiccup (TS transmux, late segment,
     // GC pause). No-ops for replay (VOD playlists ignore live sync tuning).
     const hls = new Hls({
-      lowLatencyMode: useLl,
-      liveSyncDurationCount: useLl ? 2 : 3,
-      liveMaxLatencyDurationCount: useLl ? 5 : 8,
+      lowLatencyMode: hasLl,
+      liveSyncDurationCount: hasLl ? 2 : 3,
+      liveMaxLatencyDurationCount: hasLl ? 5 : 8,
       backBufferLength: 10,
       maxLiveSyncPlaybackRate: 1.5,
       // Replay routes (manifest + segments) are JWT-gated, unlike live's
@@ -250,13 +262,13 @@ export function VideoPanel({
     // the STANDARD ladder instead of leaving the viewer frozen.
     let stalls: number[] = [];
     hls.on(Hls.Events.ERROR, (_evt, data) => {
-      if (useLl && data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR) {
+      if (hasLl && data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR) {
         const now = Date.now();
         stalls = [...stalls.filter((t) => now - t < 30_000), now];
         if (stalls.length >= 3) setForceStandard(true); // re-runs this effect on the STANDARD src
       }
       if (data.fatal) {
-        if (useLl) {
+        if (hasLl) {
           setForceStandard(true); // LL path dead (MediaMTX down, token expired) → fall back
         } else {
           setError(true);
@@ -273,7 +285,7 @@ export function VideoPanel({
       hls.destroy();
       hlsRef.current = null;
     };
-  }, [src, camera.llPath, forceStandard]);
+  }, [src, hasLl]);
 
   useEffect(() => {
     if (videoRef.current) videoRef.current.muted = muted;
