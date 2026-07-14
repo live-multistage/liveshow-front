@@ -143,6 +143,13 @@ export function VideoPanel({
   // its own once the backend promotes the job to RUNNING.
   const connecting = camera.manifestPath === null;
   const src = connecting ? null : `${config.apiUrl}${camera.manifestPath}`;
+  // Latches once the LL-HLS path proves unreliable (repeated stalls or a
+  // fatal hls.js error) for this camera's src — forces the STANDARD ABR
+  // origin for the rest of this mount instead of flapping back to LL-HLS.
+  const [forceStandard, setForceStandard] = useState(false);
+  useEffect(() => {
+    setForceStandard(false);
+  }, [src]);
 
   // Real dimensions from the video element itself — works whether hls.js or
   // native HLS attached the source, and 'resize' also catches ABR quality
@@ -192,15 +199,25 @@ export function VideoPanel({
       return;
     }
 
-    // ~3 segments (~6s) behind the live edge. lowLatencyMode is for LL-HLS
-    // part-based playlists, which our ffmpeg origin does not emit — enabling
-    // it only inherits aggressive buffer tuning that stalls on any hiccup
-    // (TS transmux, late segment, GC pause). Live-only settings; no-ops for
-    // replay (VOD playlists ignore live sync tuning).
+    // LOW events: start on the LL-HLS path (real part-based playlists from
+    // MediaMTX); fall back to the STANDARD transcoded ABR origin after
+    // repeated stalls or a fatal error on that path — LL-HLS has no ABR
+    // ladder, so bad bandwidth must degrade to it rather than freeze.
+    // STANDARD events (llPath null) and replay always use the STANDARD
+    // tuning below, unchanged from before this fallback existed.
+    const useLl = mode === 'live' && !!camera.llPath && !forceStandard;
+    const activeSrc = useLl ? `${config.apiUrl}${camera.llPath}` : src;
+
+    // ~3 segments (~6s) behind the live edge on the STANDARD tuning.
+    // lowLatencyMode/tighter sync only makes sense against the LL-HLS
+    // part-based playlist (activeSrc above) — our ffmpeg STANDARD origin
+    // does not emit parts, so enabling it there only inherits aggressive
+    // buffer tuning that stalls on any hiccup (TS transmux, late segment,
+    // GC pause). No-ops for replay (VOD playlists ignore live sync tuning).
     const hls = new Hls({
-      lowLatencyMode: false,
-      liveSyncDurationCount: 3,
-      liveMaxLatencyDurationCount: 8,
+      lowLatencyMode: useLl,
+      liveSyncDurationCount: useLl ? 2 : 3,
+      liveMaxLatencyDurationCount: useLl ? 5 : 8,
       backBufferLength: 10,
       maxLiveSyncPlaybackRate: 1.5,
       // Replay routes (manifest + segments) are JWT-gated, unlike live's
@@ -214,7 +231,7 @@ export function VideoPanel({
         },
       }),
     });
-    hls.loadSource(src);
+    hls.loadSource(activeSrc);
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       const sorted = hls.levels
@@ -228,13 +245,26 @@ export function VideoPanel({
       // was already set).
       if (mode !== 'replay' || !pausedRef.current) void video.play().catch(() => {});
     });
+    // Stalls within the last 30s on the LL path — 3 of them means the LL
+    // origin can't keep this connection fed; drop the ABR-less LL path for
+    // the STANDARD ladder instead of leaving the viewer frozen.
+    let stalls: number[] = [];
     hls.on(Hls.Events.ERROR, (_evt, data) => {
+      if (useLl && data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR) {
+        const now = Date.now();
+        stalls = [...stalls.filter((t) => now - t < 30_000), now];
+        if (stalls.length >= 3) setForceStandard(true); // re-runs this effect on the STANDARD src
+      }
       if (data.fatal) {
-        setError(true);
-        toast.error(`Sinal perdido: ${camera.name}`, {
-          id: `stream-error-${camera.cameraId}`,
-          description: 'A câmera perdeu a conexão com o servidor.',
-        });
+        if (useLl) {
+          setForceStandard(true); // LL path dead (MediaMTX down, token expired) → fall back
+        } else {
+          setError(true);
+          toast.error(`Sinal perdido: ${camera.name}`, {
+            id: `stream-error-${camera.cameraId}`,
+            description: 'A câmera perdeu a conexão com o servidor.',
+          });
+        }
       }
     });
     hlsRef.current = hls;
@@ -243,7 +273,7 @@ export function VideoPanel({
       hls.destroy();
       hlsRef.current = null;
     };
-  }, [src]);
+  }, [src, camera.llPath, forceStandard]);
 
   useEffect(() => {
     if (videoRef.current) videoRef.current.muted = muted;
@@ -352,6 +382,9 @@ export function VideoPanel({
                 <span className={styles.liveDot} />
                 LIVE
               </span>
+            )}
+            {mode === 'live' && forceStandard && camera.llPath && (
+              <span className={styles.replayBadge}>modo estável</span>
             )}
             <span className={styles.cameraLabel}>{camera.name}</span>
           </div>

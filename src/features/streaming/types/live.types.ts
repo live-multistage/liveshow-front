@@ -9,6 +9,10 @@ export interface LiveCamera {
   // is selectable, the player should show a connecting state and this
   // becomes non-null once the backend's queue processor promotes the job.
   manifestPath: string | null;
+  // e.g. '/ll/<streamKey>/index.m3u8?token=...' — only set on LOW-latency
+  // events (see LivePlaybackResponse.latencyMode). Null on STANDARD events
+  // and while not yet transcoding.
+  llPath: string | null;
 }
 
 export interface LiveStage {
@@ -27,6 +31,7 @@ export interface LivePlaybackResponse {
   stages?: LiveStage[];
   cameras: LiveCamera[]; // flat list — always present for backward compat
   primaryCameraId: string | null;
+  latencyMode: 'STANDARD' | 'LOW';
 }
 
 export interface LiveAccessResponse {

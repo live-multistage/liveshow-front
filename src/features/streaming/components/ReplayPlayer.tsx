@@ -63,6 +63,7 @@ export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlay
         slug: c.slug,
         priority: c.priority,
         manifestPath: c.replayPath,
+        llPath: null, // LL-HLS is a live-only mode; replay always plays the standard ABR ladder
       })),
     [rawCameras],
   );
