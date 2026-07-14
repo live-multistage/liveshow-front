@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -31,6 +33,32 @@ export function TicketSection({ tickets, onChange }: Props) {
   });
 
   const cameraView = useWatch({ control, name: 'cameraView' });
+
+  // Replay-only suggestion card. Its price lives in local state, NOT the draft
+  // form, so creating the suggested ticket never disturbs the ticket the user
+  // is composing. Hides once the list already has a replay-only ticket.
+  const [replayPrice, setReplayPrice] = useState('');
+  const hasReplayOnly = tickets.some(
+    (t) => t.capabilities.includes('REPLAY_VIEW') && !t.capabilities.includes('LIVE_VIEW'),
+  );
+  const replayPriceNum = Number(replayPrice.replace(',', '.'));
+  const replayPriceValid = replayPrice.trim() !== '' && Number.isFinite(replayPriceNum) && replayPriceNum >= 0;
+
+  const onCreateReplay = () => {
+    if (!replayPriceValid) return;
+    onChange([
+      ...tickets,
+      {
+        _key: crypto.randomUUID(),
+        name: 'Reprise',
+        description: 'Acesso à gravação após o evento',
+        price: replayPriceNum,
+        capabilities: ['REPLAY_VIEW'],
+        camerasLimit: null,
+      },
+    ]);
+    setReplayPrice('');
+  };
 
   function capabilitiesLabel(caps: AccessCapability[], camerasLimit: number | null | undefined): string {
     const parts: string[] = [];
@@ -76,6 +104,43 @@ export function TicketSection({ tickets, onChange }: Props) {
           {t('add')}
         </button>
       </div>
+
+      {!hasReplayOnly && (
+        <div className={styles.replayNudge}>
+          <div className={styles.replayNudgeIcon}>
+            <Sparkles size={16} />
+          </div>
+          <div className={styles.replayNudgeBody}>
+            <p className={styles.replayNudgeTitle}>Recomendado: ingresso “Somente reprise”</p>
+            <p className={styles.replayNudgeText}>
+              Dá acesso só à gravação — continua vendendo depois que o evento passa da data.
+            </p>
+          </div>
+          <div className={styles.replayNudgeAction}>
+            <div className={styles.replayNudgePriceWrap}>
+              <span className={styles.replayNudgeCurrency}>R$</span>
+              <input
+                type="number"
+                step="0.01"
+                min={0}
+                value={replayPrice}
+                onChange={(e) => setReplayPrice(e.target.value)}
+                placeholder="0,00"
+                className={styles.replayNudgeInput}
+                aria-label="Preço do ingresso somente reprise"
+              />
+            </div>
+            <button
+              type="button"
+              className={styles.replayNudgeBtn}
+              onClick={onCreateReplay}
+              disabled={!replayPriceValid}
+            >
+              Criar
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className={styles.row}>
         <div className={styles.field}>

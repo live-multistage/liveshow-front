@@ -324,3 +324,108 @@
   text-align: center;
   padding: 0.5rem 0;
 }
+
+// ── Replay-only suggestion card ───────────────────────────────────
+.replayNudge {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(255, 46, 158, 0.32);
+  border-radius: 10px;
+  background: rgba(255, 46, 158, 0.07);
+  flex-wrap: wrap;
+}
+
+.replayNudgeIcon {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $action;
+  background: rgba(255, 46, 158, 0.12);
+  border: 1px solid rgba(255, 46, 158, 0.3);
+}
+
+.replayNudgeBody {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.replayNudgeTitle {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: $text-primary;
+  font-family: 'Archivo', sans-serif;
+}
+
+.replayNudgeText {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: $text-secondary;
+}
+
+.replayNudgeAction {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: none;
+}
+
+.replayNudgePriceWrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  background: $surface-dark;
+}
+
+.replayNudgeCurrency {
+  font-size: 0.75rem;
+  color: $text-muted;
+}
+
+.replayNudgeInput {
+  width: 68px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: $text-primary;
+  font-size: 0.8125rem;
+  font-family: 'Archivo', sans-serif;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.replayNudgeBtn {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: none;
+  background: $action;
+  color: #0a0a0b;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Archivo', sans-serif;
+  transition: opacity 0.15s;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
