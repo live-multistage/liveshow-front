@@ -135,50 +135,22 @@ export function CameraGrid({
     const map = new Map<string, Slot>();
     const { width: W, height: H } = size;
 
-    // Picker open: a right drawer floats over the stage. The main stays full
-    // behind it; every non-main camera (active AND inactive) gets a `strip`
-    // tile stacked vertically in the drawer body, reusing its persistent panel.
-    if (pickerOpen && mainCamera) {
-      map.set(mainCamera.cameraId, {
-        role: 'main',
-        style: { left: 0, top: 0, right: 0, bottom: 0, zIndex: 0 },
-      });
-      const stripCams = cameras.filter((c) => c.cameraId !== mainCamera.cameraId);
-      const tileW = DRAWER_W - DRAWER_PAD * 2;
-      const tileH = Math.round((tileW * 9) / 16);
-      const avail = H - DRAWER_HEADER_H - DRAWER_BOTTOM;
-      const maxTiles =
-        H > 0 ? Math.max(1, Math.floor((avail + GAP) / (tileH + GAP))) : stripCams.length;
-      stripCams.forEach((c, i) => {
-        if (i >= maxTiles) {
-          map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
-          return;
-        }
-        map.set(c.cameraId, {
-          role: 'strip',
-          style: {
-            right: DRAWER_PAD,
-            top: DRAWER_HEADER_H + i * (tileH + GAP),
-            width: tileW,
-            height: tileH,
-            zIndex: 22, // above the drawer bg (21) and the bottomStack overlay (20)
-            visibility: H > 0 ? 'visible' : 'hidden',
-          },
-        });
-      });
-      return map;
-    }
+    // Picker open: the active-camera composition is inset to the LEFT of the
+    // drawer (so mode changes preview live in the stage); INACTIVE cameras are
+    // shown as add-tiles inside the drawer on the right.
+    const drawerInset = pickerOpen ? DRAWER_W : 0;
+    const stageW = W - drawerInset;
 
     if (effectiveMode === 'grid') {
       const cols = pickColumnCount(activeCameras.length);
       const rows = Math.max(1, Math.ceil(activeCameras.length / cols));
       const jrows = computeJustifiedRows(
-        activeCameras.map((c) => c.cameraId), aspectRatios, cols, rows, W, H, GAP,
+        activeCameras.map((c) => c.cameraId), aspectRatios, cols, rows, stageW, H, GAP,
       );
       const totalH = jrows.reduce((a, r) => a + r.height, 0) + Math.max(0, jrows.length - 1) * GAP;
       let y = Math.max(0, (H - totalH) / 2);
       for (const row of jrows) {
-        let x = Math.max(0, (W - row.width) / 2);
+        let x = Math.max(0, (stageW - row.width) / 2);
         for (const cell of row.cells) {
           if (cell.cameraId) {
             map.set(cell.cameraId, {
@@ -190,50 +162,75 @@ export function CameraGrid({
         }
         y += row.height + GAP;
       }
-      // Any camera the (capped) grid couldn't place stays mounted but hidden.
       for (const c of activeCameras) {
         if (!map.has(c.cameraId)) {
           map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
         }
       }
-      return map;
-    }
+    } else {
+      // solo / main-rail
+      const railPresent = effectiveMode !== 'solo' && otherCameras.length >= 2;
+      const pipPresent = effectiveMode !== 'solo' && otherCameras.length === 1;
 
-    // solo / main-rail
-    const railPresent = effectiveMode !== 'solo' && otherCameras.length >= 2;
-    const pipPresent = effectiveMode !== 'solo' && otherCameras.length === 1;
-
-    if (mainCamera) {
-      map.set(mainCamera.cameraId, {
-        role: 'main',
-        style: { left: 0, top: 0, right: railPresent ? RAIL_W : 0, bottom: 0, zIndex: 0 },
-      });
-    }
-
-    if (effectiveMode === 'solo') {
-      for (const c of otherCameras) {
-        map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
+      if (mainCamera) {
+        map.set(mainCamera.cameraId, {
+          role: 'main',
+          style: { left: 0, top: 0, right: drawerInset + (railPresent ? RAIL_W : 0), bottom: 0, zIndex: 0 },
+        });
       }
-    } else if (pipPresent) {
-      map.set(otherCameras[0].cameraId, {
-        role: 'pip',
-        style: { right: PIP_RIGHT, bottom: PIP_BOTTOM, width: PIP_W, height: PIP_H, zIndex: 21 },
-      });
-    } else if (railPresent) {
-      const n = otherCameras.length;
-      const tileH = H > 0 ? (H - (n - 1) * GAP) / n : 0;
-      otherCameras.forEach((c, i) => {
+
+      if (effectiveMode === 'solo') {
+        for (const c of otherCameras) {
+          map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
+        }
+      } else if (pipPresent) {
+        map.set(otherCameras[0].cameraId, {
+          role: 'pip',
+          style: { right: PIP_RIGHT + drawerInset, bottom: PIP_BOTTOM, width: PIP_W, height: PIP_H, zIndex: 21 },
+        });
+      } else if (railPresent) {
+        const n = otherCameras.length;
+        const tileH = H > 0 ? (H - (n - 1) * GAP) / n : 0;
+        otherCameras.forEach((c, i) => {
+          map.set(c.cameraId, {
+            role: 'rail',
+            style: {
+              right: drawerInset, top: i * (tileH + GAP), width: RAIL_W, height: tileH,
+              zIndex: 1, visibility: H > 0 ? 'visible' : 'hidden',
+            },
+          });
+        });
+      }
+    }
+
+    // Inactive cameras → drawer add-tiles (only while the picker is open).
+    if (pickerOpen) {
+      const inactive = cameras.filter((c) => !activeCameraIds.includes(c.cameraId));
+      const tileW = DRAWER_W - DRAWER_PAD * 2;
+      const tileH = Math.round((tileW * 9) / 16);
+      const avail = H - DRAWER_HEADER_H - DRAWER_BOTTOM;
+      const maxTiles = H > 0 ? Math.max(1, Math.floor((avail + GAP) / (tileH + GAP))) : inactive.length;
+      inactive.forEach((c, i) => {
+        if (i >= maxTiles) {
+          map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
+          return;
+        }
         map.set(c.cameraId, {
-          role: 'rail',
+          role: 'strip',
           style: {
-            right: 0, top: i * (tileH + GAP), width: RAIL_W, height: tileH,
-            zIndex: 1, visibility: H > 0 ? 'visible' : 'hidden',
+            right: DRAWER_PAD,
+            top: DRAWER_HEADER_H + i * (tileH + GAP),
+            width: tileW,
+            height: tileH,
+            zIndex: 22,
+            visibility: H > 0 ? 'visible' : 'hidden',
           },
         });
       });
     }
+
     return map;
-  }, [effectiveMode, activeCameras, otherCameras, mainCamera, size, aspectRatios, pickerOpen, cameras]);
+  }, [effectiveMode, activeCameras, otherCameras, mainCamera, size, aspectRatios, pickerOpen, cameras, activeCameraIds]);
 
   const roleClass: Record<Role, string> = {
     main: styles.mainSlot,
@@ -297,6 +294,9 @@ export function CameraGrid({
               </button>
             </div>
           </div>
+          {cameras.every((c) => activeCameraIds.includes(c.cameraId)) && (
+            <div className={styles.drawerEmpty}>Todas as câmeras já estão no ar</div>
+          )}
         </div>
       )}
       {cameras.map((cam) => {
@@ -377,31 +377,29 @@ export function CameraGrid({
             />
             {role === 'strip' && (
               <>
-                {isActiveCam && mode === 'live' && (
-                  <span className={styles.stripBadge}>
-                    <span className={styles.stripDot} />
-                    LIVE
-                  </span>
-                )}
-                {isActiveCam && activeCameraIds.length > 1 && (
-                  <button
-                    type="button"
-                    className={styles.stripClose}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleCamera(cam.cameraId);
-                    }}
-                    aria-label={`Desativar ${cam.name}`}
-                  >
-                    <X size={11} />
-                  </button>
-                )}
+                <span className={styles.stripAdd}>+ ADICIONAR</span>
                 <div className={styles.stripInfo}>
                   <p className={styles.stripName}>{cam.name}</p>
                   <p className={styles.stripAngle}>{cam.slug}</p>
                 </div>
               </>
             )}
+            {pickerOpen &&
+              (role === 'grid' || role === 'rail' || role === 'pip') &&
+              isActiveCam &&
+              activeCameraIds.length > 1 && (
+                <button
+                  type="button"
+                  className={styles.stripClose}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleCamera(cam.cameraId);
+                  }}
+                  aria-label={`Remover ${cam.name}`}
+                >
+                  <X size={11} />
+                </button>
+              )}
           </div>
         );
       })}
