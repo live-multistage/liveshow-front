@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, KeyboardEvent } from 'react';
-import { X, Square, PanelRight, LayoutGrid } from 'lucide-react';
+import { X, Square, PanelRight, LayoutGrid, Minus } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
 import type { QualityLevel } from './VideoPanel';
@@ -26,6 +26,7 @@ const DRAWER_W = 300;        // drawer width (px)
 const DRAWER_HEADER_H = 52;  // header row (title + modes + close)
 const DRAWER_PAD = 12;
 const DRAWER_BOTTOM = 96;    // clear the floating transport bar at the bottom
+const DRAWER_ROW_H = 44;     // active-camera placeholder row height in the drawer
 
 const MODES: { id: ViewMode; label: string; icon: typeof Square }[] = [
   { id: 'solo', label: 'Solo', icon: Square },
@@ -203,12 +204,14 @@ export function CameraGrid({
       }
     }
 
-    // Inactive cameras → drawer add-tiles (only while the picker is open).
+    // Inactive cameras → drawer add-tiles (video thumbnails), stacked BELOW the
+    // active-camera placeholder rows (which are chrome, rendered in the drawer).
     if (pickerOpen) {
       const inactive = cameras.filter((c) => !activeCameraIds.includes(c.cameraId));
       const tileW = DRAWER_W - DRAWER_PAD * 2;
       const tileH = Math.round((tileW * 9) / 16);
-      const avail = H - DRAWER_HEADER_H - DRAWER_BOTTOM;
+      const rowsBottom = DRAWER_HEADER_H + activeCameraIds.length * DRAWER_ROW_H;
+      const avail = H - rowsBottom - DRAWER_BOTTOM;
       const maxTiles = H > 0 ? Math.max(1, Math.floor((avail + GAP) / (tileH + GAP))) : inactive.length;
       inactive.forEach((c, i) => {
         if (i >= maxTiles) {
@@ -219,7 +222,7 @@ export function CameraGrid({
           role: 'strip',
           style: {
             right: DRAWER_PAD,
-            top: DRAWER_HEADER_H + i * (tileH + GAP),
+            top: rowsBottom + i * (tileH + GAP),
             width: tileW,
             height: tileH,
             zIndex: 22,
@@ -294,9 +297,25 @@ export function CameraGrid({
               </button>
             </div>
           </div>
-          {cameras.every((c) => activeCameraIds.includes(c.cameraId)) && (
-            <div className={styles.drawerEmpty}>Todas as câmeras já estão no ar</div>
-          )}
+          <div className={styles.drawerRows}>
+            {cameras
+              .filter((c) => activeCameraIds.includes(c.cameraId))
+              .map((c) => (
+                <button
+                  key={c.cameraId}
+                  type="button"
+                  className={styles.activeRow}
+                  disabled={activeCameraIds.length <= 1}
+                  onClick={() => {
+                    if (activeCameraIds.length > 1) onToggleCamera(c.cameraId);
+                  }}
+                  title="Remover da composição"
+                >
+                  <span className={styles.activeRowName}>{c.name}</span>
+                  <Minus size={14} className={styles.activeRowMinus} />
+                </button>
+              ))}
+          </div>
         </div>
       )}
       {cameras.map((cam) => {
@@ -384,22 +403,6 @@ export function CameraGrid({
                 </div>
               </>
             )}
-            {pickerOpen &&
-              (role === 'grid' || role === 'rail' || role === 'pip') &&
-              isActiveCam &&
-              activeCameraIds.length > 1 && (
-                <button
-                  type="button"
-                  className={styles.stripClose}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleCamera(cam.cameraId);
-                  }}
-                  aria-label={`Remover ${cam.name}`}
-                >
-                  <X size={11} />
-                </button>
-              )}
           </div>
         );
       })}

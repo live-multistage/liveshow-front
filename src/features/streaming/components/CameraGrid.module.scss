@@ -279,10 +279,50 @@
   opacity: 1;
 }
 
-.drawerEmpty {
-  padding: 1.25rem 12px;
+.drawerRows {
+  display: flex;
+  flex-direction: column;
+}
+
+.activeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  height: 44px;
+  padding: 0 12px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: $text-primary;
   font-family: 'Archivo', sans-serif;
-  font-size: 0.75rem;
-  color: $text-secondary;
-  text-align: center;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(255, 46, 158, 0.12);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+}
+
+.activeRowName {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.activeRowMinus {
+  flex: none;
+  color: $muted;
+}
+
+.activeRow:hover:not(:disabled) .activeRowMinus {
+  color: $action;
 }
