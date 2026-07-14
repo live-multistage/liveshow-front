@@ -156,9 +156,13 @@ export function VideoPanel({
   // fatal hls.js error) for this camera's src — forces the STANDARD ABR
   // origin for the rest of this mount instead of flapping back to LL-HLS.
   const [forceStandard, setForceStandard] = useState(false);
+  // Keyed on camera identity, not `src` — src's packageId can rotate mid-show
+  // for the same STANDARD camera (job restart), which must NOT re-arm LL.
+  // Only a genuine camera switch (this panel now shows a different camera)
+  // should reset the latch.
   useEffect(() => {
     setForceStandard(false);
-  }, [src]);
+  }, [camera.cameraId]);
   // Stable selector for the build effect below — camera.llPath itself changes
   // on every 5s poll (fresh token), so it can't be a dep without rebuilding
   // the player every poll (see llPathRef above).
