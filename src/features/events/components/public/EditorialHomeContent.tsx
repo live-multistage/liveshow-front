@@ -166,9 +166,10 @@ function EditorialCard({ show, localeCode }: { show: Show; localeCode: string })
 interface Props {
   initialEvents?: EventResponse[];
   initialRecommended?: RecommendedEventsResponse;
+  initialReplayCatalog?: RecommendedEventsResponse;
 }
 
-export function EditorialHomeContent({ initialEvents, initialRecommended }: Props) {
+export function EditorialHomeContent({ initialEvents, initialRecommended, initialReplayCatalog }: Props) {
   const locale = useLocale();
   const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
 
@@ -182,6 +183,10 @@ export function EditorialHomeContent({ initialEvents, initialRecommended }: Prop
   const recommendedShows = useMemo(
     () => (recommended?.items ?? []).map(eventToShow),
     [recommended],
+  );
+  const onDemandShows = useMemo(
+    () => (initialReplayCatalog?.items ?? []).map(eventToShow),
+    [initialReplayCatalog],
   );
 
   const liveShows = useMemo(() => shows.filter((s) => s.isLive), [shows]);
@@ -314,6 +319,24 @@ export function EditorialHomeContent({ initialEvents, initialRecommended }: Prop
             </div>
             <Carousel seeAllHref="/events">
               {recommendedShows.map((show) => (
+                <div key={show.id} className={styles.recommendedItem}>
+                  <EditorialCard show={show} localeCode={localeCode} />
+                </div>
+              ))}
+            </Carousel>
+          </div>
+        )}
+
+        {onDemandShows.length > 0 && (
+          <div className={styles.gridSection}>
+            <div className={styles.sectionHeader}>
+              <div>
+                <div className={styles.sectionEyebrow}>SOB DEMANDA</div>
+                <div className={styles.sectionTitle}>Reprises disponíveis</div>
+              </div>
+            </div>
+            <Carousel seeAllHref="/events">
+              {onDemandShows.map((show) => (
                 <div key={show.id} className={styles.recommendedItem}>
                   <EditorialCard show={show} localeCode={localeCode} />
                 </div>
