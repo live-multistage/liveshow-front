@@ -1,0 +1,162 @@
+$mono: 'Space Mono', monospace;
+$sans: 'Archivo', sans-serif;
+$surface: #101013;
+$inset: #0c0c0f;
+$line: rgba(255, 255, 255, 0.08);
+$accent: #ff2e9e;
+$accent-soft: #ff7ec2;
+$mono-muted: #8f8f97;
+$hint: #7d7d85;
+
+.panel {
+  background: $surface;
+  border: 1px solid $line;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: #f4f4f5;
+}
+
+.toggleIcon {
+  color: $accent-soft;
+  flex: none;
+}
+
+.toggleLabel {
+  font-family: $mono;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #fff;
+}
+
+.toggleHint {
+  font-family: $mono;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: $hint;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  margin-left: auto;
+  flex: none;
+  color: $mono-muted;
+  transition: transform 0.2s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 4px 18px 22px;
+  border-top: 1px solid $line;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $mono-muted;
+  padding-top: 18px;
+}
+
+.sectionLabelIcon {
+  color: $accent-soft;
+}
+
+/* ── tips ─────────────────────────────────────────────────────────── */
+.tipList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tipItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.tipIcon {
+  flex: none;
+  margin-top: 2px;
+  color: $accent-soft;
+}
+
+.tipText {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #c9c9d0;
+
+  strong {
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+/* ── highlight (replay-only) ──────────────────────────────────────── */
+.highlight {
+  background: rgba(255, 46, 158, 0.08);
+  border: 1px solid rgba(255, 46, 158, 0.3);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+
+.highlightTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: $sans;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.highlightIcon {
+  flex: none;
+  color: $accent-soft;
+}
+
+.highlightText {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #c9c9d0;
+
+  strong {
+    color: #fff;
+    font-weight: 600;
+  }
+}

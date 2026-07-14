@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { CreateEventForm } from './CreateEventForm';
+import { CreateEventTips } from './CreateEventTips';
 import { MY_EVENTS_KEY } from '../../queries/get-my-events';
 import styles from './CreateEventPageContent.module.scss';
 
@@ -25,6 +26,8 @@ export function CreateEventPageContent() {
           <p className={styles.subheading}>{t('subheading')}</p>
         </div>
       </div>
+
+      <CreateEventTips />
 
       <div className={styles.body}>
         <CreateEventForm
