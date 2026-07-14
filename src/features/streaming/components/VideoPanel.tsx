@@ -192,10 +192,15 @@ export function VideoPanel({
       return;
     }
 
+    // ~3 segments (~6s) behind the live edge. lowLatencyMode is for LL-HLS
+    // part-based playlists, which our ffmpeg origin does not emit — enabling
+    // it only inherits aggressive buffer tuning that stalls on any hiccup
+    // (TS transmux, late segment, GC pause). Live-only settings; no-ops for
+    // replay (VOD playlists ignore live sync tuning).
     const hls = new Hls({
-      lowLatencyMode: mode === 'live',
-      liveSyncDurationCount: 2,
-      liveMaxLatencyDurationCount: 6,
+      lowLatencyMode: false,
+      liveSyncDurationCount: 3,
+      liveMaxLatencyDurationCount: 8,
       backBufferLength: 10,
       maxLiveSyncPlaybackRate: 1.5,
       // Replay routes (manifest + segments) are JWT-gated, unlike live's

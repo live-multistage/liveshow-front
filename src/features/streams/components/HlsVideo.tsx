@@ -47,12 +47,15 @@ export function HlsVideo({ packageId, className, controls = false }: Props) {
       return;
     }
 
-    // Live, low-latency: stay ~2 segments behind the edge, keep a short back
-    // buffer, and let hls.js speed up slightly to catch the live edge if it drifts.
+    // Live: ~3 segments (~6s) behind the edge. lowLatencyMode is for LL-HLS
+    // part-based playlists, which our ffmpeg origin does not emit — enabling
+    // it only inherits aggressive buffer tuning that stalls on any hiccup
+    // (TS transmux, late segment, GC pause). One extra segment of cushion
+    // trades ~2s of latency for stall-free playback.
     const hls = new Hls({
-      lowLatencyMode: true,
-      liveSyncDurationCount: 2,
-      liveMaxLatencyDurationCount: 6,
+      lowLatencyMode: false,
+      liveSyncDurationCount: 3,
+      liveMaxLatencyDurationCount: 8,
       backBufferLength: 10,
       maxLiveSyncPlaybackRate: 1.5,
     });
