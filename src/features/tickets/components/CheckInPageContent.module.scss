@@ -1,0 +1,166 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 28px 20px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: #ff7ec2;
+  margin-bottom: 6px;
+}
+
+.title {
+  font-family: 'Archivo', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  margin: 0;
+}
+
+.summary {
+  text-align: right;
+}
+
+.summaryNum {
+  display: block;
+  font-family: 'Archivo', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.summaryLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  color: #7d7d85;
+}
+
+// Gate feedback: big, unmistakable under bad light and hurry.
+.result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 14px;
+  font-family: 'Archivo', sans-serif;
+}
+
+.resultText {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+.resultOk      { background: rgba(127, 224, 160, .14); border: 1px solid rgba(127, 224, 160, .5);  color: #7fe0a0; }
+.resultUsed    { background: rgba(255, 176, 32, .12);  border: 1px solid rgba(255, 176, 32, .45);  color: #ffb020; }
+.resultInvalid { background: rgba(255, 90, 77, .12);   border: 1px solid rgba(255, 90, 77, .45);   color: #ff5a4d; }
+
+.offlineTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: inherit;
+  border: 1px dashed currentColor;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.scannerCard {
+  position: relative;
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scannerViewport {
+  width: 100%;
+
+  video { width: 100% !important; border-radius: 0; }
+}
+
+.scanBtn {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #ff2e9e;
+  color: #0a0a0b;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  padding: 13px 22px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: filter .15s;
+
+  &:hover { filter: brightness(1.08); }
+}
+
+.manualRow {
+  display: flex;
+  gap: 10px;
+}
+
+.manualInput {
+  flex: 1;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 12px;
+  color: #f4f4f5;
+  font-family: 'Space Mono', monospace;
+  font-size: 16px;
+  letter-spacing: .18em;
+  text-align: center;
+  padding: 13px 14px;
+
+  &::placeholder { letter-spacing: .08em; font-size: 11px; color: #6f6f77; }
+  &:focus { outline: none; border-color: rgba(255, 46, 158, .5); }
+}
+
+.manualBtn {
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(255, 255, 255, .18);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 13px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background .15s;
+
+  &:hover { background: rgba(255, 255, 255, .12); }
+  &:disabled { opacity: .6; cursor: default; }
+}
+
+.hint {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: #6f6f77;
+  margin: 0;
+}

@@ -112,7 +112,7 @@ export interface UpdateEventRequest {
   latencyMode?: 'STANDARD' | 'LOW';
 }
 
-export type AccessCapability = 'LIVE_VIEW' | 'REPLAY_VIEW' | 'CAMERA_VIEW';
+export type AccessCapability = 'LIVE_VIEW' | 'REPLAY_VIEW' | 'CAMERA_VIEW' | 'PHYSICAL_ENTRY';
 
 export interface CreateTicketRequest {
   name: string;
@@ -121,6 +121,7 @@ export interface CreateTicketRequest {
   capabilities: AccessCapability[];
   camerasLimit?: number | null;
   allowedStageIds?: string[];
+  capacity?: number | null;
 }
 
 export interface UpdateTicketRequest {
@@ -130,6 +131,7 @@ export interface UpdateTicketRequest {
   capabilities?: AccessCapability[];
   camerasLimit?: number | null;
   allowedStageIds?: string[];
+  capacity?: number | null;
 }
 
 export interface TicketProductResponse {
@@ -142,6 +144,9 @@ export interface TicketProductResponse {
   capabilities: AccessCapability[];
   camerasLimit: number | null;
   allowedStageIds: string[];
+  capacity: number | null;
+  remaining: number | null;
+  soldOut: boolean;
   immutable: boolean;
 }
 

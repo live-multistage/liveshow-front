@@ -8,17 +8,29 @@ export const ticketSchema = z
     liveView: z.boolean().default(false),
     replayView: z.boolean().default(false),
     cameraView: z.boolean().default(false),
+    physicalEntry: z.boolean().default(false),
     camerasLimit: z
       .preprocess(
         (val) => (val === '' || val === undefined ? null : val),
         z.coerce.number().int('Deve ser número inteiro').min(1, 'Mínimo 1 câmera').nullable(),
       )
       .optional(),
+    // Capacidade do local, obrigatória quando o ingresso é presencial.
+    capacity: z
+      .preprocess(
+        (val) => (val === '' || val === undefined ? null : val),
+        z.coerce.number().int('Deve ser número inteiro').min(1, 'Mínimo 1 lugar').nullable(),
+      )
+      .optional(),
     allowedStageIds: z.array(z.string().uuid()).optional(),
   })
-  .refine((d) => d.liveView || d.replayView || d.cameraView, {
+  .refine((d) => d.liveView || d.replayView || d.cameraView || d.physicalEntry, {
     message: 'Selecione ao menos um tipo de acesso',
     path: ['liveView'],
+  })
+  .refine((d) => !d.physicalEntry || (d.capacity != null && d.capacity >= 1), {
+    message: 'Informe a capacidade do local',
+    path: ['capacity'],
   });
 
 export type TicketFormInput = z.input<typeof ticketSchema>;

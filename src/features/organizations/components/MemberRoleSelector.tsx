@@ -8,6 +8,7 @@ const ROLE_OPTIONS: { value: OrganizationRole; label: string }[] = [
   { value: 'CONTENT_MANAGER', label: 'Gestor de Conteúdo' },
   { value: 'EVENT_MANAGER', label: 'Gestor de Eventos' },
   { value: 'OPERATOR', label: 'Operador' },
+  { value: 'STAFF', label: 'Staff (portaria/check-in)' },
   { value: 'VIEWER', label: 'Visualizador' },
 ];
 

@@ -50,6 +50,7 @@ export function TicketPanel({ event, tickets }: Props) {
   const ticket = purchasableTickets.find((t) => t.id === selected) ?? purchasableTickets[0];
   // Both re-entry checks key off the selected ticket product id (the cart stores ticketProductId).
   const isInCart = ticket ? isTicketInCart(ticket.id) : false;
+  const soldOut = ticket?.soldOut ?? false;
 
   const ownsLive = liveAccess.data === true;
   const ownsReplay = replayAccess.data === true;
@@ -211,6 +212,8 @@ export function TicketPanel({ event, tickets }: Props) {
                 {opt.camerasLimit != null
                   ? <span className={styles.tierChip}>{opt.camerasLimit} CÂMERAS</span>
                   : opt.capabilities.includes('CAMERA_VIEW') && <span className={styles.tierChip}>TODAS AS CÂMERAS</span>}
+                {opt.capabilities.includes('PHYSICAL_ENTRY') && <span className={styles.tierChip}>PRESENCIAL</span>}
+                {opt.soldOut && <span className={styles.tierChip}>ESGOTADO</span>}
               </div>
               {opt.description && (
                 <p className={styles.ticketOptionDesc}>{opt.description}</p>
@@ -246,9 +249,9 @@ export function TicketPanel({ event, tickets }: Props) {
 
         <button
           className={styles.buyBtn}
-          disabled={pendingAction === 'buy'}
+          disabled={pendingAction === 'buy' || soldOut}
           onClick={() => {
-            if (!ticket) return;
+            if (!ticket || soldOut) return;
             if (!isLoggedIn) {
               router.push(`/login?next=/events/${event.id}/checkout?ticketId=${ticket.id}`);
               return;
@@ -269,6 +272,8 @@ export function TicketPanel({ event, tickets }: Props) {
         >
           {pendingAction === 'buy' ? (
             <><span className={styles.btnSpinner} />{t('adding')}</>
+          ) : soldOut ? (
+            'Esgotado'
           ) : (
             <>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -281,9 +286,9 @@ export function TicketPanel({ event, tickets }: Props) {
 
         <button
           className={styles.cartBtn}
-          disabled={addToCart.isPending || isInCart}
+          disabled={addToCart.isPending || isInCart || soldOut}
           onClick={() => {
-            if (!ticket) return;
+            if (!ticket || soldOut) return;
             if (!isLoggedIn) { router.push('/login'); return; }
             setPendingAction('cart');
             addToCart.mutate(ticket.id, {

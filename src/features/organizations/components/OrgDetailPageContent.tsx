@@ -16,6 +16,7 @@ const ROLE_ICONS: Record<OrganizationRole, React.ReactNode> = {
   EVENT_MANAGER: <Music size={14} />,
   CONTENT_MANAGER: <Music size={14} />,
   OPERATOR: <Music size={14} />,
+  STAFF: <User size={14} />,
   VIEWER: <User size={14} />,
 };
 
@@ -25,6 +26,7 @@ const ROLE_LABEL: Record<OrganizationRole, string> = {
   EVENT_MANAGER: 'Gestor de Eventos',
   CONTENT_MANAGER: 'Gestor de Conteúdo',
   OPERATOR: 'Operador',
+  STAFF: 'Staff',
   VIEWER: 'Visualizador',
 };
 
@@ -167,6 +169,7 @@ export function OrgDetailPageContent({ org, currentUserId }: Props) {
                     <option value="CONTENT_MANAGER">Gestor de Conteúdo</option>
                     <option value="EVENT_MANAGER">Gestor de Eventos</option>
                     <option value="OPERATOR">Operador</option>
+                    <option value="STAFF">Staff (portaria)</option>
                     <option value="VIEWER">Visualizador</option>
                     <option value="ADMIN">Admin</option>
                   </select>

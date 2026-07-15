@@ -29,10 +29,11 @@ export function TicketSection({ tickets, onChange }: Props) {
     formState: { errors },
   } = useForm<TicketFormInput, unknown, TicketFormValues>({
     resolver: zodResolver(ticketSchema),
-    defaultValues: { liveView: false, replayView: false, cameraView: false, camerasLimit: undefined },
+    defaultValues: { liveView: false, replayView: false, cameraView: false, physicalEntry: false, camerasLimit: undefined },
   });
 
   const cameraView = useWatch({ control, name: 'cameraView' });
+  const physicalEntry = useWatch({ control, name: 'physicalEntry' });
 
   // Replay-only suggestion card. Its price lives in local state, NOT the draft
   // form, so creating the suggested ticket never disturbs the ticket the user
@@ -67,6 +68,7 @@ export function TicketSection({ tickets, onChange }: Props) {
     if (caps.includes('CAMERA_VIEW')) {
       parts.push(camerasLimit != null ? t('cameras', { count: camerasLimit }) : t('allCameras'));
     }
+    if (caps.includes('PHYSICAL_ENTRY')) parts.push('Presencial');
     return parts.join(' + ');
   }
 
@@ -75,6 +77,7 @@ export function TicketSection({ tickets, onChange }: Props) {
     if (values.liveView) capabilities.push('LIVE_VIEW');
     if (values.replayView) capabilities.push('REPLAY_VIEW');
     if (values.cameraView) capabilities.push('CAMERA_VIEW');
+    if (values.physicalEntry) capabilities.push('PHYSICAL_ENTRY');
 
     const ticket: AddedTicket = {
       _key: crypto.randomUUID(),
@@ -83,6 +86,7 @@ export function TicketSection({ tickets, onChange }: Props) {
       price: values.price,
       capabilities,
       camerasLimit: values.cameraView ? (values.camerasLimit ?? null) : null,
+      capacity: values.physicalEntry ? (values.capacity ?? null) : null,
     };
 
     onChange([...tickets, ticket]);
@@ -192,6 +196,10 @@ export function TicketSection({ tickets, onChange }: Props) {
             <input type="checkbox" {...register('cameraView')} className={styles.checkbox} />
             <span>{t('cameraView')}</span>
           </label>
+          <label className={styles.checkboxLabel}>
+            <input type="checkbox" {...register('physicalEntry')} className={styles.checkbox} />
+            <span>Acesso presencial</span>
+          </label>
         </div>
         {errors.liveView && <p className={styles.error}>{errors.liveView.message}</p>}
       </div>
@@ -209,6 +217,22 @@ export function TicketSection({ tickets, onChange }: Props) {
           />
           <p className={styles.inputHint}>{t('camerasLimitHint')}</p>
           {errors.camerasLimit && <p className={styles.error}>{errors.camerasLimit.message}</p>}
+        </div>
+      )}
+
+      {physicalEntry && (
+        <div className={styles.field}>
+          <label className={styles.label}>Capacidade do local</label>
+          <input
+            type="number"
+            min={1}
+            step={1}
+            {...register('capacity')}
+            className={`${styles.input} ${errors.capacity ? styles.inputError : ''}`}
+            placeholder="Ex: 500"
+          />
+          <p className={styles.inputHint}>Nº de lugares presenciais. Esgota quando vendidos.</p>
+          {errors.capacity && <p className={styles.error}>{errors.capacity.message}</p>}
         </div>
       )}
 

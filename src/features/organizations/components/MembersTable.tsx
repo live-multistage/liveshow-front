@@ -1,6 +1,6 @@
 'use client';
 
-import { Crown, Shield, Calendar, Eye } from 'lucide-react';
+import { Crown, Shield, Calendar, Eye, ScanLine } from 'lucide-react';
 import type { OrganizationMemberResponse, OrganizationRole } from '../types/organization.types';
 import { MemberRoleSelector } from './MemberRoleSelector';
 import styles from './MembersTable.module.scss';
@@ -11,6 +11,7 @@ const ROLE_ICONS: Record<OrganizationRole, React.ReactNode> = {
   EVENT_MANAGER: <Calendar size={13} />,
   CONTENT_MANAGER: <Calendar size={13} />,
   OPERATOR: <Calendar size={13} />,
+  STAFF: <ScanLine size={13} />,
   VIEWER: <Eye size={13} />,
 };
 
@@ -20,6 +21,7 @@ const ROLE_LABEL: Record<OrganizationRole, string> = {
   EVENT_MANAGER: 'Gestor de Eventos',
   CONTENT_MANAGER: 'Gestor de Conteúdo',
   OPERATOR: 'Operador',
+  STAFF: 'Staff',
   VIEWER: 'Visualizador',
 };
 

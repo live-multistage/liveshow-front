@@ -17,6 +17,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
   const isLive = event.status === 'LIVE';
   const hasReplay = capabilities.includes('REPLAY_VIEW');
   const hasCameras = capabilities.includes('CAMERA_VIEW');
+  const hasPhysical = capabilities.includes('PHYSICAL_ENTRY');
   const location = [event.venue, event.city].filter(Boolean).join(' · ');
 
   const cameraLabel = camerasLimit === null
@@ -110,6 +111,15 @@ export function TicketCard({ ticket }: TicketCardProps) {
               </svg>
               {watchLabel}
             </button>
+          )}
+          {hasPhysical && (
+            <Link className={styles.btnDetails} href={`/tickets/${event.id}/pass`}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" /><path d="M14 14h3v3h-3zM20 14h1M14 20h1M20 20h1" />
+              </svg>
+              Ingresso presencial
+            </Link>
           )}
           <Link className={styles.btnDetails} href={`/events/${event.id}`}>
             {t('details')}

@@ -39,3 +39,27 @@ export interface PurchasedTicket {
 }
 
 export type TicketFilter = 'all' | 'replay' | 'no-replay' | 'camera';
+
+// ── Physical entry pass (F2) ─────────────────────────────────────
+
+export interface EntryPassResponse {
+  grantId: string;
+  eventId: string;
+  entryCode: string;
+  // Signed QR payload: base64url(JSON{gid,eid,iat}).base64url(ECDSA-P256 sig)
+  qrToken: string;
+  redeemedAt: string | null;
+}
+
+export type CheckInStatus = 'OK' | 'ALREADY_USED' | 'INVALID';
+
+export interface CheckInResponse {
+  status: CheckInStatus;
+  attendeeUserId?: string;
+  redeemedAt?: string | null;
+}
+
+export interface CheckInSummaryResponse {
+  total: number;
+  redeemed: number;
+}
