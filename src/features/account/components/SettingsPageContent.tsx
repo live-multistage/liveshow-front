@@ -31,6 +31,9 @@ function initials(name?: string): string {
   return (name ?? '?').split(' ').slice(0, 2).map((n) => n[0] ?? '').join('').toUpperCase();
 }
 
+// First render shows only the most recent sessions; "Ver mais" reveals the rest.
+const SESSIONS_PREVIEW_COUNT = 5;
+
 const ROLE_LABEL: Record<string, string> = {
   USER: 'Membro', ARTIST: 'Artista', ORGANIZER: 'Produtor', ADMIN: 'Administrador', SUPER_ADMIN: 'Plataforma',
 };
@@ -84,6 +87,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
   const [profileSaved, setProfileSaved] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [passwordSaved, setPasswordSaved] = useState(false);
+  const [showAllSessions, setShowAllSessions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const profileForm = useForm<UpdateProfileFormValues>({
@@ -362,7 +366,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
             <div className={styles.cardTitle}>Dispositivos conectados</div>
             <div className={styles.sessionList}>
               {sessions.length === 0 && <p className={styles.prefDesc}>Nenhuma sessão ativa.</p>}
-              {sessions.map((s) => (
+              {(showAllSessions ? sessions : sessions.slice(0, SESSIONS_PREVIEW_COUNT)).map((s) => (
                 <div key={s.id} className={styles.sessionRow}>
                   <span className={styles.sessionIcon}><Monitor size={16} /></span>
                   <div className={styles.sessionText}>
@@ -384,6 +388,11 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
                   )}
                 </div>
               ))}
+              {!showAllSessions && sessions.length > SESSIONS_PREVIEW_COUNT && (
+                <button className={styles.sessionShowMore} onClick={() => setShowAllSessions(true)}>
+                  Ver mais ({sessions.length - SESSIONS_PREVIEW_COUNT})
+                </button>
+              )}
             </div>
           </section>
 

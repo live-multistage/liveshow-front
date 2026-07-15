@@ -232,6 +232,11 @@ $ok: #7fe0a0;
   &:hover:not(:disabled) { border-color: rgba(239, 68, 68, 0.5); color: $danger; }
   &:disabled { opacity: 0.6; }
 }
+.sessionShowMore {
+  align-self: center; background: transparent; border: 1px solid rgba(255, 255, 255, 0.16); color: #c7c7cd;
+  padding: 7px 18px; border-radius: 999px; font-size: 12.5px; font-weight: 600; cursor: pointer; margin-top: 4px;
+  &:hover { border-color: rgba(255, 255, 255, 0.38); color: #fff; }
+}
 
 /* danger zone */
 .dangerZone {
