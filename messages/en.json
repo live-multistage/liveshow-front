@@ -116,6 +116,8 @@
     "detail": {
       "notFound": "Show not found.",
       "backToHome": "Back to home",
+      "loadError": "We couldn't load the event.",
+      "retry": "Try again",
       "back": "Back",
       "live": "LIVE",
       "replay": "REPLAY",

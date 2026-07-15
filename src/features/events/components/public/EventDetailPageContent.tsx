@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { isAxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
 import { Calendar, Clock, MapPin, Camera, RotateCcw, Play } from 'lucide-react';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
@@ -21,11 +23,12 @@ interface Props {
 export function EventDetailPageContent({ id }: Props) {
   const router = useRouter();
   const t = useTranslations('events.detail');
-  const { data: event, isLoading, isError } = useGetEventQuery(id);
+  const { data: event, isLoading, isError, error, refetch } = useGetEventQuery(id);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
   const { data: org } = useOrganization(event?.organizationId ?? '');
   const { cameras, isLoading: camerasLoading } = useEventCamerasQuery(event ? id : null);
   const { user } = useAuth();
+  const [heroImgFailed, setHeroImgFailed] = useState(false);
   useTrackEventView(id, user?.id);
 
   if (isLoading) {
@@ -37,17 +40,20 @@ export function EventDetailPageContent({ id }: Props) {
   }
 
   if (isError || !event) {
+    const isNotFound = isError && isAxiosError(error) && error.response?.status === 404;
     return (
       <div className={styles.centered}>
-        <p className={styles.notFound}>{t('notFound')}</p>
-        <Link href="/" className={styles.backLink}>{t('backToHome')}</Link>
+        <p className={styles.notFound}>{isNotFound ? t('notFound') : t('loadError')}</p>
+        {isNotFound
+          ? <Link href="/" className={styles.backLink}>{t('backToHome')}</Link>
+          : <button onClick={() => refetch()} className={styles.backLink}>{t('retry')}</button>}
       </div>
     );
   }
 
   const isLive = event.status === 'LIVE';
   const isFinished = event.status === 'FINISHED';
-  const heroImage = event.bannerUrl ?? event.thumbnailUrl;
+  const heroImage = heroImgFailed ? null : event.bannerUrl ?? event.thumbnailUrl;
   const cameraCount = cameras.length || event.camerasCount || 0;
 
   return (
@@ -62,7 +68,7 @@ export function EventDetailPageContent({ id }: Props) {
 
         <div className={styles.hero}>
           {heroImage
-            ? <img src={heroImage} alt={event.title} className={styles.heroImg} />
+            ? <img src={heroImage} alt={event.title} className={styles.heroImg} onError={() => setHeroImgFailed(true)} />
             : <div className={styles.heroPlaceholder} />}
           <div className={styles.heroScrim} />
 

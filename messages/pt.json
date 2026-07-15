@@ -116,6 +116,8 @@
     "detail": {
       "notFound": "Show não encontrado.",
       "backToHome": "Voltar ao início",
+      "loadError": "Não conseguimos carregar o evento.",
+      "retry": "Tentar novamente",
       "back": "Voltar",
       "live": "AO VIVO",
       "replay": "REPRISE",
