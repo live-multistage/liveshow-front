@@ -3,6 +3,7 @@
 import { Badge } from '@/shared/components/ui/badge';
 import { Card } from '@/shared/components/ui/card';
 import { cn } from '@/shared/components/ui/utils';
+import styles from './Dock.module.scss';
 
 interface StatusBadge {
   label: string;
@@ -20,17 +21,15 @@ interface EventStreamCardProps {
 
 export function EventStreamCard({ title, thumbnailUrl, statusBadge, onClick, active, disabled }: EventStreamCardProps) {
   const inner = (
-    <div className="flex items-center gap-3 p-3">
+    <div className={styles.cardInner}>
       {thumbnailUrl && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={thumbnailUrl} alt="" className="h-10 w-10 shrink-0 rounded-md object-cover" />
+        <img src={thumbnailUrl} alt="" className={styles.cardThumb} />
       )}
-      <span className="flex-1 truncate text-sm font-medium">{title}</span>
+      <span className={styles.cardTitle}>{title}</span>
       {statusBadge && (
-        <Badge variant={statusBadge.variant === 'live' ? 'destructive' : 'secondary'} className="shrink-0">
-          {statusBadge.variant === 'live' && (
-            <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
-          )}
+        <Badge variant={statusBadge.variant === 'live' ? 'destructive' : 'secondary'}>
+          {statusBadge.variant === 'live' && <span className={styles.liveDot} />}
           {statusBadge.label}
         </Badge>
       )}
@@ -38,13 +37,13 @@ export function EventStreamCard({ title, thumbnailUrl, statusBadge, onClick, act
   );
 
   return (
-    <Card className={cn('overflow-hidden p-0', active && 'border-primary')}>
+    <Card className={cn(styles.cardShell, active && styles.cardActive)}>
       {onClick ? (
         <button
           type="button"
           onClick={onClick}
           disabled={disabled}
-          className="w-full text-left transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
+          className={styles.cardButton}
         >
           {inner}
         </button>

@@ -10,6 +10,7 @@ import type { StreamResponse } from '@/features/streams/types/stream.types';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
+import styles from './Dock.module.scss';
 import { EventStreamCard } from './EventStreamCard';
 import { StreamCreateForm } from './StreamCreateForm';
 import { StageFeedManager } from './StageFeedManager';
@@ -63,19 +64,19 @@ export function EventStreamPicker({ callVendorRequest, onSelected, userId }: Eve
   if (!eventId) {
     if (eventsQuery.isLoading) {
       return (
-        <div className="flex flex-col gap-2 p-4">
-          <Skeleton className="h-14 w-full rounded-lg" />
-          <Skeleton className="h-14 w-full rounded-lg" />
-          <Skeleton className="h-14 w-full rounded-lg" />
+        <div className={styles.stack}>
+          <Skeleton className={styles.skeletonRow} />
+          <Skeleton className={styles.skeletonRow} />
+          <Skeleton className={styles.skeletonRow} />
         </div>
       );
     }
 
     if (!eventsQuery.data?.length) {
       return (
-        <div className="p-4">
-          <Card className="flex flex-col items-center gap-2 p-6 text-center text-sm text-muted-foreground">
-            <CalendarX className="h-6 w-6" />
+        <div style={{ padding: '1rem' }}>
+          <Card className={styles.emptyCard}>
+            <CalendarX className={styles.iconLg} />
             Nenhum evento encontrado. Crie um evento no dashboard primeiro.
           </Card>
         </div>
@@ -83,8 +84,8 @@ export function EventStreamPicker({ callVendorRequest, onSelected, userId }: Eve
     }
 
     return (
-      <div className="flex flex-col gap-2 p-4">
-        <h2 className="text-sm font-semibold">Escolha um evento</h2>
+      <div className={styles.stack}>
+        <h2 className={styles.heading}>Escolha um evento</h2>
         {eventsQuery.data.map((event) => (
           <EventStreamCard
             key={event.id}
@@ -123,25 +124,25 @@ export function EventStreamPicker({ callVendorRequest, onSelected, userId }: Eve
   }
 
   return (
-    <div className="flex flex-col gap-2 p-4">
+    <div className={styles.stack}>
       <Button variant="ghost" size="sm" onClick={() => setEventId(null)}>
-        <ChevronLeft className="h-4 w-4" />
+        <ChevronLeft />
         Voltar
       </Button>
-      <h2 className="text-sm font-semibold">Escolha uma stream</h2>
+      <h2 className={styles.heading}>Escolha uma stream</h2>
       <Button variant="outline" size="sm" onClick={() => setPhase('create-stream')}>
-        <Plus className="h-4 w-4" />
+        <Plus />
         Criar nova stream
       </Button>
       {streamsQuery.isLoading && (
         <>
-          <Skeleton className="h-14 w-full rounded-lg" />
-          <Skeleton className="h-14 w-full rounded-lg" />
+          <Skeleton className={styles.skeletonRow} />
+          <Skeleton className={styles.skeletonRow} />
         </>
       )}
       {!streamsQuery.isLoading && !streamsQuery.data?.length && (
-        <Card className="flex flex-col items-center gap-2 p-6 text-center text-sm text-muted-foreground">
-          <VideoOff className="h-6 w-6" />
+        <Card className={styles.emptyCard}>
+          <VideoOff className={styles.iconLg} />
           Nenhuma stream encontrada para este evento.
         </Card>
       )}

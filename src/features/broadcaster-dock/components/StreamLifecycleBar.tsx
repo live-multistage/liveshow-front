@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
+import styles from './Dock.module.scss';
 import { STATUS_LABEL } from '@/features/streams/components/StreamCard';
 import {
   usePrepareStreamMutation,
@@ -96,12 +97,12 @@ export function StreamLifecycleBar({ stream, eventId, obsConnected, callVendorRe
   const lifecycleError = (prepare.error ?? start.error ?? end.error ?? cancel.error ?? rollback.error)?.message ?? null;
 
   return (
-    <div className="flex flex-col gap-2 border-b p-3">
-      <div className="flex items-center gap-2">
+    <div className={styles.lifecycleBar}>
+      <div className={styles.row}>
         <Badge variant={STATUS_BADGE_VARIANT[stream.status]}>{STATUS_LABEL[stream.status]}</Badge>
-        <span className="truncate text-sm font-medium">{stream.title}</span>
+        <span className={styles.cardTitle}>{stream.title}</span>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className={styles.rowWrap}>
         {stream.status === 'DRAFT' && (
           <Button size="sm" variant="outline" onClick={() => prepare.mutate()} disabled={disabled || prepare.isPending}>
             {prepare.isPending ? 'Preparando...' : 'Preparar'}
@@ -128,8 +129,8 @@ export function StreamLifecycleBar({ stream, eventId, obsConnected, callVendorRe
           </Button>
         )}
       </div>
-      {summary && <p className="text-xs text-muted-foreground">{summary}</p>}
-      {lifecycleError && <p className="text-xs text-destructive">{lifecycleError}</p>}
+      {summary && <p className={styles.muted}>{summary}</p>}
+      {lifecycleError && <p className={styles.error}>{lifecycleError}</p>}
     </div>
   );
 }

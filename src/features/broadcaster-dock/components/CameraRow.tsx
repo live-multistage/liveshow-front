@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { Settings, Video } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
+import styles from './Dock.module.scss';
 import {
   useCameraOutputStatusQuery,
   useStartCameraOutputMutation,
@@ -122,25 +123,25 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
   }
 
   return (
-    <div className="flex flex-col gap-1 py-1 pl-6">
-      <div className="flex items-center justify-between gap-2 text-sm">
-        <span className="flex items-center gap-1.5 truncate">
-          <Video className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+    <div className={styles.nestedRow}>
+      <div className={`${styles.rowBetween} ${styles.textSm}`}>
+        <span className={`${styles.row} ${styles.truncate}`}>
+          <Video className={styles.iconMuted} />
           {cameraName}
         </span>
-        {canvasExists === null && <span className="text-xs text-muted-foreground">Verificando...</span>}
+        {canvasExists === null && <span className={styles.muted}>Verificando...</span>}
         {canvasExists === false && (
           <Button size="sm" variant="outline" onClick={handleCreateCanvas} disabled={creating}>
             {creating ? 'Criando...' : 'Criar canvas'}
           </Button>
         )}
       </div>
-      {error && <p className="pl-5 text-xs text-destructive">{error}</p>}
+      {error && <p className={styles.error}>{error}</p>}
 
       {canvasExists === true && (
-        <div className="flex items-center justify-between gap-2 pl-5 text-xs">
+        <div className={styles.subRow}>
           {sourceType === null ? (
-            <div className="flex gap-2">
+            <div className={styles.row}>
               <Button size="sm" variant="ghost" onClick={() => handleAttachSource('camera')} disabled={attaching !== null}>
                 {attaching === 'camera' ? 'Anexando...' : 'Câmera'}
               </Button>
@@ -150,10 +151,10 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
             </div>
           ) : (
             <>
-              <span className="text-muted-foreground">Fonte: {sourceType === 'camera' ? 'Câmera' : 'Tela'}</span>
-              <div className="flex gap-2">
+              <span className={styles.mutedInline}>Fonte: {sourceType === 'camera' ? 'Câmera' : 'Tela'}</span>
+              <div className={styles.row}>
                 <Button size="sm" variant="ghost" onClick={handleOpenProperties}>
-                  <Settings className="h-3.5 w-3.5" />
+                  <Settings className={styles.icon} />
                   Configurar no OBS
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => setSourceType(null)}>
@@ -164,13 +165,13 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
           )}
         </div>
       )}
-      {sourceError && <p className="pl-5 text-xs text-destructive">{sourceError}</p>}
+      {sourceError && <p className={styles.error}>{sourceError}</p>}
 
       {sourceType !== null && (
-        <div className="flex items-center justify-between gap-2 pl-5 text-xs">
+        <div className={styles.subRow}>
           {transmitting ? (
             <>
-              <span className="text-primary">Transmitindo</span>
+              <span className={styles.accent}>Transmitindo</span>
               <Button size="sm" variant="destructive" onClick={handleStopTransmission} disabled={outputPending !== null}>
                 {outputPending === 'stop' ? 'Parando...' : 'Parar transmissão'}
               </Button>
@@ -182,7 +183,7 @@ export function CameraRow({ cameraId, cameraName, callVendorRequest }: CameraRow
           )}
         </div>
       )}
-      {outputError && <p className="pl-5 text-xs text-destructive">{outputError}</p>}
+      {outputError && <p className={styles.error}>{outputError}</p>}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ChevronRight, Trash2 } from 'lucide-react';
 import { useFeedCamerasQuery } from '@/features/streams/queries/streams.queries';
 import { streamsService } from '@/features/streams/services/streams.service';
+import styles from './Dock.module.scss';
 import { CameraRow } from './CameraRow';
 import { CameraCreateForm } from './CameraCreateForm';
 
@@ -34,31 +35,31 @@ export function FeedRow({ feedId, feedName, canDelete, onDelete, callVendorReque
   }
 
   return (
-    <div className="flex flex-col gap-1 py-1 pl-6">
-      <div className="flex items-center justify-between gap-2">
+    <div className={styles.nestedRow}>
+      <div className={styles.rowBetween}>
         <button
           type="button"
-          className="flex flex-1 items-center gap-2 text-left text-sm"
+          className={styles.expandBtn}
           onClick={() => setExpanded((v) => !v)}
         >
-          <ChevronRight className={`h-3.5 w-3.5 shrink-0 transition-transform ${expanded ? 'rotate-90' : ''}`} />
-          <span className="truncate">{feedName}</span>
+          <ChevronRight className={`${styles.chevron} ${expanded ? styles.chevronOpen : ''}`} />
+          <span className={styles.truncate}>{feedName}</span>
         </button>
         {canDelete && (
           <button
             type="button"
             onClick={handleDeleteFeed}
-            className="text-muted-foreground hover:text-destructive"
+            className={styles.deleteBtn}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className={styles.icon} />
           </button>
         )}
       </div>
       {expanded && (
-        <div className="flex flex-col gap-1">
-          {camerasQuery.isLoading && <p className="pl-6 text-xs text-muted-foreground">Carregando...</p>}
+        <div className={styles.stackTight}>
+          {camerasQuery.isLoading && <p className={`${styles.muted} ${styles.indent}`}>Carregando...</p>}
           {!camerasQuery.isLoading && !camerasQuery.data?.length && (
-            <p className="pl-6 text-xs text-muted-foreground">Nenhuma câmera ainda</p>
+            <p className={`${styles.muted} ${styles.indent}`}>Nenhuma câmera ainda</p>
           )}
           {camerasQuery.data?.map((camera) => (
             <CameraRow
@@ -68,7 +69,7 @@ export function FeedRow({ feedId, feedName, canDelete, onDelete, callVendorReque
               callVendorRequest={callVendorRequest}
             />
           ))}
-          <div className="pl-6">
+          <div className={styles.indent}>
             <CameraCreateForm feedId={feedId} callVendorRequest={callVendorRequest} />
           </div>
         </div>

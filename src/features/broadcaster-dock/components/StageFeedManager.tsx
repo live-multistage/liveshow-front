@@ -6,6 +6,7 @@ import { useCreateStageMutation, useDeleteStageMutation } from '@/features/strea
 import type { StreamStatus } from '@/features/streams/types/stream.types';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
+import styles from './Dock.module.scss';
 import { StageRow } from './StageRow';
 import { useState } from 'react';
 
@@ -41,17 +42,17 @@ export function StageFeedManager({ streamId, streamStatus, onContinue, onBack, c
   }
 
   return (
-    <div className="flex flex-col gap-2 p-4">
+    <div className={styles.stack}>
       {onBack && (
         <Button variant="ghost" size="sm" onClick={onBack}>
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft />
           Voltar
         </Button>
       )}
-      <h2 className="text-sm font-semibold">Palcos e feeds</h2>
-      {stagesQuery.isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
+      <h2 className={styles.heading}>Palcos e feeds</h2>
+      {stagesQuery.isLoading && <p className={styles.mutedSm}>Carregando...</p>}
       {!stagesQuery.isLoading && !stagesQuery.data?.length && (
-        <p className="text-sm text-muted-foreground">Nenhum palco ainda</p>
+        <p className={styles.mutedSm}>Nenhum palco ainda</p>
       )}
       {stagesQuery.data?.map((stage) => (
         <StageRow
@@ -65,13 +66,13 @@ export function StageFeedManager({ streamId, streamStatus, onContinue, onBack, c
       ))}
       {canCreate && !creatingOpen && (
         <Button variant="ghost" size="sm" onClick={() => setCreatingOpen(true)}>
-          <Plus className="h-4 w-4" />
+          <Plus />
           Palco
         </Button>
       )}
       {canCreate && creatingOpen && (
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
+        <div className={styles.stackTight}>
+          <div className={styles.row}>
             <Input
               value={newStageName}
               onChange={(e) => setNewStageName(e.target.value)}
@@ -88,12 +89,12 @@ export function StageFeedManager({ streamId, streamStatus, onContinue, onBack, c
             </Button>
           </div>
           {createStage.error?.message && (
-            <p className="text-xs text-destructive">{createStage.error.message}</p>
+            <p className={styles.error}>{createStage.error.message}</p>
           )}
         </div>
       )}
       {onContinue && (
-        <Button className="mt-2" onClick={onContinue}>
+        <Button className={styles.mtSm} onClick={onContinue}>
           Continuar
         </Button>
       )}

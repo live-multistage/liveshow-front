@@ -8,6 +8,7 @@ import type { StageResponse } from '@/features/streams/types/stream.types';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Card } from '@/shared/components/ui/card';
+import styles from './Dock.module.scss';
 import { FeedRow } from './FeedRow';
 
 type CallVendorRequest = (requestType: string, requestData?: Record<string, unknown>) => Promise<Record<string, unknown>>;
@@ -34,15 +35,15 @@ function InlineCreateRow({ placeholder, isPending, error, onCreate }: InlineCrea
   if (!open) {
     return (
       <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
-        <Plus className="h-4 w-4" />
+        <Plus />
         {placeholder}
       </Button>
     );
   }
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-2">
+    <div className={styles.stackTight}>
+      <div className={styles.row}>
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -58,7 +59,7 @@ function InlineCreateRow({ placeholder, isPending, error, onCreate }: InlineCrea
           Adicionar
         </Button>
       </div>
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className={styles.error}>{error}</p>}
     </div>
   );
 }
@@ -78,31 +79,31 @@ export function StageRow({ stage, canCreate, canDelete, onDeleteStage, callVendo
   const deleteFeed = useDeleteFeedMutation(stage.id);
 
   return (
-    <Card className="p-3">
-      <div className="flex items-center justify-between gap-2">
+    <Card className={styles.stageCard}>
+      <div className={styles.rowBetween}>
         <button
           type="button"
-          className="flex flex-1 items-center gap-2 text-left"
+          className={styles.expandBtn}
           onClick={() => setExpanded((v) => !v)}
         >
-          <ChevronRight className={`h-4 w-4 shrink-0 transition-transform ${expanded ? 'rotate-90' : ''}`} />
-          <span className="truncate text-sm font-medium">{stage.name}</span>
+          <ChevronRight className={`${styles.chevron} ${expanded ? styles.chevronOpen : ''}`} />
+          <span className={styles.cardTitle}>{stage.name}</span>
         </button>
         {canDelete && (
           <button
             type="button"
             onClick={() => onDeleteStage(stage.id)}
-            className="text-muted-foreground hover:text-destructive"
+            className={styles.deleteBtn}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className={styles.icon} />
           </button>
         )}
       </div>
       {expanded && (
-        <div className="mt-2 flex flex-col gap-1">
-          {feedsQuery.isLoading && <p className="pl-6 text-xs text-muted-foreground">Carregando...</p>}
+        <div className={`${styles.stackTight} ${styles.mtSm}`}>
+          {feedsQuery.isLoading && <p className={`${styles.muted} ${styles.indent}`}>Carregando...</p>}
           {!feedsQuery.isLoading && !feedsQuery.data?.length && (
-            <p className="pl-6 text-xs text-muted-foreground">Nenhum feed ainda</p>
+            <p className={`${styles.muted} ${styles.indent}`}>Nenhum feed ainda</p>
           )}
           {feedsQuery.data?.map((feed) => (
             <FeedRow
@@ -115,7 +116,7 @@ export function StageRow({ stage, canCreate, canDelete, onDeleteStage, callVendo
             />
           ))}
           {canCreate && (
-            <div className="pl-6">
+            <div className={styles.indent}>
               <InlineCreateRow
                 placeholder="Feed"
                 isPending={createFeed.isPending}

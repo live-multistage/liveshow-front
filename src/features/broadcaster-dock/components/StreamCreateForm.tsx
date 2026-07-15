@@ -6,6 +6,7 @@ import type { StreamResponse } from '@/features/streams/types/stream.types';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Button } from '@/shared/components/ui/button';
+import styles from './Dock.module.scss';
 
 interface StreamCreateFormProps {
   eventId: string;
@@ -25,9 +26,9 @@ export function StreamCreateForm({ eventId, onCreated, onCancel }: StreamCreateF
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4">
-      <h2 className="text-sm font-semibold">Criar nova stream</h2>
-      <div className="flex flex-col gap-1">
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <h2 className={styles.heading}>Criar nova stream</h2>
+      <div className={styles.stackTight}>
         <Label htmlFor="stream-title">Título</Label>
         <Input
           id="stream-title"
@@ -37,7 +38,7 @@ export function StreamCreateForm({ eventId, onCreated, onCancel }: StreamCreateF
           autoFocus
         />
       </div>
-      <div className="flex flex-col gap-1">
+      <div className={styles.stackTight}>
         <Label htmlFor="stream-description">Descrição (opcional)</Label>
         <Input
           id="stream-description"
@@ -46,8 +47,8 @@ export function StreamCreateForm({ eventId, onCreated, onCancel }: StreamCreateF
           disabled={create.isPending}
         />
       </div>
-      {create.error && <p className="text-sm text-destructive">{create.error.message}</p>}
-      <div className="flex gap-2">
+      {create.error && <p className={styles.errorSm}>{create.error.message}</p>}
+      <div className={styles.row}>
         <Button type="submit" disabled={create.isPending || !title.trim()}>
           {create.isPending ? 'Criando...' : 'Criar'}
         </Button>

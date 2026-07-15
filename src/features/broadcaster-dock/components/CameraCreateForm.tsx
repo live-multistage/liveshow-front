@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useCreateCameraMutation } from '@/features/streams/mutations/camera.mutations';
 import { Input } from '@/shared/components/ui/input';
 import { Button } from '@/shared/components/ui/button';
+import styles from './Dock.module.scss';
 
 type CallVendorRequest = (requestType: string, requestData?: Record<string, unknown>) => Promise<Record<string, unknown>>;
 
@@ -50,8 +51,8 @@ export function CameraCreateForm({ feedId, callVendorRequest }: CameraCreateForm
   }
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-2">
+    <div className={styles.stackTight}>
+      <div className={styles.row}>
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -67,7 +68,7 @@ export function CameraCreateForm({ feedId, callVendorRequest }: CameraCreateForm
           Adicionar
         </Button>
       </div>
-      {createCamera.error?.message && <p className="text-xs text-destructive">{createCamera.error.message}</p>}
+      {createCamera.error?.message && <p className={styles.error}>{createCamera.error.message}</p>}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { eventsService } from '@/features/events/services/events.service';
 import { useEventStreamsQuery } from '@/features/streams/queries/streams.queries';
 import { Button } from '@/shared/components/ui/button';
+import styles from './Dock.module.scss';
 import { StreamLifecycleBar } from './StreamLifecycleBar';
 import { StageFeedManager } from './StageFeedManager';
 import type { CallVendorRequest } from '../lib/camera-transmission';
@@ -36,9 +37,9 @@ export function ActiveStreamConfirmation({
   const stream = streamsQuery.data?.find((s) => s.id === streamId);
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between gap-2 px-3 pt-3">
-        <p className="truncate text-xs text-muted-foreground">{eventQuery.data?.title ?? eventId}</p>
+    <div className={styles.stackBare}>
+      <div className={styles.confirmHeader}>
+        <p className={`${styles.muted} ${styles.truncate}`}>{eventQuery.data?.title ?? eventId}</p>
         <Button variant="ghost" size="sm" onClick={onChangeStream}>
           Trocar transmissão
         </Button>
