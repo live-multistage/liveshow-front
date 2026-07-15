@@ -23,11 +23,25 @@ export function useGetEventQuery(id: string, initialData?: EventResponse) {
   });
 }
 
+// GET /shows/:showId/tickets returns { products, serviceFeeRate }. Most callers
+// only care about the ticket list, so this unwraps it; useServiceFeeRateQuery
+// below shares the same queryKey/queryFn (react-query dedupes the fetch) for
+// callers that need the fee instead.
 export function useListTicketProductsQuery(eventId: string) {
   return useQuery({
     queryKey: eventKeys.tickets(eventId),
     queryFn: () => eventsService.listTicketProducts(eventId),
     enabled: !!eventId,
+    select: (data) => data.products,
+  });
+}
+
+export function useServiceFeeRateQuery(eventId: string) {
+  return useQuery({
+    queryKey: eventKeys.tickets(eventId),
+    queryFn: () => eventsService.listTicketProducts(eventId),
+    enabled: !!eventId,
+    select: (data) => data.serviceFeeRate,
   });
 }
 

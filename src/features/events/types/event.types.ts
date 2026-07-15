@@ -145,6 +145,11 @@ export interface TicketProductResponse {
   immutable: boolean;
 }
 
+export interface TicketProductsResponse {
+  products: TicketProductResponse[];
+  serviceFeeRate: number;
+}
+
 export interface EventPhotoResponse {
   id: string;
   eventId: string;

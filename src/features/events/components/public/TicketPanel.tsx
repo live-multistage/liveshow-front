@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Tv2, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { formatPrice } from '../../utils/event-formatters';
+import { useServiceFeeRateQuery } from '../../queries/get-event';
 import type { EventResponse, TicketProductResponse } from '../../types/event.types';
 import { useTranslations } from 'next-intl';
 import { useAddToCartMutation, useCartQuery } from '@/features/cart';
@@ -31,10 +32,10 @@ export function TicketPanel({ event, tickets }: Props) {
   const addToCart = useAddToCartMutation();
   const { isLoggedIn, user } = useAuth();
   const { data: cart } = useCartQuery();
-  const isInCart = isLoggedIn && (cart?.items.some((i) => i.eventId === event.id) ?? false);
   const isTicketInCart = (ticketId: string) =>
     isLoggedIn && (cart?.items.some((i) => i.ticketProductId === ticketId) ?? false);
   const t = useTranslations('ticketPanel');
+  const { data: serviceFeeRate = 0 } = useServiceFeeRateQuery(event.id);
 
   const liveAccess = useLiveAccessQuery(event.id, isLoggedIn);
   const replayAccess = useReplayAccessQuery(event.id, isLoggedIn);
@@ -47,6 +48,8 @@ export function TicketPanel({ event, tickets }: Props) {
     : tickets;
 
   const ticket = purchasableTickets.find((t) => t.id === selected) ?? purchasableTickets[0];
+  // Both re-entry checks key off the selected ticket product id (the cart stores ticketProductId).
+  const isInCart = ticket ? isTicketInCart(ticket.id) : false;
 
   const ownsLive = liveAccess.data === true;
   const ownsReplay = replayAccess.data === true;
@@ -57,6 +60,28 @@ export function TicketPanel({ event, tickets }: Props) {
 
   const playback = useLivePlaybackQuery(event.id, ownsLive);
   const liveNow = playback.data?.live === true;
+
+  // fee = rate × price, rounded half-up to cents — must match checkout's charge.
+  const serviceFee = ticket ? Math.round(ticket.price * serviceFeeRate * 100) / 100 : 0;
+
+  // Mobile sticky buy bar: only rendered in the purchase state below, hidden
+  // while the panel itself is on screen.
+  const showPurchaseUI =
+    event.status !== 'CANCELLED' && !accessLoading && !owns && !event.isFree && purchasableTickets.length > 0;
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [panelInView, setPanelInView] = useState(true);
+  useEffect(() => {
+    const el = panelRef.current;
+    if (!showPurchaseUI || !el) return;
+    const obs = new IntersectionObserver(([entry]) => setPanelInView(entry.isIntersecting));
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [showPurchaseUI]);
+
+  const scrollToPanel = () => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    panelRef.current?.scrollIntoView({ behavior: reduced ? 'instant' : 'smooth', block: 'center' });
+  };
 
   if (event.status === 'CANCELLED') {
     return (
@@ -162,7 +187,7 @@ export function TicketPanel({ event, tickets }: Props) {
   }
 
   return (
-    <div className={styles.panel}>
+    <div className={styles.panel} ref={panelRef}>
       <div className={styles.glow} aria-hidden />
       <div className={styles.panelContent}>
         <div className={styles.panelLabel}>
@@ -180,6 +205,13 @@ export function TicketPanel({ event, tickets }: Props) {
                 <span className={styles.ticketOptionName}>{opt.name}</span>
                 <span className={styles.ticketOptionPrice}>{formatPrice(opt.price)}</span>
               </div>
+              <div className={styles.tierChips}>
+                {opt.capabilities.includes('LIVE_VIEW') && <span className={styles.tierChip}>AO VIVO</span>}
+                {opt.capabilities.includes('REPLAY_VIEW') && <span className={styles.tierChip}>REPRISE</span>}
+                {opt.camerasLimit != null
+                  ? <span className={styles.tierChip}>{opt.camerasLimit} CÂMERAS</span>
+                  : opt.capabilities.includes('CAMERA_VIEW') && <span className={styles.tierChip}>TODAS AS CÂMERAS</span>}
+              </div>
               {opt.description && (
                 <p className={styles.ticketOptionDesc}>{opt.description}</p>
               )}
@@ -191,11 +223,21 @@ export function TicketPanel({ event, tickets }: Props) {
 
         {ticket && (
           <>
+            <div className={styles.feeLines}>
+              <div className={styles.feeLine}>
+                <span>Ingresso</span>
+                <span>{formatPrice(ticket.price)}</span>
+              </div>
+              <div className={styles.feeLine}>
+                <span>Taxa de serviço</span>
+                <span>{formatPrice(serviceFee)}</span>
+              </div>
+            </div>
             <div className={styles.totalRow}>
               <span className={styles.totalLabel}>Total</span>
               <div className={styles.totalRight}>
                 <span className={styles.currency}>BRL</span>
-                <span className={styles.totalAmount}>{formatPrice(ticket.price)}</span>
+                <span className={styles.totalAmount}>{formatPrice(ticket.price + serviceFee)}</span>
               </div>
             </div>
             <p className={styles.totalNote}>{t('validFor')}</p>
@@ -287,6 +329,19 @@ export function TicketPanel({ event, tickets }: Props) {
           COMPRA 100% SEGURA
         </div>
       </div>
+
+      {/* Mobile-only (≤859px via CSS) sticky buy bar; hidden while the panel is on screen. */}
+      {ticket && !panelInView && (
+        <div className={styles.mobileBar}>
+          <div>
+            <span className={styles.mobileBarLabel}>{isFinished ? 'REPRISE' : 'INGRESSO'}</span>
+            <span className={styles.mobileBarAmount}>{formatPrice(ticket.price)}</span>
+          </div>
+          <button className={styles.mobileBarBtn} onClick={scrollToPanel}>
+            Comprar ingresso
+          </button>
+        </div>
+      )}
     </div>
   );
 }

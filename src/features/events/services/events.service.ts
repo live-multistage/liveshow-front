@@ -1,5 +1,5 @@
 import { httpClient } from '@/lib/http/client';
-import type { CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
+import type { CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
 
 export const eventsService = {
   listEvents: async (filter: ListEventsFilter = 'all', page = 1, pageSize = 50): Promise<PaginatedEventsResponse> => {
@@ -33,8 +33,8 @@ export const eventsService = {
     return data;
   },
 
-  listTicketProducts: async (eventId: string): Promise<TicketProductResponse[]> => {
-    const { data } = await httpClient.get<TicketProductResponse[]>(`/shows/${eventId}/tickets`);
+  listTicketProducts: async (eventId: string): Promise<TicketProductsResponse> => {
+    const { data } = await httpClient.get<TicketProductsResponse>(`/shows/${eventId}/tickets`);
     return data;
   },
 

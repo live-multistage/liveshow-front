@@ -1,5 +1,5 @@
 import { cache } from 'react';
-import type { EventResponse, TicketProductResponse } from '../types/event.types';
+import type { EventResponse, TicketProductsResponse } from '../types/event.types';
 
 // Server-side fetches use native fetch, not the axios httpClient (which is
 // 'use client' and carries browser-only auth interceptors). These are public
@@ -15,10 +15,10 @@ export const fetchEvent = cache(async (id: string): Promise<EventResponse> => {
   return res.json() as Promise<EventResponse>;
 });
 
-export const fetchTicketProducts = cache(async (eventId: string): Promise<TicketProductResponse[]> => {
+export const fetchTicketProducts = cache(async (eventId: string): Promise<TicketProductsResponse> => {
   const res = await fetch(`${apiBase()}/shows/${eventId}/tickets`, { next: { revalidate: 30 } });
   if (!res.ok) throw new Error(`fetchTicketProducts ${eventId}: ${res.status}`);
-  return res.json() as Promise<TicketProductResponse[]>;
+  return res.json() as Promise<TicketProductsResponse>;
 });
 
 // Backward-compat alias used by watch/replay/live pages.
