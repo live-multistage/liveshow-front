@@ -41,7 +41,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
   const unpublishMutation = useUnpublishEventMutation(id);
   const finishMutation = useFinishEventMutation(id);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<EditFormValues>({
+  const { register, control, handleSubmit, reset, formState: { errors } } = useForm<EditFormValues>({
     resolver: zodResolver(editSchema),
   });
 
@@ -130,6 +130,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
           <>
             <EventEditForm
               register={register}
+              control={control}
               errors={errors}
               isPending={updateMutation.isPending}
               errorMessage={updateMutation.error?.message}

@@ -1,8 +1,10 @@
 'use client';
 
 import { z } from 'zod';
-import type { UseFormRegister, FieldErrors } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
+import type { UseFormRegister, FieldErrors, Control } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
+import { SimpleCustomSelect } from '@/shared/components/ui/custom-select';
 import styles from './EventDashboardDetailContent.module.scss';
 
 export const editSchema = z.object({
@@ -20,12 +22,13 @@ export type EditFormValues = z.infer<typeof editSchema>;
 
 interface Props {
   register: UseFormRegister<EditFormValues>;
+  control: Control<EditFormValues>;
   errors: FieldErrors<EditFormValues>;
   isPending: boolean;
   errorMessage?: string;
 }
 
-export function EventEditForm({ register, errors, errorMessage }: Props) {
+export function EventEditForm({ register, control, errors, errorMessage }: Props) {
   const t = useTranslations('eventDetail');
 
   return (
@@ -72,10 +75,20 @@ export function EventEditForm({ register, errors, errorMessage }: Props) {
 
       <div className={styles.field}>
         <label className={styles.label}>{t('editLatencyMode')}</label>
-        <select {...register('latencyMode')} className={styles.input}>
-          <option value="STANDARD">{t('latencyStandard')}</option>
-          <option value="LOW">{t('latencyLow')}</option>
-        </select>
+        <Controller
+          name="latencyMode"
+          control={control}
+          render={({ field }) => (
+            <SimpleCustomSelect
+              value={field.value}
+              onValueChange={field.onChange}
+              options={[
+                { value: 'STANDARD', label: t('latencyStandard') },
+                { value: 'LOW', label: t('latencyLow') },
+              ]}
+            />
+          )}
+        />
       </div>
 
       {errorMessage && <p className={styles.globalError}>{errorMessage}</p>}

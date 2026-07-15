@@ -19,6 +19,7 @@
   background: #08080a;
   color: #f4f4f5;
   min-height: 100vh;
+  overflow-x: clip; // safety net: no child may cause horizontal scroll on mobile
 }
 
 
@@ -208,6 +209,18 @@
   text-decoration: none;
 
   &:hover { transform: translate(-50%, -60%) scale(1.07); }
+
+  // Mobile: content block is bottom-anchored and grows when the title wraps
+  // to 2 lines. Anchor the button to the upper image zone (fixed px from top)
+  // so it can never collide with the title/CTAs.
+  @media (max-width: 767px) {
+    top: 120px;
+    width: 58px;
+    height: 58px;
+    transform: translateX(-50%);
+
+    &:hover { transform: translateX(-50%) scale(1.07); }
+  }
 }
 
 .heroContent {
@@ -308,6 +321,7 @@
 .liveRail {
   display: flex;
   flex-direction: column;
+  min-width: 0; // grid item: allow shrink below children's intrinsic min-content
 }
 
 .liveRailHeader {
@@ -452,15 +466,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
 }
 
 .liveItemViewers {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
   font-family: 'Space Mono', monospace;
   font-size: 11px;
   color: #ff7ec2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .liveItemPrice {
@@ -468,6 +488,8 @@
   font-size: 11px;
   font-weight: 700;
   color: #ff2e9e;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .liveRailMore {
