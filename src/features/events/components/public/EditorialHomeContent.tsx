@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { useListEventsQuery, useRecommendedEventsQuery, eventToShow, formatPriceRange } from '@/features/events';
+import { FALLBACK_IMAGE } from '@/features/events/utils/event-adapter';
 import type { Show } from '@/features/events/types/show';
 import type { EventResponse, RecommendedEventsResponse } from '@/features/events';
 import { useAuth } from '@/features/account';
@@ -26,6 +27,15 @@ function fmtDate(dateStr: string, localeCode: string) {
 function playHref(show: Show) {
   return show.isLive ? `/live/${show.id}` : `/events/${show.id}`;
 }
+
+// A 404ing thumbnail otherwise renders the browser's broken-image glyph —
+// the adapter's ?? fallback only covers a MISSING url, not a dead one.
+function onImgError(e: React.SyntheticEvent<HTMLImageElement>) {
+  if (e.currentTarget.src !== FALLBACK_IMAGE) e.currentTarget.src = FALLBACK_IMAGE;
+}
+
+// Genre chips shown before the "+N mais" expander kicks in.
+const GENRES_PREVIEW_COUNT = 6;
 
 function infoHref(show: Show) {
   return `/events/${show.id}`;
@@ -69,7 +79,7 @@ function LiveRailItem({ show }: { show: Show }) {
   return (
     <Link href={playHref(show)} className={styles.liveItem}>
       <div className={styles.liveThumbWrapper}>
-        <img src={show.image} alt={show.title} className={styles.liveThumb} />
+        <img src={show.image} alt={show.title} className={styles.liveThumb} onError={onImgError} />
         <div className={styles.liveThumbOverlay} />
         <span className={styles.liveItemBadge}>
           <span className={styles.liveBadgeDot} />
@@ -82,11 +92,48 @@ function LiveRailItem({ show }: { show: Show }) {
           <div className={styles.liveItemVenue}>{show.venue} · {show.city}</div>
         </div>
         <div className={styles.liveItemFooter}>
+          {/* Viewer counts render only with real data — a dead "— assistindo"
+              on a live marketplace reads worse than no number. */}
+          {show.viewers ? (
+            <span className={styles.liveItemViewers}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="3" /><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+              </svg>
+              {show.viewers.toLocaleString('pt-BR')} assistindo
+            </span>
+          ) : (
+            <span className={styles.liveItemViewers}>
+              <span className={styles.liveBadgeDot} />
+              transmitindo agora
+            </span>
+          )}
+          <span className={styles.liveItemPrice}>{fmtPrice(show)}</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// Fills the rail's dead space below the live items with what's next —
+// same visual anatomy as LiveRailItem, date instead of live signals.
+function UpcomingRailItem({ show, localeCode }: { show: Show; localeCode: string }) {
+  return (
+    <Link href={infoHref(show)} className={styles.liveItem}>
+      <div className={styles.liveThumbWrapper}>
+        <img src={show.image} alt={show.title} className={styles.liveThumb} onError={onImgError} />
+        <div className={styles.liveThumbOverlay} />
+      </div>
+      <div className={styles.liveItemBody}>
+        <div className={styles.liveItemTop}>
+          <div className={styles.liveItemTitle}>{show.title}</div>
+          <div className={styles.liveItemVenue}>{show.venue} · {show.city}</div>
+        </div>
+        <div className={styles.liveItemFooter}>
           <span className={styles.liveItemViewers}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="3" /><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+              <rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" />
             </svg>
-            {show.viewers ? show.viewers.toLocaleString('pt-BR') : '—'} assistindo
+            {fmtDate(show.date, localeCode)}
           </span>
           <span className={styles.liveItemPrice}>{fmtPrice(show)}</span>
         </div>
@@ -104,7 +151,7 @@ function EditorialCard({ show, localeCode }: { show: Show; localeCode: string })
     <div className={styles.eventCard}>
       <Link href={infoHref(show)} className={styles.eventCardLink}>
         <div className={styles.eventImageWrapper}>
-          <img src={show.image} alt={show.title} className={styles.eventImage} />
+          <img src={show.image} alt={show.title} className={styles.eventImage} onError={onImgError} />
           <div className={styles.eventImageScrim} />
           <div className={styles.eventBadgesTop}>
             {show.isLive && (
@@ -174,8 +221,9 @@ export function EditorialHomeContent({ initialEvents, initialRecommended, initia
   const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
 
   const [activeGenre, setActiveGenre] = useState('Todos');
+  const [genresExpanded, setGenresExpanded] = useState(false);
 
-  const { data: events = [], isLoading } = useListEventsQuery('all', initialEvents);
+  const { data: events = [], isLoading, isError, refetch } = useListEventsQuery('all', initialEvents);
   const shows = useMemo(() => events.map(eventToShow), [events]);
 
   const { isLoggedIn } = useAuth();
@@ -190,8 +238,12 @@ export function EditorialHomeContent({ initialEvents, initialRecommended, initia
   );
 
   const liveShows = useMemo(() => shows.filter((s) => s.isLive), [shows]);
-  const tickerShows = useMemo(() => liveShows.length > 0 ? liveShows : shows.slice(0, 4), [liveShows, shows]);
   const featured = useMemo(() => liveShows[0] ?? shows[0] ?? null, [liveShows, shows]);
+  // Fill the rail's dead space with upcoming shows when fewer than 3 lives.
+  const railUpcoming = useMemo(
+    () => shows.filter((s) => !s.isLive).slice(0, Math.max(0, 3 - liveShows.length)),
+    [shows, liveShows],
+  );
 
   const genres = useMemo(() => {
     const unique = [...new Set(shows.map((s) => s.category))].filter(Boolean);
@@ -207,8 +259,25 @@ export function EditorialHomeContent({ initialEvents, initialRecommended, initia
     return <div className={styles.loading}><span className={styles.spinner} /></div>;
   }
 
+  // A fetch failure must not masquerade as an empty catalog.
+  if (isError && events.length === 0) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.inner}>
+          <div className={styles.emptyGrid}>
+            Não conseguimos carregar a programação agora.
+            <button className={styles.retryBtn} onClick={() => refetch()}>
+              Tentar novamente
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
+      <LiveTicker shows={liveShows} />
 
       <div className={styles.inner}>
         {/* Hero + Live Rail */}
@@ -216,7 +285,7 @@ export function EditorialHomeContent({ initialEvents, initialRecommended, initia
           <div className={styles.heroGrid}>
             {/* Featured hero card */}
             <div className={styles.heroCard}>
-              <img src={featured.image} alt={featured.title} className={styles.heroImage} />
+              <img src={featured.image} alt={featured.title} className={styles.heroImage} onError={onImgError} />
               <div className={styles.heroOverlay} />
 
               <div className={styles.heroBadges}>
@@ -243,12 +312,16 @@ export function EditorialHomeContent({ initialEvents, initialRecommended, initia
                 </div>
                 <h1 className={styles.heroTitle}>{featured.title}</h1>
                 <div className={styles.heroMeta}>
-                  <span className={styles.heroMetaItem}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="3" /><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
-                    </svg>
-                    {featured.viewers ? `${featured.viewers.toLocaleString('pt-BR')} assistindo` : '0 assistindo'}
-                  </span>
+                  {/* Only with real data — "0 assistindo" on a live show is
+                      anti-FOMO on the page's single biggest hype signal. */}
+                  {featured.viewers ? (
+                    <span className={styles.heroMetaItem}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="3" /><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                      </svg>
+                      {featured.viewers.toLocaleString('pt-BR')} assistindo
+                    </span>
+                  ) : null}
                   <span className={styles.heroMetaItem}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="2" y="7" width="20" height="13" rx="2" />
@@ -297,6 +370,9 @@ export function EditorialHomeContent({ initialEvents, initialRecommended, initia
                 {liveShows.length === 0 && (
                   <div className={styles.liveRailEmpty}>Nenhum show ao vivo no momento.</div>
                 )}
+                {railUpcoming.map((show) => (
+                  <UpcomingRailItem key={show.id} show={show} localeCode={localeCode} />
+                ))}
               </div>
               <Link href="/events" className={styles.liveRailMore}>
                 VER TODA A PROGRAMAÇÃO AO VIVO →
@@ -316,8 +392,11 @@ export function EditorialHomeContent({ initialEvents, initialRecommended, initia
                   {isLoggedIn ? 'Recomendados para você' : 'Em alta agora'}
                 </div>
               </div>
+              <Link href="/events" className={styles.sectionMore}>
+                VER TODOS →
+              </Link>
             </div>
-            <Carousel seeAllHref="/events">
+            <Carousel>
               {recommendedShows.map((show) => (
                 <div key={show.id} className={styles.recommendedItem}>
                   <EditorialCard show={show} localeCode={localeCode} />
@@ -334,8 +413,11 @@ export function EditorialHomeContent({ initialEvents, initialRecommended, initia
                 <div className={styles.sectionEyebrow}>SOB DEMANDA</div>
                 <div className={styles.sectionTitle}>Reprises disponíveis</div>
               </div>
+              <Link href="/events" className={styles.sectionMore}>
+                VER TODOS →
+              </Link>
             </div>
-            <Carousel seeAllHref="/events">
+            <Carousel>
               {onDemandShows.map((show) => (
                 <div key={show.id} className={styles.recommendedItem}>
                   <EditorialCard show={show} localeCode={localeCode} />
@@ -354,7 +436,12 @@ export function EditorialHomeContent({ initialEvents, initialRecommended, initia
           {/* Genre chips */}
           <div className={styles.genreRow}>
             <span className={styles.genreLabel}>Filtrar por categoria</span>
-            {genres.map((g) => (
+            {/* Cap the visible chips — 13 choices before the grid is a wall.
+                The active genre always stays visible even when collapsed. */}
+            {(genresExpanded
+              ? genres
+              : genres.filter((g, i) => i < GENRES_PREVIEW_COUNT || g === activeGenre)
+            ).map((g) => (
               <button
                 key={g}
                 onClick={() => setActiveGenre(g)}
@@ -363,6 +450,14 @@ export function EditorialHomeContent({ initialEvents, initialRecommended, initia
                 {g}
               </button>
             ))}
+            {!genresExpanded && genres.length > GENRES_PREVIEW_COUNT && (
+              <button
+                onClick={() => setGenresExpanded(true)}
+                className={`${styles.genreChip} ${styles.genreChipInactive}`}
+              >
+                +{genres.length - GENRES_PREVIEW_COUNT} mais
+              </button>
+            )}
           </div>
 
           {/* Section header */}

@@ -2,7 +2,7 @@ import { EVENT_CATEGORY_LABELS } from '../types/event.types';
 import type { EventResponse } from '../types/event.types';
 import type { Show, Camera } from '../types/show';
 
-const FALLBACK_IMAGE =
+export const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1619973226698-b77a5b5dd14b?auto=format&fit=crop&w=1080&q=80';
 
 const CAMERA_COLORS = [
