@@ -396,7 +396,10 @@
       "CANCELLED": "Cancelado"
     },
     "finish": "Finalizar",
-    "finishing": "Finalizando..."
+    "finishing": "Finalizando...",
+    "editLatencyMode": "Latencia de la transmisión",
+    "latencyStandard": "Estándar (~10s, con selección de calidad)",
+    "latencyLow": "Baja latencia (~2–4s, ideal para deportes — calidad única)"
   },
   "createEvent": {
     "back": "Eventos",

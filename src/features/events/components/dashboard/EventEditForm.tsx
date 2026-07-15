@@ -10,6 +10,7 @@ export const editSchema = z.object({
   description: z.string().min(10, 'Mínimo 10 caracteres'),
   startsAt: z.string().min(1, 'Obrigatório'),
   endsAt: z.string().min(1, 'Obrigatório'),
+  latencyMode: z.enum(['STANDARD', 'LOW']),
 }).refine((d) => new Date(d.endsAt) > new Date(d.startsAt), {
   message: 'Fim deve ser após o início',
   path: ['endsAt'],
@@ -67,6 +68,14 @@ export function EventEditForm({ register, errors, errorMessage }: Props) {
           />
           {errors.endsAt && <p className={styles.error}>{errors.endsAt.message}</p>}
         </div>
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>{t('editLatencyMode')}</label>
+        <select {...register('latencyMode')} className={styles.input}>
+          <option value="STANDARD">{t('latencyStandard')}</option>
+          <option value="LOW">{t('latencyLow')}</option>
+        </select>
       </div>
 
       {errorMessage && <p className={styles.globalError}>{errorMessage}</p>}

@@ -396,7 +396,10 @@
       "CANCELLED": "Cancelado"
     },
     "finish": "Encerrar",
-    "finishing": "Encerrando..."
+    "finishing": "Encerrando...",
+    "editLatencyMode": "Latência da transmissão",
+    "latencyStandard": "Padrão (~10s, com seleção de qualidade)",
+    "latencyLow": "Baixa latência (~2–4s, ideal para esportes — qualidade única)"
   },
   "createEvent": {
     "back": "Eventos",
@@ -434,6 +437,9 @@
         "TALK": "Palestra",
         "RELIGIOUS": "Religioso",
         "EDUCATION": "Educação",
+        "MOTORSPORT": "Automobilismo",
+        "CORPORATE": "Corporativo",
+        "FOOTBALL": "Futebol",
         "OTHER": "Outro"
       },
       "tagsLabel": "Tags",

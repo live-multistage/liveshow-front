@@ -396,7 +396,10 @@
       "CANCELLED": "Cancelled"
     },
     "finish": "Finish",
-    "finishing": "Finishing..."
+    "finishing": "Finishing...",
+    "editLatencyMode": "Stream latency",
+    "latencyStandard": "Standard (~10s, with quality selection)",
+    "latencyLow": "Low latency (~2–4s, ideal for sports — single quality)"
   },
   "createEvent": {
     "back": "Events",

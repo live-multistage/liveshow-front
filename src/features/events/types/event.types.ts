@@ -61,6 +61,7 @@ export interface EventResponse {
   country: string | null;
   venueData: VenueData | null;
   visibility: 'PRIVATE' | 'UNLISTED' | 'PUBLIC';
+  latencyMode: 'STANDARD' | 'LOW';
   domain: 'ENTERTAINMENT' | 'SPORTS' | 'CORPORATE' | 'EDUCATION' | 'RELIGIOUS' | 'OTHER' | null;
   subtype: string | null;
   camerasCount: number;
@@ -108,6 +109,7 @@ export interface UpdateEventRequest {
   description?: string;
   startsAt?: string;
   endsAt?: string;
+  latencyMode?: 'STANDARD' | 'LOW';
 }
 
 export type AccessCapability = 'LIVE_VIEW' | 'REPLAY_VIEW' | 'CAMERA_VIEW';

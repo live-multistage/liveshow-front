@@ -52,6 +52,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
       description: event.description,
       startsAt: toDatetimeLocal(event.startsAt),
       endsAt: toDatetimeLocal(event.endsAt),
+      latencyMode: event.latencyMode ?? 'STANDARD',
     });
     setEditing(true);
   }
@@ -68,6 +69,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
         description: values.description,
         startsAt: new Date(values.startsAt).toISOString(),
         endsAt: new Date(values.endsAt).toISOString(),
+        latencyMode: values.latencyMode,
       },
       { onSuccess: () => setEditing(false) },
     );
