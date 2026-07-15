@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Hls from 'hls.js';
 import { toast } from 'sonner';
 import { Maximize2, Volume2, VolumeX } from 'lucide-react';
@@ -114,6 +115,7 @@ export function VideoPanel({
   onProgress,
   onEnded,
 }: VideoPanelProps) {
+  const t = useTranslations('liveGate');
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   // MANIFEST_PARSED's handler is created once per `src` (see the hls effect's
@@ -400,7 +402,7 @@ export function VideoPanel({
               </span>
             )}
             {mode === 'live' && forceStandard && camera.llPath && (
-              <span className={styles.replayBadge}>modo estável</span>
+              <span className={styles.replayBadge}>{t('stableMode')}</span>
             )}
             <span className={styles.cameraLabel}>{camera.name}</span>
           </div>
