@@ -70,10 +70,12 @@ button {
 
 // Keyboard focus — the reset above removes outlines; restore them for
 // keyboard users (magenta matches the ::selection accent below).
+// !important: dezenas de components setam outline:none nos próprios módulos;
+// foco de teclado é a11y e não pode ser derrubado por estilo local.
 button:focus-visible,
 a:focus-visible {
-  outline: 2px solid #ff2e9e;
-  outline-offset: 2px;
+  outline: 2px solid #ff2e9e !important;
+  outline-offset: 2px !important;
 }
 
 input,
