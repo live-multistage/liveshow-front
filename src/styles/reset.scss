@@ -68,6 +68,14 @@ button {
   appearance: none;
 }
 
+// Keyboard focus — the reset above removes outlines; restore them for
+// keyboard users (magenta matches the ::selection accent below).
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #ff2e9e;
+  outline-offset: 2px;
+}
+
 input,
 textarea {
   appearance: none;

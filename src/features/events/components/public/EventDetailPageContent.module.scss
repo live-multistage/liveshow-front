@@ -456,7 +456,9 @@
 
 .cameraAngle {
   font-size: 10px;
-  color: $text-muted;
+  // $text-muted (#71717a) on the #0b0b0d camera card is only 4.1:1 at 10px —
+  // bumped for WCAG AA small-text contrast.
+  color: #8f8f97;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

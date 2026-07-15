@@ -47,7 +47,8 @@
 // ── Variants ─────────────────────────────────────────────────────
 .primary {
   background-color: $action;
-  color: $text-primary;
+  // DESIGN.md: text on magenta must be near-black (#0a0a0b) — white is only ~3.4:1.
+  color: #0a0a0b;
   border-color: $action;
 
   &:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
