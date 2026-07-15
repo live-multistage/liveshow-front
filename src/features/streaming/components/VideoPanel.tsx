@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
 import Hls from 'hls.js';
 import { toast } from 'sonner';
 import { Maximize2, Volume2, VolumeX } from 'lucide-react';
 import { config } from '@/config';
+import { track } from '@/lib/analytics/analytics-client';
 import { tokenStore } from '@/lib/auth/token-store';
 import type { LiveCamera } from '../types/live.types';
 import { audioTrackIndexForCamera } from './audio-track';
@@ -115,7 +115,6 @@ export function VideoPanel({
   onProgress,
   onEnded,
 }: VideoPanelProps) {
-  const t = useTranslations('liveGate');
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   // MANIFEST_PARSED's handler is created once per `src` (see the hls effect's
@@ -265,17 +264,33 @@ export function VideoPanel({
     });
     // Stalls within the last 30s on the LL path — 3 of them means the LL
     // origin can't keep this connection fed; drop the ABR-less LL path for
-    // the STANDARD ladder instead of leaving the viewer frozen.
+    // the STANDARD ladder instead of leaving the viewer frozen. The switch
+    // is silent for the viewer (no visual signal by design) but tracked, so
+    // ops can see how often LOW degrades and why.
     let stalls: number[] = [];
+    let trackedFallback = false;
+    const fallBackToStandard = (reason: 'stalls' | 'fatal', detail?: string) => {
+      if (!trackedFallback) {
+        trackedFallback = true;
+        track({
+          eventType: 'll_fallback_to_standard',
+          entityType: 'camera',
+          entityId: camera.cameraId,
+          properties: { reason, detail: detail ?? null, cameraName: camera.name },
+        });
+        console.warn(`[ll-fallback] camera=${camera.cameraId} reason=${reason} detail=${detail ?? '-'}`);
+      }
+      setForceStandard(true); // re-runs this effect on the STANDARD src
+    };
     hls.on(Hls.Events.ERROR, (_evt, data) => {
       if (hasLl && data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR) {
         const now = Date.now();
         stalls = [...stalls.filter((t) => now - t < 30_000), now];
-        if (stalls.length >= 3) setForceStandard(true); // re-runs this effect on the STANDARD src
+        if (stalls.length >= 3) fallBackToStandard('stalls');
       }
       if (data.fatal) {
         if (hasLl) {
-          setForceStandard(true); // LL path dead (MediaMTX down, token expired) → fall back
+          fallBackToStandard('fatal', data.details); // LL path dead (MediaMTX down, token expired)
         } else {
           setError(true);
           toast.error(`Sinal perdido: ${camera.name}`, {
@@ -400,9 +415,6 @@ export function VideoPanel({
                 <span className={styles.liveDot} />
                 LIVE
               </span>
-            )}
-            {mode === 'live' && forceStandard && camera.llPath && (
-              <span className={styles.replayBadge}>{t('stableMode')}</span>
             )}
             <span className={styles.cameraLabel}>{camera.name}</span>
           </div>

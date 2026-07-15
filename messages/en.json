@@ -222,8 +222,7 @@
     "watching": "Watching",
     "endsIn": "Ends in",
     "startsAt": "Starts at",
-    "startingFrom": "Starting from",
-    "stableMode": "Stable mode"
+    "startingFrom": "Starting from"
   },
   "ticketCard": {
     "allCameras": "All cameras",
