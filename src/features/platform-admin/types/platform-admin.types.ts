@@ -127,6 +127,7 @@ export interface CatalogSummary {
 // Read-only impersonation session (POST /platform-admin/impersonation).
 export interface ImpersonationSession {
   token: string;
+  jti: string;
   expiresAt: string;
   readOnly: true;
   target: { id: string; email: string; displayName: string; role: PlatformRole };

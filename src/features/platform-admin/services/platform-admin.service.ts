@@ -104,8 +104,8 @@ export const platformAdminService = {
     return data;
   },
 
-  endImpersonation: async (targetUserId: string): Promise<void> => {
-    await httpClient.post('/platform-admin/impersonation/end', { targetUserId });
+  endImpersonation: async (targetUserId: string, jti?: string): Promise<void> => {
+    await httpClient.post('/platform-admin/impersonation/end', { targetUserId, jti });
   },
 
   listOrganizations: async (filter: OrganizationDirectoryFilter): Promise<OrganizationDirectoryResult> => {

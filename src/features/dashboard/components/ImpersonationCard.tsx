@@ -44,7 +44,7 @@ export function ImpersonationCard() {
       // Swap the active token AND the in-context identity to the target, then
       // wipe cached queries so every role/capability check and the dashboard
       // shell re-resolve as the target (organizer/admin default view).
-      begin(session.token, session.target, session.expiresAt, user);
+      begin(session.token, session.jti, session.target, session.expiresAt, user);
       const targetUser: AuthUser = {
         id: session.target.id,
         email: session.target.email,
