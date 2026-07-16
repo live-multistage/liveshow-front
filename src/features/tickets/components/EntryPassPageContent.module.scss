@@ -142,8 +142,6 @@
 // lives in its own (pass) group with no navbar, so nothing else needs hiding.
 @media print {
   .toolbar { display: none; }
-  .page { max-width: none; padding: 0; }
+  .page { max-width: none; padding: 0; background: #fff; min-height: 100vh; }
   .pass { border-radius: 0; }
-
-  :global(body) { background: #fff !important; }
 }
