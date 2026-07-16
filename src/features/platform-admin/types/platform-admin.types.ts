@@ -129,7 +129,7 @@ export interface ImpersonationSession {
   token: string;
   expiresAt: string;
   readOnly: true;
-  target: { id: string; email: string; displayName: string };
+  target: { id: string; email: string; displayName: string; role: PlatformRole };
 }
 
 // Audit trail entry (GET /platform-admin/audit).

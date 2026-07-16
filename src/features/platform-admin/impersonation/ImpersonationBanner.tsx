@@ -5,13 +5,15 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Eye, X } from 'lucide-react';
 import { platformAdminService } from '../services/platform-admin.service';
 import { useImpersonationStore } from './impersonation.store';
+import { useAuth } from '@/features/account';
 import styles from './ImpersonationBanner.module.scss';
 
 // Persistent, app-wide banner shown while a read-only support session is
 // active. The admin is browsing AS the target; every mutation is blocked at
 // the backend — the banner just makes the state impossible to forget.
 export function ImpersonationBanner() {
-  const { active, target, expiresAt, finish } = useImpersonationStore();
+  const { active, target, expiresAt, adminUser, finish } = useImpersonationStore();
+  const { login } = useAuth();
   const queryClient = useQueryClient();
   const [ending, setEnding] = useState(false);
 
@@ -19,13 +21,15 @@ export function ImpersonationBanner() {
     if (!target) return;
     setEnding(true);
     const targetId = target.id;
+    const restoreUser = adminUser;
     finish(); // restore admin token FIRST so the end call is authorized
+    if (restoreUser) login(restoreUser); // restore super-admin identity
+    queryClient.clear(); // re-resolve the whole shell as the admin again
     try {
       await platformAdminService.endImpersonation(targetId);
     } catch {
       /* audit-only marker; token already restored, session is over regardless */
     }
-    queryClient.clear();
     setEnding(false);
   }
 
