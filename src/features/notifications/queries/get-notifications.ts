@@ -14,6 +14,7 @@ export function useNotificationsQuery(enabled = true) {
     queryKey: notificationKeys.list(),
     queryFn: notificationsService.list,
     enabled,
+    staleTime: 30_000, // avoid a refetch on every dropdown open/remount
   });
 }
 
@@ -22,7 +23,9 @@ export function useUnreadCountQuery(enabled = true) {
     queryKey: notificationKeys.unreadCount(),
     queryFn: notificationsService.unreadCount,
     enabled,
-    // Keep the badge fresh while the user browses.
+    // Keep the badge fresh while the user browses. staleTime matches the poll
+    // interval so a remount reuses the cached count instead of refetching.
+    staleTime: 60_000,
     refetchInterval: 60_000,
   });
 }
