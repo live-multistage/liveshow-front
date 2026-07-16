@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Plus, Search, Ticket, Building2, Calendar, CheckCheck, Gift, TimerOff, ChevronDown } from 'lucide-react';
 import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
+import { canManageOrg } from '@/features/organizations/types/organization.types';
 import { useMyEventsQuery } from '@/features/events';
 import { useListCouponsQuery } from '../queries/use-coupons';
 import {
@@ -68,7 +69,10 @@ export function CouponsDashboard() {
   const [tab, setTab] = useState<TabId>('all');
   const [query, setQuery] = useState('');
 
-  const { data: orgs = [], isLoading: orgsLoading } = useMyOrganizationsQuery();
+  const { data: allOrgs = [], isLoading: orgsLoading } = useMyOrganizationsQuery();
+  // Coupons can only be created for orgs the user is OWNER/ADMIN of (backend
+  // enforces the same per-org); don't offer orgs they'd be 403'd on.
+  const orgs = useMemo(() => allOrgs.filter((o) => canManageOrg(o.role)), [allOrgs]);
   const orgId = selectedOrgId ?? orgs[0]?.id;
   const orgName = orgs.find((o) => o.id === orgId)?.name ?? '';
 

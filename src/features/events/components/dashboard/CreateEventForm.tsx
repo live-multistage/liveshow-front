@@ -1,11 +1,13 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { createEventSchema, type CreateEventFormValues } from '../../schemas/create-event.schema';
 import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
+import { canManageOrg } from '@/features/organizations/types/organization.types';
 import { useCreateEventWizard } from '../../hooks/use-create-event-wizard';
 import { CreateEventStepper } from './CreateEventStepper';
 import { EventPhotoUploader } from './EventPhotoUploader';
@@ -24,7 +26,10 @@ interface Props {
 
 export function CreateEventForm({ onSuccess }: Props) {
   const t = useTranslations('createEvent');
-  const { data: orgs = [] } = useMyOrganizationsQuery();
+  const { data: allOrgs = [] } = useMyOrganizationsQuery();
+  // Only orgs the user is OWNER/ADMIN of can host an event (backend enforces
+  // the same); don't let them pick one they'd be 403'd on.
+  const orgs = useMemo(() => allOrgs.filter((o) => canManageOrg(o.role)), [allOrgs]);
 
   const { register, control, handleSubmit, trigger, formState: { errors } } = useForm<CreateEventFormValues>({
     resolver: zodResolver(createEventSchema),
