@@ -11,9 +11,17 @@ import type {
   AddOrgMemberRequest,
   OrganizationStatus,
   PlatformRole,
+  PlatformOverview,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
+  getOverview: async (range: '7d' | '30d' | '90d' = '30d'): Promise<PlatformOverview> => {
+    const { data } = await httpClient.get<PlatformOverview>('/platform-admin/metrics/overview', {
+      params: { range },
+    });
+    return data;
+  },
+
   listOrganizations: async (filter: OrganizationDirectoryFilter): Promise<OrganizationDirectoryResult> => {
     const { data } = await httpClient.get<OrganizationDirectoryResult>('/platform-admin/organizations', {
       params: { status: filter.status, q: filter.search, page: filter.page, limit: filter.limit },

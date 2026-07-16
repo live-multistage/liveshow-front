@@ -1,0 +1,172 @@
+@use '../../../styles/_variables' as *;
+
+@keyframes lsPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .35; transform: scale(.7); }
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 1320px;
+}
+
+// ── Header ────────────────────────────────────────────────────────
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: #ff7ec2;
+  margin-bottom: 8px;
+}
+
+.heading {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -.025em;
+  color: #f4f4f5;
+  margin: 0;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rangeSwitch {
+  display: flex;
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 11px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.rangeBtn {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #8f8f97;
+  background: transparent;
+  border: none;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color .15s, background .15s;
+
+  &:hover { color: #f4f4f5; }
+}
+
+.rangeBtnActive {
+  background: rgba(255, 46, 158, .12);
+  color: #ff7ec2;
+}
+
+.globalTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #7d7d85;
+
+  @media (max-width: 620px) { display: none; }
+}
+
+.pulseDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7fe0a0;
+  animation: lsPulse 1.6s infinite;
+  flex-shrink: 0;
+}
+
+// ── Scope banner ──────────────────────────────────────────────────
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(255, 209, 102, .06);
+  border: 1px solid rgba(255, 209, 102, .28);
+  border-radius: 13px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: #e7d9b0;
+  line-height: 1.5;
+
+  b { color: #ffd166; }
+}
+
+.bannerIcon {
+  color: #ffd166;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+// ── KPI grid ──────────────────────────────────────────────────────
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 13px;
+
+  @media (max-width: 1100px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 560px)  { grid-template-columns: repeat(2, 1fr); }
+}
+
+.kpiCard {
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 15px;
+  padding: 16px;
+}
+
+.kpiSkeleton {
+  height: 96px;
+  border-radius: 15px;
+}
+
+.kpiLabel {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: .1em;
+  color: #8f8f97;
+  margin-bottom: 12px;
+}
+
+.kpiValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.kpiValue {
+  font-family: 'Space Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1;
+  color: #f4f4f5;
+}
+
+.kpiUnit {
+  font-size: 11px;
+  color: #8f8f97;
+}
+
+.kpiDelta {
+  font-size: 11.5px;
+  margin-top: 8px;
+}

@@ -2,6 +2,7 @@ import { createElement, type ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   LayoutDashboard,
+  LayoutGrid,
   Building2,
   CalendarDays,
   ShoppingCart,
@@ -20,6 +21,9 @@ export interface NavItem {
   href: string;
   icon: LucideIcon;
   badge?: () => ReactNode;
+  // Section header shown above the item when it differs from the previous
+  // item's group. Used by the grouped super-admin sidebar; omit for flat navs.
+  group?: string;
 }
 
 export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
@@ -48,9 +52,13 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
   ],
+  // Grouped nav (design: Liveshow Super Admin Global.dc.html). Only live
+  // routes are listed; future specs (financeiro/operacional/governança) append
+  // their own groups + items here as they ship.
   SUPER_ADMIN: [
-    { navKey: 'platformOrganizations', href: '/dashboard/platform/organizations', icon: ShieldCheck, badge: () => createElement(PendingOrgsBadge) },
-    { navKey: 'platformUsers',         href: '/dashboard/platform/users',        icon: Users },
+    { navKey: 'overviewGlobal',        href: '/dashboard',                        icon: LayoutGrid,  group: 'PLATAFORMA' },
+    { navKey: 'platformOrganizations', href: '/dashboard/platform/organizations', icon: Building2,    group: 'PLATAFORMA', badge: () => createElement(PendingOrgsBadge) },
+    { navKey: 'platformUsers',         href: '/dashboard/platform/users',         icon: Users,        group: 'PLATAFORMA' },
   ],
 };
 

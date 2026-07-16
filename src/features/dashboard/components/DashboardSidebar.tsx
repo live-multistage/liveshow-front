@@ -28,22 +28,24 @@ export function DashboardSidebar() {
         <span className={styles.logoBadge}>{role === 'SUPER_ADMIN' ? 'ADMIN' : 'STUDIO'}</span>
       </Link>
 
-      {/* Nav */}
+      {/* Nav — renders a section label whenever an item's group changes. */}
       <nav className={styles.nav}>
-        {role === 'SUPER_ADMIN' && <div className={styles.navSectionLabel}>PLATAFORMA</div>}
-        {navItems.map((item) => {
+        {navItems.map((item, i) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+          const showGroup = item.group && item.group !== navItems[i - 1]?.group;
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`${styles.navItem} ${isActive ? styles.active : ''}`}
-            >
-              <Icon size={18} className={styles.navIcon} />
-              {t(item.navKey as Parameters<typeof t>[0])}
-              {item.badge?.()}
-            </Link>
+            <div key={item.href}>
+              {showGroup && <div className={styles.navSectionLabel}>{item.group}</div>}
+              <Link
+                href={item.href}
+                className={`${styles.navItem} ${isActive ? styles.active : ''}`}
+              >
+                <Icon size={18} className={styles.navIcon} />
+                {t(item.navKey as Parameters<typeof t>[0])}
+                {item.badge?.()}
+              </Link>
+            </div>
           );
         })}
       </nav>

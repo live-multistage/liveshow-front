@@ -280,7 +280,8 @@
       "coupons": "Cupons",
       "advertisement": "Anúncios",
       "platformOrganizations": "Organizações",
-      "platformUsers": "Usuários e Papéis"
+      "platformUsers": "Usuários e Papéis",
+      "overviewGlobal": "Overview global"
     },
     "roles": {
       "ADMIN": "Admin",

@@ -68,3 +68,14 @@ export interface OrganizationDirectoryFilter {
   page: number;
   limit: number;
 }
+
+// Super Admin global overview (GET /platform-admin/metrics/overview).
+export interface PlatformOverview {
+  orgs: { total: number; active: number; pending: number };
+  users: { total: number; newInRange: number };
+  events: { total: number; scheduled: number; live: number };
+  liveEvents: number;
+  gmv: number;
+  platformRevenue: number;
+  rangeDays: number;
+}
