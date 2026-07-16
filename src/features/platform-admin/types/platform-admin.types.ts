@@ -87,3 +87,24 @@ export interface PlatformLiveViewers {
   series: number[];
   topEvents: { eventId: string; title: string; viewers: number }[];
 }
+
+// Platform revenue (GET /platform-admin/finance/revenue).
+export interface PlatformRevenue {
+  revenue: number;
+  revenueDeltaPct: number;
+  gmv: number;
+  avgRate: number;
+  avgTicket: number;
+  series: { date: string; revenue: number }[];
+  rangeDays: number;
+}
+
+// Org ledger balances (GET /platform-admin/finance/org-balances).
+export interface OrgBalance {
+  orgId: string;
+  name: string;
+  currency: string;
+  balance: number;
+  rate: number;
+  override: boolean;
+}

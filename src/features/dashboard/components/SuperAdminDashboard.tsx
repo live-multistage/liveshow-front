@@ -8,6 +8,8 @@ import {
   type OverviewRange,
 } from '@/features/platform-admin/queries/get-platform-overview';
 import { LiveViewersCard } from './LiveViewersCard';
+import { RevenueCard } from './RevenueCard';
+import { OrgBalancesCard } from './OrgBalancesCard';
 import styles from './SuperAdminDashboard.module.scss';
 
 // Global super-admin overview (design: Liveshow Super Admin Global.dc.html).
@@ -102,6 +104,12 @@ export function SuperAdminDashboard() {
                 </div>
               );
             })}
+      </div>
+
+      {/* Financeiro (ideas 4 + 5) — receita + saldos, read-only. */}
+      <div className={styles.row}>
+        <RevenueCard range={range} />
+        <OrgBalancesCard />
       </div>
 
       {/* Realtime viewers (idea 8). The stream-health card fills the left

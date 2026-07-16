@@ -13,6 +13,8 @@ import type {
   PlatformRole,
   PlatformOverview,
   PlatformLiveViewers,
+  PlatformRevenue,
+  OrgBalance,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
@@ -25,6 +27,18 @@ export const platformAdminService = {
 
   getLiveViewers: async (): Promise<PlatformLiveViewers> => {
     const { data } = await httpClient.get<PlatformLiveViewers>('/platform-admin/metrics/live-viewers');
+    return data;
+  },
+
+  getRevenue: async (range: '7d' | '30d' | '90d' = '30d'): Promise<PlatformRevenue> => {
+    const { data } = await httpClient.get<PlatformRevenue>('/platform-admin/finance/revenue', {
+      params: { range },
+    });
+    return data;
+  },
+
+  getOrgBalances: async (): Promise<OrgBalance[]> => {
+    const { data } = await httpClient.get<OrgBalance[]>('/platform-admin/finance/org-balances');
     return data;
   },
 
