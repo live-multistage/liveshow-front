@@ -67,6 +67,7 @@ export function CouponInput({ eventId, orderAmount, applied, onApply, onRemove, 
         <input
           className={styles.input}
           placeholder="Código do cupom"
+          aria-label="Código do cupom"
           value={input}
           onChange={(e) => {
             setInput(e.target.value.toUpperCase());
@@ -87,7 +88,7 @@ export function CouponInput({ eventId, orderAmount, applied, onApply, onRemove, 
           {preview.isPending ? <Loader2 size={14} className={styles.spin} /> : 'Aplicar'}
         </button>
       </div>
-      {error && <p className={styles.errorMsg}>{error}</p>}
+      {error && <p className={styles.errorMsg} role="alert">{error}</p>}
     </div>
   );
 }

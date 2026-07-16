@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Shield, AlertCircle, Check, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
@@ -17,6 +18,15 @@ import cartStyles from './CartCheckoutPageContent.module.scss';
 export function CartCheckoutPageContent() {
   const { isLoggedIn, isLoading: authLoading } = useAuth();
   const { data: cart, isLoading: cartLoading } = useCartQuery();
+  const router = useRouter();
+
+  // Checkout requires auth. Instead of rendering a blank page, send guests to
+  // login and bring them straight back here after they sign in.
+  useEffect(() => {
+    if (!authLoading && !isLoggedIn) {
+      router.replace(`/login?redirect=${encodeURIComponent('/checkout')}`);
+    }
+  }, [authLoading, isLoggedIn, router]);
 
   const items = cart?.items ?? [];
   const totalAmount = cart?.totals.total ?? 0;
@@ -99,7 +109,7 @@ export function CartCheckoutPageContent() {
         <h1 className={styles.title}>Finalizar compra</h1>
 
         {payError && (
-          <div className={styles.error} style={{ marginBottom: '1rem' }}>
+          <div className={styles.error} style={{ marginBottom: '1rem' }} role="alert">
             <AlertCircle size={20} />
             <p>Erro ao iniciar pagamento. Tente novamente.</p>
           </div>

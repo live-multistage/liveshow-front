@@ -281,6 +281,7 @@ export function CartPageContent({ initialCart }: Props) {
                     <input
                       className={styles.promoInput}
                       placeholder="Inserir código promocional"
+                      aria-label="Código promocional"
                       value={promoCode}
                       onChange={(e) => {
                         setPromoCode(e.target.value.toUpperCase());
@@ -299,7 +300,7 @@ export function CartPageContent({ initialCart }: Props) {
                     </button>
                   </div>
                   {promoState === 'error' && (
-                    <div className={`${styles.promoFeedback} ${styles.promoError}`}>
+                    <div className={`${styles.promoFeedback} ${styles.promoError}`} role="alert">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
                         <path d="M18 6L6 18M6 6l12 12" />
                       </svg>

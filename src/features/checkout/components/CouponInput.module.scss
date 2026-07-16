@@ -23,7 +23,7 @@
   font-family: 'Space Mono', monospace;
 
   &::placeholder {
-    color: #666;
+    color: #8f8f97; // was #666 (~3.2:1); AA needs ~4.5:1
     letter-spacing: 0;
     font-family: inherit;
   }
@@ -32,10 +32,17 @@
     border-color: rgba(255, 255, 255, 0.25);
   }
 
+  &:focus-visible {
+    outline: 2px solid #ff2e9e;
+    outline-offset: 1px;
+  }
+
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
   }
+
+  @media (pointer: coarse) { min-height: 44px; }
 }
 
 .applyBtn {
@@ -64,6 +71,10 @@
     opacity: 0.35;
     cursor: not-allowed;
   }
+
+  &:focus-visible { outline: 2px solid #ff2e9e; outline-offset: 1px; }
+
+  @media (pointer: coarse) { min-height: 44px; }
 }
 
 .spin {
@@ -123,4 +134,8 @@
   &:hover {
     color: #4ade80;
   }
+
+  &:focus-visible { outline: 2px solid #4ade80; outline-offset: 2px; color: #4ade80; }
+
+  @media (pointer: coarse) { min-width: 44px; min-height: 44px; justify-content: center; }
 }
