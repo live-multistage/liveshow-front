@@ -48,6 +48,25 @@ export const platformAdminService = {
     return data;
   },
 
+  getPlatformSettings: async (): Promise<{ defaultFeeRate: number }> => {
+    const { data } = await httpClient.get<{ defaultFeeRate: number }>('/platform-settings');
+    return data;
+  },
+
+  setDefaultFeeRate: async (rate: number): Promise<{ defaultFeeRate: number }> => {
+    const { data } = await httpClient.put<{ defaultFeeRate: number }>('/platform-settings', { rate });
+    return data;
+  },
+
+  getGlobalFlags: async (): Promise<Record<string, boolean>> => {
+    const { data } = await httpClient.get<Record<string, boolean>>('/feature-flags');
+    return data;
+  },
+
+  setGlobalFlag: async (key: string, enabled: boolean): Promise<void> => {
+    await httpClient.patch(`/feature-flags/${key}`, { enabled });
+  },
+
   listOrganizations: async (filter: OrganizationDirectoryFilter): Promise<OrganizationDirectoryResult> => {
     const { data } = await httpClient.get<OrganizationDirectoryResult>('/platform-admin/organizations', {
       params: { status: filter.status, q: filter.search, page: filter.page, limit: filter.limit },

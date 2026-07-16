@@ -12,6 +12,7 @@ import { RevenueCard } from './RevenueCard';
 import { OrgBalancesCard } from './OrgBalancesCard';
 import { StreamHealthCard } from './StreamHealthCard';
 import { ApprovalQueueCard } from './ApprovalQueueCard';
+import { PlatformSettingsCard } from './PlatformSettingsCard';
 import styles from './SuperAdminDashboard.module.scss';
 
 // Global super-admin overview (design: Liveshow Super Admin Global.dc.html).
@@ -120,13 +121,10 @@ export function SuperAdminDashboard() {
         <LiveViewersCard />
       </div>
 
-      {/* Saldos das organizações (idea 5), read-only. Config UI = spec futura. */}
+      {/* Config (idea 1) + saldos das organizações (idea 5). */}
       <div className={styles.row}>
+        <PlatformSettingsCard />
         <OrgBalancesCard />
-        <div className={styles.soonCard}>
-          <span className={styles.soonLabel}>CONFIG & GOVERNANÇA</span>
-          <span className={styles.soonText}>Taxas, flags & audit log — em breve</span>
-        </div>
       </div>
     </div>
   );
