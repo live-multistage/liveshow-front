@@ -288,7 +288,15 @@
       "advertisement": "Advertisements",
       "platformOrganizations": "Organizations",
       "platformUsers": "Users & Roles",
-      "overviewGlobal": "Global overview"
+      "overviewGlobal": "Global overview",
+      "platformEvents": "Event directory",
+      "platformRevenue": "Platform revenue",
+      "platformPayouts": "Payouts & balances",
+      "platformStreams": "Stream health",
+      "platformAds": "Advertisements",
+      "platformCoupons": "Coupons",
+      "platformSettings": "Settings",
+      "platformAudit": "Audit log"
     },
     "roles": {
       "ADMIN": "Admin",

@@ -145,3 +145,73 @@ export interface AuditLogEntry {
   metadata: Record<string, unknown> | null;
   createdAt: string;
 }
+
+// Filtered + paginated audit read (GET /platform-admin/audit/search).
+export interface AuditSearchResult {
+  items: AuditLogEntry[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+// Revenue breakdown per org (GET /platform-admin/finance/revenue/breakdown).
+export interface RevenueBreakdownRow {
+  orgId: string;
+  name: string;
+  commission: number;
+  gmv: number;
+  sales: number;
+  sharePct: number;
+}
+
+interface Paged<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+// Global event directory (GET /platform-admin/events).
+export interface PlatformEventRow {
+  id: string;
+  title: string;
+  orgId: string;
+  orgName: string;
+  status: string;
+  startsAt: string;
+  camerasCount: number;
+  category: string;
+  thumbnailUrl: string | null;
+}
+export type PlatformEventsResult = Paged<PlatformEventRow>;
+
+// Global ad directory (GET /platform-admin/ads).
+export interface PlatformAdRow {
+  id: string;
+  name: string;
+  orgId: string;
+  orgName: string;
+  status: string;
+  placements: string;
+  bannerUrl: string | null;
+  spend: number;
+  impressions30d: number;
+  startsAt: string;
+  endsAt: string;
+}
+export type PlatformAdsResult = Paged<PlatformAdRow>;
+
+// Global coupon directory (GET /platform-admin/coupons).
+export interface PlatformCouponRow {
+  id: string;
+  code: string;
+  discountType: string;
+  discountValue: number;
+  scope: 'global' | 'org' | 'event';
+  usesCount: number;
+  maxUses: number | null;
+  expiresAt: string | null;
+  isActive: boolean;
+  status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'EXHAUSTED';
+}
+export type PlatformCouponsResult = Paged<PlatformCouponRow>;

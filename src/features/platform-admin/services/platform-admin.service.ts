@@ -18,7 +18,12 @@ import type {
   StreamHealth,
   CatalogSummary,
   AuditLogEntry,
+  AuditSearchResult,
   ImpersonationSession,
+  RevenueBreakdownRow,
+  PlatformEventsResult,
+  PlatformAdsResult,
+  PlatformCouponsResult,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
@@ -80,6 +85,18 @@ export const platformAdminService = {
     return data;
   },
 
+  searchAuditLog: async (params: {
+    page?: number;
+    limit?: number;
+    action?: string;
+    actorId?: string;
+    from?: string;
+    to?: string;
+  }): Promise<AuditSearchResult> => {
+    const { data } = await httpClient.get<AuditSearchResult>('/platform-admin/audit/search', { params });
+    return data;
+  },
+
   // Fee override per org (rate as decimal, e.g. 0.035; null clears the override).
   setOrgFeeOverride: async (orgId: string, rate: number | null): Promise<{ orgId: string; rate: number | null }> => {
     const { data } = await httpClient.patch<{ orgId: string; rate: number | null }>(
@@ -106,6 +123,37 @@ export const platformAdminService = {
 
   endImpersonation: async (targetUserId: string, jti?: string): Promise<void> => {
     await httpClient.post('/platform-admin/impersonation/end', { targetUserId, jti });
+  },
+
+  getRevenueBreakdown: async (range: '7d' | '30d' | '90d' = '30d'): Promise<RevenueBreakdownRow[]> => {
+    const { data } = await httpClient.get<RevenueBreakdownRow[]>('/platform-admin/finance/revenue/breakdown', {
+      params: { range },
+    });
+    return data;
+  },
+
+  getPlatformEvents: async (params: { status?: string; q?: string; page?: number }): Promise<PlatformEventsResult> => {
+    const { data } = await httpClient.get<PlatformEventsResult>('/platform-admin/events', { params });
+    return data;
+  },
+  moderateEvent: async (id: string, action: 'UNPUBLISH' | 'CANCEL'): Promise<void> => {
+    await httpClient.post(`/platform-admin/events/${id}/moderation`, { action });
+  },
+
+  getPlatformAds: async (params: { status?: string; page?: number }): Promise<PlatformAdsResult> => {
+    const { data } = await httpClient.get<PlatformAdsResult>('/platform-admin/ads', { params });
+    return data;
+  },
+  moderateAd: async (id: string, action: 'APPROVE' | 'PAUSE' | 'RESUME'): Promise<void> => {
+    await httpClient.post(`/platform-admin/ads/${id}/moderation`, { action });
+  },
+
+  getPlatformCoupons: async (params: { status?: string; q?: string; page?: number }): Promise<PlatformCouponsResult> => {
+    const { data } = await httpClient.get<PlatformCouponsResult>('/platform-admin/coupons', { params });
+    return data;
+  },
+  deactivateCoupon: async (id: string): Promise<void> => {
+    await httpClient.patch(`/platform-admin/coupons/${id}/deactivate`);
   },
 
   listOrganizations: async (filter: OrganizationDirectoryFilter): Promise<OrganizationDirectoryResult> => {

@@ -12,6 +12,10 @@ import {
   Megaphone,
   ShieldCheck,
   Users,
+  DollarSign,
+  Wallet,
+  Tag,
+  Settings,
 } from 'lucide-react';
 import type { UserRole } from '@/types';
 import { PendingOrgsBadge } from '@/features/platform-admin/components/PendingOrgsBadge';
@@ -59,6 +63,14 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'overviewGlobal',        href: '/dashboard',                        icon: LayoutGrid,  group: 'PLATAFORMA' },
     { navKey: 'platformOrganizations', href: '/dashboard/platform/organizations', icon: Building2,    group: 'PLATAFORMA', badge: () => createElement(PendingOrgsBadge) },
     { navKey: 'platformUsers',         href: '/dashboard/platform/users',         icon: Users,        group: 'PLATAFORMA' },
+    { navKey: 'platformEvents',        href: '/dashboard/platform/events',        icon: CalendarDays, group: 'PLATAFORMA' },
+    { navKey: 'platformRevenue',       href: '/dashboard/platform/revenue',       icon: DollarSign,   group: 'FINANCEIRO' },
+    { navKey: 'platformPayouts',       href: '/dashboard/platform/payouts',       icon: Wallet,       group: 'FINANCEIRO' },
+    { navKey: 'platformStreams',       href: '/dashboard/platform/streams',       icon: Radio,        group: 'OPERACIONAL' },
+    { navKey: 'platformAds',           href: '/dashboard/platform/ads',           icon: Megaphone,    group: 'OPERACIONAL' },
+    { navKey: 'platformCoupons',       href: '/dashboard/platform/coupons',       icon: Tag,          group: 'OPERACIONAL' },
+    { navKey: 'platformSettings',      href: '/dashboard/platform/settings',      icon: Settings,     group: 'CONFIG & GOVERNANÇA' },
+    { navKey: 'platformAudit',         href: '/dashboard/platform/audit',         icon: ShieldCheck,  group: 'CONFIG & GOVERNANÇA' },
   ],
 };
 

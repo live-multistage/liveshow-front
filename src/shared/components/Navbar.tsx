@@ -71,22 +71,6 @@ export function Navbar() {
 
         {/* Actions */}
         <div className={styles.actions}>
-          {searchOpen ? (
-            <div className={styles.searchBox}>
-              <Search size={14} color="#71717A" />
-              <input
-                autoFocus
-                className={styles.searchInput}
-                placeholder={t('searchPlaceholder')}
-                onBlur={() => setSearchOpen(false)}
-              />
-            </div>
-          ) : (
-            <button onClick={() => setSearchOpen(true)} className={styles.iconBtn}>
-              <Search size={19} />
-            </button>
-          )}
-
           {isLoggedIn ? (
             <>
               {canAccessDashboard && (
