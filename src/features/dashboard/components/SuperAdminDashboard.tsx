@@ -10,6 +10,8 @@ import {
 import { LiveViewersCard } from './LiveViewersCard';
 import { RevenueCard } from './RevenueCard';
 import { OrgBalancesCard } from './OrgBalancesCard';
+import { StreamHealthCard } from './StreamHealthCard';
+import { ApprovalQueueCard } from './ApprovalQueueCard';
 import styles from './SuperAdminDashboard.module.scss';
 
 // Global super-admin overview (design: Liveshow Super Admin Global.dc.html).
@@ -106,20 +108,25 @@ export function SuperAdminDashboard() {
             })}
       </div>
 
-      {/* Financeiro (ideas 4 + 5) — receita + saldos, read-only. */}
+      {/* Receita (idea 4) + fila de aprovação (idea 3). */}
       <div className={styles.row}>
         <RevenueCard range={range} />
-        <OrgBalancesCard />
+        <ApprovalQueueCard />
       </div>
 
-      {/* Realtime viewers (idea 8). The stream-health card fills the left
-          column when the operations spec ships. */}
+      {/* Saúde dos streams (idea 7) + espectadores agora (idea 8). */}
       <div className={styles.row}>
-        <div className={styles.soonCard}>
-          <span className={styles.soonLabel}>OPERACIONAL</span>
-          <span className={styles.soonText}>Saúde das transmissões — em breve</span>
-        </div>
+        <StreamHealthCard />
         <LiveViewersCard />
+      </div>
+
+      {/* Saldos das organizações (idea 5), read-only. Config UI = spec futura. */}
+      <div className={styles.row}>
+        <OrgBalancesCard />
+        <div className={styles.soonCard}>
+          <span className={styles.soonLabel}>CONFIG & GOVERNANÇA</span>
+          <span className={styles.soonText}>Taxas, flags & audit log — em breve</span>
+        </div>
       </div>
     </div>
   );

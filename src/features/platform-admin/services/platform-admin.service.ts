@@ -15,6 +15,7 @@ import type {
   PlatformLiveViewers,
   PlatformRevenue,
   OrgBalance,
+  StreamHealth,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
@@ -39,6 +40,11 @@ export const platformAdminService = {
 
   getOrgBalances: async (): Promise<OrgBalance[]> => {
     const { data } = await httpClient.get<OrgBalance[]>('/platform-admin/finance/org-balances');
+    return data;
+  },
+
+  getStreamHealth: async (): Promise<StreamHealth> => {
+    const { data } = await httpClient.get<StreamHealth>('/platform-admin/ops/streams');
     return data;
   },
 

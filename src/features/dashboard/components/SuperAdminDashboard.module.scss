@@ -444,6 +444,166 @@
   color: #8f8f97;
 }
 
+// ── Stream health (ops) ──────────────────────────────────────────
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #EF4444;
+  flex-shrink: 0;
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #EF4444;
+  animation: lsPulse 1.2s infinite;
+}
+
+.opsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.opsStat {
+  background: #0b0b0d;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.opsStatDanger { border-color: rgba(239, 68, 68, .28); }
+
+.opsLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: .08em;
+  color: #8f8f97;
+}
+
+.opsValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.opsValue {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.opsValueDanger { color: #EF4444; }
+
+.opsSub { font-size: 11px; color: #8f8f97; }
+
+.opsNote {
+  margin-top: 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  color: #6f6f77;
+}
+
+// ── Approval queue ───────────────────────────────────────────────
+.queueBadge {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  background: #ff2e9e;
+  color: #0a0a0b;
+  padding: 4px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.queueList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.queueItem {
+  background: #0b0b0d;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 12px;
+  padding: 13px 14px;
+}
+
+.queueTop {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.queueArt {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #ff2e9e, #7a1547);
+  flex-shrink: 0;
+}
+
+.queueInfo { min-width: 0; flex: 1; }
+
+.queueName {
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.queueMeta {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  color: #8f8f97;
+  margin-top: 2px;
+}
+
+.queueActions {
+  display: flex;
+  gap: 7px;
+  margin-top: 11px;
+}
+
+.queueApprove {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #ff2e9e;
+  color: #0a0a0b;
+  border: none;
+  padding: 7px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:disabled { opacity: .6; cursor: default; }
+}
+
+.queueReject {
+  flex: 1;
+  background: transparent;
+  color: #c7c7cd;
+  border: 1px solid rgba(255, 255, 255, .14);
+  padding: 7px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+
+  &:hover { border-color: rgba(239, 68, 68, .5); color: #EF4444; }
+}
+
 // Placeholder for a card that a future spec fills.
 .soonCard {
   display: flex;

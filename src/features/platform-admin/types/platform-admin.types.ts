@@ -108,3 +108,11 @@ export interface OrgBalance {
   rate: number;
   override: boolean;
 }
+
+// Stream health (GET /platform-admin/ops/streams).
+export interface StreamHealth {
+  liveEvents: number;
+  transcodeActive: number;
+  transcodeFailed: number;
+  ingestConnected: number;
+}
