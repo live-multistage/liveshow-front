@@ -70,8 +70,15 @@
       "confirmPasswordPlaceholder": "Repeat your password",
       "submit": "Create account",
       "submitting": "Creating account...",
+      "orContinueWith": "or continue with",
+      "continueWithGoogle": "Continue with Google",
+      "continueWithApple": "Continue with Apple",
       "alreadyHaveAccount": "Already have an account?",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "errors": {
+        "EMAIL_EXISTS": "This email is already registered. Please sign in instead.",
+        "GENERIC": "We couldn't create your account. Please try again."
+      }
     },
     "forgotPassword": {
       "title": "Forgot your password?",

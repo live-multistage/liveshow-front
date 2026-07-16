@@ -70,8 +70,15 @@
       "confirmPasswordPlaceholder": "Repite tu contraseña",
       "submit": "Crear cuenta",
       "submitting": "Creando cuenta...",
+      "orContinueWith": "o continúa con",
+      "continueWithGoogle": "Continuar con Google",
+      "continueWithApple": "Continuar con Apple",
       "alreadyHaveAccount": "¿Ya tienes cuenta?",
-      "signIn": "Iniciar sesión"
+      "signIn": "Iniciar sesión",
+      "errors": {
+        "EMAIL_EXISTS": "Este correo ya está registrado. Inicia sesión para continuar.",
+        "GENERIC": "No pudimos crear tu cuenta. Inténtalo de nuevo."
+      }
     },
     "forgotPassword": {
       "title": "¿Olvidaste tu contraseña?",

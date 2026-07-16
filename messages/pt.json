@@ -70,8 +70,15 @@
       "confirmPasswordPlaceholder": "Repita sua senha",
       "submit": "Criar conta",
       "submitting": "Criando conta...",
+      "orContinueWith": "ou continue com",
+      "continueWithGoogle": "Continuar com Google",
+      "continueWithApple": "Continuar com Apple",
       "alreadyHaveAccount": "Já tem uma conta?",
-      "signIn": "Entrar"
+      "signIn": "Entrar",
+      "errors": {
+        "EMAIL_EXISTS": "Este e-mail já está cadastrado. Faça login para continuar.",
+        "GENERIC": "Não foi possível criar sua conta. Tente novamente."
+      }
     },
     "forgotPassword": {
       "title": "Esqueceu a senha?",
