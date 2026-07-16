@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import { Controller } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import type { UseFormRegister, FieldErrors, Control } from 'react-hook-form';
 import type { CreateEventFormValues } from '../../../schemas/create-event.schema';
 import { DateTimePicker } from '@/shared/components/DateTimePicker/DateTimePicker';
@@ -13,6 +13,7 @@ interface Props {
 
 export function EventLocationStep({ register, errors, control }: Props) {
   const t = useTranslations('createEvent.location');
+  const startsAt = useWatch({ control, name: 'startsAt' });
 
   return (
     <section className={styles.section}>
@@ -62,7 +63,7 @@ export function EventLocationStep({ register, errors, control }: Props) {
             control={control}
             name="endsAt"
             render={({ field }) => (
-              <DateTimePicker value={field.value} onChange={field.onChange} error={errors.endsAt?.message} />
+              <DateTimePicker value={field.value} onChange={field.onChange} error={errors.endsAt?.message} min={startsAt} />
             )}
           />
           {errors.endsAt && <p className={styles.error}>{errors.endsAt.message}</p>}
