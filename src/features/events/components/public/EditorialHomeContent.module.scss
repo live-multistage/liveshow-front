@@ -106,6 +106,10 @@
 
 .adBannerWrapper {
   padding: 10px 40px 10px;
+
+  // Match the content gutter at each breakpoint — 40px here on a 390px screen
+  // insets the ad past the cards it sits between.
+  @media (max-width: 767px) { padding: 10px 20px; }
 }
 
 // ── Inner layout ──────────────────────────────────────────────────
@@ -135,7 +139,15 @@
   border: 1px solid rgba(255, 255, 255, .08);
   cursor: pointer;
 
-  &:hover .heroImage { transform: scale(1.03); }
+  // Fills the viewport it sits below on phones without dominating landscape,
+  // where a fixed 452px block would push the whole page off-screen.
+  @media (max-width: 767px) { min-height: 380px; border-radius: 16px; }
+  @media (max-height: 560px) and (orientation: landscape) { min-height: 300px; }
+
+  // Hover lift/scale is pointer-only — on touch it sticks after a tap.
+  @media (hover: hover) {
+    &:hover .heroImage { transform: scale(1.03); }
+  }
 }
 
 .heroImage {
@@ -208,7 +220,9 @@
   transition: transform .15s;
   text-decoration: none;
 
-  &:hover { transform: translate(-50%, -60%) scale(1.07); }
+  @media (hover: hover) {
+    &:hover { transform: translate(-50%, -60%) scale(1.07); }
+  }
 
   // Mobile: content block is bottom-anchored and grows when the title wraps
   // to 2 lines. Anchor the button to the upper image zone (fixed px from top)
@@ -538,6 +552,21 @@
   gap: 10px;
   margin: 14px 0 20px;
   flex-wrap: wrap;
+
+  // On phones 6+ chips wrap into 3 stacked rows — a wall. Switch to a single
+  // swipeable strip (the Netflix/streaming pattern) that stays one row tall.
+  @media (max-width: 767px) {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    // Bleed to the screen edge so the strip reads as scrollable, then pad back.
+    margin-inline: -20px;
+    padding-inline: 20px;
+
+    &::-webkit-scrollbar { display: none; }
+  }
 }
 
 .genreLabel {
@@ -559,7 +588,11 @@
   white-space: nowrap;
   font-size: 12px;
   padding: 10px 17px;
+  scroll-snap-align: start;
   transition: background .15s, color .15s, border-color .15s;
+
+  // Comfortable thumb target on touch (was ~36px tall).
+  @media (pointer: coarse) { padding: 12px 18px; }
 }
 
 .genreChipActive {
@@ -683,11 +716,19 @@
   overflow: hidden;
   transition: transform .18s ease, border-color .18s ease;
 
-  &:hover {
-    transform: translateY(-4px);
-    border-color: rgba(255, 46, 158, .4);
+  // Lift + zoom is pointer-only; on touch it sticks after tap. Touch gets a
+  // brief press feedback instead.
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 46, 158, .4);
 
-    .eventImage { transform: scale(1.04); }
+      .eventImage { transform: scale(1.04); }
+    }
+  }
+
+  @media (hover: none) {
+    &:active { border-color: rgba(255, 46, 158, .4); }
   }
 }
 
@@ -849,7 +890,8 @@
   text-decoration: none;
   text-align: center;
 
-  &:hover { filter: brightness(1.08); }
+  @media (pointer: coarse) { padding: 12px; } // ≥44px thumb target
+  @media (hover: hover) { &:hover { filter: brightness(1.08); } }
 }
 
 .eventInfoBtn {
@@ -866,8 +908,12 @@
   text-decoration: none;
   text-align: center;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-  &:hover { border-color: rgba(255, 46, 158, .4); color: #ff7ec2; }
+  @media (pointer: coarse) { padding: 12px; }
+  @media (hover: hover) { &:hover { border-color: rgba(255, 46, 158, .4); color: #ff7ec2; } }
 }
 
 // ── Feed ad banner ────────────────────────────────────────────
@@ -876,4 +922,20 @@
   border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
+}
+
+// ── Reduced motion ────────────────────────────────────────────
+// The looping marquee, pulsing live dots and expanding play-button ring run
+// forever — exactly what vestibular users need stopped. Keep the "live" signal
+// as a static dot; freeze the perpetual motion.
+@media (prefers-reduced-motion: reduce) {
+  .tickerTrack { animation: none; }
+  .tickerDot,
+  .liveDot,
+  .liveBadgeDot,
+  .eventLiveDot { animation: none; }
+  .heroPlayBtn { animation: none; }
+  .heroImage,
+  .eventImage,
+  .eventCard { transition: none; }
 }
