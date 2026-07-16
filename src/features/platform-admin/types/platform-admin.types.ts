@@ -123,3 +123,16 @@ export interface CatalogSummary {
   ads: { active: number; review: number; impressions30d: number };
   coupons: { active: number; expiring7d: number; redemptions30d: number };
 }
+
+// Audit trail entry (GET /platform-admin/audit).
+export interface AuditLogEntry {
+  id: string;
+  actorUserId: string;
+  actorName: string | null;
+  action: string;
+  targetType: string | null;
+  targetId: string | null;
+  targetLabel: string | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+}

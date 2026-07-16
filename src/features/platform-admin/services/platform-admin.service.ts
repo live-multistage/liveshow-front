@@ -17,6 +17,7 @@ import type {
   OrgBalance,
   StreamHealth,
   CatalogSummary,
+  AuditLogEntry,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
@@ -55,7 +56,7 @@ export const platformAdminService = {
   },
 
   setDefaultFeeRate: async (rate: number): Promise<{ defaultFeeRate: number }> => {
-    const { data } = await httpClient.put<{ defaultFeeRate: number }>('/platform-settings', { rate });
+    const { data } = await httpClient.patch<{ defaultFeeRate: number }>('/platform-settings/default-fee-rate', { rate });
     return data;
   },
 
@@ -70,6 +71,25 @@ export const platformAdminService = {
 
   getCatalogSummary: async (): Promise<CatalogSummary> => {
     const { data } = await httpClient.get<CatalogSummary>('/platform-admin/catalog/summary');
+    return data;
+  },
+
+  getAuditLog: async (limit = 20): Promise<AuditLogEntry[]> => {
+    const { data } = await httpClient.get<AuditLogEntry[]>('/platform-admin/audit', { params: { limit } });
+    return data;
+  },
+
+  // Fee override per org (rate as decimal, e.g. 0.035; null clears the override).
+  setOrgFeeOverride: async (orgId: string, rate: number | null): Promise<{ orgId: string; rate: number | null }> => {
+    const { data } = await httpClient.patch<{ orgId: string; rate: number | null }>(
+      `/organizations/${orgId}/stripe/fee-rate`,
+      { rate },
+    );
+    return data;
+  },
+
+  payoutOrg: async (orgId: string): Promise<unknown> => {
+    const { data } = await httpClient.post(`/admin/organizations/${orgId}/ledger/payout`);
     return data;
   },
 

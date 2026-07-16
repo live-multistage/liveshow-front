@@ -444,6 +444,136 @@
   color: #8f8f97;
 }
 
+// ── Financial F3: inline rate override + payout ──────────────────
+.balRateBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: 12.5px;
+  color: #c7c7cd;
+
+  &:hover { background: rgba(255, 255, 255, .06); color: #fff; }
+}
+
+.balRateInput {
+  width: 58px;
+  background: #17171b;
+  border: 1px solid rgba(155, 123, 255, .5);
+  border-radius: 5px;
+  padding: 3px 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12.5px;
+  color: #fff;
+
+  &:focus { outline: none; border-color: #9b7bff; }
+}
+
+.balPayCell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.balPayBtn,
+.balPayConfirm {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 5px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, .16);
+  background: rgba(255, 255, 255, .05);
+  color: #c7c7cd;
+
+  &:hover:not(:disabled) { background: rgba(255, 255, 255, .1); color: #fff; }
+  &:disabled { opacity: .4; cursor: not-allowed; }
+}
+
+.balPayConfirm {
+  border-color: rgba(127, 224, 160, .5);
+  background: rgba(127, 224, 160, .14);
+  color: #7fe0a0;
+
+  &:hover:not(:disabled) { background: rgba(127, 224, 160, .24); color: #a8f0c0; }
+}
+
+// ── Governance: audit trail ──────────────────────────────────────
+.auditList {
+  display: flex;
+  flex-direction: column;
+}
+
+.auditRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: baseline;
+  padding: 11px 4px;
+  border-top: 1px solid rgba(255, 255, 255, .06);
+
+  &:first-child { border-top: none; }
+}
+
+.auditAction {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  padding: 3px 7px;
+  border-radius: 5px;
+  white-space: nowrap;
+  color: #9b9ba3;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .1);
+}
+
+.auditActionDanger {
+  color: #ff8f8f;
+  background: rgba(255, 143, 143, .1);
+  border-color: rgba(255, 143, 143, .3);
+}
+
+.auditActionMoney {
+  color: #7fe0a0;
+  background: rgba(127, 224, 160, .1);
+  border-color: rgba(127, 224, 160, .3);
+}
+
+.auditBody {
+  min-width: 0;
+  font-size: 12.5px;
+  color: #c7c7cd;
+}
+
+.auditTarget {
+  color: #fff;
+  font-weight: 600;
+}
+
+.auditMeta {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #7d7d85;
+}
+
+.auditTime {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  color: #6f6f77;
+  white-space: nowrap;
+}
+
 // ── Stream health (ops) ──────────────────────────────────────────
 .liveBadge {
   display: inline-flex;
