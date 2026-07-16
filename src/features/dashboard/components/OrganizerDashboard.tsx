@@ -2,20 +2,40 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { PlusIcon } from 'lucide-react';
 import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Button } from '@/shared/components/Button';
+import { useNavigate } from '@/shared/hooks/use-navigate';
 import { EventDashboardCard } from '@/features/events';
 import { useDashboardStats } from '../hooks/use-dashboard-stats';
 import { DashboardCharts } from './DashboardCharts';
+import { UpdatedIndicator } from './UpdatedIndicator';
 import styles from './RoleDashboard.module.scss';
 
 export function OrganizerDashboard() {
   const t = useTranslations('dashboard.overview');
-  const { totalEvents, liveNow, upcoming, drafts, finished, events, recentEvents, isLoading } =
+  const navigate = useNavigate();
+  const { totalEvents, liveNow, upcoming, drafts, finished, events, recentEvents, isLoading, dataUpdatedAt, isFetching, refetch } =
     useDashboardStats();
 
   return (
     <div className={styles.wrapper}>
-      <h1 className={styles.heading}>{t('organizer.heading')}</h1>
+      <div className={styles.header}>
+        <div className={styles.titles}>
+          <span className={styles.upperSubTitle}>VISÃO GERAL</span>
+          <h1 className={styles.heading}>{t('organizer.heading')}</h1>
+        </div>
+        <div className={styles.headerRight}>
+          <UpdatedIndicator updatedAt={dataUpdatedAt} isFetching={isFetching} onRefresh={refetch} />
+          <Button
+            variant="primary"
+            icon={<PlusIcon />}
+            onClick={() => navigate.push('/dashboard/events/new')}
+          >
+            Novo evento
+          </Button>
+        </div>
+      </div>
 
       <div className={styles.grid}>
         <div className={styles.card}>

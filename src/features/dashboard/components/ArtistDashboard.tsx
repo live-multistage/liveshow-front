@@ -6,16 +6,25 @@ import { Skeleton } from '@/shared/components/ui/skeleton';
 import { EventDashboardCard } from '@/features/events';
 import { useDashboardStats } from '../hooks/use-dashboard-stats';
 import { DashboardCharts } from './DashboardCharts';
+import { UpdatedIndicator } from './UpdatedIndicator';
 import styles from './RoleDashboard.module.scss';
 
 export function ArtistDashboard() {
   const t = useTranslations('dashboard.overview');
-  const { totalEvents, liveNow, upcoming, finished, events, recentEvents, isLoading } =
+  const { totalEvents, liveNow, upcoming, finished, events, recentEvents, isLoading, dataUpdatedAt, isFetching, refetch } =
     useDashboardStats();
 
   return (
     <div className={styles.wrapper}>
-      <h1 className={styles.heading}>{t('artist.heading')}</h1>
+      <div className={styles.header}>
+        <div className={styles.titles}>
+          <span className={styles.upperSubTitle}>VISÃO GERAL</span>
+          <h1 className={styles.heading}>{t('artist.heading')}</h1>
+        </div>
+        <div className={styles.headerRight}>
+          <UpdatedIndicator updatedAt={dataUpdatedAt} isFetching={isFetching} onRefresh={refetch} />
+        </div>
+      </div>
 
       <div className={styles.grid}>
         <div className={styles.card}>

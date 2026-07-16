@@ -7,6 +7,7 @@ import { Skeleton } from '@/shared/components/ui/skeleton';
 import { EventDashboardCard } from '@/features/events';
 import { useDashboardStats } from '../hooks/use-dashboard-stats';
 import { DashboardCharts } from './DashboardCharts';
+import { UpdatedIndicator } from './UpdatedIndicator';
 import styles from './RoleDashboard.module.scss';
 import { Button } from '@/shared/components/Button';
 import { PlusIcon } from 'lucide-react';
@@ -14,7 +15,7 @@ import { PlusIcon } from 'lucide-react';
 export function AdminDashboard() {
   const t = useTranslations('dashboard.overview');
   const navigate = useNavigate();
-  const { totalEvents, liveNow, upcoming, drafts, finished, events, recentEvents, isLoading } =
+  const { totalEvents, liveNow, upcoming, drafts, finished, events, recentEvents, isLoading, dataUpdatedAt, isFetching, refetch } =
     useDashboardStats();
 
   return (
@@ -24,7 +25,8 @@ export function AdminDashboard() {
           <span className={styles.upperSubTitle}>VISÃO GERAL</span>
           <h1 className={styles.heading}>{t('admin.heading')}</h1>
         </div>
-        <div>
+        <div className={styles.headerRight}>
+          <UpdatedIndicator updatedAt={dataUpdatedAt} isFetching={isFetching} onRefresh={refetch} />
           <Button
             variant="primary"
             icon={<PlusIcon />}
@@ -37,41 +39,54 @@ export function AdminDashboard() {
 
       <div className={styles.grid}>
         <div className={styles.card}>
-          {isLoading ? <Skeleton className={styles.valueSkeleton} /> : <p className={styles.cardValue}>{totalEvents}</p>}
-          <p className={styles.cardLabel}>{t('total')}</p>
-          <p className={styles.cardHint}>{t('admin.totalHint')}</p>
+          <div className={styles.cardBody}>
+            {isLoading ? <Skeleton className={styles.valueSkeleton} /> : <p className={styles.cardValue}>{totalEvents}</p>}
+            <p className={styles.cardLabel}>{t('total')}</p>
+            <p className={styles.cardHint}>{t('admin.totalHint')}</p>
+          </div>
         </div>
 
         <div className={styles.card}>
-          {isLoading ? <Skeleton className={styles.valueSkeleton} /> : (
-            <p className={`${styles.cardValue} ${liveNow > 0 ? styles.cardValueLive : ''}`}>{liveNow}</p>
-          )}
-          <p className={styles.cardLabel}>{t('liveNow')}</p>
-          <p className={styles.cardHint}>{t('admin.liveHint')}</p>
+          {liveNow > 0 && <span className={styles.cardGlow} />}
+          <div className={styles.cardBody}>
+            {isLoading ? <Skeleton className={styles.valueSkeleton} /> : (
+              <p className={`${styles.cardValue} ${liveNow > 0 ? styles.cardValueLive : ''}`}>{liveNow}</p>
+            )}
+            <p className={styles.cardLabel}>{t('liveNow')}</p>
+            <p className={styles.cardHint}>{t('admin.liveHint')}</p>
+          </div>
         </div>
 
         <div className={styles.card}>
-          {isLoading ? <Skeleton className={styles.valueSkeleton} /> : <p className={styles.cardValue}>{upcoming}</p>}
-          <p className={styles.cardLabel}>{t('upcoming')}</p>
-          <p className={styles.cardHint}>{t('admin.upcomingHint')}</p>
+          <div className={styles.cardBody}>
+            {isLoading ? <Skeleton className={styles.valueSkeleton} /> : <p className={styles.cardValue}>{upcoming}</p>}
+            <p className={styles.cardLabel}>{t('upcoming')}</p>
+            <p className={styles.cardHint}>{t('admin.upcomingHint')}</p>
+          </div>
         </div>
 
         <div className={styles.card}>
-          {isLoading ? <Skeleton className={styles.valueSkeleton} /> : <p className={styles.cardValue}>{drafts}</p>}
-          <p className={styles.cardLabel}>{t('drafts')}</p>
-          <p className={styles.cardHint}>{t('admin.draftsHint')}</p>
+          <div className={styles.cardBody}>
+            {isLoading ? <Skeleton className={styles.valueSkeleton} /> : <p className={styles.cardValue}>{drafts}</p>}
+            <p className={styles.cardLabel}>{t('drafts')}</p>
+            <p className={styles.cardHint}>{t('admin.draftsHint')}</p>
+          </div>
         </div>
 
         <div className={styles.card}>
-          {isLoading ? <Skeleton className={styles.valueSkeleton} /> : <p className={styles.cardValue}>{finished}</p>}
-          <p className={styles.cardLabel}>{t('finished')}</p>
-          <p className={styles.cardHint}>{t('admin.finishedHint')}</p>
+          <div className={styles.cardBody}>
+            {isLoading ? <Skeleton className={styles.valueSkeleton} /> : <p className={styles.cardValue}>{finished}</p>}
+            <p className={styles.cardLabel}>{t('finished')}</p>
+            <p className={styles.cardHint}>{t('admin.finishedHint')}</p>
+          </div>
         </div>
 
         <div className={styles.card}>
-          <p className={styles.cardValue}>—</p>
-          <p className={styles.cardLabel}>{t('revenue')}</p>
-          <p className={styles.cardHint}>{t('admin.revenueHint')}</p>
+          <div className={styles.cardBody}>
+            <p className={`${styles.cardValue} ${styles.cardValueMuted}`}>—</p>
+            <p className={styles.cardLabel}>{t('revenue')}</p>
+            <p className={styles.cardHint}>{t('admin.revenueHint')}</p>
+          </div>
         </div>
       </div>
 
