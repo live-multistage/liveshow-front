@@ -64,3 +64,13 @@ export interface CheckInSummaryResponse {
   total: number;
   redeemed: number;
 }
+
+// /checkin event picker — events the staff member can gate.
+export interface GateableEvent {
+  id: string;
+  title: string;
+  status: string;
+  startsAt: string;
+  venue: string | null;
+  city: string | null;
+}

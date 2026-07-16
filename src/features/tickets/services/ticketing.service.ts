@@ -4,6 +4,7 @@ import type {
   EntryPassResponse,
   CheckInResponse,
   CheckInSummaryResponse,
+  GateableEvent,
 } from '../types/ticket.types';
 
 export const ticketingService = {
@@ -34,6 +35,11 @@ export const ticketingService = {
     const { data } = await httpClient.get<{ algorithm: string; publicKeyPem: string }>(
       '/ticketing/entry-pass/public-key',
     );
+    return data;
+  },
+
+  getGateableEvents: async (): Promise<GateableEvent[]> => {
+    const { data } = await httpClient.get<GateableEvent[]>('/ticketing/check-in/events');
     return data;
   },
 };
