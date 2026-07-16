@@ -22,6 +22,7 @@ interface GateResult {
   kind: ResultKind;
   offline: boolean;
   detail?: string;
+  attendeeName?: string | null;
 }
 
 const SCANNER_ID = 'gate-qr-scanner';
@@ -72,10 +73,12 @@ export function CheckInPageContent() {
       setChecking(true);
       try {
         const res = await ticketingService.checkIn(eventId, body);
-        if (res.status === 'OK') return settle({ kind: 'ok', offline: false });
+        if (res.status === 'OK') {
+          return settle({ kind: 'ok', offline: false, attendeeName: res.attendeeName });
+        }
         if (res.status === 'ALREADY_USED') {
           const when = res.redeemedAt ? new Date(res.redeemedAt).toLocaleTimeString('pt-BR') : '';
-          return settle({ kind: 'used', offline: false, detail: when && `às ${when}` });
+          return settle({ kind: 'used', offline: false, detail: when && `às ${when}`, attendeeName: res.attendeeName });
         }
         return settle({ kind: 'invalid', offline: false });
       } catch (err) {
@@ -174,6 +177,9 @@ export function CheckInPageContent() {
             {result.kind === 'ok' && 'ENTRADA LIBERADA'}
             {result.kind === 'used' && `JÁ UTILIZADO ${result.detail ?? ''}`}
             {result.kind === 'invalid' && (result.detail ?? 'INGRESSO INVÁLIDO')}
+            {result.attendeeName && (
+              <span className={styles.resultName}>{result.attendeeName}</span>
+            )}
           </span>
           {result.offline && (
             <span className={styles.offlineTag}>

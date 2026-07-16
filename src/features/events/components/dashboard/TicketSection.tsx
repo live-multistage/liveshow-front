@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +26,7 @@ export function TicketSection({ tickets, onChange }: Props) {
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<TicketFormInput, unknown, TicketFormValues>({
     resolver: zodResolver(ticketSchema),
@@ -34,6 +35,15 @@ export function TicketSection({ tickets, onChange }: Props) {
 
   const cameraView = useWatch({ control, name: 'cameraView' });
   const physicalEntry = useWatch({ control, name: 'physicalEntry' });
+  const liveView = useWatch({ control, name: 'liveView' });
+  const replayView = useWatch({ control, name: 'replayView' });
+
+  // Presencial nunca sozinho: sem Ao vivo/Reprise o checkbox trava, e se o
+  // usuário desmarcar o stream com presencial já ligado, desliga junto.
+  const canPhysical = liveView || replayView;
+  useEffect(() => {
+    if (!canPhysical && physicalEntry) setValue('physicalEntry', false);
+  }, [canPhysical, physicalEntry, setValue]);
 
   // Replay-only suggestion card. Its price lives in local state, NOT the draft
   // form, so creating the suggested ticket never disturbs the ticket the user
@@ -196,12 +206,21 @@ export function TicketSection({ tickets, onChange }: Props) {
             <input type="checkbox" {...register('cameraView')} className={styles.checkbox} />
             <span>{t('cameraView')}</span>
           </label>
-          <label className={styles.checkboxLabel}>
-            <input type="checkbox" {...register('physicalEntry')} className={styles.checkbox} />
+          <label
+            className={styles.checkboxLabel}
+            title={canPhysical ? undefined : 'Requer Ao vivo ou Reprise'}
+          >
+            <input
+              type="checkbox"
+              {...register('physicalEntry')}
+              className={styles.checkbox}
+              disabled={!canPhysical}
+            />
             <span>Acesso presencial</span>
           </label>
         </div>
         {errors.liveView && <p className={styles.error}>{errors.liveView.message}</p>}
+        {errors.physicalEntry && <p className={styles.error}>{errors.physicalEntry.message}</p>}
       </div>
 
       {cameraView && (

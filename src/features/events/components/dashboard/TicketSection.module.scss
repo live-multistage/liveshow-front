@@ -171,6 +171,14 @@
   font-weight: 500;
   font-family: 'Archivo', sans-serif;
   color: $text-primary;
+
+  // Disabled state (e.g. "Acesso presencial" without Ao vivo/Reprise).
+  &:has(input:disabled) {
+    opacity: .45;
+    cursor: not-allowed;
+
+    input { cursor: not-allowed; }
+  }
 }
 
 .checkbox {

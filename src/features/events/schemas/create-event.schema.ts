@@ -31,6 +31,12 @@ export const ticketSchema = z
   .refine((d) => !d.physicalEntry || (d.capacity != null && d.capacity >= 1), {
     message: 'Informe a capacidade do local',
     path: ['capacity'],
+  })
+  // Presencial nunca existe sozinho — sempre acompanha Ao vivo ou Reprise
+  // (mesma regra validada no backend).
+  .refine((d) => !d.physicalEntry || d.liveView || d.replayView, {
+    message: 'Ingresso presencial precisa incluir Ao vivo ou Reprise',
+    path: ['physicalEntry'],
   });
 
 export type TicketFormInput = z.input<typeof ticketSchema>;

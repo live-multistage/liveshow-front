@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, ArrowLeft } from 'lucide-react';
+import { MapPin, ArrowLeft, ScanLine } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
@@ -98,6 +98,12 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
         <Link href="/dashboard/events" className={styles.back}>
           <ArrowLeft size={16} /> {t('back')}
         </Link>
+
+        {tickets.some((tk) => tk.capabilities.includes('PHYSICAL_ENTRY')) && (
+          <Link href={`/dashboard/events/${id}/check-in`} className={styles.back}>
+            <ScanLine size={16} /> Check-in
+          </Link>
+        )}
 
         <EventHeaderActions
           event={event}

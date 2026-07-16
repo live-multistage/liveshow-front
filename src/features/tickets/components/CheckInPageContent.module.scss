@@ -61,9 +61,20 @@
 }
 
 .resultText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   font-size: 17px;
   font-weight: 800;
   letter-spacing: .02em;
+}
+
+.resultName {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: .04em;
+  opacity: .85;
 }
 
 .resultOk      { background: rgba(127, 224, 160, .14); border: 1px solid rgba(127, 224, 160, .5);  color: #7fe0a0; }

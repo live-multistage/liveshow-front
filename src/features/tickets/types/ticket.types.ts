@@ -56,6 +56,7 @@ export type CheckInStatus = 'OK' | 'ALREADY_USED' | 'INVALID';
 export interface CheckInResponse {
   status: CheckInStatus;
   attendeeUserId?: string;
+  attendeeName?: string | null;
   redeemedAt?: string | null;
 }
 
