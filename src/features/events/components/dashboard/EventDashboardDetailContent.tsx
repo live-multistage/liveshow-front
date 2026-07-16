@@ -100,7 +100,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
         </Link>
 
         {tickets.some((tk) => tk.capabilities.includes('PHYSICAL_ENTRY')) && (
-          <Link href={`/dashboard/events/${id}/check-in`} className={styles.back}>
+          <Link href={`/checkin/${id}`} className={styles.back}>
             <ScanLine size={16} /> Check-in
           </Link>
         )}

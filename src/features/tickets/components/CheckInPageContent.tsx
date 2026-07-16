@@ -28,7 +28,7 @@ interface GateResult {
 const SCANNER_ID = 'gate-qr-scanner';
 
 export function CheckInPageContent() {
-  const { id: eventId } = useParams<{ id: string }>();
+  const { eventId } = useParams<{ eventId: string }>();
   const [result, setResult] = useState<GateResult | null>(null);
   const [manualCode, setManualCode] = useState('');
   const [checking, setChecking] = useState(false);
