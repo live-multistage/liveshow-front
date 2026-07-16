@@ -124,6 +124,14 @@ export interface CatalogSummary {
   coupons: { active: number; expiring7d: number; redemptions30d: number };
 }
 
+// Read-only impersonation session (POST /platform-admin/impersonation).
+export interface ImpersonationSession {
+  token: string;
+  expiresAt: string;
+  readOnly: true;
+  target: { id: string; email: string; displayName: string };
+}
+
 // Audit trail entry (GET /platform-admin/audit).
 export interface AuditLogEntry {
   id: string;

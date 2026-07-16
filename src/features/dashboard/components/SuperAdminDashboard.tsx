@@ -15,6 +15,7 @@ import { ApprovalQueueCard } from './ApprovalQueueCard';
 import { PlatformSettingsCard } from './PlatformSettingsCard';
 import { CatalogCards } from './CatalogCards';
 import { AuditLogCard } from './AuditLogCard';
+import { ImpersonationCard } from './ImpersonationCard';
 import styles from './SuperAdminDashboard.module.scss';
 
 // Global super-admin overview (design: Liveshow Super Admin Global.dc.html).
@@ -132,9 +133,10 @@ export function SuperAdminDashboard() {
       {/* Catálogo global (ideas 9/10/11). */}
       <CatalogCards />
 
-      {/* Trilha de auditoria (idea 12). */}
+      {/* Trilha de auditoria (idea 12) + impersonação read-only (idea 13). */}
       <div className={styles.row}>
         <AuditLogCard />
+        <ImpersonationCard />
       </div>
     </div>
   );

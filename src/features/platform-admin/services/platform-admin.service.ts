@@ -18,6 +18,7 @@ import type {
   StreamHealth,
   CatalogSummary,
   AuditLogEntry,
+  ImpersonationSession,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
@@ -91,6 +92,20 @@ export const platformAdminService = {
   payoutOrg: async (orgId: string): Promise<unknown> => {
     const { data } = await httpClient.post(`/admin/organizations/${orgId}/ledger/payout`);
     return data;
+  },
+
+  // Read-only impersonation. START must run with the admin's real token; the
+  // returned token is read-only (backend-enforced). END must also run with the
+  // admin token — restore it before calling (see the banner).
+  startImpersonation: async (targetUserId: string): Promise<ImpersonationSession> => {
+    const { data } = await httpClient.post<ImpersonationSession>('/platform-admin/impersonation', {
+      targetUserId,
+    });
+    return data;
+  },
+
+  endImpersonation: async (targetUserId: string): Promise<void> => {
+    await httpClient.post('/platform-admin/impersonation/end', { targetUserId });
   },
 
   listOrganizations: async (filter: OrganizationDirectoryFilter): Promise<OrganizationDirectoryResult> => {
