@@ -14,7 +14,7 @@
 .navInner {
   max-width: 80rem;
   margin: 0 auto;
-  padding: 16px 1.5rem;
+  padding: 16px 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -72,7 +72,25 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 4px;
+
+  @media (min-width: $sm) { gap: 14px; }
+}
+
+// Items the phone bar can't afford (notifications, language switcher) — the
+// bar's min-content must stay under ~390px or cart+menu get pushed off-screen.
+.hideMobile {
+  display: none;
+
+  @media (min-width: $sm) {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.mobileLang {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid $border;
 }
 
 .searchBox {

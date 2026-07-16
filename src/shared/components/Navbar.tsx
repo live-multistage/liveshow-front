@@ -95,7 +95,11 @@ export function Navbar() {
                 </Link>
               )}
 
-              <NotificationsDropdown />
+              {/* Hidden on phones — the navbar's min-content otherwise
+                  overflows the viewport and pushes cart+menu off-screen. */}
+              <span className={styles.hideMobile}>
+                <NotificationsDropdown />
+              </span>
 
               <Link href="/tickets" className={styles.ticketsBtn}>
                 <Ticket size={15} />
@@ -153,7 +157,9 @@ export function Navbar() {
             </>
           )}
 
-          <LanguageSwitcher />
+          <span className={styles.hideMobile}>
+            <LanguageSwitcher />
+          </span>
 
           <Link href="/cart" className={styles.cartBtn} aria-label={t('cart')}>
             <ShoppingCart size={19} />
@@ -171,6 +177,10 @@ export function Navbar() {
         <div className={styles.mobileMenu}>
           <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('home')}</Link>
           <Link href="/events" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('schedule')}</Link>
+          {/* Language switcher lives here on phones (hidden from the bar). */}
+          <div className={styles.mobileLang}>
+            <LanguageSwitcher />
+          </div>
           {isLoggedIn ? (
             <>
               <Link href="/tickets" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('tickets')}</Link>
