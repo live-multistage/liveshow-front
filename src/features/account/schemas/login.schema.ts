@@ -6,10 +6,10 @@ export const loginSchema = z.object({
     .min(1, 'Informe seu e-mail.')
     .email('Informe um e-mail válido.')
     .max(255),
-  password: z
-    .string()
-    .min(1, 'Informe sua senha.')
-    .min(8, 'A senha deve ter pelo menos 8 caracteres.'),
+  // Login only checks presence — length/complexity is a registration rule.
+  // Enforcing min(8) here rejects a valid short/legacy password before the
+  // server ever sees it, and leaks the policy to anyone probing the form.
+  password: z.string().min(1, 'Informe sua senha.'),
   rememberMe: z.boolean().default(true),
 });
 

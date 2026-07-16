@@ -40,7 +40,7 @@
       "email": "Email",
       "emailPlaceholder": "your@email.com",
       "password": "Password",
-      "passwordPlaceholder": "Your password",
+      "passwordPlaceholder": "",
       "rememberMe": "Remember me",
       "forgotPassword": "Forgot password?",
       "submit": "Sign In",
@@ -53,7 +53,7 @@
       "errors": {
         "INVALID_CREDENTIALS": "Invalid email or password.",
         "USER_BLOCKED": "Your account has been temporarily suspended. Please contact support.",
-        "TOO_MANY_ATTEMPTS": "Too many login attempts. Please try again later.",
+        "TOO_MANY_ATTEMPTS": "Too many login attempts. Please try again in a few minutes.",
         "GOOGLE_FAILED": "Couldn't continue with Google. Please try again."
       }
     },
