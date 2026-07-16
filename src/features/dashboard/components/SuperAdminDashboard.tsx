@@ -7,6 +7,7 @@ import {
   usePlatformOverviewQuery,
   type OverviewRange,
 } from '@/features/platform-admin/queries/get-platform-overview';
+import { LiveViewersCard } from './LiveViewersCard';
 import styles from './SuperAdminDashboard.module.scss';
 
 // Global super-admin overview (design: Liveshow Super Admin Global.dc.html).
@@ -101,6 +102,16 @@ export function SuperAdminDashboard() {
                 </div>
               );
             })}
+      </div>
+
+      {/* Realtime viewers (idea 8). The stream-health card fills the left
+          column when the operations spec ships. */}
+      <div className={styles.row}>
+        <div className={styles.soonCard}>
+          <span className={styles.soonLabel}>OPERACIONAL</span>
+          <span className={styles.soonText}>Saúde das transmissões — em breve</span>
+        </div>
+        <LiveViewersCard />
       </div>
     </div>
   );

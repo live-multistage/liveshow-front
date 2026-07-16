@@ -12,6 +12,7 @@ import type {
   OrganizationStatus,
   PlatformRole,
   PlatformOverview,
+  PlatformLiveViewers,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
@@ -19,6 +20,11 @@ export const platformAdminService = {
     const { data } = await httpClient.get<PlatformOverview>('/platform-admin/metrics/overview', {
       params: { range },
     });
+    return data;
+  },
+
+  getLiveViewers: async (): Promise<PlatformLiveViewers> => {
+    const { data } = await httpClient.get<PlatformLiveViewers>('/platform-admin/metrics/live-viewers');
     return data;
   },
 

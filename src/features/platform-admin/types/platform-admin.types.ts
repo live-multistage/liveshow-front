@@ -79,3 +79,11 @@ export interface PlatformOverview {
   platformRevenue: number;
   rangeDays: number;
 }
+
+// Realtime viewers (GET /platform-admin/metrics/live-viewers).
+export interface PlatformLiveViewers {
+  totalNow: number;
+  perMinutePct: number;
+  series: number[];
+  topEvents: { eventId: string; title: string; viewers: number }[];
+}
