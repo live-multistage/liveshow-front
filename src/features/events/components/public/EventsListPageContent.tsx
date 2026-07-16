@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useInfiniteEventsQuery, eventToShow } from '@/features/events';
+import type { PaginatedEventsResponse } from '@/features/events';
 import { AdBanner } from '@/features/advertisements';
 import { ShowCard } from './ShowCard';
 import styles from '../../../../app/(public)/events/page.module.scss';
@@ -29,11 +30,11 @@ function isWeekend(dateStr: string) {
   return day === 0 || day === 6;
 }
 
-export function EventsListPageContent() {
+export function EventsListPageContent({ initialFirstPage }: { initialFirstPage?: PaginatedEventsResponse }) {
   const t = useTranslations('events.list');
 
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteEventsQuery('all');
+    useInfiniteEventsQuery('all', initialFirstPage);
   const events = useMemo(() => data?.pages.flatMap((p) => p.items) ?? [], [data]);
   const totalCatalog = data?.pages[0]?.total ?? 0;
   const SHOWS = useMemo(() => events.map(eventToShow), [events]);

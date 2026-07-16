@@ -10,7 +10,7 @@ const EMPTY: RecommendedEventsResponse = { items: [], page: 1, pageSize: 10, tot
 export async function fetchReplayCatalog(): Promise<RecommendedEventsResponse> {
   try {
     const res = await fetch(`${apiBase()}/events/replay-catalog?page=1&pageSize=12`, {
-      cache: 'no-store',
+      next: { revalidate: 60 },
     });
     if (!res.ok) return EMPTY;
     return (await res.json()) as RecommendedEventsResponse;
