@@ -719,6 +719,73 @@
   .toggleKnob { left: 19px; background: #0a0a0b; }
 }
 
+// ── Catalog cards ────────────────────────────────────────────────
+.catalogGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+.catalogCard {
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 18px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.catalogHead {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 14px;
+}
+
+.catalogIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: rgba(255, 46, 158, .1);
+  border: 1px solid rgba(255, 46, 158, .28);
+  color: #ff5fb4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.catalogTitle { font-size: 16px; font-weight: 800; letter-spacing: -.02em; }
+.catalogTag { font-family: 'Space Mono', monospace; font-size: 9.5px; color: #8f8f97; margin-top: 2px; }
+
+.catalogStats { display: flex; flex-direction: column; gap: 9px; flex: 1; }
+
+.catalogStat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.catalogStatLabel { font-size: 12.5px; color: #9a9aa2; }
+.catalogStatValue { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; }
+
+.catalogCta {
+  margin-top: 16px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, .14);
+  color: #e7e7ea;
+  padding: 9px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color .15s, color .15s;
+
+  &:hover { border-color: rgba(255, 46, 158, .45); color: #fff; }
+}
+
 // Placeholder for a card that a future spec fills.
 .soonCard {
   display: flex;

@@ -16,6 +16,7 @@ import type {
   PlatformRevenue,
   OrgBalance,
   StreamHealth,
+  CatalogSummary,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
@@ -65,6 +66,11 @@ export const platformAdminService = {
 
   setGlobalFlag: async (key: string, enabled: boolean): Promise<void> => {
     await httpClient.patch(`/feature-flags/${key}`, { enabled });
+  },
+
+  getCatalogSummary: async (): Promise<CatalogSummary> => {
+    const { data } = await httpClient.get<CatalogSummary>('/platform-admin/catalog/summary');
+    return data;
   },
 
   listOrganizations: async (filter: OrganizationDirectoryFilter): Promise<OrganizationDirectoryResult> => {

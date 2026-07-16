@@ -116,3 +116,10 @@ export interface StreamHealth {
   transcodeFailed: number;
   ingestConnected: number;
 }
+
+// Catalog summary (GET /platform-admin/catalog/summary).
+export interface CatalogSummary {
+  events: { total: number; published: number; live: number };
+  ads: { active: number; review: number; impressions30d: number };
+  coupons: { active: number; expiring7d: number; redemptions30d: number };
+}

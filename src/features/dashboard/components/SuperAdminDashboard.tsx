@@ -13,6 +13,7 @@ import { OrgBalancesCard } from './OrgBalancesCard';
 import { StreamHealthCard } from './StreamHealthCard';
 import { ApprovalQueueCard } from './ApprovalQueueCard';
 import { PlatformSettingsCard } from './PlatformSettingsCard';
+import { CatalogCards } from './CatalogCards';
 import styles from './SuperAdminDashboard.module.scss';
 
 // Global super-admin overview (design: Liveshow Super Admin Global.dc.html).
@@ -126,6 +127,9 @@ export function SuperAdminDashboard() {
         <PlatformSettingsCard />
         <OrgBalancesCard />
       </div>
+
+      {/* Catálogo global (ideas 9/10/11). */}
+      <CatalogCards />
     </div>
   );
 }
