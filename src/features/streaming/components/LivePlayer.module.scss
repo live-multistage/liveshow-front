@@ -28,7 +28,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 20;
+  // Above the CameraGrid overlays (PiP slot z:21, picker drawer z:21 + its
+  // add-tiles z:22) so the transport bar's audio/quality popover menus — which
+  // are trapped in .bar's backdrop-filter stacking context and can't escape via
+  // their own z-index — render on top of the PiP preview and camera selector.
+  z-index: 30;
   display: flex;
   flex-direction: column;
   padding-top: 2rem;
