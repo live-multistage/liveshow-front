@@ -1,5 +1,32 @@
 @use '../../../../styles/_variables' as *;
 
+.checkboxRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+
+  > :first-child {
+    margin-top: 0.15rem;
+  }
+}
+
+.checkboxText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  cursor: pointer;
+
+  strong {
+    font-size: 0.9375rem;
+    color: $text-primary;
+  }
+}
+
+.checkboxHint {
+  font-size: 0.8125rem;
+  color: $text-secondary;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }

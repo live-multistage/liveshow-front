@@ -7,7 +7,7 @@ import { PlatformPageShell } from './PlatformPageShell';
 import table from './PlatformTable.module.scss';
 
 const STATUSES = ['SCHEDULED', 'PUBLISHED', 'LIVE', 'FINISHED', 'CANCELLED', 'DRAFT'];
-const COLS = '2fr 1.3fr 0.8fr 0.9fr 1.2fr auto';
+const COLS = '1.8fr 1.1fr 0.7fr 0.8fr 1.05fr 0.85fr auto';
 
 function statusBadge(s: string): string {
   if (s === 'LIVE') return table.badgeRed;
@@ -55,7 +55,7 @@ export function PlatformEventsPage() {
       <div className={table.card}>
         <div className={table.scroll}>
           <div className={table.head} style={{ gridTemplateColumns: COLS }}>
-            <span>Evento</span><span>Organização</span><span>Status</span><span>Data</span><span>Acessibilidade</span><span className={table.right}>Ações</span>
+            <span>Evento</span><span>Organização</span><span>Status</span><span>Data</span><span>Acessibilidade</span><span>Moderação</span><span className={table.right}>Ações</span>
           </div>
           {isLoading && <div className={table.empty}>Carregando…</div>}
           {!isLoading && total === 0 && <div className={table.empty}>Nenhum evento para este filtro.</div>}
@@ -86,11 +86,31 @@ function AccessibilityCell({ e }: { e: PlatformEventRow }) {
   );
 }
 
+function ModerationSeal({ e }: { e: PlatformEventRow }) {
+  if (e.moderationStatus === 'APPROVED') {
+    return <span className={`${table.badge} ${table.badgeGreen}`}>Aprovado</span>;
+  }
+  if (e.moderationStatus === 'REJECTED') {
+    return (
+      <span className={`${table.badge} ${table.badgeRed}`} title={e.moderationReason ?? 'Rejeitado'}>
+        Rejeitado
+      </span>
+    );
+  }
+  return <span className={table.mono}>—</span>;
+}
+
 function EventRow({ e }: { e: PlatformEventRow }) {
-  const [confirm, setConfirm] = useState<'UNPUBLISH' | 'CANCEL' | null>(null);
-  const moderate = useModerateEventMutation(() => setConfirm(null));
+  const [confirm, setConfirm] = useState<'CANCEL' | null>(null);
+  const [rejecting, setRejecting] = useState(false);
+  const [reason, setReason] = useState('');
+  const moderate = useModerateEventMutation(() => { setConfirm(null); setRejecting(false); setReason(''); });
+
+  const canPublish = e.status === 'DRAFT';
   const canUnpublish = e.status === 'SCHEDULED' || e.status === 'PUBLISHED';
   const canCancel = e.status !== 'FINISHED' && e.status !== 'CANCELLED';
+  const canApprove = e.moderationStatus !== 'APPROVED';
+  const busy = moderate.isPending;
 
   return (
     <div className={table.row} style={{ gridTemplateColumns: COLS }}>
@@ -99,21 +119,48 @@ function EventRow({ e }: { e: PlatformEventRow }) {
       <span><span className={`${table.badge} ${statusBadge(e.status)}`}>{e.status}</span></span>
       <span className={table.mono}>{fmtDate(e.startsAt)}</span>
       <span><AccessibilityCell e={e} /></span>
+      <span><ModerationSeal e={e} /></span>
       <span className={table.actions}>
-        {confirm ? (
+        {rejecting ? (
+          <>
+            <input
+              className={table.search}
+              placeholder="Motivo da rejeição…"
+              value={reason}
+              onChange={(ev) => setReason(ev.target.value)}
+              aria-label="Motivo da rejeição"
+              autoFocus
+            />
+            <button
+              className={`${table.actionBtn} ${table.actionDanger}`}
+              onClick={() => moderate.mutate({ id: e.id, action: 'REJECT', reason: reason.trim() })}
+              disabled={busy || !reason.trim()}
+            >
+              {busy ? '…' : 'Rejeitar'}
+            </button>
+            <button className={table.actionBtn} onClick={() => { setRejecting(false); setReason(''); }}>Cancelar</button>
+          </>
+        ) : confirm === 'CANCEL' ? (
           <>
             <button
               className={`${table.actionBtn} ${table.actionDanger}`}
-              onClick={() => moderate.mutate({ id: e.id, action: confirm })}
-              disabled={moderate.isPending}
+              onClick={() => moderate.mutate({ id: e.id, action: 'CANCEL' })}
+              disabled={busy}
             >
-              {moderate.isPending ? '…' : 'Confirmar'}
+              {busy ? '…' : 'Confirmar remoção'}
             </button>
             <button className={table.actionBtn} onClick={() => setConfirm(null)}>Cancelar</button>
           </>
         ) : (
           <>
-            <button className={table.actionBtn} onClick={() => setConfirm('UNPUBLISH')} disabled={!canUnpublish}>Despublicar</button>
+            {canPublish && (
+              <button className={table.actionBtn} onClick={() => moderate.mutate({ id: e.id, action: 'PUBLISH' })} disabled={busy}>Publicar</button>
+            )}
+            {canUnpublish && (
+              <button className={table.actionBtn} onClick={() => moderate.mutate({ id: e.id, action: 'UNPUBLISH' })} disabled={busy}>Despublicar</button>
+            )}
+            <button className={table.actionBtn} onClick={() => moderate.mutate({ id: e.id, action: 'APPROVE' })} disabled={busy || !canApprove}>Aprovar</button>
+            <button className={table.actionBtn} onClick={() => setRejecting(true)} disabled={busy}>Rejeitar</button>
             <button className={`${table.actionBtn} ${table.actionDanger}`} onClick={() => setConfirm('CANCEL')} disabled={!canCancel}>Remover</button>
           </>
         )}

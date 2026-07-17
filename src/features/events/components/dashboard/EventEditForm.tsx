@@ -5,6 +5,7 @@ import { Controller } from 'react-hook-form';
 import type { UseFormRegister, FieldErrors, Control } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { SimpleCustomSelect } from '@/shared/components/ui/custom-select';
+import { Checkbox } from '@/shared/components/ui/checkbox';
 import styles from './EventDashboardDetailContent.module.scss';
 
 export const editSchema = z.object({
@@ -13,6 +14,7 @@ export const editSchema = z.object({
   startsAt: z.string().min(1, 'Obrigatório'),
   endsAt: z.string().min(1, 'Obrigatório'),
   latencyMode: z.enum(['STANDARD', 'LOW']),
+  publiclyFunded: z.boolean().default(false),
 }).refine((d) => new Date(d.endsAt) > new Date(d.startsAt), {
   message: 'Fim deve ser após o início',
   path: ['endsAt'],
@@ -90,6 +92,24 @@ export function EventEditForm({ register, control, errors, errorMessage }: Props
           )}
         />
       </div>
+
+      <Controller
+        name="publiclyFunded"
+        control={control}
+        render={({ field }) => (
+          <div className={styles.checkboxRow}>
+            <Checkbox
+              id="editPubliclyFunded"
+              checked={!!field.value}
+              onCheckedChange={(v) => field.onChange(v === true)}
+            />
+            <label htmlFor="editPubliclyFunded" className={styles.checkboxText}>
+              <strong>{t('publiclyFundedLabel')}</strong>
+              <span className={styles.checkboxHint}>{t('publiclyFundedHint')}</span>
+            </label>
+          </div>
+        )}
+      />
 
       {errorMessage && <p className={styles.globalError}>{errorMessage}</p>}
     </div>

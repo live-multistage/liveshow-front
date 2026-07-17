@@ -419,7 +419,9 @@
     "editLatencyMode": "Latência da transmissão",
     "latencyStandard": "Padrão (~10s, com seleção de qualidade)",
     "latencyLow": "Baixa latência (~2–4s, ideal para esportes — qualidade única)",
-    "publishBlockedLibras": "Requer Janela de Libras e aprovação de acessibilidade (NBR 15290)."
+    "publishBlockedLibras": "Requer Janela de Libras e aprovação de acessibilidade (NBR 15290).",
+    "publiclyFundedLabel": "Financiado com dinheiro público",
+    "publiclyFundedHint": "Exige uma Janela de Libras obrigatória (NBR 15290) e aprovação de acessibilidade antes de publicar."
   },
   "createEvent": {
     "back": "Eventos",

@@ -419,7 +419,9 @@
     "editLatencyMode": "Stream latency",
     "latencyStandard": "Standard (~10s, with quality selection)",
     "latencyLow": "Low latency (~2–4s, ideal for sports — single quality)",
-    "publishBlockedLibras": "Requires a Libras window and accessibility approval (NBR 15290)."
+    "publishBlockedLibras": "Requires a Libras window and accessibility approval (NBR 15290).",
+    "publiclyFundedLabel": "Funded with public money",
+    "publiclyFundedHint": "Requires a mandatory Libras (sign language) window (NBR 15290) and accessibility approval before publishing."
   },
   "createEvent": {
     "back": "Events",

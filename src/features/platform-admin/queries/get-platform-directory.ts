@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { platformAdminService } from '../services/platform-admin.service';
 import { eventsService } from '@/features/events/services/events.service';
+import type { EventModerationAction } from '../types/platform-admin.types';
 import { normalizeError, type AppError } from '@/lib/http/errors';
 
 export function useRevenueBreakdownQuery(range: '7d' | '30d' | '90d') {
@@ -39,9 +40,9 @@ export function usePlatformCouponsQuery(params: { status?: string; q?: string; p
 
 export function useModerateEventMutation(onDone?: () => void) {
   const qc = useQueryClient();
-  return useMutation<void, AppError, { id: string; action: 'UNPUBLISH' | 'CANCEL' }>({
-    mutationFn: async ({ id, action }) => {
-      try { await platformAdminService.moderateEvent(id, action); }
+  return useMutation<void, AppError, { id: string; action: EventModerationAction; reason?: string }>({
+    mutationFn: async ({ id, action, reason }) => {
+      try { await platformAdminService.moderateEvent(id, action, reason); }
       catch (err) { throw normalizeError(err); }
     },
     onSuccess: () => {

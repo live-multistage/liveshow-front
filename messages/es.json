@@ -419,7 +419,9 @@
     "editLatencyMode": "Latencia de la transmisión",
     "latencyStandard": "Estándar (~10s, con selección de calidad)",
     "latencyLow": "Baja latencia (~2–4s, ideal para deportes — calidad única)",
-    "publishBlockedLibras": "Requiere Ventana de Lengua de Señas y aprobación de accesibilidad (NBR 15290)."
+    "publishBlockedLibras": "Requiere Ventana de Lengua de Señas y aprobación de accesibilidad (NBR 15290).",
+    "publiclyFundedLabel": "Financiado con dinero público",
+    "publiclyFundedHint": "Exige una Ventana de Lengua de Señas obligatoria (NBR 15290) y aprobación de accesibilidad antes de publicar."
   },
   "createEvent": {
     "back": "Eventos",

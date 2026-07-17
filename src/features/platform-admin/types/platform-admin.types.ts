@@ -185,8 +185,12 @@ export interface PlatformEventRow {
   publiclyFunded: boolean;
   hasLibrasCamera: boolean;
   accessibilityApproved: boolean;
+  moderationStatus: 'APPROVED' | 'REJECTED' | null;
+  moderationReason: string | null;
 }
 export type PlatformEventsResult = Paged<PlatformEventRow>;
+
+export type EventModerationAction = 'PUBLISH' | 'UNPUBLISH' | 'CANCEL' | 'APPROVE' | 'REJECT';
 
 // Global ad directory (GET /platform-admin/ads).
 export interface PlatformAdRow {

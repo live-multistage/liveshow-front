@@ -60,6 +60,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
       startsAt: toDatetimeLocal(event.startsAt),
       endsAt: toDatetimeLocal(event.endsAt),
       latencyMode: event.latencyMode ?? 'STANDARD',
+      publiclyFunded: event.publiclyFunded ?? false,
     });
     setEditing(true);
   }
@@ -77,6 +78,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
         startsAt: new Date(values.startsAt).toISOString(),
         endsAt: new Date(values.endsAt).toISOString(),
         latencyMode: values.latencyMode,
+        publiclyFunded: values.publiclyFunded,
       },
       { onSuccess: () => setEditing(false) },
     );
