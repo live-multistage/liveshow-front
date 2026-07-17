@@ -16,6 +16,7 @@ import { EventInfoGrid } from './EventInfoGrid';
 import { EventTicketList } from './EventTicketList';
 import { EditTicketSection } from './EditTicketSection';
 import { PhotosSection } from './PhotosSection';
+import { VodUploadCard } from '../VodUploadCard/VodUploadCard';
 import { EventMetadataSection } from '@/features/metadata';
 import type { EventResponse } from '../../types/event.types';
 import styles from './EventDashboardDetailContent.module.scss';
@@ -132,6 +133,8 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
       </div>
 
       <div className={styles.body}>
+        {event.format === 'VOD' && <VodUploadCard eventId={id} />}
+
         {editing ? (
           <>
             <EventEditForm
