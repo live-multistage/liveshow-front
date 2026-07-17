@@ -23,14 +23,11 @@ export function DashboardSidebar() {
 
   return (
     <aside className={styles.sidebar}>
-      {/* Logo + notifications */}
-      <div className={styles.topRow}>
-        <Link href="/" className={styles.logoWrapper}>
-          <Logo size={26} wordmarkClassName={styles.logoText} />
-          <span className={styles.logoBadge}>{role === 'SUPER_ADMIN' ? 'ADMIN' : 'STUDIO'}</span>
-        </Link>
-        <NotificationsDropdown />
-      </div>
+      {/* Logo */}
+      <Link href="/" className={styles.logoWrapper}>
+        <Logo size={26} wordmarkClassName={styles.logoText} />
+        <span className={styles.logoBadge}>{role === 'SUPER_ADMIN' ? 'ADMIN' : 'STUDIO'}</span>
+      </Link>
 
       {/* Nav — renders a section label whenever an item's group changes. */}
       <nav className={styles.nav}>
@@ -54,9 +51,12 @@ export function DashboardSidebar() {
         })}
       </nav>
 
-      {/* User block */}
+      {/* User block + notifications */}
       <div className={styles.userMenuWrapper}>
-        <DashboardUserMenu />
+        <div className={styles.userMenuMain}>
+          <DashboardUserMenu />
+        </div>
+        <NotificationsDropdown triggerClassName={styles.notifTrigger} />
       </div>
     </aside>
   );
