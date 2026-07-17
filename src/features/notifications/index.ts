@@ -1,5 +1,6 @@
 export { NotificationsDropdown } from './components/NotificationsDropdown';
 export { NotificationItem } from './components/NotificationItem';
+export { NotificationsPageContent } from './components/NotificationsPageContent';
 
 export {
   useNotificationsQuery,

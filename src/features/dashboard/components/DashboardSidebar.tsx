@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Logo } from '@/shared/components/Logo';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account';
+import { NotificationsDropdown } from '@/features/notifications';
 import { NAV_BY_ROLE, DASHBOARD_ROLES } from '../types/dashboard.types';
 import { DashboardUserMenu } from './DashboardUserMenu';
 import type { UserRole } from '@/types';
@@ -22,11 +23,14 @@ export function DashboardSidebar() {
 
   return (
     <aside className={styles.sidebar}>
-      {/* Logo */}
-      <Link href="/" className={styles.logoWrapper}>
-        <Logo size={26} wordmarkClassName={styles.logoText} />
-        <span className={styles.logoBadge}>{role === 'SUPER_ADMIN' ? 'ADMIN' : 'STUDIO'}</span>
-      </Link>
+      {/* Logo + notifications */}
+      <div className={styles.topRow}>
+        <Link href="/" className={styles.logoWrapper}>
+          <Logo size={26} wordmarkClassName={styles.logoText} />
+          <span className={styles.logoBadge}>{role === 'SUPER_ADMIN' ? 'ADMIN' : 'STUDIO'}</span>
+        </Link>
+        <NotificationsDropdown />
+      </div>
 
       {/* Nav — renders a section label whenever an item's group changes. */}
       <nav className={styles.nav}>
