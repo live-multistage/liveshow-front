@@ -71,3 +71,5 @@ next-env.d.ts
 .worktrees/
 
 certificates
+# local prod-HTTPS server (run: pnpm build && node server.mjs)
+server.mjs
