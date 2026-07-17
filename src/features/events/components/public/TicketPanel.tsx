@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Tv2, RotateCcw, CheckCircle2 } from 'lucide-react';
+import { Tv2, RotateCcw, CheckCircle2, Play } from 'lucide-react';
 import { formatPrice } from '../../utils/event-formatters';
 import { useServiceFeeRateQuery } from '../../queries/get-event';
 import type { EventResponse, TicketProductResponse } from '../../types/event.types';
@@ -42,6 +42,7 @@ export function TicketPanel({ event, tickets }: Props) {
 
   const isLive = event.status === 'LIVE';
   const isFinished = event.status === 'FINISHED';
+  const isVod = event.format === 'VOD';
 
   const purchasableTickets = isFinished
     ? tickets.filter((t) => t.capabilities.includes('REPLAY_VIEW'))
@@ -127,16 +128,16 @@ export function TicketPanel({ event, tickets }: Props) {
               </Button>
               <p className={styles.ownedNote}>{t('streamIsLive')}</p>
             </>
-          ) : isFinished && ownsReplay ? (
+          ) : (isFinished || isVod) && ownsReplay ? (
             <>
               <Button
                 variant="primary"
                 fullWidth
-                icon={<RotateCcw size={16} />}
+                icon={isVod ? <Play size={16} /> : <RotateCcw size={16} />}
                 className={styles.ticketAction}
                 href={`/replay/${event.id}`}
               >
-                {t('watchReplay')}
+                {isVod ? t('watch') : t('watchReplay')}
               </Button>
               <p className={styles.ownedNote}>{t('replayAvailable')}</p>
             </>
