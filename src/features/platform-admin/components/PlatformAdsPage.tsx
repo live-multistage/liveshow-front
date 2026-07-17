@@ -36,7 +36,7 @@ const compact = (n: number) => (n < 1000 ? String(n) : `${(n / 1000).toFixed(1).
 export function PlatformAdsPage() {
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
-  const [detailId, setDetailId] = useState<string | null>(null);
+  const [detail, setDetail] = useState<{ id: string; orgName: string } | null>(null);
 
   const { data, isLoading } = usePlatformAdsQuery({ status: status || undefined, page });
   const config = useReviewConfigQuery();
@@ -79,12 +79,12 @@ export function PlatformAdsPage() {
           </div>
           {isLoading && <div className={table.empty}>Carregando…</div>}
           {!isLoading && total === 0 && <div className={table.empty}>Nenhuma campanha para este filtro.</div>}
-          {data?.items.map((a) => <AdRow key={a.id} a={a} onOpen={() => setDetailId(a.id)} />)}
+          {data?.items.map((a) => <AdRow key={a.id} a={a} onOpen={() => setDetail({ id: a.id, orgName: a.orgName })} />)}
         </div>
         {total > 0 && <Pager page={page} totalPages={totalPages} total={total} limit={data?.limit ?? 20} onPage={setPage} />}
       </div>
 
-      {detailId && <AdDetailDrawer adId={detailId} onClose={() => setDetailId(null)} />}
+      {detail && <AdDetailDrawer adId={detail.id} orgName={detail.orgName} onClose={() => setDetail(null)} />}
     </PlatformPageShell>
   );
 }

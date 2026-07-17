@@ -223,6 +223,8 @@ export interface AdDetail {
     targetDomains: string[];
     targetCategories: string[];
     bannerUrl: string | null;
+    frequencyCapMax: number | null;
+    frequencyCapWindow: string | null;
     billingModel: string;
     bidCents: number;
     dailyBudgetCents: number;
@@ -230,7 +232,9 @@ export interface AdDetail {
     totalSpendCents: number;
     startsAt: string;
     endsAt: string;
+    createdBy: string;
     createdAt: string;
+    updatedAt: string;
   };
   reviews: AdReviewRecord[];
 }
