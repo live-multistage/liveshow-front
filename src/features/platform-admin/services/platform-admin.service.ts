@@ -24,6 +24,8 @@ import type {
   PlatformEventsResult,
   PlatformAdsResult,
   PlatformCouponsResult,
+  AdDetail,
+  AdReviewConfig,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
@@ -144,8 +146,26 @@ export const platformAdminService = {
     const { data } = await httpClient.get<PlatformAdsResult>('/platform-admin/ads', { params });
     return data;
   },
-  moderateAd: async (id: string, action: 'APPROVE' | 'PAUSE' | 'RESUME'): Promise<void> => {
-    await httpClient.post(`/platform-admin/ads/${id}/moderation`, { action });
+  getAdDetail: async (id: string): Promise<AdDetail> => {
+    const { data } = await httpClient.get<AdDetail>(`/platform-admin/ads/${id}`);
+    return data;
+  },
+  reviewAd: async (id: string, decision: 'APPROVE' | 'REJECT', reason?: string): Promise<void> => {
+    await httpClient.post(`/platform-admin/ads/${id}/review`, { decision, reason });
+  },
+  pauseAd: async (id: string): Promise<void> => {
+    await httpClient.post(`/platform-admin/ads/${id}/pause`);
+  },
+  resumeAd: async (id: string): Promise<void> => {
+    await httpClient.post(`/platform-admin/ads/${id}/resume`);
+  },
+  getAdReviewConfig: async (): Promise<AdReviewConfig> => {
+    const { data } = await httpClient.get<AdReviewConfig>('/platform-admin/ad-review/config');
+    return data;
+  },
+  setAdReviewStrategy: async (strategy: string): Promise<{ strategy: string }> => {
+    const { data } = await httpClient.patch<{ strategy: string }>('/platform-admin/ad-review/config', { strategy });
+    return data;
   },
 
   getPlatformCoupons: async (params: { status?: string; q?: string; page?: number }): Promise<PlatformCouponsResult> => {

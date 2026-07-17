@@ -51,18 +51,63 @@ export function useModerateEventMutation(onDone?: () => void) {
   });
 }
 
-export function useModerateAdMutation(onDone?: () => void) {
+function invalidateAds(qc: ReturnType<typeof useQueryClient>) {
+  qc.invalidateQueries({ queryKey: ['platform-admin', 'ads'] });
+  qc.invalidateQueries({ queryKey: ['platform-admin', 'ad-detail'] });
+  qc.invalidateQueries({ queryKey: ['platform-admin', 'audit'] });
+}
+
+export function useAdDetailQuery(id: string | null) {
+  return useQuery({
+    queryKey: ['platform-admin', 'ad-detail', id] as const,
+    queryFn: () => platformAdminService.getAdDetail(id!),
+    enabled: !!id,
+    staleTime: 15_000,
+  });
+}
+
+export function useReviewConfigQuery() {
+  return useQuery({
+    queryKey: ['platform-admin', 'ad-review-config'] as const,
+    queryFn: platformAdminService.getAdReviewConfig,
+    staleTime: 60_000,
+  });
+}
+
+export function useSetReviewStrategyMutation(onDone?: () => void) {
   const qc = useQueryClient();
-  return useMutation<void, AppError, { id: string; action: 'APPROVE' | 'PAUSE' | 'RESUME' }>({
-    mutationFn: async ({ id, action }) => {
-      try { await platformAdminService.moderateAd(id, action); }
+  return useMutation<{ strategy: string }, AppError, string>({
+    mutationFn: async (strategy) => {
+      try { return await platformAdminService.setAdReviewStrategy(strategy); }
       catch (err) { throw normalizeError(err); }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['platform-admin', 'ads'] });
+      qc.invalidateQueries({ queryKey: ['platform-admin', 'ad-review-config'] });
       qc.invalidateQueries({ queryKey: ['platform-admin', 'audit'] });
       onDone?.();
     },
+  });
+}
+
+export function useReviewAdMutation(onDone?: () => void) {
+  const qc = useQueryClient();
+  return useMutation<void, AppError, { id: string; decision: 'APPROVE' | 'REJECT'; reason?: string }>({
+    mutationFn: async ({ id, decision, reason }) => {
+      try { await platformAdminService.reviewAd(id, decision, reason); }
+      catch (err) { throw normalizeError(err); }
+    },
+    onSuccess: () => { invalidateAds(qc); onDone?.(); },
+  });
+}
+
+export function usePauseResumeAdMutation(onDone?: () => void) {
+  const qc = useQueryClient();
+  return useMutation<void, AppError, { id: string; action: 'pause' | 'resume' }>({
+    mutationFn: async ({ id, action }) => {
+      try { await (action === 'pause' ? platformAdminService.pauseAd(id) : platformAdminService.resumeAd(id)); }
+      catch (err) { throw normalizeError(err); }
+    },
+    onSuccess: () => { invalidateAds(qc); onDone?.(); },
   });
 }
 

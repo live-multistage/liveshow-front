@@ -201,6 +201,46 @@ export interface PlatformAdRow {
 }
 export type PlatformAdsResult = Paged<PlatformAdRow>;
 
+// Full ad + review history (GET /platform-admin/ads/:id).
+export interface AdReviewRecord {
+  id: string;
+  adId: string;
+  reviewerType: string;
+  outcome: 'APPROVE' | 'REJECT' | 'PENDING' | 'SUBMITTED';
+  reason: string | null;
+  reviewedBy: string;
+  createdAt: string;
+}
+export interface AdDetail {
+  ad: {
+    id: string;
+    organizationId: string;
+    eventId: string | null;
+    title: string;
+    format: string;
+    status: string;
+    placements: string[];
+    targetDomains: string[];
+    targetCategories: string[];
+    bannerUrl: string | null;
+    billingModel: string;
+    bidCents: number;
+    dailyBudgetCents: number;
+    totalLimitCents: number;
+    totalSpendCents: number;
+    startsAt: string;
+    endsAt: string;
+    createdAt: string;
+  };
+  reviews: AdReviewRecord[];
+}
+
+// Active review strategy (GET/PATCH /platform-admin/ad-review/config).
+export interface AdReviewConfig {
+  strategy: string;
+  strategies: string[];
+}
+
 // Global coupon directory (GET /platform-admin/coupons).
 export interface PlatformCouponRow {
   id: string;

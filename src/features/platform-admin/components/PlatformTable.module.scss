@@ -28,6 +28,20 @@
 .filter { cursor: pointer; }
 .search { min-width: 220px; &::placeholder { color: #8f8f97; } }
 
+.filterLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  span {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #8f8f97;
+  }
+}
+
 .scroll { overflow-x: auto; }
 
 .head,
