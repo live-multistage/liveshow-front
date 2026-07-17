@@ -466,7 +466,13 @@
       "noOrgs": "Create an organization before creating events.",
       "formatLabel": "Format *",
       "formatLive": "Live",
-      "formatVod": "Video (VOD)"
+      "formatVod": "Video (VOD)",
+      "latencyLabel": "Latency mode",
+      "latencyStandard": "Standard (more stable, scales better)",
+      "latencyLow": "Low (real-time, ~1-3s)",
+      "latencySportHint": "Suggested for sports events, where delay hurts. You can switch back to Standard.",
+      "publiclyFundedLabel": "Funded with public money",
+      "publiclyFundedHint": "Requires a mandatory Libras (sign language) window (NBR 15290) and accessibility approval before publishing."
     },
     "location": {
       "venueLabel": "Venue / Location Name",
@@ -481,9 +487,7 @@
     "production": {
       "hint": "Set how many cameras will be available to the audience during the broadcast.",
       "camerasLabel": "Number of Cameras *",
-      "vodHint": "Video (VOD) event — camera setup doesn't apply.",
-      "publiclyFundedLabel": "Funded with public money",
-      "publiclyFundedHint": "Requires a mandatory Libras (sign language) window (NBR 15290) and accessibility approval before publishing."
+      "vodHint": "Video (VOD) event — camera setup doesn't apply."
     },
     "stream": {
       "hint": "Optional — you can configure this later in Dashboard → Streams.",

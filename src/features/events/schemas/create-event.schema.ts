@@ -48,6 +48,13 @@ export const EVENT_CATEGORY_VALUES = [
   'TALK', 'RELIGIOUS', 'EDUCATION', 'OTHER',
 ] as const;
 
+// Categories where real-time interaction makes the ~10-30s HLS delay costly
+// (live betting, second-screen, spoilers) — the create form auto-suggests LOW
+// latency for these. Extend when gaming/e-sports categories are added.
+export const LOW_LATENCY_SUGGESTED_CATEGORIES: readonly string[] = [
+  'SPORTS', 'FOOTBALL', 'MOTORSPORT',
+];
+
 export const createEventSchema = z
   .object({
     organizationId: z.string().uuid('Selecione uma organização'),
@@ -65,6 +72,7 @@ export const createEventSchema = z
     country: z.string().max(100).optional(),
     camerasCount: z.coerce.number().int().min(1).max(32).default(1),
     format: z.enum(['LIVE', 'VOD']).default('LIVE'),
+    latencyMode: z.enum(['STANDARD', 'LOW']).default('STANDARD'),
     // Financiado com dinheiro público → exige Janela de Libras (NBR 15290).
     publiclyFunded: z.boolean().default(false),
   })

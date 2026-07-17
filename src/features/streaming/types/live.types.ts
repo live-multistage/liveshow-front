@@ -31,6 +31,8 @@ export interface LivePlaybackResponse {
   stages?: LiveStage[];
   cameras: LiveCamera[]; // flat list — always present for backward compat
   primaryCameraId: string | null;
+  // NBR 15290 — camera pinned as the mandatory Libras window (null if none).
+  librasCameraId: string | null;
   latencyMode: 'STANDARD' | 'LOW';
 }
 
@@ -62,4 +64,6 @@ export interface ReplayPlaybackResponse {
   stages: ReplayStagePlayback[];
   cameras: ReplayCameraPlayback[];
   primaryCameraId: string | null;
+  // NBR 15290 — camera pinned as the mandatory Libras window (null if none/VOD).
+  librasCameraId: string | null;
 }

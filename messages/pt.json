@@ -469,7 +469,13 @@
       "noOrgs": "Crie uma organização antes de criar eventos.",
       "formatLabel": "Formato *",
       "formatLive": "Ao vivo",
-      "formatVod": "Vídeo (VOD)"
+      "formatVod": "Vídeo (VOD)",
+      "latencyLabel": "Modo de latência",
+      "latencyStandard": "Padrão (mais estável, escala melhor)",
+      "latencyLow": "Baixa (tempo real, ~1-3s)",
+      "latencySportHint": "Sugerido para eventos esportivos, onde o atraso atrapalha. Você pode trocar para Padrão.",
+      "publiclyFundedLabel": "Financiado com dinheiro público",
+      "publiclyFundedHint": "Exige uma Janela de Libras obrigatória (NBR 15290) e aprovação de acessibilidade antes de publicar."
     },
     "location": {
       "venueLabel": "Nome do Local / Venue",
@@ -484,9 +490,7 @@
     "production": {
       "hint": "Defina quantas câmeras estarão disponíveis para o público durante a transmissão.",
       "camerasLabel": "Quantidade de Câmeras *",
-      "vodHint": "Evento em vídeo (VOD) — a configuração de câmeras não se aplica.",
-      "publiclyFundedLabel": "Financiado com dinheiro público",
-      "publiclyFundedHint": "Exige uma Janela de Libras obrigatória (NBR 15290) e aprovação de acessibilidade antes de publicar."
+      "vodHint": "Evento em vídeo (VOD) — a configuração de câmeras não se aplica."
     },
     "stream": {
       "hint": "Opcional — você pode configurar isso depois em Dashboard → Streams.",

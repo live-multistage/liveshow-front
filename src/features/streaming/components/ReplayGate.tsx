@@ -45,5 +45,5 @@ export function ReplayGate({ eventId, eventTitle }: Props) {
     );
   }
 
-  return <ReplayPlayer cameras={playback.data.cameras} title={eventTitle} eventId={eventId} />;
+  return <ReplayPlayer cameras={playback.data.cameras} librasCameraId={playback.data.librasCameraId} title={eventTitle} eventId={eventId} />;
 }

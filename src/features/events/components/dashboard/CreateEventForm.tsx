@@ -31,9 +31,9 @@ export function CreateEventForm({ onSuccess }: Props) {
   // the same); don't let them pick one they'd be 403'd on.
   const orgs = useMemo(() => allOrgs.filter((o) => canManageOrg(o.role)), [allOrgs]);
 
-  const { register, control, handleSubmit, trigger, formState: { errors } } = useForm<CreateEventFormValues>({
+  const { register, control, handleSubmit, trigger, setValue, formState: { errors } } = useForm<CreateEventFormValues>({
     resolver: zodResolver(createEventSchema),
-    defaultValues: { camerasCount: 1, tags: [], format: 'LIVE', publiclyFunded: false },
+    defaultValues: { camerasCount: 1, tags: [], format: 'LIVE', latencyMode: 'STANDARD', publiclyFunded: false },
   });
 
   const format = useWatch({ control, name: 'format' });
@@ -45,7 +45,7 @@ export function CreateEventForm({ onSuccess }: Props) {
   } = wizard;
 
   const stepContent: Record<number, React.ReactNode> = {
-    1: <EventInfoStep register={register} errors={errors} orgs={orgs} control={control} />,
+    1: <EventInfoStep register={register} errors={errors} orgs={orgs} control={control} setValue={setValue} />,
     2: <EventLocationStep register={register} errors={errors} control={control} />,
     3: <EventProductionStep register={register} errors={errors} format={format} />,
     // VOD events skip this step entirely (see useCreateEventWizard advance/back).

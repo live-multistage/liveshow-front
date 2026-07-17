@@ -37,6 +37,41 @@
   }
 }
 
+// NBR 15290 — mandatory Libras window. Fixed bottom-right, non-interactive,
+// visually distinct so it reads as the accessibility feed, not a regular PiP.
+.librasSlot {
+  border-radius: 10px;
+  border: 2px solid $action;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  transition: left 0.28s ease, top 0.28s ease, right 0.28s ease,
+    bottom 0.28s ease, width 0.28s ease, height 0.28s ease;
+}
+
+.librasBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: $action;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+}
+
+.activeRowLibras {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: $action;
+}
+
 .railSlot {
   border: 1px solid $border;
   cursor: pointer;

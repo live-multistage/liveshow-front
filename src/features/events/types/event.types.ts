@@ -116,6 +116,7 @@ export interface CreateEventRequest {
   domain?: 'ENTERTAINMENT' | 'SPORTS' | 'CORPORATE' | 'EDUCATION' | 'RELIGIOUS' | 'OTHER';
   subtype?: string;
   format?: EventFormat;
+  latencyMode?: 'STANDARD' | 'LOW';
   publiclyFunded?: boolean;
 }
 

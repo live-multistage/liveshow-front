@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, KeyboardEvent } from 'react';
-import { X, Square, PanelRight, LayoutGrid, Minus } from 'lucide-react';
+import { X, Square, PanelRight, LayoutGrid, Minus, HandMetal } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
 import type { QualityLevel } from './VideoPanel';
@@ -22,7 +22,7 @@ const GAP = 2;
 
 // Right picker drawer (MULTICAM). Floats over the right edge of the stage;
 // thumbnails stack vertically inside, reusing the persistent panels.
-const DRAWER_W = 300;        // drawer width (px)
+const DRAWER_W = 220;        // drawer width (px)
 const DRAWER_HEADER_H = 52;  // header row (title + modes + close)
 const DRAWER_PAD = 12;
 const DRAWER_BOTTOM = 96;    // clear the floating transport bar at the bottom
@@ -39,7 +39,7 @@ const MODES: { id: ViewMode; label: string; icon: typeof Square }[] = [
 // edge and reveals in sync when it becomes a PIP/rail/main — no reload jump.
 const HIDDEN_STYLE = { inset: 0, opacity: 0, pointerEvents: 'none', zIndex: -1 } as const;
 
-type Role = 'main' | 'pip' | 'rail' | 'grid' | 'strip' | 'hidden';
+type Role = 'main' | 'pip' | 'rail' | 'grid' | 'strip' | 'libras' | 'hidden';
 interface Slot {
   role: Role;
   style: CSSProperties;
@@ -59,6 +59,10 @@ interface CameraGridProps {
   mainCameraId: string | null;
   onMainCameraChange: (cameraId: string) => void;
   activeCameraIds: string[];
+  // NBR 15290 — camera pinned bottom-right as the mandatory Libras window in
+  // every view mode; excluded from the main/rail/grid composition and never
+  // removable. Null when the event has no Libras window.
+  librasCameraId?: string | null;
   mode?: 'live' | 'replay';
   paused?: boolean;
   seekCommand?: { time: number; token: number } | null;
@@ -92,6 +96,7 @@ export function CameraGrid({
   mainCameraId,
   onMainCameraChange,
   activeCameraIds,
+  librasCameraId = null,
   mode = 'live',
   paused,
   seekCommand,
@@ -126,10 +131,21 @@ export function CameraGrid({
     [activeCameraIds, cameraById],
   );
 
-  const mainCamera = activeCameras.find((c) => c.cameraId === mainCameraId) ?? activeCameras[0] ?? null;
-  const effectiveMode: ViewMode = activeCameras.length <= 1 ? 'solo' : viewMode;
+  // The Libras window is laid out separately (fixed bottom-right PiP) and is
+  // excluded from the main/rail/grid composition so it never becomes the main
+  // camera, a rail tile, or a grid cell.
+  const librasCamera = librasCameraId
+    ? activeCameras.find((c) => c.cameraId === librasCameraId) ?? null
+    : null;
+  const compositionCameras = librasCamera
+    ? activeCameras.filter((c) => c.cameraId !== librasCamera.cameraId)
+    : activeCameras;
+
+  const mainCamera =
+    compositionCameras.find((c) => c.cameraId === mainCameraId) ?? compositionCameras[0] ?? null;
+  const effectiveMode: ViewMode = compositionCameras.length <= 1 ? 'solo' : viewMode;
   const otherCameras = mainCamera
-    ? activeCameras.filter((c) => c.cameraId !== mainCamera.cameraId)
+    ? compositionCameras.filter((c) => c.cameraId !== mainCamera.cameraId)
     : [];
 
   const layouts = useMemo<Map<string, Slot>>(() => {
@@ -143,10 +159,10 @@ export function CameraGrid({
     const stageW = W - drawerInset;
 
     if (effectiveMode === 'grid') {
-      const cols = pickColumnCount(activeCameras.length);
-      const rows = Math.max(1, Math.ceil(activeCameras.length / cols));
+      const cols = pickColumnCount(compositionCameras.length);
+      const rows = Math.max(1, Math.ceil(compositionCameras.length / cols));
       const jrows = computeJustifiedRows(
-        activeCameras.map((c) => c.cameraId), aspectRatios, cols, rows, stageW, H, GAP,
+        compositionCameras.map((c) => c.cameraId), aspectRatios, cols, rows, stageW, H, GAP,
       );
       const totalH = jrows.reduce((a, r) => a + r.height, 0) + Math.max(0, jrows.length - 1) * GAP;
       let y = Math.max(0, (H - totalH) / 2);
@@ -163,7 +179,7 @@ export function CameraGrid({
         }
         y += row.height + GAP;
       }
-      for (const c of activeCameras) {
+      for (const c of compositionCameras) {
         if (!map.has(c.cameraId)) {
           map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
         }
@@ -185,9 +201,11 @@ export function CameraGrid({
           map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
         }
       } else if (pipPresent) {
+        // If a Libras window owns the bottom-right, stack this PiP above it.
+        const pipBottom = librasCamera ? PIP_BOTTOM + PIP_H + GAP : PIP_BOTTOM;
         map.set(otherCameras[0].cameraId, {
           role: 'pip',
-          style: { right: PIP_RIGHT + drawerInset, bottom: PIP_BOTTOM, width: PIP_W, height: PIP_H, zIndex: 21 },
+          style: { right: PIP_RIGHT + drawerInset, bottom: pipBottom, width: PIP_W, height: PIP_H, zIndex: 21 },
         });
       } else if (railPresent) {
         const n = otherCameras.length;
@@ -202,6 +220,22 @@ export function CameraGrid({
           });
         });
       }
+    }
+
+    // NBR 15290: the Libras window is ALWAYS pinned bottom-right, above every
+    // other layer, in every mode (solo / main-rail / grid). Set last so it wins
+    // over any composition slot.
+    if (librasCamera) {
+      map.set(librasCamera.cameraId, {
+        role: 'libras',
+        style: {
+          right: PIP_RIGHT + drawerInset,
+          bottom: PIP_BOTTOM,
+          width: PIP_W,
+          height: PIP_H,
+          zIndex: 24,
+        },
+      });
     }
 
     // Inactive cameras → drawer add-tiles (video thumbnails), stacked BELOW the
@@ -233,7 +267,7 @@ export function CameraGrid({
     }
 
     return map;
-  }, [effectiveMode, activeCameras, otherCameras, mainCamera, size, aspectRatios, pickerOpen, cameras, activeCameraIds]);
+  }, [effectiveMode, activeCameras, compositionCameras, librasCamera, otherCameras, mainCamera, size, aspectRatios, pickerOpen, cameras, activeCameraIds]);
 
   const roleClass: Record<Role, string> = {
     main: styles.mainSlot,
@@ -241,6 +275,7 @@ export function CameraGrid({
     rail: styles.railSlot,
     grid: styles.gridSlot,
     strip: styles.stripSlot,
+    libras: styles.librasSlot,
     hidden: styles.hiddenSlot,
   };
 
@@ -300,21 +335,29 @@ export function CameraGrid({
           <div className={styles.drawerRows}>
             {cameras
               .filter((c) => activeCameraIds.includes(c.cameraId))
-              .map((c) => (
-                <button
-                  key={c.cameraId}
-                  type="button"
-                  className={styles.activeRow}
-                  disabled={activeCameraIds.length <= 1}
-                  onClick={() => {
-                    if (activeCameraIds.length > 1) onToggleCamera(c.cameraId);
-                  }}
-                  title="Remover da composição"
-                >
-                  <span className={styles.activeRowName}>{c.name}</span>
-                  <Minus size={14} className={styles.activeRowMinus} />
-                </button>
-              ))}
+              .map((c) => {
+                // NBR 15290: the Libras window is mandatory — never removable.
+                const isLibras = c.cameraId === librasCameraId;
+                return (
+                  <button
+                    key={c.cameraId}
+                    type="button"
+                    className={styles.activeRow}
+                    disabled={isLibras || activeCameraIds.length <= 1}
+                    onClick={() => {
+                      if (!isLibras && activeCameraIds.length > 1) onToggleCamera(c.cameraId);
+                    }}
+                    title={isLibras ? 'Janela de Libras (obrigatória)' : 'Remover da composição'}
+                  >
+                    <span className={styles.activeRowName}>{c.name}</span>
+                    {isLibras ? (
+                      <span className={styles.activeRowLibras}>LIBRAS</span>
+                    ) : (
+                      <Minus size={14} className={styles.activeRowMinus} />
+                    )}
+                  </button>
+                );
+              })}
           </div>
         </div>
       )}
@@ -371,9 +414,9 @@ export function CameraGrid({
               // jump to the live edge → brief stall + audible desync. The audio
               // panel keeps riding live via maxLiveSyncPlaybackRate, no seek.
               isFocused={role === 'main'}
-              showLabel={role !== 'main' && role !== 'hidden' && role !== 'strip'}
+              showLabel={role !== 'main' && role !== 'hidden' && role !== 'strip' && role !== 'libras'}
               showMuteButton={role === 'grid'}
-              fit={role === 'pip' || role === 'rail' || role === 'strip' ? 'cover' : 'contain'}
+              fit={role === 'pip' || role === 'rail' || role === 'strip' || role === 'libras' ? 'cover' : 'contain'}
               // Audio comes from the main element's selected alternate-audio
               // track (hls.audioTrack), not from unmuting a background element.
               muted={globalMuted || !isPrimary}
@@ -402,6 +445,11 @@ export function CameraGrid({
                   <p className={styles.stripAngle}>{cam.slug}</p>
                 </div>
               </>
+            )}
+            {role === 'libras' && (
+              <span className={styles.librasBadge}>
+                <HandMetal size={12} /> LIBRAS
+              </span>
             )}
           </div>
         );

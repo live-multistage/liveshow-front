@@ -11,6 +11,8 @@ import styles from './ReplayPlayer.module.scss';
 
 interface ReplayPlayerProps {
   cameras: ReplayCameraPlayback[];
+  // NBR 15290 — camera pinned as the mandatory Libras window (null if none/VOD).
+  librasCameraId?: string | null;
   title: string;
   eventId: string;
 }
@@ -27,13 +29,19 @@ interface ReplayPlayerProps {
 // camera is still its own independent VOD timeline underneath (no frame-
 // accurate cross-camera sync), a real, harder problem deliberately left for
 // later.
-export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlayerProps) {
+export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title, eventId }: ReplayPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
   const [mainCameraId, setMainCameraId] = useState<string | null>(null);
+  // The Libras window (if this event has one) is always active and never removable.
+  const librasInSet = librasCameraId && rawCameras.some((c) => c.cameraId === librasCameraId)
+    ? librasCameraId
+    : null;
   const [activeCameraIds, setActiveCameraIds] = useState<string[]>(() => {
     const first = rawCameras.find((c) => c.replayPath !== null);
-    return first ? [first.cameraId] : [];
+    const initial = first ? [first.cameraId] : [];
+    if (librasInSet && !initial.includes(librasInSet)) initial.push(librasInSet);
+    return initial;
   });
   const [cameraStripOpen, setCameraStripOpen] = useState(false);
   const [globalMuted, setGlobalMuted] = useState(false);
@@ -73,6 +81,8 @@ export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlay
     mainCameraId && activeCameraIds.includes(mainCameraId) ? mainCameraId : (activeCameraIds[0] ?? null);
 
   const handleToggleCamera = (cameraId: string) => {
+    // The Libras window is mandatory (NBR 15290) — never removable.
+    if (cameraId === librasInSet) return;
     if (activeCameraIds.includes(cameraId)) {
       if (activeCameraIds.length > 1) setActiveCameraIds(activeCameraIds.filter((id) => id !== cameraId));
     } else {
@@ -158,6 +168,7 @@ export function ReplayPlayer({ cameras: rawCameras, title, eventId }: ReplayPlay
             mainCameraId={effectiveMainCameraId}
             onMainCameraChange={setMainCameraId}
             activeCameraIds={activeCameraIds}
+            librasCameraId={librasInSet}
             pickerOpen={cameraStripOpen}
             onToggleCamera={handleToggleCamera}
             onClosePicker={() => setCameraStripOpen(false)}

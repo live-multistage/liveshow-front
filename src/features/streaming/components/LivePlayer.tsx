@@ -18,6 +18,8 @@ interface LivePlayerProps {
   cameras: LiveCamera[];
   stages?: LiveStage[];
   primaryCameraId?: string | null;
+  // NBR 15290 — camera pinned as the mandatory Libras window (null if none).
+  librasCameraId?: string | null;
   title: string;
   eventId: string;
   chatEnabled: boolean;
@@ -42,7 +44,7 @@ function initialStageId(stages: LiveStage[], primaryCameraId?: string | null): s
   return stages.find((s) => s.cameras.length > 0)?.stageId ?? stages[0]?.stageId ?? '__main__';
 }
 
-export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title, eventId, chatEnabled }: LivePlayerProps) {
+export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, chatEnabled }: LivePlayerProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -69,10 +71,25 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
 
   const activeStage = stages.find((s) => s.stageId === activeStageId) ?? stages[0];
 
+  // NBR 15290: the Libras window is only relevant when it belongs to the stage
+  // currently on screen. When present it is force-activated and can't be removed.
+  const librasInStage =
+    librasCameraId && activeStage?.cameras.some((c) => c.cameraId === librasCameraId)
+      ? librasCameraId
+      : null;
+
   const stageCameraKey = (activeStage?.cameras ?? []).map((c) => c.cameraId).sort().join(',');
   useEffect(() => {
     const first = activeStage?.cameras[0]?.cameraId;
-    setActiveCameraIds(first ? [first] : []);
+    // Always keep the Libras window active alongside the default camera.
+    const initial = first
+      ? librasInStage && librasInStage !== first
+        ? [first, librasInStage]
+        : [first]
+      : librasInStage
+        ? [librasInStage]
+        : [];
+    setActiveCameraIds(initial);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stageCameraKey]);
 
@@ -108,6 +125,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
   };
 
   const handleToggleCamera = (cameraId: string) => {
+    // The Libras window is mandatory (NBR 15290) — never removable.
+    if (cameraId === librasInStage) return;
     if (activeCameraIds.includes(cameraId)) {
       if (activeCameraIds.length > 1) setActiveCameraIds(activeCameraIds.filter((id) => id !== cameraId));
     } else {
@@ -176,6 +195,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, title,
               mainCameraId={effectiveMainCameraId}
               onMainCameraChange={setMainCameraId}
               activeCameraIds={activeCameraIds}
+              librasCameraId={librasInStage}
               pickerOpen={cameraStripOpen}
               onToggleCamera={handleToggleCamera}
               onClosePicker={() => setCameraStripOpen(false)}

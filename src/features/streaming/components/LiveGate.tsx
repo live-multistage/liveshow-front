@@ -47,6 +47,7 @@ export function LiveGate({ eventId, eventTitle, chatEnabled }: Props) {
       cameras={playback.data.cameras}
       stages={playback.data.stages}
       primaryCameraId={playback.data.primaryCameraId}
+      librasCameraId={playback.data.librasCameraId}
       title={eventTitle}
       eventId={eventId}
       chatEnabled={chatEnabled}
