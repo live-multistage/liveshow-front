@@ -97,6 +97,7 @@ export function useCreateEventWizard(format: EventFormat, onSuccess?: (event: Ev
         country: values.country || undefined,
         camerasCount: values.camerasCount,
         format: values.format,
+        publiclyFunded: values.publiclyFunded,
       },
       tickets: submittedTickets,
     });

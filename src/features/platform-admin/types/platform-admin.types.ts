@@ -182,6 +182,9 @@ export interface PlatformEventRow {
   camerasCount: number;
   category: string;
   thumbnailUrl: string | null;
+  publiclyFunded: boolean;
+  hasLibrasCamera: boolean;
+  accessibilityApproved: boolean;
 }
 export type PlatformEventsResult = Paged<PlatformEventRow>;
 

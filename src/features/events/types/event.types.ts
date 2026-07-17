@@ -69,8 +69,18 @@ export interface EventResponse {
   subtype: string | null;
   camerasCount: number;
   isFree: boolean;
+  publiclyFunded: boolean;
   priceFromCents?: number;
   priceToCents?: number;
+}
+
+// NBR 15290 — Libras window accessibility state for an event.
+export interface AccessibilityStatus {
+  publiclyFunded: boolean;
+  hasLibrasCamera: boolean;
+  librasCameraId: string | null;
+  approved: boolean;
+  publishable: boolean;
 }
 
 export interface PaginatedEventsResponse {
@@ -106,6 +116,7 @@ export interface CreateEventRequest {
   domain?: 'ENTERTAINMENT' | 'SPORTS' | 'CORPORATE' | 'EDUCATION' | 'RELIGIOUS' | 'OTHER';
   subtype?: string;
   format?: EventFormat;
+  publiclyFunded?: boolean;
 }
 
 export interface UpdateEventRequest {

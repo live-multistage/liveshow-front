@@ -418,7 +418,8 @@
     "finishing": "Finalizando...",
     "editLatencyMode": "Latencia de la transmisión",
     "latencyStandard": "Estándar (~10s, con selección de calidad)",
-    "latencyLow": "Baja latencia (~2–4s, ideal para deportes — calidad única)"
+    "latencyLow": "Baja latencia (~2–4s, ideal para deportes — calidad única)",
+    "publishBlockedLibras": "Requiere Ventana de Lengua de Señas y aprobación de accesibilidad (NBR 15290)."
   },
   "createEvent": {
     "back": "Eventos",
@@ -480,7 +481,9 @@
     "production": {
       "hint": "Define cuántas cámaras estarán disponibles para el público durante la transmisión.",
       "camerasLabel": "Cantidad de Cámaras *",
-      "vodHint": "Evento en video (VOD) — la configuración de cámaras no aplica."
+      "vodHint": "Evento en video (VOD) — la configuración de cámaras no aplica.",
+      "publiclyFundedLabel": "Financiado con dinero público",
+      "publiclyFundedHint": "Exige una Ventana de Lengua de Señas obligatoria (NBR 15290) y aprobación de accesibilidad antes de publicar."
     },
     "stream": {
       "hint": "Opcional — puedes configurar esto después en Dashboard → Streams.",

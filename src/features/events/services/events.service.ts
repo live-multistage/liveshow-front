@@ -1,5 +1,5 @@
 import { httpClient } from '@/lib/http/client';
-import type { CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
+import type { AccessibilityStatus, CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
 
 export const eventsService = {
   listEvents: async (filter: ListEventsFilter = 'all', page = 1, pageSize = 50): Promise<PaginatedEventsResponse> => {
@@ -97,6 +97,22 @@ export const eventsService = {
 
   finishEvent: async (eventId: string): Promise<EventResponse> => {
     const { data } = await httpClient.patch<EventResponse>(`/events/${eventId}/finish`);
+    return data;
+  },
+
+  // ── Accessibility (NBR 15290 — Libras window) ──────────────────
+  getAccessibility: async (eventId: string): Promise<AccessibilityStatus> => {
+    const { data } = await httpClient.get<AccessibilityStatus>(`/events/${eventId}/accessibility`);
+    return data;
+  },
+
+  setLibrasCamera: async (eventId: string, cameraId: string): Promise<AccessibilityStatus> => {
+    const { data } = await httpClient.patch<AccessibilityStatus>(`/events/${eventId}/libras-camera`, { cameraId });
+    return data;
+  },
+
+  approveAccessibility: async (eventId: string): Promise<AccessibilityStatus> => {
+    const { data } = await httpClient.post<AccessibilityStatus>(`/events/${eventId}/accessibility-approve`);
     return data;
   },
 };

@@ -418,7 +418,8 @@
     "finishing": "Finishing...",
     "editLatencyMode": "Stream latency",
     "latencyStandard": "Standard (~10s, with quality selection)",
-    "latencyLow": "Low latency (~2–4s, ideal for sports — single quality)"
+    "latencyLow": "Low latency (~2–4s, ideal for sports — single quality)",
+    "publishBlockedLibras": "Requires a Libras window and accessibility approval (NBR 15290)."
   },
   "createEvent": {
     "back": "Events",
@@ -480,7 +481,9 @@
     "production": {
       "hint": "Set how many cameras will be available to the audience during the broadcast.",
       "camerasLabel": "Number of Cameras *",
-      "vodHint": "Video (VOD) event — camera setup doesn't apply."
+      "vodHint": "Video (VOD) event — camera setup doesn't apply.",
+      "publiclyFundedLabel": "Funded with public money",
+      "publiclyFundedHint": "Requires a mandatory Libras (sign language) window (NBR 15290) and accessibility approval before publishing."
     },
     "stream": {
       "hint": "Optional — you can configure this later in Dashboard → Streams.",

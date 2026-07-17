@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { platformAdminService } from '../services/platform-admin.service';
+import { eventsService } from '@/features/events/services/events.service';
 import { normalizeError, type AppError } from '@/lib/http/errors';
 
 export function useRevenueBreakdownQuery(range: '7d' | '30d' | '90d') {
@@ -41,6 +42,22 @@ export function useModerateEventMutation(onDone?: () => void) {
   return useMutation<void, AppError, { id: string; action: 'UNPUBLISH' | 'CANCEL' }>({
     mutationFn: async ({ id, action }) => {
       try { await platformAdminService.moderateEvent(id, action); }
+      catch (err) { throw normalizeError(err); }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['platform-admin', 'events'] });
+      qc.invalidateQueries({ queryKey: ['platform-admin', 'audit'] });
+      onDone?.();
+    },
+  });
+}
+
+// Super-admin signs off NBR 15290 accessibility for a publicly-funded event.
+export function useApproveAccessibilityMutation(onDone?: () => void) {
+  const qc = useQueryClient();
+  return useMutation<void, AppError, string>({
+    mutationFn: async (eventId) => {
+      try { await eventsService.approveAccessibility(eventId); }
       catch (err) { throw normalizeError(err); }
     },
     onSuccess: () => {

@@ -418,7 +418,8 @@
     "finishing": "Encerrando...",
     "editLatencyMode": "Latência da transmissão",
     "latencyStandard": "Padrão (~10s, com seleção de qualidade)",
-    "latencyLow": "Baixa latência (~2–4s, ideal para esportes — qualidade única)"
+    "latencyLow": "Baixa latência (~2–4s, ideal para esportes — qualidade única)",
+    "publishBlockedLibras": "Requer Janela de Libras e aprovação de acessibilidade (NBR 15290)."
   },
   "createEvent": {
     "back": "Eventos",
@@ -483,7 +484,9 @@
     "production": {
       "hint": "Defina quantas câmeras estarão disponíveis para o público durante a transmissão.",
       "camerasLabel": "Quantidade de Câmeras *",
-      "vodHint": "Evento em vídeo (VOD) — a configuração de câmeras não se aplica."
+      "vodHint": "Evento em vídeo (VOD) — a configuração de câmeras não se aplica.",
+      "publiclyFundedLabel": "Financiado com dinheiro público",
+      "publiclyFundedHint": "Exige uma Janela de Libras obrigatória (NBR 15290) e aprovação de acessibilidade antes de publicar."
     },
     "stream": {
       "hint": "Opcional — você pode configurar isso depois em Dashboard → Streams.",

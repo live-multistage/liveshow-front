@@ -19,6 +19,7 @@ interface Props {
   isPublishing: boolean;
   isUnpublishing: boolean;
   isFinishing: boolean;
+  publishBlocked?: boolean;
   onEdit: () => void;
   onCancelEdit: () => void;
   onSave: () => void;
@@ -34,6 +35,7 @@ export function EventHeaderActions({
   isPublishing,
   isUnpublishing,
   isFinishing,
+  publishBlocked = false,
   onEdit,
   onCancelEdit,
   onSave,
@@ -66,6 +68,8 @@ export function EventHeaderActions({
           icon={<Globe size={14} />}
           isLoading={isPublishing}
           loadingLabel={t('publishing')}
+          disabled={publishBlocked}
+          title={publishBlocked ? t('publishBlockedLibras') : undefined}
           onClick={onPublish}
         >
           {t('publish')}

@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { usePlatformEventsQuery, useModerateEventMutation } from '../queries/get-platform-directory';
+import { usePlatformEventsQuery, useModerateEventMutation, useApproveAccessibilityMutation } from '../queries/get-platform-directory';
 import type { PlatformEventRow } from '../types/platform-admin.types';
 import { PlatformPageShell } from './PlatformPageShell';
 import table from './PlatformTable.module.scss';
 
 const STATUSES = ['SCHEDULED', 'PUBLISHED', 'LIVE', 'FINISHED', 'CANCELLED', 'DRAFT'];
-const COLS = '2.2fr 1.4fr 0.9fr 1fr auto';
+const COLS = '2fr 1.3fr 0.8fr 0.9fr 1.2fr auto';
 
 function statusBadge(s: string): string {
   if (s === 'LIVE') return table.badgeRed;
@@ -55,7 +55,7 @@ export function PlatformEventsPage() {
       <div className={table.card}>
         <div className={table.scroll}>
           <div className={table.head} style={{ gridTemplateColumns: COLS }}>
-            <span>Evento</span><span>Organização</span><span>Status</span><span>Data</span><span className={table.right}>Ações</span>
+            <span>Evento</span><span>Organização</span><span>Status</span><span>Data</span><span>Acessibilidade</span><span className={table.right}>Ações</span>
           </div>
           {isLoading && <div className={table.empty}>Carregando…</div>}
           {!isLoading && total === 0 && <div className={table.empty}>Nenhum evento para este filtro.</div>}
@@ -66,6 +66,23 @@ export function PlatformEventsPage() {
         )}
       </div>
     </PlatformPageShell>
+  );
+}
+
+function AccessibilityCell({ e }: { e: PlatformEventRow }) {
+  const approve = useApproveAccessibilityMutation();
+  if (!e.publiclyFunded) return <span className={table.mono}>—</span>;
+  if (e.accessibilityApproved) return <span className={`${table.badge} ${table.badgeGreen}`}>Aprovado</span>;
+  if (!e.hasLibrasCamera) return <span className={table.badge} title="Organizador ainda não marcou a Janela de Libras">Sem Libras</span>;
+  return (
+    <button
+      className={table.actionBtn}
+      onClick={() => approve.mutate(e.id)}
+      disabled={approve.isPending}
+      title="Aprovar acessibilidade (NBR 15290)"
+    >
+      {approve.isPending ? '…' : 'Aprovar Libras'}
+    </button>
   );
 }
 
@@ -81,6 +98,7 @@ function EventRow({ e }: { e: PlatformEventRow }) {
       <span className={table.mono}>{e.orgName}</span>
       <span><span className={`${table.badge} ${statusBadge(e.status)}`}>{e.status}</span></span>
       <span className={table.mono}>{fmtDate(e.startsAt)}</span>
+      <span><AccessibilityCell e={e} /></span>
       <span className={table.actions}>
         {confirm ? (
           <>

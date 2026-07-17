@@ -33,7 +33,7 @@ export function CreateEventForm({ onSuccess }: Props) {
 
   const { register, control, handleSubmit, trigger, formState: { errors } } = useForm<CreateEventFormValues>({
     resolver: zodResolver(createEventSchema),
-    defaultValues: { camerasCount: 1, tags: [], format: 'LIVE' },
+    defaultValues: { camerasCount: 1, tags: [], format: 'LIVE', publiclyFunded: false },
   });
 
   const format = useWatch({ control, name: 'format' });

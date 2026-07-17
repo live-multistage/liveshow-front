@@ -35,6 +35,14 @@ export function EventProductionStep({ register, errors, format }: Props) {
         />
         {errors.camerasCount && <p className={styles.error}>{errors.camerasCount.message}</p>}
       </div>
+
+      <label className={styles.checkboxRow}>
+        <input type="checkbox" {...register('publiclyFunded')} />
+        <span className={styles.checkboxText}>
+          <strong>{t('publiclyFundedLabel')}</strong>
+          <span className={styles.checkboxHint}>{t('publiclyFundedHint')}</span>
+        </span>
+      </label>
     </section>
   );
 }

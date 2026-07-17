@@ -10,6 +10,8 @@ import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-
 import { useUpdateEventMutation } from '../../mutations/update-event.mutation';
 import { usePublishEventMutation, useUnpublishEventMutation, useFinishEventMutation } from '../../mutations/publish-event.mutation';
 import { EventHeaderActions } from './EventHeaderActions';
+import { LibrasAccessibilityPanel } from './LibrasAccessibilityPanel';
+import { useAccessibilityQuery } from '../../queries/get-accessibility';
 import { EventEditForm, editSchema } from './EventEditForm';
 import type { EditFormValues } from './EventEditForm';
 import { EventInfoGrid } from './EventInfoGrid';
@@ -41,6 +43,10 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
   const publishMutation = usePublishEventMutation(id);
   const unpublishMutation = useUnpublishEventMutation(id);
   const finishMutation = useFinishEventMutation(id);
+  const { data: accessibility } = useAccessibilityQuery(id, !!event?.publiclyFunded);
+  // Publicly-funded events can't publish until the NBR 15290 gate is satisfied.
+  // Default to blocked while the status is still loading (avoids a 400 round-trip).
+  const publishBlocked = !!event?.publiclyFunded && !accessibility?.publishable;
 
   const { register, control, handleSubmit, reset, formState: { errors } } = useForm<EditFormValues>({
     resolver: zodResolver(editSchema),
@@ -113,6 +119,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
           isPublishing={publishMutation.isPending}
           isUnpublishing={unpublishMutation.isPending}
           isFinishing={finishMutation.isPending}
+          publishBlocked={publishBlocked}
           onEdit={startEditing}
           onCancelEdit={cancelEditing}
           onSave={handleSubmit(onSave)}
@@ -133,6 +140,8 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
       </div>
 
       <div className={styles.body}>
+        {event.publiclyFunded && <LibrasAccessibilityPanel eventId={id} />}
+
         {event.format === 'VOD' && <VodUploadCard eventId={id} />}
 
         {editing ? (
