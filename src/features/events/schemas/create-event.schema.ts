@@ -64,6 +64,7 @@ export const createEventSchema = z
     city: z.string().max(100).optional(),
     country: z.string().max(100).optional(),
     camerasCount: z.coerce.number().int().min(1).max(32).default(1),
+    format: z.enum(['LIVE', 'VOD']).default('LIVE'),
   })
   .refine((d) => new Date(d.endsAt) > new Date(d.startsAt), {
     message: 'Fim deve ser após o início',

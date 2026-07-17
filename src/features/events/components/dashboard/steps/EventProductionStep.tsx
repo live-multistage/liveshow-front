@@ -1,15 +1,25 @@
 import { useTranslations } from 'next-intl';
 import type { UseFormRegister, FieldErrors } from 'react-hook-form';
 import type { CreateEventFormValues } from '../../../schemas/create-event.schema';
+import type { EventFormat } from '../../../types/event.types';
 import styles from '../CreateEventForm.module.scss';
 
 interface Props {
   register: UseFormRegister<CreateEventFormValues>;
   errors: FieldErrors<CreateEventFormValues>;
+  format?: EventFormat;
 }
 
-export function EventProductionStep({ register, errors }: Props) {
+export function EventProductionStep({ register, errors, format }: Props) {
   const t = useTranslations('createEvent.production');
+
+  if (format === 'VOD') {
+    return (
+      <section className={styles.section}>
+        <p className={styles.stepDesc}>{t('vodHint')}</p>
+      </section>
+    );
+  }
 
   return (
     <section className={styles.section}>

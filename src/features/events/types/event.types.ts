@@ -1,5 +1,7 @@
 export type EventStatus = 'DRAFT' | 'PUBLISHED' | 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'CANCELLED';
 
+export type EventFormat = 'LIVE' | 'VOD';
+
 export type ListEventsFilter = 'upcoming' | 'live' | 'finished' | 'all';
 
 export type EventCategory =
@@ -61,6 +63,7 @@ export interface EventResponse {
   country: string | null;
   venueData: VenueData | null;
   visibility: 'PRIVATE' | 'UNLISTED' | 'PUBLIC';
+  format: EventFormat;
   latencyMode: 'STANDARD' | 'LOW';
   domain: 'ENTERTAINMENT' | 'SPORTS' | 'CORPORATE' | 'EDUCATION' | 'RELIGIOUS' | 'OTHER' | null;
   subtype: string | null;
@@ -102,6 +105,7 @@ export interface CreateEventRequest {
   camerasCount?: number;
   domain?: 'ENTERTAINMENT' | 'SPORTS' | 'CORPORATE' | 'EDUCATION' | 'RELIGIOUS' | 'OTHER';
   subtype?: string;
+  format?: EventFormat;
 }
 
 export interface UpdateEventRequest {

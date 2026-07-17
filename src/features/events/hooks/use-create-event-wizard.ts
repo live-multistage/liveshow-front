@@ -79,6 +79,7 @@ export function useCreateEventWizard(onSuccess?: (event: EventResponse) => void)
         city: values.city || undefined,
         country: values.country || undefined,
         camerasCount: values.camerasCount,
+        format: values.format,
       },
       tickets: tickets.map(({ _key: _, ...t }) => t),
     });

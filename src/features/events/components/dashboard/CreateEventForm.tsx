@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
@@ -33,7 +33,7 @@ export function CreateEventForm({ onSuccess }: Props) {
 
   const { register, control, handleSubmit, trigger, formState: { errors } } = useForm<CreateEventFormValues>({
     resolver: zodResolver(createEventSchema),
-    defaultValues: { camerasCount: 1, tags: [] },
+    defaultValues: { camerasCount: 1, tags: [], format: 'LIVE' },
   });
 
   const wizard = useCreateEventWizard(onSuccess);
@@ -42,10 +42,12 @@ export function CreateEventForm({ onSuccess }: Props) {
     streamConfig, setStreamConfig, createdEvent, mutation,
   } = wizard;
 
+  const format = useWatch({ control, name: 'format' });
+
   const stepContent: Record<number, React.ReactNode> = {
     1: <EventInfoStep register={register} errors={errors} orgs={orgs} control={control} />,
     2: <EventLocationStep register={register} errors={errors} control={control} />,
-    3: <EventProductionStep register={register} errors={errors} />,
+    3: <EventProductionStep register={register} errors={errors} format={format} />,
     4: <EventStreamStep value={streamConfig} onChange={setStreamConfig} />,
     5: (
       <EventTicketsStep

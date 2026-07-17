@@ -461,7 +461,10 @@
       "tagsPlaceholder": "Type and press Enter",
       "tagsHint": "Up to 20 tags. Helps position the event in recommendations.",
       "tagsRemove": "Remove tag: {tag}",
-      "noOrgs": "Create an organization before creating events."
+      "noOrgs": "Create an organization before creating events.",
+      "formatLabel": "Format *",
+      "formatLive": "Live",
+      "formatVod": "Video (VOD)"
     },
     "location": {
       "venueLabel": "Venue / Location Name",
@@ -475,7 +478,8 @@
     },
     "production": {
       "hint": "Set how many cameras will be available to the audience during the broadcast.",
-      "camerasLabel": "Number of Cameras *"
+      "camerasLabel": "Number of Cameras *",
+      "vodHint": "Video (VOD) event — camera setup doesn't apply."
     },
     "stream": {
       "hint": "Optional — you can configure this later in Dashboard → Streams.",

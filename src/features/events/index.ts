@@ -17,6 +17,6 @@ export { useListEventsQuery, useInfiniteEventsQuery, LIST_EVENTS_KEY, INFINITE_E
 export { useRecommendedEventsQuery, RECOMMENDED_EVENTS_KEY } from './queries/use-recommended-events';
 export { eventToShow } from './utils/event-adapter';
 export { formatDate, formatTime, formatDuration, formatPrice, formatPriceRange } from './utils/event-formatters';
-export type { EventResponse, EventOrganization, CreateEventRequest, CreateTicketRequest, TicketProductResponse, TicketProductsResponse, AccessCapability, EventStatus, ListEventsFilter, RecommendedEventsResponse, PaginatedEventsResponse } from './types/event.types';
+export type { EventResponse, EventOrganization, CreateEventRequest, CreateTicketRequest, TicketProductResponse, TicketProductsResponse, AccessCapability, EventStatus, EventFormat, ListEventsFilter, RecommendedEventsResponse, PaginatedEventsResponse } from './types/event.types';
 export type { CreateEventFormValues, TicketFormValues } from './schemas/create-event.schema';
 export type { AddedTicket } from './components/dashboard/TicketSection';

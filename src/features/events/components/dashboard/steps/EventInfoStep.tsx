@@ -61,6 +61,14 @@ export function EventInfoStep({ register, errors, orgs, control }: Props) {
       </div>
 
       <div className={styles.field}>
+        <label className={styles.label}>{t('formatLabel')}</label>
+        <select {...register('format')} className={styles.input}>
+          <option value="LIVE">{t('formatLive')}</option>
+          <option value="VOD">{t('formatVod')}</option>
+        </select>
+      </div>
+
+      <div className={styles.field}>
         <label className={styles.label}>{t('descLabel')}</label>
         <textarea
           {...register('description')}
