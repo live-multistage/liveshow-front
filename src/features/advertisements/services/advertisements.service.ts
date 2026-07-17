@@ -7,9 +7,15 @@ import type {
   AdReportResponse,
   ServedAd,
   AdPlacement,
+  AdReviewEntry,
 } from '../types/advertisement.types';
 
 export const advertisementsService = {
+  getReviews: async (id: string): Promise<AdReviewEntry[]> => {
+    const { data } = await httpClient.get<AdReviewEntry[]>(`/ads/${id}/reviews`);
+    return data;
+  },
+
   getOne: async (id: string): Promise<AdResponse> => {
     const { data } = await httpClient.get<AdResponse>(`/ads/${id}`);
     return data;

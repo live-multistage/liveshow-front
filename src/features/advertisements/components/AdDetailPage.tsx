@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronLeft, Pencil, Check, X, Loader2, AlertCircle } from 'lucide-react';
 import { useGetAdQuery } from '../queries/use-get-ad';
 import { useAdReportQuery } from '../queries/use-ad-report';
+import { useAdReviewsQuery } from '../queries/use-ad-reviews';
 import { useChangeAdStatusMutation } from '../mutations/use-change-ad-status.mutation';
 import { useUpdateAdMutation } from '../mutations/use-update-ad.mutation';
 import type {
@@ -21,11 +22,12 @@ import styles from './AdDetailPage.module.scss';
 // ── Constants ──────────────────────────────────────────────────
 
 const STATUS_CFG: Record<AdStatus, { label: string; color: string; bg: string }> = {
-  DRAFT:  { label: 'Rascunho',    color: '#5fb4ff', bg: 'rgba(95,180,255,0.12)' },
-  REVIEW: { label: 'Em revisão',  color: '#bba6ff', bg: 'rgba(187,166,255,0.12)' },
-  ACTIVE: { label: 'Ativo',       color: '#7fe0a0', bg: 'rgba(127,224,160,0.12)' },
-  PAUSED: { label: 'Pausado',     color: '#ffd166', bg: 'rgba(255,209,102,0.12)' },
-  ENDED:  { label: 'Encerrado',   color: '#71717a', bg: 'rgba(113,113,122,0.12)' },
+  DRAFT:    { label: 'Rascunho',    color: '#5fb4ff', bg: 'rgba(95,180,255,0.12)' },
+  REVIEW:   { label: 'Em análise',  color: '#bba6ff', bg: 'rgba(187,166,255,0.12)' },
+  ACTIVE:   { label: 'Aprovado · no ar', color: '#7fe0a0', bg: 'rgba(127,224,160,0.12)' },
+  PAUSED:   { label: 'Pausado',     color: '#ffd166', bg: 'rgba(255,209,102,0.12)' },
+  ENDED:    { label: 'Encerrado',   color: '#71717a', bg: 'rgba(113,113,122,0.12)' },
+  REJECTED: { label: 'Rejeitado',   color: '#ff8f8f', bg: 'rgba(239,68,68,0.12)' },
 };
 
 const FORMAT_LABEL: Record<AdFormat, string> = {
@@ -50,23 +52,25 @@ const DOMAIN_OPTIONS = [
 
 const PLACEMENT_OPTIONS: AdPlacement[] = ['FEED', 'EVENT_DETAIL', 'CHECKOUT', 'POST_PURCHASE'];
 
-const STATUS_FLOW: AdStatus[] = ['DRAFT', 'REVIEW', 'ACTIVE', 'PAUSED', 'ENDED'];
+// Lifecycle shown to the advertiser: rascunho → em análise → aprovado, com
+// rejeitado como ramo lateral que volta pra rascunho ao revisar.
+const STATUS_FLOW: AdStatus[] = ['DRAFT', 'REVIEW', 'ACTIVE'];
 
 type StatusAction = { action: AdStatusAction; label: string; variant: 'primary' | 'secondary' | 'danger' };
 
 function availableActions(status: AdStatus): StatusAction[] {
-  if (status === 'DRAFT')  return [{ action: 'submit',   label: 'Enviar para Revisão', variant: 'primary' }];
-  if (status === 'REVIEW') return [
-    { action: 'activate', label: 'Ativar',     variant: 'primary' },
-    { action: 'end',      label: 'Encerrar',   variant: 'danger' },
-  ];
+  // The org publishes for analysis; it can NEVER approve its own ad — approval
+  // (REVIEW→ACTIVE) belongs to the reviewer / super-admin.
+  if (status === 'DRAFT')    return [{ action: 'submit', label: 'Publicar para análise', variant: 'primary' }];
+  if (status === 'REJECTED') return [{ action: 'submit', label: 'Reenviar para análise', variant: 'primary' }];
+  if (status === 'REVIEW')   return [{ action: 'end', label: 'Retirar da análise', variant: 'danger' }];
   if (status === 'ACTIVE') return [
-    { action: 'pause',    label: 'Pausar',     variant: 'secondary' },
-    { action: 'end',      label: 'Encerrar',   variant: 'danger' },
+    { action: 'pause', label: 'Pausar',   variant: 'secondary' },
+    { action: 'end',   label: 'Encerrar', variant: 'danger' },
   ];
   if (status === 'PAUSED') return [
-    { action: 'activate', label: 'Reativar',   variant: 'primary' },
-    { action: 'end',      label: 'Encerrar',   variant: 'danger' },
+    { action: 'activate', label: 'Reativar', variant: 'primary' },
+    { action: 'end',      label: 'Encerrar', variant: 'danger' },
   ];
   return [];
 }
@@ -142,6 +146,7 @@ interface Props { id: string }
 export function AdDetailPage({ id }: Props) {
   const { data: ad, isLoading, isError } = useGetAdQuery(id);
   const { data: report } = useAdReportQuery(id);
+  const { data: reviews } = useAdReviewsQuery(id, ad?.status === 'REJECTED');
   const changeStatus = useChangeAdStatusMutation(ad?.organizationId);
   const updateAd = useUpdateAdMutation(id, ad?.organizationId);
 
@@ -208,8 +213,10 @@ export function AdDetailPage({ id }: Props) {
 
   const statusCfg = STATUS_CFG[ad.status];
   const actions = availableActions(ad.status);
-  const isEnded = ad.status === 'ENDED';
-  const canEdit = !isEnded;
+  // Match the backend: editable only while DRAFT / PAUSED / REJECTED.
+  const canEdit = ad.status === 'DRAFT' || ad.status === 'PAUSED' || ad.status === 'REJECTED';
+
+  const rejectionReason = reviews?.find((r) => r.outcome === 'REJECT')?.reason ?? null;
 
   const spendPct = ad.totalLimitCents > 0
     ? Math.min(100, (ad.totalSpendCents / ad.totalLimitCents) * 100)
@@ -257,6 +264,18 @@ export function AdDetailPage({ id }: Props) {
           )}
         </div>
       </div>
+
+      {/* Rejection banner — closes the loop: fix per the reason, then resubmit. */}
+      {ad.status === 'REJECTED' && (
+        <div className={styles.rejectBanner} role="alert">
+          <AlertCircle size={18} className={styles.rejectIcon} />
+          <div>
+            <strong>Anúncio rejeitado na análise.</strong>{' '}
+            {rejectionReason ?? 'Sem motivo detalhado.'}{' '}
+            Edite o anúncio e use <b>Reenviar para análise</b> para uma nova revisão.
+          </div>
+        </div>
+      )}
 
       {/* Page header */}
       <div className={styles.pageHeader}>
@@ -501,8 +520,9 @@ export function AdDetailPage({ id }: Props) {
                 ))}
               </div>
               <p className={styles.actionHint}>
-                {ad.status === 'DRAFT' && 'Após envio, o anúncio fica em revisão antes de ser exibido.'}
-                {ad.status === 'REVIEW' && 'Aprovado manualmente — ative para iniciar a veiculação.'}
+                {ad.status === 'DRAFT' && 'Ao publicar, o anúncio entra em análise e só vai ao ar depois de aprovado.'}
+                {ad.status === 'REVIEW' && 'Em análise pela equipe. Você será avisado quando for aprovado ou rejeitado.'}
+                {ad.status === 'REJECTED' && 'Ajuste o anúncio conforme o motivo abaixo e reenvie para uma nova análise.'}
                 {ad.status === 'ACTIVE' && 'Pausar interrompe a veiculação sem encerrar o orçamento.'}
                 {ad.status === 'PAUSED' && 'Reative a qualquer momento dentro do período configurado.'}
               </p>

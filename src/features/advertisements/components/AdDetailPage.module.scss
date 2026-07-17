@@ -592,3 +592,27 @@
   border-radius: 4px;
   padding: 0.3rem 0.625rem;
 }
+
+// ── Rejection banner ──────────────────────────────────────────
+.rejectBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 14px 18px;
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  border-radius: 13px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #f0c9c9;
+
+  strong { color: #ff8f8f; }
+  b { color: #fff; }
+}
+
+.rejectIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #ff8f8f;
+}

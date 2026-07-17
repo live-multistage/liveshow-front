@@ -12,16 +12,17 @@ import type { AdResponse, AdStatus, AdFormat } from '../types/advertisement.type
 
 // ── Display helpers ────────────────────────────────────────────
 
-type DisplayStatus = 'active' | 'paused' | 'review' | 'ended' | 'draft';
+type DisplayStatus = 'active' | 'paused' | 'review' | 'ended' | 'draft' | 'rejected';
 type DisplayFormat = 'h' | 'v';
 
 
 const STATUS_MAP: Record<DisplayStatus, { label: string; color: string }> = {
   active:  { label: 'Ativo',       color: '#7fe0a0' },
   paused:  { label: 'Pausado',     color: '#ffd166' },
-  review:  { label: 'Em revisão',  color: '#bba6ff' },
+  review:  { label: 'Em análise',  color: '#bba6ff' },
   ended:   { label: 'Encerrado',   color: '#71717a' },
   draft:   { label: 'Rascunho',    color: '#5fb4ff' },
+  rejected:{ label: 'Rejeitado',   color: '#ff8f8f' },
 };
 
 const FORMAT_LABEL: Record<AdFormat, { label: string; key: DisplayFormat; preview: string }> = {
@@ -49,6 +50,7 @@ function toDisplayStatus(status: AdStatus): DisplayStatus {
   if (status === 'PAUSED') return 'paused';
   if (status === 'REVIEW') return 'review';
   if (status === 'ENDED') return 'ended';
+  if (status === 'REJECTED') return 'rejected';
   return 'draft';
 }
 
@@ -90,7 +92,7 @@ export function AdvertisementPage() {
   const counts = useMemo(() => ({
     all:    ads.length,
     active: ads.filter((a) => a.status === 'ACTIVE' || a.status === 'REVIEW').length,
-    paused: ads.filter((a) => a.status === 'PAUSED' || a.status === 'DRAFT').length,
+    paused: ads.filter((a) => a.status === 'PAUSED' || a.status === 'DRAFT' || a.status === 'REJECTED').length,
     ended:  ads.filter((a) => a.status === 'ENDED').length,
   }), [ads]);
 
@@ -108,7 +110,7 @@ export function AdvertisementPage() {
     const s = ad.status;
     if (tab === 'all') return true;
     if (tab === 'active') return s === 'ACTIVE' || s === 'REVIEW';
-    if (tab === 'paused') return s === 'PAUSED' || s === 'DRAFT';
+    if (tab === 'paused') return s === 'PAUSED' || s === 'DRAFT' || s === 'REJECTED';
     if (tab === 'ended') return s === 'ENDED';
     return false;
   }

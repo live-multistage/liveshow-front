@@ -1,8 +1,19 @@
-export type AdStatus = 'DRAFT' | 'REVIEW' | 'ACTIVE' | 'PAUSED' | 'ENDED';
+export type AdStatus = 'DRAFT' | 'REVIEW' | 'ACTIVE' | 'PAUSED' | 'ENDED' | 'REJECTED';
 export type AdFormat = 'HORIZONTAL_728x90' | 'VERTICAL_300x600';
 export type AdPlacement = 'FEED' | 'EVENT_DETAIL' | 'CHECKOUT' | 'POST_PURCHASE';
 export type AdBillingModel = 'CPM' | 'CPC';
 export type AdStatusAction = 'submit' | 'activate' | 'pause' | 'end';
+
+// Review history entry for the advertiser (GET /ads/:id/reviews).
+export interface AdReviewEntry {
+  id: string;
+  adId: string;
+  reviewerType: string;
+  outcome: 'APPROVE' | 'REJECT' | 'PENDING' | 'SUBMITTED';
+  reason: string | null;
+  reviewedBy: string;
+  createdAt: string;
+}
 export type FrequencyCapWindow = 'day' | 'total';
 
 export interface AdResponse {
