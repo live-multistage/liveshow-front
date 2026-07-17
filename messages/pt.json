@@ -525,6 +525,7 @@
     "liveView": "Ao Vivo",
     "replayView": "Replay",
     "cameraView": "Câmeras",
+    "vodHint": "Eventos de vídeo vendem apenas acesso ao replay.",
     "camerasLimitLabel": "Limite de Câmeras",
     "camerasLimitPlaceholder": "Vazio = acesso a todas",
     "camerasLimitHint": "Deixe em branco para liberar todas as câmeras. Informe um número para limitar pelo índice de prioridade.",

@@ -6,7 +6,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { ticketSchema, type TicketFormInput, type TicketFormValues } from '../../schemas/create-event.schema';
-import type { CreateTicketRequest, AccessCapability } from '../../types/event.types';
+import type { CreateTicketRequest, AccessCapability, EventFormat } from '../../types/event.types';
 import styles from './TicketSection.module.scss';
 
 interface AddedTicket extends CreateTicketRequest {
@@ -16,10 +16,15 @@ interface AddedTicket extends CreateTicketRequest {
 interface Props {
   tickets: AddedTicket[];
   onChange: (tickets: AddedTicket[]) => void;
+  format?: EventFormat;
 }
 
-export function TicketSection({ tickets, onChange }: Props) {
+export function TicketSection({ tickets, onChange, format }: Props) {
   const t = useTranslations('editTicket');
+  // VOD events can only sell replay access — the backend 400s any other
+  // capability. Lock the form to REPLAY_VIEW instead of letting the user
+  // hit that error after the event was already created.
+  const isVod = format === 'VOD';
 
   const {
     register,
@@ -30,7 +35,13 @@ export function TicketSection({ tickets, onChange }: Props) {
     formState: { errors },
   } = useForm<TicketFormInput, unknown, TicketFormValues>({
     resolver: zodResolver(ticketSchema),
-    defaultValues: { liveView: false, replayView: false, cameraView: false, physicalEntry: false, camerasLimit: undefined },
+    defaultValues: {
+      liveView: false,
+      replayView: isVod,
+      cameraView: false,
+      physicalEntry: false,
+      camerasLimit: undefined,
+    },
   });
 
   const cameraView = useWatch({ control, name: 'cameraView' });
@@ -83,11 +94,14 @@ export function TicketSection({ tickets, onChange }: Props) {
   }
 
   const onAdd = (values: TicketFormValues) => {
-    const capabilities: AccessCapability[] = [];
-    if (values.liveView) capabilities.push('LIVE_VIEW');
-    if (values.replayView) capabilities.push('REPLAY_VIEW');
-    if (values.cameraView) capabilities.push('CAMERA_VIEW');
-    if (values.physicalEntry) capabilities.push('PHYSICAL_ENTRY');
+    const capabilities: AccessCapability[] = isVod
+      ? ['REPLAY_VIEW']
+      : [
+        ...(values.liveView ? ['LIVE_VIEW' as const] : []),
+        ...(values.replayView ? ['REPLAY_VIEW' as const] : []),
+        ...(values.cameraView ? ['CAMERA_VIEW' as const] : []),
+        ...(values.physicalEntry ? ['PHYSICAL_ENTRY' as const] : []),
+      ];
 
     const ticket: AddedTicket = {
       _key: crypto.randomUUID(),
@@ -95,8 +109,8 @@ export function TicketSection({ tickets, onChange }: Props) {
       description: values.description,
       price: values.price,
       capabilities,
-      camerasLimit: values.cameraView ? (values.camerasLimit ?? null) : null,
-      capacity: values.physicalEntry ? (values.capacity ?? null) : null,
+      camerasLimit: !isVod && values.cameraView ? (values.camerasLimit ?? null) : null,
+      capacity: !isVod && values.physicalEntry ? (values.capacity ?? null) : null,
     };
 
     onChange([...tickets, ticket]);
@@ -119,7 +133,7 @@ export function TicketSection({ tickets, onChange }: Props) {
         </button>
       </div>
 
-      {!hasReplayOnly && (
+      {!isVod && !hasReplayOnly && (
         <div className={styles.replayNudge}>
           <div className={styles.replayNudgeIcon}>
             <Sparkles size={16} />
@@ -193,37 +207,47 @@ export function TicketSection({ tickets, onChange }: Props) {
 
       <div className={styles.field}>
         <label className={styles.label}>{t('accessLabel')}</label>
-        <div className={styles.checkboxGroup}>
-          <label className={styles.checkboxLabel}>
-            <input type="checkbox" {...register('liveView')} className={styles.checkbox} />
-            <span>{t('liveView')}</span>
-          </label>
-          <label className={styles.checkboxLabel}>
-            <input type="checkbox" {...register('replayView')} className={styles.checkbox} />
-            <span>{t('replayView')}</span>
-          </label>
-          <label className={styles.checkboxLabel}>
-            <input type="checkbox" {...register('cameraView')} className={styles.checkbox} />
-            <span>{t('cameraView')}</span>
-          </label>
-          <label
-            className={styles.checkboxLabel}
-            title={canPhysical ? undefined : 'Requer Ao vivo ou Reprise'}
-          >
-            <input
-              type="checkbox"
-              {...register('physicalEntry')}
-              className={styles.checkbox}
-              disabled={!canPhysical}
-            />
-            <span>Acesso presencial</span>
-          </label>
-        </div>
+        {isVod ? (
+          <div className={styles.checkboxGroup}>
+            <label className={styles.checkboxLabel} title={t('vodHint')}>
+              <input type="checkbox" checked disabled className={styles.checkbox} />
+              <span>{t('replayView')}</span>
+            </label>
+          </div>
+        ) : (
+          <div className={styles.checkboxGroup}>
+            <label className={styles.checkboxLabel}>
+              <input type="checkbox" {...register('liveView')} className={styles.checkbox} />
+              <span>{t('liveView')}</span>
+            </label>
+            <label className={styles.checkboxLabel}>
+              <input type="checkbox" {...register('replayView')} className={styles.checkbox} />
+              <span>{t('replayView')}</span>
+            </label>
+            <label className={styles.checkboxLabel}>
+              <input type="checkbox" {...register('cameraView')} className={styles.checkbox} />
+              <span>{t('cameraView')}</span>
+            </label>
+            <label
+              className={styles.checkboxLabel}
+              title={canPhysical ? undefined : 'Requer Ao vivo ou Reprise'}
+            >
+              <input
+                type="checkbox"
+                {...register('physicalEntry')}
+                className={styles.checkbox}
+                disabled={!canPhysical}
+              />
+              <span>Acesso presencial</span>
+            </label>
+          </div>
+        )}
+        {isVod && <p className={styles.inputHint}>{t('vodHint')}</p>}
         {errors.liveView && <p className={styles.error}>{errors.liveView.message}</p>}
         {errors.physicalEntry && <p className={styles.error}>{errors.physicalEntry.message}</p>}
       </div>
 
-      {cameraView && (
+      {!isVod && cameraView && (
         <div className={styles.field}>
           <label className={styles.label}>{t('camerasLimitLabel')}</label>
           <input
@@ -239,7 +263,7 @@ export function TicketSection({ tickets, onChange }: Props) {
         </div>
       )}
 
-      {physicalEntry && (
+      {!isVod && physicalEntry && (
         <div className={styles.field}>
           <label className={styles.label}>Capacidade do local</label>
           <input

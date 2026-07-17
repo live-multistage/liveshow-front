@@ -36,25 +36,27 @@ export function CreateEventForm({ onSuccess }: Props) {
     defaultValues: { camerasCount: 1, tags: [], format: 'LIVE' },
   });
 
-  const wizard = useCreateEventWizard(onSuccess);
+  const format = useWatch({ control, name: 'format' });
+
+  const wizard = useCreateEventWizard(format, onSuccess);
   const {
     step, setStep, tickets, setTickets, ticketsError,
     streamConfig, setStreamConfig, createdEvent, mutation,
   } = wizard;
 
-  const format = useWatch({ control, name: 'format' });
-
   const stepContent: Record<number, React.ReactNode> = {
     1: <EventInfoStep register={register} errors={errors} orgs={orgs} control={control} />,
     2: <EventLocationStep register={register} errors={errors} control={control} />,
     3: <EventProductionStep register={register} errors={errors} format={format} />,
-    4: <EventStreamStep value={streamConfig} onChange={setStreamConfig} />,
+    // VOD events skip this step entirely (see useCreateEventWizard advance/back).
+    4: format === 'VOD' ? null : <EventStreamStep value={streamConfig} onChange={setStreamConfig} />,
     5: (
       <EventTicketsStep
         tickets={tickets}
         onTicketsChange={setTickets}
         ticketsError={ticketsError}
         mutationError={mutation.error?.message ?? null}
+        format={format}
       />
     ),
   };
@@ -62,7 +64,7 @@ export function CreateEventForm({ onSuccess }: Props) {
   if (step === 6 && createdEvent) {
     return (
       <>
-        <CreateEventStepper current={6} />
+        <CreateEventStepper current={6} format={format} />
         <EventPhotoUploader event={createdEvent} onDone={wizard.finish} />
       </>
     );
@@ -70,7 +72,7 @@ export function CreateEventForm({ onSuccess }: Props) {
 
   return (
     <div className={styles.wizard}>
-      <CreateEventStepper current={step} onNavigate={setStep} />
+      <CreateEventStepper current={step} format={format} onNavigate={setStep} />
 
       <div className={styles.layout}>
         <form onSubmit={handleSubmit(wizard.submit)} className={styles.form}>

@@ -5,7 +5,7 @@ import type { UseFormTrigger } from 'react-hook-form';
 import { useCreateEventMutation } from '../mutations/create-event.mutation';
 import { streamsService } from '@/features/streams/services/streams.service';
 import type { CreateEventFormValues } from '../schemas/create-event.schema';
-import type { EventResponse } from '../types/event.types';
+import type { AccessCapability, EventFormat, EventResponse } from '../types/event.types';
 import type { AddedTicket } from '../components/dashboard/TicketSection';
 import { emptyStreamConfig } from '../components/dashboard/steps/EventStreamStep';
 import type { StreamConfig } from '../components/dashboard/steps/EventStreamStep';
@@ -33,7 +33,7 @@ async function createStreamStructure(eventId: string, cfg: StreamConfig) {
   }
 }
 
-export function useCreateEventWizard(onSuccess?: (event: EventResponse) => void) {
+export function useCreateEventWizard(format: EventFormat, onSuccess?: (event: EventResponse) => void) {
   const [step, setStep] = useState(1);
   const [tickets, setTickets] = useState<AddedTicket[]>([]);
   const [ticketsError, setTicketsError] = useState<string | null>(null);
@@ -41,23 +41,27 @@ export function useCreateEventWizard(onSuccess?: (event: EventResponse) => void)
   const [streamConfig, setStreamConfig] = useState<StreamConfig>(emptyStreamConfig);
 
   const mutation = useCreateEventMutation(async (event) => {
-    try {
-      await createStreamStructure(event.id, streamConfig);
-    } catch {
-      // stream creation is best-effort; user can finish setup in dashboard
+    if (format !== 'VOD') {
+      try {
+        await createStreamStructure(event.id, streamConfig);
+      } catch {
+        // stream creation is best-effort; user can finish setup in dashboard
+      }
     }
     setCreatedEvent(event);
     setStep(6);
   });
 
+  // VOD events skip step 4 (stream topology) entirely — it has nothing to
+  // configure and the backend rejects non-REPLAY_VIEW tickets for VOD anyway.
   async function advance(trigger: UseFormTrigger<CreateEventFormValues>) {
     const fields = STEP_FIELDS[step];
     if (fields && fields.length > 0 && !(await trigger(fields))) return;
-    setStep((s) => s + 1);
+    setStep((s) => (format === 'VOD' && s + 1 === 4 ? 5 : s + 1));
   }
 
   function back() {
-    setStep((s) => s - 1);
+    setStep((s) => (format === 'VOD' && s - 1 === 4 ? 3 : s - 1));
   }
 
   function submit(values: CreateEventFormValues) {
@@ -66,6 +70,19 @@ export function useCreateEventWizard(onSuccess?: (event: EventResponse) => void)
       return;
     }
     setTicketsError(null);
+    // Defense in depth: the tickets step locks capabilities to REPLAY_VIEW
+    // for VOD, but format can change (user navigates back to step 1) after
+    // tickets were added — never let a non-REPLAY_VIEW ticket reach the
+    // backend for a VOD event, since that 400s after the event is created.
+    const submittedTickets = format === 'VOD'
+      ? tickets.map(({ _key: _, ...t }) => ({
+        ...t,
+        capabilities: ['REPLAY_VIEW'] as AccessCapability[],
+        camerasLimit: null,
+        capacity: null,
+      }))
+      : tickets.map(({ _key: _, ...t }) => t);
+
     mutation.mutate({
       event: {
         organizationId: values.organizationId,
@@ -81,7 +98,7 @@ export function useCreateEventWizard(onSuccess?: (event: EventResponse) => void)
         camerasCount: values.camerasCount,
         format: values.format,
       },
-      tickets: tickets.map(({ _key: _, ...t }) => t),
+      tickets: submittedTickets,
     });
   }
 
