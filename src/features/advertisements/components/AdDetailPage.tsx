@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, Pencil, Check, X, Loader2, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
+import { ChevronLeft, Pencil, Check, X, Loader2, AlertCircle, ImagePlus } from 'lucide-react';
 import { useGetAdQuery } from '../queries/use-get-ad';
 import { useAdReportQuery } from '../queries/use-ad-report';
 import { useAdReviewsQuery } from '../queries/use-ad-reviews';
 import { useChangeAdStatusMutation } from '../mutations/use-change-ad-status.mutation';
 import { useUpdateAdMutation } from '../mutations/use-update-ad.mutation';
+import { useUploadBannerMutation } from '../mutations/use-upload-banner.mutation';
 import type {
   AdResponse,
   AdStatus,
@@ -149,6 +151,21 @@ export function AdDetailPage({ id }: Props) {
   const { data: reviews } = useAdReviewsQuery(id, ad?.status === 'REJECTED');
   const changeStatus = useChangeAdStatusMutation(ad?.organizationId);
   const updateAd = useUpdateAdMutation(id, ad?.organizationId);
+  const uploadBanner = useUploadBannerMutation(id);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const MAX_BANNER_BYTES = 5 * 1024 * 1024;
+  function onPickBanner(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-picking the same file
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return toast.error('Envie um arquivo de imagem.');
+    if (file.size > MAX_BANNER_BYTES) return toast.error('Imagem muito grande (máx. 5 MB).');
+    uploadBanner.mutate(file, {
+      onSuccess: () => toast.success('Imagem atualizada.'),
+      onError: () => toast.error('Não foi possível enviar a imagem.'),
+    });
+  }
 
   const [editing, setEditing] = useState(false);
   const [edit, setEdit] = useState<EditState | null>(null);
@@ -279,8 +296,30 @@ export function AdDetailPage({ id }: Props) {
 
       {/* Page header */}
       <div className={styles.pageHeader}>
-        <div className={styles.adPreviewThumb} style={{ background: gradientFor(ad.id) }}>
-          <span className={styles.thumbLabel}>{ad.format === 'HORIZONTAL_728x90' ? '728×90' : '300×600'}</span>
+        <div
+          className={`${styles.adPreviewThumb} ${canEdit ? styles.adPreviewEditable : ''}`}
+          style={ad.bannerUrl ? undefined : { background: gradientFor(ad.id) }}
+          onClick={canEdit ? () => fileRef.current?.click() : undefined}
+          role={canEdit ? 'button' : undefined}
+          tabIndex={canEdit ? 0 : undefined}
+          onKeyDown={canEdit ? (e) => { if (e.key === 'Enter' || e.key === ' ') fileRef.current?.click(); } : undefined}
+          aria-label={canEdit ? 'Adicionar ou trocar imagem do anúncio' : undefined}
+        >
+          {ad.bannerUrl
+            ? <img src={ad.bannerUrl} alt={ad.title} className={styles.thumbImg} />
+            : <span className={styles.thumbLabel}>{ad.format === 'HORIZONTAL_728x90' ? '728×90' : '300×600'}</span>}
+          {canEdit && (
+            <span className={`${styles.thumbOverlay} ${!ad.bannerUrl || uploadBanner.isPending ? styles.thumbOverlayVisible : ''}`}>
+              {uploadBanner.isPending ? <Loader2 size={16} className={styles.btnSpinner} /> : <ImagePlus size={16} />}
+            </span>
+          )}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={onPickBanner}
+          />
         </div>
         <div className={styles.pageHeaderMeta}>
           <div className={styles.pageHeaderTop}>
