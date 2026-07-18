@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useMyEventsQuery } from '@/features/events/queries/get-my-events';
 import { useEventStreamsQuery } from '../queries/streams.queries';
+import { useOnAirCamera } from '../queries/ingest.queries';
+import { formatElapsed } from '../utils/format-elapsed';
 import { useCreateStreamMutation } from '../mutations/stream.mutations';
 import { StreamCard } from './StreamCard';
 import { StreamBuilder } from './StreamBuilder';
@@ -13,26 +15,25 @@ import type { StreamResponse } from '../types/stream.types';
 import styles from './StreamsPageContent.module.scss';
 
 // ── Live timer ─────────────────────────────────────────────────────
-function useLiveTimer(active: boolean) {
-  const [seconds, setSeconds] = useState(0);
-  const ref = useRef<ReturnType<typeof setInterval> | null>(null);
-
+// Ticks every second so the elapsed clock re-renders; the value itself is
+// derived from the real on-air start (formatElapsed), not a page-load counter.
+function useLiveClock(startedAt: string | null | undefined) {
+  const [nowMs, setNowMs] = useState(() => Date.now());
   useEffect(() => {
-    if (!active) { setSeconds(0); return; }
-    ref.current = setInterval(() => setSeconds((s) => s + 1), 1000);
-    return () => { if (ref.current) clearInterval(ref.current); };
-  }, [active]);
-
-  const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-  const s = String(seconds % 60).padStart(2, '0');
-  return `${h}:${m}:${s}`;
+    if (!startedAt) return;
+    const id = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [startedAt]);
+  return formatElapsed(startedAt, nowMs);
 }
 
 // ── Stats strip ───────────────────────────────────────────────────
 function StatsStrip({ stream }: { stream: StreamResponse }) {
   const isLive = stream.status === 'LIVE';
-  const timer  = useLiveTimer(isLive);
+  // The clock counts from when a camera actually went on air (RUNNING transcode
+  // job startedAt), NOT from stream status or page open. No on-air camera → dash.
+  const { onAir } = useOnAirCamera(stream.id, isLive);
+  const timer = useLiveClock(onAir?.startedAt);
 
   return (
     <div className={styles.statsStrip}>
@@ -42,7 +43,7 @@ function StatsStrip({ stream }: { stream: StreamResponse }) {
           <span className={isLive ? styles.liveDot : styles.offlineDot} />
           {isLive ? 'AO VIVO' : 'OFFLINE'}
         </div>
-        <div className={styles.statValue}>{isLive ? timer : '—'}</div>
+        <div className={styles.statValue}>{onAir ? timer : '—'}</div>
       </div>
       <div className={styles.statCard}>
         <div className={styles.statLabel}>ESPECTADORES</div>

@@ -54,6 +54,9 @@ export interface OnAirCamera {
   cameraName: string;
   stageName: string;
   packageId: string;
+  // When the transcode job went RUNNING — the real "on air since" timestamp
+  // that drives the live clock (not page-open time).
+  startedAt: string | null;
 }
 
 // Walks this stream's stages → feeds → cameras and returns the first camera
@@ -107,7 +110,7 @@ export function useOnAirCamera(streamId: string | null, enabled: boolean): {
   jobQueries.forEach((q, i) => {
     if (onAir || !q.data || q.data.status !== 'RUNNING') return;
     const cam = cameras[i];
-    onAir = { cameraId: cam.id, cameraName: cam.name, stageName: cam.stageName, packageId: q.data.packageId };
+    onAir = { cameraId: cam.id, cameraName: cam.name, stageName: cam.stageName, packageId: q.data.packageId, startedAt: q.data.startedAt };
   });
 
   const isLoading =
