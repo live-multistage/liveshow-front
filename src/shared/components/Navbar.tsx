@@ -14,9 +14,13 @@ import {
 } from '@/shared/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
 import { useTranslations } from 'next-intl';
-import { useAuth, useAuthCheck } from '@/features/account';
-import { NotificationsDropdown } from '@/features/notifications';
-import { useCartCount } from '@/features/cart';
+// Direct paths, NOT feature barrels: importing from '@/features/account' etc.
+// drags every re-export (LoginForm/RegisterForm → react-hook-form) into the
+// Navbar's chunk, which the root layout loads on every page (perf: TBT).
+import { useAuth } from '@/features/account/hooks/use-auth';
+import { useAuthCheck } from '@/features/account/hooks/use-auth-check';
+import { NotificationsDropdown } from '@/features/notifications/components/NotificationsDropdown';
+import { useCartCount } from '@/features/cart/hooks/use-cart-count';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { Logo } from './Logo';
 import styles from './Navbar.module.scss';
@@ -60,7 +64,7 @@ export function Navbar() {
       <div className={styles.navInner}>
         <div className={styles.leftSection}>
           <Link href="/" className={styles.logo}>
-            <Logo size={22} wordmarkClassName={styles.logoText} />
+            <Logo size={22} wordmarkClassName={styles.logoText} color="#ff2e9e" />
           </Link>
 
           <div className={styles.desktopNav}>

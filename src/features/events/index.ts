@@ -2,7 +2,7 @@ export { ShowCard } from './components/public/ShowCard';
 export { EventsListPageContent } from './components/public/EventsListPageContent';
 export { EventDetailPageContent } from './components/public/EventDetailPageContent';
 export { HomePageContent } from './components/public/HomePageContent';
-export { EditorialHomeContent } from './components/public/EditorialHomeContent';
+export { EditorialHome } from './components/public/EditorialHome';
 
 export { CreateEventForm } from './components/dashboard/CreateEventForm';
 export { CreateEventPageContent } from './components/dashboard/CreateEventPageContent';
