@@ -14,7 +14,7 @@ export function useRevenueBreakdownQuery(range: '7d' | '30d' | '90d') {
   });
 }
 
-export function usePlatformEventsQuery(params: { status?: string; q?: string; page?: number }) {
+export function usePlatformEventsQuery(params: { status?: string; moderation?: string; q?: string; page?: number }) {
   return useQuery({
     queryKey: ['platform-admin', 'events', params] as const,
     queryFn: () => platformAdminService.getPlatformEvents(params),

@@ -135,7 +135,7 @@ export const platformAdminService = {
     return data;
   },
 
-  getPlatformEvents: async (params: { status?: string; q?: string; page?: number }): Promise<PlatformEventsResult> => {
+  getPlatformEvents: async (params: { status?: string; moderation?: string; q?: string; page?: number }): Promise<PlatformEventsResult> => {
     const { data } = await httpClient.get<PlatformEventsResult>('/platform-admin/events', { params });
     return data;
   },

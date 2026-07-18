@@ -1,12 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { usePlatformEventsQuery, useModerateEventMutation, useApproveAccessibilityMutation } from '../queries/get-platform-directory';
+import { usePlatformEventsQuery, useApproveAccessibilityMutation } from '../queries/get-platform-directory';
 import type { PlatformEventRow } from '../types/platform-admin.types';
 import { PlatformPageShell } from './PlatformPageShell';
+import { EventDetailDrawer } from './EventDetailDrawer';
 import table from './PlatformTable.module.scss';
 
-const STATUSES = ['SCHEDULED', 'PUBLISHED', 'LIVE', 'FINISHED', 'CANCELLED', 'DRAFT'];
+// Filter chips (mirrors the organization directory). Each maps to a status or
+// a moderation-seal filter; TODOS clears both.
+const FILTERS: { key: string; label: string; status?: string; moderation?: string }[] = [
+  { key: 'ALL', label: 'Todos' },
+  { key: 'DRAFT', label: 'Rascunho', status: 'DRAFT' },
+  { key: 'PUBLISHED', label: 'Publicados', status: 'PUBLISHED' },
+  { key: 'SCHEDULED', label: 'Agendados', status: 'SCHEDULED' },
+  { key: 'LIVE', label: 'Ao vivo', status: 'LIVE' },
+  { key: 'FINISHED', label: 'Finalizados', status: 'FINISHED' },
+  { key: 'CANCELLED', label: 'Cancelados', status: 'CANCELLED' },
+  { key: 'REJECTED', label: 'Rejeitados', moderation: 'REJECTED' },
+];
 const COLS = '1.8fr 1.1fr 0.7fr 0.8fr 1.05fr 0.85fr auto';
 
 function statusBadge(s: string): string {
@@ -23,11 +35,18 @@ function fmtDate(iso: string): string {
 
 // D1 — Diretório de eventos (moderação global cross-org).
 export function PlatformEventsPage() {
-  const [status, setStatus] = useState('');
+  const [filterKey, setFilterKey] = useState('ALL');
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
+  const [detailRow, setDetailRow] = useState<PlatformEventRow | null>(null);
 
-  const { data, isLoading } = usePlatformEventsQuery({ status: status || undefined, q: q || undefined, page });
+  const active = FILTERS.find((f) => f.key === filterKey) ?? FILTERS[0];
+  const { data, isLoading } = usePlatformEventsQuery({
+    status: active.status,
+    moderation: active.moderation,
+    q: q || undefined,
+    page,
+  });
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / (data?.limit ?? 20)));
 
@@ -35,7 +54,7 @@ export function PlatformEventsPage() {
     <PlatformPageShell
       group="PLATAFORMA · MODERAÇÃO"
       title="Diretório de eventos"
-      subtitle="Todos os eventos da plataforma. Despublicar volta ao rascunho; cancelar remove do ar. Ambos auditados."
+      subtitle="Todos os eventos da plataforma. Publique, despublique, aprove ou rejeite; abra um evento para ver todos os detalhes."
       actions={
         <div className={table.filters}>
           <input
@@ -45,13 +64,25 @@ export function PlatformEventsPage() {
             onChange={(e) => { setQ(e.target.value); setPage(1); }}
             aria-label="Buscar eventos"
           />
-          <select className={table.filter} value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} aria-label="Status">
-            <option value="">Todos os status</option>
-            {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
         </div>
       }
     >
+      <div className={table.chips}>
+        {FILTERS.map((f) => {
+          const on = f.key === filterKey;
+          return (
+            <button
+              key={f.key}
+              className={on ? `${table.chip} ${table.chipActive}` : table.chip}
+              onClick={() => { setFilterKey(f.key); setPage(1); }}
+            >
+              {f.label.toUpperCase()}
+              {on && data && <span className={`${table.chipCount} ${table.chipCountActive}`}>{total}</span>}
+            </button>
+          );
+        })}
+      </div>
+
       <div className={table.card}>
         <div className={table.scroll}>
           <div className={table.head} style={{ gridTemplateColumns: COLS }}>
@@ -59,12 +90,14 @@ export function PlatformEventsPage() {
           </div>
           {isLoading && <div className={table.empty}>Carregando…</div>}
           {!isLoading && total === 0 && <div className={table.empty}>Nenhum evento para este filtro.</div>}
-          {data?.items.map((e) => <EventRow key={e.id} e={e} />)}
+          {data?.items.map((e) => <EventRow key={e.id} e={e} onOpen={() => setDetailRow(e)} />)}
         </div>
         {total > 0 && (
           <Pager page={page} totalPages={totalPages} total={total} limit={data?.limit ?? 20} onPage={setPage} />
         )}
       </div>
+
+      {detailRow && <EventDetailDrawer event={detailRow} onClose={() => setDetailRow(null)} />}
     </PlatformPageShell>
   );
 }
@@ -100,70 +133,19 @@ function ModerationSeal({ e }: { e: PlatformEventRow }) {
   return <span className={table.mono}>—</span>;
 }
 
-function EventRow({ e }: { e: PlatformEventRow }) {
-  const [confirm, setConfirm] = useState<'CANCEL' | null>(null);
-  const [rejecting, setRejecting] = useState(false);
-  const [reason, setReason] = useState('');
-  const moderate = useModerateEventMutation(() => { setConfirm(null); setRejecting(false); setReason(''); });
-
-  const canPublish = e.status === 'DRAFT';
-  const canUnpublish = e.status === 'SCHEDULED' || e.status === 'PUBLISHED';
-  const canCancel = e.status !== 'FINISHED' && e.status !== 'CANCELLED';
-  const canApprove = e.moderationStatus !== 'APPROVED';
-  const busy = moderate.isPending;
-
+function EventRow({ e, onOpen }: { e: PlatformEventRow; onOpen: () => void }) {
   return (
     <div className={table.row} style={{ gridTemplateColumns: COLS }}>
-      <span className={table.primary}>{e.title}</span>
+      <span className={table.primary}>
+        <button className={table.primaryLink} onClick={onOpen}>{e.title}</button>
+      </span>
       <span className={table.mono}>{e.orgName}</span>
       <span><span className={`${table.badge} ${statusBadge(e.status)}`}>{e.status}</span></span>
       <span className={table.mono}>{fmtDate(e.startsAt)}</span>
       <span><AccessibilityCell e={e} /></span>
       <span><ModerationSeal e={e} /></span>
       <span className={table.actions}>
-        {rejecting ? (
-          <>
-            <input
-              className={table.search}
-              placeholder="Motivo da rejeição…"
-              value={reason}
-              onChange={(ev) => setReason(ev.target.value)}
-              aria-label="Motivo da rejeição"
-              autoFocus
-            />
-            <button
-              className={`${table.actionBtn} ${table.actionDanger}`}
-              onClick={() => moderate.mutate({ id: e.id, action: 'REJECT', reason: reason.trim() })}
-              disabled={busy || !reason.trim()}
-            >
-              {busy ? '…' : 'Rejeitar'}
-            </button>
-            <button className={table.actionBtn} onClick={() => { setRejecting(false); setReason(''); }}>Cancelar</button>
-          </>
-        ) : confirm === 'CANCEL' ? (
-          <>
-            <button
-              className={`${table.actionBtn} ${table.actionDanger}`}
-              onClick={() => moderate.mutate({ id: e.id, action: 'CANCEL' })}
-              disabled={busy}
-            >
-              {busy ? '…' : 'Confirmar remoção'}
-            </button>
-            <button className={table.actionBtn} onClick={() => setConfirm(null)}>Cancelar</button>
-          </>
-        ) : (
-          <>
-            {canPublish && (
-              <button className={table.actionBtn} onClick={() => moderate.mutate({ id: e.id, action: 'PUBLISH' })} disabled={busy}>Publicar</button>
-            )}
-            {canUnpublish && (
-              <button className={table.actionBtn} onClick={() => moderate.mutate({ id: e.id, action: 'UNPUBLISH' })} disabled={busy}>Despublicar</button>
-            )}
-            <button className={table.actionBtn} onClick={() => moderate.mutate({ id: e.id, action: 'APPROVE' })} disabled={busy || !canApprove}>Aprovar</button>
-            <button className={table.actionBtn} onClick={() => setRejecting(true)} disabled={busy}>Rejeitar</button>
-            <button className={`${table.actionBtn} ${table.actionDanger}`} onClick={() => setConfirm('CANCEL')} disabled={!canCancel}>Remover</button>
-          </>
-        )}
+        <button className={table.actionBtn} onClick={onOpen}>Detalhes</button>
       </span>
     </div>
   );

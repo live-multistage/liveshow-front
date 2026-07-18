@@ -198,3 +198,63 @@
   font-weight: 700;
   letter-spacing: -.02em;
 }
+
+// ─── Filter chips (mirrors the organization directory) ───────────
+.chips {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  padding: 8px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, .08);
+  background: #101013;
+  color: #c7c7cd;
+
+  &:hover { border-color: rgba(255, 46, 158, .35); }
+}
+
+.chipActive {
+  background: rgba(255, 46, 158, .1);
+  border-color: #ff2e9e;
+  color: #fff;
+
+  &:hover { border-color: #ff2e9e; }
+}
+
+.chipCount {
+  background: rgba(255, 255, 255, .06);
+  color: #c7c7cd;
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+
+.chipCountActive {
+  background: #ff2e9e;
+  color: #0a0a0b;
+}
+
+// Clickable event title in a directory row.
+.primaryLink {
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+
+  &:hover { color: #ff7ec2; text-decoration: underline; }
+}
