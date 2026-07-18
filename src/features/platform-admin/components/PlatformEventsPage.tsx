@@ -38,7 +38,7 @@ export function PlatformEventsPage() {
   const [filterKey, setFilterKey] = useState('ALL');
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
-  const [detailRow, setDetailRow] = useState<PlatformEventRow | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   const active = FILTERS.find((f) => f.key === filterKey) ?? FILTERS[0];
   const { data, isLoading } = usePlatformEventsQuery({
@@ -49,6 +49,10 @@ export function PlatformEventsPage() {
   });
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / (data?.limit ?? 20)));
+  // Derive the open row from the live query so a moderation/accessibility
+  // action (which invalidates & refetches the list) updates the drawer too —
+  // a captured row object would stay stale.
+  const detailRow = detailId ? data?.items.find((e) => e.id === detailId) ?? null : null;
 
   return (
     <PlatformPageShell
@@ -90,14 +94,14 @@ export function PlatformEventsPage() {
           </div>
           {isLoading && <div className={table.empty}>Carregando…</div>}
           {!isLoading && total === 0 && <div className={table.empty}>Nenhum evento para este filtro.</div>}
-          {data?.items.map((e) => <EventRow key={e.id} e={e} onOpen={() => setDetailRow(e)} />)}
+          {data?.items.map((e) => <EventRow key={e.id} e={e} onOpen={() => setDetailId(e.id)} />)}
         </div>
         {total > 0 && (
           <Pager page={page} totalPages={totalPages} total={total} limit={data?.limit ?? 20} onPage={setPage} />
         )}
       </div>
 
-      {detailRow && <EventDetailDrawer event={detailRow} onClose={() => setDetailRow(null)} />}
+      {detailRow && <EventDetailDrawer event={detailRow} onClose={() => setDetailId(null)} />}
     </PlatformPageShell>
   );
 }
