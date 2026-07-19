@@ -14,4 +14,5 @@ const isLanBrowser =
 export const config = {
   apiUrl: isLanBrowser ? '/api' : rawApiUrl,
   appName: 'Liveshow',
+  adsManagerUrl: process.env.NEXT_PUBLIC_ADS_MANAGER_URL ?? 'http://localhost:3002',
 } as const;

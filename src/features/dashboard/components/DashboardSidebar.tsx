@@ -33,13 +33,16 @@ export function DashboardSidebar() {
       <nav className={styles.nav}>
         {navItems.map((item, i) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+          const isExternal = item.href.startsWith('http');
+          const isActive = !isExternal && (pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)));
           const showGroup = item.group && item.group !== navItems[i - 1]?.group;
           return (
             <div key={item.href}>
               {showGroup && <div className={styles.navSectionLabel}>{item.group}</div>}
               <Link
                 href={item.href}
+                target={isExternal ? '_blank' : undefined}
+                rel={isExternal ? 'noopener noreferrer' : undefined}
                 className={`${styles.navItem} ${isActive ? styles.active : ''}`}
               >
                 <Icon size={18} className={styles.navIcon} />

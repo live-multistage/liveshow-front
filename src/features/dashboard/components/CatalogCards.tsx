@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { CalendarDays, Megaphone, Ticket } from 'lucide-react';
 import { useCatalogSummaryQuery } from '@/features/platform-admin/queries/get-catalog';
+import { config } from '@/config';
 import styles from './SuperAdminDashboard.module.scss';
 
 function compact(n: number): string {
@@ -18,7 +19,7 @@ export function CatalogCards() {
 
   const cards = [
     {
-      icon: CalendarDays, title: 'Eventos', tag: 'CATÁLOGO GLOBAL', href: '/dashboard/events', cta: 'Abrir eventos',
+      icon: CalendarDays, title: 'Eventos', tag: 'CATÁLOGO GLOBAL', href: '/dashboard/events', external: false, cta: 'Abrir eventos',
       stats: [
         { label: 'Publicados', value: compact(data?.events.published ?? 0), color: '#c7c7cd' },
         { label: 'Ao vivo', value: compact(data?.events.live ?? 0), color: '#EF4444' },
@@ -26,7 +27,7 @@ export function CatalogCards() {
       ],
     },
     {
-      icon: Megaphone, title: 'Anúncios', tag: 'ADVERTISEMENTS', href: '/dashboard/advertisement', cta: 'Gerenciar campanhas',
+      icon: Megaphone, title: 'Anúncios', tag: 'ADVERTISEMENTS', href: config.adsManagerUrl, external: true, cta: 'Gerenciar campanhas',
       stats: [
         { label: 'Ativos', value: compact(data?.ads.active ?? 0), color: '#c7c7cd' },
         { label: 'Impressões (30d)', value: compact(data?.ads.impressions30d ?? 0), color: '#c7c7cd' },
@@ -34,7 +35,7 @@ export function CatalogCards() {
       ],
     },
     {
-      icon: Ticket, title: 'Cupons', tag: 'GLOBAL · POR ORG', href: '/dashboard/coupons', cta: 'Ver cupons',
+      icon: Ticket, title: 'Cupons', tag: 'GLOBAL · POR ORG', href: '/dashboard/coupons', external: false, cta: 'Ver cupons',
       stats: [
         { label: 'Ativos', value: compact(data?.coupons.active ?? 0), color: '#c7c7cd' },
         { label: 'Resgates (30d)', value: compact(data?.coupons.redemptions30d ?? 0), color: '#7fe0a0' },
@@ -64,7 +65,11 @@ export function CatalogCards() {
                 </div>
               ))}
             </div>
-            <Link href={c.href} className={styles.catalogCta}>{c.cta} →</Link>
+            {c.external ? (
+              <a href={c.href} target="_blank" rel="noopener noreferrer" className={styles.catalogCta}>{c.cta} →</a>
+            ) : (
+              <Link href={c.href} className={styles.catalogCta}>{c.cta} →</Link>
+            )}
           </div>
         );
       })}

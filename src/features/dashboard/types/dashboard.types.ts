@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import type { UserRole } from '@/types';
 import { PendingOrgsBadge } from '@/features/platform-admin/components/PendingOrgsBadge';
+import { config } from '@/config';
 
 export interface NavItem {
   navKey: string;
@@ -39,7 +40,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'coupons',        href: '/dashboard/coupons',        icon: Ticket },
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
-    { navKey: 'advertisement',  href: '/dashboard/advertisement',  icon: Megaphone },
+    { navKey: 'advertisement',  href: config.adsManagerUrl,        icon: Megaphone },
   ],
   ORGANIZER: [
     { navKey: 'overview',       href: '/dashboard',                icon: LayoutDashboard },
@@ -49,7 +50,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'coupons',        href: '/dashboard/coupons',        icon: Ticket },
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
-    { navKey: 'advertisement',  href: '/dashboard/advertisement',  icon: Megaphone },
+    { navKey: 'advertisement',  href: config.adsManagerUrl,        icon: Megaphone },
   ],
   ARTIST: [
     { navKey: 'overview',       href: '/dashboard',                icon: LayoutDashboard },
