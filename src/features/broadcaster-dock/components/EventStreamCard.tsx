@@ -1,8 +1,6 @@
 'use client';
 
-import { Badge } from '@/shared/components/ui/badge';
-import { Card } from '@/shared/components/ui/card';
-import { cn } from '@/shared/components/ui/utils';
+import { Badge, Card, cn } from '@live-show/design-system';
 import styles from './Dock.module.scss';
 
 interface StatusBadge {

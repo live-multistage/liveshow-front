@@ -4,15 +4,7 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutGrid, ShoppingCart } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/shared/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
+import { Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Logo } from '@live-show/design-system';
 import { useTranslations } from 'next-intl';
 // Direct paths, NOT feature barrels: importing from '@/features/account' etc.
 // drags every re-export (LoginForm/RegisterForm → react-hook-form) into the
@@ -22,7 +14,6 @@ import { useAuthCheck } from '@/features/account/hooks/use-auth-check';
 import { NotificationsDropdown } from '@/features/notifications/components/NotificationsDropdown';
 import { useCartCount } from '@/features/cart/hooks/use-cart-count';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { Logo } from './Logo';
 import styles from './Navbar.module.scss';
 
 function getInitials(name: string) {

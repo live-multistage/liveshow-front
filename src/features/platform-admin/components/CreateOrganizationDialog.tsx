@@ -4,15 +4,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Building2, Check, X, Loader2 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/shared/components/ui/dialog';
-import { Button } from '@/shared/components/ui/button';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@live-show/design-system';
 import { organizationService } from '@/features/organizations/services/organization.service';
 import { useCreateOrganizationMutation } from '../mutations/create-organization.mutation';
 import { createOrganizationSchema, type CreateOrganizationFormValues } from '../schemas/create-organization.schema';

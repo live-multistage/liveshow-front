@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { ArrowLeft, Building2, Users, SlidersHorizontal, Ban, Archive, RotateCcw } from 'lucide-react';
-import { Button } from '@/shared/components/ui/button';
+import { Button } from '@live-show/design-system';
 import { OrganizationStatusBadge } from './OrganizationStatusBadge';
 import { ApproveOrgDialog } from './ApproveOrgDialog';
 import { RejectOrgDialog } from './RejectOrgDialog';

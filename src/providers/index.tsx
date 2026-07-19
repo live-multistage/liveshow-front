@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { isServer, QueryClient, QueryClientProvider, HydrationBoundary, type DehydratedState } from '@tanstack/react-query';
 import { captureAttribution } from '@/lib/analytics/attribution';
-import { Toaster } from '@/shared/components/ui/sonner';
+import { Toaster } from '@live-show/design-system';
 import { NavigationEvents } from '@/shared/components/NavigationEvents';
 import { NavigationOverlay } from '@/shared/components/NavigationOverlay';
 import { AuthProvider } from '@/features/account/context/AuthProvider';

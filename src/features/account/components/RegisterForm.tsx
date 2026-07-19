@@ -7,9 +7,7 @@ import { useTranslations } from 'next-intl';
 import { registerSchema, type RegisterFormValues } from '../schemas/register.schema';
 import { useRegisterMutation } from '../mutations/use-register.mutation';
 import { config } from '@/config';
-import { Input } from '@/shared/components/ui/input';
-import { Button } from '@/shared/components/ui/button';
-import { Label } from '@/shared/components/ui/label';
+import { Button, Input, Label } from '@live-show/design-system';
 import { MarketingPanel } from './MarketingPanel';
 import styles from './RegisterForm.module.scss';
 

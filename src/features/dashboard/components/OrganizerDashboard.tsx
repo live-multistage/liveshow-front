@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { PlusIcon } from 'lucide-react';
-import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Skeleton } from '@live-show/design-system';
 import { Button } from '@/shared/components/Button';
 import { useNavigate } from '@/shared/hooks/use-navigate';
 import { EventDashboardCard } from '@/features/events';

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { Show } from '@/features/events/types/show';
 import { ShowCard } from '@/features/events';
-import { Chip } from '@/shared/components/ui/chip';
+import { Chip } from '@live-show/design-system';
 import { Carousel } from '../Carousel/Carousel';
 import styles from './ShowsSection.module.scss';
 

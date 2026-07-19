@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from '@/shared/components/ui/dropdown-menu';
+} from '@live-show/design-system';
 import { OrganizationStatusBadge } from './OrganizationStatusBadge';
 import { CreateOrganizationDialog } from './CreateOrganizationDialog';
 import { ApproveOrgDialog } from './ApproveOrgDialog';

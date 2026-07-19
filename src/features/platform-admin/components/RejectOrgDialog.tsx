@@ -2,15 +2,7 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/shared/components/ui/dialog';
-import { Button } from '@/shared/components/ui/button';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@live-show/design-system';
 import { useRejectOrganizationMutation } from '../mutations/reject-organization.mutation';
 import type { PlatformOrganization } from '../types/platform-admin.types';
 import styles from './ReviewOrgDialog.module.scss';

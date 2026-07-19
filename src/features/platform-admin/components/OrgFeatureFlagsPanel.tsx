@@ -1,7 +1,7 @@
 'use client';
 
 import { toast } from 'sonner';
-import { Switch } from '@/shared/components/ui/switch';
+import { Switch } from '@live-show/design-system';
 import { useOrgFeatureFlagsQuery } from '../queries/get-org-feature-flags';
 import { useSetOrgFeatureFlagMutation } from '../mutations/set-org-feature-flag.mutation';
 import styles from './OrgFeatureFlagsPanel.module.scss';

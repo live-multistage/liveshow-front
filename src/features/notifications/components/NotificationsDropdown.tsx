@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Bell } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@live-show/design-system';
 import { useNotificationsQuery, useUnreadCountQuery } from '../queries/get-notifications';
 import { useMarkAllAsReadMutation, useMarkAsReadMutation } from '../mutations/mark-as-read.mutation';
 import type { NotificationResponse } from '../types/notification.types';

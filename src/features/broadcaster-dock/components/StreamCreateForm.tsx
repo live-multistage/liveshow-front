@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import { useCreateStreamMutation } from '@/features/streams/mutations/stream.mutations';
 import type { StreamResponse } from '@/features/streams/types/stream.types';
-import { Input } from '@/shared/components/ui/input';
-import { Label } from '@/shared/components/ui/label';
-import { Button } from '@/shared/components/ui/button';
+import { Button, Input, Label } from '@live-show/design-system';
 import styles from './Dock.module.scss';
 
 interface StreamCreateFormProps {

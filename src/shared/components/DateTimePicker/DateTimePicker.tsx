@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { ptBR } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Popover, PopoverTrigger, PopoverContent } from '@/shared/components/ui/popover';
+import { Popover, PopoverTrigger, PopoverContent } from '@live-show/design-system';
 import { ScrollWheelPicker } from './ScrollWheelPicker';
 import styles from './DateTimePicker.module.scss';
 import 'react-day-picker/dist/style.css';

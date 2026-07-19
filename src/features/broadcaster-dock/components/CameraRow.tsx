@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { Settings, Video } from 'lucide-react';
-import { Button } from '@/shared/components/ui/button';
+import { Button } from '@live-show/design-system';
 import styles from './Dock.module.scss';
 import {
   useCameraOutputStatusQuery,

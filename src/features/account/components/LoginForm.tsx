@@ -7,10 +7,7 @@ import { useTranslations } from 'next-intl';
 import { loginSchema, type LoginFormValues } from '../schemas/login.schema';
 import { useLoginMutation } from '../mutations/use-login.mutation';
 import { config } from '@/config';
-import { Input } from '@/shared/components/ui/input';
-import { Button } from '@/shared/components/ui/button';
-import { Checkbox } from '@/shared/components/ui/checkbox';
-import { Label } from '@/shared/components/ui/label';
+import { Button, Checkbox, Input, Label } from '@live-show/design-system';
 import { MarketingPanel } from './MarketingPanel';
 import styles from './LoginForm.module.scss';
 

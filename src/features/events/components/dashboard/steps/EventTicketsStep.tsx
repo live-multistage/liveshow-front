@@ -1,5 +1,5 @@
 import { TicketSection, type AddedTicket } from '../TicketSection';
-import { Checkbox } from '@/shared/components/ui/checkbox';
+import { Checkbox } from '@live-show/design-system';
 import type { EventFormat } from '../../../types/event.types';
 import styles from '../CreateEventForm.module.scss';
 

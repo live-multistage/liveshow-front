@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from '@/shared/components/ui/dropdown-menu';
+} from '@live-show/design-system';
 import { useAuth } from '@/features/account';
 import { RolePill, ROLE_COLORS, hexToRgba } from './RolePill';
 import { useSearchUsersQuery } from '../queries/search-users';

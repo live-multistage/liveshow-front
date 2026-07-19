@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from '@/shared/components/ui/dropdown-menu';
+} from '@live-show/design-system';
 import { RolePill, ROLE_COLORS } from './RolePill';
 import { AddOrgMemberDialog } from './AddOrgMemberDialog';
 import { useOrganizationMembersQuery } from '../queries/get-organization-members';

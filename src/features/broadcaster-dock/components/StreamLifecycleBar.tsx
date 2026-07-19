@@ -3,8 +3,7 @@
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Badge } from '@/shared/components/ui/badge';
-import { Button } from '@/shared/components/ui/button';
+import { Badge, Button } from '@live-show/design-system';
 import styles from './Dock.module.scss';
 import { STATUS_LABEL } from '@/features/streams/components/StreamCard';
 import {

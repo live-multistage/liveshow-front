@@ -5,9 +5,7 @@ import { ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { useStageFeedsQuery } from '@/features/streams/queries/streams.queries';
 import { useCreateFeedMutation, useDeleteFeedMutation } from '@/features/streams/mutations/feed.mutations';
 import type { StageResponse } from '@/features/streams/types/stream.types';
-import { Button } from '@/shared/components/ui/button';
-import { Input } from '@/shared/components/ui/input';
-import { Card } from '@/shared/components/ui/card';
+import { Button, Card, Input } from '@live-show/design-system';
 import styles from './Dock.module.scss';
 import { FeedRow } from './FeedRow';
 

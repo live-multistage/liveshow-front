@@ -4,15 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { UserPlus } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/shared/components/ui/dialog';
-import { Button } from '@/shared/components/ui/button';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@live-show/design-system';
 import { useAddOrgMemberMutation } from '../mutations/add-org-member.mutation';
 import { addOrgMemberSchema, type AddOrgMemberFormValues } from '../schemas/add-org-member.schema';
 import styles from './AddOrgMemberDialog.module.scss';

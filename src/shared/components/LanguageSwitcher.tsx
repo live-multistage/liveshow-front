@@ -12,7 +12,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/shared/components/ui/select';
+} from '@live-show/design-system';
 import styles from './LanguageSwitcher.module.scss';
 
 export function LanguageSwitcher() {

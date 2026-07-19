@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Logo } from '@/shared/components/Logo';
+import { Logo } from '@live-show/design-system';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account';
 import { NotificationsDropdown } from '@/features/notifications';

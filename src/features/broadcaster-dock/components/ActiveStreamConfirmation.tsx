@@ -4,7 +4,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { eventsService } from '@/features/events/services/events.service';
 import { useEventStreamsQuery } from '@/features/streams/queries/streams.queries';
-import { Button } from '@/shared/components/ui/button';
+import { Button } from '@live-show/design-system';
 import styles from './Dock.module.scss';
 import { StreamLifecycleBar } from './StreamLifecycleBar';
 import { StageFeedManager } from './StageFeedManager';

@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useListEventsQuery, eventToShow } from '@/features/events';
-import { Logo } from '@/shared/components/Logo';
+import { Logo } from '@live-show/design-system';
 import styles from './MarketingPanel.module.scss';
 
 export function MarketingPanel() {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Building2, Users, Radio, CalendarDays, Ticket, DollarSign, AlertTriangle } from 'lucide-react';
-import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Skeleton } from '@live-show/design-system';
 import {
   usePlatformOverviewQuery,
   type OverviewRange,

@@ -1,5 +1,5 @@
 import { DashboardGuard, DashboardSidebar } from '@/features/dashboard';
-import { Toaster } from '@/shared/components/ui/sonner';
+import { Toaster } from '@live-show/design-system';
 import styles from './layout.module.scss';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

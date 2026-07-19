@@ -4,8 +4,7 @@ import { z } from 'zod';
 import { Controller } from 'react-hook-form';
 import type { UseFormRegister, FieldErrors, Control } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { SimpleCustomSelect } from '@/shared/components/ui/custom-select';
-import { Checkbox } from '@/shared/components/ui/checkbox';
+import { Checkbox, SimpleCustomSelect } from '@live-show/design-system';
 import styles from './EventDashboardDetailContent.module.scss';
 
 export const editSchema = z.object({

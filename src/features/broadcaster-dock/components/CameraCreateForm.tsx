@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useCreateCameraMutation } from '@/features/streams/mutations/camera.mutations';
-import { Input } from '@/shared/components/ui/input';
-import { Button } from '@/shared/components/ui/button';
+import { Button, Input } from '@live-show/design-system';
 import styles from './Dock.module.scss';
 
 type CallVendorRequest = (requestType: string, requestData?: Record<string, unknown>) => Promise<Record<string, unknown>>;

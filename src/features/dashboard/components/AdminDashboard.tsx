@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useNavigate } from '@/shared/hooks/use-navigate';
 import { useTranslations } from 'next-intl';
-import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Skeleton } from '@live-show/design-system';
 import { EventDashboardCard } from '@/features/events';
 import { useDashboardStats } from '../hooks/use-dashboard-stats';
 import { DashboardCharts } from './DashboardCharts';
