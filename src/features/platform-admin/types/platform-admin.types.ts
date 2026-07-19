@@ -1,3 +1,7 @@
+import type { AdDestination } from '@/features/advertisements/types/advertisement.types';
+
+export type { AdDestination };
+
 export type OrganizationStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED' | 'REJECTED';
 
 export interface PlatformOrganization {
@@ -221,8 +225,9 @@ export interface AdReviewRecord {
 export interface AdDetail {
   ad: {
     id: string;
-    organizationId: string;
-    eventId: string | null;
+    advertiserAccountId: string;
+    /** null = legacy ad predating destinations. */
+    destination: AdDestination | null;
     title: string;
     format: string;
     status: string;

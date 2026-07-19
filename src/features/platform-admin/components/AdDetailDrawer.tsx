@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { X, Check, Ban } from 'lucide-react';
 import { useAdDetailQuery, useReviewAdMutation } from '../queries/get-platform-directory';
-import type { AdReviewRecord } from '../types/platform-admin.types';
+import type { AdDestination, AdReviewRecord } from '../types/platform-admin.types';
 import { brlCompact } from '../utils/format';
 import styles from './AdDetailDrawer.module.scss';
 
@@ -69,8 +70,8 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
             <dl className={styles.fields}>
               <Field label="Status" value={ad.status} />
               <Field label="Formato" value={FORMAT_LABEL[ad.format] ?? ad.format} />
-              <Field label="Organização" value={orgName ?? ad.organizationId} />
-              <Field label="Evento vinculado" value={ad.eventId ?? '— (avulso)'} />
+              <Field label="Organização" value={orgName ?? ad.advertiserAccountId} />
+              <DestinationField destination={ad.destination} />
             </dl>
 
             <div className={styles.sectionLabel}>Segmentação</div>
@@ -152,6 +153,26 @@ function Field({ label, value, wide }: { label: string; value: string; wide?: bo
     <div className={`${styles.field} ${wide ? styles.fieldWide : ''}`}>
       <dt className={styles.fieldLabel}>{label}</dt>
       <dd className={styles.fieldValue}>{value}</dd>
+    </div>
+  );
+}
+
+// Lets the reviewer inspect the landing page before approving: EVENT opens the
+// internal event page, EXTERNAL_URL opens the (untrusted) sponsor URL in a new
+// tab, and a legacy ad (destination === null) is flagged instead of dead-ending.
+function DestinationField({ destination }: { destination: AdDestination | null }) {
+  return (
+    <div className={styles.field}>
+      <dt className={styles.fieldLabel}>Destino</dt>
+      <dd className={styles.fieldValue}>
+        {destination === null && <span className={styles.legacyBadge}>sem destino (legado)</span>}
+        {destination?.type === 'EXTERNAL_URL' && (
+          <a href={destination.url} target="_blank" rel="noopener noreferrer">{destination.url}</a>
+        )}
+        {destination?.type === 'EVENT' && (
+          <Link href={`/events/${destination.eventId}`}>Ver evento →</Link>
+        )}
+      </dd>
     </div>
   );
 }

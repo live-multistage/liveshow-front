@@ -121,6 +121,26 @@
   font-size: 13.5px;
   color: #e7e7ea;
   word-break: break-word;
+
+  a {
+    color: #5fb4ff;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+    &:focus-visible { outline: 2px solid #ff2e9e; outline-offset: 2px; }
+  }
+}
+
+.legacyBadge {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  padding: 2px 8px;
+  border-radius: 5px;
+  color: #ffd166;
+  background: rgba(255, 209, 102, .12);
+  border: 1px solid rgba(255, 209, 102, .3);
 }
 
 .reviewBox {
