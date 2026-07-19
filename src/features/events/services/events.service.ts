@@ -48,6 +48,13 @@ export const eventsService = {
     return data;
   },
 
+  // Toggle free access. Marking free removes any paid ticket products and
+  // creates a single "Acesso Gratuito" product (backend enforces both).
+  setFreeStatus: async (eventId: string, isFree: boolean): Promise<{ id: string; isFree: boolean }> => {
+    const { data } = await httpClient.patch<{ id: string; isFree: boolean }>(`/shows/${eventId}/free-status`, { isFree });
+    return data;
+  },
+
   updateTicketProduct: async (eventId: string, ticketId: string, payload: UpdateTicketRequest): Promise<TicketProductResponse> => {
     const { data } = await httpClient.put<TicketProductResponse>(`/shows/${eventId}/tickets/${ticketId}`, payload);
     return data;

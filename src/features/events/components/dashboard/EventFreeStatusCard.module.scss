@@ -1,0 +1,36 @@
+@use '../../../../styles/_variables' as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid $border;
+  border-radius: 0.75rem;
+  background: $surface-dark;
+}
+
+.head {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  color: $text-primary;
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: $text-secondary;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #c0392b;
+}

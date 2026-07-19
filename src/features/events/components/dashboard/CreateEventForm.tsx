@@ -40,7 +40,7 @@ export function CreateEventForm({ onSuccess }: Props) {
 
   const wizard = useCreateEventWizard(format, onSuccess);
   const {
-    step, setStep, tickets, setTickets, ticketsError,
+    step, setStep, tickets, setTickets, isFree, setIsFree, ticketsError,
     streamConfig, setStreamConfig, createdEvent, mutation,
   } = wizard;
 
@@ -54,6 +54,8 @@ export function CreateEventForm({ onSuccess }: Props) {
       <EventTicketsStep
         tickets={tickets}
         onTicketsChange={setTickets}
+        isFree={isFree}
+        onIsFreeChange={setIsFree}
         ticketsError={ticketsError}
         mutationError={mutation.error?.message ?? null}
         format={format}

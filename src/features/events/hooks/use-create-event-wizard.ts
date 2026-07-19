@@ -36,6 +36,7 @@ async function createStreamStructure(eventId: string, cfg: StreamConfig) {
 export function useCreateEventWizard(format: EventFormat, onSuccess?: (event: EventResponse) => void) {
   const [step, setStep] = useState(1);
   const [tickets, setTickets] = useState<AddedTicket[]>([]);
+  const [isFree, setIsFree] = useState(false);
   const [ticketsError, setTicketsError] = useState<string | null>(null);
   const [createdEvent, setCreatedEvent] = useState<EventResponse | null>(null);
   const [streamConfig, setStreamConfig] = useState<StreamConfig>(emptyStreamConfig);
@@ -65,7 +66,9 @@ export function useCreateEventWizard(format: EventFormat, onSuccess?: (event: Ev
   }
 
   function submit(values: CreateEventFormValues) {
-    if (tickets.length === 0) {
+    // Free events skip paid tickets — the backend creates the "Acesso Gratuito"
+    // product. Only require a ticket when the event is paid.
+    if (!isFree && tickets.length === 0) {
       setTicketsError('Adicione ao menos um ingresso');
       return;
     }
@@ -100,7 +103,8 @@ export function useCreateEventWizard(format: EventFormat, onSuccess?: (event: Ev
         latencyMode: values.latencyMode,
         publiclyFunded: values.publiclyFunded,
       },
-      tickets: submittedTickets,
+      tickets: isFree ? [] : submittedTickets,
+      isFree,
     });
   }
 
@@ -114,6 +118,8 @@ export function useCreateEventWizard(format: EventFormat, onSuccess?: (event: Ev
     setStep,
     tickets,
     setTickets,
+    isFree,
+    setIsFree,
     ticketsError,
     streamConfig,
     setStreamConfig,

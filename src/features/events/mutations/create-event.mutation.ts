@@ -8,14 +8,21 @@ import type { CreateEventRequest, CreateTicketRequest, EventResponse } from '../
 interface CreateEventWithTicketsPayload {
   event: CreateEventRequest;
   tickets: CreateTicketRequest[];
+  isFree?: boolean;
 }
 
 export function useCreateEventMutation(onSuccess?: (event: EventResponse) => void) {
   return useMutation<EventResponse, AppError, CreateEventWithTicketsPayload>({
-    mutationFn: async ({ event, tickets }) => {
+    mutationFn: async ({ event, tickets, isFree }) => {
       try {
         const created = await eventsService.create(event);
-        await Promise.all(tickets.map((t) => eventsService.createTicket(created.id, t)));
+        // Free event: one system-managed "Acesso Gratuito" product, no paid
+        // tickets. Otherwise create the paid tickets the organizer added.
+        if (isFree) {
+          await eventsService.setFreeStatus(created.id, true);
+        } else {
+          await Promise.all(tickets.map((t) => eventsService.createTicket(created.id, t)));
+        }
         return created;
       } catch (err) {
         throw normalizeError(err);

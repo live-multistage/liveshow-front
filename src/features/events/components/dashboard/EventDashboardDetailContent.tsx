@@ -11,6 +11,7 @@ import { useUpdateEventMutation } from '../../mutations/update-event.mutation';
 import { usePublishEventMutation, useUnpublishEventMutation, useFinishEventMutation } from '../../mutations/publish-event.mutation';
 import { EventHeaderActions } from './EventHeaderActions';
 import { LibrasAccessibilityPanel } from './LibrasAccessibilityPanel';
+import { EventFreeStatusCard } from './EventFreeStatusCard';
 import { useAccessibilityQuery } from '../../queries/get-accessibility';
 import { EventEditForm, editSchema } from './EventEditForm';
 import type { EditFormValues } from './EventEditForm';
@@ -166,6 +167,10 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
               <p className={styles.description}>{event.description}</p>
             </div>
           </>
+        )}
+
+        {!editing && event.format !== 'VOD' && (
+          <EventFreeStatusCard eventId={id} isFree={event.isFree} ticketCount={tickets.length} />
         )}
 
         {!editing && <EventTicketList tickets={tickets} />}
