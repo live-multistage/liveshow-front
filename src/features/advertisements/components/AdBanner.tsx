@@ -67,7 +67,7 @@ export function AdBanner({ placement, className }: Props) {
 
       <div className={styles.content}>
         <p className={styles.adTitle}>{ad.title}</p>
-        {ad.eventId && (
+        {ad.destination && (
           <span className={styles.cta}>SAIBA MAIS →</span>
         )}
       </div>
@@ -82,10 +82,10 @@ export function AdBanner({ placement, className }: Props) {
     </>
   );
 
-  if (ad.eventId) {
+  if (ad.destination?.type === 'EVENT') {
     return (
       <Link
-        href={`/events/${ad.eventId}`}
+        href={`/events/${ad.destination.eventId}`}
         className={bannerClassName}
         style={{ background: bg }}
         onClick={handleClick}
@@ -93,6 +93,22 @@ export function AdBanner({ placement, className }: Props) {
       >
         {content}
       </Link>
+    );
+  }
+
+  if (ad.destination?.type === 'EXTERNAL_URL') {
+    return (
+      <a
+        href={ad.destination.url}
+        target="_blank"
+        rel="noopener sponsored"
+        className={bannerClassName}
+        style={{ background: bg }}
+        onClick={handleClick}
+        aria-label={`Anúncio: ${ad.title}`}
+      >
+        {content}
+      </a>
     );
   }
 

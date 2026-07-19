@@ -97,11 +97,15 @@ export interface AdReportResponse {
   dailyBreakdown: AdDailyBreakdown[];
 }
 
+export type AdDestination =
+  | { type: 'EVENT'; eventId: string }
+  | { type: 'EXTERNAL_URL'; url: string };
+
 export interface ServedAd {
   adId: string;
   title: string;
   format: string;
-  organizationId: string;
-  eventId: string | null;
+  advertiserAccountId: string;
+  destination: AdDestination | null;
   bannerUrl: string | null;
 }
