@@ -1,6 +1,8 @@
-# LIVESHOW — Design System
+# LIVESHOW — Design System (as built)
 
-Bold, energetic live-streaming brand. Near-black canvas, electric magenta accent, monospaced technical labels paired with a heavy grotesque display face. Motion is used sparingly but pointedly (pulsing "live" dots) to signal that something is happening *right now*.
+Bold, energetic live-streaming brand. Near-black canvas, electric magenta accent, monospaced technical labels paired with the Archivo grotesque display face. Motion is used sparingly but pointedly (pulsing "live" dots) to signal that something is happening *right now*.
+
+> This documents the design **as actually implemented** in `live-show-react` and the shared `@live-show/design-system` package — the real tokens, fonts, radii, and project conventions. It is the source of truth; where an older mockup spec disagreed (16px cards, invented `--ink`/`--accent-soft` names, inline-styles-only), reality wins.
 
 ---
 
@@ -9,128 +11,106 @@ Bold, energetic live-streaming brand. Near-black canvas, electric magenta accent
 | | |
 |---|---|
 | **Personality** | Energetic, broadcast, live-event hype. Dark, cinematic, confident. |
-| **Logomark** | 5-bar audio waveform (rounded bars, ascending-descending) + `LIVESHOW` wordmark in Space Mono, `letter-spacing: .18em`. |
-| **Voice** | Direct, Portuguese-first (PT-BR). Short mono labels in UPPERCASE (`AO VIVO`, `EM DESTAQUE`, `VER TODOS →`). |
+| **Logomark** | 5-bar audio waveform (rounded bars) + `LIVESHOW` wordmark in Space Mono, `letter-spacing: .18em`. A panel badge may follow it (`ADS`, `Studio`, `ADMIN`). |
+| **Voice** | Portuguese-first (PT-BR). Short mono labels in UPPERCASE (`AO VIVO`, `EM DESTAQUE`, `VER TODOS →`). |
 
 ---
 
-## 2. Color
+## 2. Tokens — two systems, both real
 
-### Core
-| Token | Hex | Use |
+The codebase carries **two token layers**. Use the right one for the context.
+
+### A. SCSS variables — `src/styles/_variables.scss`
+Consumed by hand-written **SCSS Modules** via `@use '…/styles/_variables' as *`. This is what you use in feature styles.
+
+| Token | Value | Use |
 |---|---|---|
-| `--bg` | `#08080a` | Page background (near-black) |
-| `--surface` | `#101013` | Cards, panels |
-| `--surface-alt` | `#0b0b0d` | Sidebar, nav bars, recessed strips |
-| `--ink` | `#f4f4f5` | Primary text |
-| `--ink-2` | `#b9b9c0` | Secondary text |
-| `--ink-3` | `#8f8f97` | Muted / meta text |
-| `--ink-4` | `#7d7d85` · `#6f6f77` | Labels, axis ticks, disabled |
+| `$bg` | `#08080a` | Page background |
+| `$surface` / `$surface-card` | `#101013` | Cards, panels |
+| `$surface-dark` | `#0b0b0d` | Sidebar, recessed strips, input backgrounds |
+| `$accent` | `#1a0a12` | Tinted magenta-black wash (not a text color) |
+| `$action` | `#ff2e9e` | Primary CTA, active state, live, links |
+| `$action-dim` / `$action-bg` | `rgba(255,46,158,.14)` / `.12` | Magenta tints |
+| `$violet` | `#9810fa` | Scheduled state / secondary data viz |
+| `$text-primary` | `#FFFFFF` | Primary text |
+| `$text-secondary` (`$muted`, `$text-label`) | `#A1A1AA` | Secondary / labels |
+| `$text-muted` | `#71717A` | Muted / meta |
+| `$white-50` | `rgba(255,255,255,.5)` | Faint overlays |
+| `$border` | `#27272A` | Card / divider hairline |
+| `$bg-hover` | `#1f1f23` | Hover fill |
+| `$error` / `$error-bg` | `#F87171` / `rgba(248,113,113,.12)` | Errors (never magenta) |
+| `$danger` / `$danger-bg` | `#EF4444` / `rgba(239,68,68,.12)` | Destructive |
+| `$success` / `$success-light` / `$success-bg` | `#16A34A` / `#4ADE80` / `rgba(22,163,74,.1)` | Success |
+| `$price` | `#FB64B6` | Prices |
+| Breakpoints | `$sm 640px` · `$md 768px` · `$lg 1024px` | Media queries |
 
-### Accent — Magenta
-| Token | Hex | Use |
-|---|---|---|
-| `--accent` | `#ff2e9e` | Primary CTA, active state, live indicator, links |
-| `--accent-bright` | `#ff5fb4` · `#ff7ec2` | Hover text, live badge text |
-| `--accent-soft` | `#ff8ec9` · `#ffa6d4` · `#ffb3da` | Eyebrow labels on dark imagery |
-| `--accent-ink` | `#0a0a0b` | Text/icon **on** magenta fills |
+### B. CSS custom properties — `:root` in `src/styles/globals.scss`
+Consumed by the **`@live-show/design-system` primitives** (shadcn lineage: Button, Card, Input, Badge, …) via `var(--*)`. Don't hand-author these values in modules — reference the SCSS tokens instead; edit `:root` only to reskin the primitives.
 
-### Secondary (data viz & event art only — never UI chrome)
-`#9b7bff` violet · `#ff7a4d`/`#ff5a4d` coral · `#46d6d8` cyan · `#7fe0a0` green
+| Var | Value | | Var | Value |
+|---|---|---|---|---|
+| `--background` | `#08080a` | | `--muted` | `#27272a` |
+| `--foreground` | `#f4f4f5` | | `--muted-foreground` | `#b9b9c0` |
+| `--card` / `--popover` | `#101013` | | `--accent` | `#1a0a12` |
+| `--primary` | `#ff2e9e` | | `--destructive` | `#ef4444` |
+| `--primary-foreground` | `#0a0a0b` | | `--border` / `--input` | `rgba(255,255,255,.07)` |
+| `--secondary` | `#101013` | | `--input-background` | `#0b0b0d` |
+| `--ring` | `#ff2e9e` | | `--radius` | `0.5rem` (8px) |
+| `--sidebar` | `#0b0b0d` | | `--sidebar-primary` | `#ff2e9e` |
+| `--sidebar-border` | `rgba(255,255,255,.07)` | | `--chart-1…5` | magenta · `#9b7bff` · `#ff7a4d` · `#46d6d8` · `#7fe0a0` |
 
-### Lines & overlays
-- Hairline border: `rgba(255,255,255,.07)` (default), `rgba(255,255,255,.1)` (chips)
-- Hover border: `rgba(255,46,158,.3–.4)`
-- Image scrim: `linear-gradient(to top, rgba(5,4,6,.92) 8%, rgba(5,4,6,.15) 55%, transparent)`
-- Card glow: `radial-gradient(circle, rgba(255,46,158,.18–.25), transparent 70%)` placed off the top-right corner
+**Reconcile the small drifts, on purpose:** `$text-primary #FFFFFF` vs `--foreground #f4f4f5`; `$border #27272A` (module hairline) vs `--border rgba(255,255,255,.07)` (primitive/sidebar hairline). Both are in use — pick by layer (SCSS module → `$*`; primitive reskin → `--*`).
 
 ---
 
 ## 3. Typography
 
-Two families only.
+Two families, loaded via a Google Fonts `<link>` in `src/app/layout.tsx`:
+`Archivo` (400–900) + `Space Mono` (400/700). Body font is **Archivo** (`globals.scss`).
 
 | Role | Family | Notes |
 |---|---|---|
-| **Display / UI** | `Archivo` | 700–900 for headings, 500–600 for body/nav. Tight tracking on big type: `letter-spacing: -.02em` to `-.045em`. |
-| **Mono / labels** | `Space Mono` | All caps, `letter-spacing: .05em–.18em`. Eyebrows, badges, prices, metadata, axis ticks, the wordmark. |
+| **Display / UI / body** | `Archivo` | 700–900 headings, 400–600 body/nav. Tight tracking on big type (`-.02em` to `-.045em`). |
+| **Mono / labels / titles** | `Space Mono` | UPPERCASE, `letter-spacing .05–.18em`. Eyebrows, badges, prices, metadata, table headers, the wordmark — and page/section titles on data screens (e.g. the advertisements pages). |
 
-### Scale (px)
-| Use | Size / weight |
-|---|---|
-| Hero display | 58–108 / 800–900 |
-| Page / section title | 28–32 / 800 |
-| Card title | 13.5–22 / 700–800 |
-| Body | 13–15 / 400–600 |
-| Mono label | 10–13 / 700, uppercase |
-| Big stat number | 42 / 800, `letter-spacing: -.03em` |
-
-Headings use `-webkit-font-smoothing: antialiased`. Long titles in cards: `white-space: nowrap; overflow: hidden; text-overflow: ellipsis`.
+Approx scale: page title 24–32 / 700–800 · card title 13.5–18 / 700 · body 13–15 / 400–600 · mono label 10–13 / 700 uppercase · big stat 28–42 / 700–800. Headings use `-webkit-font-smoothing: antialiased`; long card titles ellipsize (`nowrap; overflow:hidden; text-overflow:ellipsis`).
 
 ---
 
-## 4. Spacing, radius & shadow
+## 4. Spacing, radius, elevation
 
-- **Radii:** pill `999px` (buttons, chips, status pills) · cards `16px` · media tiles `16–18px` · small badges `6–8px`.
-- **Card padding:** `18–20px`. **Nav/section padding:** `26–40px`.
+- **Radius:** base `--radius: 0.5rem` (8px). In practice — inputs/buttons ~`6–8px`, cards ~`10px`, small badges `6–8px`, pills (`999px`) for chips / status pills / the magenta CTA. (Not 16px.)
+- **Padding:** cards `18–24px` · nav/section `26–40px` · page content `2rem`, capped at `max-width: 1200px` (narrower forms `~640px`).
 - **Grid gaps:** `14–18px`.
-- **Elevation:** flat on dark; depth comes from the `1px` hairline border + the radial corner glow, not drop shadows. (Frames in galleries use `0 30px 70px -30px rgba(0,0,0,.5)`.)
+- **Elevation:** flat on dark — depth is the `1px` hairline border (+ optional off-corner magenta radial glow on KPI cards), not drop shadows.
 
 ---
 
 ## 5. Components
 
-### Buttons
-- **Primary:** `background:#ff2e9e; color:#0a0a0b; font-weight:700;` pill, `padding:12–16px 18–28px`. Often a leading icon (play/plus).
-- **Secondary:** `background:rgba(255,255,255,.07–.08); border:1px solid rgba(255,255,255,.18–.2); color:#fff;` pill.
-- **Ghost / mono:** transparent, `1px` hairline or dashed border, Space Mono `11–12px` uppercase label.
+Prefer the shared primitives before hand-rolling: **`@live-show/design-system`** exports Button, Card, Input, Label, Select/SimpleCustomSelect, Checkbox, Switch, Badge, Chip, Avatar, DropdownMenu, Popover, Skeleton, Toaster/sonner, plus `Logo`, `ImageWithFallback`, `cn`. Compose these; only build new markup when no primitive fits, and promote genuinely reusable primitives back into the package.
 
-### Genre chips (toggle)
-Pill, Space Mono `11–12px` uppercase.
-- **Active:** `background:#ff2e9e; color:#0a0a0b; font-weight:700; border:1px solid #ff2e9e`.
-- **Inactive:** `background:rgba(255,255,255,.04); color:#b9b9c0; border:1px solid rgba(255,255,255,.1); font-weight:500`.
-> Render active/inactive as **two separate nodes toggled by `sc-if`**, not one node with interpolated style — the runtime won't re-patch a string-interpolated `style` on a reused list node.
-
-### Live badge
-`background:#ff2e9e; color:#0a0a0b;` Space Mono `10px/700`, radius `6–7px`, with a leading pulsing dot (`background:#0a0a0b`). Label `AO VIVO` / `LIVE`.
-
-### Status pill (dashboard)
-Tinted by state, `1px` matching border, Space Mono `10px/700` uppercase, `white-space:nowrap`:
-- Live → magenta tint + pulsing dot · Scheduled → violet tint · Cancelled/neutral → white-5% tint.
-
-### Cards
-`background:#101013; border:1px solid rgba(255,255,255,.07); border-radius:16px;` hover → `border:1px solid rgba(255,46,158,.3–.4)` and/or `transform:translateY(-4px)`. KPI & recent-event cards add the off-corner radial glow.
-
-### Event media tile
-Aspect-ratio box, gradient placeholder art, top scrim for legibility, badges top-left (live/reprise) and a camera-count chip top-right, title + meta + price bottom. Asymmetric poster grid uses `grid-auto-rows:200px` with `grid-column/row: span N`.
-
-### Charts
-Inline SVG area charts: smooth Catmull-Rom path, vertical fill via a per-chart `linearGradient` (color → transparent), `rgba(255,255,255,.06)` gridlines, Space Mono `9px` axis ticks, point dots in the series color. One series color per card (magenta / violet / coral).
-
-### Navigation
-- **Top nav** (marketing): waveform + wordmark left, text links, search/bell/cart/lang icons, magenta `INGRESSOS` pill, magenta avatar circle right.
-- **Sidebar** (admin): `256px`, `#0b0b0d`, items `12px` radius; active item = `rgba(255,46,158,.1)` fill + `rgba(255,46,158,.32)` border + magenta icon; user block pinned bottom.
+- **Button (primary):** `--primary` magenta fill, `--primary-foreground` ink text, weight 700, pill/`--radius`. **Secondary:** faint white fill + hairline. **Ghost/mono:** transparent, hairline, Space Mono uppercase.
+- **Chip (toggle):** pill, Space Mono uppercase. Active = magenta fill + ink text; inactive = `rgba(255,255,255,.04)` fill + `$text-secondary` + `rgba(255,255,255,.1)` border.
+- **Badge / status pill:** tinted by state, matching `1px` border, Space Mono `10px/700` uppercase, `nowrap`. Live → magenta tint + pulsing dot · Scheduled → violet tint · neutral → white-5%.
+- **Card:** `$surface` on `$border` (or `--card`/`--border` for primitives), radius ~`10px`; hover → magenta border (`rgba(255,46,158,.3–.4)`) and/or `translateY(-3/-4px)`. KPI cards add the off-corner radial glow.
+- **Charts:** inline SVG area charts — smooth path, per-chart `linearGradient` fill, `rgba(255,255,255,.06)` gridlines, Space Mono `9px` ticks, one `--chart-*` series color per card.
+- **Sidebar (admin/dashboard):** `256px`, `--sidebar #0b0b0d`, `rgba(255,255,255,.07)` right border, `26px 18px` padding, `34px` gaps. Waveform + Space Mono wordmark (+ optional panel badge) at top. Nav items `12px` radius; **active** = `rgba(255,46,158,.1)` fill + `rgba(255,46,158,.32)` border + white text/magenta icon. User block pinned bottom.
 
 ---
 
 ## 6. Motion
-
-- `lsPulse` — opacity+scale pulse on every live dot (`1.4s infinite`).
-- `lsMarquee` — looping live ticker (duplicate track, translateX -50%).
-- `lsRing` — expanding ring on the hero play button.
-- Card hover: `transform:translateY(-3/-4px)` + accent border. Keep transitions ~`.15s`.
-
-Use motion only to signal "live" or on hover. No gratuitous animation.
-
----
+`lsPulse` (live dots), `lsMarquee` (ticker), card hover `translateY(-3/-4px)` + accent border. Transitions ~`.15s`. Motion signals "live" or hover only — nothing gratuitous.
 
 ## 7. Iconography
-Inline SVG, `1px`–`2px` stroke, `currentColor`, `~16–19px`. Filled glyphs only for play triangles and the waveform logo. No emoji.
+Inline SVG, `1–2px` stroke, `currentColor`, `~16–19px`. Filled glyphs only for play triangles and the waveform logo. No emoji.
 
 ---
 
-## 8. Implementation notes
-- **Inline styles only** (Design Component convention) — no class-based CSS except `@keyframes`, `@font-face`, and body resets in `<helmet>`.
-- Fonts loaded via Google Fonts: `Archivo` (400–900) + `Space Mono` (400/700).
-- Gradient placeholders stand in for real event photography — swap for licensed imagery in production.
-- Files: `Liveshow Home.dc.html` (marketing home), `Liveshow Dashboard.dc.html` (admin), `Liveshow Layouts.dc.html` (3-direction exploration).
+## 8. Project & implementation conventions
+
+- **Styling = SCSS Modules.** One `.module.scss` per component; `@use '…/styles/_variables' as *` for tokens. `globals.scss` (compiled by sass, via `@use './reset'`) is the only global stylesheet and owns the `:root` vars — no CSS `@import` chains, no Tailwind (the old shadcn `ui/` utility classes are dead). No inline styles.
+- **Feature-folder structure:** `src/features/<feature>/{components,hooks,queries,mutations,services,types}` + `src/app/**` route files (Next.js App Router). API access is isolated (component → hook → service/API client), never `fetch` in a component.
+- **Design system is a workspace package** (`@live-show/design-system`, extracted from `src/shared/components/ui`) — import primitives from it; don't re-implement them.
+- **Fonts:** Google Fonts `<link>` in `app/layout.tsx` (`Archivo` + `Space Mono`).
+- **Dark only.** No light theme; the canvas is always near-black.
