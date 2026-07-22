@@ -14,6 +14,7 @@ export const editSchema = z.object({
   endsAt: z.string().min(1, 'Obrigatório'),
   latencyMode: z.enum(['STANDARD', 'LOW']),
   publiclyFunded: z.boolean().default(false),
+  isFree: z.boolean().default(false),
 }).refine((d) => new Date(d.endsAt) > new Date(d.startsAt), {
   message: 'Fim deve ser após o início',
   path: ['endsAt'],
@@ -105,6 +106,27 @@ export function EventEditForm({ register, control, errors, errorMessage }: Props
             <label htmlFor="editPubliclyFunded" className={styles.checkboxText}>
               <strong>{t('publiclyFundedLabel')}</strong>
               <span className={styles.checkboxHint}>{t('publiclyFundedHint')}</span>
+            </label>
+          </div>
+        )}
+      />
+
+      <Controller
+        name="isFree"
+        control={control}
+        render={({ field }) => (
+          <div className={styles.checkboxRow}>
+            <Checkbox
+              id="editIsFree"
+              checked={!!field.value}
+              onCheckedChange={(v) => field.onChange(v === true)}
+            />
+            <label htmlFor="editIsFree" className={styles.checkboxText}>
+              <strong>Evento gratuito</strong>
+              <span className={styles.checkboxHint}>
+                Acesso livre — desativa os ingressos pagos e cria um “Acesso Gratuito”. Os
+                espectadores reivindicam sem pagar.
+              </span>
             </label>
           </div>
         )}

@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { MapPin, ArrowLeft, ScanLine } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
 import { useUpdateEventMutation } from '../../mutations/update-event.mutation';
 import { usePublishEventMutation, useUnpublishEventMutation, useFinishEventMutation } from '../../mutations/publish-event.mutation';
 import { EventHeaderActions } from './EventHeaderActions';
 import { LibrasAccessibilityPanel } from './LibrasAccessibilityPanel';
-import { EventFreeStatusCard } from './EventFreeStatusCard';
+import { useSetEventFreeStatusMutation } from '../../mutations/set-free-status.mutation';
 import { useAccessibilityQuery } from '../../queries/get-accessibility';
 import { EventEditForm, editSchema } from './EventEditForm';
 import type { EditFormValues } from './EventEditForm';
@@ -49,9 +49,13 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
   // Default to blocked while the status is still loading (avoids a 400 round-trip).
   const publishBlocked = !!event?.publiclyFunded && !accessibility?.publishable;
 
+  const freeStatusMutation = useSetEventFreeStatusMutation(id);
+
   const { register, control, handleSubmit, reset, formState: { errors } } = useForm<EditFormValues>({
     resolver: zodResolver(editSchema),
   });
+  // While editing, the free checkbox disables the ticket editor live.
+  const editingFree = useWatch({ control, name: 'isFree' }) ?? false;
 
   function startEditing() {
     if (!event) return;
@@ -62,6 +66,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
       endsAt: toDatetimeLocal(event.endsAt),
       latencyMode: event.latencyMode ?? 'STANDARD',
       publiclyFunded: event.publiclyFunded ?? false,
+      isFree: event.isFree ?? false,
     });
     setEditing(true);
   }
@@ -71,18 +76,21 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
     reset();
   }
 
-  function onSave(values: EditFormValues) {
-    updateMutation.mutate(
-      {
-        title: values.title,
-        description: values.description,
-        startsAt: new Date(values.startsAt).toISOString(),
-        endsAt: new Date(values.endsAt).toISOString(),
-        latencyMode: values.latencyMode,
-        publiclyFunded: values.publiclyFunded,
-      },
-      { onSuccess: () => setEditing(false) },
-    );
+  async function onSave(values: EditFormValues) {
+    await updateMutation.mutateAsync({
+      title: values.title,
+      description: values.description,
+      startsAt: new Date(values.startsAt).toISOString(),
+      endsAt: new Date(values.endsAt).toISOString(),
+      latencyMode: values.latencyMode,
+      publiclyFunded: values.publiclyFunded,
+    });
+    // Free eligibility is toggled here too — backend rewrites the ticket
+    // products (clears paid → free, or vice-versa).
+    if (values.isFree !== event?.isFree) {
+      await freeStatusMutation.mutateAsync(values.isFree);
+    }
+    setEditing(false);
   }
 
   if (isLoading) {
@@ -118,7 +126,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
         <EventHeaderActions
           event={event}
           editing={editing}
-          isSaving={updateMutation.isPending}
+          isSaving={updateMutation.isPending || freeStatusMutation.isPending}
           isPublishing={publishMutation.isPending}
           isUnpublishing={unpublishMutation.isPending}
           isFinishing={finishMutation.isPending}
@@ -156,7 +164,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
               isPending={updateMutation.isPending}
               errorMessage={updateMutation.error?.message}
             />
-            <EditTicketSection eventId={id} tickets={tickets} />
+            <EditTicketSection eventId={id} tickets={tickets} disabled={editingFree} />
             <PhotosSection event={event} />
           </>
         ) : (
@@ -167,10 +175,6 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
               <p className={styles.description}>{event.description}</p>
             </div>
           </>
-        )}
-
-        {!editing && event.format !== 'VOD' && (
-          <EventFreeStatusCard eventId={id} isFree={event.isFree} ticketCount={tickets.length} />
         )}
 
         {!editing && <EventTicketList tickets={tickets} />}

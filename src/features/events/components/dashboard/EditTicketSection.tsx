@@ -18,6 +18,7 @@ import styles from './TicketSection.module.scss';
 interface Props {
   eventId: string;
   tickets: TicketProductResponse[];
+  disabled?: boolean;
 }
 
 function ticketToForm(ticket: TicketProductResponse): TicketFormValues {
@@ -45,7 +46,7 @@ const EMPTY_FORM: Partial<TicketFormInput> = {
   allowedStageIds: [],
 };
 
-export function EditTicketSection({ eventId, tickets }: Props) {
+export function EditTicketSection({ eventId, tickets, disabled = false }: Props) {
   const t = useTranslations('editTicket');
   const createMutation = useCreateTicketProductMutation(eventId);
   const updateMutation = useUpdateTicketProductMutation(eventId);
@@ -129,6 +130,25 @@ export function EditTicketSection({ eventId, tickets }: Props) {
       createMutation.mutate(payload, { onSuccess: () => reset(EMPTY_FORM) });
     }
   };
+
+  // Free event: paid-ticket editing is off. The backend manages the single
+  // "Acesso Gratuito" product; adding paid tickets here would be a contradiction.
+  if (disabled) {
+    return (
+      <div className={styles.wrapper}>
+        <div className={styles.header}>
+          <h3 className={styles.sectionTitle}>
+            <span className={styles.dot} />
+            {t('title')}
+          </h3>
+        </div>
+        <p className={styles.disabledNote}>
+          Evento gratuito — os ingressos pagos ficam desativados. Ao salvar, será criado um
+          “Acesso Gratuito”.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.wrapper}>
