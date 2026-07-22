@@ -9,7 +9,7 @@ import {
 } from '../../../schemas/create-event.schema';
 import { EVENT_CATEGORIES } from '../../../types/event.types';
 import { TagsInput } from '../TagsInput';
-import { Checkbox } from '@/shared/components/ui/checkbox';
+import { Checkbox, SimpleCustomSelect } from '@live-show/design-system';
 import styles from '../CreateEventForm.module.scss';
 
 interface Props {
@@ -40,15 +40,18 @@ export function EventInfoStep({ register, errors, orgs, control, setValue }: Pro
     <section className={styles.section}>
       <div className={styles.field}>
         <label className={styles.label}>{t('orgLabel')}</label>
-        <select
-          {...register('organizationId')}
-          className={`${styles.input} ${errors.organizationId ? styles.inputError : ''}`}
-        >
-          <option value="">{t('orgPlaceholder')}</option>
-          {orgs.map((org) => (
-            <option key={org.id} value={org.id}>{org.name}</option>
-          ))}
-        </select>
+        <Controller
+          control={control}
+          name="organizationId"
+          render={({ field }) => (
+            <SimpleCustomSelect
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder={t('orgPlaceholder')}
+              options={orgs.map((org) => ({ value: org.id, label: org.name }))}
+            />
+          )}
+        />
         {errors.organizationId && <p className={styles.error}>{errors.organizationId.message}</p>}
         {orgs.length === 0 && (
           <p className={styles.hint}>{t('noOrgs')}</p>
@@ -67,24 +70,37 @@ export function EventInfoStep({ register, errors, orgs, control, setValue }: Pro
 
       <div className={styles.field}>
         <label className={styles.label}>{t('categoryLabel')}</label>
-        <select
-          {...register('category')}
-          className={`${styles.input} ${errors.category ? styles.inputError : ''}`}
-        >
-          <option value="">{t('categoryPlaceholder')}</option>
-          {EVENT_CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>{t(`categories.${cat}`)}</option>
-          ))}
-        </select>
+        <Controller
+          control={control}
+          name="category"
+          render={({ field }) => (
+            <SimpleCustomSelect
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder={t('categoryPlaceholder')}
+              options={EVENT_CATEGORIES.map((cat) => ({ value: cat, label: t(`categories.${cat}`) }))}
+            />
+          )}
+        />
         {errors.category && <p className={styles.error}>{errors.category.message}</p>}
       </div>
 
       <div className={styles.field}>
         <label className={styles.label}>{t('formatLabel')}</label>
-        <select {...register('format')} className={styles.input}>
-          <option value="LIVE">{t('formatLive')}</option>
-          <option value="VOD">{t('formatVod')}</option>
-        </select>
+        <Controller
+          control={control}
+          name="format"
+          render={({ field }) => (
+            <SimpleCustomSelect
+              value={field.value}
+              onValueChange={field.onChange}
+              options={[
+                { value: 'LIVE', label: t('formatLive') },
+                { value: 'VOD', label: t('formatVod') },
+              ]}
+            />
+          )}
+        />
       </div>
 
       <div className={styles.field}>
@@ -93,17 +109,17 @@ export function EventInfoStep({ register, errors, orgs, control, setValue }: Pro
           control={control}
           name="latencyMode"
           render={({ field }) => (
-            <select
-              className={styles.input}
+            <SimpleCustomSelect
               value={field.value}
-              onChange={(e) => {
+              onValueChange={(v) => {
                 latencyTouched.current = true;
-                field.onChange(e);
+                field.onChange(v);
               }}
-            >
-              <option value="STANDARD">{t('latencyStandard')}</option>
-              <option value="LOW">{t('latencyLow')}</option>
-            </select>
+              options={[
+                { value: 'STANDARD', label: t('latencyStandard') },
+                { value: 'LOW', label: t('latencyLow') },
+              ]}
+            />
           )}
         />
         {isSportCategory && latencyMode === 'LOW' && (
