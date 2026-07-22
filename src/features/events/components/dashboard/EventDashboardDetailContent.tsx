@@ -31,9 +31,12 @@ function toDatetimeLocal(iso: string) {
 interface Props {
   id: string;
   initialEvent?: EventResponse;
+  // Server-resolved vod_upload feature flag. Off at launch → the upload card is
+  // hidden entirely. Resolved on the server (flags never resolve client-side).
+  vodUploadEnabled?: boolean;
 }
 
-export function EventDashboardDetailContent({ id, initialEvent }: Props) {
+export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled = false }: Props) {
   const t = useTranslations('eventDetail');
   const [editing, setEditing] = useState(false);
 
@@ -153,7 +156,7 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
       <div className={styles.body}>
         {event.publiclyFunded && <LibrasAccessibilityPanel eventId={id} />}
 
-        {event.format === 'VOD' && <VodUploadCard eventId={id} />}
+        {event.format === 'VOD' && vodUploadEnabled && <VodUploadCard eventId={id} />}
 
         {editing ? (
           <>
