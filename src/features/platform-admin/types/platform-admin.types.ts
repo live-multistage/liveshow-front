@@ -114,11 +114,33 @@ export interface OrgBalance {
 }
 
 // Stream health (GET /platform-admin/ops/streams).
+export interface StreamHealthJob {
+  id: string;
+  cameraName: string;
+  eventTitle: string;
+  status: string; // RUNNING | FAILED | RETRYING
+  error: string | null;
+  startedAt: string | null;
+  endedAt: string | null;
+  renditions: number;
+}
+
+export interface StreamHealthIngest {
+  id: string;
+  cameraName: string;
+  eventTitle: string;
+  remoteAddr: string | null;
+  startedAt: string | null;
+}
+
 export interface StreamHealth {
   liveEvents: number;
   transcodeActive: number;
-  transcodeFailed: number;
+  transcodeFailed: number; // last 24h
   ingestConnected: number;
+  activeJobs: StreamHealthJob[];
+  failedJobs: StreamHealthJob[];
+  ingestSessions: StreamHealthIngest[];
 }
 
 // Catalog summary (GET /platform-admin/catalog/summary).

@@ -767,6 +767,67 @@
   color: #6f6f77;
 }
 
+.opsStatButton {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color .15s ease;
+
+  &:hover { border-color: rgba(255, 255, 255, .18); }
+}
+
+.opsStatOpen { border-color: rgba(255, 46, 158, .45); }
+
+.opsDetail {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.opsRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.opsRowEvent { color: #fff; font-weight: 600; }
+.opsRowCamera { color: #8f8f97; }
+
+.opsRowMeta {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  color: #6f6f77;
+}
+
+.opsRowError {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  color: #EF4444;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.opsBadge {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.opsBadgeFailed { background: rgba(239, 68, 68, .15); color: #EF4444; }
+.opsBadgeRetrying { background: rgba(250, 204, 21, .15); color: #FACC15; }
+
 // ── Approval queue ───────────────────────────────────────────────
 .queueBadge {
   font-family: 'Space Mono', monospace;
