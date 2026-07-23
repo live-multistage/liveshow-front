@@ -38,6 +38,56 @@ export function useActiveTranscodeJobQuery(cameraId: string, enabled: boolean) {
   });
 }
 
+export interface IngestPreviewCamera {
+  cameraId: string;
+  cameraName: string;
+  stageName: string;
+}
+
+// Pre-live monitor source: walks the stream's stages → feeds → ingest status
+// and returns the primary camera (lowest priority number) currently receiving
+// signal. Mirrors useOnAirCamera, but keyed on ingest `live` instead of a
+// RUNNING transcode job — so it resolves at READY, before going live.
+export function useIngestPreviewCamera(streamId: string | null, enabled: boolean): IngestPreviewCamera | null {
+  const stagesQuery = useQuery({
+    queryKey: STREAM_KEYS.stages(streamId ?? ''),
+    queryFn: () => streamsService.listStages(streamId!),
+    enabled: enabled && !!streamId,
+  });
+  const stages = stagesQuery.data ?? [];
+
+  const feedQueries = useQueries({
+    queries: stages.map((stage) => ({
+      queryKey: INGEST_KEYS.onAirFeeds(stage.id),
+      queryFn: async () => ({ feeds: await streamsService.listFeeds(stage.id), stageName: stage.name }),
+      enabled: enabled && stages.length > 0,
+    })),
+  });
+  const feedsWithStage = feedQueries.flatMap((q) =>
+    q.data ? q.data.feeds.map((feed) => ({ feed, stageName: q.data!.stageName })) : [],
+  );
+
+  const ingestQueries = useQueries({
+    queries: feedsWithStage.map(({ feed, stageName }) => ({
+      queryKey: INGEST_KEYS.feed(feed.id),
+      queryFn: async () => ({ ingest: await streamsService.getFeedIngest(feed.id), stageName }),
+      enabled: enabled && feedsWithStage.length > 0,
+      refetchInterval: enabled ? 5000 : false,
+    })),
+  });
+
+  const candidates = ingestQueries.flatMap((q) =>
+    q.data
+      ? q.data.ingest.cameras
+          .filter((c) => c.enabled && c.live)
+          .map((c) => ({ cameraId: c.id, cameraName: c.name, stageName: q.data!.stageName, priority: c.priority }))
+      : [],
+  );
+  if (candidates.length === 0) return null;
+  const primary = candidates.reduce((a, b) => (b.priority < a.priority ? b : a));
+  return { cameraId: primary.cameraId, cameraName: primary.cameraName, stageName: primary.stageName };
+}
+
 // Admin LL-HLS preview URL for a camera's raw ingest (works pre-live). The
 // token inside expires in 5 min; refetch on a shorter interval while open so a
 // long-lived preview keeps a fresh token.

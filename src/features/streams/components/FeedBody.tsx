@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Video, Play, HandMetal } from 'lucide-react';
 import { useFeedCamerasQuery } from '../queries/streams.queries';
-import { useFeedIngestQuery, useActiveTranscodeJobQuery, useCameraPreviewQuery } from '../queries/ingest.queries';
+import { useFeedIngestQuery, useActiveTranscodeJobQuery } from '../queries/ingest.queries';
 import { useCreateCameraMutation, useToggleCameraMutation } from '../mutations/camera.mutations';
 import { useAccessibilityQuery, useSetLibrasCameraMutation } from '@/features/events/queries/get-accessibility';
 import type { CameraResponse, FeedResponse } from '../types/stream.types';
@@ -38,8 +38,6 @@ function CameraRow({
   const setLibras = useSetLibrasCameraMutation(eventId);
   const { data: ingest } = useFeedIngestQuery(feedId, canMonitor);
   const { data: job } = useActiveTranscodeJobQuery(cam.id, isLiveStream);
-  const [ingestPreviewOpen, setIngestPreviewOpen] = useState(false);
-  const { data: ingestPreview } = useCameraPreviewQuery(cam.id, ingestPreviewOpen);
 
   const live = ingest?.cameras.find((c) => c.id === cam.id)?.live ?? false;
 
@@ -56,17 +54,6 @@ function CameraRow({
             className={styles.iconBtn}
             onClick={() => onPreview(job.packageId)}
             title="Pré-visualizar"
-          >
-            <Play size={12} />
-          </button>
-        )}
-        {/* Pre-live monitor: preview the raw OBS ingest straight from MediaMTX
-            once the camera is receiving signal, before the stream goes live. */}
-        {!isLiveStream && canMonitor && live && (
-          <button
-            className={styles.iconBtn}
-            onClick={() => setIngestPreviewOpen(true)}
-            title="Pré-visualizar sinal"
           >
             <Play size={12} />
           </button>
@@ -93,9 +80,6 @@ function CameraRow({
         </button>
       </div>
       <IngestCredentials cameraId={cam.id} />
-      {ingestPreviewOpen && ingestPreview && (
-        <HlsPreview src={ingestPreview.llPath} onClose={() => setIngestPreviewOpen(false)} />
-      )}
     </div>
   );
 }
