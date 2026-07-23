@@ -29,7 +29,7 @@ export const checkoutService = {
   processPayment: async (payload: ProcessPaymentRequest): Promise<ProcessPaymentResult> => {
     const { data } = await httpClient.post<ProcessPaymentResult>(
       `/payments/sessions/${payload.sessionId}/process`,
-      { provider: payload.provider, currency: payload.currency },
+      { provider: payload.provider },
     );
     return data;
   },

@@ -50,7 +50,6 @@ export interface PaymentMethod {
 export interface CreateCheckoutSessionRequest {
   ticketProductId: string;
   couponCode?: string;
-  currency?: string;
 }
 
 export interface CouponPreviewRequest {
@@ -92,7 +91,6 @@ export interface CartCouponPreviewResult {
 export interface ProcessPaymentRequest {
   sessionId: string;
   provider: PaymentProvider;
-  currency?: string;
 }
 
 export type PaymentStatus =
