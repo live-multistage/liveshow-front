@@ -48,8 +48,10 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  // Starts muted — browser autoplay policy requires it.
-  const [globalMuted, setGlobalMuted] = useState(true);
+  // Start with sound (YouTube-style). VideoPanel attempts unmuted autoplay and,
+  // if the browser blocks it, falls back to muted and flips this back to true
+  // (see onAutoplayBlocked → CameraGrid → here).
+  const [globalMuted, setGlobalMuted] = useState(false);
   const [volume, setVolume] = useState(1);
   const [audioCameraId, setAudioCameraId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');

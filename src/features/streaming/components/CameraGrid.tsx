@@ -422,6 +422,7 @@ export function CameraGrid({
               muted={globalMuted || !isPrimary}
               selectedAudioCameraId={isPrimary ? audioCameraId ?? undefined : undefined}
               onMutedChange={onMutedChange}
+              onAutoplayBlocked={() => onGlobalMutedChange(true)}
               volume={volume}
               selectedLevel={selectedLevel}
               // In-player panels stay full quality even when hidden/small: any

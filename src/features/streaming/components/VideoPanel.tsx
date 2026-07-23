@@ -44,6 +44,9 @@ interface VideoPanelProps {
   // toolbar where AO VIVO/fullscreen live, so it was effectively hidden).
   muted: boolean;
   onMutedChange: (muted: boolean) => void;
+  // Fired when best-effort unmuted autoplay is blocked by the browser and this
+  // panel falls back to muted — lets the parent sync its global mute UI.
+  onAutoplayBlocked?: () => void;
   // 'contain' (default) never crops — used for full-bleed playback (Solo,
   // Main, Grid tiles). 'cover' fills a fixed small box even if it crops —
   // used for utility thumbnails (PIP, rail) where showing the whole frame
@@ -92,6 +95,20 @@ function lowestLevelIndex(hls: Hls): number {
   return min;
 }
 
+// Best-effort unmuted autoplay (YouTube-style): try to play with sound; if the
+// browser blocks autoplay-with-sound, fall back to muted (always allowed) and
+// notify the parent so its mute UI matches reality. Only attempts unmuted when
+// the element started unmuted, so muted tiles are unaffected.
+export function playBestEffort(video: HTMLVideoElement, onBlocked?: () => void) {
+  video.play().catch(() => {
+    if (!video.muted) {
+      video.muted = true;
+      onBlocked?.();
+      void video.play().catch(() => {});
+    }
+  });
+}
+
 export function VideoPanel({
   camera,
   isActive = false,
@@ -105,6 +122,7 @@ export function VideoPanel({
   onAspectRatioReady,
   muted,
   onMutedChange,
+  onAutoplayBlocked,
   fit = 'contain',
   showMuteButton = true,
   volume = 1,
@@ -204,6 +222,8 @@ export function VideoPanel({
           const seekLive = () => {
             const s = video.seekable;
             if (s.length) video.currentTime = s.end(s.length - 1);
+            // Safari won't autoplay unmuted via the attribute — kick it here.
+            playBestEffort(video, onAutoplayBlocked);
           };
           video.addEventListener('loadedmetadata', seekLive);
           return () => {
@@ -260,7 +280,7 @@ export function VideoPanel({
       // camera thumbnail/tile shouldn't start itself just because its own
       // manifest happened to finish parsing after the shared paused state
       // was already set).
-      if (mode !== 'replay' || !pausedRef.current) void video.play().catch(() => {});
+      if (mode !== 'replay' || !pausedRef.current) playBestEffort(video, onAutoplayBlocked);
     });
     // Stalls within the last 30s on the LL path — 3 of them means the LL
     // origin can't keep this connection fed; drop the ABR-less LL path for
