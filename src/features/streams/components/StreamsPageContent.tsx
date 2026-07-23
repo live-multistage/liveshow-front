@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useMyEventsQuery } from '@/features/events/queries/get-my-events';
 import { useEventStreamsQuery } from '../queries/streams.queries';
-import { useOnAirCamera } from '../queries/ingest.queries';
+import { useOnAirCamera, useStreamStatsQuery } from '../queries/ingest.queries';
+import { useViewerCount } from '@/features/streaming';
 import { formatElapsed } from '../utils/format-elapsed';
 import { useCreateStreamMutation } from '../mutations/stream.mutations';
 import { StreamCard } from './StreamCard';
@@ -28,12 +29,24 @@ function useLiveClock(startedAt: string | null | undefined) {
 }
 
 // ── Stats strip ───────────────────────────────────────────────────
-function StatsStrip({ stream }: { stream: StreamResponse }) {
+const HEALTH_LABEL = { OTIMA: 'ÓTIMA', ATENCAO: 'ATENÇÃO', CRITICA: 'CRÍTICA' } as const;
+
+function StatsStrip({ stream, eventId }: { stream: StreamResponse; eventId: string }) {
   const isLive = stream.status === 'LIVE';
+  // READY already has ingest flowing (OBS connected), so bitrate/RTT/health
+  // are real pre-live; latency only exists once a transcode is RUNNING.
+  const monitorable = isLive || stream.status === 'READY';
   // The clock counts from when a camera actually went on air (RUNNING transcode
   // job startedAt), NOT from stream status or page open. No on-air camera → dash.
   const { onAir } = useOnAirCamera(stream.id, isLive);
   const timer = useLiveClock(onAir?.startedAt);
+  const { data: stats } = useStreamStatsQuery(stream.id, monitorable);
+  const { currentViewers } = useViewerCount(isLive ? eventId : undefined);
+
+  const healthClass =
+    stats?.health === 'CRITICA' ? styles.healthDotBad
+    : stats?.health === 'ATENCAO' ? styles.healthDotWarn
+    : styles.healthDot;
 
   return (
     <div className={styles.statsStrip}>
@@ -47,25 +60,30 @@ function StatsStrip({ stream }: { stream: StreamResponse }) {
       </div>
       <div className={styles.statCard}>
         <div className={styles.statLabel}>ESPECTADORES</div>
-        <div className={styles.statValue}>—</div>
+        <div className={styles.statValue}>{isLive ? currentViewers.toLocaleString('pt-BR') : '—'}</div>
       </div>
       <div className={styles.statCard}>
         <div className={styles.statLabel}>BITRATE</div>
         <div className={styles.statValue}>
-          — <span className={styles.statUnit}>Mbps</span>
+          {stats?.ingestBitrateMbps != null ? stats.ingestBitrateMbps.toFixed(1) : '—'}{' '}
+          <span className={styles.statUnit}>Mbps</span>
         </div>
       </div>
       <div className={styles.statCard}>
         <div className={styles.statLabel}>LATÊNCIA</div>
         <div className={styles.statValue}>
-          —<span className={styles.statUnit}>s</span>
+          {stats?.originLatencySec != null ? stats.originLatencySec.toFixed(1) : '—'}
+          <span className={styles.statUnit}>s</span>
         </div>
       </div>
-      <div className={styles.statCard}>
+      <div
+        className={styles.statCard}
+        title={stats?.healthReasons.length ? stats.healthReasons.join(' · ') : undefined}
+      >
         <div className={styles.statLabel}>SAÚDE</div>
         <div className={styles.statHealthRow}>
-          <span className={styles.healthDot} />
-          <span className={styles.statValue}>—</span>
+          <span className={healthClass} />
+          <span className={styles.statValue}>{stats ? HEALTH_LABEL[stats.health] : '—'}</span>
         </div>
       </div>
     </div>
@@ -180,7 +198,9 @@ export function StreamsPageContent() {
       <StreamsHowItWorks />
 
       {/* Stats strip — only when a stream is selected */}
-      {selectedStream && <StatsStrip stream={selectedStream} />}
+      {selectedStream && selectedEventId && (
+        <StatsStrip stream={selectedStream} eventId={selectedEventId} />
+      )}
 
       {/* 2-col layout */}
       <div className={styles.layout}>

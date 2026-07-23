@@ -92,6 +92,17 @@ export function useIngestPreviewCameras(streamId: string | null, enabled: boolea
     .map(({ cameraId, cameraName, stageName }) => ({ cameraId, cameraName, stageName }));
 }
 
+// Ops stats for the control-room strip (bitrate/latency/health). Polls while
+// the stream is monitorable (READY: ingest stats; LIVE: everything).
+export function useStreamStatsQuery(streamId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['stream-stats', streamId] as const,
+    queryFn: () => streamsService.getStreamStats(streamId),
+    enabled,
+    refetchInterval: enabled ? 5000 : false,
+  });
+}
+
 // Admin LL-HLS preview URL for a camera's raw ingest (works pre-live). The
 // token inside expires in 5 min; refetch on a shorter interval while open so a
 // long-lived preview keeps a fresh token.

@@ -4,6 +4,7 @@ import type {
   StreamResponse, StageResponse, FeedResponse, CameraResponse,
   CreateStreamRequest, CreateStageRequest, CreateFeedRequest, CreateCameraRequest,
   CameraIngestResponse, FeedIngestResponse, TranscodeJobResponse, UpdateStreamRequest,
+  StreamStatsResponse,
 } from '../types/stream.types';
 
 export const streamsService = {
@@ -112,6 +113,12 @@ export const streamsService = {
 
   disableCamera: async (cameraId: string): Promise<CameraResponse> => {
     const { data } = await httpClient.post<CameraResponse>(`/cameras/${cameraId}/disable`);
+    return data;
+  },
+
+  // ── Ops stats (admin control-room strip) ───────────────────────
+  getStreamStats: async (streamId: string): Promise<StreamStatsResponse> => {
+    const { data } = await httpClient.get<StreamStatsResponse>(`/streams/${streamId}/stats`);
     return data;
   },
 
