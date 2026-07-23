@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState, useEffect } from 'react';
+import { Volume2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { LiveCamera, LiveStage } from '../types/live.types';
@@ -53,6 +54,10 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   // (see onAutoplayBlocked → CameraGrid → here).
   const [globalMuted, setGlobalMuted] = useState(false);
   const [volume, setVolume] = useState(1);
+  // Set when the browser blocked unmuted autoplay → drives the "tap for sound"
+  // prompt. Cleared for good on the first unmute (see effect below), so it never
+  // reappears after the viewer has chosen.
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const [audioCameraId, setAudioCameraId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
   const [mainCameraId, setMainCameraId] = useState<string | null>(null);
@@ -159,6 +164,11 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     setGlobalMuted(false);
   };
 
+  // Once the viewer turns sound on, the autoplay prompt is done for the session.
+  useEffect(() => {
+    if (!globalMuted) setAutoplayBlocked(false);
+  }, [globalMuted]);
+
   return (
     <div ref={containerRef} className={styles.player}>
       <Header
@@ -189,6 +199,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
               onLevelsReady={setLevels}
               globalMuted={globalMuted}
               onGlobalMutedChange={setGlobalMuted}
+              onAutoplayBlocked={() => { setGlobalMuted(true); setAutoplayBlocked(true); }}
               audioCameraId={effectiveAudioCameraId}
               onAudioCameraChange={handleAudioCameraChange}
               volume={volume}
@@ -202,6 +213,17 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
               onToggleCamera={handleToggleCamera}
               onClosePicker={() => setCameraStripOpen(false)}
             />
+          )}
+
+          {autoplayBlocked && globalMuted && (
+            <button
+              type="button"
+              className={styles.unmutePrompt}
+              onClick={() => setGlobalMuted(false)}
+            >
+              <Volume2 size={16} />
+              Tocar com som
+            </button>
           )}
         </div>
 

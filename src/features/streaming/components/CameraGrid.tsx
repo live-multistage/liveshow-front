@@ -51,6 +51,9 @@ interface CameraGridProps {
   onLevelsReady?: (levels: QualityLevel[]) => void;
   globalMuted: boolean;
   onGlobalMutedChange: (muted: boolean) => void;
+  // Bubbled up from the audio VideoPanel when the browser blocks unmuted
+  // autoplay — LivePlayer uses it to show the "tap for sound" prompt.
+  onAutoplayBlocked?: () => void;
   audioCameraId: string | null;
   onAudioCameraChange: (cameraId: string) => void;
   volume: number;
@@ -88,6 +91,7 @@ export function CameraGrid({
   onLevelsReady,
   globalMuted,
   onGlobalMutedChange,
+  onAutoplayBlocked,
   audioCameraId,
   onAudioCameraChange,
   volume,
@@ -422,7 +426,7 @@ export function CameraGrid({
               muted={globalMuted || !isPrimary}
               selectedAudioCameraId={isPrimary ? audioCameraId ?? undefined : undefined}
               onMutedChange={onMutedChange}
-              onAutoplayBlocked={() => onGlobalMutedChange(true)}
+              onAutoplayBlocked={onAutoplayBlocked ?? (() => onGlobalMutedChange(true))}
               volume={volume}
               selectedLevel={selectedLevel}
               // In-player panels stay full quality even when hidden/small: any
