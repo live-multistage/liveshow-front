@@ -6,6 +6,7 @@ import { ChevronLeft, Play, Video } from 'lucide-react';
 import type { ReplayCameraPlayback, LiveCamera } from '../types/live.types';
 import { CameraGrid } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
+import { SessionWatermark } from './SessionWatermark';
 import { ReplayTransportBar } from './ReplayTransportBar';
 import styles from './ReplayPlayer.module.scss';
 
@@ -181,6 +182,7 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
             }}
             onEnded={handleEnded}
           />
+          <SessionWatermark />
         </div>
 
         {paused && (

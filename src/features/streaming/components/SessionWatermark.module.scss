@@ -1,0 +1,14 @@
+.watermark {
+  position: absolute;
+  z-index: 40;
+  pointer-events: none;
+  user-select: none;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.22);
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+  // Smooth hop between positions — a hard jump draws the eye more than a fade.
+  transition: top 1.5s ease, left 1.5s ease;
+}

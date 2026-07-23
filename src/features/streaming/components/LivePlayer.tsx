@@ -13,6 +13,7 @@ import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { useViewerTracking } from '../hooks/use-viewer-tracking';
 import { useViewerCount } from '../hooks/use-viewer-count';
+import { SessionWatermark } from './SessionWatermark';
 import styles from './LivePlayer.module.scss';
 
 interface LivePlayerProps {
@@ -217,6 +218,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
               onClosePicker={() => setCameraStripOpen(false)}
             />
           )}
+
+          <SessionWatermark />
 
           {autoplayBlocked && globalMuted && (
             <button
