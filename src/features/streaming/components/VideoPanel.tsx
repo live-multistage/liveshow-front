@@ -157,6 +157,13 @@ export function VideoPanel({
   const llPathRef = useRef(camera.llPath);
   llPathRef.current = camera.llPath;
 
+  // Read by the AUDIO_TRACKS_UPDATED handler below — tracks arrive after the
+  // manifest parses, long after the mount-time selection effect already ran
+  // against an empty track list (which is why that effect alone never applied
+  // the initial audio choice).
+  const selectedAudioCameraIdRef = useRef(selectedAudioCameraId);
+  selectedAudioCameraIdRef.current = selectedAudioCameraId;
+
   const applyLevel = (hls: Hls) => {
     if (!hls.levels || hls.levels.length === 0) return;
     hls.currentLevel = lowQualityRef.current
@@ -281,6 +288,17 @@ export function VideoPanel({
       // manifest happened to finish parsing after the shared paused state
       // was already set).
       if (mode !== 'replay' || !pausedRef.current) playBestEffort(video, onAutoplayBlocked);
+    });
+    // Apply the selected audio camera once the alternate tracks actually exist.
+    // The selection effect keyed on selectedAudioCameraId ran at mount against
+    // an empty audioTracks list, so without this the initial choice was never
+    // applied and the manifest's DEFAULT track played instead.
+    hls.on(Hls.Events.AUDIO_TRACKS_UPDATED, () => {
+      const idx = audioTrackIndexForCamera(
+        hls.audioTracks.map((t) => ({ id: t.id, name: t.name })),
+        selectedAudioCameraIdRef.current,
+      );
+      if (idx >= 0 && hls.audioTrack !== idx) hls.audioTrack = idx;
     });
     // Stalls within the last 30s on the LL path — 3 of them means the LL
     // origin can't keep this connection fed; drop the ABR-less LL path for

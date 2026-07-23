@@ -144,15 +144,18 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   const activeLevel = levels.find((l) => l.index === currentLevel);
   const qualityLabel = currentLevel === -1 ? 'Auto' : activeLevel ? `${activeLevel.height}p` : 'Auto';
 
-  const effectiveAudioCameraId =
-    audioCameraId && activeStage?.cameras.some((c) => c.cameraId === audioCameraId)
-      ? audioCameraId
-      : (activeStage?.cameras[0]?.cameraId ?? null);
-
   const effectiveMainCameraId =
     mainCameraId && activeCameraIds.includes(mainCameraId)
       ? mainCameraId
       : (activeCameraIds[0] ?? null);
+
+  // Audio follows the MAIN camera unless the viewer explicitly picked an audio
+  // source. Falling back to cameras[0] instead used to leave the previous
+  // default camera's audio playing after switching the main view.
+  const effectiveAudioCameraId =
+    audioCameraId && activeStage?.cameras.some((c) => c.cameraId === audioCameraId)
+      ? audioCameraId
+      : (effectiveMainCameraId ?? activeStage?.cameras[0]?.cameraId ?? null);
 
   const effectiveViewMode: ViewMode = activeCameraIds.length <= 1 ? 'solo' : viewMode;
 
