@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Camera } from 'lucide-react';
 import type { Show } from '../../../types/show';
@@ -17,7 +18,8 @@ interface HomePosterCardProps {
 }
 
 export function HomePosterCard({ show, span }: HomePosterCardProps) {
-  const priceLabel = show.price === 0 ? 'Gratuito' : `R$ ${Math.round(show.price)}`;
+  const t = useTranslations('home');
+  const priceLabel = show.price === 0 ? t('freePrice') : `R$ ${Math.round(show.price)}`;
   const isFree = show.price === 0;
 
   return (

@@ -169,7 +169,22 @@
     "noTickets": "No tickets available yet.",
     "freePreview": "Watch free preview →",
     "total": "Total",
-    "alreadyInCart": "Already in cart"
+    "alreadyInCart": "Already in cart",
+    "free": "Free",
+    "chipLive": "LIVE",
+    "chipReplay": "REPLAY",
+    "chipCameras": "{count} CAMERAS",
+    "chipAllCameras": "ALL CAMERAS",
+    "chipPhysical": "IN PERSON",
+    "chipSoldOut": "SOLD OUT",
+    "soldOut": "Sold out",
+    "ticketLine": "Ticket",
+    "serviceFee": "Service fee",
+    "claimFree": "Get free ticket",
+    "securePurchase": "100% SECURE CHECKOUT",
+    "mobileTicket": "TICKET",
+    "mobileReplay": "REPLAY",
+    "mobileBuy": "Buy ticket"
   },
   "tickets": {
     "title": "My Tickets",
@@ -194,7 +209,8 @@
     "liveNow": "Live Now",
     "liveForYou": "Live for you",
     "findByGenre": "Find by\ncategory",
-    "all": "All"
+    "all": "All",
+    "freePrice": "Free"
   },
   "language": {
     "select": "Language",
@@ -575,5 +591,12 @@
     },
     "logout": "Sign out",
     "loggingOut": "Signing out..."
+  },
+  "consent": {
+    "title": "Privacy",
+    "body": "We collect non-essential usage data (analytics and recommendations) to personalize your experience. You can refuse without losing access. Change it anytime in",
+    "settingsLink": "Settings",
+    "accept": "Accept",
+    "reject": "Refuse"
   }
 }

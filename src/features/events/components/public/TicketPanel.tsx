@@ -180,16 +180,16 @@ export function TicketPanel({ event, tickets }: Props) {
             >
               <div className={styles.ticketOptionHeader}>
                 <span className={styles.ticketOptionName}>{opt.name}</span>
-                <span className={styles.ticketOptionPrice}>{opt.price === 0 ? 'Grátis' : formatPrice(opt.price)}</span>
+                <span className={styles.ticketOptionPrice}>{opt.price === 0 ? t('free') : formatPrice(opt.price)}</span>
               </div>
               <div className={styles.tierChips}>
-                {opt.capabilities.includes('LIVE_VIEW') && <span className={styles.tierChip}>AO VIVO</span>}
-                {opt.capabilities.includes('REPLAY_VIEW') && <span className={styles.tierChip}>REPRISE</span>}
+                {opt.capabilities.includes('LIVE_VIEW') && <span className={styles.tierChip}>{t('chipLive')}</span>}
+                {opt.capabilities.includes('REPLAY_VIEW') && <span className={styles.tierChip}>{t('chipReplay')}</span>}
                 {opt.camerasLimit != null
-                  ? <span className={styles.tierChip}>{opt.camerasLimit} CÂMERAS</span>
-                  : opt.capabilities.includes('CAMERA_VIEW') && <span className={styles.tierChip}>TODAS AS CÂMERAS</span>}
-                {opt.capabilities.includes('PHYSICAL_ENTRY') && <span className={styles.tierChip}>PRESENCIAL</span>}
-                {opt.soldOut && <span className={styles.tierChip}>ESGOTADO</span>}
+                  ? <span className={styles.tierChip}>{t('chipCameras', { count: opt.camerasLimit })}</span>
+                  : opt.capabilities.includes('CAMERA_VIEW') && <span className={styles.tierChip}>{t('chipAllCameras')}</span>}
+                {opt.capabilities.includes('PHYSICAL_ENTRY') && <span className={styles.tierChip}>{t('chipPhysical')}</span>}
+                {opt.soldOut && <span className={styles.tierChip}>{t('chipSoldOut')}</span>}
               </div>
               {opt.description && (
                 <p className={styles.ticketOptionDesc}>{opt.description}</p>
@@ -204,16 +204,16 @@ export function TicketPanel({ event, tickets }: Props) {
           <>
             <div className={styles.feeLines}>
               <div className={styles.feeLine}>
-                <span>Ingresso</span>
+                <span>{t('ticketLine')}</span>
                 <span>{formatPrice(ticket.price)}</span>
               </div>
               <div className={styles.feeLine}>
-                <span>Taxa de serviço</span>
+                <span>{t('serviceFee')}</span>
                 <span>{formatPrice(serviceFee)}</span>
               </div>
             </div>
             <div className={styles.totalRow}>
-              <span className={styles.totalLabel}>Total</span>
+              <span className={styles.totalLabel}>{t('total')}</span>
               <div className={styles.totalRight}>
                 <span className={styles.currency}>BRL</span>
                 <span className={styles.totalAmount}>{formatPrice(ticket.price + serviceFee)}</span>
@@ -238,7 +238,7 @@ export function TicketPanel({ event, tickets }: Props) {
             {claimFreeTicket.isPending ? (
               <><span className={styles.btnSpinner} />{t('adding')}</>
             ) : (
-              'Garantir ingresso grátis'
+              t('claimFree')
             )}
           </button>
         ) : (
@@ -269,7 +269,7 @@ export function TicketPanel({ event, tickets }: Props) {
           {pendingAction === 'buy' ? (
             <><span className={styles.btnSpinner} />{t('adding')}</>
           ) : soldOut ? (
-            'Esgotado'
+            t('soldOut')
           ) : (
             <>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -329,7 +329,7 @@ export function TicketPanel({ event, tickets }: Props) {
             <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/>
             <path d="M9 12l2 2 4-4"/>
           </svg>
-          COMPRA 100% SEGURA
+          {t('securePurchase')}
         </div>
       </div>
 
@@ -337,11 +337,11 @@ export function TicketPanel({ event, tickets }: Props) {
       {ticket && !panelInView && (
         <div className={styles.mobileBar}>
           <div>
-            <span className={styles.mobileBarLabel}>{isFinished ? 'REPRISE' : 'INGRESSO'}</span>
-            <span className={styles.mobileBarAmount}>{ticket.price === 0 ? 'Grátis' : formatPrice(ticket.price)}</span>
+            <span className={styles.mobileBarLabel}>{isFinished ? t('mobileReplay') : t('mobileTicket')}</span>
+            <span className={styles.mobileBarAmount}>{ticket.price === 0 ? t('free') : formatPrice(ticket.price)}</span>
           </div>
           <button className={styles.mobileBarBtn} onClick={scrollToPanel}>
-            Comprar ingresso
+            {t('mobileBuy')}
           </button>
         </div>
       )}

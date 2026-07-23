@@ -169,7 +169,22 @@
     "noTickets": "Nenhum ingresso disponível ainda.",
     "freePreview": "Assistir demonstração gratuita →",
     "total": "Total",
-    "alreadyInCart": "Já no carrinho"
+    "alreadyInCart": "Já no carrinho",
+    "free": "Grátis",
+    "chipLive": "AO VIVO",
+    "chipReplay": "REPRISE",
+    "chipCameras": "{count} CÂMERAS",
+    "chipAllCameras": "TODAS AS CÂMERAS",
+    "chipPhysical": "PRESENCIAL",
+    "chipSoldOut": "ESGOTADO",
+    "soldOut": "Esgotado",
+    "ticketLine": "Ingresso",
+    "serviceFee": "Taxa de serviço",
+    "claimFree": "Garantir ingresso grátis",
+    "securePurchase": "COMPRA 100% SEGURA",
+    "mobileTicket": "INGRESSO",
+    "mobileReplay": "REPRISE",
+    "mobileBuy": "Comprar ingresso"
   },
   "tickets": {
     "title": "Meus Ingressos",
@@ -194,7 +209,8 @@
     "liveNow": "Ao Vivo Agora",
     "liveForYou": "Ao Vivo para você",
     "findByGenre": "Filtrar por\ncategoria",
-    "all": "Todos"
+    "all": "Todos",
+    "freePrice": "Gratuito"
   },
   "language": {
     "select": "Idioma",
@@ -578,5 +594,12 @@
     },
     "logout": "Sair da conta",
     "loggingOut": "Saindo..."
+  },
+  "consent": {
+    "title": "Privacidade",
+    "body": "Coletamos dados de uso não essenciais (analytics e recomendações) para personalizar sua experiência. Você pode recusar sem perder acesso ao serviço. Ajuste quando quiser em",
+    "settingsLink": "Configurações",
+    "accept": "Aceitar",
+    "reject": "Recusar"
   }
 }
