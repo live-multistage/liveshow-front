@@ -38,6 +38,19 @@ export function useActiveTranscodeJobQuery(cameraId: string, enabled: boolean) {
   });
 }
 
+// Admin LL-HLS preview URL for a camera's raw ingest (works pre-live). The
+// token inside expires in 5 min; refetch on a shorter interval while open so a
+// long-lived preview keeps a fresh token.
+export function useCameraPreviewQuery(cameraId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['camera-preview', cameraId] as const,
+    queryFn: () => streamsService.getCameraPreview(cameraId),
+    enabled,
+    refetchInterval: enabled ? 240_000 : false,
+    staleTime: 240_000,
+  });
+}
+
 // On-demand fetch of the secret OBS credentials. Not auto-polled; `enabled`
 // flips when the user opens the credentials panel.
 export function useCameraIngestQuery(cameraId: string, enabled: boolean) {

@@ -132,6 +132,12 @@ export const streamsService = {
     return data;
   },
 
+  // ── Admin camera preview (LL-HLS ingest, works pre-live) ───────
+  getCameraPreview: async (cameraId: string): Promise<{ llPath: string }> => {
+    const { data } = await httpClient.get<{ llPath: string }>(`/cameras/${cameraId}/preview`);
+    return data;
+  },
+
   // ── Transcode job for a camera (404 → null) ───────────────────
   getActiveTranscodeJob: async (cameraId: string): Promise<TranscodeJobResponse | null> => {
     try {

@@ -6,7 +6,11 @@ import { config } from '@/config';
 import styles from './HlsVideo.module.scss';
 
 interface Props {
-  packageId: string;
+  // Origin package playback (live on-air). Ignored when `src` is given.
+  packageId?: string;
+  // Full playlist path (relative to apiUrl) — used for the MediaMTX ingest
+  // LL-HLS preview, which has no origin package.
+  src?: string;
   className?: string;
   controls?: boolean;
 }
@@ -14,10 +18,12 @@ interface Props {
 // Core HLS playback — no chrome (no overlay/close button). Used inline by
 // StreamPreviewPanel for real-time on-air preview, and wrapped by HlsPreview
 // for the per-camera modal preview in FeedBody.
-export function HlsVideo({ packageId, className, controls = false }: Props) {
+export function HlsVideo({ packageId, src: srcOverride, className, controls = false }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState<string | null>(null);
-  const src = `${config.apiUrl}/origin/${packageId}/master.m3u8`;
+  const src = srcOverride
+    ? `${config.apiUrl}${srcOverride}`
+    : `${config.apiUrl}/origin/${packageId}/master.m3u8`;
 
   useEffect(() => {
     const video = videoRef.current;
