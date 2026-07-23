@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Maximize2, Volume2, VolumeX } from 'lucide-react';
 import { track } from '@/lib/analytics/analytics-client';
 import type { LiveCamera } from '../types/live.types';
@@ -116,6 +117,7 @@ export function VideoPanel({
   onProgress,
   onEnded,
 }: VideoPanelProps) {
+  const t = useTranslations('player');
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Full hls.js lifecycle (build/tuning, Safari branch, levels, audio tracks,
@@ -142,9 +144,9 @@ export function VideoPanel({
       console.warn(`[ll-fallback] camera=${camera.cameraId} reason=${reason} detail=${detail ?? '-'}`);
     },
     onFatalError: () => {
-      toast.error(`Sinal perdido: ${camera.name}`, {
+      toast.error(t('signalLostTitle', { name: camera.name }), {
         id: `stream-error-${camera.cameraId}`,
-        description: 'A câmera perdeu a conexão com o servidor.',
+        description: t('signalLostDesc'),
       });
     },
   });
@@ -204,10 +206,10 @@ export function VideoPanel({
 
       {connecting && (
         <div className={styles.panelError}>
-          {mode === 'replay' ? 'Replay indisponível' : 'Conectando…'}
+          {mode === 'replay' ? t('replayUnavailable') : t('connecting')}
         </div>
       )}
-      {!connecting && error && <div className={styles.panelError}>Sem sinal</div>}
+      {!connecting && error && <div className={styles.panelError}>{t('noSignal')}</div>}
 
       <div className={styles.topBar}>
         {showLabel && (

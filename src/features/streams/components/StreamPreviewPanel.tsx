@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Radio } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useViewerCount } from '@/features/streaming';
 import { useOnAirCamera, useIngestPreviewCameras, useCameraPreviewQuery } from '../queries/ingest.queries';
 import { HlsVideo } from './HlsVideo';
@@ -18,6 +19,7 @@ interface Props {
 // package; READY plays the raw MediaMTX ingest of the primary camera receiving
 // signal, so producers can frame cameras before going live. Hidden otherwise.
 export function StreamPreviewPanel({ stream, eventId, eventTitle }: Props) {
+  const t = useTranslations('controlRoom');
   const isLive = stream.status === 'LIVE';
   const isReady = stream.status === 'READY';
 
@@ -42,21 +44,21 @@ export function StreamPreviewPanel({ stream, eventId, eventTitle }: Props) {
             onAir ? (
               <HlsVideo packageId={onAir.packageId} className={styles.video} />
             ) : (
-              <div className={styles.noSignal}><Radio size={18} />Nenhuma câmera no ar</div>
+              <div className={styles.noSignal}><Radio size={18} />{t('noCameraOnAir')}</div>
             )
           ) : ingestPreview ? (
             <HlsVideo src={ingestPreview.llPath} className={styles.video} />
           ) : (
             <div className={styles.noSignal}>
               <Radio size={18} />
-              {previewCam ? 'Carregando pré-visualização...' : 'Aguardando sinal da câmera'}
+              {previewCam ? t('loadingPreview') : t('waitingSignal')}
             </div>
           )}
 
           {isLive ? (
-            <div className={styles.liveBadge}><span className={styles.dot} />AO VIVO</div>
+            <div className={styles.liveBadge}><span className={styles.dot} />{t('liveBadge')}</div>
           ) : (
-            <div className={styles.previewBadge}>PRÉ-VISUALIZAÇÃO</div>
+            <div className={styles.previewBadge}>{t('previewBadge')}</div>
           )}
 
           {isLive && onAir && (
@@ -70,21 +72,21 @@ export function StreamPreviewPanel({ stream, eventId, eventTitle }: Props) {
         <div className={styles.info}>
           <div className={styles.eyebrow}>
             <span className={styles.dot} />
-            {isLive ? 'NO AR' : 'PRONTO'}
+            {isLive ? t('onAir') : t('ready')}
           </div>
           <h2 className={styles.title}>{stream.title}</h2>
-          {eventTitle && <div className={styles.subtitle}>{eventTitle} · stream principal</div>}
+          {eventTitle && <div className={styles.subtitle}>{eventTitle} · {t('mainStream')}</div>}
 
           {isLive && (
             <div className={styles.stat}>
-              <span className={styles.statLabel}>Espectadores</span>
+              <span className={styles.statLabel}>{t('viewers')}</span>
               <span className={styles.statValue}>{currentViewers.toLocaleString('pt-BR')}</span>
             </div>
           )}
           {isReady && (
             <div className={styles.stat}>
-              <span className={styles.statLabel}>Sinal</span>
-              <span className={styles.statValue}>{previewCam ? 'Recebendo' : 'Aguardando'}</span>
+              <span className={styles.statLabel}>{t('signal')}</span>
+              <span className={styles.statValue}>{previewCam ? t('receiving') : t('waiting')}</span>
             </div>
           )}
         </div>

@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, useEffect } from 'react';
 import { Volume2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { LiveCamera, LiveStage } from '../types/live.types';
@@ -28,13 +29,15 @@ interface LivePlayerProps {
 }
 
 function useStages(cameras: LiveCamera[], rawStages?: LiveStage[]): LiveStage[] {
+  const t = useTranslations('player');
   return useMemo(() => {
     if (rawStages && rawStages.length > 0) {
       return [...rawStages]
         .sort((a, b) => a.position - b.position)
         .map((s) => ({ ...s, cameras: [...s.cameras].sort((a, b) => a.priority - b.priority) }));
     }
-    return [{ stageId: '__main__', name: 'Palco Principal', slug: 'main', position: 0, cameras: [...cameras].sort((a, b) => a.priority - b.priority) }];
+    return [{ stageId: '__main__', name: t('mainStage'), slug: 'main', position: 0, cameras: [...cameras].sort((a, b) => a.priority - b.priority) }];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cameras, rawStages]);
 }
 
@@ -47,6 +50,7 @@ function initialStageId(stages: LiveStage[], primaryCameraId?: string | null): s
 }
 
 export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, chatEnabled }: LivePlayerProps) {
+  const t = useTranslations('player');
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -128,7 +132,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
       }
     } else {
       await navigator.clipboard.writeText(url);
-      toast.success('Link copiado');
+      toast.success(t('linkCopied'));
     }
   };
 
@@ -228,7 +232,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
               onClick={() => setGlobalMuted(false)}
             >
               <Volume2 size={16} />
-              Tocar com som
+              {t('unmutePrompt')}
             </button>
           )}
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useMyEventsQuery } from '@/features/events/queries/get-my-events';
 import { useEventStreamsQuery } from '../queries/streams.queries';
 import { useOnAirCamera, useStreamStatsQuery } from '../queries/ingest.queries';
@@ -29,9 +30,9 @@ function useLiveClock(startedAt: string | null | undefined) {
 }
 
 // ── Stats strip ───────────────────────────────────────────────────
-const HEALTH_LABEL = { OTIMA: 'ÓTIMA', ATENCAO: 'ATENÇÃO', CRITICA: 'CRÍTICA' } as const;
-
 function StatsStrip({ stream, eventId }: { stream: StreamResponse; eventId: string }) {
+  const t = useTranslations('controlRoom');
+  const HEALTH_LABEL = { OTIMA: t('healthGood'), ATENCAO: t('healthWarn'), CRITICA: t('healthBad') } as const;
   const isLive = stream.status === 'LIVE';
   // READY already has ingest flowing (OBS connected), so bitrate/RTT/health
   // are real pre-live; latency only exists once a transcode is RUNNING.
@@ -54,23 +55,23 @@ function StatsStrip({ stream, eventId }: { stream: StreamResponse; eventId: stri
         {isLive && <div className={styles.statCardGlow} />}
         <div className={styles.statLabel}>
           <span className={isLive ? styles.liveDot : styles.offlineDot} />
-          {isLive ? 'AO VIVO' : 'OFFLINE'}
+          {isLive ? t('liveBadge') : t('offline')}
         </div>
         <div className={styles.statValue}>{onAir ? timer : '—'}</div>
       </div>
       <div className={styles.statCard}>
-        <div className={styles.statLabel}>ESPECTADORES</div>
+        <div className={styles.statLabel}>{t('viewersLabel')}</div>
         <div className={styles.statValue}>{isLive ? currentViewers.toLocaleString('pt-BR') : '—'}</div>
       </div>
       <div className={styles.statCard}>
-        <div className={styles.statLabel}>BITRATE</div>
+        <div className={styles.statLabel}>{t('bitrateLabel')}</div>
         <div className={styles.statValue}>
           {stats?.ingestBitrateMbps != null ? stats.ingestBitrateMbps.toFixed(1) : '—'}{' '}
           <span className={styles.statUnit}>Mbps</span>
         </div>
       </div>
       <div className={styles.statCard}>
-        <div className={styles.statLabel}>LATÊNCIA</div>
+        <div className={styles.statLabel}>{t('latencyLabel')}</div>
         <div className={styles.statValue}>
           {stats?.originLatencySec != null ? stats.originLatencySec.toFixed(1) : '—'}
           <span className={styles.statUnit}>s</span>
@@ -80,7 +81,7 @@ function StatsStrip({ stream, eventId }: { stream: StreamResponse; eventId: stri
         className={styles.statCard}
         title={stats?.healthReasons.length ? stats.healthReasons.join(' · ') : undefined}
       >
-        <div className={styles.statLabel}>SAÚDE</div>
+        <div className={styles.statLabel}>{t('healthLabel')}</div>
         <div className={styles.statHealthRow}>
           <span className={healthClass} />
           <span className={styles.statValue}>{stats ? HEALTH_LABEL[stats.health] : '—'}</span>

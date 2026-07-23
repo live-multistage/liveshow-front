@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account';
 import { getSessionId } from '@/lib/analytics/session-id';
 import styles from './SessionWatermark.module.scss';
@@ -27,6 +28,7 @@ function randomPosition() {
 // user. Upgrade path if leaks become a real problem: server-side burned-in
 // watermark per transcode session, or DRM.
 export function SessionWatermark() {
+  const t = useTranslations('player');
   const { user } = useAuth();
   const [pos, setPos] = useState(randomPosition);
   const [session, setSession] = useState('');
@@ -44,7 +46,7 @@ export function SessionWatermark() {
 
   return (
     <div className={styles.watermark} style={pos} aria-hidden="true">
-      {identity ?? 'visitante'} · {session}
+      {identity ?? t('visitor')} · {session}
     </div>
   );
 }

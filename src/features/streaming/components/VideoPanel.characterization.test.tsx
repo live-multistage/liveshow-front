@@ -50,6 +50,8 @@ const h = vi.hoisted(() => {
 vi.mock('hls.js', () => ({ default: h.MockHls }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock('@/lib/analytics/analytics-client', () => ({ track: vi.fn() }));
+// i18n: characterization asserts behavior, not copy — echo the key.
+vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
 import { toast } from 'sonner';
 import { track } from '@/lib/analytics/analytics-client';
@@ -112,9 +114,9 @@ describe('VideoPanel characterization — hls build', () => {
     expect(hls.config.liveSyncDurationCount).toBe(2);
   });
 
-  it('shows "Conectando…" and builds nothing while manifestPath is null', () => {
+  it('shows the connecting state and builds nothing while manifestPath is null', () => {
     const { getByText } = render(<VideoPanel camera={cam({ manifestPath: null })} {...baseProps} />);
-    expect(getByText('Conectando…')).toBeTruthy();
+    expect(getByText('connecting')).toBeTruthy();
     expect(h.instances).toHaveLength(0);
   });
 
@@ -236,7 +238,7 @@ describe('VideoPanel characterization — LL fallback', () => {
     });
     expect(h.instances).toHaveLength(2);
     expect(toast.error).not.toHaveBeenCalled();
-    expect(queryByText('Sem sinal')).toBeNull();
+    expect(queryByText('noSignal')).toBeNull();
     expect(track).toHaveBeenCalledWith(
       expect.objectContaining({
         properties: expect.objectContaining({ reason: 'fatal', detail: 'levelLoadError' }),
@@ -244,14 +246,14 @@ describe('VideoPanel characterization — LL fallback', () => {
     );
   });
 
-  it('a fatal STANDARD error shows "Sem sinal" and the lost-signal toast', () => {
+  it('a fatal STANDARD error shows the no-signal state and the lost-signal toast', () => {
     const { getByText } = render(<VideoPanel camera={cam()} {...baseProps} />);
     act(() => {
       lastHls().emit(h.MockHls.Events.ERROR, { details: 'levelLoadError', fatal: true });
     });
     expect(h.instances).toHaveLength(1); // no rebuild
-    expect(getByText('Sem sinal')).toBeTruthy();
-    expect(toast.error).toHaveBeenCalledWith('Sinal perdido: Câmera A', expect.any(Object));
+    expect(getByText('noSignal')).toBeTruthy();
+    expect(toast.error).toHaveBeenCalledWith('signalLostTitle', expect.any(Object));
   });
 });
 
