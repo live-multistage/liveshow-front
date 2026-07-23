@@ -59,8 +59,8 @@ export const checkoutService = {
     return data;
   },
 
-  claimFreeTicket: async (eventId: string): Promise<ClaimFreeTicketResult> => {
-    const { data } = await httpClient.post<ClaimFreeTicketResult>('/orders/free-ticket', { eventId });
+  claimFreeTicket: async (ticketProductId: string): Promise<ClaimFreeTicketResult> => {
+    const { data } = await httpClient.post<ClaimFreeTicketResult>('/orders/free-ticket', { ticketProductId });
     return data;
   },
 };

@@ -69,7 +69,7 @@ export function TicketPanel({ event, tickets }: Props) {
   // Mobile sticky buy bar: only rendered in the purchase state below, hidden
   // while the panel itself is on screen.
   const showPurchaseUI =
-    event.status !== 'CANCELLED' && !accessLoading && !owns && !event.isFree && purchasableTickets.length > 0;
+    event.status !== 'CANCELLED' && !accessLoading && !owns && purchasableTickets.length > 0;
   const panelRef = useRef<HTMLDivElement>(null);
   const [panelInView, setPanelInView] = useState(true);
   useEffect(() => {
@@ -149,31 +149,6 @@ export function TicketPanel({ event, tickets }: Props) {
     );
   }
 
-  if (event.isFree) {
-    return (
-      <div className={styles.panel}>
-        <div className={styles.glow} aria-hidden />
-        <div className={styles.panelContent}>
-          <p className={styles.panelLabel}>{t('freeEvent')}</p>
-          <Button
-            variant="primary"
-            fullWidth
-            className={styles.ticketAction}
-            disabled={claimFreeTicket.isPending}
-            onClick={() => {
-              if (!isLoggedIn) {
-                router.push(`/login?next=/events/${event.id}`);
-                return;
-              }
-              claimFreeTicket.mutate();
-            }}
-          >
-            {claimFreeTicket.isPending ? t('adding') : t('watchNow')}
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   if (purchasableTickets.length === 0) {
     return (
@@ -205,7 +180,7 @@ export function TicketPanel({ event, tickets }: Props) {
             >
               <div className={styles.ticketOptionHeader}>
                 <span className={styles.ticketOptionName}>{opt.name}</span>
-                <span className={styles.ticketOptionPrice}>{formatPrice(opt.price)}</span>
+                <span className={styles.ticketOptionPrice}>{opt.price === 0 ? 'Grátis' : formatPrice(opt.price)}</span>
               </div>
               <div className={styles.tierChips}>
                 {opt.capabilities.includes('LIVE_VIEW') && <span className={styles.tierChip}>AO VIVO</span>}
@@ -248,6 +223,26 @@ export function TicketPanel({ event, tickets }: Props) {
           </>
         )}
 
+        {ticket && ticket.price === 0 ? (
+          <button
+            className={styles.buyBtn}
+            disabled={claimFreeTicket.isPending}
+            onClick={() => {
+              if (!isLoggedIn) {
+                router.push(`/login?next=/events/${event.id}`);
+                return;
+              }
+              claimFreeTicket.mutate(ticket.id);
+            }}
+          >
+            {claimFreeTicket.isPending ? (
+              <><span className={styles.btnSpinner} />{t('adding')}</>
+            ) : (
+              'Garantir ingresso grátis'
+            )}
+          </button>
+        ) : (
+          <>
         <button
           className={styles.buyBtn}
           disabled={pendingAction === 'buy' || soldOut}
@@ -318,6 +313,8 @@ export function TicketPanel({ event, tickets }: Props) {
             </>
           )}
         </button>
+          </>
+        )}
 
         {isLive && (
           <div className={styles.demoLink}>
@@ -341,7 +338,7 @@ export function TicketPanel({ event, tickets }: Props) {
         <div className={styles.mobileBar}>
           <div>
             <span className={styles.mobileBarLabel}>{isFinished ? 'REPRISE' : 'INGRESSO'}</span>
-            <span className={styles.mobileBarAmount}>{formatPrice(ticket.price)}</span>
+            <span className={styles.mobileBarAmount}>{ticket.price === 0 ? 'Grátis' : formatPrice(ticket.price)}</span>
           </div>
           <button className={styles.mobileBarBtn} onClick={scrollToPanel}>
             Comprar ingresso

@@ -9,9 +9,9 @@ import { normalizeError, type AppError } from '@/lib/http/errors';
 export function useClaimFreeTicketMutation(eventId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (ticketProductId: string) => {
       try {
-        return await checkoutService.claimFreeTicket(eventId);
+        return await checkoutService.claimFreeTicket(ticketProductId);
       } catch (e) {
         throw normalizeError(e);
       }

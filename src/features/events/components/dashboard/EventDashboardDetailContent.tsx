@@ -4,14 +4,13 @@ import { useState } from 'react';
 import { MapPin, ArrowLeft, ScanLine } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
 import { useUpdateEventMutation } from '../../mutations/update-event.mutation';
 import { usePublishEventMutation, useUnpublishEventMutation, useFinishEventMutation } from '../../mutations/publish-event.mutation';
 import { EventHeaderActions } from './EventHeaderActions';
 import { LibrasAccessibilityPanel } from './LibrasAccessibilityPanel';
-import { useSetEventFreeStatusMutation } from '../../mutations/set-free-status.mutation';
 import { useAccessibilityQuery } from '../../queries/get-accessibility';
 import { EventEditForm, editSchema } from './EventEditForm';
 import type { EditFormValues } from './EventEditForm';
@@ -52,13 +51,9 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
   // Default to blocked while the status is still loading (avoids a 400 round-trip).
   const publishBlocked = !!event?.publiclyFunded && !accessibility?.publishable;
 
-  const freeStatusMutation = useSetEventFreeStatusMutation(id);
-
   const { register, control, handleSubmit, reset, formState: { errors } } = useForm<EditFormValues>({
     resolver: zodResolver(editSchema),
   });
-  // While editing, the free checkbox disables the ticket editor live.
-  const editingFree = useWatch({ control, name: 'isFree' }) ?? false;
 
   function startEditing() {
     if (!event) return;
@@ -69,7 +64,6 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
       endsAt: toDatetimeLocal(event.endsAt),
       latencyMode: event.latencyMode ?? 'STANDARD',
       publiclyFunded: event.publiclyFunded ?? false,
-      isFree: event.isFree ?? false,
     });
     setEditing(true);
   }
@@ -88,11 +82,6 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
       latencyMode: values.latencyMode,
       publiclyFunded: values.publiclyFunded,
     });
-    // Free eligibility is toggled here too — backend rewrites the ticket
-    // products (clears paid → free, or vice-versa).
-    if (values.isFree !== event?.isFree) {
-      await freeStatusMutation.mutateAsync(values.isFree);
-    }
     setEditing(false);
   }
 
@@ -129,7 +118,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
         <EventHeaderActions
           event={event}
           editing={editing}
-          isSaving={updateMutation.isPending || freeStatusMutation.isPending}
+          isSaving={updateMutation.isPending}
           isPublishing={publishMutation.isPending}
           isUnpublishing={unpublishMutation.isPending}
           isFinishing={finishMutation.isPending}
@@ -167,7 +156,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
               isPending={updateMutation.isPending}
               errorMessage={updateMutation.error?.message}
             />
-            <EditTicketSection eventId={id} tickets={tickets} disabled={editingFree} />
+            <EditTicketSection eventId={id} tickets={tickets} />
             <PhotosSection event={event} />
           </>
         ) : (
