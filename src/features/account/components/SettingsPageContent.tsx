@@ -25,6 +25,7 @@ import {
 import { updateProfileSchema, type UpdateProfileFormValues } from '../schemas/update-profile.schema';
 import { changePasswordSchema, type ChangePasswordFormValues } from '../schemas/change-password.schema';
 import type { NotificationPreferenceKey } from '../types/notification-preferences.types';
+import { useAnalyticsConsent } from '@/lib/analytics/consent';
 import styles from './SettingsPageContent.module.scss';
 
 function initials(name?: string): string {
@@ -87,6 +88,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
   const revokeSession = useRevokeSessionMutation();
   const { data: prefs } = useNotificationPreferencesQuery();
   const updatePrefs = useUpdateNotificationPreferencesMutation();
+  const { consent, setConsent } = useAnalyticsConsent();
 
   const [profileSaved, setProfileSaved] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
@@ -308,6 +310,27 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
                   />
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* privacy — LGPD non-essential data opt-out */}
+          <section id="privacidade" className={styles.card}>
+            <div className={styles.cardLabel}>PRIVACIDADE</div>
+            <div className={styles.cardTitle}>Coleta de dados</div>
+            <div className={styles.prefList}>
+              <div className={styles.prefRow}>
+                <div>
+                  <div className={styles.prefTitle}>Analytics e recomendações</div>
+                  <div className={styles.prefDesc}>
+                    Uso não essencial: comportamento de navegação e perfil de interesses
+                    para personalizar o conteúdo. Desligar não afeta compras nem acesso aos shows.
+                  </div>
+                </div>
+                <Toggle
+                  on={consent === 'granted'}
+                  onClick={() => setConsent(consent === 'granted' ? 'denied' : 'granted')}
+                />
+              </div>
             </div>
           </section>
 

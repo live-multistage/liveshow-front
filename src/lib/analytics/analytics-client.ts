@@ -1,6 +1,7 @@
 import { config } from '@/config';
 import { tokenStore } from '@/lib/auth/token-store';
 import { getSessionId } from './session-id';
+import { hasAnalyticsConsent } from './consent';
 
 type TrackParams = {
   eventType: string;
@@ -12,6 +13,8 @@ type TrackParams = {
 
 export function track(params: TrackParams): void {
   if (typeof window === 'undefined') return; // skip SSR
+  // LGPD: no behavioral analytics/profiling without opt-in consent.
+  if (!hasAnalyticsConsent()) return;
 
   const sessionId = getSessionId();
   const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
