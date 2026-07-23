@@ -67,20 +67,24 @@ export function useIngestPreviewCamera(streamId: string | null, enabled: boolean
     q.data ? q.data.feeds.map((feed) => ({ feed, stageName: q.data!.stageName })) : [],
   );
 
+  // Shares INGEST_KEYS.feed(feedId) with useFeedIngestQuery, so the shape stored
+  // MUST stay the bare FeedIngestResponse (mixing a wrapped shape under this key
+  // caused a cache-race crash). stageName is carried by index from feedsWithStage
+  // — useQueries preserves input order.
   const ingestQueries = useQueries({
-    queries: feedsWithStage.map(({ feed, stageName }) => ({
+    queries: feedsWithStage.map(({ feed }) => ({
       queryKey: INGEST_KEYS.feed(feed.id),
-      queryFn: async () => ({ ingest: await streamsService.getFeedIngest(feed.id), stageName }),
+      queryFn: () => streamsService.getFeedIngest(feed.id),
       enabled: enabled && feedsWithStage.length > 0,
       refetchInterval: enabled ? 5000 : false,
     })),
   });
 
-  const candidates = ingestQueries.flatMap((q) =>
+  const candidates = ingestQueries.flatMap((q, i) =>
     q.data
-      ? q.data.ingest.cameras
+      ? q.data.cameras
           .filter((c) => c.enabled && c.live)
-          .map((c) => ({ cameraId: c.id, cameraName: c.name, stageName: q.data!.stageName, priority: c.priority }))
+          .map((c) => ({ cameraId: c.id, cameraName: c.name, stageName: feedsWithStage[i].stageName, priority: c.priority }))
       : [],
   );
   if (candidates.length === 0) return null;
