@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Check } from 'lucide-react';
 import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@live-show/design-system';
 import { useApproveOrganizationMutation } from '../mutations/approve-organization.mutation';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function ApproveOrgDialog({ open, onOpenChange, organization, onApproved }: Props) {
+  const t = useTranslations('platformAdmin');
   const mutation = useApproveOrganizationMutation(() => {
     onOpenChange(false);
     onApproved?.();
@@ -28,8 +30,8 @@ export function ApproveOrgDialog({ open, onOpenChange, organization, onApproved 
               <Check size={20} strokeWidth={2.2} />
             </div>
             <div>
-              <DialogTitle>Aprovar organização</DialogTitle>
-              <DialogDescription>Ativa imediatamente e notifica o responsável.</DialogDescription>
+              <DialogTitle>{t('approveTitle')}</DialogTitle>
+              <DialogDescription>{t('approveDesc')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -62,7 +64,7 @@ export function ApproveOrgDialog({ open, onOpenChange, organization, onApproved 
             Cancelar
           </Button>
           <Button disabled={mutation.isPending} onClick={() => mutation.mutate(organization.id)}>
-            {mutation.isPending ? 'Aprovando...' : 'Aprovar organização'}
+            {mutation.isPending ? t('approving') : t('approveBtn')}
           </Button>
         </DialogFooter>
       </DialogContent>

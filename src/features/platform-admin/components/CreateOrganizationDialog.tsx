@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,6 +19,7 @@ interface Props {
 type SlugState = 'idle' | 'checking' | 'available' | 'taken';
 
 export function CreateOrganizationDialog({ open, onOpenChange }: Props) {
+  const t = useTranslations('platformAdmin');
   const {
     register,
     handleSubmit,
@@ -58,8 +60,8 @@ export function CreateOrganizationDialog({ open, onOpenChange }: Props) {
 
   const slugMsg =
     slugState === 'checking' ? 'Verificando disponibilidade…'
-    : slugState === 'available' ? 'Disponível'
-    : slugState === 'taken' ? 'Já em uso — escolha outro slug'
+    : slugState === 'available' ? t('slugAvailable2')
+    : slugState === 'taken' ? t('slugTaken2')
     : null;
 
   const slugMsgClass =
@@ -76,8 +78,8 @@ export function CreateOrganizationDialog({ open, onOpenChange }: Props) {
               <Building2 size={20} strokeWidth={2} />
             </div>
             <div>
-              <DialogTitle>Criar organização</DialogTitle>
-              <DialogDescription>Cadastre manualmente — o responsável precisa já ter uma conta.</DialogDescription>
+              <DialogTitle>{t('createOrgTitle')}</DialogTitle>
+              <DialogDescription>{t('createOrgDesc')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -131,7 +133,7 @@ export function CreateOrganizationDialog({ open, onOpenChange }: Props) {
           </div>
 
           <div className={styles.infoBanner}>
-            A organização será criada como <strong>Ativa</strong> e o responsável precisa já ter uma conta cadastrada na plataforma.
+            {t.rich('createOrgNote', { strong: (c) => <strong>{c}</strong> })}
           </div>
 
           {mutation.error && <p className={styles.error}>{mutation.error.message}</p>}

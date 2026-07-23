@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@live-show/design-system';
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function RejectOrgDialog({ open, onOpenChange, organization, onRejected }: Props) {
+  const t = useTranslations('platformAdmin');
   const [reason, setReason] = useState('');
   const mutation = useRejectOrganizationMutation(() => {
     setReason('');
@@ -31,8 +33,8 @@ export function RejectOrgDialog({ open, onOpenChange, organization, onRejected }
               <X size={20} strokeWidth={2.2} />
             </div>
             <div>
-              <DialogTitle>Rejeitar organização</DialogTitle>
-              <DialogDescription>Não será ativada. O responsável verá o motivo abaixo.</DialogDescription>
+              <DialogTitle>{t('rejectTitle')}</DialogTitle>
+              <DialogDescription>{t('rejectDesc')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -60,7 +62,7 @@ export function RejectOrgDialog({ open, onOpenChange, organization, onRejected }
             className={styles.textarea}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Explique por que este cadastro está sendo rejeitado. O owner receberá esta mensagem."
+            placeholder={t('rejectPlaceholder')}
             rows={3}
           />
           {mutation.error && <p className={styles.error}>{mutation.error.message}</p>}

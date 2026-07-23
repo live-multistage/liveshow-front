@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -19,13 +20,13 @@ import { useSetOrganizationStatusMutation } from '../mutations/set-organization-
 import type { OrganizationStatus, PlatformOrganization } from '../types/platform-admin.types';
 import styles from './OrganizationDirectoryPage.module.scss';
 
-const STATUS_TABS: { value: OrganizationStatus | 'ALL'; label: string }[] = [
-  { value: 'PENDING', label: 'Pendentes' },
-  { value: 'ALL', label: 'Todas' },
-  { value: 'ACTIVE', label: 'Ativas' },
-  { value: 'SUSPENDED', label: 'Suspensas' },
-  { value: 'ARCHIVED', label: 'Arquivadas' },
-  { value: 'REJECTED', label: 'Rejeitadas' },
+const STATUS_TABS: { value: OrganizationStatus | 'ALL'; labelKey: string }[] = [
+  { value: 'PENDING', labelKey: 'tabPending' },
+  { value: 'ALL', labelKey: 'tabAllOrgs' },
+  { value: 'ACTIVE', labelKey: 'tabActive' },
+  { value: 'SUSPENDED', labelKey: 'tabSuspended' },
+  { value: 'ARCHIVED', labelKey: 'tabArchived2' },
+  { value: 'REJECTED', labelKey: 'tabRejected' },
 ];
 
 const PAGE_SIZE = 20;
@@ -44,6 +45,7 @@ function ownerAvatarColor(id: string): string {
 }
 
 export function OrganizationDirectoryPage() {
+  const t = useTranslations('platformAdmin');
   const [statusTab, setStatusTab] = useState<OrganizationStatus | 'ALL'>('PENDING');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -85,7 +87,7 @@ export function OrganizationDirectoryPage() {
         <Search size={18} className={styles.searchIcon} />
         <input
           className={styles.searchInput}
-          placeholder="Buscar por nome ou slug…"
+          placeholder={t('dirSearchPlaceholder')}
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -106,7 +108,7 @@ export function OrganizationDirectoryPage() {
                 setPage(1);
               }}
             >
-              {tab.label.toUpperCase()}
+              {t(tab.labelKey).toUpperCase()}
               {active && data && <span className={`${styles.chipCount} ${styles.chipCountActive}`}>{data.total}</span>}
             </button>
           );
@@ -140,7 +142,7 @@ export function OrganizationDirectoryPage() {
             </div>
             <div className={styles.emptyTitle}>Nenhuma organização encontrada</div>
             <div className={styles.emptyDesc}>
-              {statusTab === 'PENDING' ? 'Não há cadastros pendentes de aprovação no momento. 🎉' : 'Tente outro filtro ou termo de busca.'}
+              {statusTab === 'PENDING' ? t('emptyPending') : t('emptyFiltered')}
             </div>
           </div>
         )}

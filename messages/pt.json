@@ -792,5 +792,31 @@
     "removeBtn": "Remover",
     "noDescription": "Sem descrição.",
     "descPlaceholder": "Descreva sua organização..."
+  },
+  "platformAdmin": {
+    "tabPending": "Pendentes",
+    "tabAllOrgs": "Todas",
+    "tabActive": "Ativas",
+    "tabSuspended": "Suspensas",
+    "tabArchived2": "Arquivadas",
+    "tabRejected": "Rejeitadas",
+    "dirSearchPlaceholder": "Buscar por nome ou slug…",
+    "emptyPending": "Não há cadastros pendentes de aprovação no momento. 🎉",
+    "emptyFiltered": "Tente outro filtro ou termo de busca.",
+    "userSearchPlaceholder": "Buscar por nome ou e-mail…",
+    "searching2": "Buscando...",
+    "userSearchError": "Erro ao buscar usuários.",
+    "approveTitle": "Aprovar organização",
+    "approveDesc": "Ativa imediatamente e notifica o responsável.",
+    "approving": "Aprovando...",
+    "approveBtn": "Aprovar organização",
+    "rejectTitle": "Rejeitar organização",
+    "rejectDesc": "Não será ativada. O responsável verá o motivo abaixo.",
+    "rejectPlaceholder": "Explique por que este cadastro está sendo rejeitado. O owner receberá esta mensagem.",
+    "slugAvailable2": "Disponível",
+    "slugTaken2": "Já em uso — escolha outro slug",
+    "createOrgTitle": "Criar organização",
+    "createOrgDesc": "Cadastre manualmente — o responsável precisa já ter uma conta.",
+    "createOrgNote": "A organização será criada como <strong>Ativa</strong> e o responsável precisa já ter uma conta cadastrada na plataforma."
   }
 }

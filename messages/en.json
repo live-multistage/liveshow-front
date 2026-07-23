@@ -789,5 +789,31 @@
     "removeBtn": "Remove",
     "noDescription": "No description.",
     "descPlaceholder": "Describe your organization..."
+  },
+  "platformAdmin": {
+    "tabPending": "Pending",
+    "tabAllOrgs": "All",
+    "tabActive": "Active",
+    "tabSuspended": "Suspended",
+    "tabArchived2": "Archived",
+    "tabRejected": "Rejected",
+    "dirSearchPlaceholder": "Search by name or slug…",
+    "emptyPending": "No registrations pending approval right now. 🎉",
+    "emptyFiltered": "Try another filter or search term.",
+    "userSearchPlaceholder": "Search by name or email…",
+    "searching2": "Searching...",
+    "userSearchError": "Failed to search users.",
+    "approveTitle": "Approve organization",
+    "approveDesc": "Activates immediately and notifies the owner.",
+    "approving": "Approving...",
+    "approveBtn": "Approve organization",
+    "rejectTitle": "Reject organization",
+    "rejectDesc": "It will not be activated. The owner will see the reason below.",
+    "rejectPlaceholder": "Explain why this registration is being rejected. The owner will receive this message.",
+    "slugAvailable2": "Available",
+    "slugTaken2": "Already in use — pick another slug",
+    "createOrgTitle": "Create organization",
+    "createOrgDesc": "Register manually — the owner must already have an account.",
+    "createOrgNote": "The organization will be created as <strong>Active</strong> and the owner must already have a platform account."
   }
 }

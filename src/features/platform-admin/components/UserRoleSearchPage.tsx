@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Search, ChevronDown, Check, Lock } from 'lucide-react';
@@ -31,6 +32,7 @@ function avatarColor(id: string): string {
 }
 
 export function UserRoleSearchPage() {
+  const t = useTranslations('platformAdmin');
   const [query, setQuery] = useState('');
   const { user: currentUser } = useAuth();
   const isCurrentUserSuperAdmin = currentUser?.role === 'SUPER_ADMIN';
@@ -60,14 +62,14 @@ export function UserRoleSearchPage() {
         <Search size={18} className={styles.searchIcon} />
         <input
           className={styles.searchInput}
-          placeholder="Buscar por nome ou e-mail…"
+          placeholder={t('userSearchPlaceholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
       </div>
 
-      {isLoading && <p>Buscando...</p>}
-      {isError && <p>Erro ao buscar usuários.</p>}
+      {isLoading && <p>{t('searching2')}</p>}
+      {isError && <p>{t('userSearchError')}</p>}
       {!isLoading && query.trim().length > 0 && data?.length === 0 && (
         <div className={styles.empty}>Nenhum usuário encontrado para “{query}”. Tente outro nome ou e-mail.</div>
       )}
