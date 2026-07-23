@@ -73,7 +73,7 @@ export function TicketSection({ tickets, onChange, format }: Props) {
       {
         _key: crypto.randomUUID(),
         name: 'Reprise',
-        description: 'Acesso à gravação após o evento',
+        description: t('replayTicketDesc'),
         price: replayPriceNum,
         capabilities: ['REPLAY_VIEW'],
         camerasLimit: null,

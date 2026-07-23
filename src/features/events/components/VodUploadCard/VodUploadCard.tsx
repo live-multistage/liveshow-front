@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Film, UploadCloud, CheckCircle2, AlertTriangle } from 'lucide-react';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function VodUploadCard({ eventId }: Props) {
+  const t = useTranslations('eventDetail');
   const queryClient = useQueryClient();
   const { data: asset, isLoading } = useVodAsset(eventId);
 
@@ -56,7 +58,7 @@ export function VodUploadCard({ eventId }: Props) {
 
   return (
     <div className={styles.card}>
-      <p className={styles.title}><Film size={14} /> Vídeo</p>
+      <p className={styles.title}><Film size={14} /> {t('vodTitle')}</p>
 
       <input
         ref={inputRef}
@@ -89,8 +91,8 @@ export function VodUploadCard({ eventId }: Props) {
       ) : !asset || asset.status === 'AWAITING_UPLOAD' ? (
         <button type="button" className={styles.uploadZone} onClick={() => inputRef.current?.click()}>
           <UploadCloud size={20} />
-          <span>Enviar vídeo</span>
-          <span className={styles.hint}>MP4, até 5GB</span>
+          <span>{t('vodSend')}</span>
+          <span className={styles.hint}>{t('vodHint')}</span>
         </button>
       ) : asset.status === 'UPLOADED' || asset.status === 'PROCESSING' ? (
         <div className={styles.progressState}>
@@ -98,10 +100,10 @@ export function VodUploadCard({ eventId }: Props) {
           <p className={styles.hint}>Processando…</p>
         </div>
       ) : asset.status === 'READY' ? (
-        <p className={styles.readyState}><CheckCircle2 size={16} /> Vídeo pronto</p>
+        <p className={styles.readyState}><CheckCircle2 size={16} /> {t('vodReady')}</p>
       ) : (
         <div className={styles.errorState}>
-          <p className={styles.errorMessage}><AlertTriangle size={14} /> {asset.error ?? 'Falha no processamento do vídeo'}</p>
+          <p className={styles.errorMessage}><AlertTriangle size={14} /> {asset.error ?? t('vodError')}</p>
           <button type="button" className={styles.btn} onClick={() => inputRef.current?.click()}>
             Tentar novamente
           </button>

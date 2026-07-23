@@ -213,7 +213,11 @@
     "liveForYou": "En vivo para ti",
     "findByGenre": "Buscar por\ncategoría",
     "all": "Todos",
-    "freePrice": "Gratuito"
+    "freePrice": "Gratuito",
+    "recommendedForYou": "Recomendados para ti",
+    "trendingNow": "Tendencias ahora",
+    "replaysAvailable": "Repeticiones disponibles",
+    "noShows": "No hay shows disponibles ahora."
   },
   "language": {
     "select": "Idioma",
@@ -445,7 +449,17 @@
     "latencyLow": "Baja latencia (~2–4s, ideal para deportes — calidad única)",
     "publishBlockedLibras": "Requiere Ventana de Lengua de Señas y aprobación de accesibilidad (NBR 15290).",
     "publiclyFundedLabel": "Financiado con dinero público",
-    "publiclyFundedHint": "Exige una Ventana de Lengua de Señas obligatoria (NBR 15290) y aprobación de accesibilidad antes de publicar."
+    "publiclyFundedHint": "Exige una Ventana de Lengua de Señas obligatoria (NBR 15290) y aprobación de accesibilidad antes de publicar.",
+    "librasCameraTitle": "Cámara de la Ventana de Libras",
+    "librasCameraMarked": "Una cámara está marcada como Ventana de Libras.",
+    "librasCameraUnmarked": "Ninguna cámara marcada. En la pestaña Stream, marca la cámara de la Ventana de Libras (ícono de mano).",
+    "librasApprovalTitle": "Aprobación de accesibilidad",
+    "librasApprovalWaiting": "Esperando revisión del equipo de la plataforma.",
+    "vodTitle": "Video",
+    "vodSend": "Subir video",
+    "vodHint": "MP4, hasta 5GB",
+    "vodReady": "Video listo",
+    "vodError": "Falló el procesamiento del video"
   },
   "createEvent": {
     "back": "Eventos",
@@ -537,7 +551,9 @@
       "noOrg": "Selecciona una organización",
       "ticketsHeading": "ENTRADAS",
       "ticketsEmpty": "Aún no hay entradas configuradas"
-    }
+    },
+    "replayTicketDesc": "Acceso a la grabación después del evento",
+    "mainStreamTitle": "Transmisión Principal"
   },
   "editTicket": {
     "title": "Entradas",
@@ -566,7 +582,8 @@
     "empty": "Ninguna entrada agregada aún.",
     "stagesNote": "El acceso a escenarios específicos puede configurarse después de crear el evento.",
     "errorAdd": "Error al agregar entrada.",
-    "errorSave": "Error al guardar entrada."
+    "errorSave": "Error al guardar entrada.",
+    "replayTicketDesc": "Acceso a la grabación después del evento"
   },
   "settings": {
     "heading": "Configuración",

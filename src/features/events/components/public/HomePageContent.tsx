@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 import { useListEventsQuery, eventToShow } from '@/features/events';
 import type { EventResponse } from '@/features/events';
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function HomePageContent({ initialEvents }: Props) {
+  const t = useTranslations('home');
   const [activeGenre, setActiveGenre] = useState('Todos');
   const { data: events = [], isLoading } = useListEventsQuery('all', initialEvents);
 
@@ -42,7 +44,7 @@ export function HomePageContent({ initialEvents }: Props) {
   if (!featuredShow) {
     return (
       <div className={styles.empty}>
-        <p>Nenhum show disponível no momento.</p>
+        <p>{t('noShows')}</p>
       </div>
     );
   }

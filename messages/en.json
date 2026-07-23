@@ -213,7 +213,11 @@
     "liveForYou": "Live for you",
     "findByGenre": "Find by\ncategory",
     "all": "All",
-    "freePrice": "Free"
+    "freePrice": "Free",
+    "recommendedForYou": "Recommended for you",
+    "trendingNow": "Trending now",
+    "replaysAvailable": "Replays available",
+    "noShows": "No shows available right now."
   },
   "language": {
     "select": "Language",
@@ -445,7 +449,17 @@
     "latencyLow": "Low latency (~2–4s, ideal for sports — single quality)",
     "publishBlockedLibras": "Requires a Libras window and accessibility approval (NBR 15290).",
     "publiclyFundedLabel": "Funded with public money",
-    "publiclyFundedHint": "Requires a mandatory Libras (sign language) window (NBR 15290) and accessibility approval before publishing."
+    "publiclyFundedHint": "Requires a mandatory Libras (sign language) window (NBR 15290) and accessibility approval before publishing.",
+    "librasCameraTitle": "Libras Window camera",
+    "librasCameraMarked": "A camera is marked as the Libras Window.",
+    "librasCameraUnmarked": "No camera marked. In the Stream tab, mark the Libras Window camera (hand icon).",
+    "librasApprovalTitle": "Accessibility approval",
+    "librasApprovalWaiting": "Waiting for platform team review.",
+    "vodTitle": "Video",
+    "vodSend": "Upload video",
+    "vodHint": "MP4, up to 5GB",
+    "vodReady": "Video ready",
+    "vodError": "Video processing failed"
   },
   "createEvent": {
     "back": "Events",
@@ -537,7 +551,9 @@
       "noOrg": "Select an organization",
       "ticketsHeading": "TICKETS",
       "ticketsEmpty": "No tickets configured yet"
-    }
+    },
+    "replayTicketDesc": "Access to the recording after the event",
+    "mainStreamTitle": "Main Broadcast"
   },
   "editTicket": {
     "title": "Tickets",
@@ -566,7 +582,8 @@
     "empty": "No tickets added yet.",
     "stagesNote": "Stage-specific access can be configured after the event is created.",
     "errorAdd": "Error adding ticket.",
-    "errorSave": "Error saving ticket."
+    "errorSave": "Error saving ticket.",
+    "replayTicketDesc": "Access to the recording after the event"
   },
   "settings": {
     "heading": "Settings",

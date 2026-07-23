@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import type { UseFormTrigger } from 'react-hook-form';
 import { useCreateEventMutation } from '../mutations/create-event.mutation';
@@ -17,10 +18,10 @@ const STEP_FIELDS: Partial<Record<number, (keyof CreateEventFormValues)[]>> = {
   // step 4 (stream) has no required form fields
 };
 
-async function createStreamStructure(eventId: string, cfg: StreamConfig) {
+async function createStreamStructure(eventId: string, cfg: StreamConfig, fallbackTitle: string) {
   if (!cfg.title.trim() && cfg.stages.length === 0) return;
   const stream = await streamsService.create(eventId, {
-    title: cfg.title.trim() || 'Transmissão Principal',
+    title: cfg.title.trim() || fallbackTitle,
   });
   for (const stage of cfg.stages) {
     const s = await streamsService.createStage(stream.id, { name: stage.name });
@@ -34,6 +35,7 @@ async function createStreamStructure(eventId: string, cfg: StreamConfig) {
 }
 
 export function useCreateEventWizard(format: EventFormat, onSuccess?: (event: EventResponse) => void) {
+  const t = useTranslations('createEvent');
   const [step, setStep] = useState(1);
   const [tickets, setTickets] = useState<AddedTicket[]>([]);
   const [ticketsError, setTicketsError] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export function useCreateEventWizard(format: EventFormat, onSuccess?: (event: Ev
   const mutation = useCreateEventMutation(async (event) => {
     if (format !== 'VOD') {
       try {
-        await createStreamStructure(event.id, streamConfig);
+        await createStreamStructure(event.id, streamConfig, t('mainStreamTitle'));
       } catch {
         // stream creation is best-effort; user can finish setup in dashboard
       }

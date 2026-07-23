@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Accessibility, Check, Clock, AlertTriangle } from 'lucide-react';
 import { useAccessibilityQuery } from '../../queries/get-accessibility';
 import styles from './LibrasAccessibilityPanel.module.scss';
@@ -9,6 +10,7 @@ import styles from './LibrasAccessibilityPanel.module.scss';
 // a super-admin then signs off accessibility. Until both are done the event
 // can't be published/started. This panel is a read-only status summary.
 export function LibrasAccessibilityPanel({ eventId }: { eventId: string }) {
+  const t = useTranslations('eventDetail');
   const { data: status, isLoading } = useAccessibilityQuery(eventId);
 
   if (isLoading || !status) return null;
@@ -35,11 +37,11 @@ export function LibrasAccessibilityPanel({ eventId }: { eventId: string }) {
           {librasDone ? <Check size={14} /> : <AlertTriangle size={14} />}
         </span>
         <div className={styles.stepBody}>
-          <p className={styles.stepTitle}>Câmera da Janela de Libras</p>
+          <p className={styles.stepTitle}>{t('librasCameraTitle')}</p>
           <p className={styles.hint}>
             {librasDone
-              ? 'Uma câmera está marcada como Janela de Libras.'
-              : 'Nenhuma câmera marcada. Na aba Stream, marque a câmera da Janela de Libras (ícone de mão).'}
+              ? t('librasCameraMarked')
+              : t('librasCameraUnmarked')}
           </p>
         </div>
       </div>
@@ -50,11 +52,11 @@ export function LibrasAccessibilityPanel({ eventId }: { eventId: string }) {
           {approvalDone ? <Check size={14} /> : <Clock size={14} />}
         </span>
         <div className={styles.stepBody}>
-          <p className={styles.stepTitle}>Aprovação de acessibilidade</p>
+          <p className={styles.stepTitle}>{t('librasApprovalTitle')}</p>
           <p className={styles.hint}>
             {approvalDone
               ? 'Acessibilidade aprovada pela equipe da plataforma.'
-              : 'Aguardando análise da equipe da plataforma.'}
+              : t('librasApprovalWaiting')}
           </p>
         </div>
       </div>

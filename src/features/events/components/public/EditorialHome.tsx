@@ -2,6 +2,7 @@
 // (no hydration) except two islands — GenreGrid (the interactive filter) and
 // AdBanner. Data comes straight from the SSR fetch; the old react-query hooks
 // (staleTime 5min) were dropped in favor of fresh-per-navigation server data.
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { eventToShow } from '@/features/events/utils/event-adapter';
 import type { EventResponse, RecommendedEventsResponse } from '@/features/events';
@@ -26,6 +27,7 @@ interface Props {
 export function EditorialHome({
   initialEvents = [], initialRecommended, initialReplayCatalog, localeCode, isLoggedIn,
 }: Props) {
+  const t = useTranslations('home');
   const shows = initialEvents.map(eventToShow);
   const recommendedShows = (initialRecommended?.items ?? []).map(eventToShow);
   const onDemandShows = (initialReplayCatalog?.items ?? []).map(eventToShow);
@@ -110,7 +112,7 @@ export function EditorialHome({
 
             <div className={styles.liveRail}>
               <div className={styles.liveRailHeader}>
-                <h2 className={styles.liveRailTitle}>Ao Vivo para você</h2>
+                <h2 className={styles.liveRailTitle}>{t('liveForYou')}</h2>
                 {liveShows.length > 0 && (
                   <span className={styles.liveRailBadge}>
                     <span className={styles.liveDot} />
@@ -144,7 +146,7 @@ export function EditorialHome({
                   {isLoggedIn ? 'PARA VOCÊ' : 'DESTAQUES'}
                 </div>
                 <div className={styles.sectionTitle}>
-                  {isLoggedIn ? 'Recomendados para você' : 'Em alta agora'}
+                  {isLoggedIn ? t('recommendedForYou') : t('trendingNow')}
                 </div>
               </div>
               <Link href="/events" className={styles.sectionMore}>
@@ -166,7 +168,7 @@ export function EditorialHome({
             <div className={styles.sectionHeader}>
               <div>
                 <div className={styles.sectionEyebrow}>SOB DEMANDA</div>
-                <div className={styles.sectionTitle}>Reprises disponíveis</div>
+                <div className={styles.sectionTitle}>{t('replaysAvailable')}</div>
               </div>
               <Link href="/events" className={styles.sectionMore}>
                 VER TODOS →
