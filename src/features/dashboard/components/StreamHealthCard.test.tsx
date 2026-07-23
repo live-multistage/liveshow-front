@@ -91,4 +91,17 @@ describe('StreamHealthCard', () => {
 
     expect(screen.getByText('Sem detalhes disponíveis.')).toBeInTheDocument();
   });
+
+  it('does not crash on a pre-upgrade payload without detail arrays', async () => {
+    renderCard({
+      liveEvents: 1,
+      transcodeActive: 1,
+      transcodeFailed: 2,
+      ingestConnected: 1,
+    } as StreamHealth);
+
+    await userEvent.click(screen.getByRole('button', { name: /JOBS COM FALHA/i }));
+
+    expect(screen.getByText('Sem detalhes disponíveis.')).toBeInTheDocument();
+  });
 });

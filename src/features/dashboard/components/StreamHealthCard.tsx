@@ -73,9 +73,9 @@ export function StreamHealthCard() {
   ];
 
   const panels: Record<Panel, { rows: number; content: ReactNode }> = {
-    active: { rows: data?.activeJobs.length ?? 0, content: <JobRows jobs={data?.activeJobs ?? []} /> },
-    ingest: { rows: data?.ingestSessions.length ?? 0, content: <IngestRows sessions={data?.ingestSessions ?? []} /> },
-    failed: { rows: data?.failedJobs.length ?? 0, content: <JobRows jobs={data?.failedJobs ?? []} failed /> },
+    active: { rows: data?.activeJobs?.length ?? 0, content: <JobRows jobs={data?.activeJobs ?? []} /> },
+    ingest: { rows: data?.ingestSessions?.length ?? 0, content: <IngestRows sessions={data?.ingestSessions ?? []} /> },
+    failed: { rows: data?.failedJobs?.length ?? 0, content: <JobRows jobs={data?.failedJobs ?? []} failed /> },
   };
 
   return (
