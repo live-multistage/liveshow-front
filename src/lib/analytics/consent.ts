@@ -29,14 +29,17 @@ export function setAnalyticsConsent(state: ConsentState): void {
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
-// React binding. Starts null on both server and first client render to avoid a
-// hydration mismatch, then syncs from storage in the effect. `storage` covers
-// cross-tab changes; the custom event covers same-tab.
+// React binding. Starts undefined ("not read yet") on both server and first
+// client render to avoid a hydration mismatch, then syncs from storage in the
+// effect. `undefined` must not be treated as "no choice" — rendering the
+// consent banner on it flashes the banner at every reload for visitors who
+// already decided. `storage` covers cross-tab changes; the custom event covers
+// same-tab.
 export function useAnalyticsConsent(): {
-  consent: ConsentState | null;
+  consent: ConsentState | null | undefined;
   setConsent: (s: ConsentState) => void;
 } {
-  const [consent, setState] = useState<ConsentState | null>(null);
+  const [consent, setState] = useState<ConsentState | null | undefined>(undefined);
 
   useEffect(() => {
     const sync = () => setState(getAnalyticsConsent());
