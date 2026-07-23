@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import {
   User as UserIcon, Ticket, ShoppingBag, Bell, Lock, ShieldCheck, Monitor,
-  Camera, Check, LogOut, ChevronRight, Trash2,
+  Camera, Check, LogOut, ChevronRight, Trash2, Download,
 } from 'lucide-react';
 import { getMe } from '../queries/get-me';
 import { useAuth } from '../hooks/use-auth';
@@ -26,6 +26,7 @@ import { updateProfileSchema, type UpdateProfileFormValues } from '../schemas/up
 import { changePasswordSchema, type ChangePasswordFormValues } from '../schemas/change-password.schema';
 import type { NotificationPreferenceKey } from '../types/notification-preferences.types';
 import { useAnalyticsConsent } from '@/lib/analytics/consent';
+import { privacyService } from '@/features/consent/privacy.service';
 import styles from './SettingsPageContent.module.scss';
 
 function initials(name?: string): string {
@@ -89,6 +90,54 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
   const { data: prefs } = useNotificationPreferencesQuery();
   const updatePrefs = useUpdateNotificationPreferencesMutation();
   const { consent, setConsent } = useAnalyticsConsent();
+  const [privacyBusy, setPrivacyBusy] = useState<null | 'export' | 'delete'>(null);
+  const [privacyMsg, setPrivacyMsg] = useState<string | null>(null);
+
+  // Reflect the server-stored choice when this device hasn't decided yet
+  // (e.g. the user consented on another device).
+  useEffect(() => {
+    if (consent === null && me && me.analyticsConsent != null) {
+      setConsent(me.analyticsConsent ? 'granted' : 'denied');
+    }
+  }, [consent, me, setConsent]);
+
+  const toggleConsent = () => {
+    const next = consent === 'granted' ? 'denied' : 'granted';
+    setConsent(next);
+    privacyService.syncConsent(next === 'granted');
+  };
+
+  const handleExport = async () => {
+    setPrivacyBusy('export');
+    setPrivacyMsg(null);
+    try {
+      const data = await privacyService.exportData();
+      const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `liveshow-meus-dados-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setPrivacyMsg('Não foi possível exportar agora. Tente novamente.');
+    } finally {
+      setPrivacyBusy(null);
+    }
+  };
+
+  const handleDeleteAnalytics = async () => {
+    if (!window.confirm('Excluir seus dados de analytics e o perfil de recomendações? Compras e ingressos não são afetados.')) return;
+    setPrivacyBusy('delete');
+    setPrivacyMsg(null);
+    try {
+      const res = await privacyService.deleteAnalyticsData();
+      setPrivacyMsg(`Removidos ${res.deletedEvents} eventos de uso.`);
+    } catch {
+      setPrivacyMsg('Não foi possível excluir agora. Tente novamente.');
+    } finally {
+      setPrivacyBusy(null);
+    }
+  };
 
   const [profileSaved, setProfileSaved] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
@@ -326,11 +375,37 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
                     para personalizar o conteúdo. Desligar não afeta compras nem acesso aos shows.
                   </div>
                 </div>
-                <Toggle
-                  on={consent === 'granted'}
-                  onClick={() => setConsent(consent === 'granted' ? 'denied' : 'granted')}
-                />
+                <Toggle on={consent === 'granted'} onClick={toggleConsent} />
               </div>
+
+              <div className={styles.prefRow}>
+                <div>
+                  <div className={styles.prefTitle}>Meus dados</div>
+                  <div className={styles.prefDesc}>
+                    Baixe uma cópia dos seus dados ou exclua o histórico de uso e o perfil
+                    de recomendações. <Link href="/privacidade">Política de Privacidade</Link>.
+                  </div>
+                </div>
+                <div className={styles.privacyActions}>
+                  <button
+                    type="button"
+                    className={styles.secRow}
+                    onClick={handleExport}
+                    disabled={privacyBusy !== null}
+                  >
+                    <span className={styles.secRowLeft}><Download size={16} />Exportar</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.secRow}
+                    onClick={handleDeleteAnalytics}
+                    disabled={privacyBusy !== null}
+                  >
+                    <span className={styles.secRowLeft}><Trash2 size={16} />Excluir uso</span>
+                  </button>
+                </div>
+              </div>
+              {privacyMsg && <div className={styles.prefDesc}>{privacyMsg}</div>}
             </div>
           </section>
 

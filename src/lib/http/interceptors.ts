@@ -1,6 +1,7 @@
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { tokenStore } from '@/lib/auth/token-store';
 import { getAttribution } from '@/lib/analytics/attribution';
+import { getAnalyticsConsent } from '@/lib/analytics/consent';
 
 function clearSession() {
   tokenStore.clear();
@@ -26,6 +27,11 @@ export function applyInterceptors(client: AxiosInstance) {
   client.interceptors.request.use((req: InternalAxiosRequestConfig) => {
     const token = tokenStore.get();
     if (token) req.headers.set('Authorization', `Bearer ${token}`);
+
+    // LGPD: signal opt-out so server-side tracking (e.g. ticket.purchased on
+    // checkout) is dropped for users who declined non-essential collection.
+    const consent = getAnalyticsConsent();
+    if (consent) req.headers.set('x-analytics-consent', consent);
 
     const attribution = getAttribution();
     if (attribution) {

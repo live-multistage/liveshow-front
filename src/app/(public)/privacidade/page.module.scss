@@ -1,0 +1,52 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $bg;
+  color: $text-primary;
+  padding: 6rem 1.5rem 4rem;
+}
+
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+  font-family: 'Archivo', sans-serif;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.updated {
+  color: $text-secondary;
+  font-size: 0.875rem;
+  margin-bottom: 2rem;
+}
+
+.section {
+  margin-bottom: 1.75rem;
+
+  h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: $text-secondary;
+    margin-bottom: 0.75rem;
+  }
+}
+
+.link {
+  color: $action;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

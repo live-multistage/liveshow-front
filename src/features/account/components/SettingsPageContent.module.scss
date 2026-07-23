@@ -252,3 +252,9 @@ $ok: #7fe0a0;
   &:hover:not(:disabled) { background: rgba(239, 68, 68, 0.1); }
   &:disabled { opacity: 0.6; }
 }
+
+.privacyActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}

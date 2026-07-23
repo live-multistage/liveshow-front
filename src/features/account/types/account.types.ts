@@ -21,6 +21,7 @@ export interface AuthUser {
   cpf?: string | null;
   bio?: string | null;
   avatarUrl?: string | null;
+  analyticsConsent?: boolean | null;
   createdAt?: string;
 }
 

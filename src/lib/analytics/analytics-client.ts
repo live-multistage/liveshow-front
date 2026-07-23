@@ -22,6 +22,7 @@ export function track(params: TrackParams): void {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-session-id': sessionId,
+    'x-analytics-consent': 'granted', // gate above guarantees consent here
   };
 
   const token = tokenStore.get();
