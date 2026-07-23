@@ -7,6 +7,7 @@ import { track } from '@/lib/analytics/analytics-client';
 import type { LiveCamera } from '../types/live.types';
 import { useHlsPlayer } from '../hooks/use-hls-player';
 import type { QualityLevel } from '../hooks/use-hls-player';
+import { useReplayControls } from '../hooks/use-replay-controls';
 import styles from './VideoPanel.module.scss';
 
 // Re-exported so existing importers (CameraGrid, tests) keep their paths.
@@ -165,38 +166,8 @@ export function VideoPanel({
     if (videoRef.current) videoRef.current.volume = volume;
   }, [volume]);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || mode !== 'replay' || paused === undefined) return;
-    if (paused) video.pause();
-    else void video.play().catch(() => {});
-  }, [paused, mode]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !seekCommand) return;
-    video.currentTime = seekCommand.time;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seekCommand?.token]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !isTimeSource || !onProgress) return;
-    const report = () => onProgress(video.currentTime, video.duration || 0);
-    video.addEventListener('timeupdate', report);
-    video.addEventListener('durationchange', report);
-    return () => {
-      video.removeEventListener('timeupdate', report);
-      video.removeEventListener('durationchange', report);
-    };
-  }, [isTimeSource, onProgress]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !isTimeSource || !onEnded) return;
-    video.addEventListener('ended', onEnded);
-    return () => video.removeEventListener('ended', onEnded);
-  }, [isTimeSource, onEnded]);
+  // Replay transport wiring (paused/seek/progress/ended) — see the hook.
+  useReplayControls({ videoRef, mode, paused, seekCommand, isTimeSource, onProgress, onEnded });
 
   const panelClass = [
     styles.panel,
