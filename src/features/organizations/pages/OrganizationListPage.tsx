@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
@@ -31,6 +32,7 @@ function KpiIcon({ kind }: { kind: 'org' | 'event' | 'team' | 'sales' }) {
 // ── Main ─────────────────────────────────────────────────────────
 
 export function OrganizationListPage() {
+  const t = useTranslations('organizations');
   const { user } = useAuth();
   const { data: orgs = [], isLoading, isError } = useOrganizations();
 
@@ -41,10 +43,10 @@ export function OrganizationListPage() {
   const invitedOrgs = useMemo(() => orgs.filter((o) => o.ownerId !== user?.id), [orgs, user?.id]);
 
   const CHIPS: { id: ChipId; label: string; count: number }[] = [
-    { id: 'todas', label: 'TODAS', count: orgs.length },
-    { id: 'minhas', label: 'MINHAS', count: myOrgs.length },
-    { id: 'convidadas', label: 'CONVIDADAS', count: invitedOrgs.length },
-    { id: 'arquivadas', label: 'ARQUIVADAS', count: 0 },
+    { id: 'todas', label: t('tabAll'), count: orgs.length },
+    { id: 'minhas', label: t('tabMine'), count: myOrgs.length },
+    { id: 'convidadas', label: t('tabInvited'), count: invitedOrgs.length },
+    { id: 'arquivadas', label: t('tabArchived'), count: 0 },
   ];
 
   const filtered = useMemo(() => {
@@ -74,8 +76,8 @@ export function OrganizationListPage() {
             <span className={styles.breadcrumbSep}>/</span>
             <span className={styles.breadcrumbActive}>ORGANIZAÇÕES</span>
           </div>
-          <h1 className={styles.heading}>Organizações</h1>
-          <p className={styles.subheading}>Gerencie suas organizações, equipes e permissões</p>
+          <h1 className={styles.heading}>{t('heading')}</h1>
+          <p className={styles.subheading}>{t('subheadingFull')}</p>
         </div>
         <Link href="/dashboard/organizations/new" className={styles.btnCreate}>
           <Plus size={16} strokeWidth={2.6} />
@@ -126,12 +128,12 @@ export function OrganizationListPage() {
           </svg>
           <input
             className={styles.searchInput}
-            placeholder="Buscar organização, handle ou equipe…"
+            placeholder={t('searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
           {search && (
-            <button className={styles.searchClear} onClick={() => setSearch('')} aria-label="Limpar">
+            <button className={styles.searchClear} onClick={() => setSearch('')} aria-label={t('clear')}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M5 5l14 14M19 5L5 19" />
               </svg>
@@ -157,8 +159,8 @@ export function OrganizationListPage() {
       </div>
 
       {/* States */}
-      {isLoading && <p className={styles.state}>Carregando organizações...</p>}
-      {isError && <p className={`${styles.state} ${styles.stateError}`}>Erro ao carregar organizações. Tente novamente.</p>}
+      {isLoading && <p className={styles.state}>{t('loading')}</p>}
+      {isError && <p className={`${styles.state} ${styles.stateError}`}>{t('loadErrorRetry')}</p>}
 
       {/* Grid */}
       {!isLoading && !isError && (
@@ -171,7 +173,7 @@ export function OrganizationListPage() {
               <Plus size={22} strokeWidth={2.4} />
             </div>
             <div>
-              <div className={styles.createCardTitle}>Criar Organização</div>
+              <div className={styles.createCardTitle}>{t('createCard')}</div>
               <div className={styles.createCardSub}>Convide sua equipe e comece a vender</div>
             </div>
           </Link>

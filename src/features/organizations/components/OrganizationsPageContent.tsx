@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Plus, Building2, Users } from 'lucide-react';
 import { useAuth } from '@/features/account';
@@ -7,6 +8,7 @@ import { useMyOrganizationsQuery } from '../queries/get-my-organizations';
 import styles from './OrganizationsPageContent.module.scss';
 
 export function OrganizationsPageContent() {
+  const t = useTranslations('organizations');
   const { user } = useAuth();
   const { data: orgs = [], isLoading, isError } = useMyOrganizationsQuery();
   const isAdmin = user?.role === 'ADMIN';
@@ -15,8 +17,8 @@ export function OrganizationsPageContent() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.heading}>Organizações</h1>
-          <p className={styles.subheading}>Gerencie suas organizações e equipes</p>
+          <h1 className={styles.heading}>{t('heading')}</h1>
+          <p className={styles.subheading}>{t('subheading')}</p>
         </div>
         {isAdmin && (
           <Link href="/dashboard/organizations/new" className={styles.createBtn}>
@@ -26,13 +28,13 @@ export function OrganizationsPageContent() {
         )}
       </div>
 
-      {isLoading && <p className={styles.state}>Carregando organizações...</p>}
-      {isError && <p className={`${styles.state} ${styles.stateError}`}>Erro ao carregar organizações.</p>}
+      {isLoading && <p className={styles.state}>{t('loading')}</p>}
+      {isError && <p className={`${styles.state} ${styles.stateError}`}>{t('loadError')}</p>}
 
       {!isLoading && !isError && orgs.length === 0 && (
         <div className={styles.empty}>
           <Building2 size={40} className={styles.emptyIcon} />
-          <p>Nenhuma organização encontrada.</p>
+          <p>{t('empty')}</p>
           {isAdmin && (
             <Link href="/dashboard/organizations/new" className={styles.createBtn}>
               <Plus size={14} /> Criar primeira organização
@@ -58,7 +60,7 @@ export function OrganizationsPageContent() {
               </div>
               <div className={styles.orgMeta}>
                 <Users size={14} />
-                <span>Gerenciar membros</span>
+                <span>{t('manageMembers')}</span>
               </div>
             </Link>
           ))}

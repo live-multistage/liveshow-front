@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useOrganizationMembers } from '../hooks/use-organization-members';
@@ -39,12 +40,12 @@ function TabIcon({ kind }: { kind: string }) {
 // ── Tabs config ───────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'visao',     label: 'Visão Geral',    href: '',          badge: null as 'events' | 'members' | null },
-  { id: 'eventos',   label: 'Eventos',         href: '/eventos',  badge: 'events' as const },
-  { id: 'membros',   label: 'Membros',         href: '/members',  badge: 'members' as const },
-  { id: 'analytics', label: 'Análises',        href: '/analytics', badge: null },
-  { id: 'config',   label: 'Configurações',   href: '/settings', badge: null },
-  { id: 'perfil',   label: 'Perfil Público',  href: '/public',   badge: null },
+  { id: 'visao',     labelKey: 'tabOverview',    href: '',          badge: null as 'events' | 'members' | null },
+  { id: 'eventos',   labelKey: 'tabEvents',         href: '/eventos',  badge: 'events' as const },
+  { id: 'membros',   labelKey: 'tabMembers',         href: '/members',  badge: 'members' as const },
+  { id: 'analytics', labelKey: 'tabAnalytics',        href: '/analytics', badge: null },
+  { id: 'config',   labelKey: 'tabSettings',   href: '/settings', badge: null },
+  { id: 'perfil',   labelKey: 'tabPublicProfile',  href: '/public',   badge: null },
 ];
 
 // ── Component ─────────────────────────────────────────────────────
@@ -54,6 +55,7 @@ interface Props {
 }
 
 export function OrganizationHeader({ organization: org }: Props) {
+  const t = useTranslations('organizations');
   const pathname = usePathname();
   const base     = `/dashboard/organizations/${org.id}`;
 
@@ -131,7 +133,7 @@ export function OrganizationHeader({ organization: org }: Props) {
             </svg>
             NOVO EVENTO
           </button>
-          <button className={styles.btnIcon} aria-label="Mais opções">
+          <button className={styles.btnIcon} aria-label={t('moreOptions')}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" />
             </svg>
@@ -153,7 +155,7 @@ export function OrganizationHeader({ organization: org }: Props) {
               className={`${styles.tab} ${active ? styles.tabActive : styles.tabInactive}`}
             >
               <TabIcon kind={tab.id} />
-              {tab.label}
+              {t(tab.labelKey)}
               {count !== null && count > 0 && (
                 <span className={active ? styles.tabBadgeActive : styles.tabBadgeInactive}>
                   {count}
