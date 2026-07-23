@@ -6,6 +6,7 @@ import { X, Square, PanelRight, LayoutGrid, Minus, HandMetal } from 'lucide-reac
 import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
 import type { QualityLevel } from './VideoPanel';
+import type { ClockSample } from '../hooks/use-clock-sync';
 import { computeJustifiedRows, pickColumnCount } from './justified-grid';
 import styles from './CameraGrid.module.scss';
 
@@ -113,6 +114,9 @@ export function CameraGrid({
   const stageRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [aspectRatios, setAspectRatios] = useState<Record<string, number>>({});
+  // Shared wall-clock: the primary panel writes its PROGRAM-DATE-TIME position
+  // here; every other live panel corrects against it (see use-clock-sync).
+  const clockRef = useRef<ClockSample | null>(null);
 
   useEffect(() => {
     const el = stageRef.current;
@@ -427,6 +431,8 @@ export function CameraGrid({
               selectedAudioCameraId={isPrimary ? audioCameraId ?? undefined : undefined}
               onMutedChange={onMutedChange}
               onAutoplayBlocked={onAutoplayBlocked ?? (() => onGlobalMutedChange(true))}
+              clockRole={mode === 'live' ? (isPrimary ? 'master' : 'follower') : undefined}
+              clockRef={clockRef}
               volume={volume}
               selectedLevel={selectedLevel}
               // In-player panels stay full quality even when hidden/small: any

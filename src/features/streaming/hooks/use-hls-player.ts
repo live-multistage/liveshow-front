@@ -65,6 +65,10 @@ export interface UseHlsPlayerResult {
   // its own once the backend promotes the job to RUNNING.
   connecting: boolean;
   error: boolean;
+  // Live hls instance (null on the Safari-native path). Exposed for
+  // cross-panel coordination that needs playingDate/liveSyncPosition —
+  // e.g. the wall-clock camera sync (use-clock-sync).
+  hlsRef: RefObject<Hls | null>;
 }
 
 // The entire hls.js lifecycle for one camera panel: instance creation and
@@ -310,5 +314,5 @@ export function useHlsPlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAudioCameraId]);
 
-  return { connecting, error };
+  return { connecting, error, hlsRef };
 }

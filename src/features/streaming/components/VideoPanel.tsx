@@ -8,6 +8,9 @@ import type { LiveCamera } from '../types/live.types';
 import { useHlsPlayer } from '../hooks/use-hls-player';
 import type { QualityLevel } from '../hooks/use-hls-player';
 import { useReplayControls } from '../hooks/use-replay-controls';
+import { useClockSync } from '../hooks/use-clock-sync';
+import type { ClockRole, ClockSample } from '../hooks/use-clock-sync';
+import type { MutableRefObject } from 'react';
 import styles from './VideoPanel.module.scss';
 
 // Re-exported so existing importers (CameraGrid, tests) keep their paths.
@@ -45,6 +48,11 @@ interface VideoPanelProps {
   // Fired when best-effort unmuted autoplay is blocked by the browser and this
   // panel falls back to muted — lets the parent sync its global mute UI.
   onAutoplayBlocked?: () => void;
+  // Wall-clock camera sync (live): 'master' publishes its PROGRAM-DATE-TIME
+  // position into clockRef; 'follower' corrects its playback against it so
+  // every camera shows the same real-world instant. See use-clock-sync.
+  clockRole?: ClockRole;
+  clockRef?: MutableRefObject<ClockSample | null>;
   // 'contain' (default) never crops — used for full-bleed playback (Solo,
   // Main, Grid tiles). 'cover' fills a fixed small box even if it crops —
   // used for utility thumbnails (PIP, rail) where showing the whole frame
@@ -96,6 +104,8 @@ export function VideoPanel({
   muted,
   onMutedChange,
   onAutoplayBlocked,
+  clockRole,
+  clockRef,
   fit = 'contain',
   showMuteButton = true,
   volume = 1,
@@ -111,7 +121,7 @@ export function VideoPanel({
   // Full hls.js lifecycle (build/tuning, Safari branch, levels, audio tracks,
   // LL→STANDARD fallback, live-edge focus snap) lives in the hook; analytics
   // and toasts stay here as callbacks.
-  const { connecting, error } = useHlsPlayer({
+  const { connecting, error, hlsRef } = useHlsPlayer({
     videoRef,
     camera,
     mode,
@@ -168,6 +178,9 @@ export function VideoPanel({
 
   // Replay transport wiring (paused/seek/progress/ended) — see the hook.
   useReplayControls({ videoRef, mode, paused, seekCommand, isTimeSource, onProgress, onEnded });
+
+  // Wall-clock sync against the primary panel's PROGRAM-DATE-TIME.
+  useClockSync({ videoRef, hlsRef, mode, role: clockRole, clockRef });
 
   const panelClass = [
     styles.panel,
