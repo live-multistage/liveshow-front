@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useAuditSearchQuery } from '../queries/get-audit';
 import type { AuditLogEntry } from '../types/platform-admin.types';
@@ -24,6 +25,7 @@ function fmtAbsolute(iso: string): string {
 // D8 — Audit log. Filterable + paginated view of the append-only trail (the
 // overview card shows only the latest 20). Read-only: no edit/delete path.
 export function PlatformAuditPage() {
+  const t = useTranslations('platformAdmin');
   const [action, setAction] = useState('');
   const [page, setPage] = useState(1);
 
@@ -46,9 +48,9 @@ export function PlatformAuditPage() {
           className={styles.filter}
           value={action}
           onChange={(e) => { setAction(e.target.value); setPage(1); }}
-          aria-label="Filtrar por ação"
+          aria-label={t('filterByAction')}
         >
-          <option value="">Todas as ações</option>
+          <option value="">{t('allActions')}</option>
           {AUDIT_ACTIONS.map((a) => (
             <option key={a} value={a}>{auditActionLabel(a)}</option>
           ))}

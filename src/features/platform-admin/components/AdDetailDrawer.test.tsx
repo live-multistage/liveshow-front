@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AdDetailDrawer } from './AdDetailDrawer';
@@ -57,13 +58,13 @@ describe('AdDetailDrawer destination', () => {
     renderWithDetail({ ...baseAd, destination: null });
 
     expect(await screen.findByText('sem destino (legado)')).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /Ver evento/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /viewEvent/i })).not.toBeInTheDocument();
   });
 
   it('renders an internal event link for an EVENT destination', async () => {
     renderWithDetail({ ...baseAd, destination: { type: 'EVENT', eventId: 'evt-1' } });
 
-    const link = await screen.findByRole('link', { name: /Ver evento/i });
+    const link = await screen.findByRole('link', { name: /viewEvent/i });
     expect(link).toHaveAttribute('href', '/events/evt-1');
   });
 

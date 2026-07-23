@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -17,6 +18,7 @@ import styles from './OrganizationDetailPage.module.scss';
 type Tab = 'visao' | 'membros' | 'flags';
 
 export function OrganizationDetailPage({ organizationId }: { organizationId: string }) {
+  const t = useTranslations('platformAdmin');
   const { data: org, isLoading, isError } = useOrganizationDetailQuery(organizationId);
   const setStatus = useSetOrganizationStatusMutation((updated) => {
     const label = updated.status === 'ACTIVE' ? 'reativada' : updated.status === 'SUSPENDED' ? 'suspensa' : 'arquivada';
@@ -26,8 +28,8 @@ export function OrganizationDetailPage({ organizationId }: { organizationId: str
   const [rejectOpen, setRejectOpen] = useState(false);
   const [tab, setTab] = useState<Tab>('visao');
 
-  if (isLoading) return <p>Carregando...</p>;
-  if (isError || !org) return <p>Organização não encontrada.</p>;
+  if (isLoading) return <p>{t('loading2')}</p>;
+  if (isError || !org) return <p>{t('notFoundOrg2')}</p>;
 
   return (
     <div className={styles.wrapper}>
@@ -58,9 +60,9 @@ export function OrganizationDetailPage({ organizationId }: { organizationId: str
           {org.status === 'PENDING' && (
             <>
               <Button variant="outline" onClick={() => setRejectOpen(true)}>
-                Rejeitar
+                {t('reject')}
               </Button>
-              <Button onClick={() => setApproveOpen(true)}>Aprovar</Button>
+              <Button onClick={() => setApproveOpen(true)}>{t('approve')}</Button>
             </>
           )}
           {org.status === 'ACTIVE' && (

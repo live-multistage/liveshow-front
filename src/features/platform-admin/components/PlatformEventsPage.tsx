@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { usePlatformEventsQuery, useApproveAccessibilityMutation } from '../queries/get-platform-directory';
 import type { PlatformEventRow } from '../types/platform-admin.types';
@@ -35,6 +36,7 @@ function fmtDate(iso: string): string {
 
 // D1 — Diretório de eventos (moderação global cross-org).
 export function PlatformEventsPage() {
+  const t = useTranslations('platformAdmin');
   const [filterKey, setFilterKey] = useState('ALL');
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
@@ -63,10 +65,10 @@ export function PlatformEventsPage() {
         <div className={table.filters}>
           <input
             className={table.search}
-            placeholder="Buscar por título…"
+            placeholder={t('eventSearchPlaceholder')}
             value={q}
             onChange={(e) => { setQ(e.target.value); setPage(1); }}
-            aria-label="Buscar eventos"
+            aria-label={t('searchEvents')}
           />
         </div>
       }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { X, Accessibility, HandMetal } from 'lucide-react';
 import { useGetEventQuery } from '@/features/events/queries/get-event';
@@ -25,6 +26,7 @@ interface Props {
 // Super-admin event detail — full submission + accessibility/moderation state
 // and every moderation action in one place.
 export function EventDetailDrawer({ event: row, onClose }: Props) {
+  const t = useTranslations('platformAdmin');
   const { data: event, isLoading } = useGetEventQuery(row.id);
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState('');
@@ -75,12 +77,12 @@ export function EventDetailDrawer({ event: row, onClose }: Props) {
 
           {/* Info */}
           <dl className={styles.info}>
-            <div><dt>Categoria</dt><dd>{event?.category ?? row.category}</dd></div>
-            <div><dt>Câmeras</dt><dd>{event?.camerasCount ?? row.camerasCount}</dd></div>
-            {event && <div><dt>Início</dt><dd>{fmtDate(event.startsAt)}</dd></div>}
-            {event && <div><dt>Fim</dt><dd>{fmtDate(event.endsAt)}</dd></div>}
-            {location && <div><dt>Local</dt><dd>{location}</dd></div>}
-            <div><dt>Formato</dt><dd>{event?.format ?? '—'}</dd></div>
+            <div><dt>{t('dtCategory')}</dt><dd>{event?.category ?? row.category}</dd></div>
+            <div><dt>{t('dtCameras')}</dt><dd>{event?.camerasCount ?? row.camerasCount}</dd></div>
+            {event && <div><dt>{t('dtStart')}</dt><dd>{fmtDate(event.startsAt)}</dd></div>}
+            {event && <div><dt>{t('dtEnd')}</dt><dd>{fmtDate(event.endsAt)}</dd></div>}
+            {location && <div><dt>{t('dtLocation')}</dt><dd>{location}</dd></div>}
+            <div><dt>{t('dtFormat')}</dt><dd>{event?.format ?? '—'}</dd></div>
           </dl>
 
           {event?.description && (
@@ -98,15 +100,15 @@ export function EventDetailDrawer({ event: row, onClose }: Props) {
               <h3 className={styles.sectionTitle}><Accessibility size={15} /> Acessibilidade (Libras)</h3>
               <ul className={styles.checklist}>
                 <li className={row.hasLibrasCamera ? styles.done : styles.pending}>
-                  <HandMetal size={13} /> {row.hasLibrasCamera ? 'Câmera de Libras marcada' : 'Sem câmera de Libras'}
+                  <HandMetal size={13} /> {row.hasLibrasCamera ? t('librasMarked') : t('librasMissing')}
                 </li>
                 <li className={row.accessibilityApproved ? styles.done : styles.pending}>
-                  {row.accessibilityApproved ? 'Acessibilidade aprovada' : 'Acessibilidade pendente'}
+                  {row.accessibilityApproved ? t('accApproved') : t('accPending')}
                 </li>
               </ul>
               {!row.accessibilityApproved && row.hasLibrasCamera && (
                 <button className={styles.btn} disabled={busy} onClick={() => approveA11y.mutate(row.id)}>
-                  Aprovar acessibilidade
+                  {t('approveAccessibility')}
                 </button>
               )}
             </div>
@@ -119,7 +121,7 @@ export function EventDetailDrawer({ event: row, onClose }: Props) {
               <div className={styles.rejectBox}>
                 <input
                   className={styles.reasonInput}
-                  placeholder="Motivo da rejeição…"
+                  placeholder={t('rejectReasonPlaceholder')}
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   autoFocus
@@ -137,10 +139,10 @@ export function EventDetailDrawer({ event: row, onClose }: Props) {
               </div>
             ) : (
               <div className={styles.actions}>
-                {canPublish && <button className={styles.btn} disabled={busy} onClick={() => moderate.mutate({ id: row.id, action: 'PUBLISH' })}>Publicar</button>}
-                {canUnpublish && <button className={styles.btn} disabled={busy} onClick={() => moderate.mutate({ id: row.id, action: 'UNPUBLISH' })}>Despublicar</button>}
-                <button className={styles.btn} disabled={busy || row.moderationStatus === 'APPROVED'} onClick={() => moderate.mutate({ id: row.id, action: 'APPROVE' })}>Aprovar</button>
-                <button className={styles.btn} disabled={busy} onClick={() => setRejecting(true)}>Rejeitar</button>
+                {canPublish && <button className={styles.btn} disabled={busy} onClick={() => moderate.mutate({ id: row.id, action: 'PUBLISH' })}>{t('publish')}</button>}
+                {canUnpublish && <button className={styles.btn} disabled={busy} onClick={() => moderate.mutate({ id: row.id, action: 'UNPUBLISH' })}>{t('unpublish')}</button>}
+                <button className={styles.btn} disabled={busy || row.moderationStatus === 'APPROVED'} onClick={() => moderate.mutate({ id: row.id, action: 'APPROVE' })}>{t('approve')}</button>
+                <button className={styles.btn} disabled={busy} onClick={() => setRejecting(true)}>{t('reject')}</button>
                 <button className={`${styles.btn} ${styles.btnDanger}`} disabled={busy || !canCancel} onClick={() => moderate.mutate({ id: row.id, action: 'CANCEL' })}>Remover</button>
               </div>
             )}

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { X, Check, Ban } from 'lucide-react';
@@ -17,7 +18,7 @@ const FORMAT_LABEL: Record<string, string> = {
 };
 
 const OUTCOME_LABEL: Record<AdReviewRecord['outcome'], string> = {
-  SUBMITTED: 'enviado p/ revisão', APPROVE: 'aprovou', REJECT: 'rejeitou', PENDING: 'escalou p/ humano',
+  SUBMITTED: 'adSUBMITTED', APPROVE: 'adAPPROVE', REJECT: 'adREJECT', PENDING: 'adPENDING',
 };
 
 interface Props {
@@ -29,6 +30,7 @@ interface Props {
 // Ad detail + review history drawer — shows the full submission (creative +
 // every config). When the ad is in REVIEW, a super-admin approves/rejects here.
 export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
+  const t = useTranslations('platformAdmin');
   const { data, isLoading } = useAdDetailQuery(adId);
   const [reason, setReason] = useState('');
   const review = useReviewAdMutation(onClose);
@@ -102,10 +104,10 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
                 <div className={styles.reviewTitle}>Decisão de revisão</div>
                 <textarea
                   className={styles.reason}
-                  placeholder="Motivo (obrigatório ao rejeitar)…"
+                  placeholder={t('adReasonPlaceholder')}
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  aria-label="Motivo da decisão"
+                  aria-label={t('adReasonLabel')}
                 />
                 {review.isError && <div className={styles.err}>{review.error.message}</div>}
                 <div className={styles.reviewActions}>
@@ -114,15 +116,15 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
                     onClick={() => review.mutate({ id: adId, decision: 'APPROVE', reason: reason.trim() || undefined })}
                     disabled={review.isPending}
                   >
-                    <Check size={15} /> Aprovar
+                    <Check size={15} /> {t('approve')}
                   </button>
                   <button
                     className={styles.reject}
                     onClick={() => review.mutate({ id: adId, decision: 'REJECT', reason: reason.trim() })}
                     disabled={review.isPending || !reason.trim()}
-                    title={!reason.trim() ? 'Informe o motivo para rejeitar' : undefined}
+                    title={!reason.trim() ? t('adReasonRequired') : undefined}
                   >
-                    <Ban size={15} /> Rejeitar
+                    <Ban size={15} /> {t('reject')}
                   </button>
                 </div>
               </div>
@@ -134,7 +136,7 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
               {data.reviews.map((r) => (
                 <div key={r.id} className={styles.histRow}>
                   <span className={styles.histActor}>{r.reviewedBy}</span>
-                  <span className={styles.histAction}>{OUTCOME_LABEL[r.outcome]}</span>
+                  <span className={styles.histAction}>{t(OUTCOME_LABEL[r.outcome])}</span>
                   <span className={styles.histType}>{r.reviewerType}</span>
                   {r.reason && <span className={styles.histReason}>{r.reason}</span>}
                   <span className={styles.histTime}>{fmtDate(r.createdAt)}</span>
@@ -161,6 +163,7 @@ function Field({ label, value, wide }: { label: string; value: string; wide?: bo
 // internal event page, EXTERNAL_URL opens the (untrusted) sponsor URL in a new
 // tab, and a legacy ad (destination === null) is flagged instead of dead-ending.
 function DestinationField({ destination }: { destination: AdDestination | null }) {
+  const t = useTranslations('platformAdmin');
   return (
     <div className={styles.field}>
       <dt className={styles.fieldLabel}>Destino</dt>
@@ -170,7 +173,7 @@ function DestinationField({ destination }: { destination: AdDestination | null }
           <a href={destination.url} target="_blank" rel="noopener noreferrer">{destination.url}</a>
         )}
         {destination?.type === 'EVENT' && (
-          <Link href={`/events/${destination.eventId}`}>Ver evento →</Link>
+          <Link href={`/events/${destination.eventId}`}>{t('viewEvent')}</Link>
         )}
       </dd>
     </div>

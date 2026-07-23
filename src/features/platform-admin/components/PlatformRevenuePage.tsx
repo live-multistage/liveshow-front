@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { RevenueCard } from '@/features/dashboard/components/RevenueCard';
 import { useRevenueBreakdownQuery } from '../queries/get-platform-directory';
@@ -17,6 +18,7 @@ const RANGES: { id: Range; label: string }[] = [
 // D2 — Receita da plataforma. RevenueCard (série + KPIs) como hero + breakdown
 // por organização (Σ comissão, GMV, participação).
 export function PlatformRevenuePage() {
+  const t = useTranslations('platformAdmin');
   const [range, setRange] = useState<Range>('30d');
   const { data: rows, isLoading } = useRevenueBreakdownQuery(range);
 
@@ -30,7 +32,7 @@ export function PlatformRevenuePage() {
           className={table.filter}
           value={range}
           onChange={(e) => setRange(e.target.value as Range)}
-          aria-label="Período"
+          aria-label={t('period')}
         >
           {RANGES.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
         </select>
@@ -43,7 +45,7 @@ export function PlatformRevenuePage() {
       <div className={table.card}>
         <div className={table.scroll}>
           <div className={table.head} style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 0.8fr' }}>
-            <span>Organização</span>
+            <span>{t('organization')}</span>
             <span className={table.right}>Comissão</span>
             <span className={table.right}>GMV</span>
             <span className={table.right}>Vendas</span>
