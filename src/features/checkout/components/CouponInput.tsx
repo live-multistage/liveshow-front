@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Tag, X, Loader2 } from 'lucide-react';
 import { formatPrice } from '@/features/events';
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function CouponInput({ eventId, orderAmount, applied, onApply, onRemove, disabled }: Props) {
+  const t = useTranslations('checkout');
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const preview = useCouponPreviewMutation();
@@ -37,7 +39,7 @@ export function CouponInput({ eventId, orderAmount, applied, onApply, onRemove, 
           setInput('');
         },
         onError: (err: any) => {
-          setError(err?.response?.data?.message ?? 'Cupom inválido ou expirado');
+          setError(err?.response?.data?.message ?? t('couponInvalid'));
         },
       },
     );
@@ -66,8 +68,8 @@ export function CouponInput({ eventId, orderAmount, applied, onApply, onRemove, 
       <div className={styles.row}>
         <input
           className={styles.input}
-          placeholder="Código do cupom"
-          aria-label="Código do cupom"
+          placeholder={t('couponPlaceholder')}
+          aria-label={t('couponPlaceholder')}
           value={input}
           onChange={(e) => {
             setInput(e.target.value.toUpperCase());

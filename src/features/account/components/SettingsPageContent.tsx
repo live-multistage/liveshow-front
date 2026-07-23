@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -33,16 +34,9 @@ function initials(name?: string): string {
   return (name ?? '?').split(' ').slice(0, 2).map((n) => n[0] ?? '').join('').toUpperCase();
 }
 
-const ROLE_LABEL: Record<string, string> = {
-  USER: 'Membro', ARTIST: 'Artista', ORGANIZER: 'Produtor', ADMIN: 'Administrador', SUPER_ADMIN: 'Plataforma',
-};
+const ROLE_KEYS = ['USER', 'ARTIST', 'ORGANIZER', 'ADMIN', 'SUPER_ADMIN'] as const;
 
-const PREF_META: { key: NotificationPreferenceKey; title: string; desc: string }[] = [
-  { key: 'LIVE_EVENTS', title: 'Eventos ao vivo', desc: 'Avisar quando um show que você segue entrar no ar' },
-  { key: 'TICKET_REMINDERS', title: 'Lembretes de ingresso', desc: 'Notificação 1 hora antes do evento começar' },
-  { key: 'NEWS_PROMOS', title: 'Novidades e promoções', desc: 'Ofertas de cupons e pré-vendas exclusivas' },
-  { key: 'EMAIL_DIGEST', title: 'Resumo por e-mail', desc: 'Relatório semanal dos seus eventos' },
-];
+const PREF_KEYS: NotificationPreferenceKey[] = ['LIVE_EVENTS', 'TICKET_REMINDERS', 'NEWS_PROMOS', 'EMAIL_DIGEST'];
 
 function Toggle({ on, onClick, disabled }: { on: boolean; onClick: () => void; disabled?: boolean }) {
   return (
@@ -69,6 +63,7 @@ interface Props {
 }
 
 export function SettingsPageContent({ twoFactorEnabled }: Props) {
+  const t = useTranslations('settings');
   const router = useRouter();
   const { logout } = useAuth();
 
@@ -119,21 +114,21 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      setPrivacyMsg('Não foi possível exportar agora. Tente novamente.');
+      setPrivacyMsg(t('exportError'));
     } finally {
       setPrivacyBusy(null);
     }
   };
 
   const handleDeleteAnalytics = async () => {
-    if (!window.confirm('Excluir seus dados de analytics e o perfil de recomendações? Compras e ingressos não são afetados.')) return;
+    if (!window.confirm(t('deleteConfirm'))) return;
     setPrivacyBusy('delete');
     setPrivacyMsg(null);
     try {
       const res = await privacyService.deleteAnalyticsData();
-      setPrivacyMsg(`Removidos ${res.deletedEvents} eventos de uso.`);
+      setPrivacyMsg(t('deleteDone', { count: res.deletedEvents }));
     } catch {
-      setPrivacyMsg('Não foi possível excluir agora. Tente novamente.');
+      setPrivacyMsg(t('deleteError'));
     } finally {
       setPrivacyBusy(null);
     }
@@ -209,7 +204,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
     return <div className={styles.loading}><span className={styles.spinner} /></div>;
   }
 
-  const roleLabel = ROLE_LABEL[me.role] ?? 'Membro';
+  const roleLabel = (ROLE_KEYS as readonly string[]).includes(me.role) ? t(`role${me.role}`) : t('roleUSER');
   const memberYear = me.createdAt ? new Date(me.createdAt).getFullYear() : null;
 
   return (
@@ -346,15 +341,15 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
             <div className={styles.cardLabel}>PREFERÊNCIAS</div>
             <div className={styles.cardTitle}>Notificações</div>
             <div className={styles.prefList}>
-              {PREF_META.map((p) => (
-                <div key={p.key} className={styles.prefRow}>
+              {PREF_KEYS.map((key) => (
+                <div key={key} className={styles.prefRow}>
                   <div>
-                    <div className={styles.prefTitle}>{p.title}</div>
-                    <div className={styles.prefDesc}>{p.desc}</div>
+                    <div className={styles.prefTitle}>{t(`pref${key}`)}</div>
+                    <div className={styles.prefDesc}>{t(`pref${key}Desc`)}</div>
                   </div>
                   <Toggle
-                    on={prefs?.[p.key] ?? true}
-                    onClick={() => togglePref(p.key)}
+                    on={prefs?.[key] ?? true}
+                    onClick={() => togglePref(key)}
                     disabled={!prefs || updatePrefs.isPending}
                   />
                 </div>
@@ -369,21 +364,17 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
             <div className={styles.prefList}>
               <div className={styles.prefRow}>
                 <div>
-                  <div className={styles.prefTitle}>Analytics e recomendações</div>
-                  <div className={styles.prefDesc}>
-                    Uso não essencial: comportamento de navegação e perfil de interesses
-                    para personalizar o conteúdo. Desligar não afeta compras nem acesso aos shows.
-                  </div>
+                  <div className={styles.prefTitle}>{t('privacyAnalyticsTitle')}</div>
+                  <div className={styles.prefDesc}>{t('privacyAnalyticsDesc')}</div>
                 </div>
                 <Toggle on={consent === 'granted'} onClick={toggleConsent} />
               </div>
 
               <div className={styles.prefRow}>
                 <div>
-                  <div className={styles.prefTitle}>Meus dados</div>
+                  <div className={styles.prefTitle}>{t('privacyDataTitle')}</div>
                   <div className={styles.prefDesc}>
-                    Baixe uma cópia dos seus dados ou exclua o histórico de uso e o perfil
-                    de recomendações. <Link href="/privacidade">Política de Privacidade</Link>.
+                    {t('privacyDataDesc')} <Link href="/privacidade">{t('privacyPolicyLink')}</Link>.
                   </div>
                 </div>
                 <div className={styles.privacyActions}>
@@ -393,7 +384,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
                     onClick={handleExport}
                     disabled={privacyBusy !== null}
                   >
-                    <span className={styles.secRowLeft}><Download size={16} />Exportar</span>
+                    <span className={styles.secRowLeft}><Download size={16} />{t('exportBtn')}</span>
                   </button>
                   <button
                     type="button"
@@ -401,7 +392,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
                     onClick={handleDeleteAnalytics}
                     disabled={privacyBusy !== null}
                   >
-                    <span className={styles.secRowLeft}><Trash2 size={16} />Excluir uso</span>
+                    <span className={styles.secRowLeft}><Trash2 size={16} />{t('deleteUsageBtn')}</span>
                   </button>
                 </div>
               </div>

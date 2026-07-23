@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -63,6 +64,7 @@ function handlePaymentAction(
 }
 
 export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: Props) {
+  const t = useTranslations('checkout');
   const router = useRouter();
   const { isLoggedIn, isLoading: authLoading } = useAuth();
 
@@ -149,7 +151,7 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
       <div className={styles.page}>
         <div className={styles.error}>
           <AlertCircle size={32} />
-          <p>Ingresso não encontrado.</p>
+          <p>{t('ticketNotFound')}</p>
           <Link href={`/events/${eventId}`} className={styles.backBtn}>
             Voltar ao evento
           </Link>
@@ -224,7 +226,7 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
                 ? 'Processando…'
                 : session
                 ? `Pagar ${formatPrice(session.totalAmount)}`
-                : 'Aguardando sessão…'}
+                : t('waitingSession')}
             </button>
 
             <div className={styles.secure}>

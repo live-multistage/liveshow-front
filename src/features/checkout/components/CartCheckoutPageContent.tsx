@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -16,6 +17,7 @@ import styles from './CheckoutPageContent.module.scss';
 import cartStyles from './CartCheckoutPageContent.module.scss';
 
 export function CartCheckoutPageContent() {
+  const t = useTranslations('checkout');
   const { isLoggedIn, isLoading: authLoading } = useAuth();
   const { data: cart, isLoading: cartLoading } = useCartQuery();
   const router = useRouter();
@@ -94,7 +96,7 @@ export function CartCheckoutPageContent() {
       <div className={styles.page}>
         <div className={styles.error}>
           <AlertCircle size={32} />
-          <p>Seu carrinho está vazio.</p>
+          <p>{t('emptyCart')}</p>
           <Link href="/events" className={styles.backBtn}>
             Explorar eventos
           </Link>

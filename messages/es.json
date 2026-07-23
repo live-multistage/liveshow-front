@@ -94,13 +94,16 @@
     "exploreEvents": "Explorar eventos →",
     "continueShopping": "Continuar comprando",
     "orderSummary": "Resumen del pedido",
-    "promoPlaceholder": "Ingresa tu código promocional",
+    "promoPlaceholder": "Ingresar código promocional",
     "subtotal": "Subtotal ({count, plural, one {# artículo} other {# artículos}})",
     "goToCheckout": "Ir al checkout",
     "browseEvents": "Continuar buscando eventos",
     "cameras": "{count} cámara{count, plural, one {} other {s}}",
     "removeItem": "Quitar {title}",
-    "total": "Total"
+    "total": "Total",
+    "promoLabel": "Código promocional",
+    "couponInvalid": "Cupón inválido o vencido",
+    "multiOrg": "varias organizaciones"
   },
   "events": {
     "list": {
@@ -282,7 +285,12 @@
     "name": "Nombre",
     "email": "Correo",
     "paymentSoon": "Pago próximamente",
-    "paymentNote": "El pago se habilitará próximamente."
+    "paymentNote": "El pago se habilitará próximamente.",
+    "ticketNotFound": "Entrada no encontrada.",
+    "waitingSession": "Esperando sesión…",
+    "emptyCart": "Tu carrito está vacío.",
+    "couponInvalid": "Cupón inválido o vencido",
+    "couponPlaceholder": "Código del cupón"
   },
   "carousel": {
     "seeAll": "Ver todos →",
@@ -580,7 +588,31 @@
       "success": "Contraseña cambiada correctamente.",
       "errorWrongCurrent": "La contraseña actual es incorrecta.",
       "errorGeneric": "Error al cambiar la contraseña. Inténtalo de nuevo."
-    }
+    },
+    "roleUSER": "Miembro",
+    "roleARTIST": "Artista",
+    "roleORGANIZER": "Productor",
+    "roleADMIN": "Administrador",
+    "roleSUPER_ADMIN": "Plataforma",
+    "prefLIVE_EVENTS": "Eventos en vivo",
+    "prefLIVE_EVENTSDesc": "Avisar cuando un show que sigues entre al aire",
+    "prefTICKET_REMINDERS": "Recordatorios de entradas",
+    "prefTICKET_REMINDERSDesc": "Notificación 1 hora antes del evento",
+    "prefNEWS_PROMOS": "Novedades y promociones",
+    "prefNEWS_PROMOSDesc": "Ofertas de cupones y preventas exclusivas",
+    "prefEMAIL_DIGEST": "Resumen por correo",
+    "prefEMAIL_DIGESTDesc": "Informe semanal de tus eventos",
+    "privacyAnalyticsTitle": "Analítica y recomendaciones",
+    "privacyAnalyticsDesc": "Uso no esencial: comportamiento de navegación y perfil de intereses para personalizar el contenido. Desactivarlo no afecta compras ni acceso a los shows.",
+    "privacyDataTitle": "Mis datos",
+    "privacyDataDesc": "Descarga una copia de tus datos o elimina el historial de uso y el perfil de recomendaciones.",
+    "privacyPolicyLink": "Política de Privacidad",
+    "exportBtn": "Exportar",
+    "deleteUsageBtn": "Eliminar uso",
+    "exportError": "No se pudo exportar ahora. Inténtalo de nuevo.",
+    "deleteConfirm": "¿Eliminar tus datos de analítica y el perfil de recomendaciones? Compras y entradas no se ven afectadas.",
+    "deleteDone": "Se eliminaron {count} eventos de uso.",
+    "deleteError": "No se pudo eliminar ahora. Inténtalo de nuevo."
   },
   "account": {
     "nav": {

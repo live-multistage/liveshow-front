@@ -94,13 +94,16 @@
     "exploreEvents": "Explore events →",
     "continueShopping": "Continue shopping",
     "orderSummary": "Order Summary",
-    "promoPlaceholder": "Enter your promo code",
+    "promoPlaceholder": "Enter promo code",
     "subtotal": "Subtotal ({count, plural, one {# item} other {# items}})",
     "goToCheckout": "Go to checkout",
     "browseEvents": "Continue browsing events",
     "cameras": "{count} camera{count, plural, one {} other {s}}",
     "removeItem": "Remove {title}",
-    "total": "Total"
+    "total": "Total",
+    "promoLabel": "Promo code",
+    "couponInvalid": "Invalid or expired coupon",
+    "multiOrg": "multiple organizations"
   },
   "events": {
     "list": {
@@ -282,7 +285,12 @@
     "name": "Name",
     "email": "Email",
     "paymentSoon": "Payment coming soon",
-    "paymentNote": "Payment will be enabled soon."
+    "paymentNote": "Payment will be enabled soon.",
+    "ticketNotFound": "Ticket not found.",
+    "waitingSession": "Waiting for session…",
+    "emptyCart": "Your cart is empty.",
+    "couponInvalid": "Invalid or expired coupon",
+    "couponPlaceholder": "Coupon code"
   },
   "carousel": {
     "seeAll": "See all →",
@@ -580,7 +588,31 @@
       "success": "Password changed successfully.",
       "errorWrongCurrent": "Current password is incorrect.",
       "errorGeneric": "Failed to change password. Please try again."
-    }
+    },
+    "roleUSER": "Member",
+    "roleARTIST": "Artist",
+    "roleORGANIZER": "Producer",
+    "roleADMIN": "Admin",
+    "roleSUPER_ADMIN": "Platform",
+    "prefLIVE_EVENTS": "Live events",
+    "prefLIVE_EVENTSDesc": "Alert when a show you follow goes live",
+    "prefTICKET_REMINDERS": "Ticket reminders",
+    "prefTICKET_REMINDERSDesc": "Notification 1 hour before the event starts",
+    "prefNEWS_PROMOS": "News and promos",
+    "prefNEWS_PROMOSDesc": "Coupon offers and exclusive pre-sales",
+    "prefEMAIL_DIGEST": "Email digest",
+    "prefEMAIL_DIGESTDesc": "Weekly report of your events",
+    "privacyAnalyticsTitle": "Analytics and recommendations",
+    "privacyAnalyticsDesc": "Non-essential usage: browsing behavior and interest profile to personalize content. Turning it off does not affect purchases or show access.",
+    "privacyDataTitle": "My data",
+    "privacyDataDesc": "Download a copy of your data or delete your usage history and recommendation profile.",
+    "privacyPolicyLink": "Privacy Policy",
+    "exportBtn": "Export",
+    "deleteUsageBtn": "Delete usage",
+    "exportError": "Could not export right now. Try again.",
+    "deleteConfirm": "Delete your analytics data and recommendation profile? Purchases and tickets are not affected.",
+    "deleteDone": "Removed {count} usage events.",
+    "deleteError": "Could not delete right now. Try again."
   },
   "account": {
     "nav": {

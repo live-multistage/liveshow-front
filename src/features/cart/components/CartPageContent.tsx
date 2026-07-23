@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useNavigate } from '@/shared/hooks/use-navigate';
@@ -43,6 +44,7 @@ function groupByOrg(items: CartLineView[]): OrgGroup[] {
 }
 
 export function CartPageContent({ initialCart }: Props) {
+  const t = useTranslations('cart');
   const { data } = useCartQuery(initialCart);
   const removeItem = useRemoveFromCartMutation();
   const navigate = useNavigate();
@@ -82,7 +84,7 @@ export function CartPageContent({ initialCart }: Props) {
       setPromoCode('');
     } catch (err) {
       const e = err as { response?: { data?: { message?: string } } };
-      setPromoError(e?.response?.data?.message ?? 'Cupom inválido ou expirado');
+      setPromoError(e?.response?.data?.message ?? t('couponInvalid'));
       setPromoState('error');
     } finally {
       setIsApplying(false);
@@ -266,7 +268,7 @@ export function CartPageContent({ initialCart }: Props) {
                   <span>
                     {appliedCoupon.code}
                     {appliedCoupon.scopeOrgIds.length === 1 && ` · ${orgGroups.find(g => g.orgId === appliedCoupon.scopeOrgIds[0])?.orgName ?? ''}`}
-                    {appliedCoupon.scopeOrgIds.length > 1 && ' · várias organizações'}
+                    {appliedCoupon.scopeOrgIds.length > 1 && ` · ${t('multiOrg')}`}
                     {' '}— {brl(appliedCoupon.discountAmount)} de desconto
                   </span>
                   <button className={styles.promoRemove} onClick={removePromo} aria-label="Remover cupom">×</button>
@@ -280,8 +282,8 @@ export function CartPageContent({ initialCart }: Props) {
                     </svg>
                     <input
                       className={styles.promoInput}
-                      placeholder="Inserir código promocional"
-                      aria-label="Código promocional"
+                      placeholder={t('promoPlaceholder')}
+                      aria-label={t('promoLabel')}
                       value={promoCode}
                       onChange={(e) => {
                         setPromoCode(e.target.value.toUpperCase());
@@ -304,7 +306,7 @@ export function CartPageContent({ initialCart }: Props) {
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
                         <path d="M18 6L6 18M6 6l12 12" />
                       </svg>
-                      {promoError || 'Cupom inválido ou expirado'}
+                      {promoError || t('couponInvalid')}
                     </div>
                   )}
                   {promoState === 'idle' && <div className={styles.promoSpacer} />}
