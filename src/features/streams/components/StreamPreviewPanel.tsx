@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { Radio } from 'lucide-react';
 import { useViewerCount } from '@/features/streaming';
-import { useOnAirCamera, useIngestPreviewCamera, useCameraPreviewQuery } from '../queries/ingest.queries';
+import { useOnAirCamera, useIngestPreviewCameras, useCameraPreviewQuery } from '../queries/ingest.queries';
 import { HlsVideo } from './HlsVideo';
 import type { StreamResponse } from '../types/stream.types';
 import styles from './StreamPreviewPanel.module.scss';
@@ -23,12 +24,17 @@ export function StreamPreviewPanel({ stream, eventId, eventTitle }: Props) {
   const { onAir } = useOnAirCamera(stream.id, isLive);
   const { currentViewers } = useViewerCount(isLive ? eventId : undefined);
 
-  const previewCam = useIngestPreviewCamera(stream.id, isReady);
+  const previewCams = useIngestPreviewCameras(stream.id, isReady);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Selection falls back to the primary camera (list is priority-sorted) when
+  // nothing's picked or the picked camera dropped signal.
+  const previewCam = previewCams.find((c) => c.cameraId === selectedId) ?? previewCams[0] ?? null;
   const { data: ingestPreview } = useCameraPreviewQuery(previewCam?.cameraId ?? '', !!previewCam);
 
   if (!isLive && !isReady) return null;
 
   return (
+    <>
     <div className={styles.panel}>
       <div className={styles.grid}>
         <div className={styles.thumb}>
@@ -84,5 +90,21 @@ export function StreamPreviewPanel({ stream, eventId, eventTitle }: Props) {
         </div>
       </div>
     </div>
+
+    {isReady && previewCams.length > 0 && (
+      <div className={styles.chips}>
+        {previewCams.map((c) => (
+          <button
+            key={c.cameraId}
+            type="button"
+            className={`${styles.chip} ${c.cameraId === previewCam?.cameraId ? styles.chipActive : ''}`}
+            onClick={() => setSelectedId(c.cameraId)}
+          >
+            {c.stageName} · {c.cameraName}
+          </button>
+        ))}
+      </div>
+    )}
+    </>
   );
 }

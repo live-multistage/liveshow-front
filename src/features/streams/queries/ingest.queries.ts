@@ -44,11 +44,11 @@ export interface IngestPreviewCamera {
   stageName: string;
 }
 
-// Pre-live monitor source: walks the stream's stages → feeds → ingest status
-// and returns the primary camera (lowest priority number) currently receiving
-// signal. Mirrors useOnAirCamera, but keyed on ingest `live` instead of a
-// RUNNING transcode job — so it resolves at READY, before going live.
-export function useIngestPreviewCamera(streamId: string | null, enabled: boolean): IngestPreviewCamera | null {
+// Pre-live monitor sources: walks the stream's stages → feeds → ingest status
+// and returns every camera currently receiving signal, sorted by priority
+// (primary first). Mirrors useOnAirCamera, but keyed on ingest `live` instead
+// of a RUNNING transcode job — so it resolves at READY, before going live.
+export function useIngestPreviewCameras(streamId: string | null, enabled: boolean): IngestPreviewCamera[] {
   const stagesQuery = useQuery({
     queryKey: STREAM_KEYS.stages(streamId ?? ''),
     queryFn: () => streamsService.listStages(streamId!),
@@ -87,9 +87,9 @@ export function useIngestPreviewCamera(streamId: string | null, enabled: boolean
           .map((c) => ({ cameraId: c.id, cameraName: c.name, stageName: feedsWithStage[i].stageName, priority: c.priority }))
       : [],
   );
-  if (candidates.length === 0) return null;
-  const primary = candidates.reduce((a, b) => (b.priority < a.priority ? b : a));
-  return { cameraId: primary.cameraId, cameraName: primary.cameraName, stageName: primary.stageName };
+  return candidates
+    .sort((a, b) => a.priority - b.priority)
+    .map(({ cameraId, cameraName, stageName }) => ({ cameraId, cameraName, stageName }));
 }
 
 // Admin LL-HLS preview URL for a camera's raw ingest (works pre-live). The
