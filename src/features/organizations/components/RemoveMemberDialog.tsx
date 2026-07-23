@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import styles from './RemoveMemberDialog.module.scss';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function RemoveMemberDialog({ isOpen, memberName, onConfirm, onCancel, isPending }: Props) {
+  const t = useTranslations('organizations');
   if (!isOpen) return null;
 
   return (
@@ -26,7 +28,7 @@ export function RemoveMemberDialog({ isOpen, memberName, onConfirm, onCancel, is
             Cancelar
           </button>
           <button className={styles.confirmBtn} onClick={onConfirm} disabled={isPending}>
-            {isPending ? 'Removendo...' : 'Remover'}
+            {isPending ? t('removing') : t('removeBtn')}
           </button>
         </div>
       </div>

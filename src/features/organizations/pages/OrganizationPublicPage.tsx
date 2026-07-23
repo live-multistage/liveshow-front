@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Building2, Users, Calendar, Radio } from 'lucide-react';
 import { useOrganizationBySlug, useOrganizationEvents } from '../hooks/use-organizations';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function OrganizationPublicPage({ slug }: Props) {
+  const t = useTranslations('organizations');
   const [tab, setTab] = useState<Tab>('upcoming');
 
   const { data: org, isLoading: orgLoading, isError: orgError } = useOrganizationBySlug(slug);
@@ -119,8 +121,8 @@ export function OrganizationPublicPage({ slug }: Props) {
               {!isLoading && activeEvents.length === 0 && (
                 <p className={styles.emptyText}>
                   {tab === 'upcoming'
-                    ? 'Nenhum evento programado.'
-                    : 'Nenhum evento anterior.'}
+                    ? t('noScheduledEvents')
+                    : t('noPastEvents')}
                 </p>
               )}
 

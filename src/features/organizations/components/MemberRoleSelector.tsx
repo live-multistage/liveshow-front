@@ -1,15 +1,16 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { OrganizationRole } from '../types/organization.types';
 import styles from './MemberRoleSelector.module.scss';
 
-const ROLE_OPTIONS: { value: OrganizationRole; label: string }[] = [
-  { value: 'ADMIN', label: 'Admin' },
-  { value: 'CONTENT_MANAGER', label: 'Gestor de Conteúdo' },
-  { value: 'EVENT_MANAGER', label: 'Gestor de Eventos' },
-  { value: 'OPERATOR', label: 'Operador' },
-  { value: 'STAFF', label: 'Staff (portaria/check-in)' },
-  { value: 'VIEWER', label: 'Visualizador' },
+const ROLE_OPTIONS: { value: OrganizationRole; labelKey: string }[] = [
+  { value: 'ADMIN', labelKey: 'roleADMIN' },
+  { value: 'CONTENT_MANAGER', labelKey: 'roleCONTENT_MANAGER' },
+  { value: 'EVENT_MANAGER', labelKey: 'roleEVENT_MANAGER' },
+  { value: 'OPERATOR', labelKey: 'roleOPERATOR' },
+  { value: 'STAFF', labelKey: 'roleSTAFFCheckin' },
+  { value: 'VIEWER', labelKey: 'roleVIEWER' },
 ];
 
 interface Props {
@@ -20,7 +21,8 @@ interface Props {
 }
 
 export function MemberRoleSelector({ value, onChange, disabled, excludeOwner = true }: Props) {
-  const options = excludeOwner ? ROLE_OPTIONS : [{ value: 'OWNER' as OrganizationRole, label: 'Owner' }, ...ROLE_OPTIONS];
+  const t = useTranslations('organizations');
+  const options = excludeOwner ? ROLE_OPTIONS : [{ value: 'OWNER' as OrganizationRole, labelKey: 'roleOWNER' }, ...ROLE_OPTIONS];
 
   return (
     <select
@@ -31,7 +33,7 @@ export function MemberRoleSelector({ value, onChange, disabled, excludeOwner = t
     >
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>
-          {opt.label}
+          {t(opt.labelKey)}
         </option>
       ))}
     </select>

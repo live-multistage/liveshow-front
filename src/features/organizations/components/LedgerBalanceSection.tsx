@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Wallet } from 'lucide-react';
 import { useOrganizationLedger } from '../hooks/use-organization-ledger';
 import { useStripeStatus } from '../hooks/use-stripe-status';
@@ -10,11 +11,7 @@ interface Props {
   orgId: string;
 }
 
-const ENTRY_LABEL: Record<OrganizationLedgerEntry['type'], string> = {
-  SALE: 'Venda',
-  REFUND: 'Reembolso',
-  PAYOUT: 'Repasse',
-};
+const LEDGER_TYPE_KEYS = ['SALE','REFUND','PAYOUT'];
 
 const MAX_ENTRIES = 5;
 
@@ -23,6 +20,7 @@ function formatBRL(value: number): string {
 }
 
 export function LedgerBalanceSection({ orgId }: Props) {
+  const t = useTranslations('organizations');
   const { data: ledger, isLoading, isError } = useOrganizationLedger(orgId);
   const { data: stripeStatus } = useStripeStatus(orgId);
 
@@ -60,8 +58,8 @@ export function LedgerBalanceSection({ orgId }: Props) {
       {hasBalance && (
         <p className={styles.notice} data-variant={stripeReady ? 'ready' : 'pending'}>
           {stripeReady
-            ? 'Sua conta Stripe está conectada. Este valor será repassado pela equipe LiveShow.'
-            : 'Vendas realizadas antes de conectar o Stripe ficam retidas. Conecte sua conta Stripe acima para receber este valor.'}
+            ? t('ledgerStripeOk')
+            : t('ledgerStripePending')}
         </p>
       )}
 
@@ -76,7 +74,7 @@ export function LedgerBalanceSection({ orgId }: Props) {
           {recentEntries.map((entry) => (
             <li key={entry.id} className={styles.entry}>
               <span className={styles.entryType} data-type={entry.type}>
-                {ENTRY_LABEL[entry.type]}
+                {LEDGER_TYPE_KEYS.includes(entry.type) ? t(`ledger${entry.type}`) : entry.type}
               </span>
               <span className={styles.entryDate}>
                 {new Date(entry.createdAt).toLocaleDateString('pt-BR')}

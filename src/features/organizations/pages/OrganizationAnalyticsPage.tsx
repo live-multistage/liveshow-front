@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import {
   Chart as ChartJS,
@@ -55,12 +56,13 @@ const VIEWERS_CHART_OPTIONS = {
 } as const;
 
 function ViewersChart({ series, isLoading }: { series: ChartPoint[]; isLoading: boolean }) {
+  const t = useTranslations('organizations');
   const hasData = series.length > 0;
   const chartData = {
     labels: hasData ? series.map((p) => p.hour) : ['—'],
     datasets: [
       {
-        label: 'Espectadores',
+        label: t('anViewers'),
         data: hasData ? series.map((p) => p.viewers) : [0],
         borderColor: '#ff2e9e',
         backgroundColor: 'rgba(255,46,158,0.15)',
@@ -72,7 +74,7 @@ function ViewersChart({ series, isLoading }: { series: ChartPoint[]; isLoading: 
         borderWidth: 2.5,
       },
       {
-        label: 'Novos acessos',
+        label: t('anNewAccesses'),
         data: hasData ? series.map((p) => p.newAccesses) : [0],
         borderColor: '#bba6ff',
         backgroundColor: 'transparent',
@@ -117,6 +119,7 @@ interface Props {
 }
 
 export function OrganizationAnalyticsPage({ organizationId }: Props) {
+  const t = useTranslations('organizations');
   const [granularity, setGranularity] = useState<SalesGranularity>('month');
 
   const { data: org, isLoading: orgLoading, isError: orgError } = useOrganization(organizationId);
@@ -139,7 +142,7 @@ export function OrganizationAnalyticsPage({ organizationId }: Props) {
       )}
 
       <div className={styles.card}>
-        <SectionHeader label="VENDAS" icon="sales" />
+        <SectionHeader label={t('anSales')} icon="sales" />
         <SalesDashboard
           data={analytics?.sales}
           isLoading={analyticsLoading}
@@ -150,34 +153,34 @@ export function OrganizationAnalyticsPage({ organizationId }: Props) {
       </div>
 
       <div className={styles.card}>
-        <SectionHeader label="ESPECTADORES AO LONGO DO TEMPO" icon="info" />
+        <SectionHeader label={t('anViewersOverTime')} icon="info" />
         <ViewersChart series={analytics?.viewsSeries ?? []} isLoading={analyticsLoading} />
       </div>
 
       <div className={styles.card}>
-        <SectionHeader label="FUNIL DE CONVERSÃO" icon="info" />
+        <SectionHeader label={t('anFunnel')} icon="info" />
         <div className={styles.kpiStrip}>
           <KpiCard
-            label="VISUALIZAÇÕES"
+            label={t('anViews')}
             value={analyticsLoading ? '—' : (funnel?.viewCount ?? 0).toLocaleString('pt-BR')}
             unit="total"
             kind="view"
           />
           <KpiCard
-            label="ADD AO CARRINHO"
+            label={t('anCartAdds')}
             value={analyticsLoading ? '—' : (funnel?.cartAddCount ?? 0).toLocaleString('pt-BR')}
             unit={formatRate(funnel?.viewToCartRate ?? null)}
             kind="ticket"
           />
           <KpiCard
-            label="COMPRAS"
+            label={t('anPurchases')}
             value={analyticsLoading ? '—' : (funnel?.purchaseCount ?? 0).toLocaleString('pt-BR')}
             unit={formatRate(funnel?.cartToPurchaseRate ?? null)}
             kind="sales"
             accent
           />
           <KpiCard
-            label="TEMPO MÉDIO ASSISTIDO"
+            label={t('anAvgWatch')}
             value={analyticsLoading ? '—' : formatWatchTime(funnel?.avgWatchSeconds ?? null)}
             unit={formatRate(funnel?.completionRate ?? null) === '—' ? '' : `${formatRate(funnel?.completionRate ?? null)} concl.`}
             kind="view"
@@ -186,7 +189,7 @@ export function OrganizationAnalyticsPage({ organizationId }: Props) {
       </div>
 
       <div className={styles.card}>
-        <SectionHeader label="REPUTAÇÃO DA ORGANIZAÇÃO" icon="info" />
+        <SectionHeader label={t('anReputation')} icon="info" />
         <div className={styles.kpiStrip}>
           <KpiCard
             label="REPUTAÇÃO"

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { OrganizationHeader } from '../components/OrganizationHeader';
 import { useOrganization } from '../hooks/use-organizations';
@@ -25,17 +26,7 @@ function getInitials(name: string): string {
   return (name ?? '').split(' ').slice(0, 2).map((w) => w[0] ?? '').join('').toUpperCase();
 }
 
-function rolePtBr(role: string): string {
-  const map: Record<string, string> = {
-    OWNER: 'Proprietário',
-    ADMIN: 'Administrador',
-    EVENT_MANAGER: 'Produtor',
-    CONTENT_MANAGER: 'Gestor de Conteúdo',
-    OPERATOR: 'Operador',
-    VIEWER: 'Visualizador',
-  };
-  return map[role] ?? role;
-}
+const ROLE_LABEL_KEYS = ['OWNER','ADMIN','EVENT_MANAGER','CONTENT_MANAGER','OPERATOR','STAFF','VIEWER'];
 
 const MONTHS_PT = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
 
@@ -46,13 +37,13 @@ function parseEventDate(iso: string) {
 
 function eventStatusBadge(status: EventStatus) {
   switch (status) {
-    case 'LIVE':      return { label: 'AO VIVO', live: true };
+    case 'LIVE':      return { labelKey: 'statusLive', live: true };
     case 'PUBLISHED':
-    case 'SCHEDULED': return { label: 'PUBLICADO', color: '#7fe0a0', bg: 'rgba(127,224,160,.08)', border: 'rgba(127,224,160,.32)' };
-    case 'DRAFT':     return { label: 'RASCUNHO', color: '#c7c7cd', bg: 'rgba(255,255,255,.06)', border: 'rgba(255,255,255,.12)' };
-    case 'FINISHED':  return { label: 'ENCERRADO', color: '#8f8f97', bg: 'rgba(255,255,255,.04)', border: 'rgba(255,255,255,.1)' };
-    case 'CANCELLED': return { label: 'CANCELADO', color: '#f87171', bg: 'rgba(248,113,113,.08)', border: 'rgba(248,113,113,.2)' };
-    default:          return { label: status, color: '#8f8f97', bg: 'rgba(255,255,255,.04)', border: 'rgba(255,255,255,.1)' };
+    case 'SCHEDULED': return { labelKey: 'statusPublished', color: '#7fe0a0', bg: 'rgba(127,224,160,.08)', border: 'rgba(127,224,160,.32)' };
+    case 'DRAFT':     return { labelKey: 'statusDraft', color: '#c7c7cd', bg: 'rgba(255,255,255,.06)', border: 'rgba(255,255,255,.12)' };
+    case 'FINISHED':  return { labelKey: 'statusFinished', color: '#8f8f97', bg: 'rgba(255,255,255,.04)', border: 'rgba(255,255,255,.1)' };
+    case 'CANCELLED': return { labelKey: 'statusCancelled', color: '#f87171', bg: 'rgba(248,113,113,.08)', border: 'rgba(248,113,113,.2)' };
+    default:          return { labelKey: null as string | null, fallback: status, color: '#8f8f97', bg: 'rgba(255,255,255,.04)', border: 'rgba(255,255,255,.1)' };
   }
 }
 
@@ -61,6 +52,7 @@ function eventStatusBadge(status: EventStatus) {
 // ── Event row ─────────────────────────────────────────────────────
 
 function EventRow({ event }: { event: EventResponse }) {
+  const t = useTranslations('organizations');
   const { month, day } = parseEventDate(event.startsAt);
   const badge = eventStatusBadge(event.status);
   const time = new Date(event.startsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -94,7 +86,7 @@ function EventRow({ event }: { event: EventResponse }) {
           className={styles.statusPill}
           style={{ color: badge.color, background: badge.bg, borderColor: badge.border }}
         >
-          {badge.label}
+          {badge.labelKey ? t(badge.labelKey) : (badge as { fallback?: string }).fallback}
         </span>
       )}
     </div>
@@ -104,6 +96,8 @@ function EventRow({ event }: { event: EventResponse }) {
 // ── Member row ────────────────────────────────────────────────────
 
 function MemberRow({ member, isYou }: { member: OrganizationMemberResponse; isYou: boolean }) {
+  const t = useTranslations('organizations');
+  const roleLabelT = (role: string) => (ROLE_LABEL_KEYS.includes(role) ? t(`role${role}`) : role);
   const name     = member.displayName ?? member.email ?? 'Membro';
   const initials = getInitials(name);
   const bg       = avatarColor(member.userId);
@@ -115,7 +109,7 @@ function MemberRow({ member, isYou }: { member: OrganizationMemberResponse; isYo
       </div>
       <div className={styles.memberInfo}>
         <div className={styles.memberName}>{name}</div>
-        <div className={styles.memberRole}>{rolePtBr(member.role)}</div>
+        <div className={styles.memberRole}>{roleLabelT(member.role)}</div>
       </div>
       {isYou && <span className={styles.youBadge}>VOCÊ</span>}
     </div>
@@ -129,13 +123,14 @@ interface Props {
 }
 
 export function OrganizationDashboardPage({ organizationId }: Props) {
+  const t = useTranslations('organizations');
   const { data: org,      isLoading: orgLoading,     isError: orgError  } = useOrganization(organizationId);
   const { data: members = [],                                            } = useOrganizationMembers(organizationId);
   const { data: events  = [], isLoading: eventsLoading                   } = useOrganizationEvents(organizationId, 'all');
   const { data: settings                                                 } = useOrganizationSettings(organizationId);
 
   if (orgLoading) return <p className={styles.state}>Carregando...</p>;
-  if (orgError || !org) return <p className={`${styles.state} ${styles.stateError}`}>Organização não encontrada.</p>;
+  if (orgError || !org) return <p className={`${styles.state} ${styles.stateError}`}>{t('notFoundOrg')}</p>;
 
   const foundedDate = new Date(org.createdAt).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
   const location    = [settings?.city, settings?.country].filter(Boolean).join(', ') || null;
@@ -155,16 +150,16 @@ export function OrganizationDashboardPage({ organizationId }: Props) {
 
           {/* KPI strip */}
           <div className={styles.kpiStrip}>
-            <KpiCard label="EVENTOS"   value={events.length}   unit="total"    kind="event" />
-            <KpiCard label="MEMBROS"   value={members.length}  unit="na equipe" kind="team" />
-            <KpiCard label="INGRESSOS" value="—"               unit="vendidos"  kind="ticket" />
-            <KpiCard label="RECEITA"   value="—"               unit="BRL"       kind="sales" accent />
+            <KpiCard label={t('kpiEvents')}   value={events.length}   unit={t('kpiEventsUnit')}    kind="event" />
+            <KpiCard label={t('kpiMembers')}   value={members.length}  unit={t('kpiMembersUnit')} kind="team" />
+            <KpiCard label={t('kpiTickets')} value="—"               unit={t('kpiTicketsUnit')}  kind="ticket" />
+            <KpiCard label={t('kpiRevenue')}   value="—"               unit="BRL"       kind="sales" accent />
           </div>
 
           {/* About */}
           <div className={styles.card}>
             <SectionHeader
-              label="SOBRE A ORGANIZAÇÃO"
+              label={t('aboutOrg')}
               icon="info"
               action={
                 <Link
@@ -194,7 +189,7 @@ export function OrganizationDashboardPage({ organizationId }: Props) {
           {/* Upcoming events */}
           <div className={styles.card}>
             <SectionHeader
-              label="PRÓXIMOS EVENTOS"
+              label={t('upcomingEvents')}
               icon="calendar"
               action={
                 <Link
@@ -223,7 +218,7 @@ export function OrganizationDashboardPage({ organizationId }: Props) {
           {/* Team */}
           <div className={styles.card}>
             <SectionHeader
-              label="EQUIPE"
+              label={t('team')}
               icon="team"
               action={
                 <Link
@@ -247,7 +242,7 @@ export function OrganizationDashboardPage({ organizationId }: Props) {
 
           {/* Activity */}
           <div className={styles.card}>
-            <SectionHeader label="ATIVIDADE RECENTE" icon="activity" />
+            <SectionHeader label={t('recentActivity')} icon="activity" />
             <p className={styles.muted}>Nenhuma atividade registrada.</p>
           </div>
         </div>

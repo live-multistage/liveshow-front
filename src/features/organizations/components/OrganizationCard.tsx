@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import type { OrganizationResponse } from '../types/organization.types';
 import styles from './OrganizationCard.module.scss';
@@ -32,6 +33,7 @@ interface Props {
 }
 
 export function OrganizationCard({ organization: org }: Props) {
+  const t = useTranslations('organizations');
   const initials = getInitials(org.name);
   const bg = avatarColor(org.id);
 
@@ -66,7 +68,7 @@ export function OrganizationCard({ organization: org }: Props) {
 
       {/* description */}
       <p className={styles.description}>
-        {org.description ?? 'Sem descrição.'}
+        {org.description ?? t('noDescription')}
       </p>
 
       {/* stats row */}
