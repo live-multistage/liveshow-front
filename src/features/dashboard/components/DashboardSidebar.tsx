@@ -10,6 +10,7 @@ import { NAV_BY_ROLE, DASHBOARD_ROLES } from '../types/dashboard.types';
 import { DashboardUserMenu } from './DashboardUserMenu';
 import type { UserRole } from '@/types';
 import styles from './DashboardSidebar.module.scss';
+import { ArrowUpRight } from 'lucide-react';
 
 export function DashboardSidebar() {
   const t = useTranslations('dashboard.nav');
@@ -48,6 +49,8 @@ export function DashboardSidebar() {
                 <Icon size={18} className={styles.navIcon} />
                 {t(item.navKey as Parameters<typeof t>[0])}
                 {item.badge?.()}
+
+                {item.external && <ArrowUpRight size={14} />}
               </Link>
             </div>
           );

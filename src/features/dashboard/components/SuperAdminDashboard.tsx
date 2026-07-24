@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Building2, Users, Radio, CalendarDays, Ticket, DollarSign, AlertTriangle } from 'lucide-react';
 import { Skeleton } from '@live-show/design-system';
@@ -37,6 +38,7 @@ function compact(n: number): string {
 }
 
 export function SuperAdminDashboard() {
+  const t = useTranslations('dashboard');
   const [range, setRange] = useState<OverviewRange>('30d');
   const { data, isLoading } = usePlatformOverviewQuery(range);
 
@@ -53,7 +55,7 @@ export function SuperAdminDashboard() {
         { label: 'GMV', icon: Ticket, color: '#ffd166', value: compact(data.gmv), unit: 'R$',
           delta: `últimos ${data.rangeDays} dias`, deltaColor: '#8f8f97' },
         { label: 'RECEITA', icon: DollarSign, color: '#ff5fb4', value: compact(data.platformRevenue), unit: 'R$',
-          delta: 'comissões da plataforma', deltaColor: '#8f8f97' },
+          delta: t('platformCommissions'), deltaColor: '#8f8f97' },
       ]
     : [];
 
@@ -86,7 +88,7 @@ export function SuperAdminDashboard() {
       <div className={styles.banner}>
         <AlertTriangle size={17} className={styles.bannerIcon} />
         <span>
-          <b>Escopo global.</b> Estas métricas agregam toda a plataforma via queries dedicadas —
+          {t.rich('globalScope', { b: (c) => <b>{c}</b> })}
           não os eventos escopados às suas organizações.
         </span>
       </div>

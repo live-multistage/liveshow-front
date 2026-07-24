@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ShieldAlert, Search, Eye } from 'lucide-react';
@@ -15,6 +16,7 @@ import styles from './SuperAdminDashboard.module.scss';
 // impersonation. The backend refuses to impersonate another super-admin and
 // blocks every mutation for the read-only token; this card only opens the door.
 export function ImpersonationCard() {
+  const t = useTranslations('dashboard');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PlatformUserResult[]>([]);
   const begin = useImpersonationStore((s) => s.begin);
@@ -75,7 +77,7 @@ export function ImpersonationCard() {
       </div>
 
       <p className={styles.sensitiveNote}>
-        Abre uma sessão de suporte <b>read-only</b> para ver a plataforma como o usuário.
+        {t.rich('impersonateDesc', { b: (c) => <b>{c}</b> })}
         Escrita é bloqueada no backend; início e fim são auditados.
       </p>
 
@@ -84,7 +86,7 @@ export function ImpersonationCard() {
           <Search size={14} className={styles.impSearchIcon} />
           <input
             className={styles.impInput}
-            placeholder="Buscar por nome ou e-mail…"
+            placeholder={t('impersonateSearch')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -113,7 +115,7 @@ export function ImpersonationCard() {
               className={styles.impStartBtn}
               onClick={() => start.mutate(u.id)}
               disabled={start.isPending || u.role === 'SUPER_ADMIN'}
-              title={u.role === 'SUPER_ADMIN' ? 'Não é possível impersonar um super-admin' : undefined}
+              title={u.role === 'SUPER_ADMIN' ? t('cannotImpersonateSuper') : undefined}
             >
               <Eye size={12} />
               Ver como

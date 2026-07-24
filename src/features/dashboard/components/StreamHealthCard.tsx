@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState, type ReactNode } from 'react';
 import { useStreamHealthQuery } from '@/features/platform-admin/queries/get-ops';
 import type { StreamHealthJob, StreamHealthIngest } from '@/features/platform-admin/types/platform-admin.types';
@@ -63,13 +64,14 @@ function IngestRows({ sessions }: { sessions: StreamHealthIngest[] }) {
 // into detail lists (one panel at a time). Per-variant bitrate/health remains
 // deferred — no data source yet.
 export function StreamHealthCard() {
+  const t = useTranslations('dashboard');
   const { data } = useStreamHealthQuery();
   const [open, setOpen] = useState<Panel | null>(null);
 
   const stats: { key: Panel; label: string; value: number; sub: string; danger?: boolean }[] = [
-    { key: 'active', label: 'TRANSCODE JOBS', value: data?.transcodeActive ?? 0, sub: 'ativos' },
-    { key: 'ingest', label: 'SESSÕES INGEST', value: data?.ingestConnected ?? 0, sub: 'conectadas' },
-    { key: 'failed', label: 'JOBS COM FALHA', value: data?.transcodeFailed ?? 0, sub: 'últimas 24h', danger: true },
+    { key: 'active', label: t('transcodeJobs'), value: data?.transcodeActive ?? 0, sub: t('jobsActive') },
+    { key: 'ingest', label: t('ingestSessions'), value: data?.ingestConnected ?? 0, sub: t('ingestConnected') },
+    { key: 'failed', label: t('failedJobs'), value: data?.transcodeFailed ?? 0, sub: t('last24h'), danger: true },
   ];
 
   const panels: Record<Panel, { rows: number; content: ReactNode }> = {

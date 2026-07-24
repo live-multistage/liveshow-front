@@ -294,7 +294,8 @@
     "waitingSession": "Waiting for session…",
     "emptyCart": "Your cart is empty.",
     "couponInvalid": "Invalid or expired coupon",
-    "couponPlaceholder": "Coupon code"
+    "couponPlaceholder": "Coupon code",
+    "payButtonNeutral": "Complete purchase"
   },
   "carousel": {
     "seeAll": "See all →",
@@ -378,7 +379,36 @@
         "finishedHint": "Completed events",
         "revenueHint": "Coming soon"
       }
-    }
+    },
+    "transcodeJobs": "TRANSCODE JOBS",
+    "jobsActive": "active",
+    "ingestSessions": "INGEST SESSIONS",
+    "ingestConnected": "connected",
+    "failedJobs": "FAILED JOBS",
+    "last24h": "last 24h",
+    "platformCommissions": "platform commissions",
+    "globalScope": "<b>Global scope.</b> These metrics aggregate the whole platform via dedicated queries —",
+    "impersonateDesc": "Opens a <b>read-only</b> support session to view the platform as the user.",
+    "impersonateSearch": "Search by name or email…",
+    "cannotImpersonateSuper": "Cannot impersonate a super-admin",
+    "organization": "Organization",
+    "rate": "Fee",
+    "catEvents": "Events",
+    "catEventsTag": "GLOBAL CATALOG",
+    "catEventsCta": "Open events",
+    "catAds": "Ads",
+    "catAdsCta": "Manage campaigns",
+    "catCoupons": "Coupons",
+    "catCouponsTag": "GLOBAL · PER ORG",
+    "catCouponsCta": "View coupons",
+    "lblPublished": "Published",
+    "lblLive": "Live",
+    "lblTotal": "Total",
+    "lblActive": "Active",
+    "lblImpressions30d": "Impressions (30d)",
+    "lblReview": "In review",
+    "lblRedemptions30d": "Redemptions (30d)",
+    "lblExpiring7d": "Expiring in 7d"
   },
   "eventsPage": {
     "heading": "Events",
@@ -565,6 +595,7 @@
     "nameLabel": "Ticket Name *",
     "namePlaceholder": "e.g. Standard Ticket",
     "priceLabel": "Price (USD) *",
+    "currencyLabel": "Currency",
     "descLabel": "Ticket Description *",
     "descPlaceholder": "e.g. Access to the live show",
     "accessLabel": "Access Type *",

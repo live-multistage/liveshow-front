@@ -25,6 +25,7 @@ export interface NavItem {
   navKey: string;
   href: string;
   icon: LucideIcon;
+  external?: boolean;
   badge?: () => ReactNode;
   // Section header shown above the item when it differs from the previous
   // item's group. Used by the grouped super-admin sidebar; omit for flat navs.
@@ -40,7 +41,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'coupons',        href: '/dashboard/coupons',        icon: Ticket },
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
-    { navKey: 'advertisement',  href: config.adsManagerUrl,        icon: Megaphone },
+    { navKey: 'advertisement',  href: config.adsManagerUrl,        icon: Megaphone, external: true },
   ],
   ORGANIZER: [
     { navKey: 'overview',       href: '/dashboard',                icon: LayoutDashboard },
@@ -50,7 +51,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'coupons',        href: '/dashboard/coupons',        icon: Ticket },
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
-    { navKey: 'advertisement',  href: config.adsManagerUrl,        icon: Megaphone },
+    { navKey: 'advertisement',  href: config.adsManagerUrl,        icon: Megaphone, external: true },
   ],
   ARTIST: [
     { navKey: 'overview',       href: '/dashboard',                icon: LayoutDashboard },

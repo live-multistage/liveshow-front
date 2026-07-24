@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useOrgBalancesQuery } from '@/features/platform-admin/queries/get-finance';
 import { usePayoutOrgMutation } from '@/features/platform-admin/mutations/payout-org.mutation';
@@ -12,6 +13,7 @@ import styles from './SuperAdminDashboard.module.scss';
 // per-row payout (PAGAR, confirm-gated) and inline fee-rate override — both
 // audited on the backend.
 export function OrgBalancesCard() {
+  const t = useTranslations('dashboard');
   const { data, isLoading } = useOrgBalancesQuery();
 
   return (
@@ -24,8 +26,8 @@ export function OrgBalancesCard() {
       </div>
 
       <div className={styles.balHead}>
-        <span>Organização</span>
-        <span>Taxa</span>
+        <span>{t('organization')}</span>
+        <span>{t('rate')}</span>
         <span className={styles.balRight}>A receber</span>
       </div>
 

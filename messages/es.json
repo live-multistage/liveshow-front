@@ -294,7 +294,8 @@
     "waitingSession": "Esperando sesión…",
     "emptyCart": "Tu carrito está vacío.",
     "couponInvalid": "Cupón inválido o vencido",
-    "couponPlaceholder": "Código del cupón"
+    "couponPlaceholder": "Código del cupón",
+    "payButtonNeutral": "Finalizar compra"
   },
   "carousel": {
     "seeAll": "Ver todos →",
@@ -378,7 +379,36 @@
         "finishedHint": "Eventos completados",
         "revenueHint": "Próximamente"
       }
-    }
+    },
+    "transcodeJobs": "TRANSCODE JOBS",
+    "jobsActive": "activos",
+    "ingestSessions": "SESIONES INGEST",
+    "ingestConnected": "conectadas",
+    "failedJobs": "JOBS CON FALLA",
+    "last24h": "últimas 24h",
+    "platformCommissions": "comisiones de la plataforma",
+    "globalScope": "<b>Alcance global.</b> Estas métricas agregan toda la plataforma vía queries dedicadas —",
+    "impersonateDesc": "Abre una sesión de soporte <b>de solo lectura</b> para ver la plataforma como el usuario.",
+    "impersonateSearch": "Buscar por nombre o correo…",
+    "cannotImpersonateSuper": "No se puede suplantar a un super-admin",
+    "organization": "Organización",
+    "rate": "Tarifa",
+    "catEvents": "Eventos",
+    "catEventsTag": "CATÁLOGO GLOBAL",
+    "catEventsCta": "Abrir eventos",
+    "catAds": "Anuncios",
+    "catAdsCta": "Gestionar campañas",
+    "catCoupons": "Cupones",
+    "catCouponsTag": "GLOBAL · POR ORG",
+    "catCouponsCta": "Ver cupones",
+    "lblPublished": "Publicados",
+    "lblLive": "En vivo",
+    "lblTotal": "Total",
+    "lblActive": "Activos",
+    "lblImpressions30d": "Impresiones (30d)",
+    "lblReview": "En revisión",
+    "lblRedemptions30d": "Canjes (30d)",
+    "lblExpiring7d": "Vencen en 7d"
   },
   "eventsPage": {
     "heading": "Eventos",
@@ -565,6 +595,7 @@
     "nameLabel": "Nombre de la Entrada *",
     "namePlaceholder": "Ej: Entrada Estándar",
     "priceLabel": "Precio *",
+    "currencyLabel": "Moneda",
     "descLabel": "Descripción de la Entrada *",
     "descPlaceholder": "Ej: Acceso al show en vivo",
     "accessLabel": "Tipo de Acceso *",

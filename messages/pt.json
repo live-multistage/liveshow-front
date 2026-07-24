@@ -294,7 +294,8 @@
     "waitingSession": "Aguardando sessão…",
     "emptyCart": "Seu carrinho está vazio.",
     "couponInvalid": "Cupom inválido ou expirado",
-    "couponPlaceholder": "Código do cupom"
+    "couponPlaceholder": "Código do cupom",
+    "payButtonNeutral": "Finalizar compra"
   },
   "carousel": {
     "seeAll": "Ver todos →",
@@ -378,7 +379,36 @@
         "finishedHint": "Eventos concluídos",
         "revenueHint": "Em breve"
       }
-    }
+    },
+    "transcodeJobs": "TRANSCODE JOBS",
+    "jobsActive": "ativos",
+    "ingestSessions": "SESSÕES INGEST",
+    "ingestConnected": "conectadas",
+    "failedJobs": "JOBS COM FALHA",
+    "last24h": "últimas 24h",
+    "platformCommissions": "comissões da plataforma",
+    "globalScope": "<b>Escopo global.</b> Estas métricas agregam toda a plataforma via queries dedicadas —",
+    "impersonateDesc": "Abre uma sessão de suporte <b>read-only</b> para ver a plataforma como o usuário.",
+    "impersonateSearch": "Buscar por nome ou e-mail…",
+    "cannotImpersonateSuper": "Não é possível impersonar um super-admin",
+    "organization": "Organização",
+    "rate": "Taxa",
+    "catEvents": "Eventos",
+    "catEventsTag": "CATÁLOGO GLOBAL",
+    "catEventsCta": "Abrir eventos",
+    "catAds": "Anúncios",
+    "catAdsCta": "Gerenciar campanhas",
+    "catCoupons": "Cupons",
+    "catCouponsTag": "GLOBAL · POR ORG",
+    "catCouponsCta": "Ver cupons",
+    "lblPublished": "Publicados",
+    "lblLive": "Ao vivo",
+    "lblTotal": "Total",
+    "lblActive": "Ativos",
+    "lblImpressions30d": "Impressões (30d)",
+    "lblReview": "Em revisão",
+    "lblRedemptions30d": "Resgates (30d)",
+    "lblExpiring7d": "Expirando em 7d"
   },
   "eventsPage": {
     "heading": "Eventos",
@@ -568,6 +598,7 @@
     "nameLabel": "Nome do Ingresso *",
     "namePlaceholder": "Ex: Ingresso Padrão",
     "priceLabel": "Preço (R$) *",
+    "currencyLabel": "Moeda",
     "descLabel": "Descrição do Ingresso *",
     "descPlaceholder": "Ex: Acesso ao show ao vivo",
     "accessLabel": "Tipo de Acesso *",
