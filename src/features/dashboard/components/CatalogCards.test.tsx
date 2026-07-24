@@ -13,6 +13,7 @@ const mockedUseCatalogSummaryQuery = vi.mocked(useCatalogSummaryQuery);
 function renderCards() {
   mockedUseCatalogSummaryQuery.mockReturnValue({ data: undefined } as ReturnType<typeof useCatalogSummaryQuery>);
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
   return render(
     <QueryClientProvider client={queryClient}>
       <CatalogCards />
@@ -24,7 +25,7 @@ describe('CatalogCards', () => {
   it('renders the Ads card as an external link to the Ads Manager, opening a new tab', () => {
     renderCards();
 
-    const link = screen.getByRole('link', { name: /Gerenciar campanhas/i });
+    const link = screen.getByRole('link', { name: /catAdsCta/i });
     expect(link).toHaveAttribute('href', 'http://localhost:3002');
     expect(link).toHaveAttribute('target', '_blank');
     expect(link.getAttribute('rel') ?? '').toContain('noopener');
@@ -33,7 +34,7 @@ describe('CatalogCards', () => {
   it('renders the Events card as an internal link', () => {
     renderCards();
 
-    const link = screen.getByRole('link', { name: /Abrir eventos/i });
+    const link = screen.getByRole('link', { name: /catEventsCta/i });
     expect(link).toHaveAttribute('href', '/dashboard/events');
     expect(link).not.toHaveAttribute('target');
   });

@@ -8,6 +8,8 @@ import type { StreamHealth } from '@/features/platform-admin/types/platform-admi
 vi.mock('@/features/platform-admin/queries/get-ops', () => ({
   useStreamHealthQuery: vi.fn(),
 }));
+// i18n: this test asserts behavior, not copy — echo the key.
+vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
 const mockedQuery = vi.mocked(useStreamHealthQuery);
 
@@ -50,7 +52,7 @@ describe('StreamHealthCard', () => {
   it('expands the failures list on click and shows error messages', async () => {
     renderCard();
 
-    await userEvent.click(screen.getByRole('button', { name: /JOBS COM FALHA/i }));
+    await userEvent.click(screen.getByRole('button', { name: /failedJobs/i }));
 
     expect(screen.getByText('ffmpeg exited with code 1')).toBeInTheDocument();
     expect(screen.getByText('SRT source timeout')).toBeInTheDocument();
@@ -61,8 +63,8 @@ describe('StreamHealthCard', () => {
   it('keeps only one panel open at a time', async () => {
     renderCard();
 
-    await userEvent.click(screen.getByRole('button', { name: /JOBS COM FALHA/i }));
-    await userEvent.click(screen.getByRole('button', { name: /SESSÕES INGEST/i }));
+    await userEvent.click(screen.getByRole('button', { name: /failedJobs/i }));
+    await userEvent.click(screen.getByRole('button', { name: /ingestSessions/i }));
 
     expect(screen.queryByText('ffmpeg exited with code 1')).not.toBeInTheDocument();
     expect(screen.getByText('203.0.113.7')).toBeInTheDocument();
@@ -71,7 +73,7 @@ describe('StreamHealthCard', () => {
   it('collapses an open panel when its card is clicked again', async () => {
     renderCard();
 
-    const btn = screen.getByRole('button', { name: /SESSÕES INGEST/i });
+    const btn = screen.getByRole('button', { name: /ingestSessions/i });
     await userEvent.click(btn);
     await userEvent.click(btn);
 
@@ -87,7 +89,7 @@ describe('StreamHealthCard', () => {
   it('shows a fallback when the counter is > 0 but the list is empty (cache skew)', async () => {
     renderCard({ ...health, failedJobs: [] });
 
-    await userEvent.click(screen.getByRole('button', { name: /JOBS COM FALHA/i }));
+    await userEvent.click(screen.getByRole('button', { name: /failedJobs/i }));
 
     expect(screen.getByText('Sem detalhes disponíveis.')).toBeInTheDocument();
   });
@@ -100,7 +102,7 @@ describe('StreamHealthCard', () => {
       ingestConnected: 1,
     } as StreamHealth);
 
-    await userEvent.click(screen.getByRole('button', { name: /JOBS COM FALHA/i }));
+    await userEvent.click(screen.getByRole('button', { name: /failedJobs/i }));
 
     expect(screen.getByText('Sem detalhes disponíveis.')).toBeInTheDocument();
   });
