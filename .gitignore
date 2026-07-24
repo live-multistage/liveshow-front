@@ -73,3 +73,6 @@ next-env.d.ts
 certificates
 # local prod-HTTPS server (run: pnpm build && node server.mjs)
 server.mjs
+
+# tooling / skill scratch
+.impeccable/
