@@ -18,9 +18,10 @@ interface Props {
   orgs: OrganizationResponse[];
   control: Control<CreateEventFormValues>;
   setValue: UseFormSetValue<CreateEventFormValues>;
+  vodUploadEnabled?: boolean;
 }
 
-export function EventInfoStep({ register, errors, orgs, control, setValue }: Props) {
+export function EventInfoStep({ register, errors, orgs, control, setValue, vodUploadEnabled = false }: Props) {
   const t = useTranslations('createEvent.info');
 
   const category = useWatch({ control, name: 'category' });
@@ -96,7 +97,9 @@ export function EventInfoStep({ register, errors, orgs, control, setValue }: Pro
               onValueChange={field.onChange}
               options={[
                 { value: 'LIVE', label: t('formatLive') },
-                { value: 'VOD', label: t('formatVod') },
+                // VOD is only offered while the vod_upload flag is on — the
+                // backend rejects creating a VOD event otherwise.
+                ...(vodUploadEnabled ? [{ value: 'VOD', label: t('formatVod') }] : []),
               ]}
             />
           )}
