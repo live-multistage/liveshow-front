@@ -33,7 +33,7 @@ export function EventTicketList({ tickets }: Props) {
                 </span>
               )}
             </div>
-            <p className={styles.ticketPrice}>{formatPrice(ticket.price)}</p>
+            <p className={styles.ticketPrice}>{formatPrice(ticket.price, ticket.currency)}</p>
           </div>
         ))}
       </div>

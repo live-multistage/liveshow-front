@@ -8,6 +8,11 @@ export interface CartLineView {
   ticketProductId: string;
   ticketName: string;
   price: number;
+  // ponytail: backend cart DTO doesn't send currency yet (see
+  // live-show-orchestrator src/cart/application/dto/cart-view.dto.ts) —
+  // optional here so old/current API responses don't break the type; every
+  // read site falls back to 'BRL'. Drop the fallback once the backend adds it.
+  currency?: string;
   capabilities: AccessCapability[];
   camerasLimit: number | null;
   organizationId: string;

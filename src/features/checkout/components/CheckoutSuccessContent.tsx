@@ -37,8 +37,9 @@ export function CheckoutSuccessContent(_: Props) {
   const ticket = params.get('ticket');
   const totalRaw = params.get('total');
   const qty = params.get('qty') ? Number(params.get('qty')) : null;
+  const currency = params.get('currency') ?? 'BRL';
 
-  const formattedTotal = totalRaw != null ? formatPrice(Number(totalRaw)) : null;
+  const formattedTotal = totalRaw != null ? formatPrice(Number(totalRaw), currency) : null;
   const hasOrderSummary = name || ticket || formattedTotal;
 
   if (nextCurrency) {

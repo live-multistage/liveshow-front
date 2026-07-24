@@ -180,7 +180,7 @@ export function TicketPanel({ event, tickets }: Props) {
             >
               <div className={styles.ticketOptionHeader}>
                 <span className={styles.ticketOptionName}>{opt.name}</span>
-                <span className={styles.ticketOptionPrice}>{opt.price === 0 ? t('free') : formatPrice(opt.price)}</span>
+                <span className={styles.ticketOptionPrice}>{opt.price === 0 ? t('free') : formatPrice(opt.price, opt.currency)}</span>
               </div>
               <div className={styles.tierChips}>
                 {opt.capabilities.includes('LIVE_VIEW') && <span className={styles.tierChip}>{t('chipLive')}</span>}
@@ -205,18 +205,18 @@ export function TicketPanel({ event, tickets }: Props) {
             <div className={styles.feeLines}>
               <div className={styles.feeLine}>
                 <span>{t('ticketLine')}</span>
-                <span>{formatPrice(ticket.price)}</span>
+                <span>{formatPrice(ticket.price, ticket.currency)}</span>
               </div>
               <div className={styles.feeLine}>
                 <span>{t('serviceFee')}</span>
-                <span>{formatPrice(serviceFee)}</span>
+                <span>{formatPrice(serviceFee, ticket.currency)}</span>
               </div>
             </div>
             <div className={styles.totalRow}>
               <span className={styles.totalLabel}>{t('total')}</span>
               <div className={styles.totalRight}>
-                <span className={styles.currency}>BRL</span>
-                <span className={styles.totalAmount}>{formatPrice(ticket.price + serviceFee)}</span>
+                <span className={styles.currency}>{ticket.currency}</span>
+                <span className={styles.totalAmount}>{formatPrice(ticket.price + serviceFee, ticket.currency)}</span>
               </div>
             </div>
             <p className={styles.totalNote}>{t('validFor')}</p>
@@ -338,7 +338,7 @@ export function TicketPanel({ event, tickets }: Props) {
         <div className={styles.mobileBar}>
           <div>
             <span className={styles.mobileBarLabel}>{isFinished ? t('mobileReplay') : t('mobileTicket')}</span>
-            <span className={styles.mobileBarAmount}>{ticket.price === 0 ? t('free') : formatPrice(ticket.price)}</span>
+            <span className={styles.mobileBarAmount}>{ticket.price === 0 ? t('free') : formatPrice(ticket.price, ticket.currency)}</span>
           </div>
           <button className={styles.mobileBarBtn} onClick={scrollToPanel}>
             {t('mobileBuy')}

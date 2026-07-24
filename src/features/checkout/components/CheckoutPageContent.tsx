@@ -30,6 +30,7 @@ interface SuccessSummary {
   ticket: string;
   total: number;
   qty: number;
+  currency: string;
 }
 
 interface AppliedCoupon {
@@ -53,6 +54,7 @@ function handlePaymentAction(
         ticket: summary.ticket,
         total: String(summary.total),
         qty: String(summary.qty),
+        currency: summary.currency,
       });
       router.push(`${base}?${q}`);
     } else {
@@ -122,7 +124,7 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
           router,
           eventId,
           event.data && ticket && session
-            ? { name: event.data.title, ticket: ticket.name, total: session.totalAmount, qty: quantity }
+            ? { name: event.data.title, ticket: ticket.name, total: session.totalAmount, qty: quantity, currency: session.currency }
             : undefined,
         ),
         onError: () => router.push(`/events/${eventId}/checkout/failed`),
@@ -210,6 +212,7 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
               onApply={handleCouponApply}
               onRemove={handleCouponRemove}
               disabled={!session}
+              currency={session?.currency ?? ticket.currency}
             />
 
             <button
@@ -225,7 +228,7 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
               {processPayment.isPending
                 ? 'Processando…'
                 : session
-                ? `Pagar ${formatPrice(session.totalAmount)}`
+                ? `Pagar ${formatPrice(session.totalAmount, session.currency)}`
                 : t('waitingSession')}
             </button>
 

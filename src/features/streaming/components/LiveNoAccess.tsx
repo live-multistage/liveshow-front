@@ -38,7 +38,10 @@ export function LiveNoAccess({ eventId, eventTitle, isLoggedIn }: Props) {
   const priceRange = tickets && tickets.length > 0
     ? { min: Math.min(...tickets.map((tk) => tk.price)), max: Math.max(...tickets.map((tk) => tk.price)) }
     : undefined;
-  const priceLabel = priceRange ? formatPriceRange(priceRange) : null;
+  // All ticket tiers for a single event share one currency (see backend
+  // TicketProductResponse) — safe to key off the first ticket's.
+  const ticketsCurrency = tickets?.[0]?.currency ?? 'BRL';
+  const priceLabel = priceRange ? formatPriceRange(priceRange, undefined, ticketsCurrency) : null;
 
   const buyHref = `/events/${eventId}`;
 
@@ -133,7 +136,7 @@ export function LiveNoAccess({ eventId, eventTitle, isLoggedIn }: Props) {
                 <div className={styles.priceRow}>
                   <div>
                     <div className={styles.priceLabel}>{t('startingFrom')}</div>
-                    <div className={styles.priceValue}>{priceRange && priceRange.min === priceRange.max ? formatPrice(priceRange.min) : priceLabel}</div>
+                    <div className={styles.priceValue}>{priceRange && priceRange.min === priceRange.max ? formatPrice(priceRange.min, ticketsCurrency) : priceLabel}</div>
                   </div>
                   <Link href={buyHref} className={styles.priceBtn}>
                     {t('viewTickets')}

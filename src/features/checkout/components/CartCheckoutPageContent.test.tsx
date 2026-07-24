@@ -121,3 +121,66 @@ describe('CartCheckoutPageContent - sequential per-currency redirect', () => {
     expect(pending).toEqual([]);
   });
 });
+
+describe('CartCheckoutPageContent - mixed-currency cart', () => {
+  const mixedCart: CartView = {
+    items: [
+      {
+        eventId: 'evt-1',
+        eventTitle: 'Show BRL',
+        eventImage: null,
+        ticketProductId: 'tp-1',
+        ticketName: 'Pista',
+        price: 100,
+        currency: 'BRL',
+        capabilities: [],
+        camerasLimit: null,
+        organizationId: 'org-1',
+        organizationName: 'Org',
+      },
+      {
+        eventId: 'evt-2',
+        eventTitle: 'Show USD',
+        eventImage: null,
+        ticketProductId: 'tp-2',
+        ticketName: 'VIP',
+        price: 20,
+        currency: 'USD',
+        capabilities: [],
+        camerasLimit: null,
+        organizationId: 'org-2',
+        organizationName: 'Org 2',
+      },
+    ],
+    // A mixed-currency total is nonsensical (100 BRL + 20 USD summed as if the
+    // same currency) — the component must not render this raw total directly.
+    totals: { subtotal: 120, lines: [], total: 120 },
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    sessionStorage.clear();
+    mockedAuth.mockReturnValue({ isLoggedIn: true, isLoading: false } as ReturnType<typeof useAuth>);
+    mockedCart.mockReturnValue({ data: mixedCart, isLoading: false } as ReturnType<typeof useCartQuery>);
+    mockedPaymentMethods.mockReturnValue({
+      data: [method],
+      isLoading: false,
+    } as ReturnType<typeof usePaymentMethodsQuery>);
+  });
+
+  it('renders one subtotal per currency instead of a single combined total', () => {
+    renderPage();
+
+    expect(screen.getAllByText(/US\$/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/R\$/).length).toBeGreaterThan(0);
+    // The nonsensical combined total (120, ignoring mixed currencies) must not appear.
+    expect(screen.queryByText('120')).not.toBeInTheDocument();
+  });
+
+  it('uses a currency-neutral pay button label instead of one combined amount', () => {
+    renderPage();
+
+    const payBtn = screen.getByRole('button', { name: /payButtonNeutral/i });
+    expect(payBtn).toBeInTheDocument();
+  });
+});

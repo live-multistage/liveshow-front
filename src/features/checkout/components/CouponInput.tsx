@@ -19,9 +19,10 @@ interface Props {
   onApply: (coupon: AppliedCoupon) => void;
   onRemove: () => void;
   disabled?: boolean;
+  currency?: string;
 }
 
-export function CouponInput({ eventId, orderAmount, applied, onApply, onRemove, disabled }: Props) {
+export function CouponInput({ eventId, orderAmount, applied, onApply, onRemove, disabled, currency = 'BRL' }: Props) {
   const t = useTranslations('checkout');
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +51,7 @@ export function CouponInput({ eventId, orderAmount, applied, onApply, onRemove, 
       <div className={styles.applied}>
         <Tag size={13} className={styles.tagIcon} />
         <span className={styles.appliedCode}>{applied.code}</span>
-        <span className={styles.appliedDiscount}>−{formatPrice(applied.discountAmount)}</span>
+        <span className={styles.appliedDiscount}>−{formatPrice(applied.discountAmount, currency)}</span>
         <button
           className={styles.removeBtn}
           onClick={onRemove}

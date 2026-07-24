@@ -8,6 +8,7 @@ import { Shield, AlertCircle, Check, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
 import { useAuth } from '@/features/account';
 import { useCartQuery, CAPABILITY_LABELS, type CartLineView } from '@/features/cart';
+import { groupCartByCurrency } from '../utils/group-cart-by-currency';
 import { checkoutService } from '../services/checkout.service';
 import { usePaymentMethodsQuery } from '../mutations/checkout.mutations';
 import type { PaymentProvider } from '../types/checkout.types';
@@ -33,12 +34,26 @@ export function CartCheckoutPageContent() {
   const items = cart?.items ?? [];
   const totalAmount = cart?.totals.total ?? 0;
 
+  // A mixed-currency cart has no single valid total — the backend already
+  // charges one Stripe session per currency group (see handlePay below), so
+  // the display groups the same way instead of summing incompatible amounts.
+  const currencyGroups = groupCartByCurrency(items);
+  const isMixedCurrency = currencyGroups.length > 1;
+  const singleCurrency = currencyGroups[0]?.currency ?? 'BRL';
+
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState(false);
-  const [coupon, setCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [coupon, setCoupon] = useState<{ code: string; discountAmount: number; eligibleEventIds: string[] } | null>(null);
 
   const paymentMethods = usePaymentMethodsQuery();
+
+  // Which currency group the applied coupon's discount belongs to — the
+  // backend only ever validates a coupon against one currency's events
+  // (eligibleEventIds), so attribute the discount line to that group only.
+  const couponCurrency = coupon
+    ? (items.find((i) => coupon.eligibleEventIds.includes(i.eventId))?.currency ?? singleCurrency)
+    : null;
 
   // Coupon applied on the cart page travels here via sessionStorage;
   // re-validate against the server so a stale/expired code is dropped silently.
@@ -48,7 +63,7 @@ export function CartCheckoutPageContent() {
     const { code } = JSON.parse(raw) as { code: string };
     checkoutService
       .previewCartCoupon({ code, items: items.map((i) => ({ eventId: i.eventId, amount: i.price })) })
-      .then((r) => setCoupon({ code, discountAmount: r.discountAmount }))
+      .then((r) => setCoupon({ code, discountAmount: r.discountAmount, eligibleEventIds: r.eligibleEventIds }))
       .catch(() => {
         sessionStorage.removeItem('cart:coupon');
         setCoupon(null);
@@ -144,7 +159,11 @@ export function CartCheckoutPageContent() {
               disabled={!selectedMethodId || paying || items.length === 0}
               aria-busy={paying}
             >
-              {paying ? 'Processando…' : `Pagar ${formatPrice(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)))}`}
+              {paying
+                ? 'Processando…'
+                : isMixedCurrency
+                ? t('payButtonNeutral')
+                : `Pagar ${formatPrice(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)), singleCurrency)}`}
             </button>
 
             <div className={styles.secure}>
@@ -160,26 +179,42 @@ export function CartCheckoutPageContent() {
 
             <AdBanner placement="CHECKOUT" />
 
-            <div className={cartStyles.totals}>
-              {(cart?.totals.lines ?? []).map((line) => (
-                <div key={line.key} className={cartStyles.totalRow}>
-                  <span>{line.label}</span>
-                  <span>{formatPrice(line.amount)}</span>
-                </div>
-              ))}
-              {coupon && (
-                <div className={cartStyles.totalRow}>
-                  <span>Cupom {coupon.code}</span>
-                  <span>−{formatPrice(coupon.discountAmount)}</span>
-                </div>
-              )}
-              <div className={cartStyles.totalRow}>
-                <span>Total</span>
-                <span className={cartStyles.totalValue}>
-                  {formatPrice(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)))}
-                </span>
+            {isMixedCurrency ? (
+              <div className={cartStyles.totals} data-testid="mixed-currency-totals">
+                {currencyGroups.map((group) => {
+                  const discount = couponCurrency === group.currency ? (coupon?.discountAmount ?? 0) : 0;
+                  return (
+                    <div key={group.currency} className={cartStyles.totalRow}>
+                      <span>{t('subtotal')} ({group.currency})</span>
+                      <span className={cartStyles.totalValue}>
+                        {formatPrice(Math.max(0, group.subtotal - discount), group.currency)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
+            ) : (
+              <div className={cartStyles.totals}>
+                {(cart?.totals.lines ?? []).map((line) => (
+                  <div key={line.key} className={cartStyles.totalRow}>
+                    <span>{line.label}</span>
+                    <span>{formatPrice(line.amount, singleCurrency)}</span>
+                  </div>
+                ))}
+                {coupon && (
+                  <div className={cartStyles.totalRow}>
+                    <span>Cupom {coupon.code}</span>
+                    <span>−{formatPrice(coupon.discountAmount, singleCurrency)}</span>
+                  </div>
+                )}
+                <div className={cartStyles.totalRow}>
+                  <span>Total</span>
+                  <span className={cartStyles.totalValue}>
+                    {formatPrice(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)), singleCurrency)}
+                  </span>
+                </div>
+              </div>
+            )}
           </aside>
         </div>
       </div>
@@ -196,7 +231,7 @@ function CartItemCard({ item }: { item: CartLineView }) {
       </div>
       <div className={cartStyles.itemBody}>
         <p className={cartStyles.itemTicket}>{item.ticketName}</p>
-        <span className={cartStyles.itemPrice}>{formatPrice(item.price)}</span>
+        <span className={cartStyles.itemPrice}>{formatPrice(item.price, item.currency)}</span>
       </div>
       {item.capabilities.length > 0 && (
         <ul className={cartStyles.itemCaps}>

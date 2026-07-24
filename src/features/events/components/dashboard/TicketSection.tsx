@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { ticketSchema, type TicketFormInput, type TicketFormValues } from '../../schemas/create-event.schema';
 import type { CreateTicketRequest, AccessCapability, EventFormat } from '../../types/event.types';
 import { ISO_CURRENCIES, DEFAULT_CURRENCY } from '@/shared/constants/currencies';
+import { formatPrice } from '../../utils/event-formatters';
 import {
   Select,
   SelectContent,
@@ -326,7 +327,7 @@ export function TicketSection({ tickets, onChange, format }: Props) {
           <p className={styles.ticketName}>{ticket.name}</p>
           <p className={styles.ticketDesc}>{ticket.description}</p>
           <p className={styles.ticketPrice}>
-            R$ {ticket.price.toFixed(2).replace('.', ',')}
+            {formatPrice(ticket.price, ticket.currency)}
           </p>
         </div>
       ))}
