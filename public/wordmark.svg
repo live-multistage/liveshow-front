@@ -1,0 +1,105 @@
+<svg
+    width="760"
+    height="220"
+    viewBox="0 0 760 220"
+    xmlns="http://www.w3.org/2000/svg">
+
+    <defs>
+        <style>
+            .pink {
+                fill: #FF2E9E;
+                stroke: #FF2E9E;
+            }
+
+            .wordmark {
+                font-family: "Archivo", Arial, sans-serif;
+                font-size: 72px;
+                font-weight: 800;
+                letter-spacing: 0.08em;
+                fill: #F4F4F5;
+                dominant-baseline: middle;
+            }
+        </style>
+    </defs>
+
+    <!-- LOGOMARK -->
+
+    <!-- Broadcast frame -->
+    <path
+        d="M40 40
+           L40 180
+           L98 146"
+        fill="none"
+        stroke="#FF2E9E"
+        stroke-width="14"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+    <path
+        d="M40 40
+           L98 74"
+        fill="none"
+        stroke="#FF2E9E"
+        stroke-width="14"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+    <!-- Left Dot -->
+    <circle
+        cx="110"
+        cy="110"
+        r="7"
+        fill="#FF2E9E"/>
+
+    <!-- Wave Bars -->
+
+    <rect
+        x="128"
+        y="92"
+        width="14"
+        height="36"
+        rx="7"
+        fill="#FF2E9E"/>
+
+    <rect
+        x="152"
+        y="70"
+        width="14"
+        height="80"
+        rx="7"
+        fill="#FF2E9E"/>
+
+    <rect
+        x="176"
+        y="48"
+        width="14"
+        height="124"
+        rx="7"
+        fill="#FF2E9E"/>
+
+    <rect
+        x="200"
+        y="76"
+        width="14"
+        height="68"
+        rx="7"
+        fill="#FF2E9E"/>
+
+    <!-- Right Dot -->
+
+    <circle
+        cx="232"
+        cy="110"
+        r="7"
+        fill="#FF2E9E"/>
+
+    <!-- WORDMARK -->
+
+    <text
+        x="280"
+        y="112"
+        class="wordmark">
+        LIVESHOW
+    </text>
+
+</svg>
