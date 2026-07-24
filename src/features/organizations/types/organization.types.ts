@@ -120,8 +120,12 @@ export interface OrganizationLedgerEntry {
   createdAt: string;
 }
 
-export interface OrganizationLedgerResponse {
-  balance: number;
+export interface OrganizationLedgerBalance {
   currency: string;
+  balance: number;
+}
+
+export interface OrganizationLedgerResponse {
+  balances: OrganizationLedgerBalance[];
   entries: OrganizationLedgerEntry[];
 }

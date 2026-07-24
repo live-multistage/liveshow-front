@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Wallet } from 'lucide-react';
 import { useOrganizationLedger } from '../hooks/use-organization-ledger';
 import { useStripeStatus } from '../hooks/use-stripe-status';
-import type { OrganizationLedgerEntry } from '../types/organization.types';
+import { formatPrice } from '@/features/events/utils/event-formatters';
 import styles from './LedgerBalanceSection.module.scss';
 
 interface Props {
@@ -14,10 +14,6 @@ interface Props {
 const LEDGER_TYPE_KEYS = ['SALE','REFUND','PAYOUT'];
 
 const MAX_ENTRIES = 5;
-
-function formatBRL(value: number): string {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
 
 export function LedgerBalanceSection({ orgId }: Props) {
   const t = useTranslations('organizations');
@@ -33,27 +29,30 @@ export function LedgerBalanceSection({ orgId }: Props) {
   }
 
   // Org sempre vendeu com Stripe conectado: nada retido, nada a mostrar.
-  if (ledger.balance === 0 && ledger.entries.length === 0) {
+  if (ledger.balances.length === 0 && ledger.entries.length === 0) {
     return null;
   }
 
   const stripeReady = Boolean(stripeStatus?.hasAccount && stripeStatus?.onboardingComplete);
-  const hasBalance = ledger.balance > 0;
+  const hasBalance = ledger.balances.some((b) => b.balance > 0);
+  const hasDebt = ledger.balances.some((b) => b.balance < 0);
   const recentEntries = ledger.entries.slice(0, MAX_ENTRIES);
 
   return (
     <div className={styles.container}>
-      <div className={styles.balanceRow}>
-        <span className={styles.balanceIcon}>
-          <Wallet size={18} aria-hidden />
-        </span>
-        <div className={styles.balanceInfo}>
-          <span className={styles.balanceLabel}>Saldo retido</span>
-          <span className={styles.balanceValue} data-negative={ledger.balance < 0 || undefined}>
-            {formatBRL(ledger.balance)}
+      {ledger.balances.map((b) => (
+        <div className={styles.balanceRow} key={b.currency}>
+          <span className={styles.balanceIcon}>
+            <Wallet size={18} aria-hidden />
           </span>
+          <div className={styles.balanceInfo}>
+            <span className={styles.balanceLabel}>Saldo retido ({b.currency})</span>
+            <span className={styles.balanceValue} data-negative={b.balance < 0 || undefined}>
+              {formatPrice(b.balance, b.currency)}
+            </span>
+          </div>
         </div>
-      </div>
+      ))}
 
       {hasBalance && (
         <p className={styles.notice} data-variant={stripeReady ? 'ready' : 'pending'}>
@@ -63,7 +62,7 @@ export function LedgerBalanceSection({ orgId }: Props) {
         </p>
       )}
 
-      {ledger.balance < 0 && (
+      {hasDebt && (
         <p className={styles.notice} data-variant="debt">
           Saldo negativo: reembolsos após repasse. O valor será abatido das próximas vendas.
         </p>
@@ -80,7 +79,7 @@ export function LedgerBalanceSection({ orgId }: Props) {
                 {new Date(entry.createdAt).toLocaleDateString('pt-BR')}
               </span>
               <span className={styles.entryAmount} data-negative={entry.amount < 0 || undefined}>
-                {formatBRL(entry.amount)}
+                {formatPrice(entry.amount, entry.currency)}
               </span>
             </li>
           ))}
