@@ -13,6 +13,14 @@ import {
 } from '../../mutations/ticket-product.mutation';
 import type { AccessCapability, TicketProductResponse } from '../../types/event.types';
 import { useEventStagesQuery } from '../../../streams/queries/streams.queries';
+import { ISO_CURRENCIES, DEFAULT_CURRENCY } from '@/shared/constants/currencies';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@live-show/design-system';
 import styles from './TicketSection.module.scss';
 
 interface Props {
@@ -25,6 +33,7 @@ function ticketToForm(ticket: TicketProductResponse): TicketFormValues {
     name: ticket.name,
     description: ticket.description,
     price: ticket.price,
+    currency: ticket.currency ?? DEFAULT_CURRENCY,
     liveView: ticket.capabilities.includes('LIVE_VIEW'),
     replayView: ticket.capabilities.includes('REPLAY_VIEW'),
     cameraView: ticket.capabilities.includes('CAMERA_VIEW'),
@@ -36,6 +45,7 @@ function ticketToForm(ticket: TicketProductResponse): TicketFormValues {
 }
 
 const EMPTY_FORM: Partial<TicketFormInput> = {
+  currency: DEFAULT_CURRENCY,
   liveView: false,
   replayView: false,
   cameraView: false,
@@ -114,6 +124,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
       name: values.name,
       description: values.description,
       price: values.price,
+      currency: values.currency,
       capabilities,
       camerasLimit: values.cameraView ? (values.camerasLimit ?? null) : null,
       capacity: values.physicalEntry ? (values.capacity ?? null) : null,
@@ -184,6 +195,24 @@ export function EditTicketSection({ eventId, tickets }: Props) {
             placeholder="0,00"
           />
           {errors.price && <p className={styles.error}>{errors.price.message}</p>}
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label}>{t('currencyLabel')}</label>
+          <Controller
+            control={control}
+            name="currency"
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className={styles.input}><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ISO_CURRENCIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
       </div>
 

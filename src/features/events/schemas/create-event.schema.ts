@@ -1,10 +1,12 @@
 import { z } from 'zod';
+import { DEFAULT_CURRENCY } from '@/shared/constants/currencies';
 
 export const ticketSchema = z
   .object({
     name: z.string().min(2, 'Mínimo 2 caracteres').max(255),
     description: z.string().min(5, 'Mínimo 5 caracteres'),
     price: z.coerce.number().min(0, 'Preço não pode ser negativo'),
+    currency: z.string().default(DEFAULT_CURRENCY),
     liveView: z.boolean().default(false),
     replayView: z.boolean().default(false),
     cameraView: z.boolean().default(false),

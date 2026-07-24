@@ -2,11 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { Sparkles } from 'lucide-react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { ticketSchema, type TicketFormInput, type TicketFormValues } from '../../schemas/create-event.schema';
 import type { CreateTicketRequest, AccessCapability, EventFormat } from '../../types/event.types';
+import { ISO_CURRENCIES, DEFAULT_CURRENCY } from '@/shared/constants/currencies';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@live-show/design-system';
 import styles from './TicketSection.module.scss';
 
 interface AddedTicket extends CreateTicketRequest {
@@ -36,6 +44,7 @@ export function TicketSection({ tickets, onChange, format }: Props) {
   } = useForm<TicketFormInput, unknown, TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
+      currency: DEFAULT_CURRENCY,
       liveView: false,
       replayView: isVod,
       cameraView: false,
@@ -75,6 +84,7 @@ export function TicketSection({ tickets, onChange, format }: Props) {
         name: 'Reprise',
         description: t('replayTicketDesc'),
         price: replayPriceNum,
+        currency: DEFAULT_CURRENCY,
         capabilities: ['REPLAY_VIEW'],
         camerasLimit: null,
       },
@@ -108,6 +118,7 @@ export function TicketSection({ tickets, onChange, format }: Props) {
       name: values.name,
       description: values.description,
       price: values.price,
+      currency: values.currency,
       capabilities,
       camerasLimit: !isVod && values.cameraView ? (values.camerasLimit ?? null) : null,
       capacity: !isVod && values.physicalEntry ? (values.capacity ?? null) : null,
@@ -192,6 +203,24 @@ export function TicketSection({ tickets, onChange, format }: Props) {
             placeholder="0,00"
           />
           {errors.price && <p className={styles.error}>{errors.price.message}</p>}
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label}>{t('currencyLabel')}</label>
+          <Controller
+            control={control}
+            name="currency"
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className={styles.input}><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ISO_CURRENCIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
       </div>
 
