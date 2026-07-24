@@ -68,8 +68,20 @@ export function CartCheckoutPageContent() {
         provider: selectedMethod.provider as PaymentProvider,
         couponCode: coupon?.code,
       });
+      const [first, ...rest] = result.sessions;
+      if (!first) {
+        setPayError(true);
+        setPaying(false);
+        return;
+      }
+      // ponytail: client-side sessionStorage queue for the remaining per-currency
+      // groups. If the buyer clears storage mid-flow they stop auto-redirecting,
+      // but every group's orders are already persisted server-side, so they can
+      // finish the remaining groups later from the purchases page. Upgrade path:
+      // derive pending groups from unpaid orders server-side if that ever bites.
+      sessionStorage.setItem('checkout:pendingSessions', JSON.stringify(rest));
       sessionStorage.removeItem('cart:coupon');
-      window.location.href = result.url;
+      window.location.href = first.url;
     } catch {
       setPayError(true);
       setPaying(false);

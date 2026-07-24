@@ -58,10 +58,18 @@ export interface CouponPreviewRequest {
   orderAmount: number;
 }
 
-export interface CartCheckoutResult {
+// One Stripe session per currency group in the cart. Named `CartCheckoutSession`
+// (not `CheckoutSession`) because that name is already taken by the single
+// ticket-product checkout session above — different shape, different endpoint.
+export interface CartCheckoutSession {
   url: string;
-  totalAmount: number;
+  currency: string;
+  amount: number;
   orderIds: string[];
+}
+
+export interface CartCheckoutResult {
+  sessions: CartCheckoutSession[];
 }
 
 export interface CouponPreviewResult {

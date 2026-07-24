@@ -2,9 +2,11 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { CheckCircle2, Ticket, ArrowRight, Compass } from 'lucide-react';
 import { formatPrice } from '@/features/events';
 import { AdBanner } from '@/features/advertisements';
+import type { CartCheckoutSession } from '../types/checkout.types';
 import styles from './CheckoutSuccessContent.module.scss';
 
 interface Props {
@@ -14,6 +16,23 @@ interface Props {
 export function CheckoutSuccessContent(_: Props) {
   const params = useSearchParams();
 
+  // Sequential per-currency checkout: if other currency groups still owe
+  // payment, redirect to the next one instead of showing success.
+  const [nextCurrency, setNextCurrency] = useState<string | null>(null);
+
+  useEffect(() => {
+    const raw = sessionStorage.getItem('checkout:pendingSessions');
+    const pending: CartCheckoutSession[] = raw ? JSON.parse(raw) : [];
+    const [next, ...rest] = pending;
+    if (!next) {
+      sessionStorage.removeItem('checkout:pendingSessions');
+      return;
+    }
+    sessionStorage.setItem('checkout:pendingSessions', JSON.stringify(rest));
+    setNextCurrency(next.currency);
+    window.location.href = next.url;
+  }, []);
+
   const name = params.get('name');
   const ticket = params.get('ticket');
   const totalRaw = params.get('total');
@@ -21,6 +40,18 @@ export function CheckoutSuccessContent(_: Props) {
 
   const formattedTotal = totalRaw != null ? formatPrice(Number(totalRaw)) : null;
   const hasOrderSummary = name || ticket || formattedTotal;
+
+  if (nextCurrency) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.container}>
+          <div className={styles.confirmSection}>
+            <p className={styles.desc}>Redirecionando para o próximo pagamento ({nextCurrency})…</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
