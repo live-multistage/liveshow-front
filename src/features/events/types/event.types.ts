@@ -135,6 +135,7 @@ export interface CreateTicketRequest {
   name: string;
   description: string;
   price: number;
+  currency: string;
   capabilities: AccessCapability[];
   camerasLimit?: number | null;
   allowedStageIds?: string[];
@@ -145,6 +146,7 @@ export interface UpdateTicketRequest {
   name?: string;
   description?: string;
   price?: number;
+  currency?: string;
   capabilities?: AccessCapability[];
   camerasLimit?: number | null;
   allowedStageIds?: string[];
@@ -158,6 +160,7 @@ export interface TicketProductResponse {
   name: string;
   description: string;
   price: number;
+  currency: string;
   capabilities: AccessCapability[];
   camerasLimit: number | null;
   allowedStageIds: string[];

@@ -15,23 +15,24 @@ export function formatDuration(startsAt: string, endsAt: string) {
   return m > 0 ? `${h}h ${m}min` : `${h}h`;
 }
 
-export function formatPrice(price: number) {
-  return price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+export function formatPrice(price: number, currency = 'BRL') {
+  return price.toLocaleString('pt-BR', { style: 'currency', currency });
 }
 
 export function formatPriceRange(
   priceRange: { min: number; max: number } | undefined,
   fallbackPrice?: number,
+  currency = 'BRL',
 ): string {
   if (!priceRange) {
     if (fallbackPrice === undefined || fallbackPrice === 0) return 'Grátis';
-    return formatPrice(fallbackPrice);
+    return formatPrice(fallbackPrice, currency);
   }
   const { min, max } = priceRange;
   if (min === 0 && max === 0) return 'Grátis';
-  if (min === max) return formatPrice(min);
-  if (min === 0) return `Grátis – ${formatPrice(max)}`;
-  return `${formatPrice(min)} – ${formatPrice(max)}`;
+  if (min === max) return formatPrice(min, currency);
+  if (min === 0) return `Grátis – ${formatPrice(max, currency)}`;
+  return `${formatPrice(min, currency)} – ${formatPrice(max, currency)}`;
 }
 
 export function statusLabel(status: string): string {
