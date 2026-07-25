@@ -1,5 +1,5 @@
 import { httpClient } from '@/lib/http/client';
-import type { SalesSummary, SalesGranularity, EventSalesResult } from '../types/sales.types';
+import type { SalesSummary, SalesGranularity, EventSalesResult, SalesByCurrency } from '../types/sales.types';
 import type { EventMetricsResult } from '../types/analytics.types';
 import type { ViewerAnalyticsResult } from '../types/viewer-analytics.types';
 import type { CameraBreakdownRow } from '../types/camera-breakdown.types';
@@ -7,8 +7,8 @@ import type { NotificationBreakdownRow } from '../types/notification-breakdown.t
 import type { SalesOriginResult } from '../types/sales-origin.types';
 
 export const analyticsService = {
-  getMySales: async (granularity: SalesGranularity): Promise<SalesSummary> => {
-    const { data } = await httpClient.get<SalesSummary>('/sales/mine', { params: { granularity } });
+  getMySales: async (granularity: SalesGranularity): Promise<SalesByCurrency[]> => {
+    const { data } = await httpClient.get<SalesByCurrency[]>('/sales/mine', { params: { granularity } });
     return data;
   },
   getEventSales: async (): Promise<EventSalesResult> => {

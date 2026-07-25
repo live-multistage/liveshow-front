@@ -12,9 +12,16 @@ export interface SalesSummary {
   data: SalesDataPoint[];
 }
 
+// No FX conversion — sales are reported per currency, never summed across.
+export interface SalesByCurrency {
+  currency: string;
+  summary: SalesSummary;
+}
+
 export interface EventSalesRow {
   eventId: string;
   eventTitle: string;
+  currency: string;
   startsAt: string;
   venue: string | null;
   city: string | null;

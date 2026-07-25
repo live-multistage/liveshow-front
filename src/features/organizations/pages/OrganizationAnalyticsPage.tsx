@@ -143,13 +143,23 @@ export function OrganizationAnalyticsPage({ organizationId }: Props) {
 
       <div className={styles.card}>
         <SectionHeader label={t('anSales')} icon="sales" />
-        <SalesDashboard
-          data={analytics?.sales}
-          isLoading={analyticsLoading}
-          granularity={granularity}
-          onGranularityChange={setGranularity}
-          showEventTable={false}
-        />
+        {/* No FX conversion — one sales block per currency. */}
+        {!analyticsLoading && (analytics?.salesByCurrency?.length ?? 0) === 0 && (
+          <SalesDashboard data={undefined} isLoading={analyticsLoading} granularity={granularity} onGranularityChange={setGranularity} showEventTable={false} />
+        )}
+        {(analytics?.salesByCurrency ?? []).map((c) => (
+          <div key={c.currency} style={{ marginBottom: 16 }}>
+            <div className={styles.currencyTag}>{c.currency}</div>
+            <SalesDashboard
+              data={c.summary}
+              isLoading={analyticsLoading}
+              granularity={granularity}
+              onGranularityChange={setGranularity}
+              showEventTable={false}
+              currency={c.currency}
+            />
+          </div>
+        ))}
       </div>
 
       <div className={styles.card}>

@@ -1,4 +1,4 @@
-import type { SalesSummary } from '@/features/analytics/types/sales.types';
+import type { SalesByCurrency } from '@/features/analytics/types/sales.types';
 import type { ChartPoint } from '@/features/analytics/types/analytics.types';
 
 export interface OrganizationAnalyticsFunnel {
@@ -21,7 +21,7 @@ export interface OrganizationAnalyticsCreatorScores {
 }
 
 export interface OrganizationAnalyticsResponse {
-  sales: SalesSummary;
+  salesByCurrency: SalesByCurrency[];
   funnel: OrganizationAnalyticsFunnel;
   viewsSeries: ChartPoint[];
   creatorScores: OrganizationAnalyticsCreatorScores;

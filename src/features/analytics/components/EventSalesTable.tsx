@@ -4,8 +4,9 @@ import { useGetEventSalesQuery } from '../hooks/use-event-sales';
 import type { EventSalesRow } from '../types/sales.types';
 import styles from './SalesDashboard.module.scss';
 
-function formatCurrency(value: number): string {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+// No FX conversion — each row is formatted in its own currency.
+function formatCurrency(value: number, currency = 'BRL'): string {
+  return value.toLocaleString('pt-BR', { style: 'currency', currency });
 }
 
 const GRADIENTS = [
@@ -41,9 +42,15 @@ export function EventSalesTable() {
   const { data, isLoading } = useGetEventSalesQuery();
   const rows = data?.events ?? [];
 
-  const maxRevenue = Math.max(...rows.map((r) => r.totalRevenue), 1);
+  // Bars compare within the same currency only (mixing currencies would make a
+  // 100 USD row look like a 100 BRL row); totals are summed per currency.
+  const maxByCurrency = new Map<string, number>();
+  const totalRevenueByCurrency = new Map<string, number>();
+  for (const r of rows) {
+    maxByCurrency.set(r.currency, Math.max(maxByCurrency.get(r.currency) ?? 1, r.totalRevenue));
+    totalRevenueByCurrency.set(r.currency, (totalRevenueByCurrency.get(r.currency) ?? 0) + r.totalRevenue);
+  }
   const totalSales = rows.reduce((a, r) => a + r.totalOrders, 0);
-  const totalRevenue = rows.reduce((a, r) => a + r.totalRevenue, 0);
 
   return (
     <div className={styles.tableCard}>
@@ -68,15 +75,16 @@ export function EventSalesTable() {
 
           {rows.map((row) => {
             const zero = row.totalOrders === 0;
-            const pct = row.totalRevenue > 0 ? Math.max((row.totalRevenue / maxRevenue) * 100, 6) : 0;
+            const max = maxByCurrency.get(row.currency) ?? 1;
+            const pct = row.totalRevenue > 0 ? Math.max((row.totalRevenue / max) * 100, 6) : 0;
             const meta = metaLine(row);
 
             return (
-              <div key={row.eventId} className={styles.row}>
+              <div key={`${row.eventId}:${row.currency}`} className={styles.row}>
                 <div className={styles.rowEvent}>
                   <div className={styles.thumb} style={thumbStyle(row)} />
                   <div style={{ minWidth: 0 }}>
-                    <div className={styles.rowName}>{row.eventTitle}</div>
+                    <div className={styles.rowName}>{row.eventTitle} <span className={styles.rowMeta}>· {row.currency}</span></div>
                     {meta && <div className={styles.rowMeta}>{meta}</div>}
                   </div>
                 </div>
@@ -85,7 +93,7 @@ export function EventSalesTable() {
                 </div>
                 <div className={styles.rowRevenue}>
                   <div className={`${styles.rowRevenueValue} ${zero ? styles.rowRevenueZero : ''}`}>
-                    {formatCurrency(row.totalRevenue)}
+                    {formatCurrency(row.totalRevenue, row.currency)}
                   </div>
                   <div className={styles.bar}>
                     <div className={styles.barFill} style={{ width: `${pct}%` }} />
@@ -99,7 +107,11 @@ export function EventSalesTable() {
             <span className={styles.footLabel}>TOTAL</span>
             <div className={styles.footValues}>
               <span className={styles.footSales}>{totalSales} vendas</span>
-              <span className={styles.footRevenue}>{formatCurrency(totalRevenue)}</span>
+              <span className={styles.footRevenue}>
+                {[...totalRevenueByCurrency.entries()]
+                  .map(([currency, total]) => formatCurrency(total, currency))
+                  .join(' · ')}
+              </span>
             </div>
           </div>
         </>

@@ -52,8 +52,9 @@ const CHART_OPTIONS = {
   },
 } as const;
 
-function formatCurrency(value: number): string {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+// No FX conversion — always formatted in the row's own currency.
+function formatCurrency(value: number, currency = 'BRL'): string {
+  return value.toLocaleString('pt-BR', { style: 'currency', currency });
 }
 
 function formatLabel(date: string, granularity: SalesGranularity): string {
@@ -108,9 +109,11 @@ interface SalesDashboardProps {
   granularity: SalesGranularity;
   onGranularityChange: (g: SalesGranularity) => void;
   showEventTable?: boolean;
+  // No FX conversion — figures render in this currency.
+  currency?: string;
 }
 
-export function SalesDashboard({ data, isLoading, granularity, onGranularityChange, showEventTable = true }: SalesDashboardProps) {
+export function SalesDashboard({ data, isLoading, granularity, onGranularityChange, showEventTable = true, currency = 'BRL' }: SalesDashboardProps) {
   const [chartView, setChartView] = useState<ChartView>('orders');
 
   const isOrders = chartView === 'orders';
@@ -125,7 +128,7 @@ export function SalesDashboard({ data, isLoading, granularity, onGranularityChan
     labels,
     datasets: [
       {
-        label: isOrders ? 'Vendas' : 'Receita (R$)',
+        label: isOrders ? 'Vendas' : `Receita (${currency})`,
         data: chartDataValues,
         borderColor: series,
         backgroundColor: areaGradient(series),
@@ -139,7 +142,7 @@ export function SalesDashboard({ data, isLoading, granularity, onGranularityChan
     ],
   };
 
-  const chartSub = `${isOrders ? 'Ingressos vendidos' : 'Faturamento em R$'} · ${granularity === 'day' ? 'por dia' : 'por mês'}`;
+  const chartSub = `${isOrders ? 'Ingressos vendidos' : `Faturamento em ${currency}`} · ${granularity === 'day' ? 'por dia' : 'por mês'}`;
 
   return (
     <div className={styles.page}>
@@ -165,7 +168,7 @@ export function SalesDashboard({ data, isLoading, granularity, onGranularityChan
               <span className={`${styles.metricIcon} ${styles.metricIconAccent}`}>{ICONS.money}</span>
             </div>
             <div className={`${styles.metricValue} ${styles.metricValueAccent}`}>
-              {isLoading ? '—' : formatCurrency(data?.totalRevenue ?? 0)}
+              {isLoading ? '—' : formatCurrency(data?.totalRevenue ?? 0, currency)}
             </div>
             <div className={styles.metricHint}>faturamento no período</div>
           </div>
@@ -178,7 +181,7 @@ export function SalesDashboard({ data, isLoading, granularity, onGranularityChan
               <span className={styles.metricIcon}>{ICONS.ticket}</span>
             </div>
             <div className={styles.metricValue}>
-              {isLoading ? '—' : formatCurrency(avgTicket)}
+              {isLoading ? '—' : formatCurrency(avgTicket, currency)}
             </div>
             <div className={styles.metricHint}>valor médio por venda</div>
           </div>

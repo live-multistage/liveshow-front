@@ -86,12 +86,19 @@ interface Props {
 export function DashboardCharts({ events, eventsOnly = false }: Props) {
   const months = getLast6Months().map((m) => m.label);
   const eventsData = buildEventsData(events);
-  const { data: salesData } = useGetMySalesQuery('month');
+  const { data: salesByCurrency } = useGetMySalesQuery('month');
 
-  // Sales API returns 12 months; take last 6 to match the events chart window
-  const last6Sales = salesData?.data.slice(-6) ?? [];
-  const salesValues = last6Sales.map((p) => p.orders);
-  const revenueValues = last6Sales.map((p) => p.revenue);
+  // Overview mini-chart. Order COUNTS are currency-agnostic → summed across
+  // currencies. Revenue can't be summed without FX, so the revenue line shows
+  // the primary (largest) currency only; the per-currency breakdown lives on
+  // the dedicated /dashboard/sales panel.
+  const summaries = salesByCurrency ?? [];
+  const slotCount = summaries[0]?.summary.data.length ?? 0;
+  const orderTotals = Array.from({ length: slotCount }, (_, i) =>
+    summaries.reduce((sum, c) => sum + (c.summary.data[i]?.orders ?? 0), 0),
+  );
+  const salesValues = orderTotals.slice(-6);
+  const revenueValues = (summaries[0]?.summary.data ?? []).slice(-6).map((p) => p.revenue);
 
   const eventsChartData = {
     labels: months,

@@ -2,19 +2,20 @@
 
 import { useState } from 'react';
 import { SalesDashboard } from '@/features/analytics/components/SalesDashboard';
+import { EventSalesTable } from '@/features/analytics/components/EventSalesTable';
 import { useGetMySalesQuery } from '@/features/analytics/hooks/use-my-sales';
 import { useGetEventSalesQuery } from '@/features/analytics/hooks/use-event-sales';
 import type { EventSalesRow, SalesGranularity } from '@/features/analytics/types/sales.types';
 import styles from './page.module.scss';
 
 function toCsv(rows: EventSalesRow[]): string {
-  const header = ['Evento', 'Data', 'Local', 'Vendas', 'Receita'];
+  const header = ['Evento', 'Data', 'Local', 'Moeda', 'Vendas', 'Receita'];
   const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
   const lines = rows.map((r) => {
     const date = new Date(r.startsAt);
     const dateLabel = Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('pt-BR');
     const place = r.city ?? r.venue ?? '';
-    return [r.eventTitle, dateLabel, place, String(r.totalOrders), r.totalRevenue.toFixed(2)]
+    return [r.eventTitle, dateLabel, place, r.currency, String(r.totalOrders), r.totalRevenue.toFixed(2)]
       .map(escape)
       .join(',');
   });
@@ -33,10 +34,11 @@ function downloadCsv(rows: EventSalesRow[]) {
 
 export default function DashboardSalesPage() {
   const [granularity, setGranularity] = useState<SalesGranularity>('month');
-  const { data, isLoading } = useGetMySalesQuery(granularity);
+  const { data: salesByCurrency, isLoading } = useGetMySalesQuery(granularity);
   const { data: eventSales } = useGetEventSalesQuery();
 
   const eventRows = eventSales?.events ?? [];
+  const currencies = salesByCurrency ?? [];
 
   return (
     <>
@@ -71,12 +73,25 @@ export default function DashboardSalesPage() {
         </div>
       </div>
 
-      <SalesDashboard
-        data={data}
-        isLoading={isLoading}
-        granularity={granularity}
-        onGranularityChange={setGranularity}
-      />
+      {/* No FX conversion — one summary block per currency, event table once. */}
+      {!isLoading && currencies.length === 0 && (
+        <SalesDashboard data={undefined} isLoading={isLoading} granularity={granularity} onGranularityChange={setGranularity} showEventTable={false} />
+      )}
+      {currencies.map((c) => (
+        <div key={c.currency} className={styles.currencyBlock}>
+          <div className={styles.currencyLabel}>{c.currency}</div>
+          <SalesDashboard
+            data={c.summary}
+            isLoading={isLoading}
+            granularity={granularity}
+            onGranularityChange={setGranularity}
+            showEventTable={false}
+            currency={c.currency}
+          />
+        </div>
+      ))}
+
+      <EventSalesTable />
     </>
   );
 }
