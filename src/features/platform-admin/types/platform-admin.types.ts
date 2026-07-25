@@ -74,13 +74,19 @@ export interface OrganizationDirectoryFilter {
 }
 
 // Super Admin global overview (GET /platform-admin/metrics/overview).
+export interface CurrencyFinancials {
+  currency: string;
+  gmv: number;
+  platformRevenue: number;
+}
+
 export interface PlatformOverview {
   orgs: { total: number; active: number; pending: number };
   users: { total: number; newInRange: number };
   events: { total: number; scheduled: number; live: number };
   liveEvents: number;
-  gmv: number;
-  platformRevenue: number;
+  // No FX conversion — one entry per currency, never summed across currencies.
+  financials: CurrencyFinancials[];
   rangeDays: number;
 }
 
@@ -92,15 +98,21 @@ export interface PlatformLiveViewers {
   topEvents: { eventId: string; title: string; viewers: number }[];
 }
 
-// Platform revenue (GET /platform-admin/finance/revenue).
-export interface PlatformRevenue {
+// Platform revenue (GET /platform-admin/finance/revenue). No FX — one block
+// per currency.
+export interface CurrencyRevenue {
+  currency: string;
   revenue: number;
   revenueDeltaPct: number;
   gmv: number;
   avgRate: number;
   avgTicket: number;
   series: { date: string; revenue: number }[];
+}
+
+export interface PlatformRevenue {
   rangeDays: number;
+  byCurrency: CurrencyRevenue[];
 }
 
 // Org ledger balances (GET /platform-admin/finance/org-balances).
@@ -184,6 +196,7 @@ export interface AuditSearchResult {
 export interface RevenueBreakdownRow {
   orgId: string;
   name: string;
+  currency: string;
   commission: number;
   gmv: number;
   sales: number;

@@ -4,9 +4,22 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { RevenueCard } from '@/features/dashboard/components/RevenueCard';
 import { useRevenueBreakdownQuery } from '../queries/get-platform-directory';
-import { brlCompact } from '../utils/format';
+import { moneyCompact } from '../utils/format';
 import { PlatformPageShell } from './PlatformPageShell';
 import table from './PlatformTable.module.scss';
+
+import type { RevenueBreakdownRow } from '../types/platform-admin.types';
+
+// Preserves the API's currency ordering (commission desc within each).
+function groupByCurrency(rows: RevenueBreakdownRow[]): [string, RevenueBreakdownRow[]][] {
+  const map = new Map<string, RevenueBreakdownRow[]>();
+  for (const r of rows) {
+    const arr = map.get(r.currency) ?? [];
+    arr.push(r);
+    map.set(r.currency, arr);
+  }
+  return [...map.entries()];
+}
 
 type Range = '7d' | '30d' | '90d';
 const RANGES: { id: Range; label: string }[] = [
@@ -42,32 +55,35 @@ export function PlatformRevenuePage() {
         <RevenueCard range={range} />
       </div>
 
-      <div className={table.card}>
-        <div className={table.scroll}>
-          <div className={table.head} style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 0.8fr' }}>
-            <span>{t('organization')}</span>
-            <span className={table.right}>Comissão</span>
-            <span className={table.right}>GMV</span>
-            <span className={table.right}>Vendas</span>
-            <span className={table.right}>Share</span>
-          </div>
+      {isLoading && <div className={table.card}><div className={table.empty}>Carregando…</div></div>}
+      {!isLoading && (rows?.length ?? 0) === 0 && (
+        <div className={table.card}><div className={table.empty}>Nenhuma venda no período.</div></div>
+      )}
 
-          {isLoading && <div className={table.empty}>Carregando…</div>}
-          {!isLoading && (rows?.length ?? 0) === 0 && (
-            <div className={table.empty}>Nenhuma venda no período.</div>
-          )}
-
-          {rows?.map((r) => (
-            <div key={r.orgId} className={table.row} style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 0.8fr' }}>
-              <span className={table.primary}>{r.name}</span>
-              <span className={`${table.mono} ${table.right}`} style={{ color: '#ff5fb4' }}>{brlCompact(r.commission)}</span>
-              <span className={`${table.mono} ${table.right}`}>{brlCompact(r.gmv)}</span>
-              <span className={`${table.mono} ${table.right}`}>{r.sales}</span>
-              <span className={`${table.mono} ${table.right}`}>{r.sharePct.toFixed(1).replace('.', ',')}%</span>
+      {/* No FX conversion — one breakdown table per currency, share within it. */}
+      {groupByCurrency(rows ?? []).map(([currency, currencyRows]) => (
+        <div key={currency} className={table.card} style={{ marginBottom: 16 }}>
+          <div className={table.scroll}>
+            <div className={table.head} style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 0.8fr' }}>
+              <span>{t('organization')} · {currency}</span>
+              <span className={table.right}>Comissão</span>
+              <span className={table.right}>GMV</span>
+              <span className={table.right}>Vendas</span>
+              <span className={table.right}>Share</span>
             </div>
-          ))}
+
+            {currencyRows.map((r) => (
+              <div key={r.orgId} className={table.row} style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 0.8fr' }}>
+                <span className={table.primary}>{r.name}</span>
+                <span className={`${table.mono} ${table.right}`} style={{ color: '#ff5fb4' }}>{moneyCompact(r.commission, r.currency)}</span>
+                <span className={`${table.mono} ${table.right}`}>{moneyCompact(r.gmv, r.currency)}</span>
+                <span className={`${table.mono} ${table.right}`}>{r.sales}</span>
+                <span className={`${table.mono} ${table.right}`}>{r.sharePct.toFixed(1).replace('.', ',')}%</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      ))}
     </PlatformPageShell>
   );
 }

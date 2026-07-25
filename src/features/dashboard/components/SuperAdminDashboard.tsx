@@ -52,10 +52,13 @@ export function SuperAdminDashboard() {
           delta: 'transmitindo', deltaColor: '#8f8f97' },
         { label: 'EVENTOS', icon: CalendarDays, color: '#46d6d8', value: compact(data.events.total),
           delta: `${data.events.scheduled} agendados`, deltaColor: '#8f8f97' },
-        { label: 'GMV', icon: Ticket, color: '#ffd166', value: compact(data.gmv), unit: 'R$',
-          delta: `últimos ${data.rangeDays} dias`, deltaColor: '#8f8f97' },
-        { label: 'RECEITA', icon: DollarSign, color: '#ff5fb4', value: compact(data.platformRevenue), unit: 'R$',
-          delta: t('platformCommissions'), deltaColor: '#8f8f97' },
+        // No FX conversion — one GMV + RECEITA KPI pair per currency.
+        ...data.financials.flatMap((f) => [
+          { label: `GMV · ${f.currency}`, icon: Ticket, color: '#ffd166', value: compact(f.gmv), unit: f.currency,
+            delta: `últimos ${data.rangeDays} dias`, deltaColor: '#8f8f97' },
+          { label: `RECEITA · ${f.currency}`, icon: DollarSign, color: '#ff5fb4', value: compact(f.platformRevenue), unit: f.currency,
+            delta: t('platformCommissions'), deltaColor: '#8f8f97' },
+        ]),
       ]
     : [];
 
