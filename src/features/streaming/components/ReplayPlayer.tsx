@@ -129,7 +129,7 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
 
   usePlayerHotkeys({
     onToggleFullscreen: toggleFullscreen,
-    onToggleCameraPanel: () => setCameraStripOpen((o) => !o),
+    onToggleCameraPanel: () => { if (cameras.length > 1) setCameraStripOpen((o) => !o); },
     onToggleMute: () => setGlobalMuted((m) => !m),
     onVolumeUp: () => { setVolume((v) => clampVolume(v + VOLUME_STEP)); setGlobalMuted(false); },
     onVolumeDown: () => setVolume((v) => clampVolume(v - VOLUME_STEP)),
