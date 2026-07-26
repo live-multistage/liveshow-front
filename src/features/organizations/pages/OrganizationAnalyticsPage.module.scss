@@ -55,11 +55,40 @@
   to { transform: rotate(360deg); }
 }
 
-.currencyTag {
+.currencyPicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.currencyPickerLabel {
   font-family: 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: #8f8f97;
-  margin-bottom: 6px;
+}
+
+.currencySelect {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.06)
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9aa2' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>")
+    no-repeat right 12px center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #e7e7ea;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 9px 34px 9px 14px;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+
+  &:hover { border-color: rgba(255, 46, 158, 0.34); }
+  &:focus-visible { outline: none; border-color: rgba(255, 46, 158, 0.5); }
+
+  option { background: #141418; color: #e7e7ea; }
 }

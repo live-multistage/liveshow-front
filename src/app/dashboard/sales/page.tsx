@@ -34,11 +34,16 @@ function downloadCsv(rows: EventSalesRow[]) {
 
 export default function DashboardSalesPage() {
   const [granularity, setGranularity] = useState<SalesGranularity>('month');
+  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
   const { data: salesByCurrency, isLoading } = useGetMySalesQuery(granularity);
   const { data: eventSales } = useGetEventSalesQuery();
 
   const eventRows = eventSales?.events ?? [];
   const currencies = salesByCurrency ?? [];
+
+  // No FX conversion — organizer picks which currency to view. Default to the
+  // first (highest-revenue) when the current selection isn't available.
+  const active = currencies.find((c) => c.currency === selectedCurrency) ?? currencies[0];
 
   return (
     <>
@@ -73,25 +78,40 @@ export default function DashboardSalesPage() {
         </div>
       </div>
 
-      {/* No FX conversion — one summary block per currency, event table once. */}
+      {/* No FX conversion — a currency picker swaps the summary shown. */}
       {!isLoading && currencies.length === 0 && (
         <SalesDashboard data={undefined} isLoading={isLoading} granularity={granularity} onGranularityChange={setGranularity} showEventTable={false} />
       )}
-      {currencies.map((c) => (
-        <div key={c.currency} className={styles.currencyBlock}>
-          <div className={styles.currencyLabel}>{c.currency}</div>
+      {active && (
+        <div>
+          {currencies.length > 1 && (
+            <label className={styles.currencyPicker}>
+              <span className={styles.currencyPickerLabel}>Moeda</span>
+              <select
+                className={styles.currencySelect}
+                value={active.currency}
+                onChange={(e) => setSelectedCurrency(e.target.value)}
+              >
+                {currencies.map((c) => (
+                  <option key={c.currency} value={c.currency}>{c.currency}</option>
+                ))}
+              </select>
+            </label>
+          )}
           <SalesDashboard
-            data={c.summary}
+            data={active.summary}
             isLoading={isLoading}
             granularity={granularity}
             onGranularityChange={setGranularity}
             showEventTable={false}
-            currency={c.currency}
+            currency={active.currency}
           />
         </div>
-      ))}
+      )}
 
-      <EventSalesTable />
+      <div className={styles.eventTableBlock}>
+        <EventSalesTable />
+      </div>
     </>
   );
 }

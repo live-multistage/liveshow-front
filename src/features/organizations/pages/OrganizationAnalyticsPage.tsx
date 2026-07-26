@@ -121,6 +121,7 @@ interface Props {
 export function OrganizationAnalyticsPage({ organizationId }: Props) {
   const t = useTranslations('organizations');
   const [granularity, setGranularity] = useState<SalesGranularity>('month');
+  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
 
   const { data: org, isLoading: orgLoading, isError: orgError } = useOrganization(organizationId);
   const { data: analytics, isLoading: analyticsLoading, isError: analyticsError } = useOrganizationAnalytics(organizationId, granularity);
@@ -130,6 +131,9 @@ export function OrganizationAnalyticsPage({ organizationId }: Props) {
 
   const funnel = analytics?.funnel;
   const creatorScores = analytics?.creatorScores;
+  const currencies = analytics?.salesByCurrency ?? [];
+  // No FX conversion — a currency picker swaps the summary shown.
+  const activeSales = currencies.find((c) => c.currency === selectedCurrency) ?? currencies[0];
 
   return (
     <div className={styles.page}>
@@ -143,23 +147,36 @@ export function OrganizationAnalyticsPage({ organizationId }: Props) {
 
       <div className={styles.card}>
         <SectionHeader label={t('anSales')} icon="sales" />
-        {/* No FX conversion — one sales block per currency. */}
-        {!analyticsLoading && (analytics?.salesByCurrency?.length ?? 0) === 0 && (
+        {/* No FX conversion — a currency picker swaps the summary shown. */}
+        {!analyticsLoading && currencies.length === 0 && (
           <SalesDashboard data={undefined} isLoading={analyticsLoading} granularity={granularity} onGranularityChange={setGranularity} showEventTable={false} />
         )}
-        {(analytics?.salesByCurrency ?? []).map((c) => (
-          <div key={c.currency} style={{ marginBottom: 16 }}>
-            <div className={styles.currencyTag}>{c.currency}</div>
+        {activeSales && (
+          <>
+            {currencies.length > 1 && (
+              <label className={styles.currencyPicker}>
+                <span className={styles.currencyPickerLabel}>Moeda</span>
+                <select
+                  className={styles.currencySelect}
+                  value={activeSales.currency}
+                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                >
+                  {currencies.map((c) => (
+                    <option key={c.currency} value={c.currency}>{c.currency}</option>
+                  ))}
+                </select>
+              </label>
+            )}
             <SalesDashboard
-              data={c.summary}
+              data={activeSales.summary}
               isLoading={analyticsLoading}
               granularity={granularity}
               onGranularityChange={setGranularity}
               showEventTable={false}
-              currency={c.currency}
+              currency={activeSales.currency}
             />
-          </div>
-        ))}
+          </>
+        )}
       </div>
 
       <div className={styles.card}>
