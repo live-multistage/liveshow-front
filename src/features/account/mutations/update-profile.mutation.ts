@@ -5,12 +5,14 @@ import { httpClient } from '@/lib/http/client';
 import type { AppError } from '@/lib/http/errors';
 import { useAuthContextValue } from '../context/AuthProvider';
 import type { AuthUser } from '../types/account.types';
+import type { AgeBracket } from '../types/age-bracket.types';
 
 interface UpdateProfilePayload {
   displayName?: string;
   phone?: string;
   cpf?: string;
   bio?: string;
+  ageBracket?: AgeBracket;
 }
 
 export function useUpdateProfileMutation() {

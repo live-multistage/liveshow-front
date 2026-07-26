@@ -1,4 +1,5 @@
 import type { UserRole } from '@/types';
+import type { AgeBracket } from './age-bracket.types';
 
 export interface RegisterRequest {
   email: string;
@@ -22,6 +23,7 @@ export interface AuthUser {
   bio?: string | null;
   avatarUrl?: string | null;
   analyticsConsent?: boolean | null;
+  ageBracket?: AgeBracket | null;
   createdAt?: string;
 }
 

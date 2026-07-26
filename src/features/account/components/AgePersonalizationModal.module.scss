@@ -1,0 +1,60 @@
+.description {
+  font-size: 13.5px;
+  color: #b9b9c0;
+  line-height: 1.5;
+  margin: 0 0 4px;
+}
+
+.privacyLink {
+  color: #e7e7ea;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.brackets {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 4px;
+  border: 0;
+  padding: 0;
+}
+
+.bracket {
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: #0c0c0f;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: #e7e7ea;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, .22);
+  }
+
+  &:has(input:focus-visible) {
+    outline: 2px solid #7fe0a0;
+    outline-offset: 2px;
+  }
+}
+
+.bracketSelected {
+  border-color: #7fe0a0;
+  background: rgba(127, 224, 160, .1);
+  color: #7fe0a0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -7,6 +7,7 @@ import { Toaster } from '@live-show/design-system';
 import { NavigationEvents } from '@/shared/components/NavigationEvents';
 import { NavigationOverlay } from '@/shared/components/NavigationOverlay';
 import { AuthProvider } from '@/features/account/context/AuthProvider';
+import { AgePersonalizationPrompt } from '@/features/account/components/AgePersonalizationPrompt';
 import { NotificationsStreamListener } from '@/features/notifications/components/NotificationsStreamListener';
 import { ImpersonationBanner } from '@/features/platform-admin/impersonation/ImpersonationBanner';
 import type { AuthUser } from '@/features/account';
@@ -58,6 +59,7 @@ export function Providers({ children, initialIsLoggedIn, initialUser, dehydrated
           <NavigationEvents />
           <NavigationOverlay />
           <NotificationsStreamListener />
+          <AgePersonalizationPrompt />
         </AuthProvider>
       </HydrationBoundary>
     </QueryClientProvider>
