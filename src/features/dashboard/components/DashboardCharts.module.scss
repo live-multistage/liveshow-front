@@ -10,6 +10,9 @@
   // Mobile: horizontal snap-scroll of fixed-width cards (design pattern).
   @media (max-width: 720px) {
     display: flex;
+    // flex-start (not stretch): a stretched card + chart.js responsive canvas
+    // feed back into each other and balloon the card height.
+    align-items: flex-start;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
