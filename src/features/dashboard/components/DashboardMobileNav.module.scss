@@ -1,0 +1,114 @@
+@use '../../../styles/_variables' as *;
+
+$mobile-max: 820px;
+
+// ─── Top bar (sticky) ─────────────────────────────────────────────
+.topBar {
+  display: none;
+
+  @media (max-width: $mobile-max) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: linear-gradient(180deg, #08080a 60%, rgba(8, 8, 10, 0.85) 100%);
+    backdrop-filter: blur(8px);
+  }
+}
+
+.logoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+}
+
+.logoText {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  font-size: 13px;
+  color: #f4f4f5;
+}
+
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+// NotificationsDropdown trigger → 36px circle to match the design top bar.
+.notifTrigger {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ─── Bottom nav (fixed) ───────────────────────────────────────────
+.bottomNav {
+  display: none;
+
+  @media (max-width: $mobile-max) {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px 12px calc(16px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(180deg, rgba(11, 11, 13, 0) 0%, rgba(11, 11, 13, 0.92) 24%, #0b0b0d 60%);
+    backdrop-filter: blur(14px);
+    z-index: 40;
+  }
+}
+
+.bottomNavInner {
+  background: rgba(20, 20, 24, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  padding: 8px 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: #8f8f97;
+  background: transparent;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.navIcon {
+  stroke: currentColor;
+}
+
+.navLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.active {
+  color: #ff8ec9;
+  background: linear-gradient(180deg, rgba(255, 46, 158, 0.18), rgba(255, 46, 158, 0.06));
+
+  .navIcon { stroke: #ff2e9e; color: #ff2e9e; }
+}

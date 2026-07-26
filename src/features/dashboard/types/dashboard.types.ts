@@ -77,3 +77,13 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
 };
 
 export const DASHBOARD_ROLES: UserRole[] = ['ADMIN', 'ORGANIZER', 'ARTIST', 'SUPER_ADMIN'];
+
+// The mobile bottom-nav shows a curated subset (max 5) of each role's nav,
+// by navKey. Order here is the on-screen order; labels come from
+// dashboard.navMobile.<navKey>. External items are never in the bottom bar.
+export const MOBILE_NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, string[]> = {
+  ADMIN: ['overview', 'organizations', 'events', 'streams', 'analytics'],
+  ORGANIZER: ['overview', 'organizations', 'events', 'streams', 'analytics'],
+  ARTIST: ['overview', 'streams', 'analytics'],
+  SUPER_ADMIN: ['overviewGlobal', 'platformOrganizations', 'platformEvents', 'platformStreams', 'platformRevenue'],
+};

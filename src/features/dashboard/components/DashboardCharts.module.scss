@@ -5,7 +5,27 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
 
-  @media (max-width: 1000px) { grid-template-columns: 1fr; }
+  @media (max-width: 1000px) and (min-width: 721px) { grid-template-columns: 1fr; }
+
+  // Mobile: horizontal snap-scroll of fixed-width cards (design pattern).
+  @media (max-width: 720px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -16px;
+    padding: 0 16px 4px;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+}
+
+.chartCard {
+  @media (max-width: 720px) {
+    flex: none;
+    width: 290px;
+    scroll-snap-align: start;
+  }
 }
 
 .chartCard {

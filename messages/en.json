@@ -328,6 +328,18 @@
       "platformSettings": "Settings",
       "platformAudit": "Audit log"
     },
+    "navMobile": {
+      "overview": "Home",
+      "organizations": "Orgs",
+      "events": "Events",
+      "streams": "Streams",
+      "analytics": "Analytics",
+      "overviewGlobal": "Home",
+      "platformOrganizations": "Orgs",
+      "platformEvents": "Events",
+      "platformStreams": "Streams",
+      "platformRevenue": "Revenue"
+    },
     "roles": {
       "ADMIN": "Admin",
       "ORGANIZER": "Organizer",

@@ -1,5 +1,6 @@
 export { DashboardGuard } from './components/DashboardGuard';
 export { DashboardSidebar } from './components/DashboardSidebar';
+export { DashboardMobileNav } from './components/DashboardMobileNav';
 export { RoleDashboardOverview } from './components/RoleDashboardOverview';
 export { AdminDashboard } from './components/AdminDashboard';
 export { OrganizerDashboard } from './components/OrganizerDashboard';

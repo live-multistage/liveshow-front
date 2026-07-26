@@ -1,4 +1,4 @@
-import { DashboardGuard, DashboardSidebar } from '@/features/dashboard';
+import { DashboardGuard, DashboardSidebar, DashboardMobileNav } from '@/features/dashboard';
 import { Toaster } from '@live-show/design-system';
 import styles from './layout.module.scss';
 
@@ -8,7 +8,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className={styles.layout}>
         <div className={styles.inner}>
           <DashboardSidebar />
-          <main className={styles.main}>{children}</main>
+          <div className={styles.content}>
+            <DashboardMobileNav />
+            <main className={styles.main}>{children}</main>
+          </div>
         </div>
       </div>
       <Toaster />

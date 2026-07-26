@@ -18,6 +18,12 @@
   justify-content: space-between;
   align-items: flex-end;
   gap: 20px;
+
+  // Mobile: title stacks above a full-width primary CTA (design pattern).
+  @media (max-width: 720px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .titles {
@@ -46,6 +52,12 @@
   display: flex;
   align-items: center;
   gap: 14px;
+
+  // The updated-indicator is hidden < 720px, leaving only the CTA — stretch it.
+  @media (max-width: 720px) {
+    width: 100%;
+    button { width: 100%; }
+  }
 }
 
 .updated {
