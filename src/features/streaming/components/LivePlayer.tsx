@@ -12,6 +12,7 @@ import { Header } from './Header';
 import { TransportBar } from './TransportBar';
 import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
 import { useAuth } from '@/features/account/hooks/use-auth';
+import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
 import { useViewerTracking } from '../hooks/use-viewer-tracking';
 import { useViewerCount } from '../hooks/use-viewer-count';
 import { SessionWatermark } from './SessionWatermark';
@@ -176,6 +177,14 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   useEffect(() => {
     if (!globalMuted) setAutoplayBlocked(false);
   }, [globalMuted]);
+
+  usePlayerHotkeys({
+    onToggleFullscreen: toggleFullscreen,
+    onToggleCameraPanel: () => setCameraStripOpen((o) => !o),
+    onToggleMute: () => setGlobalMuted((m) => !m),
+    onVolumeUp: () => { setVolume((v) => clampVolume(v + VOLUME_STEP)); setGlobalMuted(false); },
+    onVolumeDown: () => setVolume((v) => clampVolume(v - VOLUME_STEP)),
+  });
 
   return (
     <div ref={containerRef} className={styles.player}>

@@ -8,6 +8,7 @@ import { CameraGrid } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
 import { SessionWatermark } from './SessionWatermark';
 import { ReplayTransportBar } from './ReplayTransportBar';
+import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
 import styles from './ReplayPlayer.module.scss';
 
 interface ReplayPlayerProps {
@@ -125,6 +126,14 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
 
   const effectiveAudioCameraId =
     audioCameraId && cameras.some((c) => c.cameraId === audioCameraId) ? audioCameraId : (cameras[0]?.cameraId ?? null);
+
+  usePlayerHotkeys({
+    onToggleFullscreen: toggleFullscreen,
+    onToggleCameraPanel: () => setCameraStripOpen((o) => !o),
+    onToggleMute: () => setGlobalMuted((m) => !m),
+    onVolumeUp: () => { setVolume((v) => clampVolume(v + VOLUME_STEP)); setGlobalMuted(false); },
+    onVolumeDown: () => setVolume((v) => clampVolume(v - VOLUME_STEP)),
+  });
 
   if (playableCameras.length === 0) {
     return (
