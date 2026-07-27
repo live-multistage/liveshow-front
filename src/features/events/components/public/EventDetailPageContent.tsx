@@ -14,6 +14,7 @@ import { useOrganization } from '@/features/organizations';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { useTrackEventView } from '../../hooks/use-track-event-view';
 import { AdBanner } from '@/features/advertisements';
+import { ReportButton } from '@/features/reports';
 import styles from './EventDetailPageContent.module.scss';
 
 interface Props {
@@ -59,12 +60,15 @@ export function EventDetailPageContent({ id }: Props) {
   return (
     <div className={styles.page}>
       <div className={styles.inner}>
-        <button onClick={() => router.back()} className={styles.backBtn}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M11 18l-6-6 6-6"/>
-          </svg>
-          VOLTAR
-        </button>
+        <div className={styles.topRow}>
+          <button onClick={() => router.back()} className={styles.backBtn}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 12H5M11 18l-6-6 6-6"/>
+            </svg>
+            VOLTAR
+          </button>
+          <ReportButton eventId={id} className={styles.reportTrigger} />
+        </div>
 
         <div className={styles.hero}>
           {heroImage

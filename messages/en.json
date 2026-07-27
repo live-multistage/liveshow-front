@@ -889,5 +889,31 @@
     "loading2": "Loading...",
     "eventSearchPlaceholder": "Search by title…",
     "searchEvents": "Search events"
+  },
+  "reports": {
+    "trigger": "Report",
+    "title": "Report event",
+    "description": "Help us keep the platform safe. Your report is reviewed by our team.",
+    "reasonLabel": "Reason",
+    "reasonPlaceholder": "Select a reason",
+    "reasons": {
+      "INAPPROPRIATE": "Inappropriate content",
+      "VIOLENCE": "Violence",
+      "HATE": "Hate speech",
+      "SEXUAL": "Sexual content",
+      "HARASSMENT": "Harassment or bullying",
+      "SPAM_MISLEADING": "Spam or misleading content",
+      "ILLEGAL": "Illegal activity",
+      "COPYRIGHT": "Copyright infringement",
+      "OTHER": "Other reason"
+    },
+    "detailLabel": "Details (optional)",
+    "detailPlaceholder": "Describe the issue, if you'd like to add more context…",
+    "cancel": "Cancel",
+    "submit": "Submit report",
+    "submitting": "Submitting...",
+    "successToast": "Report submitted. Thanks for helping keep the platform safe.",
+    "alreadyReported": "You've already reported this event.",
+    "genericError": "We couldn't submit your report. Please try again."
   }
 }

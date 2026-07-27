@@ -189,6 +189,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   return (
     <div ref={containerRef} className={styles.player}>
       <Header
+        eventId={eventId}
         eventTitle={title}
         metaLine={metaLine}
         stages={stages}

@@ -55,6 +55,14 @@
 }
 
 // ── Back link ────────────────────────────────────────────────────
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
 .backBtn {
   display: inline-flex;
   align-items: center;
@@ -66,12 +74,15 @@
   background: none;
   border: none;
   cursor: pointer;
-  margin-bottom: 22px;
   text-transform: uppercase;
   transition: color .15s;
 
   &:hover { color: $text-primary; }
   svg { flex-shrink: 0; }
+}
+
+.reportTrigger {
+  flex-shrink: 0;
 }
 
 // ── Hero ────────────────────────────────────────────────────────

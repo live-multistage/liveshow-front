@@ -892,5 +892,31 @@
     "loading2": "Carregando...",
     "eventSearchPlaceholder": "Buscar por título…",
     "searchEvents": "Buscar eventos"
+  },
+  "reports": {
+    "trigger": "Denunciar",
+    "title": "Denunciar evento",
+    "description": "Nos ajude a manter a plataforma segura. Sua denúncia é analisada pela nossa equipe.",
+    "reasonLabel": "Motivo",
+    "reasonPlaceholder": "Selecione um motivo",
+    "reasons": {
+      "INAPPROPRIATE": "Conteúdo impróprio",
+      "VIOLENCE": "Violência",
+      "HATE": "Discurso de ódio",
+      "SEXUAL": "Conteúdo sexual",
+      "HARASSMENT": "Assédio ou bullying",
+      "SPAM_MISLEADING": "Spam ou conteúdo enganoso",
+      "ILLEGAL": "Atividade ilegal",
+      "COPYRIGHT": "Violação de direitos autorais",
+      "OTHER": "Outro motivo"
+    },
+    "detailLabel": "Detalhes (opcional)",
+    "detailPlaceholder": "Descreva o problema, se quiser adicionar mais contexto…",
+    "cancel": "Cancelar",
+    "submit": "Enviar denúncia",
+    "submitting": "Enviando...",
+    "successToast": "Denúncia enviada. Obrigado por ajudar a manter a plataforma segura.",
+    "alreadyReported": "Você já denunciou este evento.",
+    "genericError": "Não foi possível enviar sua denúncia. Tente novamente."
   }
 }
