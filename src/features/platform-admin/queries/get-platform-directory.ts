@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { platformAdminService } from '../services/platform-admin.service';
 import { eventsService } from '@/features/events/services/events.service';
-import type { EventModerationAction } from '../types/platform-admin.types';
+import type { EventModerationAction, ReportStatus } from '../types/platform-admin.types';
 import { normalizeError, type AppError } from '@/lib/http/errors';
 
 export function useRevenueBreakdownQuery(range: '7d' | '30d' | '90d') {
@@ -48,6 +48,35 @@ export function useModerateEventMutation(onDone?: () => void) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['platform-admin', 'events'] });
       qc.invalidateQueries({ queryKey: ['platform-admin', 'audit'] });
+      onDone?.();
+    },
+  });
+}
+
+export function useEventReportsQuery(eventId: string | null, status?: ReportStatus) {
+  return useQuery({
+    queryKey: ['platform-admin', 'reports', eventId, status] as const,
+    queryFn: () => platformAdminService.getEventReports(eventId!, status),
+    enabled: !!eventId,
+    staleTime: 15_000,
+  });
+}
+
+export function useResolveReportMutation(onDone?: () => void) {
+  const qc = useQueryClient();
+  return useMutation<
+    { id: string; status: ReportStatus; resolvedBy: string; resolvedAt: string },
+    AppError,
+    { id: string; status: 'REVIEWED' | 'DISMISSED' }
+  >({
+    mutationFn: async ({ id, status }) => {
+      try { return await platformAdminService.resolveReport(id, status); }
+      catch (err) { throw normalizeError(err); }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['platform-admin', 'events'] });
+      qc.invalidateQueries({ queryKey: ['platform-admin', 'audit'] });
+      qc.invalidateQueries({ queryKey: ['platform-admin', 'reports'] });
       onDone?.();
     },
   });

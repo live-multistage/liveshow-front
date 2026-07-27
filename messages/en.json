@@ -888,7 +888,19 @@
     "allActions": "All actions",
     "loading2": "Loading...",
     "eventSearchPlaceholder": "Search by title…",
-    "searchEvents": "Search events"
+    "searchEvents": "Search events",
+    "reportedFilter": "Reported",
+    "reportsBadgeTitle": "Open reports",
+    "reportsTitle": "Reports",
+    "reportsEmpty": "No pending reports.",
+    "resolveReviewed": "Review",
+    "resolveDismissed": "Dismiss",
+    "resolveSuccess": "Report updated.",
+    "resolveError": "Could not update the report.",
+    "reporterKind": {
+      "user": "User",
+      "anonymous": "Anonymous"
+    }
   },
   "reports": {
     "trigger": "Report",

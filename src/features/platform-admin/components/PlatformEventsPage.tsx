@@ -19,6 +19,7 @@ const FILTERS: { key: string; label: string; status?: string; moderation?: strin
   { key: 'FINISHED', label: 'Finalizados', status: 'FINISHED' },
   { key: 'CANCELLED', label: 'Cancelados', status: 'CANCELLED' },
   { key: 'REJECTED', label: 'Rejeitados', moderation: 'REJECTED' },
+  { key: 'REPORTED', label: '', moderation: 'REPORTED' }, // label resolved via i18n at render
 ];
 const COLS = '1.8fr 1.1fr 0.7fr 0.8fr 1.05fr 0.85fr auto';
 
@@ -76,13 +77,14 @@ export function PlatformEventsPage() {
       <div className={table.chips}>
         {FILTERS.map((f) => {
           const on = f.key === filterKey;
+          const label = f.key === 'REPORTED' ? t('reportedFilter') : f.label;
           return (
             <button
               key={f.key}
               className={on ? `${table.chip} ${table.chipActive}` : table.chip}
               onClick={() => { setFilterKey(f.key); setPage(1); }}
             >
-              {f.label.toUpperCase()}
+              {label.toUpperCase()}
               {on && data && <span className={`${table.chipCount} ${table.chipCountActive}`}>{total}</span>}
             </button>
           );
@@ -140,10 +142,16 @@ function ModerationSeal({ e }: { e: PlatformEventRow }) {
 }
 
 function EventRow({ e, onOpen }: { e: PlatformEventRow; onOpen: () => void }) {
+  const t = useTranslations('platformAdmin');
   return (
     <div className={table.row} style={{ gridTemplateColumns: COLS }}>
       <span className={table.primary}>
         <button className={table.primaryLink} onClick={onOpen}>{e.title}</button>
+        {e.openReportsCount > 0 && (
+          <span className={`${table.badge} ${table.badgeRed} ${table.reportsBadge}`} title={t('reportsBadgeTitle')}>
+            {e.openReportsCount}
+          </span>
+        )}
       </span>
       <span className={table.mono}>{e.orgName}</span>
       <span><span className={`${table.badge} ${statusBadge(e.status)}`}>{e.status}</span></span>

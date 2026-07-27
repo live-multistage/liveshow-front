@@ -888,7 +888,19 @@
     "allActions": "Todas las acciones",
     "loading2": "Cargando...",
     "eventSearchPlaceholder": "Buscar por título…",
-    "searchEvents": "Buscar eventos"
+    "searchEvents": "Buscar eventos",
+    "reportedFilter": "Denunciados",
+    "reportsBadgeTitle": "Denuncias abiertas",
+    "reportsTitle": "Denuncias",
+    "reportsEmpty": "No hay denuncias pendientes.",
+    "resolveReviewed": "Revisar",
+    "resolveDismissed": "Descartar",
+    "resolveSuccess": "Denuncia actualizada.",
+    "resolveError": "No fue posible actualizar la denuncia.",
+    "reporterKind": {
+      "user": "Usuario",
+      "anonymous": "Anónimo"
+    }
   },
   "reports": {
     "trigger": "Denunciar",

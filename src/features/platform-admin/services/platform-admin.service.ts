@@ -27,6 +27,8 @@ import type {
   AdDetail,
   AdReviewConfig,
   EventModerationAction,
+  PlatformReportsResult,
+  ReportStatus,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
@@ -141,6 +143,25 @@ export const platformAdminService = {
   },
   moderateEvent: async (id: string, action: EventModerationAction, reason?: string): Promise<void> => {
     await httpClient.post(`/platform-admin/events/${id}/moderation`, { action, reason });
+  },
+
+  getEventReports: async (
+    eventId: string,
+    status?: ReportStatus,
+    page?: number,
+    limit?: number,
+  ): Promise<PlatformReportsResult> => {
+    const { data } = await httpClient.get<PlatformReportsResult>('/platform-admin/reports', {
+      params: { targetId: eventId, status, page, limit },
+    });
+    return data;
+  },
+  resolveReport: async (id: string, status: 'REVIEWED' | 'DISMISSED'): Promise<{ id: string; status: ReportStatus; resolvedBy: string; resolvedAt: string }> => {
+    const { data } = await httpClient.post<{ id: string; status: ReportStatus; resolvedBy: string; resolvedAt: string }>(
+      `/platform-admin/reports/${id}/resolve`,
+      { status },
+    );
+    return data;
   },
 
   getPlatformAds: async (params: { status?: string; page?: number }): Promise<PlatformAdsResult> => {

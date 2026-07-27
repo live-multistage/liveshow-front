@@ -2,9 +2,15 @@
 
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
-import { X, Accessibility, HandMetal } from 'lucide-react';
+import { toast } from 'sonner';
+import { X, Accessibility, HandMetal, Flag } from 'lucide-react';
 import { useGetEventQuery } from '@/features/events/queries/get-event';
-import { useModerateEventMutation, useApproveAccessibilityMutation } from '../queries/get-platform-directory';
+import {
+  useModerateEventMutation,
+  useApproveAccessibilityMutation,
+  useEventReportsQuery,
+  useResolveReportMutation,
+} from '../queries/get-platform-directory';
 import type { PlatformEventRow } from '../types/platform-admin.types';
 import styles from './EventDetailDrawer.module.scss';
 
@@ -27,12 +33,25 @@ interface Props {
 // and every moderation action in one place.
 export function EventDetailDrawer({ event: row, onClose }: Props) {
   const t = useTranslations('platformAdmin');
+  const tReports = useTranslations('reports');
   const { data: event, isLoading } = useGetEventQuery(row.id);
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState('');
   const moderate = useModerateEventMutation();
   const approveA11y = useApproveAccessibilityMutation();
+  const { data: reportsData, isLoading: reportsLoading } = useEventReportsQuery(row.id, 'PENDING');
+  const resolveReport = useResolveReportMutation();
   const busy = moderate.isPending || approveA11y.isPending;
+
+  const handleResolve = (id: string, status: 'REVIEWED' | 'DISMISSED') => {
+    resolveReport.mutate(
+      { id, status },
+      {
+        onSuccess: () => toast.success(t('resolveSuccess')),
+        onError: () => toast.error(t('resolveError')),
+      },
+    );
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -144,6 +163,45 @@ export function EventDetailDrawer({ event: row, onClose }: Props) {
                 <button className={styles.btn} disabled={busy || row.moderationStatus === 'APPROVED'} onClick={() => moderate.mutate({ id: row.id, action: 'APPROVE' })}>{t('approve')}</button>
                 <button className={styles.btn} disabled={busy} onClick={() => setRejecting(true)}>{t('reject')}</button>
                 <button className={`${styles.btn} ${styles.btnDanger}`} disabled={busy || !canCancel} onClick={() => moderate.mutate({ id: row.id, action: 'CANCEL' })}>Remover</button>
+              </div>
+            )}
+          </div>
+
+          {/* Reports */}
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}><Flag size={15} /> {t('reportsTitle')}</h3>
+            {reportsLoading && <p className={styles.loading}>{t('loading2')}</p>}
+            {!reportsLoading && (reportsData?.items.length ?? 0) === 0 && (
+              <p className={styles.loading}>{t('reportsEmpty')}</p>
+            )}
+            {reportsData && reportsData.items.length > 0 && (
+              <div className={styles.reportsList}>
+                {reportsData.items.map((report) => (
+                  <div key={report.id} className={styles.reportRow}>
+                    <div className={styles.reportInfo}>
+                      <span className={styles.reportReason}>{tReports(`reasons.${report.reason}`)}</span>
+                      <span className={styles.badge}>{t(`reporterKind.${report.reporterKind}`)}</span>
+                      <span className={styles.reportDate}>{fmtDate(report.createdAt)}</span>
+                    </div>
+                    {report.detail && <p className={styles.reportDetail}>{report.detail}</p>}
+                    <div className={styles.actions}>
+                      <button
+                        className={styles.btn}
+                        disabled={resolveReport.isPending}
+                        onClick={() => handleResolve(report.id, 'REVIEWED')}
+                      >
+                        {t('resolveReviewed')}
+                      </button>
+                      <button
+                        className={styles.btn}
+                        disabled={resolveReport.isPending}
+                        onClick={() => handleResolve(report.id, 'DISMISSED')}
+                      >
+                        {t('resolveDismissed')}
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

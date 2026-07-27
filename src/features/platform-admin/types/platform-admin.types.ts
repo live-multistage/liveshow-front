@@ -1,6 +1,7 @@
 import type { AdDestination } from '@/features/advertisements/types/advertisement.types';
+import type { ReportReason } from '@/features/reports/types/report.types';
 
-export type { AdDestination };
+export type { AdDestination, ReportReason };
 
 export type OrganizationStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED' | 'REJECTED';
 
@@ -226,10 +227,23 @@ export interface PlatformEventRow {
   accessibilityApproved: boolean;
   moderationStatus: 'APPROVED' | 'REJECTED' | null;
   moderationReason: string | null;
+  openReportsCount: number;
 }
 export type PlatformEventsResult = Paged<PlatformEventRow>;
 
 export type EventModerationAction = 'PUBLISH' | 'UNPUBLISH' | 'CANCEL' | 'APPROVE' | 'REJECT';
+
+// Report review (GET /platform-admin/reports, POST /platform-admin/reports/:id/resolve).
+export type ReportStatus = 'PENDING' | 'REVIEWED' | 'DISMISSED';
+export interface PlatformReport {
+  id: string;
+  reason: ReportReason;
+  detail: string | null;
+  status: ReportStatus;
+  createdAt: string;
+  reporterKind: 'user' | 'anonymous';
+}
+export type PlatformReportsResult = Paged<PlatformReport>;
 
 // Global ad directory (GET /platform-admin/ads).
 export interface PlatformAdRow {
