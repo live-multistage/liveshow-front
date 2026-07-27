@@ -213,10 +213,6 @@ export function useHlsPlayer({
 
     if (!Hls.isSupported()) {
       if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        // ponytail: Safari native HLS has no request hook — it can't rewrite
-        // `pt` per request like the hls.js path below, so a live-standard token
-        // still expires at 90s here. Out of scope (task targets the hls.js
-        // path); upgrade path is a periodic src re-point keyed on ptRef.
         video.src = srcRef.current!;
         const onErr = () => setError(true);
         video.addEventListener('error', onErr);
@@ -230,7 +226,25 @@ export function useHlsPlayer({
             playBestEffort(video, onAutoplayBlockedRef.current);
           };
           video.addEventListener('loadedmetadata', seekLive);
+          // ponytail: Safari native HLS has no request hook — it can't rewrite
+          // `pt` per request like hls.js's xhrSetup above, so the token baked
+          // into video.src at load still expires at 90s here. Re-point src to
+          // the freshest token (srcRef, updated every 5s poll) at a cadence
+          // safely under that TTL; the reassignment triggers Safari's native
+          // reload, and the loadedmetadata listener above re-seeks to the live
+          // edge and resumes playback — reusing the same recovery path as the
+          // initial load. Costs a brief native stutter every ~60s, far gentler
+          // than rebuilding the whole player every 5s (the old approach).
+          let lastNativeSrc = srcRef.current;
+          const REFRESH_MS = 60_000;
+          const refresh = setInterval(() => {
+            if (srcRef.current && srcRef.current !== lastNativeSrc) {
+              lastNativeSrc = srcRef.current;
+              video.src = srcRef.current;
+            }
+          }, REFRESH_MS);
           return () => {
+            clearInterval(refresh);
             video.removeEventListener('loadedmetadata', seekLive);
             video.removeEventListener('error', onErr);
           };

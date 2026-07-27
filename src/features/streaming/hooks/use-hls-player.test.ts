@@ -5,7 +5,7 @@
  * and every hls.js request must carry the freshest token. hls.js is mocked —
  * these assertions lock the token wiring, not real network behavior.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import type { RefObject } from 'react';
 import {
@@ -145,5 +145,64 @@ describe('useHlsPlayer — signed-URL token refresh (live standard)', () => {
     // hasLl true → LL tuning, no live-standard pt rewrite
     expect(h.instances[0].config.lowLatencyMode).toBe(true);
     expect(h.instances[0].config.xhrSetup).toBeUndefined();
+  });
+});
+
+// ── native HLS (iOS Safari) live token refresh ──────────────────────────────
+// No hls.js instance exists on this path (Hls.isSupported() is false), so
+// there is no xhrSetup to rewrite `pt`. The hook instead re-points video.src
+// on a ~60s interval, well under the 90s token TTL.
+function renderNativePlayer(camera: LiveCamera, mode: 'live' | 'replay' = 'live') {
+  const video = document.createElement('video');
+  video.canPlayType = vi.fn(() => 'maybe') as HTMLVideoElement['canPlayType'];
+  const videoRef = { current: video } as RefObject<HTMLVideoElement | null>;
+  const view = renderHook(
+    ({ camera }: { camera: LiveCamera }) =>
+      useHlsPlayer({ videoRef, camera, mode, isFocused: false, lowQuality: false }),
+    { initialProps: { camera } },
+  );
+  return { ...view, video };
+}
+
+describe('useHlsPlayer — native HLS (iOS Safari) live token refresh', () => {
+  beforeEach(() => {
+    h.instances.length = 0;
+    h.MockHls.isSupported = vi.fn(() => false);
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    h.MockHls.isSupported = () => true;
+  });
+
+  it('re-points video.src to the fresh token after ~60s when it changed', () => {
+    const { rerender, video } = renderNativePlayer(
+      cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=t1' }),
+    );
+    expect(video.src).toContain('pt=t1');
+    rerender({ camera: cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=t2' }) });
+    vi.advanceTimersByTime(60_000);
+    expect(video.src).toContain('pt=t2');
+  });
+
+  it('does NOT reassign src when the token is unchanged', () => {
+    const { video } = renderNativePlayer(cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=t1' }));
+    const before = video.src;
+    vi.advanceTimersByTime(60_000);
+    expect(video.src).toBe(before);
+  });
+
+  it('clears the refresh interval on unmount', () => {
+    const clearSpy = vi.spyOn(global, 'clearInterval');
+    const { unmount } = renderNativePlayer(cam());
+    unmount();
+    expect(clearSpy).toHaveBeenCalled();
+  });
+
+  it('does NOT set up a refresh interval for replay (closed VOD timeline)', () => {
+    const setIntervalSpy = vi.spyOn(global, 'setInterval');
+    renderNativePlayer(cam(), 'replay');
+    expect(setIntervalSpy).not.toHaveBeenCalled();
   });
 });
