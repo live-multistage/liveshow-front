@@ -145,14 +145,9 @@ export const platformAdminService = {
     await httpClient.post(`/platform-admin/events/${id}/moderation`, { action, reason });
   },
 
-  getEventReports: async (
-    eventId: string,
-    status?: ReportStatus,
-    page?: number,
-    limit?: number,
-  ): Promise<PlatformReportsResult> => {
+  getEventReports: async (eventId: string, status?: ReportStatus): Promise<PlatformReportsResult> => {
     const { data } = await httpClient.get<PlatformReportsResult>('/platform-admin/reports', {
-      params: { targetId: eventId, status, page, limit },
+      params: { targetId: eventId, status },
     });
     return data;
   },

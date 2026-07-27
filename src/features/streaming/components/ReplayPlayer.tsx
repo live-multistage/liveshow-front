@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, Play, Video } from 'lucide-react';
+import { ReportButton } from '@/features/reports';
 import type { ReplayCameraPlayback, LiveCamera } from '../types/live.types';
 import { CameraGrid } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
@@ -160,6 +161,7 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
             Câmeras
           </button>
         )}
+        <ReportButton eventId={eventId} className={styles.iconBtn} iconOnly />
       </header>
 
       <div className={styles.main}>
