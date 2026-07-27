@@ -13,6 +13,46 @@ export interface QualityLevel {
   height: number;
 }
 
+// ── signed-URL (?pt) helpers ────────────────────────────────────────────────
+// The live STANDARD manifests carry a short-lived signed token `?pt={JWT}`
+// (90s TTL). The playback query refreshes it every 5s, so we must (a) NOT
+// rebuild the player on every refresh and (b) inject the freshest token into
+// every hls.js request. These are pure string ops so they unit-test without a
+// real hls.js instance. JWT chars (base64url + '.') are never percent-encoded
+// by URLSearchParams, so round-tripping the value is lossless.
+
+// The current `pt` value from a manifest path/URL, or null when absent.
+export function extractPt(url: string): string | null {
+  const q = url.indexOf('?');
+  if (q === -1) return null;
+  return new URLSearchParams(url.slice(q + 1)).get('pt');
+}
+
+// A stable key that ignores the token: two URLs differing ONLY in `pt` produce
+// the same base, so the build effect keys on real source changes (packageId /
+// job rotation) and not 5s token refreshes.
+export function stripPt(url: string): string {
+  const q = url.indexOf('?');
+  if (q === -1) return url;
+  const params = new URLSearchParams(url.slice(q + 1));
+  params.delete('pt');
+  const rest = params.toString();
+  return rest ? `${url.slice(0, q)}?${rest}` : url.slice(0, q);
+}
+
+// Rewrite an outgoing request URL's `pt` to `token`. Falls through unchanged
+// when there is no token or the URL carries no `pt` (e.g. backend rolled the
+// signed-URL scheme back) so playback degrades gracefully rather than breaking.
+export function replacePtParam(url: string, token: string | null): string {
+  if (!token) return url;
+  const q = url.indexOf('?');
+  if (q === -1) return url;
+  const params = new URLSearchParams(url.slice(q + 1));
+  if (!params.has('pt')) return url;
+  params.set('pt', token);
+  return `${url.slice(0, q)}?${params.toString()}`;
+}
+
 // Index of the smallest-height rendition in a parsed hls instance (-1 if none).
 function lowestLevelIndex(hls: Hls): number {
   const levels = hls.levels;
@@ -119,7 +159,7 @@ export function useHlsPlayer({
   const selectedAudioCameraIdRef = useRef(selectedAudioCameraId);
   selectedAudioCameraIdRef.current = selectedAudioCameraId;
   // Callback refs: the callers pass inline lambdas; routing them through refs
-  // keeps the build effect's dep list stable ([src, hasLl]).
+  // keeps the build effect's dep list stable ([srcBase, hasLl]).
   const onLevelsReadyRef = useRef(onLevelsReady);
   onLevelsReadyRef.current = onLevelsReady;
   const onAutoplayBlockedRef = useRef(onAutoplayBlocked);
@@ -139,6 +179,17 @@ export function useHlsPlayer({
   const [error, setError] = useState(false);
   const connecting = camera.manifestPath === null;
   const src = connecting ? null : `${config.apiUrl}${camera.manifestPath}`;
+  // The live STANDARD src now carries a `?pt` token refreshed every 5s poll,
+  // so `src` changes every 5s. Keying the build effect on the token-STRIPPED
+  // src rebuilds only on a REAL source change (packageId / job rotation), not
+  // on a token refresh — same trick as llPathRef for the LL path. The build
+  // reads the latest full src through srcRef, and every hls.js request rewrites
+  // its `pt` to the freshest token via ptRef (see the effect's xhrSetup).
+  const srcBase = src === null ? null : stripPt(src);
+  const srcRef = useRef(src);
+  srcRef.current = src;
+  const ptRef = useRef<string | null>(null);
+  ptRef.current = camera.manifestPath ? extractPt(camera.manifestPath) : null;
   // Latches once the LL-HLS path proves unreliable (repeated stalls or a
   // fatal hls.js error) for this camera's src — forces the STANDARD ABR
   // origin for the rest of this mount instead of flapping back to LL-HLS.
@@ -162,7 +213,11 @@ export function useHlsPlayer({
 
     if (!Hls.isSupported()) {
       if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = src;
+        // ponytail: Safari native HLS has no request hook — it can't rewrite
+        // `pt` per request like the hls.js path below, so a live-standard token
+        // still expires at 90s here. Out of scope (task targets the hls.js
+        // path); upgrade path is a periodic src re-point keyed on ptRef.
+        video.src = srcRef.current!;
         const onErr = () => setError(true);
         video.addEventListener('error', onErr);
         // Live only: jump to the live edge once metadata loads. Replay is a
@@ -192,7 +247,7 @@ export function useHlsPlayer({
     // ladder, so bad bandwidth must degrade to it rather than freeze.
     // STANDARD events (llPath null) and replay always use the STANDARD
     // tuning below, unchanged from before this fallback existed.
-    const activeSrc = hasLl ? `${config.apiUrl}${llPathRef.current}` : src;
+    const activeSrc = hasLl ? `${config.apiUrl}${llPathRef.current}` : srcRef.current!;
 
     // ~3 segments (~6s) behind the live edge on the STANDARD tuning.
     // lowLatencyMode/tighter sync only makes sense against the LL-HLS
@@ -214,6 +269,20 @@ export function useHlsPlayer({
         xhrSetup: (xhr: XMLHttpRequest) => {
           const token = tokenStore.get();
           if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        },
+      }),
+      // Live STANDARD: every request (master, rendition manifest, segment,
+      // EXT-X-KEY) carries a `?pt` token baked in when its manifest was loaded;
+      // that token expires at 90s. Rewrite each outgoing URL's `pt` to the
+      // freshest token (refreshed every 5s poll via ptRef) so live playback
+      // never 403s at the token boundary. hls.js 1.6's xhr-loader runs
+      // xhrSetup BEFORE opening and only opens itself when `!xhr.readyState`,
+      // so opening here with the rewritten URL wins. LL path is left untouched
+      // (its token lifetime rides the existing LL→STANDARD fallback latch).
+      ...(mode === 'live' && !hasLl && {
+        xhrSetup: (xhr: XMLHttpRequest, url: string) => {
+          const next = replacePtParam(url, ptRef.current);
+          if (next !== url) xhr.open('GET', next, true);
         },
       }),
     });
@@ -280,7 +349,7 @@ export function useHlsPlayer({
       hlsRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [src, hasLl]);
+  }, [srcBase, hasLl]);
 
   // When this panel becomes the focused/main view (live), snap it to the live
   // edge. Background panels stay alive but can drift a second or two behind
