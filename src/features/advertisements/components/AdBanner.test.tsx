@@ -71,7 +71,7 @@ describe('AdBanner', () => {
 
     await screen.findByRole('link', { name: /Great Ad/i });
     await waitFor(() => expect(mockedService.recordImpression).toHaveBeenCalledTimes(1));
-    expect(mockedService.recordImpression).toHaveBeenCalledWith('ad-1');
+    expect(mockedService.recordImpression).toHaveBeenCalledWith('ad-1', 'FEED');
   });
 
   it('fires click handler for an EVENT link', async () => {
@@ -79,7 +79,7 @@ describe('AdBanner', () => {
 
     const link = await screen.findByRole('link', { name: /Great Ad/i });
     fireEvent.click(link);
-    expect(mockedService.recordClick).toHaveBeenCalledWith('ad-1');
+    expect(mockedService.recordClick).toHaveBeenCalledWith('ad-1', 'FEED');
   });
 
   it('fires click handler for an EXTERNAL_URL link', async () => {
@@ -87,6 +87,6 @@ describe('AdBanner', () => {
 
     const link = await screen.findByRole('link', { name: /Great Ad/i });
     fireEvent.click(link);
-    expect(mockedService.recordClick).toHaveBeenCalledWith('ad-1');
+    expect(mockedService.recordClick).toHaveBeenCalledWith('ad-1', 'FEED');
   });
 });
