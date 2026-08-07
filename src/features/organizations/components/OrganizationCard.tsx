@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import type { OrganizationResponse } from '../types/organization.types';
+import { dominantSale, formatMoney } from '../utils/org-stats';
 import styles from './OrganizationCard.module.scss';
 
 // ── Helpers ───────────────────────────────────────────────────────
@@ -75,15 +76,18 @@ export function OrganizationCard({ organization: org }: Props) {
       <div className={styles.stats}>
         <div className={styles.stat}>
           <div className={styles.statLabel}>EVENTOS</div>
-          <div className={styles.statValue}>—</div>
+          <div className={styles.statValue}>{org.activeEventsCount ?? '—'}</div>
         </div>
         <div className={styles.stat}>
           <div className={styles.statLabel}>EQUIPE</div>
-          <div className={styles.statValue}>—</div>
+          <div className={styles.statValue}>{org.memberCount ?? '—'}</div>
         </div>
         <div className={styles.stat}>
           <div className={styles.statLabel}>VENDAS</div>
-          <div className={`${styles.statValue} ${styles.statValuePink}`}>—</div>
+          <div className={`${styles.statValue} ${styles.statValuePink}`}>{(() => {
+            const d = dominantSale(org.salesThisMonth);
+            return d ? formatMoney(d.amount, d.currency) : '—';
+          })()}</div>
         </div>
       </div>
 

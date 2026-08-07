@@ -7,6 +7,7 @@ import { Plus } from 'lucide-react';
 import { useAuth } from '@/features/account';
 import { useOrganizations } from '../hooks/use-organizations';
 import { OrganizationCard } from '../components/OrganizationCard';
+import { sumByCurrency } from '../utils/org-stats';
 import styles from './OrganizationListPage.module.scss';
 
 type ChipId = 'todas' | 'minhas' | 'convidadas' | 'arquivadas';
@@ -41,6 +42,13 @@ export function OrganizationListPage() {
 
   const myOrgs = useMemo(() => orgs.filter((o) => o.ownerId === user?.id), [orgs, user?.id]);
   const invitedOrgs = useMemo(() => orgs.filter((o) => o.ownerId !== user?.id), [orgs, user?.id]);
+
+  const hasEventStat = orgs.some((o) => o.activeEventsCount !== undefined);
+  const hasMemberStat = orgs.some((o) => o.memberCount !== undefined);
+  const hasSalesStat = orgs.some((o) => o.salesThisMonth !== undefined);
+  const totalActiveEvents = orgs.reduce((s, o) => s + (o.activeEventsCount ?? 0), 0);
+  const totalMembers = orgs.reduce((s, o) => s + (o.memberCount ?? 0), 0);
+  const totalBrlSales = sumByCurrency(orgs, 'BRL');
 
   const CHIPS: { id: ChipId; label: string; count: number }[] = [
     { id: 'todas', label: t('tabAll'), count: orgs.length },
@@ -99,21 +107,21 @@ export function OrganizationListPage() {
           <div className={styles.kpiCard}>
             <div className={styles.kpiLabel}><KpiIcon kind="event" /> EVENTOS ATIVOS</div>
             <div className={styles.kpiValue}>
-              <span className={styles.kpiNum}>—</span>
+              <span className={styles.kpiNum}>{hasEventStat ? totalActiveEvents : '—'}</span>
               <span className={styles.kpiUnit}>em curso</span>
             </div>
           </div>
           <div className={styles.kpiCard}>
             <div className={styles.kpiLabel}><KpiIcon kind="team" /> EQUIPE TOTAL</div>
             <div className={styles.kpiValue}>
-              <span className={styles.kpiNum}>—</span>
+              <span className={styles.kpiNum}>{hasMemberStat ? totalMembers : '—'}</span>
               <span className={styles.kpiUnit}>membros</span>
             </div>
           </div>
           <div className={styles.kpiCard}>
             <div className={styles.kpiLabel}><KpiIcon kind="sales" /> VENDAS NO MÊS</div>
             <div className={styles.kpiValue}>
-              <span className={`${styles.kpiNum} ${styles.kpiNumPink}`}>—</span>
+              <span className={`${styles.kpiNum} ${styles.kpiNumPink}`}>{hasSalesStat ? totalBrlSales.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}</span>
               <span className={styles.kpiUnit}>BRL</span>
             </div>
           </div>
