@@ -117,191 +117,139 @@
 
 // ── Inner layout ──────────────────────────────────────────────────
 
-.heroGrid {
-  display: grid;
-  grid-template-columns: 1.75fr 1fr;
-  gap: 22px;
-  padding: 32px 40px 8px;
+// ── Hero v2 (full-width) ────────────────────────────────────────────
 
-  @media (max-width: 1023px) {
-    grid-template-columns: 1fr;
-  }
-
-  @media (max-width: 767px) {
-    padding: 20px;
-  }
-}
-
-// ── Hero card ─────────────────────────────────────────────────────
-
-.heroCard {
+.heroV2 {
   position: relative;
   border-radius: 20px;
   overflow: hidden;
-  min-height: 452px;
-  border: 1px solid rgba(255, 255, 255, .08);
-  cursor: pointer;
+  min-height: 520px;
+  margin: 32px 40px 8px;
+  width: calc(100% - 80px);
 
-  // Fills the viewport it sits below on phones without dominating landscape,
-  // where a fixed 452px block would push the whole page off-screen.
-  @media (max-width: 767px) { min-height: 380px; border-radius: 16px; }
-  @media (max-height: 560px) and (orientation: landscape) { min-height: 300px; }
-
-  // Hover lift/scale is pointer-only — on touch it sticks after a tap.
-  @media (hover: hover) {
-    &:hover .heroImage { transform: scale(1.03); }
+  @media (max-width: 767px) {
+    margin: 20px;
+    width: calc(100% - 40px);
+    min-height: 420px;
   }
 }
 
-.heroImage {
+.heroV2Image {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 600ms ease;
 }
 
-.heroOverlay {
+.heroV2Glow {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(5, 4, 6, .94) 6%, rgba(5, 4, 6, .18) 48%, transparent 70%);
+  background:
+    radial-gradient(65% 90% at 70% 40%, rgba(255, 90, 160, .28), transparent 60%),
+    radial-gradient(50% 70% at 40% 20%, rgba(155, 123, 255, .22), transparent 60%);
 }
 
-.heroBadges {
+.heroV2Scrim {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  inset: 0;
+  background: linear-gradient(90deg, #08080a 0%, rgba(8, 8, 10, .75) 30%, rgba(8, 8, 10, .15) 55%, transparent 75%);
+}
+
+.heroV2Content {
+  position: relative;
+  z-index: 1;
   display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 520px;
+  padding: 50px 40px;
+
+  @media (max-width: 767px) {
+    min-height: 420px;
+    padding: 28px 20px;
+  }
+}
+
+.heroV2Badge {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-  z-index: 1;
-}
-
-.heroFeaturedBadge {
-  display: inline-flex;
-  align-items: center;
-  background: rgba(255, 46, 158, .16);
+  width: fit-content;
+  background: rgba(255, 46, 158, .18);
   border: 1px solid rgba(255, 46, 158, .5);
-  color: #ff7ec2;
+  color: #ff8ec9;
   font-family: 'Space Mono', monospace;
   font-size: 11px;
-  letter-spacing: .1em;
-  padding: 6px 11px;
-  border-radius: 999px;
-}
-
-.heroCamBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(0, 0, 0, .5);
-  backdrop-filter: blur(6px);
-  color: #e7e7ea;
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  padding: 6px 11px;
-  border-radius: 999px;
-}
-
-.heroPlayBtn {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -60%);
-  width: 74px;
-  height: 74px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, .92);
-  color: #0a0a0b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  animation: lsRing 2.4s ease-out infinite;
-  z-index: 1;
-  transition: transform .15s;
-  text-decoration: none;
-
-  @media (hover: hover) {
-    &:hover { transform: translate(-50%, -60%) scale(1.07); }
-  }
-
-  // Mobile: content block is bottom-anchored and grows when the title wraps
-  // to 2 lines. Anchor the button to the upper image zone (fixed px from top)
-  // so it can never collide with the title/CTAs.
-  @media (max-width: 767px) {
-    top: 120px;
-    width: 58px;
-    height: 58px;
-    transform: translateX(-50%);
-
-    &:hover { transform: translateX(-50%) scale(1.07); }
-  }
-}
-
-.heroContent {
-  position: absolute;
-  left: 26px;
-  right: 26px;
-  bottom: 24px;
-  z-index: 1;
-}
-
-.heroGenre {
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
+  font-weight: 700;
   letter-spacing: .14em;
-  color: #ffa6d4;
-  margin-bottom: 8px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-bottom: 22px;
 }
 
-.heroTitle {
+.heroV2BadgeDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ff2e9e;
+  flex-shrink: 0;
+  animation: lsPulse 1.4s ease-in-out infinite;
+}
+
+.heroV2Title {
   font-family: 'Archivo', sans-serif;
-  font-size: 58px;
-  font-weight: 800;
-  letter-spacing: -.03em;
-  line-height: .96;
+  font-weight: 900;
+  font-size: clamp(44px, 8vw, 80px);
+  letter-spacing: -.035em;
+  line-height: .94;
+  max-width: 640px;
   color: #f4f4f5;
-  margin: 0;
-
-  @media (max-width: 1200px) { font-size: 42px; }
-  @media (max-width: 767px) {
-    font-size: 32px;
-    // heroCard has a fixed min-height + overflow:hidden and this block is
-    // absolutely positioned — an unclamped long pt-BR title plus meta plus
-    // buttons overflows upward and gets clipped. Two lines, always.
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
+  margin: 0 0 22px;
 }
 
-.heroMeta {
+.heroV2Watching {
   display: flex;
   align-items: center;
-  gap: 18px;
-  margin: 16px 0 18px;
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  color: #b9b9c0;
+  gap: 9px;
+  font-size: 15px;
+  color: #d4d4da;
+  margin-bottom: 14px;
+
+  svg { color: #ff2e9e; flex-shrink: 0; }
+}
+
+.heroV2WatchingCount {
+  font-weight: 700;
+  color: #ff2e9e;
+}
+
+.heroV2Meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #a5a5ad;
+  margin-bottom: 32px;
   flex-wrap: wrap;
 }
 
-.heroMetaItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.heroV2MetaDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #5f5f67;
+  flex-shrink: 0;
 }
 
-.heroActions {
+.heroV2Actions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  margin-bottom: 28px;
 }
 
-.heroWatchBtn {
+.heroV2PrimaryBtn {
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -319,12 +267,12 @@
   &:hover { filter: brightness(1.08); }
 }
 
-.heroTicketsBtn {
+.heroV2SecondaryBtn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, .07);
-  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(20, 18, 24, .7);
+  border: 1px solid rgba(255, 255, 255, .15);
   color: #fff;
   font-weight: 600;
   font-size: 14px;
@@ -334,209 +282,26 @@
   transition: background .15s;
   text-decoration: none;
 
-  &:hover { background: rgba(255, 255, 255, .12); }
+  &:hover { background: rgba(255, 255, 255, .1); }
 }
 
-.heroTicketsPrice {
-  font-family: 'Space Mono', monospace;
-  color: #ff7ec2;
-}
-
-// ── Live rail ─────────────────────────────────────────────────────
-
-.liveRail {
+.heroV2Dots {
   display: flex;
-  flex-direction: column;
-  min-width: 0; // grid item: allow shrink below children's intrinsic min-content
-}
-
-.liveRailHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-.liveRailTitle {
-  font-family: 'Archivo', sans-serif;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -.01em;
-  margin: 0;
-}
-
-.liveRailBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  color: #ff7ec2;
-}
-
-.liveDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #ff2e9e;
-  flex-shrink: 0;
-  animation: lsPulse 1.4s ease-in-out infinite;
-}
-
-.liveItems {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  flex: 1;
-}
-
-.liveRailEmpty {
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  color: #7d7d85; // #6f6f77 on #08080a measured ≈4.0:1 — below AA for 12px
-  padding: 20px 0;
-}
-
-.liveItem {
-  display: flex;
-  gap: 14px;
-  background: #111114;
-  border: 1px solid rgba(255, 255, 255, .07);
-  border-radius: 16px;
-  padding: 12px;
-  cursor: pointer;
-  transition: border-color .18s;
-  text-decoration: none;
-  color: inherit;
-
-  &:hover { border-color: rgba(255, 46, 158, .4); }
-}
-
-.liveThumbWrapper {
-  position: relative;
-  width: 128px;
-  height: 96px;
-  border-radius: 11px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.liveThumb {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.liveThumbOverlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(8, 8, 10, .2);
-}
-
-.liveItemBadge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: #ff2e9e;
-  color: #0a0a0b;
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  padding: 4px 8px;
-  border-radius: 6px;
-}
-
-.liveBadgeDot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #0a0a0b;
-  animation: lsPulse 1.4s ease-in-out infinite;
-}
-
-.liveItemBody {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 2px 0;
-  min-width: 0;
-  flex: 1;
-}
-
-.liveItemTop {}
-
-.liveItemTitle {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.liveItemVenue {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  color: #8f8f97;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.liveItemFooter {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 8px;
-  min-width: 0;
 }
 
-.liveItemViewers {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  color: #ff7ec2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.heroV2Dot {
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, .2);
 }
 
-.liveItemPrice {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  color: #ff2e9e;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.liveRailMore {
-  display: block;
-  margin-top: 14px;
-  width: 100%;
-  background: transparent;
-  border: 1px dashed rgba(255, 255, 255, .16);
-  color: #c7c7cd;
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  letter-spacing: .08em;
-  padding: 13px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: border-color .15s, color .15s;
-  text-decoration: none;
-  text-align: center;
-  box-sizing: border-box;
-
-  &:hover { border-color: rgba(255, 46, 158, .4); color: #ff7ec2; }
+.heroV2DotActive {
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+  background: #ff2e9e;
 }
 
 // ── Genre + Grid section ──────────────────────────────────────────
@@ -934,11 +699,8 @@
 @media (prefers-reduced-motion: reduce) {
   .tickerTrack { animation: none; }
   .tickerDot,
-  .liveDot,
-  .liveBadgeDot,
+  .heroV2BadgeDot,
   .eventLiveDot { animation: none; }
-  .heroPlayBtn { animation: none; }
-  .heroImage,
   .eventImage,
   .eventCard { transition: none; }
 }
