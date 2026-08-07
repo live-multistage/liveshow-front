@@ -161,6 +161,12 @@
   flex-direction: column;
   justify-content: flex-end;
   min-height: 520px;
+  // Background stays full-bleed; content aligns to the same 1280px + 40px
+  // container as the Navbar (80rem) and the .inner grid sections below.
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  box-sizing: border-box;
   padding: 50px 40px;
 
   @media (max-width: 767px) {
