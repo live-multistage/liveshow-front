@@ -58,8 +58,6 @@ function SlideContent({ show }: { show: Show }) {
         <span>{show.city}</span>
         <span className={styles.heroV2MetaDot} aria-hidden="true" />
         <span>{show.cameras.length} câmeras</span>
-        <span className={styles.heroV2MetaDot} aria-hidden="true" />
-        <span>Dolby Atmos</span>
       </div>
 
       <div className={styles.heroV2Actions}>
