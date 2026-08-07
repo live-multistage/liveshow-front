@@ -36,9 +36,9 @@ export function EditorialHome({
     <div className={styles.page}>
       <LiveTicker shows={liveShows} />
 
-      <div className={styles.inner}>
-        {featured && <EditorialHero featured={featured} localeCode={localeCode} />}
+      {featured && <EditorialHero featured={featured} localeCode={localeCode} />}
 
+      <div className={styles.inner}>
         {liveShows.length > 0 && (
           <div className={styles.gridSection}>
             <div className={styles.sectionHeader}>

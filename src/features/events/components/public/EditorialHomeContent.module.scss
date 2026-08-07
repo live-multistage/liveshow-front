@@ -121,15 +121,13 @@
 
 .heroV2 {
   position: relative;
-  border-radius: 20px;
+  border-radius: 0;
   overflow: hidden;
   min-height: 520px;
-  margin: 32px 40px 8px;
-  width: calc(100% - 80px);
+  margin: 0 0 8px;
+  width: 100%;
 
   @media (max-width: 767px) {
-    margin: 20px;
-    width: calc(100% - 40px);
     min-height: 420px;
   }
 }
