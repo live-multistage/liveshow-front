@@ -132,6 +132,30 @@
   }
 }
 
+.heroV2Track {
+  display: flex;
+  width: 100%;
+  will-change: transform;
+}
+
+.heroV2Slide {
+  position: relative;
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .heroV2Image {
   position: absolute;
   inset: 0;
@@ -290,22 +314,52 @@
 }
 
 .heroV2Dots {
+  // Sibling of .heroV2Track (not nested in .heroV2Content anymore, since it's
+  // shared navigation for all slides) — absolutely overlaid at the same
+  // bottom-left spot the single-hero dots used to sit in, aligned to the
+  // same 1280px + 40px container as the content.
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 50px;
   display: flex;
   gap: 8px;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
+  box-sizing: border-box;
+  pointer-events: none;
+
+  > * { pointer-events: auto; }
+
+  @media (max-width: 767px) {
+    bottom: 28px;
+    padding: 0 20px;
+  }
 }
 
 .heroV2Dot {
   width: 22px;
   height: 3px;
+  border: none;
   border-radius: 2px;
   background: rgba(255, 255, 255, .2);
+  padding: 0;
+  cursor: pointer;
+
+  &:hover { background: rgba(255, 255, 255, .35); }
 }
 
 .heroV2DotActive {
   width: 22px;
   height: 3px;
+  border: none;
   border-radius: 2px;
   background: #ff2e9e;
+  padding: 0;
+  cursor: pointer;
 }
 
 // ── Genre + Grid section ──────────────────────────────────────────
