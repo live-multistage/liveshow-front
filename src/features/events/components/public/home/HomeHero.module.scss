@@ -1,46 +1,55 @@
 @use '../../../../../styles/_variables' as *;
 
+@keyframes lsPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+}
+
 .hero {
   position: relative;
-  min-height: 580px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 5rem 2rem 2.5rem;
+  border-radius: 20px;
   overflow: hidden;
-
-  @media (min-width: $md) {
-    padding: 5.5rem 3rem 3rem;
-    min-height: 640px;
-  }
+  min-height: 520px;
+  width: 100%;
+  margin-top: 8px;
 }
 
 .art {
   position: absolute;
   inset: 0;
+  background: radial-gradient(65% 90% at 70% 40%, rgba(255, 90, 160, 0.55), transparent 60%),
+    radial-gradient(50% 70% at 40% 20%, rgba(155, 123, 255, 0.45), transparent 60%),
+    linear-gradient(135deg, #1a0c1a 0%, #120a1a 40%, #08080a 100%);
   background-size: cover;
-  background-position: center top;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.overlay {
+.tint {
   position: absolute;
   inset: 0;
-  background: 
-    linear-gradient(165deg, rgba(10, 5, 14, 0.97) 0%, rgba(8, 8, 10, 0.88) 50%, rgba(8, 8, 10, 0.6));
+  opacity: 0.35;
+  background: radial-gradient(65% 90% at 70% 40%, rgba(255, 90, 160, 0.55), transparent 60%),
+    radial-gradient(50% 70% at 40% 20%, rgba(155, 123, 255, 0.45), transparent 60%);
 }
 
-.watermark {
+.scrim {
   position: absolute;
-  top: 4rem;
-  right: 2rem;
-  font-family: 'Space Mono', monospace;
-  font-size: clamp(80px, 12vw, 160px);
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.04);
-  letter-spacing: -0.04em;
-  line-height: 0.8;
-  pointer-events: none;
-  user-select: none;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    #08080a 0%,
+    rgba(8, 8, 10, 0.75) 30%,
+    rgba(8, 8, 10, 0.15) 55%,
+    transparent 75%
+  );
 }
 
 .content {
@@ -48,82 +57,112 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  max-width: 860px;
+  justify-content: flex-end;
+  min-height: 520px;
+  padding: 28px 20px;
+
+  @media (min-width: $md) {
+    padding: 50px 40px;
+  }
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255, 46, 158, 0.14);
+  gap: 7px;
+  width: fit-content;
+  background: rgba(255, 46, 158, 0.18);
   border: 1px solid rgba(255, 46, 158, 0.5);
   color: #ff8ec9;
   font-family: 'Space Mono', monospace;
   font-size: 11px;
-  letter-spacing: 0.1em;
-  padding: 7px 13px;
-  border-radius: 999px;
-  margin-bottom: 1.25rem;
-  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-bottom: 22px;
 }
 
-.venue {
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  color: #ffa6d4;
-  margin: 0 0 0.75rem;
-  text-transform: uppercase;
+.badgeDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: $action;
+  animation: lsPulse 1.4s infinite;
 }
 
 .title {
   font-family: 'Archivo', sans-serif;
-  font-size: clamp(56px, 7.5vw, 108px);
+  font-size: clamp(44px, 8vw, 80px);
   font-weight: 900;
-  letter-spacing: -0.045em;
-  line-height: 0.91;
+  letter-spacing: -0.035em;
+  line-height: 0.94;
+  max-width: 640px;
   color: #f4f4f5;
-  margin: 0 0 1.5rem;
+  margin: 0 0 22px;
+}
+
+.watching {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 15px;
+  color: #d4d4da;
+  margin: 0 0 14px;
+
+  svg {
+    color: $action;
+    flex-shrink: 0;
+  }
+}
+
+.watchingCount {
+  color: $action;
+  font-weight: 700;
 }
 
 .meta {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1.25rem;
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  color: #cfcfd6;
-  margin-bottom: 1.75rem;
+  gap: 12px;
+  font-size: 14px;
+  color: #a5a5ad;
+  margin: 0 0 32px;
 }
 
 .metaItem {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
+}
+
+.metaDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #5f5f67;
 }
 
 .ctas {
   display: flex;
-  gap: 0.875rem;
   flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 28px;
 }
 
 .btnPrimary {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: #ff2e9e;
+  background: $action;
   color: #0a0a0b;
   font-weight: 700;
   font-size: 15px;
-  border: none;
-  padding: 15px 26px;
+  padding: 14px 26px;
   border-radius: 999px;
-  cursor: pointer;
-  transition: opacity 0.15s;
   text-decoration: none;
+  transition: opacity 0.15s;
 
   &:hover {
     opacity: 0.88;
@@ -131,26 +170,40 @@
 }
 
 .btnSecondary {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 9px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #f4f4f5;
+  background: rgba(20, 18, 24, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
   font-weight: 600;
   font-size: 15px;
-  padding: 15px 26px;
+  padding: 14px 26px;
   border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.15s;
   text-decoration: none;
+  transition: background 0.15s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.13);
+    background: rgba(255, 255, 255, 0.1);
   }
 }
 
-.priceAccent {
-  font-family: 'Space Mono', monospace;
-  color: #ff8ec9;
+.dots {
+  display: flex;
+  gap: 8px;
+}
+
+.dot,
+.dotActive {
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.dotActive {
+  background: $action;
+}
+
+.dot {
+  background: rgba(255, 255, 255, 0.2);
 }
