@@ -51,13 +51,21 @@ describe('HomeHero', () => {
 
     const primary = screen.getByRole('link', { name: /assistir agora/i });
     expect(primary).toHaveAttribute('href', '/live/show-1');
+
+    const secondary = screen.getByRole('link', { name: /detalhes/i });
+    expect(secondary).toHaveAttribute('href', '/events/show-1');
   });
 
-  it('does not render live badge or primary CTA when show is not live', () => {
+  it('renders a single events CTA and no secondary Detalhes link when show is not live', () => {
     const notLive: Show = { ...baseShow, isLive: false };
     render(<HomeHero show={notLive} />);
 
     expect(screen.queryByText('AO VIVO')).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /assistir agora/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /detalhes/i })).not.toBeInTheDocument();
+
+    const links = screen.getAllByRole('link');
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAttribute('href', '/events/show-1');
   });
 });
