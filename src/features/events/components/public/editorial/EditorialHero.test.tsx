@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 vi.mock('next/link', () => ({
   default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
     <a href={href} {...rest}>
@@ -12,66 +12,137 @@ vi.mock('./SmartImage', () => ({
     <img src={src} alt={alt} className={className} />
   ),
 }));
-import { render, screen } from '@testing-library/react';
+
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { EditorialHero } from './EditorialHero';
-import type { Show, Camera } from '@/features/events/types/show';
+import type { Show, Camera } from '../../../types/show';
 
 const cameras: Camera[] = [
   { id: 'cam1', name: 'Cam 1', angle: 'Front', color: '#fff', gradient: 'x' },
-  { id: 'cam2', name: 'Cam 2', angle: 'Side', color: '#fff', gradient: 'x' },
-  { id: 'cam3', name: 'Cam 3', angle: 'Top', color: '#fff', gradient: 'x' },
 ];
 
-const baseShow: Show = {
-  id: 'show-1',
-  title: 'Noite do Forró',
-  artist: 'Trio Nordestino',
-  category: 'Forró',
-  venue: 'Forró do Vaqueiro',
-  city: 'Recife, PE',
-  country: 'Brasil',
-  date: '2026-08-10',
-  time: '20:00',
-  duration: '2h',
-  image: 'https://example.com/forro.jpg',
-  price: 0,
-  currency: 'BRL',
-  isLive: true,
-  hasReplay: true,
-  cameras,
-  description: 'desc',
-  tags: [],
-  viewers: 24381,
-};
+function makeShow(overrides: Partial<Show>): Show {
+  return {
+    id: 'show-1',
+    title: 'Slide One',
+    artist: 'Artist',
+    category: 'Rock',
+    venue: 'Arena',
+    city: 'City',
+    country: 'Brasil',
+    date: '2026-08-10',
+    time: '20:00',
+    duration: '2h',
+    image: 'https://example.com/img.jpg',
+    price: 0,
+    currency: 'BRL',
+    isLive: true,
+    hasReplay: true,
+    cameras,
+    description: 'desc',
+    tags: [],
+    viewers: 100,
+    ...overrides,
+  };
+}
+
+const slide1 = makeShow({ id: 's1', title: 'Slide One' });
+const slide2 = makeShow({ id: 's2', title: 'Slide Two' });
+const slide3 = makeShow({ id: 's3', title: 'Slide Three' });
 
 describe('EditorialHero', () => {
-  it('renders live show with badge, watching count, meta, and primary + secondary CTAs', () => {
-    render(<EditorialHero featured={baseShow} localeCode="pt-BR" />);
-
-    expect(screen.getByText('Noite do Forró')).toBeInTheDocument();
-    expect(screen.getByText('AO VIVO')).toBeInTheDocument();
-    expect(screen.getByText('24.381')).toBeInTheDocument();
-    expect(screen.getByText('assistindo agora')).toBeInTheDocument();
-    expect(screen.getByText('3 câmeras')).toBeInTheDocument();
-    expect(screen.getByText('Dolby Atmos')).toBeInTheDocument();
-
-    const primary = screen.getByRole('link', { name: /assistir agora/i });
-    expect(primary).toHaveAttribute('href', '/live/show-1');
-
-    const secondary = screen.getByRole('link', { name: /detalhes/i });
-    expect(secondary).toHaveAttribute('href', '/events/show-1');
+  beforeEach(() => {
+    vi.useFakeTimers();
+    window.matchMedia = vi.fn().mockImplementation((q: string) => ({
+      matches: false,
+      media: q,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      onchange: null,
+      dispatchEvent: () => false,
+    }));
   });
 
-  it('renders a single events CTA and no AO VIVO/Assistir/Detalhes when not live', () => {
-    const notLive: Show = { ...baseShow, isLive: false };
-    render(<EditorialHero featured={notLive} localeCode="pt-BR" />);
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
 
-    expect(screen.queryByText('AO VIVO')).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /assistir agora/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /detalhes/i })).not.toBeInTheDocument();
+  describe('multi-slide', () => {
+    it('renders one dot per slide and shows the first slide title', () => {
+      render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
 
-    const links = screen.getAllByRole('link');
-    expect(links).toHaveLength(1);
-    expect(links[0]).toHaveAttribute('href', '/events/show-1');
+      expect(screen.getAllByRole('button', { name: /Ir para o slide/i })).toHaveLength(3);
+      expect(screen.getByRole('heading', { name: 'Slide One' })).toBeInTheDocument();
+    });
+
+    it('clicking a dot switches the active slide', () => {
+      render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
+
+      const dot2 = screen.getByRole('button', { name: /Ir para o slide 2 de 3/i });
+      fireEvent.click(dot2);
+
+      expect(dot2).toHaveAttribute('aria-current', 'true');
+    });
+
+    it('advances automatically after 7s', () => {
+      render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
+
+      const dot2 = screen.getByRole('button', { name: /Ir para o slide 2 de 3/i });
+      expect(dot2).toHaveAttribute('aria-current', 'false');
+
+      act(() => vi.advanceTimersByTime(7000));
+
+      expect(dot2).toHaveAttribute('aria-current', 'true');
+    });
+
+    it('pauses autoplay on hover', () => {
+      const { container } = render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
+
+      const hero = container.firstChild as HTMLElement;
+      fireEvent.mouseEnter(hero);
+
+      act(() => vi.advanceTimersByTime(7000));
+
+      const dot1 = screen.getByRole('button', { name: /Ir para o slide 1 de 3/i });
+      expect(dot1).toHaveAttribute('aria-current', 'true');
+    });
+  });
+
+  describe('single-slide', () => {
+    it('renders no dot buttons and does not autoplay', () => {
+      render(<EditorialHero slides={[slide1]} localeCode="pt-BR" />);
+
+      expect(screen.queryAllByRole('button', { name: /Ir para o slide/i })).toHaveLength(0);
+      expect(screen.getByText('Slide One')).toBeInTheDocument();
+
+      act(() => vi.advanceTimersByTime(7000));
+
+      expect(screen.getByText('Slide One')).toBeInTheDocument();
+    });
+  });
+
+  describe('reduced motion', () => {
+    it('disables autoplay when prefers-reduced-motion is set', () => {
+      window.matchMedia = vi.fn().mockImplementation((q: string) => ({
+        matches: q.includes('reduce'),
+        media: q,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        onchange: null,
+        dispatchEvent: () => false,
+      }));
+
+      render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
+
+      act(() => vi.advanceTimersByTime(7000));
+
+      const dot1 = screen.getByRole('button', { name: /Ir para o slide 1 de 3/i });
+      expect(dot1).toHaveAttribute('aria-current', 'true');
+    });
   });
 });

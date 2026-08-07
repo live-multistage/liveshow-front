@@ -30,13 +30,19 @@ export function EditorialHome({
   const onDemandShows = (initialReplayCatalog?.items ?? []).map(eventToShow);
 
   const liveShows = shows.filter((s) => s.isLive);
-  const featured = liveShows[0] ?? shows[0] ?? null;
+  const upcomingShows = shows
+    .filter((s) => !s.isLive)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const seenIds = new Set<string>();
+  const heroSlides = [...liveShows, ...upcomingShows]
+    .filter((s) => (seenIds.has(s.id) ? false : (seenIds.add(s.id), true)))
+    .slice(0, 5);
 
   return (
     <div className={styles.page}>
       <LiveTicker shows={liveShows} />
 
-      {featured && <EditorialHero featured={featured} localeCode={localeCode} />}
+      {heroSlides.length > 0 && <EditorialHero slides={heroSlides} localeCode={localeCode} />}
 
       <div className={styles.inner}>
         {liveShows.length > 0 && (
