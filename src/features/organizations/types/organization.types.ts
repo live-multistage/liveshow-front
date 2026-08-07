@@ -21,6 +21,10 @@ export interface OrganizationResponse {
   updatedAt: string;
   // Present only on /organizations/mine — the caller's role in this org.
   role?: OrganizationRole;
+  // Present only on /organizations/mine — dashboard aggregates.
+  activeEventsCount?: number;
+  memberCount?: number;
+  salesThisMonth?: { currency: string; amount: number }[];
 }
 
 export interface OrganizationSettings {
