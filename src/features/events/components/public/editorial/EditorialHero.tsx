@@ -114,7 +114,7 @@ export function EditorialHero({ slides }: Props) {
     if (count <= 1 || reducedMotion || paused) return undefined;
     const id = setInterval(() => setIndex((i) => (i + 1) % count), AUTOPLAY_MS);
     return () => clearInterval(id);
-  }, [count, reducedMotion, paused]);
+  }, [count, reducedMotion, paused, index]);
 
   if (count === 0) return null;
 

@@ -109,6 +109,25 @@ describe('EditorialHero', () => {
       const dot1 = screen.getByRole('button', { name: /Ir para o slide 1 de 3/i });
       expect(dot1).toHaveAttribute('aria-current', 'true');
     });
+
+    it('resets the autoplay dwell window on manual navigation', () => {
+      render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
+
+      act(() => vi.advanceTimersByTime(4000));
+
+      const dot3 = screen.getByRole('button', { name: /Ir para o slide 3 de 3/i });
+      fireEvent.click(dot3);
+      expect(dot3).toHaveAttribute('aria-current', 'true');
+
+      // Original timer would have ticked at 7000ms (3000ms from here); if the
+      // interval wasn't reset on manual nav, it would auto-advance now.
+      act(() => vi.advanceTimersByTime(4000));
+      expect(dot3).toHaveAttribute('aria-current', 'true');
+
+      // Full dwell window since the manual nav has now elapsed.
+      act(() => vi.advanceTimersByTime(3000));
+      expect(dot3).toHaveAttribute('aria-current', 'false');
+    });
   });
 
   describe('single-slide', () => {
