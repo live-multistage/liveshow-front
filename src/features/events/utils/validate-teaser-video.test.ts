@@ -38,4 +38,29 @@ describe('validateTeaserVideo', () => {
     const file = new File(['x'], 'teaser.mp4', { type: 'video/mp4' });
     expect(await validateTeaserVideo(file)).toBeNull();
   });
+
+  it('rejects a NaN duration instead of silently passing (NaN > 30 is false)', async () => {
+    stubVideoDuration(NaN);
+    const file = new File(['x'], 'teaser.mp4', { type: 'video/mp4' });
+    expect(await validateTeaserVideo(file)).toBe('O vídeo precisa ter no máximo 30 segundos.');
+  });
+
+  it('rejects the file if the duration probe never settles (loadedmetadata/error never fire)', async () => {
+    vi.useFakeTimers();
+    const originalCreateElement = document.createElement.bind(document);
+    vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+      if (tag !== 'video') return originalCreateElement(tag);
+      // Never invoke onloadedmetadata or onerror — simulates the browser
+      // never firing either event for a corrupt/unsupported file.
+      return originalCreateElement('video') as HTMLVideoElement;
+    });
+
+    const file = new File(['x'], 'teaser.mp4', { type: 'video/mp4' });
+    const result = validateTeaserVideo(file);
+
+    await vi.advanceTimersByTimeAsync(10_000);
+
+    expect(await result).toBe('Não foi possível ler o vídeo selecionado.');
+    vi.useRealTimers();
+  });
 });

@@ -40,20 +40,23 @@ function HeroSlideMedia({
 }: {
   show: Show;
   active: boolean;
-  reducedMotion: boolean;
+  // null = not yet resolved (SSR / pre-effect). Only an explicit `false`
+  // clears the video to mount — null and true both suppress it, so a
+  // reduced-motion user never gets a video in the SSR/first-render markup.
+  reducedMotion: boolean | null;
   onPhaseChange?: (id: string, phase: VideoPhase) => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [phase, setPhase] = useState<VideoPhase>('poster');
   const teaserUrl = show.teaserVideoUrl;
-  const showVideo = !reducedMotion && !!teaserUrl && phase !== 'fallback';
+  const showVideo = reducedMotion === false && !!teaserUrl && phase !== 'fallback';
 
   // Report this slide's phase to the parent, which drives the auto-advance
   // dwell. No teaser (or motion-safe suppression) always reads as 'poster' —
   // the default dwell — regardless of `phase`'s (unused) internal value.
   // 'fallback' must still be reported even though the <video> itself is
   // hidden once errored (that's a rendering concern, not a timing one).
-  const reportedPhase: VideoPhase = !reducedMotion && teaserUrl ? phase : 'poster';
+  const reportedPhase: VideoPhase = reducedMotion === false && teaserUrl ? phase : 'poster';
   useEffect(() => {
     onPhaseChange?.(show.id, reportedPhase);
   }, [show.id, reportedPhase, onPhaseChange]);
@@ -62,7 +65,7 @@ function HeroSlideMedia({
   // Restart from the poster every time this slide becomes active again.
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !teaserUrl || reducedMotion) return undefined;
+    if (!video || !teaserUrl || reducedMotion !== false) return undefined;
 
     if (active) {
       setPhase((p) => (p === 'fallback' ? p : 'poster'));
@@ -85,8 +88,8 @@ function HeroSlideMedia({
 
   const handleReady = () => setPhase((p) => (p === 'fallback' ? p : 'playing'));
   const handleError = () => {
-    // Silent fallback per product spec — no retry, no user-facing error UI.
-    console.error(`[EditorialHero] teaser video failed to load for slide "${show.id}"`);
+    // Silent fallback per product spec — no retry, no user-facing error UI,
+    // and no console noise (would read as a spec violation in prod logs).
     setPhase('fallback');
   };
 
@@ -101,7 +104,7 @@ function HeroSlideMedia({
           loop
           playsInline
           autoPlay={active}
-          preload="metadata"
+          preload={active ? 'metadata' : 'none'}
           className={phase === 'playing' ? `${styles.heroV2Video} ${styles.heroV2VideoVisible}` : styles.heroV2Video}
           onLoadedData={handleReady}
           onCanPlay={handleReady}
@@ -179,7 +182,9 @@ export function EditorialHero({ slides }: Props) {
   const count = slides.length;
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  // null = not yet resolved. Server-rendered markup (and the first client
+  // render, before this effect runs) must not assume motion is safe.
+  const [reducedMotion, setReducedMotion] = useState<boolean | null>(null);
   const [videoPhaseById, setVideoPhaseById] = useState<Record<string, VideoPhase>>({});
   const draggedRef = useRef(false);
   const dragStartXRef = useRef(0);
@@ -205,7 +210,7 @@ export function EditorialHero({ slides }: Props) {
   // slides, longer while a teaser is actively playing, a shorter middle
   // ground if the teaser failed and fell back to its poster.
   const activeSlide = slides[index];
-  const hasActiveTeaser = !reducedMotion && !!activeSlide?.teaserVideoUrl;
+  const hasActiveTeaser = reducedMotion === false && !!activeSlide?.teaserVideoUrl;
   const activePhase = activeSlide ? (videoPhaseById[activeSlide.id] ?? 'poster') : 'poster';
   const intervalMs = !hasActiveTeaser
     ? AUTOPLAY_MS

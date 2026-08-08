@@ -2,8 +2,9 @@
 
 import { useRef, useState } from 'react';
 import Image from 'next/image';
-import { useUploadAssetMutation, useUploadGalleryPhotoMutation } from '../../mutations/upload-event-asset.mutation';
-import { validateTeaserVideo } from '../../utils/validate-teaser-video';
+import { useUploadGalleryPhotoMutation } from '../../mutations/upload-event-asset.mutation';
+import { useEventAssetUpload } from '../../hooks/use-event-asset-upload';
+import type { AssetSlot } from '../../hooks/use-event-asset-upload';
 import type { EventPhotoResponse, EventResponse } from '../../types/event.types';
 import styles from './EventPhotoUploader.module.scss';
 
@@ -12,12 +13,8 @@ interface Props {
   onDone: () => void;
 }
 
-type AssetSlot = { url: string | null; uploading: boolean; error: string | null };
-
 export function EventPhotoUploader({ event, onDone }: Props) {
-  const [banner, setBanner] = useState<AssetSlot>({ url: event.bannerUrl, uploading: false, error: null });
-  const [thumbnail, setThumbnail] = useState<AssetSlot>({ url: event.thumbnailUrl, uploading: false, error: null });
-  const [teaser, setTeaser] = useState<AssetSlot>({ url: event.teaserVideoUrl, uploading: false, error: null });
+  const { banner, thumbnail, teaser, handleAsset } = useEventAssetUpload(event);
   const [gallery, setGallery] = useState<EventPhotoResponse[]>([]);
 
   const bannerRef = useRef<HTMLInputElement>(null);
@@ -25,32 +22,7 @@ export function EventPhotoUploader({ event, onDone }: Props) {
   const teaserRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
 
-  const uploadAsset = useUploadAssetMutation(event.id);
   const uploadPhoto = useUploadGalleryPhotoMutation(event.id);
-
-  const handleAsset = async (assetType: 'banner' | 'thumbnail' | 'teaserVideo', file: File) => {
-    const setter = assetType === 'banner' ? setBanner : assetType === 'thumbnail' ? setThumbnail : setTeaser;
-
-    if (assetType === 'teaserVideo') {
-      const validationError = await validateTeaserVideo(file);
-      if (validationError) {
-        setter((s) => ({ ...s, error: validationError }));
-        return;
-      }
-    }
-
-    setter((s) => ({ ...s, uploading: true, error: null }));
-    try {
-      const updated = await uploadAsset.mutateAsync({ assetType, file });
-      setter({
-        url: assetType === 'banner' ? updated.bannerUrl : assetType === 'thumbnail' ? updated.thumbnailUrl : updated.teaserVideoUrl,
-        uploading: false,
-        error: null,
-      });
-    } catch (err: any) {
-      setter((s) => ({ ...s, uploading: false, error: err?.message ?? 'Erro no upload' }));
-    }
-  };
 
   const handleGallery = async (files: FileList) => {
     for (const file of Array.from(files)) {

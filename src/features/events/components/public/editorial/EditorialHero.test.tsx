@@ -14,6 +14,7 @@ vi.mock('./SmartImage', () => ({
 }));
 
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 import { EditorialHero } from './EditorialHero';
 import type { Show, Camera } from '../../../types/show';
 
@@ -239,7 +240,8 @@ describe('EditorialHero', () => {
 
       expect(container.querySelector('video')).toBeNull();
       expect(screen.getByAltText('Teaser Slide')).toBeInTheDocument();
-      expect(errorSpy).toHaveBeenCalled();
+      // Silent fallback per spec — no console noise on a routine load failure.
+      expect(errorSpy).not.toHaveBeenCalled();
 
       errorSpy.mockRestore();
     });
@@ -302,6 +304,32 @@ describe('EditorialHero', () => {
 
       expect(container.querySelector('video')).toBeNull();
       expect(screen.getByAltText('Teaser Slide')).toBeInTheDocument();
+    });
+
+    // Regression: the reduced-motion check used to resolve inside a
+    // useEffect, so a server-rendered/first-pass render (before any effect
+    // has run, before window.matchMedia is ever consulted) shipped a
+    // <video autoPlay> for everyone, reduced-motion users included.
+    // renderToString never runs effects, so it reproduces exactly that pass.
+    it('never includes a <video> element in the pre-effect (SSR-equivalent) markup', () => {
+      const html = renderToString(<EditorialHero slides={[teaserSlide, slide2, slide3]} localeCode="pt-BR" />);
+
+      expect(html).not.toContain('<video');
+    });
+
+    it('only preloads the active slide; inactive slides use preload="none"', () => {
+      const { container } = render(<EditorialHero slides={[teaserSlide, slide2, slide3]} localeCode="pt-BR" />);
+
+      const activeVideo = container.querySelector('video') as HTMLVideoElement;
+      expect(activeVideo).toHaveAttribute('preload', 'metadata');
+
+      const dot2 = screen.getByRole('button', { name: /Ir para o slide 2 de 3/i });
+      fireEvent.click(dot2);
+
+      // Slide 1 (now inactive) still renders its <video> (teaser stays
+      // mounted), but must stop announcing itself as eager to fetch.
+      const inactiveVideo = container.querySelector('video') as HTMLVideoElement;
+      expect(inactiveVideo).toHaveAttribute('preload', 'none');
     });
   });
 });

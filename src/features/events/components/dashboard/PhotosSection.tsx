@@ -1,15 +1,14 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import Image from 'next/image';
 import { ImagePlus } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useUploadAssetMutation, useUploadGalleryPhotoMutation } from '../../mutations/upload-event-asset.mutation';
+import { useUploadGalleryPhotoMutation } from '../../mutations/upload-event-asset.mutation';
 import { useListEventPhotosQuery, eventKeys } from '../../queries/get-event';
-import { validateTeaserVideo } from '../../utils/validate-teaser-video';
+import { useEventAssetUpload } from '../../hooks/use-event-asset-upload';
 import type { EventPhotoResponse, EventResponse } from '../../types/event.types';
 import { AssetSlotUpload } from './AssetSlotUpload';
-import type { AssetSlot } from './AssetSlotUpload';
 import styles from './EventDashboardDetailContent.module.scss';
 
 interface Props {
@@ -19,43 +18,17 @@ interface Props {
 export function PhotosSection({ event }: Props) {
   const queryClient = useQueryClient();
 
-  const [banner, setBanner] = useState<AssetSlot>({ url: event.bannerUrl, uploading: false, error: null });
-  const [thumbnail, setThumbnail] = useState<AssetSlot>({ url: event.thumbnailUrl, uploading: false, error: null });
-  const [teaser, setTeaser] = useState<AssetSlot>({ url: event.teaserVideoUrl, uploading: false, error: null });
+  const { banner, thumbnail, teaser, handleAsset } = useEventAssetUpload(event, (updated) =>
+    queryClient.setQueryData(eventKeys.detail(event.id), updated),
+  );
 
   const bannerRef = useRef<HTMLInputElement>(null);
   const thumbnailRef = useRef<HTMLInputElement>(null);
   const teaserRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
 
-  const uploadAsset = useUploadAssetMutation(event.id);
   const uploadPhoto = useUploadGalleryPhotoMutation(event.id);
   const { data: photos = [] } = useListEventPhotosQuery(event.id);
-
-  async function handleAsset(assetType: 'banner' | 'thumbnail' | 'teaserVideo', file: File) {
-    const setter = assetType === 'banner' ? setBanner : assetType === 'thumbnail' ? setThumbnail : setTeaser;
-
-    if (assetType === 'teaserVideo') {
-      const validationError = await validateTeaserVideo(file);
-      if (validationError) {
-        setter((s) => ({ ...s, error: validationError }));
-        return;
-      }
-    }
-
-    setter((s) => ({ ...s, uploading: true, error: null }));
-    try {
-      const updated = await uploadAsset.mutateAsync({ assetType, file });
-      setter({
-        url: assetType === 'banner' ? updated.bannerUrl : assetType === 'thumbnail' ? updated.thumbnailUrl : updated.teaserVideoUrl,
-        uploading: false,
-        error: null,
-      });
-      queryClient.setQueryData(eventKeys.detail(event.id), updated);
-    } catch (err: unknown) {
-      setter((s) => ({ ...s, uploading: false, error: err instanceof Error ? err.message : 'Erro no upload' }));
-    }
-  }
 
   async function handleGallery(files: FileList) {
     for (const file of Array.from(files)) {
