@@ -7,6 +7,7 @@ import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
 import type { QualityLevel } from './VideoPanel';
 import type { ClockSample } from '../hooks/use-clock-sync';
+import type { LiveWindow } from '../hooks/use-transport-controls';
 import { computeJustifiedRows, pickColumnCount } from './justified-grid';
 import styles from './CameraGrid.module.scss';
 
@@ -69,8 +70,10 @@ interface CameraGridProps {
   librasCameraId?: string | null;
   mode?: 'live' | 'replay';
   paused?: boolean;
+  // Live only: the viewer is scrubbed back in the DVR window (see LivePlayer).
+  dvrActive?: boolean;
   seekCommand?: { time: number; token: number } | null;
-  onProgress?: (currentTime: number, duration: number) => void;
+  onProgress?: (currentTime: number, duration: number, live?: LiveWindow) => void;
   onEnded?: () => void;
   pickerOpen?: boolean;
   onToggleCamera?: (cameraId: string) => void;
@@ -104,6 +107,7 @@ export function CameraGrid({
   librasCameraId = null,
   mode = 'live',
   paused,
+  dvrActive = false,
   seekCommand,
   onProgress,
   onEnded,
@@ -443,7 +447,15 @@ export function CameraGrid({
               onAspectRatioReady={handleAspectRatioReady}
               mode={mode}
               paused={paused}
-              seekCommand={seekCommand}
+              dvrActive={dvrActive}
+              // Replay: every active panel seeks together (each camera is its
+              // own VOD timeline starting at 0, so the same offset is right).
+              // Live: only the PRIMARY seeks — the cameras' media timelines are
+              // unrelated, and the followers already converge on the primary's
+              // PROGRAM-DATE-TIME through use-clock-sync, which handles a DVR
+              // jump as an ordinary (large) drift correction. Seeking them
+              // directly here would be a second, conflicting sync mechanism.
+              seekCommand={mode === 'live' && !isPrimary ? null : seekCommand}
               isTimeSource={isPrimary}
               onProgress={isPrimary ? onProgress : undefined}
               onEnded={isPrimary ? onEnded : undefined}

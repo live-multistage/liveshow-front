@@ -53,6 +53,16 @@ export function replacePtParam(url: string, token: string | null): string {
   return `${url.slice(0, q)}?${params.toString()}`;
 }
 
+// How far behind the live edge hls.js tolerates before it force-seeks the
+// element back to liveSyncPosition on the next playlist refresh (see
+// stream-controller's synchronizeToLiveEdge). Expressed in target durations.
+// While the viewer is scrubbed back in the DVR window this MUST be lifted, or
+// hls.js yanks them forward again within ~16s of playback.
+export function maxLatencyDurationCount(hasLl: boolean, dvrActive: boolean): number {
+  if (dvrActive) return Infinity;
+  return hasLl ? 5 : 8;
+}
+
 // Index of the smallest-height rendition in a parsed hls instance (-1 if none).
 function lowestLevelIndex(hls: Hls): number {
   const levels = hls.levels;
@@ -83,6 +93,10 @@ export interface UseHlsPlayerOptions {
   camera: LiveCamera;
   mode: 'live' | 'replay';
   isFocused: boolean;
+  // Live only: the viewer has scrubbed back into the DVR window. Relaxes
+  // hls.js's forced catch-up to the live edge and suspends the focus snap, so
+  // a rewound position actually holds (and survives a camera switch).
+  dvrActive?: boolean;
   // Replay's shared paused state — read at MANIFEST_PARSED time to decide
   // whether a freshly-parsed panel may autoplay.
   paused?: boolean;
@@ -122,6 +136,7 @@ export function useHlsPlayer({
   camera,
   mode,
   isFocused,
+  dvrActive = false,
   paused,
   selectedLevel,
   lowQuality,
@@ -272,7 +287,9 @@ export function useHlsPlayer({
     const hls = new Hls({
       lowLatencyMode: hasLl,
       liveSyncDurationCount: hasLl ? 2 : 3,
-      liveMaxLatencyDurationCount: hasLl ? 5 : 8,
+      // Built at the non-DVR value; the effect below re-applies the relaxed one
+      // in the same commit when the viewer is currently scrubbed back.
+      liveMaxLatencyDurationCount: maxLatencyDurationCount(hasLl, false),
       backBufferLength: 10,
       maxLiveSyncPlaybackRate: 1.5,
       // Replay routes (manifest + segments) are JWT-gated, unlike live's
@@ -365,12 +382,25 @@ export function useHlsPlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [srcBase, hasLl]);
 
+  // DVR: while the viewer sits behind the live edge, hls.js must stop dragging
+  // them back to it. Applied to EVERY live panel, not just the primary — the
+  // followers chase the primary's wall clock (use-clock-sync) and would
+  // otherwise fight their own forced catch-up on each playlist refresh.
+  useEffect(() => {
+    const hls = hlsRef.current;
+    if (!hls || mode !== 'live') return;
+    hls.config.liveMaxLatencyDurationCount = maxLatencyDurationCount(hasLl, dvrActive);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dvrActive, hasLl, mode, srcBase]);
+
   // When this panel becomes the focused/main view (live), snap it to the live
   // edge. Background panels stay alive but can drift a second or two behind
   // live, so promoting one would otherwise reveal it slightly out of sync with
   // real time / the other tiles. Only nudges FORWARD, and only on a real gap.
+  // Suspended during DVR playback: there, being behind live is the viewer's
+  // explicit choice, and a camera switch must not silently cancel it.
   useEffect(() => {
-    if (mode !== 'live' || !isFocused) return;
+    if (mode !== 'live' || !isFocused || dvrActive) return;
     const hls = hlsRef.current;
     const video = videoRef.current;
     if (!hls || !video) return;
@@ -379,7 +409,7 @@ export function useHlsPlayer({
       video.currentTime = live;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFocused, mode]);
+  }, [isFocused, mode, dvrActive]);
 
   useEffect(() => {
     if (hlsRef.current) applyLevel(hlsRef.current);

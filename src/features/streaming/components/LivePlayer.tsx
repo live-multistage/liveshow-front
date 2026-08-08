@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState, useEffect } from 'react';
+import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import { Volume2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -10,6 +10,9 @@ import { CameraGrid } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
 import { Header } from './Header';
 import { TransportBar } from './TransportBar';
+import type { DvrState } from './TransportBar';
+import { isAtLiveEdge } from '../hooks/use-transport-controls';
+import type { LiveWindow } from '../hooks/use-transport-controls';
 import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
@@ -82,6 +85,37 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   const [levels, setLevels] = useState<QualityLevel[]>([]);
   const [currentLevel, setCurrentLevel] = useState(-1);
 
+  // DVR: where the primary panel sits inside the manifest's seekable window,
+  // reported by that panel's own playback events. Null until the first report.
+  const [dvr, setDvr] = useState<DvrState | null>(null);
+  const [seekCommand, setSeekCommand] = useState<{ time: number; token: number } | null>(null);
+
+  // Stable identity: this lands on the primary VideoPanel's timeupdate
+  // listener, which would otherwise be torn down and re-added on every tick.
+  const handleProgress = useCallback((position: number, end: number, live?: LiveWindow) => {
+    if (!live) return;
+    setDvr({ position, end, start: live.start, edge: live.edge });
+  }, []);
+
+  const handleSeek = useCallback((time: number) => {
+    // Optimistic, so the scrubber tracks the drag instead of snapping back
+    // between timeupdates (same pattern as ReplayPlayer).
+    setDvr((d) => (d ? { ...d, position: time } : d));
+    setSeekCommand({ time, token: Date.now() });
+  }, []);
+
+  const atLive = !dvr || isAtLiveEdge(dvr.position, dvr.edge);
+
+  // Live seek commands are addressed to the primary panel only (see
+  // CameraGrid). Retiring the command as the role moves stops the promoted
+  // panel from applying an offset taken from a different camera's timeline —
+  // it is already at the same wall-clock instant anyway, because it was
+  // following the previous primary's PROGRAM-DATE-TIME (use-clock-sync).
+  const handleMainCameraChange = useCallback((cameraId: string) => {
+    setMainCameraId(cameraId);
+    setSeekCommand(null);
+  }, []);
+
   const activeStage = stages.find((s) => s.stageId === activeStageId) ?? stages[0];
 
   // NBR 15290: the Libras window is only relevant when it belongs to the stage
@@ -103,6 +137,12 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
         ? [librasInStage]
         : [];
     setActiveCameraIds(initial);
+    // A seek/DVR position belongs to the stage it was taken in: the new stage's
+    // cameras are different manifests with unrelated media timelines, and
+    // CameraGrid remounts on the stage key, so a surviving command would be
+    // replayed onto a fresh panel as a meaningless offset.
+    setSeekCommand(null);
+    setDvr(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stageCameraKey]);
 
@@ -224,12 +264,15 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
               viewMode={effectiveViewMode}
               onViewModeChange={setViewMode}
               mainCameraId={effectiveMainCameraId}
-              onMainCameraChange={setMainCameraId}
+              onMainCameraChange={handleMainCameraChange}
               activeCameraIds={activeCameraIds}
               librasCameraId={librasInStage}
               pickerOpen={cameraStripOpen}
               onToggleCamera={handleToggleCamera}
               onClosePicker={() => setCameraStripOpen(false)}
+              dvrActive={!atLive}
+              seekCommand={seekCommand}
+              onProgress={handleProgress}
             />
           )}
 
@@ -260,6 +303,9 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
 
       <div className={styles.bottomStack}>
         <TransportBar
+          dvr={dvr}
+          atLive={atLive}
+          onSeek={handleSeek}
           globalMuted={globalMuted}
           onToggleMute={() => setGlobalMuted((m) => !m)}
           volume={volume}

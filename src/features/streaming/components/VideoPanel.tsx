@@ -8,7 +8,8 @@ import { track } from '@/lib/analytics/analytics-client';
 import type { LiveCamera } from '../types/live.types';
 import { useHlsPlayer } from '../hooks/use-hls-player';
 import type { QualityLevel } from '../hooks/use-hls-player';
-import { useReplayControls } from '../hooks/use-replay-controls';
+import { useTransportControls } from '../hooks/use-transport-controls';
+import type { LiveWindow } from '../hooks/use-transport-controls';
 import { useClockSync } from '../hooks/use-clock-sync';
 import type { ClockRole, ClockSample } from '../hooks/use-clock-sync';
 import type { MutableRefObject } from 'react';
@@ -79,15 +80,20 @@ interface VideoPanelProps {
   // <video> gets the same paused state so switching the main camera mid-
   // playback doesn't leave a background tile still running.
   paused?: boolean;
-  // Replay only. A new object (even with the same `time`) re-applies the
-  // seek — the token is what triggers the effect, not the time value alone,
-  // so re-seeking to a position already reached still works.
+  // Live only. The viewer is scrubbed back in the DVR window — see
+  // use-hls-player, which relaxes hls.js's forced catch-up and suspends the
+  // focus live-edge snap while this holds.
+  dvrActive?: boolean;
+  // A new object (even with the same `time`) re-applies the seek — the token
+  // is what triggers the effect, not the time value alone, so re-seeking to a
+  // position already reached still works. Replay seeks every active panel;
+  // live seeks the primary only and lets use-clock-sync pull the rest along.
   seekCommand?: { time: number; token: number } | null;
-  // Replay only. True for exactly one active camera's panel (the current
-  // main/focused one) — only that panel's native playback events drive
-  // ReplayTransportBar's clock and end-of-video handling.
+  // True for exactly one active camera's panel (the current main/focused one)
+  // — only that panel's native playback events drive the transport bar's
+  // clock and end-of-video handling.
   isTimeSource?: boolean;
-  onProgress?: (currentTime: number, duration: number) => void;
+  onProgress?: (currentTime: number, duration: number, live?: LiveWindow) => void;
   onEnded?: () => void;
 }
 
@@ -112,6 +118,7 @@ export function VideoPanel({
   volume = 1,
   mode = 'live',
   paused,
+  dvrActive = false,
   seekCommand,
   isTimeSource = false,
   onProgress,
@@ -128,6 +135,7 @@ export function VideoPanel({
     camera,
     mode,
     isFocused,
+    dvrActive,
     paused,
     selectedLevel,
     lowQuality,
@@ -178,8 +186,10 @@ export function VideoPanel({
     if (videoRef.current) videoRef.current.volume = volume;
   }, [volume]);
 
-  // Replay transport wiring (paused/seek/progress/ended) — see the hook.
-  useReplayControls({ videoRef, mode, paused, seekCommand, isTimeSource, onProgress, onEnded });
+  // Transport wiring (paused/seek/progress/ended) for replay AND the live DVR
+  // scrubber — see the hook. hlsRef is what makes the live edge (rather than
+  // the seekable end) reportable.
+  useTransportControls({ videoRef, hlsRef, mode, paused, seekCommand, isTimeSource, onProgress, onEnded });
 
   // Wall-clock sync against the primary panel's PROGRAM-DATE-TIME.
   useClockSync({ videoRef, hlsRef, mode, role: clockRole, clockRef });

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Play, Pause, Volume2, VolumeX, Settings, PictureInPicture, Maximize, Minimize } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import type { QualityLevel } from './VideoPanel';
+import { SeekSlider } from './SeekSlider';
 import transportStyles from './TransportBar.module.scss';
 import styles from './ReplayTransportBar.module.scss';
 
@@ -64,7 +65,6 @@ export function ReplayTransportBar({
 }: Props) {
   const [showAudioMenu, setShowAudioMenu] = useState(false);
   const [showQuality, setShowQuality] = useState(false);
-  const seekPercent = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
 
   return (
     <div className={transportStyles.bar}>
@@ -80,22 +80,11 @@ export function ReplayTransportBar({
 
       <div className={styles.seekGroup}>
         <span className={styles.timeLabel}>{formatTime(currentTime)}</span>
-        <input
-          type="range"
-          min={0}
+        <SeekSlider
           max={duration || 0}
-          step={0.1}
-          value={Math.min(currentTime, duration || 0)}
-          onChange={(e) => onSeek(Number(e.target.value))}
-          className={styles.seekSlider}
-          // WebKit has no ::-moz-range-progress equivalent — the played vs.
-          // remaining split is painted here as a hard-stop gradient instead
-          // (see ReplayTransportBar.module.scss for why the track pseudo-
-          // elements are left transparent to let this show through).
-          style={{
-            background: `linear-gradient(to right, #ff2e9e ${seekPercent}%, rgba(255, 255, 255, 0.15) ${seekPercent}%)`,
-          }}
-          aria-label="Posição de reprodução"
+          value={currentTime}
+          onSeek={onSeek}
+          ariaLabel="Posição de reprodução"
         />
         <span className={styles.timeLabel}>{formatTime(duration)}</span>
       </div>

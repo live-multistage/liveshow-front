@@ -12,6 +12,7 @@ import {
   extractPt,
   stripPt,
   replacePtParam,
+  maxLatencyDurationCount,
   useHlsPlayer,
 } from './use-hls-player';
 import type { LiveCamera } from '../types/live.types';
@@ -77,16 +78,52 @@ const cam = (over: Partial<LiveCamera> = {}): LiveCamera => ({
   ...over,
 });
 
-function renderPlayer(camera: LiveCamera) {
+function renderPlayer(camera: LiveCamera, dvrActive = false) {
   const videoRef = {
     current: document.createElement('video'),
   } as RefObject<HTMLVideoElement | null>;
   return renderHook(
-    ({ camera }: { camera: LiveCamera }) =>
-      useHlsPlayer({ videoRef, camera, mode: 'live', isFocused: false, lowQuality: false }),
-    { initialProps: { camera } },
+    ({ camera, dvrActive }: { camera: LiveCamera; dvrActive?: boolean }) =>
+      useHlsPlayer({
+        videoRef,
+        camera,
+        mode: 'live',
+        isFocused: false,
+        dvrActive,
+        lowQuality: false,
+      }),
+    { initialProps: { camera, dvrActive } },
   );
 }
+
+// ── DVR: hls.js's forced catch-up to the live edge ───────────────────────────
+describe('useHlsPlayer — DVR latency relaxation', () => {
+  beforeEach(() => {
+    h.instances.length = 0;
+  });
+
+  it('keeps the tuned catch-up window while playing at the live edge', () => {
+    expect(maxLatencyDurationCount(false, false)).toBe(8);
+    expect(maxLatencyDurationCount(true, false)).toBe(5);
+    renderPlayer(cam());
+    expect(h.instances[0].config.liveMaxLatencyDurationCount).toBe(8);
+  });
+
+  it('lifts it once the viewer scrubs back, so hls.js stops yanking them forward', () => {
+    expect(maxLatencyDurationCount(false, true)).toBe(Infinity);
+    const { rerender } = renderPlayer(cam());
+    rerender({ camera: cam(), dvrActive: true });
+    expect(h.instances).toHaveLength(1); // relaxed in place, no rebuild
+    expect(h.instances[0].config.liveMaxLatencyDurationCount).toBe(Infinity);
+  });
+
+  it('restores it on return to live', () => {
+    const { rerender } = renderPlayer(cam(), true);
+    expect(h.instances[0].config.liveMaxLatencyDurationCount).toBe(Infinity);
+    rerender({ camera: cam(), dvrActive: false });
+    expect(h.instances[0].config.liveMaxLatencyDurationCount).toBe(8);
+  });
+});
 
 describe('useHlsPlayer — signed-URL token refresh (live standard)', () => {
   beforeEach(() => {

@@ -4,9 +4,36 @@ import { useState } from 'react';
 import { Volume2, VolumeX, Settings, PictureInPicture, Maximize, Minimize } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import type { QualityLevel } from './VideoPanel';
+import { SeekSlider } from './SeekSlider';
 import styles from './TransportBar.module.scss';
 
+// Below this the seekable window is just the player's own buffer, not real
+// DVR history — a scrubber over it would be a control with nowhere to go.
+const MIN_DVR_WINDOW_SEC = 30;
+
+// How far behind the live edge the viewer currently is, e.g. "-1:23".
+function formatBehind(seconds: number): string {
+  const total = Math.max(0, Math.round(seconds));
+  return `-${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+}
+
+export interface DvrState {
+  // Bounds of the seekable window and the primary panel's position in it.
+  start: number;
+  end: number;
+  position: number;
+  // What "live" means right now (hls.js's liveSyncPosition), a few segments
+  // behind `end`.
+  edge: number;
+}
+
 interface Props {
+  // Live DVR readout from the primary camera panel. Null until the first
+  // progress report arrives.
+  dvr?: DvrState | null;
+  // False once the viewer has scrubbed back out of the live edge tolerance.
+  atLive?: boolean;
+  onSeek?: (time: number) => void;
   globalMuted: boolean;
   onToggleMute: () => void;
   volume: number;
@@ -24,6 +51,9 @@ interface Props {
 }
 
 export function TransportBar({
+  dvr = null,
+  atLive = true,
+  onSeek,
   globalMuted,
   onToggleMute,
   volume,
@@ -41,13 +71,42 @@ export function TransportBar({
 }: Props) {
   const [showAudioMenu, setShowAudioMenu] = useState(false);
   const [showQuality, setShowQuality] = useState(false);
+  const showScrubber = !!dvr && !!onSeek && dvr.end - dvr.start >= MIN_DVR_WINDOW_SEC;
 
   return (
     <div className={styles.bar}>
-      <div className={styles.liveBadge}>
-        <span className={styles.liveDot} />
-        AO VIVO
-      </div>
+      {atLive ? (
+        <span className={styles.liveBadge}>
+          <span className={styles.liveDot} />
+          AO VIVO
+        </span>
+      ) : (
+        // Scrubbed back: the badge stops claiming "live" and becomes the way
+        // back to it.
+        <button
+          type="button"
+          className={styles.liveBadgeBehind}
+          onClick={() => dvr && onSeek?.(dvr.edge)}
+          title="Voltar ao ao vivo"
+          aria-label="Voltar ao ao vivo"
+        >
+          <span className={styles.liveDotBehind} />
+          AO VIVO
+        </button>
+      )}
+
+      {dvr && onSeek && showScrubber && (
+        <div className={styles.seekGroup}>
+          <span className={styles.timeLabel}>{formatBehind(dvr.edge - dvr.position)}</span>
+          <SeekSlider
+            min={dvr.start}
+            max={dvr.end}
+            value={dvr.position}
+            onSeek={onSeek}
+            ariaLabel="Posição de reprodução"
+          />
+        </div>
+      )}
 
       <div className={styles.volumeGroup}>
         <button
@@ -75,7 +134,8 @@ export function TransportBar({
         />
       </div>
 
-      <div className={styles.spacer} />
+      {/* The scrubber already stretches; a second flexible gap would halve it. */}
+      {!showScrubber && <div className={styles.spacer} />}
 
       {audioCameras.length > 1 && (
         <div className={styles.menuWrapper}>
