@@ -57,6 +57,7 @@ export function eventToShow(event: EventResponse): Show {
     time: startsAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
     duration: durationLabel,
     image: event.thumbnailUrl ?? event.bannerUrl ?? FALLBACK_IMAGE,
+    teaserVideoUrl: event.teaserVideoUrl,
     price,
     priceRange,
     currency: 'BRL',

@@ -23,7 +23,95 @@ interface Props {
 }
 
 const AUTOPLAY_MS = 7000;
+const TEASER_PLAYING_MS = 35000;
+const TEASER_FALLBACK_MS = 15000;
 const SWIPE_THRESHOLD = 50;
+
+type VideoPhase = 'poster' | 'playing' | 'fallback';
+
+// Poster image with an optional teaser video layered on top. Renders on both
+// the single-slide hero and each slide of the multi-slide track, so the
+// play/pause-keyed-to-`active` and poster/video swap logic lives in one place.
+function HeroSlideMedia({
+  show,
+  active,
+  reducedMotion,
+  onPhaseChange,
+}: {
+  show: Show;
+  active: boolean;
+  reducedMotion: boolean;
+  onPhaseChange?: (id: string, phase: VideoPhase) => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [phase, setPhase] = useState<VideoPhase>('poster');
+  const teaserUrl = show.teaserVideoUrl;
+  const showVideo = !reducedMotion && !!teaserUrl && phase !== 'fallback';
+
+  // Report this slide's phase to the parent, which drives the auto-advance
+  // dwell. No teaser (or motion-safe suppression) always reads as 'poster' —
+  // the default dwell — regardless of `phase`'s (unused) internal value.
+  // 'fallback' must still be reported even though the <video> itself is
+  // hidden once errored (that's a rendering concern, not a timing one).
+  const reportedPhase: VideoPhase = !reducedMotion && teaserUrl ? phase : 'poster';
+  useEffect(() => {
+    onPhaseChange?.(show.id, reportedPhase);
+  }, [show.id, reportedPhase, onPhaseChange]);
+
+  // Keyed strictly off `active`: an off-screen slide must not keep playing.
+  // Restart from the poster every time this slide becomes active again.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !teaserUrl || reducedMotion) return undefined;
+
+    if (active) {
+      setPhase((p) => (p === 'fallback' ? p : 'poster'));
+      try {
+        const playResult = video.play();
+        if (playResult && typeof playResult.catch === 'function') {
+          playResult.catch(() => {});
+        }
+      } catch {
+        // Autoplay can be blocked, or unsupported in some environments —
+        // the poster stays visible either way, so nothing else to do.
+      }
+    } else {
+      video.pause();
+      video.currentTime = 0;
+    }
+    return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, teaserUrl, reducedMotion]);
+
+  const handleReady = () => setPhase((p) => (p === 'fallback' ? p : 'playing'));
+  const handleError = () => {
+    // Silent fallback per product spec — no retry, no user-facing error UI.
+    console.error(`[EditorialHero] teaser video failed to load for slide "${show.id}"`);
+    setPhase('fallback');
+  };
+
+  return (
+    <>
+      <SmartImage src={show.image} alt={show.title} className={styles.heroV2Image} />
+      {showVideo && teaserUrl && (
+        <video
+          ref={videoRef}
+          src={teaserUrl}
+          muted
+          loop
+          playsInline
+          autoPlay={active}
+          preload="metadata"
+          className={phase === 'playing' ? `${styles.heroV2Video} ${styles.heroV2VideoVisible}` : styles.heroV2Video}
+          onLoadedData={handleReady}
+          onCanPlay={handleReady}
+          onPlaying={handleReady}
+          onError={handleError}
+        />
+      )}
+    </>
+  );
+}
 
 function SlideContent({ show }: { show: Show }) {
   const priceLabel = fmtPrice(show);
@@ -92,6 +180,7 @@ export function EditorialHero({ slides }: Props) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [videoPhaseById, setVideoPhaseById] = useState<Record<string, VideoPhase>>({});
   const draggedRef = useRef(false);
   const dragStartXRef = useRef(0);
 
@@ -108,18 +197,36 @@ export function EditorialHero({ slides }: Props) {
     setIndex(((i % count) + count) % count);
   }, [count]);
 
+  const handleSlidePhaseChange = useCallback((id: string, phase: VideoPhase) => {
+    setVideoPhaseById((prev) => (prev[id] === phase ? prev : { ...prev, [id]: phase }));
+  }, []);
+
+  // Auto-advance dwell time is per-active-slide: default for plain image
+  // slides, longer while a teaser is actively playing, a shorter middle
+  // ground if the teaser failed and fell back to its poster.
+  const activeSlide = slides[index];
+  const hasActiveTeaser = !reducedMotion && !!activeSlide?.teaserVideoUrl;
+  const activePhase = activeSlide ? (videoPhaseById[activeSlide.id] ?? 'poster') : 'poster';
+  const intervalMs = !hasActiveTeaser
+    ? AUTOPLAY_MS
+    : activePhase === 'playing'
+      ? TEASER_PLAYING_MS
+      : activePhase === 'fallback'
+        ? TEASER_FALLBACK_MS
+        : AUTOPLAY_MS;
+
   useEffect(() => {
     if (count <= 1 || reducedMotion || paused) return undefined;
-    const id = setInterval(() => setIndex((i) => (i + 1) % count), AUTOPLAY_MS);
+    const id = setInterval(() => setIndex((i) => (i + 1) % count), intervalMs);
     return () => clearInterval(id);
-  }, [count, reducedMotion, paused, index]);
+  }, [count, reducedMotion, paused, index, intervalMs]);
 
   if (count === 0) return null;
 
   if (count === 1) {
     return (
       <div className={styles.heroV2}>
-        <SmartImage src={slides[0].image} alt={slides[0].title} className={styles.heroV2Image} />
+        <HeroSlideMedia show={slides[0]} active reducedMotion={reducedMotion} />
         <div className={styles.heroV2Glow} aria-hidden="true" />
         <div className={styles.heroV2Scrim} aria-hidden="true" />
         <SlideContent show={slides[0]} />
@@ -181,9 +288,14 @@ export function EditorialHero({ slides }: Props) {
           transition: reducedMotion ? 'none' : 'transform 450ms ease',
         }}
       >
-        {slides.map((show) => (
+        {slides.map((show, i) => (
           <div key={show.id} className={styles.heroV2Slide}>
-            <SmartImage src={show.image} alt={show.title} className={styles.heroV2Image} />
+            <HeroSlideMedia
+              show={show}
+              active={i === index}
+              reducedMotion={reducedMotion}
+              onPhaseChange={handleSlidePhaseChange}
+            />
             <div className={styles.heroV2Glow} aria-hidden="true" />
             <div className={styles.heroV2Scrim} aria-hidden="true" />
             <SlideContent show={show} />

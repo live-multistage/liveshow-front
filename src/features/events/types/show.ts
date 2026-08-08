@@ -20,6 +20,7 @@ export interface Show {
   viewers?: number;
   rating?: number;
   priceRange?: { min: number; max: number };
+  teaserVideoUrl?: string | null;
 }
 
 export interface Camera {
