@@ -11,6 +11,7 @@ vi.mock('./SmartImage', () => ({
     // eslint-disable-next-line @next/next/no-img-element
     <img src={src} alt={alt} className={className} />
   ),
+  onImgError: () => {},
 }));
 
 import { render, screen, fireEvent, act } from '@testing-library/react';

@@ -15,6 +15,7 @@ import { useAuth } from '@/features/account/hooks/use-auth';
 import { useTrackEventView } from '../../hooks/use-track-event-view';
 import { AdBanner } from '@/features/advertisements';
 import { ReportButton } from '@/features/reports';
+import { MediaWithTeaserVideo } from '@/shared/components/MediaWithTeaserVideo';
 import styles from './EventDetailPageContent.module.scss';
 
 interface Props {
@@ -72,7 +73,17 @@ export function EventDetailPageContent({ id }: Props) {
 
         <div className={styles.hero}>
           {heroImage
-            ? <img src={heroImage} alt={event.title} className={styles.heroImg} onError={() => setHeroImgFailed(true)} />
+            ? (
+              <MediaWithTeaserVideo
+                posterSrc={heroImage}
+                posterAlt={event.title}
+                videoSrc={event.teaserVideoUrl}
+                posterClassName={styles.heroImg}
+                videoClassName={styles.heroVideo}
+                videoVisibleClassName={styles.heroVideoVisible}
+                posterOnError={() => setHeroImgFailed(true)}
+              />
+            )
             : <div className={styles.heroPlaceholder} />}
           <div className={styles.heroScrim} />
 
@@ -190,6 +201,7 @@ export function EventDetailPageContent({ id }: Props) {
 
           <div className={styles.sidebarCol}>
             <TicketPanel event={event} tickets={tickets} />
+
             <AdBanner placement="EVENT_DETAIL" className={styles.sidebarAd} />
           </div>
         </div>

@@ -13,7 +13,8 @@ import type {
 } from 'react';
 import Link from 'next/link';
 import type { Show } from '@/features/events/types/show';
-import { SmartImage } from './SmartImage';
+import { MediaWithTeaserVideo, type TeaserVideoPhase } from '@/shared/components/MediaWithTeaserVideo';
+import { onImgError } from './SmartImage';
 import { fmtPrice, playHref, infoHref } from './editorial-parts';
 import styles from '../EditorialHomeContent.module.scss';
 
@@ -27,11 +28,11 @@ const TEASER_PLAYING_MS = 35000;
 const TEASER_FALLBACK_MS = 15000;
 const SWIPE_THRESHOLD = 50;
 
-type VideoPhase = 'poster' | 'playing' | 'fallback';
+type VideoPhase = TeaserVideoPhase;
 
-// Poster image with an optional teaser video layered on top. Renders on both
-// the single-slide hero and each slide of the multi-slide track, so the
-// play/pause-keyed-to-`active` and poster/video swap logic lives in one place.
+// Thin slide-aware adapter over the shared poster+teaser media component:
+// keys the phase report to this slide's id (the carousel tracks phases per
+// slide to size its auto-advance dwell) and supplies the hero's classes.
 function HeroSlideMedia({
   show,
   active,
@@ -40,79 +41,30 @@ function HeroSlideMedia({
 }: {
   show: Show;
   active: boolean;
-  // null = not yet resolved (SSR / pre-effect). Only an explicit `false`
-  // clears the video to mount — null and true both suppress it, so a
-  // reduced-motion user never gets a video in the SSR/first-render markup.
+  // null = not yet resolved (SSR / pre-effect). Resolved once at the
+  // EditorialHero level and threaded down, so N slides don't each open their
+  // own matchMedia listener.
   reducedMotion: boolean | null;
   onPhaseChange?: (id: string, phase: VideoPhase) => void;
 }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [phase, setPhase] = useState<VideoPhase>('poster');
-  const teaserUrl = show.teaserVideoUrl;
-  const showVideo = reducedMotion === false && !!teaserUrl && phase !== 'fallback';
-
-  // Report this slide's phase to the parent, which drives the auto-advance
-  // dwell. No teaser (or motion-safe suppression) always reads as 'poster' —
-  // the default dwell — regardless of `phase`'s (unused) internal value.
-  // 'fallback' must still be reported even though the <video> itself is
-  // hidden once errored (that's a rendering concern, not a timing one).
-  const reportedPhase: VideoPhase = reducedMotion === false && teaserUrl ? phase : 'poster';
-  useEffect(() => {
-    onPhaseChange?.(show.id, reportedPhase);
-  }, [show.id, reportedPhase, onPhaseChange]);
-
-  // Keyed strictly off `active`: an off-screen slide must not keep playing.
-  // Restart from the poster every time this slide becomes active again.
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !teaserUrl || reducedMotion !== false) return undefined;
-
-    if (active) {
-      setPhase((p) => (p === 'fallback' ? p : 'poster'));
-      try {
-        const playResult = video.play();
-        if (playResult && typeof playResult.catch === 'function') {
-          playResult.catch(() => {});
-        }
-      } catch {
-        // Autoplay can be blocked, or unsupported in some environments —
-        // the poster stays visible either way, so nothing else to do.
-      }
-    } else {
-      video.pause();
-      video.currentTime = 0;
-    }
-    return undefined;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, teaserUrl, reducedMotion]);
-
-  const handleReady = () => setPhase((p) => (p === 'fallback' ? p : 'playing'));
-  const handleError = () => {
-    // Silent fallback per product spec — no retry, no user-facing error UI,
-    // and no console noise (would read as a spec violation in prod logs).
-    setPhase('fallback');
-  };
+  const handlePhaseChange = useCallback(
+    (phase: VideoPhase) => onPhaseChange?.(show.id, phase),
+    [show.id, onPhaseChange],
+  );
 
   return (
-    <>
-      <SmartImage src={show.image} alt={show.title} className={styles.heroV2Image} />
-      {showVideo && teaserUrl && (
-        <video
-          ref={videoRef}
-          src={teaserUrl}
-          muted
-          loop
-          playsInline
-          autoPlay={active}
-          preload={active ? 'metadata' : 'none'}
-          className={phase === 'playing' ? `${styles.heroV2Video} ${styles.heroV2VideoVisible}` : styles.heroV2Video}
-          onLoadedData={handleReady}
-          onCanPlay={handleReady}
-          onPlaying={handleReady}
-          onError={handleError}
-        />
-      )}
-    </>
+    <MediaWithTeaserVideo
+      posterSrc={show.image}
+      posterAlt={show.title}
+      videoSrc={show.teaserVideoUrl}
+      active={active}
+      reducedMotion={reducedMotion}
+      onPhaseChange={onPhaseChange ? handlePhaseChange : undefined}
+      posterClassName={styles.heroV2Image}
+      videoClassName={styles.heroV2Video}
+      videoVisibleClassName={styles.heroV2VideoVisible}
+      posterOnError={onImgError}
+    />
   );
 }
 

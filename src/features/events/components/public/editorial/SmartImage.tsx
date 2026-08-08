@@ -8,7 +8,7 @@ import { FALLBACK_IMAGE } from '@/features/events/utils/event-adapter';
 // broken-image glyph; the adapter's ?? only covers a MISSING url, not a dead
 // one). Isolating the <img onError> here keeps every card server-rendered and
 // hydrates just this trivial leaf.
-function onImgError(e: SyntheticEvent<HTMLImageElement>) {
+export function onImgError(e: SyntheticEvent<HTMLImageElement>) {
   if (e.currentTarget.src !== FALLBACK_IMAGE) e.currentTarget.src = FALLBACK_IMAGE;
 }
 

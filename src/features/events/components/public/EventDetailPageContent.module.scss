@@ -103,6 +103,22 @@
   object-fit: cover;
 }
 
+// Layered on top of .heroImg (the poster); fades in once the teaser has
+// buffered enough to play, so the swap reads as seamless instead of a hard cut.
+.heroVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.heroVideoVisible {
+  opacity: 1;
+}
+
 .heroPlaceholder {
   position: absolute;
   inset: 0;
