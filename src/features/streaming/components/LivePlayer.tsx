@@ -185,7 +185,14 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     // The Libras window is mandatory (NBR 15290) — never removable.
     if (cameraId === librasInStage) return;
     if (activeCameraIds.includes(cameraId)) {
-      if (activeCameraIds.length > 1) setActiveCameraIds(activeCameraIds.filter((id) => id !== cameraId));
+      if (activeCameraIds.length > 1) {
+        setActiveCameraIds(activeCameraIds.filter((id) => id !== cameraId));
+        // Deselecting the current main camera promotes a different one (see
+        // effectiveMainCameraId) — a scrub-back intent tagged for the old
+        // camera no longer applies to the new primary, same as the explicit
+        // main-camera-change and stage-change clears above.
+        if (cameraId === effectiveMainCameraId) setDvrSeeking(false);
+      }
     } else {
       setActiveCameraIds([...activeCameraIds, cameraId]);
     }
