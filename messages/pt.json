@@ -141,7 +141,8 @@
       "about": "Sobre o Show",
       "availableCameras": "Câmeras Disponíveis ({count})",
       "watching": "{count} watching",
-      "cameraViews": "{count} camera views"
+      "cameraViews": "{count} camera views",
+      "freePreview": "Assistir demonstração gratuita →"
     },
     "status": {
       "PUBLISHED": "Em breve",
@@ -486,6 +487,11 @@
     },
     "finish": "Encerrar",
     "finishing": "Encerrando...",
+    "resumeLive": "Retomar transmissão ({minutes} min restantes)",
+    "resuming": "Retomando...",
+    "resumeDialogTitle": "Retomar transmissão ao vivo?",
+    "resumeDialogDesc": "O evento e a transmissão encerrada voltam para o status Ao Vivo. Use apenas para desfazer um encerramento acidental.",
+    "resumeDialogConfirm": "Retomar transmissão",
     "editLatencyMode": "Latência da transmissão",
     "latencyStandard": "Padrão (~10s, com seleção de qualidade)",
     "latencyLow": "Baixa latência (~2–4s, ideal para esportes — qualidade única)",

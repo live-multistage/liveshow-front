@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
 import { useUpdateEventMutation } from '../../mutations/update-event.mutation';
-import { usePublishEventMutation, useUnpublishEventMutation, useFinishEventMutation } from '../../mutations/publish-event.mutation';
+import { usePublishEventMutation, useUnpublishEventMutation, useFinishEventMutation, useResumeLiveMutation } from '../../mutations/publish-event.mutation';
 import { EventHeaderActions } from './EventHeaderActions';
 import { LibrasAccessibilityPanel } from './LibrasAccessibilityPanel';
 import { useAccessibilityQuery } from '../../queries/get-accessibility';
@@ -46,6 +46,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
   const publishMutation = usePublishEventMutation(id);
   const unpublishMutation = useUnpublishEventMutation(id);
   const finishMutation = useFinishEventMutation(id);
+  const resumeLiveMutation = useResumeLiveMutation(id);
   const { data: accessibility } = useAccessibilityQuery(id, !!event?.publiclyFunded);
   // Publicly-funded events can't publish until the NBR 15290 gate is satisfied.
   // Default to blocked while the status is still loading (avoids a 400 round-trip).
@@ -122,6 +123,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
           isPublishing={publishMutation.isPending}
           isUnpublishing={unpublishMutation.isPending}
           isFinishing={finishMutation.isPending}
+          isResuming={resumeLiveMutation.isPending}
           publishBlocked={publishBlocked}
           onEdit={startEditing}
           onCancelEdit={cancelEditing}
@@ -129,6 +131,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
           onPublish={() => publishMutation.mutate()}
           onUnpublish={() => unpublishMutation.mutate()}
           onFinish={() => finishMutation.mutate()}
+          onResumeLive={() => resumeLiveMutation.mutate()}
         />
       </div>
 

@@ -1,9 +1,11 @@
 'use client';
 
-import { Globe, EyeOff, Pencil, X, Check, StopCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Globe, EyeOff, Pencil, X, Check, StopCircle, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/shared/components/Button';
 import type { EventResponse } from '../../types/event.types';
+import { ResumeLiveDialog } from './ResumeLiveDialog';
 import styles from './EventDashboardDetailContent.module.scss';
 
 const STATUS_MOD: Record<string, string> = {
@@ -12,6 +14,9 @@ const STATUS_MOD: Record<string, string> = {
   CANCELLED: styles.statusCancelled,
 };
 
+// Org admins can undo an accidental "finish event" click within this window.
+const RESUME_WINDOW_MS = 30 * 60 * 1000;
+
 interface Props {
   event: EventResponse;
   editing: boolean;
@@ -19,6 +24,7 @@ interface Props {
   isPublishing: boolean;
   isUnpublishing: boolean;
   isFinishing: boolean;
+  isResuming: boolean;
   publishBlocked?: boolean;
   onEdit: () => void;
   onCancelEdit: () => void;
@@ -26,6 +32,7 @@ interface Props {
   onPublish: () => void;
   onUnpublish: () => void;
   onFinish: () => void;
+  onResumeLive: () => void;
 }
 
 export function EventHeaderActions({
@@ -35,6 +42,7 @@ export function EventHeaderActions({
   isPublishing,
   isUnpublishing,
   isFinishing,
+  isResuming,
   publishBlocked = false,
   onEdit,
   onCancelEdit,
@@ -42,12 +50,27 @@ export function EventHeaderActions({
   onPublish,
   onUnpublish,
   onFinish,
+  onResumeLive,
 }: Props) {
   const t = useTranslations('eventDetail');
+  const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
   const canEdit = event.status === 'DRAFT' || event.status === 'PUBLISHED' || event.status === 'SCHEDULED';
   const canPublish = event.status === 'DRAFT';
   const canUnpublish = event.status === 'PUBLISHED' || event.status === 'SCHEDULED';
   const canFinish = event.status === 'LIVE';
+
+  const finishedAtMs = event.finishedAt ? new Date(event.finishedAt).getTime() : null;
+  const resumeElapsedMs = finishedAtMs !== null ? Date.now() - finishedAtMs : null;
+  const canResume =
+    event.status === 'FINISHED' && resumeElapsedMs !== null && resumeElapsedMs < RESUME_WINDOW_MS;
+  const resumeMinutesLeft = canResume
+    ? Math.max(1, Math.ceil((RESUME_WINDOW_MS - resumeElapsedMs!) / 60_000))
+    : 0;
+
+  function handleResumeConfirm() {
+    onResumeLive();
+    setResumeDialogOpen(false);
+  }
 
   return (
     <div className={styles.headerActions}>
@@ -98,6 +121,26 @@ export function EventHeaderActions({
         >
           {t('finish')}
         </Button>
+      )}
+
+      {canResume && (
+        <>
+          <Button
+            variant="outline"
+            icon={<RotateCcw size={14} />}
+            isLoading={isResuming}
+            loadingLabel={t('resuming')}
+            onClick={() => setResumeDialogOpen(true)}
+          >
+            {t('resumeLive', { minutes: resumeMinutesLeft })}
+          </Button>
+          <ResumeLiveDialog
+            open={resumeDialogOpen}
+            onOpenChange={setResumeDialogOpen}
+            onConfirm={handleResumeConfirm}
+            isPending={isResuming}
+          />
+        </>
       )}
 
       {editing && (

@@ -100,6 +100,11 @@ export const eventsService = {
     return data;
   },
 
+  resumeLive: async (eventId: string): Promise<EventResponse> => {
+    const { data } = await httpClient.patch<EventResponse>(`/events/${eventId}/resume-live`);
+    return data;
+  },
+
   // ── Accessibility (NBR 15290 — Libras window) ──────────────────
   getAccessibility: async (eventId: string): Promise<AccessibilityStatus> => {
     const { data } = await httpClient.get<AccessibilityStatus>(`/events/${eventId}/accessibility`);

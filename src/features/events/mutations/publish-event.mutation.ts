@@ -40,3 +40,15 @@ export function useFinishEventMutation(eventId: string) {
     },
   });
 }
+
+export function useResumeLiveMutation(eventId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => eventsService.resumeLive(eventId),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(eventKeys.detail(eventId), updated);
+      queryClient.invalidateQueries({ queryKey: MY_EVENTS_KEY });
+    },
+  });
+}
