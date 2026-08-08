@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EventHeaderActions } from './EventHeaderActions';
 import type { EventResponse } from '../../types/event.types';
@@ -111,7 +111,7 @@ describe('EventHeaderActions resume live', () => {
 
   it('fires the mutation when the confirm dialog is confirmed', async () => {
     const user = userEvent.setup();
-    const onResumeLive = vi.fn();
+    const onResumeLive = vi.fn().mockResolvedValue(undefined);
     const finishedAt = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     render(
       <EventHeaderActions
@@ -125,5 +125,51 @@ describe('EventHeaderActions resume live', () => {
     await user.click(screen.getByText('resumeDialogConfirm'));
 
     expect(onResumeLive).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the dialog open while the mutation is pending, then closes it on success', async () => {
+    const user = userEvent.setup();
+    let resolveResume: () => void = () => {};
+    const onResumeLive = vi.fn(
+      () => new Promise<void>((resolve) => { resolveResume = resolve; }),
+    );
+    const finishedAt = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    render(
+      <EventHeaderActions
+        {...baseProps}
+        event={makeEvent({ status: 'FINISHED', finishedAt })}
+        onResumeLive={onResumeLive}
+      />,
+    );
+
+    await user.click(screen.getByText('resumeLive'));
+    await user.click(screen.getByText('resumeDialogConfirm'));
+
+    // Mutation hasn't settled yet — dialog must still be visible.
+    expect(screen.getByText('resumeDialogTitle')).toBeInTheDocument();
+
+    resolveResume();
+    await waitFor(() => {
+      expect(screen.queryByText('resumeDialogTitle')).not.toBeInTheDocument();
+    });
+  });
+
+  it('keeps the dialog open when the mutation rejects', async () => {
+    const user = userEvent.setup();
+    const onResumeLive = vi.fn().mockRejectedValue(new Error('nope'));
+    const finishedAt = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    render(
+      <EventHeaderActions
+        {...baseProps}
+        event={makeEvent({ status: 'FINISHED', finishedAt })}
+        onResumeLive={onResumeLive}
+      />,
+    );
+
+    await user.click(screen.getByText('resumeLive'));
+    await user.click(screen.getByText('resumeDialogConfirm'));
+
+    await waitFor(() => expect(onResumeLive).toHaveBeenCalledTimes(1));
+    expect(screen.getByText('resumeDialogTitle')).toBeInTheDocument();
   });
 });

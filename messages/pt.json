@@ -141,8 +141,7 @@
       "about": "Sobre o Show",
       "availableCameras": "Câmeras Disponíveis ({count})",
       "watching": "{count} watching",
-      "cameraViews": "{count} camera views",
-      "freePreview": "Assistir demonstração gratuita →"
+      "cameraViews": "{count} camera views"
     },
     "status": {
       "PUBLISHED": "Em breve",

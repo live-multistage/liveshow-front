@@ -131,7 +131,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
           onPublish={() => publishMutation.mutate()}
           onUnpublish={() => unpublishMutation.mutate()}
           onFinish={() => finishMutation.mutate()}
-          onResumeLive={() => resumeLiveMutation.mutate()}
+          onResumeLive={async () => { await resumeLiveMutation.mutateAsync(); }}
         />
       </div>
 

@@ -32,7 +32,7 @@ interface Props {
   onPublish: () => void;
   onUnpublish: () => void;
   onFinish: () => void;
-  onResumeLive: () => void;
+  onResumeLive: () => Promise<void>;
 }
 
 export function EventHeaderActions({
@@ -67,9 +67,15 @@ export function EventHeaderActions({
     ? Math.max(1, Math.ceil((RESUME_WINDOW_MS - resumeElapsedMs!) / 60_000))
     : 0;
 
-  function handleResumeConfirm() {
-    onResumeLive();
-    setResumeDialogOpen(false);
+  async function handleResumeConfirm() {
+    try {
+      await onResumeLive();
+      setResumeDialogOpen(false);
+    } catch {
+      // Mutation's onError already surfaced a toast; keep the dialog open
+      // (with its pending state now cleared) so the user isn't left staring
+      // at a closed dialog with no explanation.
+    }
   }
 
   return (
