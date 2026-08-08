@@ -59,6 +59,7 @@ export interface EventResponse {
   bannerUrl: string | null;
   thumbnailUrl: string | null;
   teaserVideoUrl: string | null;
+  finishedAt: string | null;
   venue: string | null;
   city: string | null;
   country: string | null;

@@ -38,6 +38,7 @@ function makeEvent(overrides: Partial<EventResponse> = {}): EventResponse {
     bannerUrl: null,
     thumbnailUrl: null,
     teaserVideoUrl: null,
+    finishedAt: null,
     venue: null,
     city: null,
     country: null,
