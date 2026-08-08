@@ -9,7 +9,7 @@ import type { LiveCamera } from '../types/live.types';
 import { useHlsPlayer } from '../hooks/use-hls-player';
 import type { QualityLevel } from '../hooks/use-hls-player';
 import { useTransportControls } from '../hooks/use-transport-controls';
-import type { LiveWindow } from '../hooks/use-transport-controls';
+import type { LiveSeekCommand, LiveWindow } from '../hooks/use-transport-controls';
 import { useClockSync } from '../hooks/use-clock-sync';
 import type { ClockRole, ClockSample } from '../hooks/use-clock-sync';
 import type { MutableRefObject } from 'react';
@@ -88,7 +88,7 @@ interface VideoPanelProps {
   // is what triggers the effect, not the time value alone, so re-seeking to a
   // position already reached still works. Replay seeks every active panel;
   // live seeks the primary only and lets use-clock-sync pull the rest along.
-  seekCommand?: { time: number; token: number } | null;
+  seekCommand?: LiveSeekCommand | null;
   // True for exactly one active camera's panel (the current main/focused one)
   // — only that panel's native playback events drive the transport bar's
   // clock and end-of-video handling.

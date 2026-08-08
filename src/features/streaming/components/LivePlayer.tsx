@@ -12,7 +12,7 @@ import { Header } from './Header';
 import { TransportBar } from './TransportBar';
 import type { DvrState } from './TransportBar';
 import { isAtLiveEdge } from '../hooks/use-transport-controls';
-import type { LiveWindow } from '../hooks/use-transport-controls';
+import type { LiveSeekCommand, LiveWindow } from '../hooks/use-transport-controls';
 import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
@@ -88,32 +88,35 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   // DVR: where the primary panel sits inside the manifest's seekable window,
   // reported by that panel's own playback events. Null until the first report.
   const [dvr, setDvr] = useState<DvrState | null>(null);
-  const [seekCommand, setSeekCommand] = useState<{ time: number; token: number } | null>(null);
+  // The viewer's INTENT to sit behind the live edge, set only by an actual
+  // scrub-back. Deliberately NOT derived from `atLive` below: that is a
+  // MEASURED distance, and an ordinary rebuffer of more than
+  // LIVE_EDGE_TOLERANCE_SEC also puts the position behind the edge. Feeding
+  // that into hls.js's liveMaxLatencyDurationCount (which DVR lifts to
+  // Infinity) would permanently disable its catch-up for any viewer who ever
+  // stalls, on STANDARD live where nothing else reduces drift.
+  const [dvrSeeking, setDvrSeeking] = useState(false);
+  const [seekCommand, setSeekCommand] = useState<LiveSeekCommand | null>(null);
 
   // Stable identity: this lands on the primary VideoPanel's timeupdate
   // listener, which would otherwise be torn down and re-added on every tick.
   const handleProgress = useCallback((position: number, end: number, live?: LiveWindow) => {
     if (!live) return;
-    setDvr({ position, end, start: live.start, edge: live.edge });
+    setDvr({ position, end, start: live.start, edge: live.edge, tolerance: live.tolerance });
   }, []);
 
-  const handleSeek = useCallback((time: number) => {
-    // Optimistic, so the scrubber tracks the drag instead of snapping back
-    // between timeupdates (same pattern as ReplayPlayer).
-    setDvr((d) => (d ? { ...d, position: time } : d));
-    setSeekCommand({ time, token: Date.now() });
-  }, []);
+  const atLive = !dvr || isAtLiveEdge(dvr.position, dvr.edge, dvr.tolerance);
 
-  const atLive = !dvr || isAtLiveEdge(dvr.position, dvr.edge);
-
-  // Live seek commands are addressed to the primary panel only (see
-  // CameraGrid). Retiring the command as the role moves stops the promoted
-  // panel from applying an offset taken from a different camera's timeline —
-  // it is already at the same wall-clock instant anyway, because it was
-  // following the previous primary's PROGRAM-DATE-TIME (use-clock-sync).
+  // Live seek commands are addressed to the camera they were issued for (see
+  // CameraGrid, which now filters on seekCommand.cameraId). Clearing here is
+  // belt-and-suspenders for that, but it does own the intent flag: promoting
+  // another camera ends the rewind, and the promoted panel is at the same
+  // wall-clock instant anyway from following the previous primary's
+  // PROGRAM-DATE-TIME (use-clock-sync).
   const handleMainCameraChange = useCallback((cameraId: string) => {
     setMainCameraId(cameraId);
     setSeekCommand(null);
+    setDvrSeeking(false);
   }, []);
 
   const activeStage = stages.find((s) => s.stageId === activeStageId) ?? stages[0];
@@ -143,6 +146,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     // replayed onto a fresh panel as a meaningless offset.
     setSeekCommand(null);
     setDvr(null);
+    setDvrSeeking(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stageCameraKey]);
 
@@ -202,6 +206,19 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     audioCameraId && activeStage?.cameras.some((c) => c.cameraId === audioCameraId)
       ? audioCameraId
       : (effectiveMainCameraId ?? activeStage?.cameras[0]?.cameraId ?? null);
+
+  // Declared here (not memoized) because it needs the camera the seek is
+  // addressed to. onSeek fires on a scrubber drag / badge click, never on a
+  // playback tick, so a fresh identity per render costs nothing.
+  const handleSeek = (time: number) => {
+    // Optimistic, so the scrubber tracks the drag instead of snapping back
+    // between timeupdates (same pattern as ReplayPlayer).
+    setDvr((d) => (d ? { ...d, position: time } : d));
+    // Intent: seeking meaningfully behind the edge starts a DVR rewind;
+    // seeking TO the edge (the badge's "back to live") ends it.
+    setDvrSeeking(!!dvr && !isAtLiveEdge(time, dvr.edge, dvr.tolerance));
+    setSeekCommand({ time, token: Date.now(), cameraId: effectiveMainCameraId });
+  };
 
   const effectiveViewMode: ViewMode = activeCameraIds.length <= 1 ? 'solo' : viewMode;
 
@@ -270,7 +287,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
               pickerOpen={cameraStripOpen}
               onToggleCamera={handleToggleCamera}
               onClosePicker={() => setCameraStripOpen(false)}
-              dvrActive={!atLive}
+              dvrActive={dvrSeeking}
               seekCommand={seekCommand}
               onProgress={handleProgress}
             />

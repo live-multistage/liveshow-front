@@ -25,6 +25,9 @@ export interface DvrState {
   // What "live" means right now (hls.js's liveSyncPosition), a few segments
   // behind `end`.
   edge: number;
+  // How close to `edge` still counts as live — wider on Safari's native path,
+  // which parks further back by design. See use-transport-controls.
+  tolerance: number;
 }
 
 interface Props {

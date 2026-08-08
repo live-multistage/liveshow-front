@@ -13,8 +13,21 @@ import type Hls from 'hls.js';
 // playback nor claims "live" once the viewer has actually rewound.
 export const LIVE_EDGE_TOLERANCE_SEC = 3;
 
-export function isAtLiveEdge(position: number, edge: number): boolean {
-  return edge - position <= LIVE_EDGE_TOLERANCE_SEC;
+// Safari's native HLS player has no liveSyncPosition to report, so the edge
+// falls back to seekable.end — but native playback deliberately parks about
+// three target durations behind the playlist end (HLS spec recommendation),
+// i.e. routinely 6–18s. Judged by the hls.js tolerance every Safari viewer
+// would read as "behind live" from the first frame. targetDuration isn't
+// reachable without an hls instance, so the native branch gets a tolerance
+// wide enough to cover that parking distance instead.
+export const NATIVE_LIVE_EDGE_TOLERANCE_SEC = 20;
+
+export function isAtLiveEdge(
+  position: number,
+  edge: number,
+  tolerance: number = LIVE_EDGE_TOLERANCE_SEC,
+): boolean {
+  return edge - position <= tolerance;
 }
 
 // Where the primary live panel currently sits inside its DVR window.
@@ -24,6 +37,20 @@ export interface LiveWindow {
   // hls.js's live sync target — the position "live" actually means, which is
   // a few segments BEHIND seekable.end, not the end itself.
   edge: number;
+  // How close to `edge` still counts as live — depends on which player
+  // produced `edge` (see NATIVE_LIVE_EDGE_TOLERANCE_SEC).
+  tolerance: number;
+}
+
+// A commanded seek. The token is what re-applies it (see below); `cameraId` is
+// the camera whose timeline `time` was read from — live media timelines are
+// unrelated between cameras, so applying one camera's offset to another is
+// always wrong. Absent in replay, where every camera is its own VOD timeline
+// starting at 0 and the same offset is right for all of them.
+export interface LiveSeekCommand {
+  time: number;
+  token: number;
+  cameraId?: string | null;
 }
 
 export interface UseTransportControlsOptions {
@@ -39,8 +66,10 @@ export interface UseTransportControlsOptions {
   // A new object (even with the same `time`) re-applies the seek — the token
   // is what triggers the effect, not the time value alone, so re-seeking to a
   // position already reached still works. Used by replay's scrubber and by
-  // live's DVR scrubber / return-to-live.
-  seekCommand?: { time: number; token: number } | null;
+  // live's DVR scrubber / return-to-live. `cameraId` (live only) records which
+  // camera's media timeline the offset came from — CameraGrid uses it to keep
+  // the command off any other panel.
+  seekCommand?: LiveSeekCommand | null;
   // True for exactly one active camera's panel (the current main/focused one)
   // — only that panel's native playback events drive the transport bar's clock
   // and end-of-video handling.
@@ -96,8 +125,12 @@ export function useTransportControls({
       if (!seekable.length) return;
       const end = seekable.end(seekable.length - 1);
       const sync = hlsRef?.current?.liveSyncPosition;
-      const edge = typeof sync === 'number' && Number.isFinite(sync) ? sync : end;
-      onProgress(video.currentTime, end, { start: seekable.start(0), edge });
+      const hasSync = typeof sync === 'number' && Number.isFinite(sync);
+      onProgress(video.currentTime, end, {
+        start: seekable.start(0),
+        edge: hasSync ? sync : end,
+        tolerance: hasSync ? LIVE_EDGE_TOLERANCE_SEC : NATIVE_LIVE_EDGE_TOLERANCE_SEC,
+      });
     };
     video.addEventListener('timeupdate', report);
     video.addEventListener('durationchange', report);

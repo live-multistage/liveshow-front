@@ -12,6 +12,7 @@ import {
   useTransportControls,
   isAtLiveEdge,
   LIVE_EDGE_TOLERANCE_SEC,
+  NATIVE_LIVE_EDGE_TOLERANCE_SEC,
 } from './use-transport-controls';
 
 describe('isAtLiveEdge', () => {
@@ -25,6 +26,14 @@ describe('isAtLiveEdge', () => {
   it('treats a deliberate scrub back as not live', () => {
     expect(isAtLiveEdge(3600 - LIVE_EDGE_TOLERANCE_SEC - 0.1, 3600)).toBe(false);
     expect(isAtLiveEdge(1200, 3600)).toBe(false);
+  });
+
+  it("counts Safari native's parked position as live under the wider tolerance", () => {
+    // Native HLS starts ~3 target durations behind the playlist end.
+    expect(isAtLiveEdge(3588, 3600)).toBe(false);
+    expect(isAtLiveEdge(3588, 3600, NATIVE_LIVE_EDGE_TOLERANCE_SEC)).toBe(true);
+    // A real scrub back is still not live, even there.
+    expect(isAtLiveEdge(1200, 3600, NATIVE_LIVE_EDGE_TOLERANCE_SEC)).toBe(false);
   });
 });
 
@@ -68,16 +77,24 @@ describe('useTransportControls — live DVR progress', () => {
     renderControls(video, { onProgress, hlsRef: hlsWith(3600) });
 
     fireEvent(video, new Event('timeupdate'));
-    expect(onProgress).toHaveBeenCalledWith(1200, 3606, { start: 60, edge: 3600 });
+    expect(onProgress).toHaveBeenCalledWith(1200, 3606, {
+      start: 60,
+      edge: 3600,
+      tolerance: LIVE_EDGE_TOLERANCE_SEC,
+    });
   });
 
-  it('falls back to the seekable end as the live edge with no hls instance (Safari native)', () => {
+  it('falls back to the seekable end and a wider tolerance with no hls instance (Safari native)', () => {
     const onProgress = vi.fn();
     const video = makeVideo({ currentTime: 3600, seekable: [0, 3606] });
     renderControls(video, { onProgress });
 
     fireEvent(video, new Event('timeupdate'));
-    expect(onProgress).toHaveBeenCalledWith(3600, 3606, { start: 0, edge: 3606 });
+    expect(onProgress).toHaveBeenCalledWith(3600, 3606, {
+      start: 0,
+      edge: 3606,
+      tolerance: NATIVE_LIVE_EDGE_TOLERANCE_SEC,
+    });
   });
 
   it('reports nothing while nothing is seekable yet', () => {

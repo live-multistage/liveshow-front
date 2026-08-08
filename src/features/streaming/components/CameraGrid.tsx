@@ -7,7 +7,7 @@ import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
 import type { QualityLevel } from './VideoPanel';
 import type { ClockSample } from '../hooks/use-clock-sync';
-import type { LiveWindow } from '../hooks/use-transport-controls';
+import type { LiveSeekCommand, LiveWindow } from '../hooks/use-transport-controls';
 import { computeJustifiedRows, pickColumnCount } from './justified-grid';
 import styles from './CameraGrid.module.scss';
 
@@ -70,9 +70,10 @@ interface CameraGridProps {
   librasCameraId?: string | null;
   mode?: 'live' | 'replay';
   paused?: boolean;
-  // Live only: the viewer is scrubbed back in the DVR window (see LivePlayer).
+  // Live only: the viewer DELIBERATELY scrubbed back in the DVR window (see
+  // LivePlayer — this is intent, never measured drift).
   dvrActive?: boolean;
-  seekCommand?: { time: number; token: number } | null;
+  seekCommand?: LiveSeekCommand | null;
   onProgress?: (currentTime: number, duration: number, live?: LiveWindow) => void;
   onEnded?: () => void;
   pickerOpen?: boolean;
@@ -450,12 +451,16 @@ export function CameraGrid({
               dvrActive={dvrActive}
               // Replay: every active panel seeks together (each camera is its
               // own VOD timeline starting at 0, so the same offset is right).
-              // Live: only the PRIMARY seeks — the cameras' media timelines are
-              // unrelated, and the followers already converge on the primary's
+              // Live: only the camera the command was ISSUED FOR may apply it —
+              // the cameras' media timelines are unrelated, so the offset is
+              // meaningless anywhere else, and the promoted-primary paths
+              // (click-to-promote, or the picker deselecting the current main)
+              // would otherwise hand a stale offset to a different timeline.
+              // The other panels already converge on the primary's
               // PROGRAM-DATE-TIME through use-clock-sync, which handles a DVR
               // jump as an ordinary (large) drift correction. Seeking them
               // directly here would be a second, conflicting sync mechanism.
-              seekCommand={mode === 'live' && !isPrimary ? null : seekCommand}
+              seekCommand={mode === 'live' && seekCommand?.cameraId !== cam.cameraId ? null : seekCommand}
               isTimeSource={isPrimary}
               onProgress={isPrimary ? onProgress : undefined}
               onEnded={isPrimary ? onEnded : undefined}

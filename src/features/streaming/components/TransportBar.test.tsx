@@ -7,6 +7,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
 import { TransportBar } from './TransportBar';
 import type { DvrState } from './TransportBar';
+import { LIVE_EDGE_TOLERANCE_SEC } from '../hooks/use-transport-controls';
 
 const baseProps = {
   globalMuted: false,
@@ -31,6 +32,7 @@ const dvrAt = (position: number): DvrState => ({
   end: 3606,
   position,
   edge: 3600,
+  tolerance: LIVE_EDGE_TOLERANCE_SEC,
 });
 
 describe('TransportBar — AO VIVO badge', () => {
@@ -97,7 +99,7 @@ describe('TransportBar — DVR scrubber', () => {
     const { queryByLabelText } = render(
       <TransportBar
         {...baseProps}
-        dvr={{ start: 100, end: 112, position: 106, edge: 106 }}
+        dvr={{ start: 100, end: 112, position: 106, edge: 106, tolerance: LIVE_EDGE_TOLERANCE_SEC }}
         atLive
         onSeek={vi.fn()}
       />,
