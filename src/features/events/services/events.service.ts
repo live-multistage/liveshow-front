@@ -57,7 +57,7 @@ export const eventsService = {
     await httpClient.delete(`/shows/${eventId}/tickets/${ticketId}`);
   },
 
-  uploadAsset: async (eventId: string, assetType: 'banner' | 'thumbnail', file: File): Promise<EventResponse> => {
+  uploadAsset: async (eventId: string, assetType: 'banner' | 'thumbnail' | 'teaserVideo', file: File): Promise<EventResponse> => {
     const form = new FormData();
     form.append('file', file);
     const { data } = await httpClient.post<EventResponse>(`/events/${eventId}/assets/${assetType}`, form, {

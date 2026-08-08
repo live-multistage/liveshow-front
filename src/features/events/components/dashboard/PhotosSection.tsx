@@ -6,6 +6,7 @@ import { ImagePlus } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useUploadAssetMutation, useUploadGalleryPhotoMutation } from '../../mutations/upload-event-asset.mutation';
 import { useListEventPhotosQuery, eventKeys } from '../../queries/get-event';
+import { validateTeaserVideo } from '../../utils/validate-teaser-video';
 import type { EventPhotoResponse, EventResponse } from '../../types/event.types';
 import { AssetSlotUpload } from './AssetSlotUpload';
 import type { AssetSlot } from './AssetSlotUpload';
@@ -20,21 +21,36 @@ export function PhotosSection({ event }: Props) {
 
   const [banner, setBanner] = useState<AssetSlot>({ url: event.bannerUrl, uploading: false, error: null });
   const [thumbnail, setThumbnail] = useState<AssetSlot>({ url: event.thumbnailUrl, uploading: false, error: null });
+  const [teaser, setTeaser] = useState<AssetSlot>({ url: event.teaserVideoUrl, uploading: false, error: null });
 
   const bannerRef = useRef<HTMLInputElement>(null);
   const thumbnailRef = useRef<HTMLInputElement>(null);
+  const teaserRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
 
   const uploadAsset = useUploadAssetMutation(event.id);
   const uploadPhoto = useUploadGalleryPhotoMutation(event.id);
   const { data: photos = [] } = useListEventPhotosQuery(event.id);
 
-  async function handleAsset(assetType: 'banner' | 'thumbnail', file: File) {
-    const setter = assetType === 'banner' ? setBanner : setThumbnail;
+  async function handleAsset(assetType: 'banner' | 'thumbnail' | 'teaserVideo', file: File) {
+    const setter = assetType === 'banner' ? setBanner : assetType === 'thumbnail' ? setThumbnail : setTeaser;
+
+    if (assetType === 'teaserVideo') {
+      const validationError = await validateTeaserVideo(file);
+      if (validationError) {
+        setter((s) => ({ ...s, error: validationError }));
+        return;
+      }
+    }
+
     setter((s) => ({ ...s, uploading: true, error: null }));
     try {
       const updated = await uploadAsset.mutateAsync({ assetType, file });
-      setter({ url: assetType === 'banner' ? updated.bannerUrl : updated.thumbnailUrl, uploading: false, error: null });
+      setter({
+        url: assetType === 'banner' ? updated.bannerUrl : assetType === 'thumbnail' ? updated.thumbnailUrl : updated.teaserVideoUrl,
+        uploading: false,
+        error: null,
+      });
       queryClient.setQueryData(eventKeys.detail(event.id), updated);
     } catch (err: unknown) {
       setter((s) => ({ ...s, uploading: false, error: err instanceof Error ? err.message : 'Erro no upload' }));
@@ -70,6 +86,14 @@ export function PhotosSection({ event }: Props) {
           slot={thumbnail}
           inputRef={thumbnailRef}
           onChange={(f) => handleAsset('thumbnail', f)}
+        />
+        <AssetSlotUpload
+          label="Teaser"
+          hint="Vídeo até 30s, 50MB, MP4"
+          slot={teaser}
+          inputRef={teaserRef}
+          onChange={(f) => handleAsset('teaserVideo', f)}
+          kind="video"
         />
       </div>
 
