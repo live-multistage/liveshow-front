@@ -50,8 +50,19 @@ export function Navbar() {
   const cartCount = useCartCount();
   const t = useTranslations('nav');
   
+  // Home only: the nav floats transparent over the hero and never reserves
+  // flow space (position: fixed for the page's whole lifetime — switching
+  // fixed↔sticky exactly at the scroll threshold would jump the layout by
+  // the nav's own height right as the class toggles). Background/blur/border
+  // alone respond to scroll. Every other page keeps today's sticky+solid bar.
+  const navClassName = [
+    styles.nav,
+    isHome && styles.navFixed,
+    (!isHome || scrolled) && styles.navSolid,
+  ].filter(Boolean).join(' ');
+
   return (
-    <nav className={`${styles.nav}`}>
+    <nav className={navClassName}>
       <div className={styles.navInner}>
         <div className={styles.leftSection}>
           <Link href="/" className={styles.logo}>
