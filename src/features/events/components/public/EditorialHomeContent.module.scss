@@ -123,18 +123,26 @@
   position: relative;
   border-radius: 0;
   overflow: hidden;
-  min-height: 520px;
+  min-height: 650px;
   margin: 0 0 8px;
   width: 100%;
 
   @media (max-width: 767px) {
-    min-height: 420px;
+    min-height: 520px;
   }
 }
 
 .heroV2Track {
+  // Absolute (not normal flow): with only min-height on .heroV2, a normal-flow
+  // Track's percentage height is indefinite (circular) in most engines and
+  // falls back to shrink-wrapping slide content — which pushed .heroV2Dots
+  // (bottom: 50px, absolute against .heroV2) far below the visible image.
+  // Absolute positioning gives Track a real, definite height straight from
+  // .heroV2's own box, matching every other absolutely-positioned layer here
+  // (.heroV2Image, .heroV2Glow, .heroV2Scrim, .heroV2Dots).
+  position: absolute;
+  inset: 0;
   display: flex;
-  width: 100%;
   will-change: transform;
 }
 
@@ -142,6 +150,7 @@
   position: relative;
   flex: 0 0 100%;
   min-width: 0;
+  height: 100%;
 }
 
 .visuallyHidden {
