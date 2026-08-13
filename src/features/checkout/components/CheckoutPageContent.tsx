@@ -90,7 +90,11 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
 
   useEffect(() => {
     if (!isLoggedIn && !authLoading) {
-      router.replace(`/login?next=/events/${eventId}/checkout?ticketId=${ticketProductId}&qty=${quantity}`);
+      router.replace(
+        `/login?redirect=${encodeURIComponent(
+          `/events/${eventId}/checkout?ticketId=${ticketProductId}&qty=${quantity}`,
+        )}`,
+      );
     }
   }, [isLoggedIn, authLoading, eventId, ticketProductId, quantity, router]);
 

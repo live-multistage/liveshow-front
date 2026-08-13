@@ -290,7 +290,7 @@ export function TicketPanel({ event, tickets }: Props) {
             disabled={claimFreeTicket.isPending}
             onClick={() => {
               if (!isLoggedIn) {
-                router.push(`/login?next=/events/${event.id}`);
+                router.push(`/login?redirect=${encodeURIComponent(`/events/${event.id}`)}`);
                 return;
               }
               claimFreeTicket.mutate(ticket.id);
@@ -310,7 +310,9 @@ export function TicketPanel({ event, tickets }: Props) {
           onClick={() => {
             if (!ticket || soldOut) return;
             if (!isLoggedIn) {
-              router.push(`/login?next=/events/${event.id}/checkout?ticketId=${ticket.id}`);
+              router.push(
+                `/login?redirect=${encodeURIComponent(`/events/${event.id}/checkout?ticketId=${ticket.id}`)}`,
+              );
               return;
             }
             if (isTicketInCart(ticket.id)) {
