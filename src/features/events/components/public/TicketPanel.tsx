@@ -348,7 +348,10 @@ export function TicketPanel({ event, tickets }: Props) {
           disabled={addToCart.isPending || isInCart || soldOut}
           onClick={() => {
             if (!ticket || soldOut) return;
-            if (!isLoggedIn) { router.push('/login'); return; }
+            if (!isLoggedIn) {
+              router.push(`/login?redirect=${encodeURIComponent(`/events/${event.id}`)}`);
+              return;
+            }
             setPendingAction('cart');
             addToCart.mutate(ticket.id, {
               onSuccess: () => trackCartAdd(event.id, ticket.id, ticket.price, user?.id),

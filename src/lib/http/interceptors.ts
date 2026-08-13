@@ -3,12 +3,23 @@ import { tokenStore } from '@/lib/auth/token-store';
 import { getAttribution } from '@/lib/analytics/attribution';
 import { getAnalyticsConsent } from '@/lib/analytics/consent';
 
+// Reached when a 401 could not be refreshed — the session died mid-flow, so
+// carry where the user was and let login put them back. Auth pages are
+// excluded: bouncing /login back to /login is noise, not a destination.
+// `safeRedirect` guards the consuming side; this only ever builds a
+// same-origin path, never a full URL.
+function loginUrlPreservingLocation(): string {
+  const { pathname, search } = window.location;
+  if (pathname.startsWith('/login') || pathname.startsWith('/register')) return '/login';
+  return `/login?redirect=${encodeURIComponent(`${pathname}${search}`)}`;
+}
+
 function clearSession() {
   tokenStore.clear();
   if (typeof window !== 'undefined') {
     localStorage.removeItem('user');
     fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
-    window.location.href = '/login';
+    window.location.href = loginUrlPreservingLocation();
   }
 }
 

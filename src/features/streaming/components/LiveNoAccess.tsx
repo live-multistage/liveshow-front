@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Lock, Ticket, Camera, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 import { Navbar } from '@/shared/components/Navbar';
@@ -28,6 +29,7 @@ function fmtCompact(v: number): string {
 
 export function LiveNoAccess({ eventId, eventTitle, isLoggedIn }: Props) {
   const t = useTranslations('liveGate');
+  const pathname = usePathname();
   const { data: event } = useGetEventQuery(eventId);
   const { data: tickets } = useListTicketProductsQuery(eventId);
   const { currentViewers } = useViewerCount(eventId);
@@ -71,8 +73,13 @@ export function LiveNoAccess({ eventId, eventTitle, isLoggedIn }: Props) {
               <Ticket size={16} aria-hidden="true" />
               {t('buyTicket')}
             </Link>
+            {/* Carry the stream they were trying to reach: a viewer who
+                already owns a ticket on this account lands straight in it. */}
             {!isLoggedIn && (
-              <Link href="/login" className={styles.secondaryBtn}>
+              <Link
+                href={`/login?redirect=${encodeURIComponent(pathname)}`}
+                className={styles.secondaryBtn}
+              >
                 {t('login')}
                 <ArrowRight size={14} aria-hidden="true" />
               </Link>
