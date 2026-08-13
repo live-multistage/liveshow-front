@@ -18,11 +18,30 @@ import {
   useLivePlaybackQuery,
 } from '@/features/streaming/queries/live.queries';
 import { useClaimFreeTicketMutation } from '@/features/streaming/mutations/free-ticket.mutations';
+import { getSoleFreeTicketProduct } from '../../utils/sole-free-ticket';
 import styles from './TicketPanel.module.scss';
 
 interface Props {
   event: EventResponse;
   tickets: TicketProductResponse[];
+}
+
+// The one place the app spells out what a ticket grants. Shared by the tier
+// list, the direct-watch panel and the already-owned panel so a viewer who
+// never opens the tier list still learns what their access covers.
+function TicketCapabilityChips({ ticket }: { ticket: TicketProductResponse }) {
+  const t = useTranslations('ticketPanel');
+  return (
+    <div className={styles.tierChips}>
+      {ticket.capabilities.includes('LIVE_VIEW') && <span className={styles.tierChip}>{t('chipLive')}</span>}
+      {ticket.capabilities.includes('REPLAY_VIEW') && <span className={styles.tierChip}>{t('chipReplay')}</span>}
+      {ticket.camerasLimit != null
+        ? <span className={styles.tierChip}>{t('chipCameras', { count: ticket.camerasLimit })}</span>
+        : ticket.capabilities.includes('CAMERA_VIEW') && <span className={styles.tierChip}>{t('chipAllCameras')}</span>}
+      {ticket.capabilities.includes('PHYSICAL_ENTRY') && <span className={styles.tierChip}>{t('chipPhysical')}</span>}
+      {ticket.soldOut && <span className={styles.tierChip}>{t('chipSoldOut')}</span>}
+    </div>
+  );
 }
 
 export function TicketPanel({ event, tickets }: Props) {
@@ -43,6 +62,10 @@ export function TicketPanel({ event, tickets }: Props) {
   const isLive = event.status === 'LIVE';
   const isFinished = event.status === 'FINISHED';
   const isVod = event.format === 'VOD';
+
+  // Non-null only when this event's single way in is a free ticket — the one
+  // case where the purchase ceremony can collapse into a direct watch action.
+  const soleFreeTicket = getSoleFreeTicketProduct(tickets);
 
   const purchasableTickets = isFinished
     ? tickets.filter((t) => t.capabilities.includes('REPLAY_VIEW'))
@@ -115,6 +138,9 @@ export function TicketPanel({ event, tickets }: Props) {
           <div className={styles.ownedBadge}>
             <CheckCircle2 size={18} /> {t('ticketSecured')}
           </div>
+          {/* Direct-watch skips the tier list, so this is the only place the
+              viewer gets told what the ticket they just claimed covers. */}
+          {soleFreeTicket && <TicketCapabilityChips ticket={soleFreeTicket} />}
           {liveNow ? (
             <>
               <Button
@@ -163,6 +189,49 @@ export function TicketPanel({ event, tickets }: Props) {
     );
   }
 
+  // Nothing to choose and nothing to pay: one button that claims the grant and
+  // goes to the player. The player route stays gated by the real access grant —
+  // this only removes UI, never authorization.
+  if (soleFreeTicket) {
+    const playerHref =
+      (isFinished || isVod) && soleFreeTicket.capabilities.includes('REPLAY_VIEW')
+        ? `/replay/${event.id}`
+        : `/live/${event.id}`;
+
+    return (
+      <div className={styles.panel}>
+        <div className={styles.glow} aria-hidden />
+        <div className={styles.panelContent}>
+          <div className={styles.panelLabel}>{t('freeEvent')}</div>
+          <TicketCapabilityChips ticket={soleFreeTicket} />
+          <Button
+            variant="primary"
+            fullWidth
+            icon={<Tv2 size={16} />}
+            className={styles.ticketAction}
+            isLoading={claimFreeTicket.isPending}
+            loadingLabel={t('adding')}
+            disabled={claimFreeTicket.isPending}
+            onClick={() => {
+              if (!isLoggedIn) {
+                router.push(`/login?redirect=${encodeURIComponent(`/events/${event.id}`)}`);
+                return;
+              }
+              // Only navigate once the grant exists; a failed claim leaves the
+              // button actionable and the mutation's onError toasts.
+              claimFreeTicket.mutate(soleFreeTicket.id, {
+                onSuccess: () => router.push(playerHref),
+              });
+            }}
+          >
+            {t('watch')}
+          </Button>
+          <p className={styles.totalNote}>{t('validFor')}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.panel} ref={panelRef}>
       <div className={styles.glow} aria-hidden />
@@ -182,15 +251,7 @@ export function TicketPanel({ event, tickets }: Props) {
                 <span className={styles.ticketOptionName}>{opt.name}</span>
                 <span className={styles.ticketOptionPrice}>{opt.price === 0 ? t('free') : formatPrice(opt.price, opt.currency)}</span>
               </div>
-              <div className={styles.tierChips}>
-                {opt.capabilities.includes('LIVE_VIEW') && <span className={styles.tierChip}>{t('chipLive')}</span>}
-                {opt.capabilities.includes('REPLAY_VIEW') && <span className={styles.tierChip}>{t('chipReplay')}</span>}
-                {opt.camerasLimit != null
-                  ? <span className={styles.tierChip}>{t('chipCameras', { count: opt.camerasLimit })}</span>
-                  : opt.capabilities.includes('CAMERA_VIEW') && <span className={styles.tierChip}>{t('chipAllCameras')}</span>}
-                {opt.capabilities.includes('PHYSICAL_ENTRY') && <span className={styles.tierChip}>{t('chipPhysical')}</span>}
-                {opt.soldOut && <span className={styles.tierChip}>{t('chipSoldOut')}</span>}
-              </div>
+              <TicketCapabilityChips ticket={opt} />
               {opt.description && (
                 <p className={styles.ticketOptionDesc}>{opt.description}</p>
               )}
