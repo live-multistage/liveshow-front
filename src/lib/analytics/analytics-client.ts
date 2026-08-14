@@ -28,7 +28,9 @@ export function track(params: TrackParams): void {
   const token = tokenStore.get();
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  fetch(`${config.apiUrl}/v1/analytics/events`, {
+  // apiUrl already ends in /api (the API's global prefix); the controller is
+  // @Controller('analytics'), so there is no extra /v1 segment.
+  fetch(`${config.apiUrl}/analytics/events`, {
     method: 'POST',
     headers,
     body: JSON.stringify({
