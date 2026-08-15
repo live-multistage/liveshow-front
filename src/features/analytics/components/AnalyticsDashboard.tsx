@@ -11,6 +11,7 @@ import { Line } from 'react-chartjs-2';
 import { useGetEventSalesQuery } from '../hooks/use-event-sales';
 import { useGetEventMetricsQuery } from '../hooks/use-event-metrics';
 import { useGetEventQuery } from '@/features/events/queries/get-event';
+import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
 import { useViewerAnalyticsQuery } from '../hooks/use-viewer-analytics';
 import { useCameraBreakdownQuery } from '../hooks/use-camera-breakdown';
 import { useNotificationBreakdownQuery } from '../hooks/use-notification-breakdown';
@@ -698,8 +699,9 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
 
   const { data: metrics, isLoading: metricsLoading } = useGetEventMetricsQuery(eventId, rangeWindow);
 
-  const { data: eventData } = useGetEventQuery(eventId);
+  const { data: eventData, isLoading: eventLoading } = useGetEventQuery(eventId);
   const orgId = eventData?.organizationId;
+  const { data: myOrgs = [], isLoading: orgsLoading } = useMyOrganizationsQuery();
   const { data: viewerAnalytics, isLoading: viewersLoading } = useViewerAnalyticsQuery(orgId, eventId);
   const { data: salesOrigin, isLoading: salesOriginLoading } = useSalesOriginQuery(orgId, eventId);
   const { data: cameraBreakdown, isLoading: cameraBreakdownLoading } = useCameraBreakdownQuery(orgId, eventId);
@@ -733,6 +735,32 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
     : null;
 
   const displayTitle = eventTitle ?? thisEvent?.eventTitle ?? '—';
+
+  // eventData comes from the public GET /events/:id, which serves any non-DRAFT
+  // event to anyone — resolving it proves nothing about access. Mirror the
+  // server's own gate (assertEventAnalyticsAccess) on the view so a stranger
+  // gets a clear refusal instead of a dashboard shell whose every panel 403s.
+  // Plain membership, no role check: the server deliberately does not require
+  // isAdmin() here, and a stricter client would hide panels members can read.
+  // Fails closed — an error or 401 on /organizations/mine leaves the list empty.
+  const isMember = myOrgs.some((o) => o.id === orgId);
+
+  if (eventLoading || orgsLoading) {
+    return <div className={styles.page} />;
+  }
+
+  if (!isMember) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.card}>
+          <p>Você não tem acesso às métricas deste evento.</p>
+          <Link href="/dashboard/analytics" className={styles.breadcrumbLink}>
+            Voltar para Análises
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
