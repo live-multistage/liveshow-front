@@ -5,11 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { isAxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
-import { Calendar, Clock, MapPin, Camera, RotateCcw, Play } from 'lucide-react';
+import { Calendar, Clock, MapPin, Camera, RotateCcw } from 'lucide-react';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
 import { TicketPanel } from './TicketPanel';
 import { formatDate, formatTime, formatDuration, statusLabel } from '../../utils/event-formatters';
-import { useEventCamerasQuery } from '@/features/streams/queries/streams.queries';
 import { useOrganization } from '@/features/organizations';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { useTrackEventView } from '../../hooks/use-track-event-view';
@@ -28,7 +27,6 @@ export function EventDetailPageContent({ id }: Props) {
   const { data: event, isLoading, isError, error, refetch } = useGetEventQuery(id);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
   const { data: org } = useOrganization(event?.organizationId ?? '');
-  const { cameras, isLoading: camerasLoading } = useEventCamerasQuery(event ? id : null);
   const { user } = useAuth();
   const [heroImgFailed, setHeroImgFailed] = useState(false);
   useTrackEventView(id, user?.id);
@@ -56,7 +54,10 @@ export function EventDetailPageContent({ id }: Props) {
   const isLive = event.status === 'LIVE';
   const isFinished = event.status === 'FINISHED';
   const heroImage = heroImgFailed ? null : event.bannerUrl ?? event.thumbnailUrl;
-  const cameraCount = cameras.length || event.camerasCount || 0;
+  // The production topology (streams → stages → feeds → cameras) is org-admin
+  // only, so this public page can't enumerate cameras — camerasCount on the
+  // event itself is the one camera fact a visitor is allowed to see.
+  const cameraCount = event.camerasCount || 0;
 
   return (
     <div className={styles.page}>
@@ -163,40 +164,6 @@ export function EventDetailPageContent({ id }: Props) {
               <p className={styles.description}>{event.description}</p>
             </div>
 
-            {(cameras.length > 0 || camerasLoading) && (
-              <div className={styles.section}>
-                <div className={styles.sectionLabel}>{t('availableCameras', { count: cameras.length })}</div>
-                <div className={styles.cameraGrid}>
-                  {camerasLoading
-                    ? Array.from({ length: event.camerasCount || 2 }).map((_, i) => (
-                        <div key={i} className={`${styles.cameraCard} ${styles.cameraCardSkeleton}`}>
-                          <div className={styles.cameraPreview} />
-                          <div className={styles.cameraMeta}>
-                            <p className={`${styles.cameraName} ${styles.cameraNameHidden}`}>—</p>
-                          </div>
-                        </div>
-                      ))
-                    : cameras.map((camera) => (
-                        <div key={camera.id} className={styles.cameraCard}>
-                          <div className={styles.cameraPreview}>
-                            <div className={styles.cameraPlayIcon}>
-                              <Play size={20} color="white" fill="white" />
-                            </div>
-                            {isLive && camera.enabled && (
-                              <div className={styles.cameraBadge}>
-                                <span className={styles.liveDot} /> {t('live')}
-                              </div>
-                            )}
-                          </div>
-                          <div className={styles.cameraMeta}>
-                            <p className={styles.cameraName}>{camera.name}</p>
-                            <p className={styles.cameraAngle}>{camera.stageName}</p>
-                          </div>
-                        </div>
-                      ))}
-                </div>
-              </div>
-            )}
           </div>
 
           <div className={styles.sidebarCol}>

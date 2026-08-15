@@ -22,6 +22,7 @@ vi.mock('./TicketPanel', () => ({ TicketPanel: () => null }));
 import { render, screen, fireEvent } from '@testing-library/react';
 import { EventDetailPageContent } from './EventDetailPageContent';
 import { useGetEventQuery } from '../../queries/get-event';
+import { useEventCamerasQuery } from '@/features/streams/queries/streams.queries';
 import type { EventResponse } from '../../types/event.types';
 
 const BANNER = 'https://example.com/banner.jpg';
@@ -146,5 +147,28 @@ describe('EventDetailPageContent hero media', () => {
     expect(screen.getByText('Arena')).toBeInTheDocument();
     expect(screen.getByText('AO VIVO')).toBeInTheDocument();
     expect(screen.getByText(/3 CÂMERAS/)).toBeInTheDocument();
+  });
+});
+
+// The production topology reads (streams/stages/feeds/cameras) are org-admin
+// only. An anonymous visitor on this public page would get 401/403 from all of
+// them, so the page must not reach for them at all.
+describe('EventDetailPageContent camera topology', () => {
+  it('never queries the org-gated camera topology', () => {
+    renderWithEvent(makeEvent());
+
+    expect(useEventCamerasQuery).not.toHaveBeenCalled();
+  });
+
+  it('takes the camera count from the public event payload', () => {
+    renderWithEvent(makeEvent({ camerasCount: 7 }));
+
+    expect(screen.getByText(/7 CÂMERAS/)).toBeInTheDocument();
+  });
+
+  it('hides the camera chip when the event reports no cameras', () => {
+    renderWithEvent(makeEvent({ camerasCount: 0 }));
+
+    expect(screen.queryByText(/CÂMERAS/)).toBeNull();
   });
 });
