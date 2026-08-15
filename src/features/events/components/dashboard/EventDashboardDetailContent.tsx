@@ -7,6 +7,8 @@ import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
+import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
+import { canManageOrg } from '@/features/organizations/types/organization.types';
 import { useUpdateEventMutation } from '../../mutations/update-event.mutation';
 import { usePublishEventMutation, useUnpublishEventMutation, useFinishEventMutation, useResumeLiveMutation } from '../../mutations/publish-event.mutation';
 import { EventHeaderActions } from './EventHeaderActions';
@@ -41,6 +43,14 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
 
   const { data: event, isLoading, isError } = useGetEventQuery(id, initialEvent);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
+
+  // GET /events/:id is public — it serves any non-DRAFT event to anyone — so it
+  // proves nothing about ownership. Every mutation below is gated server-side on
+  // orgRepo.findMember(...).isAdmin(); mirror that gate on the view so a stranger
+  // doesn't get a management UI whose every button 403s. Fails closed: a 401/error
+  // on /organizations/mine leaves the list empty and denies.
+  const { data: myOrgs = [], isLoading: orgsLoading } = useMyOrganizationsQuery();
+  const canManage = myOrgs.some((o) => o.id === event?.organizationId && canManageOrg(o.role));
 
   const updateMutation = useUpdateEventMutation(id);
   const publishMutation = usePublishEventMutation(id);
@@ -86,7 +96,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
     setEditing(false);
   }
 
-  if (isLoading) {
+  if (isLoading || orgsLoading) {
     return <div className={styles.centered}><span className={styles.spinner} /></div>;
   }
 
@@ -94,6 +104,17 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
     return (
       <div className={styles.centered}>
         <p className={styles.notFound}>{t('notFound')}</p>
+        <Link href="/dashboard/events" className={styles.backLink}>
+          {t('backLink')}
+        </Link>
+      </div>
+    );
+  }
+
+  if (!canManage) {
+    return (
+      <div className={styles.centered}>
+        <p className={styles.notFound}>{t('noAccess')}</p>
         <Link href="/dashboard/events" className={styles.backLink}>
           {t('backLink')}
         </Link>

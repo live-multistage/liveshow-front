@@ -454,6 +454,7 @@
   "eventDetail": {
     "back": "Events",
     "notFound": "Event not found.",
+    "noAccess": "You don't have access to this event.",
     "backLink": "Back to events",
     "description": "Description",
     "infoDate": "Date",
