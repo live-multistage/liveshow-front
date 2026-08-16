@@ -31,7 +31,8 @@
     "register": "Sign Up",
     "searchPlaceholder": "Search shows...",
     "cart": "Cart",
-    "loggingOut": "Signing out..."
+    "loggingOut": "Signing out...",
+    "myList": "My list"
   },
   "auth": {
     "login": {
@@ -933,5 +934,26 @@
     "successToast": "Report submitted. Thanks for helping keep the platform safe.",
     "alreadyReported": "You've already reported this event.",
     "genericError": "We couldn't submit your report. Please try again."
+  },
+  "myList": {
+    "title": "My list",
+    "subtitle": "The events you have access to.",
+    "watchLive": "Watch",
+    "watchReplay": "Watch replay",
+    "details": "View details",
+    "cancelled": "Event cancelled",
+    "venueOnly": "Venue ticket — grants entry to the event location.",
+    "empty": "You don't have access to any events yet.",
+    "exploreEvents": "Explore events",
+    "loadError": "We couldn't load your list.",
+    "retry": "Try again",
+    "status": {
+      "LIVE": "Live",
+      "FINISHED": "Ended",
+      "CANCELLED": "Cancelled",
+      "SCHEDULED": "Upcoming",
+      "PUBLISHED": "Upcoming",
+      "DRAFT": "Draft"
+    }
   }
 }

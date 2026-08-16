@@ -31,7 +31,8 @@
     "register": "Cadastrar",
     "searchPlaceholder": "Buscar shows...",
     "cart": "Carrinho",
-    "loggingOut": "Saindo..."
+    "loggingOut": "Saindo...",
+    "myList": "Minha lista"
   },
   "auth": {
     "login": {
@@ -936,5 +937,26 @@
     "successToast": "Denúncia enviada. Obrigado por ajudar a manter a plataforma segura.",
     "alreadyReported": "Você já denunciou este evento.",
     "genericError": "Não foi possível enviar sua denúncia. Tente novamente."
+  },
+  "myList": {
+    "title": "Minha lista",
+    "subtitle": "Os eventos a que você tem acesso.",
+    "watchLive": "Assistir",
+    "watchReplay": "Assistir replay",
+    "details": "Ver detalhes",
+    "cancelled": "Evento cancelado",
+    "venueOnly": "Ingresso presencial — acesso ao local do evento.",
+    "empty": "Você ainda não tem acesso a nenhum evento.",
+    "exploreEvents": "Explorar eventos",
+    "loadError": "Não foi possível carregar sua lista.",
+    "retry": "Tentar novamente",
+    "status": {
+      "LIVE": "Ao vivo",
+      "FINISHED": "Encerrado",
+      "CANCELLED": "Cancelado",
+      "SCHEDULED": "Em breve",
+      "PUBLISHED": "Em breve",
+      "DRAFT": "Rascunho"
+    }
   }
 }

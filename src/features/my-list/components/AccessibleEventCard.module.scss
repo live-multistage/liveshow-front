@@ -1,0 +1,63 @@
+.card {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cover {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--muted, #17171b);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.coverFallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+}
+
+.status {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.meta {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground, #a1a1aa);
+}
+
+.note {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--muted-foreground, #a1a1aa);
+}
+
+.action {
+  // Empurra a ação para a base para que cards de alturas diferentes alinhem
+  // os botões — uma grade com botões em alturas distintas lê como desalinho.
+  margin-top: auto;
+  width: 100%;
+}

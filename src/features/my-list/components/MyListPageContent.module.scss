@@ -1,0 +1,44 @@
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.heading {
+  margin: 0 0 4px;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted-foreground, #a1a1aa);
+  font-size: 0.9375rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.skeleton {
+  // Mesma proporção do card real (capa 16/9 + corpo), para o layout não
+  // saltar quando os dados chegam.
+  height: 290px;
+  border-radius: 12px;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 56px 20px;
+  text-align: center;
+  color: var(--muted-foreground, #a1a1aa);
+}
