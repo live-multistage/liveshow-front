@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutGrid, ShoppingCart } from 'lucide-react';
+import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutGrid, ShoppingCart, LibraryBig } from 'lucide-react';
 import { Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Logo } from '@live-show/design-system';
 import { useTranslations } from 'next-intl';
 // Direct paths, NOT feature barrels: importing from '@/features/account' etc.
@@ -72,6 +72,12 @@ export function Navbar() {
           <div className={styles.desktopNav}>
             <Link href="/" className={styles.navLink}>{t('home')}</Link>
             <Link href="/events" className={styles.navLink}>{t('schedule')}</Link>
+            {/* Só faz sentido para quem tem acesso a algo, e a razão de existir
+                da página é ser ACHÁVEL -- escondê-la no dropdown repetiria o
+                problema que ela resolve. */}
+            {isLoggedIn && (
+              <Link href="/minha-lista" className={styles.navLink}>{t('myList')}</Link>
+            )}
           </div>
         </div>
 
@@ -127,6 +133,12 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className={styles.dropdownItem}>
+                    <Link href="/minha-lista">
+                      <LibraryBig size={14} style={{ marginRight: '0.5rem' }} />
+                      {t('myList')}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className={styles.dropdownItem}>
                     <Link href="/tickets">
                       <Ticket size={14} style={{ marginRight: '0.5rem' }} />
                       {t('myTickets')}
@@ -173,6 +185,7 @@ export function Navbar() {
           </div>
           {isLoggedIn ? (
             <>
+              <Link href="/minha-lista" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('myList')}</Link>
               <Link href="/tickets" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('tickets')}</Link>
               {canAccessDashboard && (
                 <Link href="/dashboard" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('dashboard')}</Link>
