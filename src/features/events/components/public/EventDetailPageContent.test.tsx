@@ -2,6 +2,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ back: vi.fn() }) }));
+// Tem suíte própria (auth, otimismo, a11y) e depende de QueryClient; aqui só
+// interessa que a página o monte com o id do evento.
+vi.mock('@/features/wishlist', () => ({
+  WishlistButton: ({ eventId }: { eventId: string }) => (
+    <button data-testid="wishlist-button" data-event-id={eventId} />
+  ),
+}));
 vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
@@ -170,5 +177,18 @@ describe('EventDetailPageContent camera topology', () => {
     renderWithEvent(makeEvent({ camerasCount: 0 }));
 
     expect(screen.queryByText(/CÂMERAS/)).toBeNull();
+  });
+});
+
+describe('EventDetailPageContent wishlist', () => {
+  /**
+   * A página do evento é onde a pessoa decide se quer assistir, então é onde
+   * salvar precisa estar. O id passado tem de ser o do evento aberto — errar
+   * isso favoritaria outro evento sem nenhum sinal na tela.
+   */
+  it('offers a wishlist toggle for the event being viewed', () => {
+    renderWithEvent(makeEvent());
+
+    expect(screen.getByTestId('wishlist-button')).toHaveAttribute('data-event-id', 'evt-1');
   });
 });

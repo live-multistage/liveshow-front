@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Camera } from 'lucide-react';
 import type { Show } from '../../../types/show';
+import { WishlistButton } from '@/features/wishlist/components/WishlistButton';
 import styles from './HomePosterCard.module.scss';
 
 interface SpanPlan {
@@ -30,6 +31,8 @@ export function HomePosterCard({ show, span }: HomePosterCardProps) {
     >
       <div className={styles.art} style={{ backgroundImage: `url(${show.image})` }} />
       <div className={styles.overlay} />
+
+      <WishlistButton eventId={show.id} variant="overlay" className={styles.wishlistButton} />
 
       <div className={styles.topRow}>
         <div className={styles.badges}>

@@ -81,6 +81,13 @@
   svg { flex-shrink: 0; }
 }
 
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 .reportTrigger {
   flex-shrink: 0;
 }

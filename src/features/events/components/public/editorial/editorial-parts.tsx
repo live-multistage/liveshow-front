@@ -1,11 +1,12 @@
 // Shared (server-renderable) presentation for the editorial home. No 'use
 // client', no hooks — these render on the server when called from a server
 // component (hero/rails/carousels) and only ride into the client bundle where
-// GenreGrid (a client island) reuses EditorialCard. Images go through
-// SmartImage, the one client leaf.
+// GenreGrid (a client island) reuses EditorialCard. The client leaves are
+// SmartImage and WishlistButton; everything else here stays server-rendered.
 import Link from 'next/link';
 import type { Show } from '@/features/events/types/show';
 import { formatPriceRange } from '@/features/events/utils/event-formatters';
+import { WishlistButton } from '@/features/wishlist';
 import { SmartImage } from './SmartImage';
 import styles from '../EditorialHomeContent.module.scss';
 
@@ -92,6 +93,9 @@ export function EditorialCard({ show, localeCode }: { show: Show; localeCode: st
             </svg>
             {show.cameras.length}
           </span>
+          {/* Canto inferior: os dois de cima já são dos badges de status e de
+              câmeras. O botão trata o próprio clique, então não navega. */}
+          <WishlistButton eventId={show.id} variant="overlay" className={styles.wishlistButton} />
         </div>
         <div className={styles.eventContent}>
           <div className={styles.eventHeader}>

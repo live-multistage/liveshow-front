@@ -1,0 +1,78 @@
+@use '../../../styles/_variables' as *;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  color: var(--foreground);
+  background: transparent;
+  padding: 0;
+  transition: color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: color 0.18s ease, background-color 0.18s ease;
+  }
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+// Round icon-only button meant to sit absolutely over a card's cover image —
+// translucent dark circle keeps the heart legible over any image.
+.overlay {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(5, 4, 6, 0.55);
+  color: $text-primary;
+
+  &:hover:not(:disabled) {
+    background: rgba(5, 4, 6, 0.75);
+    color: $action;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.92);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:active:not(:disabled) {
+      transform: none;
+    }
+  }
+}
+
+// Icon + label, for the event detail page.
+.inline {
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--foreground);
+  border: 1px solid var(--border);
+
+  &:hover:not(:disabled) {
+    border-color: rgba(255, 46, 158, 0.35);
+    color: $action;
+  }
+}
+
+.label {
+  white-space: nowrap;
+}

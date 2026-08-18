@@ -14,6 +14,7 @@ import { useAuth } from '@/features/account/hooks/use-auth';
 import { useTrackEventView } from '../../hooks/use-track-event-view';
 import { AdBanner } from '@/features/advertisements';
 import { ReportButton } from '@/features/reports';
+import { WishlistButton } from '@/features/wishlist';
 import { MediaWithTeaserVideo } from '@/shared/components/MediaWithTeaserVideo';
 import styles from './EventDetailPageContent.module.scss';
 
@@ -69,7 +70,12 @@ export function EventDetailPageContent({ id }: Props) {
             </svg>
             VOLTAR
           </button>
-          <ReportButton eventId={id} className={styles.reportTrigger} />
+          {/* Agrupadas porque .topRow é space-between: um terceiro filho solto
+              cairia no centro da faixa em vez de encostar na direita. */}
+          <div className={styles.topActions}>
+            <WishlistButton eventId={id} variant="inline" />
+            <ReportButton eventId={id} className={styles.reportTrigger} />
+          </div>
         </div>
 
         <div className={styles.hero}>

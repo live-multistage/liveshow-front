@@ -4,6 +4,7 @@ import { Calendar, Clock, MapPin, Radio } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import type { EventResponse } from '@/features/events/types/event.types';
+import { WishlistButton } from '@/features/wishlist/components/WishlistButton';
 import styles from './OrganizationPublicEventCard.module.scss';
 
 const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
@@ -47,6 +48,7 @@ export function OrganizationPublicEventCard({ event }: Props) {
           </span>
         )}
         {isFinished && <span className={styles.finishedBadge}>{t('finished')}</span>}
+        <WishlistButton eventId={event.id} variant="overlay" className={styles.wishlistButton} />
       </div>
 
       <div className={styles.info}>

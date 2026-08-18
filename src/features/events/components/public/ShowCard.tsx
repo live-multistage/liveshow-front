@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Show } from '../../types/show';
 import { formatPriceRange } from '../../utils/event-formatters';
+import { WishlistButton } from '@/features/wishlist/components/WishlistButton';
 import styles from './ShowCard.module.scss';
 
 const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
@@ -69,6 +70,8 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
           {show.category && (
             <span className={styles.genreLabel}>{show.category.toUpperCase()}</span>
           )}
+
+          <WishlistButton eventId={show.id} variant="overlay" className={styles.wishlistButton} />
         </div>
 
         <div className={styles.content}>

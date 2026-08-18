@@ -1,0 +1,129 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 44px 40px 90px;
+
+  @media (max-width: $md) {
+    padding: 28px 20px 64px;
+  }
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.heading {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  color: $text-muted;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+
+  @media (max-width: $lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cardSkeleton {
+  height: 240px;
+  border-radius: 16px;
+}
+
+.card {
+  display: block;
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  color: var(--foreground);
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s ease;
+
+  &:hover {
+    border-color: rgba(255, 46, 158, 0.35);
+    transform: translateY(-3px);
+    color: var(--foreground);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: border-color 0.18s ease;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+.cover {
+  position: relative;
+  aspect-ratio: 16 / 9;
+}
+
+.image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(5, 4, 6, 0.7) 8%, transparent 55%);
+}
+
+.wishlistButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.body {
+  padding: 16px 18px;
+}
+
+.title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  margin: 5px 0 0;
+  font-size: 0.781rem;
+  color: $text-muted;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 56px 20px;
+  text-align: center;
+  color: var(--muted-foreground);
+}
