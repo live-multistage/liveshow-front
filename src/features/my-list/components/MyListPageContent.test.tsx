@@ -1,10 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+  useLocale: () => 'pt-BR',
+}));
 vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => (
     <a href={href}>{children}</a>
   ),
+}));
+
+vi.mock('@/features/account/hooks/use-auth', () => ({ useAuth: () => ({ isLoggedIn: true }) }));
+
+// Progresso tem suíte própria; aqui o default é "ninguém começou nada", e os
+// testes que precisam de progresso sobrescrevem.
+const usePlaybackProgressQuery = vi.fn(() => ({ data: [] }));
+vi.mock('@/features/playback-progress', () => ({
+  usePlaybackProgressQuery: () => usePlaybackProgressQuery(),
 }));
 
 const useAccessibleEventsQuery = vi.fn();
@@ -79,6 +91,31 @@ describe('MyListPageContent', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('loadError');
     expect(screen.queryByText('empty')).not.toBeInTheDocument();
     expect(screen.queryByText('exploreEvents')).not.toBeInTheDocument();
+  });
+
+  it('narrows the list as the user searches', () => {
+    state({ data: [EVENT, { ...EVENT, id: 'ev-2', title: 'Campus Party' }] });
+    render(<MyListPageContent />);
+
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'campus' } });
+
+    expect(screen.getByText('Campus Party')).toBeInTheDocument();
+    expect(screen.queryByText('Rock in Rio')).not.toBeInTheDocument();
+  });
+
+  /**
+   * Vazio POR BUSCA não é vazio de conta. Dizer "você não tem acesso a nenhum
+   * evento" a quem tem dois, só porque a busca não casou, mandaria a pessoa
+   * comprar de novo o que ela já comprou.
+   */
+  it('distinguishes an empty search result from an empty account', () => {
+    state({ data: [EVENT] });
+    render(<MyListPageContent />);
+
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'zzz' } });
+
+    expect(screen.getByText('noResults')).toBeInTheDocument();
+    expect(screen.queryByText('empty')).not.toBeInTheDocument();
   });
 
   it('lets the user retry after a failure', () => {

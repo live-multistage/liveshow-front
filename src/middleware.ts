@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PROTECTED_PATHS = ['/tickets', '/account', '/purchases', '/settings', '/checkout'];
+const PROTECTED_PATHS = ['/tickets', '/account', '/purchases', '/settings', '/checkout', '/wishlist', '/my-list' /* pre-existing gap: was missing route protection */];
 const DASHBOARD_PATHS = ['/dashboard'];
 const STREAM_PATHS = ['/live', '/replay'];
 const BROADCASTER_DOCK_PREFIX = '/broadcaster-dock/';
@@ -41,6 +41,8 @@ export const config = {
     '/settings/:path*',
     '/dashboard/:path*',
     '/checkout/:path*',
+    '/wishlist/:path*',
+    '/my-list/:path*',
     '/live/:path*',
     '/replay/:path*',
     '/broadcaster-dock/:path*',

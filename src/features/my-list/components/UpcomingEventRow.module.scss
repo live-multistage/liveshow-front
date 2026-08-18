@@ -1,0 +1,144 @@
+@use '../../../styles/_variables' as *;
+
+.row {
+  display: grid;
+  grid-template-columns: 74px 1fr auto;
+  align-items: center;
+  gap: 22px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 22px;
+  transition: border-color 0.18s ease;
+
+  &:hover {
+    border-color: rgba(255, 46, 158, 0.35);
+  }
+
+  @media (max-width: $md) {
+    grid-template-columns: 56px 1fr;
+    gap: 16px;
+    padding: 14px 16px;
+  }
+}
+
+.date {
+  text-align: center;
+  border-right: 1px solid var(--border);
+  padding-right: 22px;
+
+  @media (max-width: $md) {
+    padding-right: 16px;
+  }
+}
+
+.day {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.month {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #ff8ec9;
+  margin-top: 4px;
+}
+
+.main {
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.03rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tagMuted,
+.tagAccent {
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.594rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.tagMuted {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--muted-foreground);
+}
+
+.tagAccent {
+  background: rgba(255, 46, 158, 0.1);
+  border: 1px solid rgba(255, 46, 158, 0.32);
+  color: #ff8ec9;
+}
+
+.meta {
+  margin: 5px 0 0;
+  font-size: 0.8125rem;
+  color: $text-muted;
+}
+
+.note {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: $text-muted;
+}
+
+.side {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  @media (max-width: $md) {
+    grid-column: 2;
+    justify-content: flex-start;
+    margin-top: 12px;
+  }
+}
+
+.countdown {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  color: $text-muted;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.details {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--foreground);
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: rgba(255, 46, 158, 0.4);
+    color: var(--foreground);
+  }
+}

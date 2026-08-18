@@ -75,7 +75,7 @@
 }
 
 .navLink {
-  color: #c7c7cd;
+  color: $text-primary;
   font-size: 14px;
   text-decoration: none;
   transition: color 0.15s;
@@ -132,7 +132,7 @@
 
 .iconBtn {
   padding: 0.5rem;
-  color: $muted;
+  color: $text-primary;
   background: none;
   border: none;
   cursor: pointer;
@@ -293,7 +293,7 @@
 .cartBtn {
   position: relative;
   padding: 0.5rem;
-  color: $muted;
+  color: $text-primary;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -324,7 +324,7 @@
 .menuToggle {
   display: flex;
   padding: 0.5rem;
-  color: $muted;
+  color: $text-primary;
   background: none;
   border: none;
   cursor: pointer;

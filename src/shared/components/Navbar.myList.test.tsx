@@ -42,12 +42,30 @@ describe('Navbar — Minha lista', () => {
 
     const links = screen.getAllByRole('link', { name: 'myList' });
     expect(links.length).toBeGreaterThan(0);
-    expect(links[0]).toHaveAttribute('href', '/minha-lista');
+    expect(links[0]).toHaveAttribute('href', '/my-list');
   });
 
   it('is absent for a signed-out visitor', () => {
     render(<Navbar />);
 
     expect(screen.queryByRole('link', { name: 'myList' })).not.toBeInTheDocument();
+  });
+});
+
+describe('Navbar — Wishlist', () => {
+  it('is reachable from the visible bar once signed in', () => {
+    auth.isLoggedIn = true;
+    auth.user = { email: 'a@b.com', displayName: 'Ana Silva' };
+
+    render(<Navbar />);
+
+    const link = screen.getByRole('link', { name: 'wishlist' });
+    expect(link).toHaveAttribute('href', '/wishlist');
+  });
+
+  it('is absent for a signed-out visitor', () => {
+    render(<Navbar />);
+
+    expect(screen.queryByRole('link', { name: 'wishlist' })).not.toBeInTheDocument();
   });
 });

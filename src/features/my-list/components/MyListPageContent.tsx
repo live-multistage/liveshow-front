@@ -1,28 +1,99 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Button, Skeleton } from '@live-show/design-system';
+import { Search } from 'lucide-react';
+import { Button, Chip, Skeleton } from '@live-show/design-system';
+import { useAuth } from '@/features/account/hooks/use-auth';
+import { usePlaybackProgressQuery } from '@/features/playback-progress';
 import { useAccessibleEventsQuery } from '../queries/get-accessible-events';
-import { AccessibleEventCard } from './AccessibleEventCard';
+import {
+  MY_LIST_FILTERS,
+  groupAccessibleEvents,
+  isEmptyGroup,
+  type MyListFilter,
+} from '../utils/group-events';
+import { LiveEventHero } from './LiveEventHero';
+import { ContinueWatchingCard } from './ContinueWatchingCard';
+import { UpcomingEventRow } from './UpcomingEventRow';
+import { ReplayCard } from './ReplayCard';
 import styles from './MyListPageContent.module.scss';
 
 export function MyListPageContent() {
   const t = useTranslations('myList');
   const { data: events, isLoading, isError, refetch } = useAccessibleEventsQuery();
 
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<MyListFilter>('all');
+
+  const { isLoggedIn } = useAuth();
+  const { data: progressList } = usePlaybackProgressQuery({ enabled: isLoggedIn });
+
+  // Índice por evento, montado uma vez: o agrupamento consulta por id e
+  // refazer o Map a cada tecla digitada na busca seria trabalho puro.
+  const progress = useMemo(
+    () => new Map((progressList ?? []).map((p) => [p.eventId, p])),
+    [progressList],
+  );
+
+  const grouped = useMemo(
+    () => groupAccessibleEvents(events ?? [], { query, filter, progress }),
+    [events, query, filter, progress],
+  );
+
+  const total = events?.length ?? 0;
+  const hasEvents = total > 0;
+
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.heading}>{t('title')}</h1>
-        <p className={styles.subtitle}>{t('subtitle')}</p>
-      </header>
+      <div className={styles.headerRow}>
+        <div>
+          <p className={styles.eyebrow}>{t('eyebrow')}</p>
+          <h1 className={styles.heading}>{t('title')}</h1>
+          <p className={styles.subtitle}>
+            {hasEvents ? t('totalLabel', { count: total }) : t('subtitle')}
+          </p>
+        </div>
+
+        {hasEvents && (
+          <div className={styles.search}>
+            <Search size={15} aria-hidden="true" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t('searchPlaceholder')}
+              aria-label={t('searchPlaceholder')}
+              className={styles.searchInput}
+            />
+          </div>
+        )}
+      </div>
+
+      {hasEvents && (
+        <div className={styles.filters} role="group" aria-label={t('filtersLabel')}>
+          {MY_LIST_FILTERS.map((key) => (
+            <Chip
+              key={key}
+              variant={filter === key ? 'active' : 'default'}
+              aria-pressed={filter === key}
+              onClick={() => setFilter(key)}
+            >
+              {t(`filters.${key}`)}
+            </Chip>
+          ))}
+        </div>
+      )}
 
       {isLoading && (
-        <div className={styles.grid} aria-busy="true">
-          {Array.from({ length: 6 }, (_, i) => (
-            <Skeleton key={i} className={styles.skeleton} />
-          ))}
+        <div className={styles.loading} aria-busy="true">
+          <Skeleton className={styles.heroSkeleton} />
+          <div className={styles.replayGrid}>
+            {Array.from({ length: 3 }, (_, i) => (
+              <Skeleton key={i} className={styles.cardSkeleton} />
+            ))}
+          </div>
         </div>
       )}
 
@@ -38,7 +109,7 @@ export function MyListPageContent() {
         </div>
       )}
 
-      {!isLoading && !isError && events?.length === 0 && (
+      {!isLoading && !isError && !hasEvents && (
         <div className={styles.state}>
           <p>{t('empty')}</p>
           <Button asChild>
@@ -47,12 +118,73 @@ export function MyListPageContent() {
         </div>
       )}
 
-      {!isLoading && !isError && !!events?.length && (
-        <div className={styles.grid}>
-          {events.map((event) => (
-            <AccessibleEventCard key={event.id} event={event} />
-          ))}
-        </div>
+      {!isLoading && !isError && hasEvents && (
+        <>
+          {grouped.live.length > 0 && (
+            <section className={styles.section}>
+              <h2 className={`${styles.sectionTitle} ${styles.sectionTitleLive}`}>
+                <span className={styles.pulse} aria-hidden="true" />
+                {t('sections.live')}
+              </h2>
+              <div className={styles.stack}>
+                {grouped.live.map((event) => (
+                  <LiveEventHero key={event.id} event={event} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {grouped.continueWatching.length > 0 && (
+            <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>{t('sections.continueWatching')}</h2>
+              <div className={styles.continueGrid}>
+                {grouped.continueWatching.map((event) => {
+                  const entry = progress.get(event.id);
+                  // O agrupamento só põe aqui quem TEM progresso, mas o card
+                  // exige a entrada — a guarda evita depender dessa invariante
+                  // à distância.
+                  return entry ? (
+                    <ContinueWatchingCard key={event.id} event={event} progress={entry} />
+                  ) : null;
+                })}
+              </div>
+            </section>
+          )}
+
+          {grouped.upcoming.length > 0 && (
+            <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>{t('sections.upcoming')}</h2>
+              <div className={styles.rows}>
+                {grouped.upcoming.map((event) => (
+                  <UpcomingEventRow key={event.id} event={event} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {grouped.replays.length > 0 && (
+            <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>{t('sections.replays')}</h2>
+              <div className={styles.replayGrid}>
+                {grouped.replays.map((event) => (
+                  <ReplayCard key={event.id} event={event} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Vazio POR FILTRO, não vazio de conta: o usuário tem eventos, só
+              nenhum que case com o que ele pediu. Dizer "você não tem acesso a
+              nada" aqui seria mentira. */}
+          {isEmptyGroup(grouped) && (
+            <div className={styles.noResults}>
+              <p className={styles.noResultsTitle}>{t('noResults')}</p>
+              <p className={styles.noResultsHint}>
+                {query.trim() ? t('noResultsQuery', { query: query.trim() }) : t('noResultsFilter')}
+              </p>
+            </div>
+          )}
+        </>
       )}
     </main>
   );
