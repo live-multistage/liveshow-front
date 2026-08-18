@@ -63,6 +63,8 @@ export function TicketPanel({ event, tickets }: Props) {
   const isFinished = event.status === 'FINISHED';
   const isVod = event.format === 'VOD';
 
+  const hasDemo = event.teaserVideoUrl !== null;
+
   // Non-null only when this event's single way in is a free ticket — the one
   // case where the purchase ceremony can collapse into a direct watch action.
   const soleFreeTicket = getSoleFreeTicketProduct(tickets);
@@ -380,6 +382,14 @@ export function TicketPanel({ event, tickets }: Props) {
           )}
         </button>
           </>
+        )}
+
+        {hasDemo && (
+          <div className={styles.demoLink}>
+            <Link href={`/live/${event.id}`} className={styles.demoBtn}>
+              {t('freePreview')}
+            </Link>
+          </div>
         )}
 
         {isLive && (
