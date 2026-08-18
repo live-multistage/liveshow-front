@@ -40,7 +40,6 @@ export function EditorialHome({
 
   return (
     <div className={styles.page}>
-      <LiveTicker shows={liveShows} />
 
       {heroSlides.length > 0 && <EditorialHero slides={heroSlides} localeCode={localeCode} />}
 
