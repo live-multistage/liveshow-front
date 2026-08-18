@@ -76,3 +76,8 @@ server.mjs
 
 # tooling / skill scratch
 .impeccable/
+
+# tooling state (local only)
+.claude/
+.codegraph/
+*.code-workspace
