@@ -32,7 +32,9 @@
     "searchPlaceholder": "Search shows...",
     "cart": "Cart",
     "loggingOut": "Signing out...",
-    "myList": "My list"
+    "myList": "My list",
+    "wishlist": "Wishlist",
+    "help": "Help"
   },
   "auth": {
     "login": {
@@ -707,7 +709,8 @@
     "replayUnavailable": "Replay unavailable",
     "connecting": "Connecting…",
     "noSignal": "No signal",
-    "visitor": "visitor"
+    "visitor": "visitor",
+    "resume": "Resume"
   },
   "controlRoom": {
     "noCameraOnAir": "No camera on air",
@@ -947,13 +950,117 @@
     "exploreEvents": "Explore events",
     "loadError": "We couldn't load your list.",
     "retry": "Try again",
-    "status": {
-      "LIVE": "Live",
-      "FINISHED": "Ended",
-      "CANCELLED": "Cancelled",
-      "SCHEDULED": "Upcoming",
-      "PUBLISHED": "Upcoming",
-      "DRAFT": "Draft"
+    "eyebrow": "YOUR ACCESS",
+    "totalLabel": "{count, plural, one {# event in your account} other {# events in your account}} · live, replays and venue tickets",
+    "searchPlaceholder": "Search by event, venue or city",
+    "filtersLabel": "Filter access",
+    "filters": {
+      "all": "ALL",
+      "live": "LIVE",
+      "upcoming": "UPCOMING",
+      "replays": "REPLAYS",
+      "venue": "IN PERSON"
+    },
+    "sections": {
+      "live": "LIVE NOW",
+      "upcoming": "UPCOMING EVENTS",
+      "replays": "AVAILABLE REPLAYS",
+      "continueWatching": "CONTINUE WATCHING"
+    },
+    "liveBadge": "LIVE",
+    "startedAt": "Started at {time} · your ticket covers the live stream and the replay",
+    "badges": {
+      "venue": "IN PERSON",
+      "stream": "LIVE + REPLAY",
+      "replay": "REPLAY",
+      "cancelled": "CANCELLED"
+    },
+    "noResults": "No events found",
+    "noResultsQuery": "Nothing matches \"{query}\". Try another name, venue or city.",
+    "noResultsFilter": "No events in this filter.",
+    "remaining": "{time} left · {percent}% watched"
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "subtitle": "The events you want to watch.",
+    "empty": "You haven't saved any events yet.",
+    "emptyCta": "Explore events",
+    "loadError": "We couldn't load your wishlist.",
+    "retry": "Try again",
+    "save": "Save",
+    "saved": "Saved",
+    "removeAria": "Remove from wishlist",
+    "saveAria": "Save to wishlist",
+    "errorToast": "Couldn't update your wishlist."
+  },
+  "notFound": {
+    "metaTitle": "Page not found",
+    "eyebrow": "ERROR 404 · OFF AIR",
+    "title": "This broadcast doesn't exist",
+    "description": "The link may have changed, the event may have been removed — or you typed an address that has not gone on air yet.",
+    "goHome": "Back to home",
+    "seeSchedule": "See schedule",
+    "ticketHelp": "Bought a ticket and can't find the event?",
+    "ticketHelpLink": "Check your list"
+  },
+  "footer": {
+    "terms": "Terms and privacy",
+    "contact": "Contact us",
+    "help": "Help",
+    "copyright": "© {year} LIVESHOW. All rights reserved."
+  },
+  "help": {
+    "metaTitle": "Help",
+    "eyebrow": "HELP CENTRE",
+    "title": "Frequently asked questions",
+    "subtitle": "Everything about tickets, live streams, replays and your account.",
+    "searchPlaceholder": "Search a question",
+    "filtersLabel": "Filter by category",
+    "noResults": "No answer found",
+    "noResultsHint": "Try another word, or talk to us.",
+    "ctaTitle": "Didn't find what you were looking for?",
+    "ctaSubtitle": "Our team replies within 24h, every day.",
+    "ctaAction": "Contact support",
+    "categories": {
+      "all": "ALL",
+      "tickets": "TICKETS",
+      "streaming": "STREAMING",
+      "replays": "REPLAYS",
+      "account": "ACCOUNT"
+    },
+    "faq": {
+      "findEvent": {
+        "q": "I bought a ticket. Where do I find my event?",
+        "a": "Everything you have access to lives in \"My list\": live events appear at the top, followed by upcoming events and available replays. You also get the link by email after the purchase."
+      },
+      "venueTicket": {
+        "q": "Does a venue ticket include the stream?",
+        "a": "Not necessarily. Venue tickets grant entry to the event location. If the event is also streamed, you will see the \"LIVE + REPLAY\" tag on your list — in that case the same ticket unlocks both."
+      },
+      "cameraAngles": {
+        "q": "Can I watch from several camera angles?",
+        "a": "Yes. On multi-camera events the player shows a side panel with every available camera. You can switch angle at any time, or turn on grid mode to watch several cameras at once."
+      },
+      "streamDown": {
+        "q": "The stream froze or went off air. What should I do?",
+        "a": "First check your connection and reload the page. Quality adapts to your internet automatically. Drops on the event side are announced in the player itself, and the missed stretch stays available in the replay."
+      },
+      "replayWindow": {
+        "q": "How long does the replay stay available?",
+        "a": "The availability window is stated on each event page. While watching you can pause and use the progress bar to jump back to any moment."
+      },
+      "replayAngles": {
+        "q": "Does the replay have the same camera angles as the live stream?",
+        "a": "Yes. Every angle broadcast live is also available in the replay, with the same navigation between cameras."
+      },
+      "devices": {
+        "q": "How many devices can I watch on?",
+        "a": "You can sign in on several devices. To see and end open sessions, go to Account settings — from there you can disconnect any device you do not recognise."
+      },
+      "refund": {
+        "q": "How do I request a refund?",
+        "a": "Contact support using the button at the bottom of this page, telling us the event and the email used for the purchase. Our team confirms the conditions and, once approved, the refund follows your card issuer timeline."
+      }
     }
   }
 }

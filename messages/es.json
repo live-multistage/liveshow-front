@@ -32,7 +32,9 @@
     "searchPlaceholder": "Buscar shows...",
     "cart": "Carrito",
     "loggingOut": "Cerrando sesión...",
-    "myList": "Mi lista"
+    "myList": "Mi lista",
+    "wishlist": "Favoritos",
+    "help": "Ayuda"
   },
   "auth": {
     "login": {
@@ -707,7 +709,8 @@
     "replayUnavailable": "Repetición no disponible",
     "connecting": "Conectando…",
     "noSignal": "Sin señal",
-    "visitor": "visitante"
+    "visitor": "visitante",
+    "resume": "Reanudar"
   },
   "controlRoom": {
     "noCameraOnAir": "Ninguna cámara al aire",
@@ -947,13 +950,117 @@
     "exploreEvents": "Explorar eventos",
     "loadError": "No pudimos cargar tu lista.",
     "retry": "Reintentar",
-    "status": {
-      "LIVE": "En vivo",
-      "FINISHED": "Finalizado",
-      "CANCELLED": "Cancelado",
-      "SCHEDULED": "Próximamente",
-      "PUBLISHED": "Próximamente",
-      "DRAFT": "Borrador"
+    "eyebrow": "TUS ACCESOS",
+    "totalLabel": "{count, plural, one {# evento en tu cuenta} other {# eventos en tu cuenta}} · en vivo, repeticiones y entradas presenciales",
+    "searchPlaceholder": "Buscar por evento, lugar o ciudad",
+    "filtersLabel": "Filtrar accesos",
+    "filters": {
+      "all": "TODOS",
+      "live": "EN VIVO",
+      "upcoming": "PRÓXIMOS",
+      "replays": "REPETICIONES",
+      "venue": "PRESENCIAL"
+    },
+    "sections": {
+      "live": "EN VIVO AHORA",
+      "upcoming": "PRÓXIMOS EVENTOS",
+      "replays": "REPETICIONES DISPONIBLES",
+      "continueWatching": "CONTINUAR VIENDO"
+    },
+    "liveBadge": "EN VIVO",
+    "startedAt": "Empezó a las {time} · tu entrada da acceso en vivo y a la repetición",
+    "badges": {
+      "venue": "PRESENCIAL",
+      "stream": "EN VIVO + REPETICIÓN",
+      "replay": "REPETICIÓN",
+      "cancelled": "CANCELADO"
+    },
+    "noResults": "No se encontraron eventos",
+    "noResultsQuery": "Nada coincide con \"{query}\". Prueba otro nombre, lugar o ciudad.",
+    "noResultsFilter": "Ningún evento en este filtro.",
+    "remaining": "Quedan {time} · {percent}% visto"
+  },
+  "wishlist": {
+    "title": "Favoritos",
+    "subtitle": "Los eventos que quieres ver.",
+    "empty": "Todavía no has guardado ningún evento.",
+    "emptyCta": "Explorar eventos",
+    "loadError": "No pudimos cargar tus favoritos.",
+    "retry": "Reintentar",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "removeAria": "Quitar de favoritos",
+    "saveAria": "Guardar en favoritos",
+    "errorToast": "No pudimos actualizar tus favoritos."
+  },
+  "notFound": {
+    "metaTitle": "Página no encontrada",
+    "eyebrow": "ERROR 404 · FUERA DEL AIRE",
+    "title": "Esa transmisión no existe",
+    "description": "El enlace puede haber cambiado, el evento puede haber sido eliminado — o escribiste una dirección que todavía no salió al aire.",
+    "goHome": "Volver al inicio",
+    "seeSchedule": "Ver programación",
+    "ticketHelp": "¿Compraste una entrada y no encuentras el evento?",
+    "ticketHelpLink": "Revisa tu lista"
+  },
+  "footer": {
+    "terms": "Términos y privacidad",
+    "contact": "Contáctanos",
+    "help": "Ayuda",
+    "copyright": "© {year} LIVESHOW. Todos los derechos reservados."
+  },
+  "help": {
+    "metaTitle": "Ayuda",
+    "eyebrow": "CENTRO DE AYUDA",
+    "title": "Preguntas frecuentes",
+    "subtitle": "Todo sobre entradas, transmisiones en vivo, repeticiones y tu cuenta.",
+    "searchPlaceholder": "Buscar una duda",
+    "filtersLabel": "Filtrar por categoría",
+    "noResults": "No se encontró ninguna respuesta",
+    "noResultsHint": "Prueba otra palabra o habla con nosotros.",
+    "ctaTitle": "¿No encontraste lo que buscabas?",
+    "ctaSubtitle": "Nuestro equipo responde en hasta 24h, todos los días.",
+    "ctaAction": "Hablar con soporte",
+    "categories": {
+      "all": "TODAS",
+      "tickets": "ENTRADAS",
+      "streaming": "TRANSMISIÓN",
+      "replays": "REPETICIONES",
+      "account": "CUENTA"
+    },
+    "faq": {
+      "findEvent": {
+        "q": "Compré una entrada. ¿Dónde encuentro mi evento?",
+        "a": "Todos tus accesos están en \"Mi lista\": los eventos en vivo aparecen arriba, seguidos de los próximos eventos y de las repeticiones disponibles. También recibes el enlace por correo después de la compra."
+      },
+      "venueTicket": {
+        "q": "¿La entrada presencial da acceso a la transmisión?",
+        "a": "No necesariamente. Las entradas presenciales dan acceso al lugar del evento. Si el evento se transmite, verás la etiqueta \"EN VIVO + REPETICIÓN\" en tu lista — en ese caso la misma entrada habilita ambas."
+      },
+      "cameraAngles": {
+        "q": "¿Puedo ver desde varios ángulos de cámara?",
+        "a": "Sí. En eventos con multicámara, el reproductor muestra un panel lateral con todas las cámaras disponibles. Puedes cambiar de ángulo cuando quieras o activar el modo cuadrícula para ver varias a la vez."
+      },
+      "streamDown": {
+        "q": "La transmisión se congeló o está fuera del aire. ¿Qué hago?",
+        "a": "Primero revisa tu conexión y recarga la página. La calidad se ajusta automáticamente a tu internet. Las caídas del lado del evento se avisan en el propio reproductor, y el tramo perdido queda disponible en la repetición."
+      },
+      "replayWindow": {
+        "q": "¿Cuánto tiempo está disponible la repetición?",
+        "a": "El plazo de disponibilidad se indica en la página de cada evento. Durante la reproducción puedes pausar y usar la barra de progreso para volver a cualquier momento."
+      },
+      "replayAngles": {
+        "q": "¿La repetición tiene los mismos ángulos que el vivo?",
+        "a": "Sí. Todos los ángulos transmitidos en vivo quedan disponibles también en la repetición, con la misma navegación entre cámaras."
+      },
+      "devices": {
+        "q": "¿En cuántos dispositivos puedo ver?",
+        "a": "Puedes iniciar sesión en varios dispositivos. Para ver y cerrar las sesiones abiertas, entra en Configuración de la cuenta — desde allí desconectas cualquier dispositivo que no reconozcas."
+      },
+      "refund": {
+        "q": "¿Cómo pido el reembolso de una entrada?",
+        "a": "Habla con soporte usando el botón al final de esta página, indicando el evento y el correo de la compra. Nuestro equipo confirma las condiciones y, una vez aprobado, el reembolso sigue el plazo de tu tarjeta."
+      }
     }
   }
 }
