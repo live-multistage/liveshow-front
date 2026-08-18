@@ -70,6 +70,9 @@ interface CameraGridProps {
   librasCameraId?: string | null;
   mode?: 'live' | 'replay';
   paused?: boolean;
+  // Replay: instante absoluto atual do evento, para cada painel julgar a
+  // própria cobertura contra ele.
+  positionMs?: number;
   // Live only: the viewer DELIBERATELY scrubbed back in the DVR window (see
   // LivePlayer — this is intent, never measured drift).
   dvrActive?: boolean;
@@ -108,6 +111,7 @@ export function CameraGrid({
   librasCameraId = null,
   mode = 'live',
   paused,
+  positionMs,
   dvrActive = false,
   seekCommand,
   onProgress,
@@ -126,6 +130,7 @@ export function CameraGrid({
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
+    
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
       setSize((p) => (p.width === width && p.height === height ? p : { width, height }));
@@ -448,6 +453,12 @@ export function CameraGrid({
               onAspectRatioReady={handleAspectRatioReady}
               mode={mode}
               paused={paused}
+              positionMs={positionMs}
+              // Cobertura é POR CÂMERA de propósito: é o que permite a este
+              // painel traduzir o instante absoluto do evento para o tempo
+              // local dele — e mostrar placeholder, em vez de buscar uma
+              // posição que a mídia dele não cobre, quando não há tradução.
+              coverage={cam.coverage}
               dvrActive={dvrActive}
               // Replay: every active panel seeks together (each camera is its
               // own VOD timeline starting at 0, so the same offset is right).

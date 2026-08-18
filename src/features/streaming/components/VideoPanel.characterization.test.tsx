@@ -9,6 +9,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, act, fireEvent } from '@testing-library/react';
 import { VideoPanel } from './VideoPanel';
 import type { LiveCamera } from '../types/live.types';
+import type { ReplaySegmentCoverage } from '../utils/replay-timeline';
 
 // ── hls.js mock ──────────────────────────────────────────────────────────────
 const h = vi.hoisted(() => {
@@ -319,5 +320,141 @@ describe('VideoPanel characterization — replay controls', () => {
     expect(onProgress).toHaveBeenCalledWith(expect.any(Number), expect.any(Number));
     fireEvent(video, new Event('ended'));
     expect(onEnded).toHaveBeenCalled();
+  });
+});
+
+// ── Reprodução do bug relatado ───────────────────────────────────────────────
+// "Adiciono uma câmera na tela e ela não sai do pause até eu selecionar a faixa
+// de áudio dela ou colocá-la no main rail."
+describe('VideoPanel — câmera adicionada com a reprodução já rodando (replay)', () => {
+  it('autoplays a panel that mounts while the shared state is playing', () => {
+    render(<VideoPanel camera={cam()} {...baseProps} mode="replay" paused={false} />);
+    act(() => lastHls().emit(h.MockHls.Events.MANIFEST_PARSED));
+    expect(playMock).toHaveBeenCalled();
+  });
+
+  it('autoplays even when it is neither focused nor the audio source', () => {
+    render(
+      <VideoPanel
+        camera={cam()}
+        {...baseProps}
+        mode="replay"
+        paused={false}
+        isFocused={false}
+        selectedAudioCameraId={undefined}
+      />,
+    );
+    act(() => lastHls().emit(h.MockHls.Events.MANIFEST_PARSED));
+    expect(playMock).toHaveBeenCalled();
+  });
+
+  it('starts once play is pressed after mounting paused', () => {
+    const { rerender } = render(
+      <VideoPanel camera={cam()} {...baseProps} mode="replay" paused />,
+    );
+    act(() => lastHls().emit(h.MockHls.Events.MANIFEST_PARSED));
+    playMock.mockClear();
+
+    rerender(<VideoPanel camera={cam()} {...baseProps} mode="replay" paused={false} />);
+
+    expect(playMock).toHaveBeenCalled();
+  });
+});
+
+// ── F3: per-camera coverage translation ─────────────────────────────────────
+describe('VideoPanel — replay coverage translation', () => {
+  // Stretch 1: absolute [0, 10_000) → local [0, 10).
+  // A reconnect gap follows: absolute [10_000, 20_000) has no coverage.
+  // Stretch 2: absolute [20_000, 30_000] → local [10, 20], continuing the
+  // stitched timeline where stretch 1 left off (the gap is not in local time).
+  const twoStretchCoverage: ReplaySegmentCoverage[] = [
+    { startsAtMs: 0, endsAtMs: 10_000, localStartSec: 0 },
+    { startsAtMs: 20_000, endsAtMs: 30_000, localStartSec: 10 },
+  ];
+
+  function findPlaceholder(container: HTMLElement) {
+    return container.querySelector('[aria-hidden="true"]');
+  }
+
+  it('seeks to the translated LOCAL seconds, skipping the gap across two stretches', () => {
+    const { container } = render(
+      <VideoPanel
+        camera={cam()} {...baseProps} mode="replay"
+        coverage={twoStretchCoverage}
+        seekCommand={{ time: 25_000, token: 1 }}
+      />,
+    );
+    const video = container.querySelector('video')!;
+    // absoluteToLocal(25_000) = 10 (stretch 2's localStartSec) + (25_000 - 20_000) / 1000 = 15.
+    expect(video.currentTime).toBe(15);
+    expect(findPlaceholder(container)).toBeNull();
+  });
+
+  it('the reported bug: instant BEFORE this camera coverage starts renders a placeholder and never plays or seeks', () => {
+    const lateCoverage: ReplaySegmentCoverage[] = [
+      { startsAtMs: 15_000, endsAtMs: 30_000, localStartSec: 0 },
+    ];
+    const { container } = render(
+      <VideoPanel
+        camera={cam()} {...baseProps} mode="replay"
+        paused={false}
+        coverage={lateCoverage}
+        seekCommand={{ time: 5_000, token: 1 }}
+      />,
+    );
+    const video = container.querySelector('video')!;
+    expect(findPlaceholder(container)).not.toBeNull();
+    expect(playMock).not.toHaveBeenCalled();
+    expect(video.currentTime).toBe(0);
+  });
+
+  it('an instant inside a reconnect gap renders a placeholder', () => {
+    const { container } = render(
+      <VideoPanel
+        camera={cam()} {...baseProps} mode="replay"
+        coverage={twoStretchCoverage}
+        seekCommand={{ time: 15_000, token: 1 }}
+      />,
+    );
+    expect(findPlaceholder(container)).not.toBeNull();
+  });
+
+  it('resumes normally when the instant moves from outside back inside coverage', () => {
+    const lateCoverage: ReplaySegmentCoverage[] = [
+      { startsAtMs: 15_000, endsAtMs: 30_000, localStartSec: 0 },
+    ];
+    const { container, rerender } = render(
+      <VideoPanel
+        camera={cam()} {...baseProps} mode="replay"
+        paused={false}
+        coverage={lateCoverage}
+        seekCommand={{ time: 5_000, token: 1 }}
+      />,
+    );
+    expect(findPlaceholder(container)).not.toBeNull();
+    playMock.mockClear();
+
+    rerender(
+      <VideoPanel
+        camera={cam()} {...baseProps} mode="replay"
+        paused={false}
+        coverage={lateCoverage}
+        seekCommand={{ time: 20_000, token: 2 }}
+      />,
+    );
+
+    const video = container.querySelector('video')!;
+    expect(findPlaceholder(container)).toBeNull();
+    expect(video.currentTime).toBe(5); // (20_000 - 15_000) / 1000
+    expect(playMock).toHaveBeenCalled();
+  });
+
+  it('a live panel with no coverage prop behaves as before (regression guard)', () => {
+    const { container } = render(
+      <VideoPanel camera={cam()} {...baseProps} seekCommand={{ time: 42, token: 1 }} />,
+    );
+    const video = container.querySelector('video')!;
+    expect(video.currentTime).toBe(42);
+    expect(findPlaceholder(container)).toBeNull();
   });
 });

@@ -4,10 +4,11 @@
  * setLiveSeekableRange), so the scrubber's bounds and the "am I live?" answer
  * have to come from video.seekable + hls.liveSyncPosition — not from duration.
  */
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, fireEvent } from '@testing-library/react';
 import type Hls from 'hls.js';
 import type { RefObject } from 'react';
+import type { ReplaySegmentCoverage } from '../utils/replay-timeline';
 import {
   useTransportControls,
   isAtLiveEdge,
@@ -125,5 +126,294 @@ describe('useTransportControls — replay progress is unchanged', () => {
 
     fireEvent(video, new Event('timeupdate'));
     expect(onProgress).toHaveBeenCalledWith(42, 300);
+  });
+});
+
+describe('useTransportControls — resuming a paused live stream', () => {
+  /**
+   * O caso que motivou a recuperação: a janela deslizante andou enquanto o
+   * viewer ficou pausado, e a posição dele agora aponta para segmentos que o
+   * servidor já descartou. Retomar dali trava o player sem erro nenhum.
+   */
+  it('jumps to the live edge when the DVR window has slid past the position', () => {
+    const video = makeVideo({ currentTime: 100, seekable: [900, 4200] });
+    const play = vi.spyOn(video, 'play').mockResolvedValue(undefined);
+
+    const { rerender } = renderControls(video, { paused: true, hlsRef: hlsWith(4180) });
+    rerender({ paused: false, hlsRef: hlsWith(4180) });
+
+    expect(video.currentTime).toBe(4180);
+    expect(play).toHaveBeenCalled();
+  });
+
+  it('falls back to the seekable end when there is no hls instance (Safari native)', () => {
+    const video = makeVideo({ currentTime: 100, seekable: [900, 4200] });
+    vi.spyOn(video, 'play').mockResolvedValue(undefined);
+
+    const { rerender } = renderControls(video, { paused: true });
+    rerender({ paused: false });
+
+    expect(video.currentTime).toBe(4200);
+  });
+
+  /**
+   * Uma pausa curta continua sendo um rewind de DVR legítimo. Arrastar o
+   * viewer de volta ao vivo aqui seria roubar a posição que ele escolheu.
+   */
+  it('leaves a position that is still inside the window alone', () => {
+    const video = makeVideo({ currentTime: 1200, seekable: [900, 4200] });
+    vi.spyOn(video, 'play').mockResolvedValue(undefined);
+
+    const { rerender } = renderControls(video, { paused: true, hlsRef: hlsWith(4180) });
+    rerender({ paused: false, hlsRef: hlsWith(4180) });
+
+    expect(video.currentTime).toBe(1200);
+  });
+
+  /** Replay é uma timeline fixa: não existe janela para sair. */
+  it('never repositions a replay', () => {
+    const video = makeVideo({ currentTime: 100, seekable: [900, 4200], duration: 4200 });
+    vi.spyOn(video, 'play').mockResolvedValue(undefined);
+
+    const { rerender } = renderControls(video, { mode: 'replay', paused: true });
+    rerender({ mode: 'replay', paused: false });
+
+    expect(video.currentTime).toBe(100);
+  });
+
+  it('pauses the element without touching the position', () => {
+    const video = makeVideo({ currentTime: 100, seekable: [900, 4200] });
+    const pause = vi.spyOn(video, 'pause').mockImplementation(() => {});
+
+    renderControls(video, { paused: true, hlsRef: hlsWith(4180) });
+
+    expect(pause).toHaveBeenCalled();
+    expect(video.currentTime).toBe(100);
+  });
+});
+
+describe('useTransportControls — painel que ainda carregava quando o play começou', () => {
+  /**
+   * O bug relatado. O CameraGrid monta um painel para TODA câmera do palco
+   * desde o carregamento, então dar play com várias ainda baixando manifest
+   * fazia o play() rejeitar nelas. A rejeição era engolida e ninguém tentava de
+   * novo: a principal tocava, as outras ficavam mudas até serem promovidas.
+   */
+  it('retries once the element reports it can play', async () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    // Primeira tentativa falha, como um elemento sem dados ainda.
+    const play = vi
+      .spyOn(video, 'play')
+      .mockRejectedValueOnce(new Error('not ready'))
+      .mockResolvedValue(undefined);
+
+    renderControls(video, { mode: 'replay', paused: false });
+    await Promise.resolve();
+    expect(play).toHaveBeenCalledTimes(1);
+
+    fireEvent(video, new Event('canplay'));
+
+    expect(play).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops retrying once playback is paused again', () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    vi.spyOn(video, 'pause').mockImplementation(() => {});
+    const play = vi.spyOn(video, 'play').mockResolvedValue(undefined);
+
+    const { rerender } = renderControls(video, { mode: 'replay', paused: false });
+    play.mockClear();
+
+    rerender({ mode: 'replay', paused: true });
+    fireEvent(video, new Event('canplay'));
+
+    expect(play).not.toHaveBeenCalled();
+  });
+
+  /** Elemento que já toca: repetir play() é no-op, mas não pode explodir. */
+  it('is harmless when canplay fires on an element already playing', () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    const play = vi.spyOn(video, 'play').mockResolvedValue(undefined);
+
+    renderControls(video, { mode: 'replay', paused: false });
+    fireEvent(video, new Event('canplay'));
+    fireEvent(video, new Event('canplay'));
+
+    expect(play).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe('useTransportControls — diagnóstico de play', () => {
+  let warn: ReturnType<typeof vi.spyOn>;
+  beforeEach(() => { warn = vi.spyOn(console, 'warn').mockImplementation(() => {}); });
+  afterEach(() => warn.mockRestore());
+
+  const playing = (video: HTMLVideoElement) =>
+    renderControls(video, { mode: 'replay', paused: false, cameraId: 'cam-b' });
+
+  it('names the camera that failed, which is the first thing one wants to know', async () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    vi.spyOn(video, 'play').mockRejectedValue(new Error('boom'));
+
+    playing(video);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('[play-failed]'));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('camera=cam-b'));
+  });
+
+  /**
+   * AbortError é play() interrompido por pause() ou por um load novo — rotina
+   * do ciclo do player. Logar afogaria o sinal que importa.
+   */
+  it('stays quiet on an aborted play', async () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    vi.spyOn(video, 'play').mockRejectedValue(
+      new DOMException('interrupted', 'AbortError'),
+    );
+
+    playing(video);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  /** "Falhou e depois tocou" é outra história que "nunca tocou". */
+  it('reports that a retry recovered, and after how many attempts', async () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    vi.spyOn(video, 'play')
+      .mockRejectedValueOnce(new Error('not ready'))
+      .mockResolvedValue(undefined);
+
+    playing(video);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    fireEvent(video, new Event('canplay'));
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('[play-recovered]'));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('afterAttempts=1'));
+  });
+
+  it('says nothing when playback starts on the first try', async () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    vi.spyOn(video, 'play').mockResolvedValue(undefined);
+
+    playing(video);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(warn).not.toHaveBeenCalled();
+  });
+});
+
+describe('useTransportControls — cobertura julgada pela posição, não pelo último seek', () => {
+  // Câmera que só entra aos 60s do evento.
+  const LATE: ReplaySegmentCoverage[] = [
+    { startsAtMs: 60_000, endsAtMs: 180_000, localStartSec: 0 },
+  ];
+
+  const play = (video: HTMLVideoElement) => vi.spyOn(video, 'play').mockResolvedValue(undefined);
+
+  it('refuses to play while the current instant is before this camera joined', () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    const spy = play(video);
+
+    const { result } = renderControls(video, {
+      mode: 'replay', paused: false, coverage: LATE, positionMs: 10_000,
+    });
+
+    expect(result.current.outsideCoverage).toBe(true);
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  /**
+   * O bug relatado. A reprodução AVANÇA sozinha, sem emitir seek nenhum. Ao
+   * derivar do seekCommand, o painel ficava preso no veredito de um instante já
+   * passado e a câmera nunca voltava a tocar — nem ao ser adicionada ao grid.
+   */
+  it('starts playing on its own once playback advances into coverage', () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    const spy = play(video);
+
+    const { result, rerender } = renderControls(video, {
+      mode: 'replay', paused: false, coverage: LATE, positionMs: 10_000,
+    });
+    expect(spy).not.toHaveBeenCalled();
+
+    // Nenhum seek: só o tempo passando.
+    rerender({ mode: 'replay', paused: false, coverage: LATE, positionMs: 61_000 });
+
+    expect(result.current.outsideCoverage).toBe(false);
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('goes back to the placeholder when playback leaves coverage again', () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    play(video);
+    vi.spyOn(video, 'pause').mockImplementation(() => {});
+
+    const { result, rerender } = renderControls(video, {
+      mode: 'replay', paused: false, coverage: LATE, positionMs: 61_000,
+    });
+    expect(result.current.outsideCoverage).toBe(false);
+
+    rerender({ mode: 'replay', paused: false, coverage: LATE, positionMs: 200_000 });
+
+    expect(result.current.outsideCoverage).toBe(true);
+  });
+
+  /** Antes do primeiro progresso chegar, o seek comandado é o que se tem. */
+  it('falls back to the commanded seek before any position is reported', () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    play(video);
+
+    const { result } = renderControls(video, {
+      mode: 'replay', paused: false, coverage: LATE,
+      seekCommand: { time: 10_000, token: 1 },
+    });
+
+    expect(result.current.outsideCoverage).toBe(true);
+  });
+});
+
+describe('useTransportControls — quem pausou', () => {
+  let warn: ReturnType<typeof vi.spyOn>;
+  beforeEach(() => { warn = vi.spyOn(console, 'warn').mockImplementation(() => {}); });
+  afterEach(() => warn.mockRestore());
+
+  /**
+   * Enquanto o estado diz "tocando", um `pause` no elemento veio de fora do
+   * nosso código. Sem registrar, "a câmera parou" e "a câmera nunca começou"
+   * caem no mesmo balde — foi o que travou o diagnóstico da troca de áudio.
+   */
+  it('reports a pause that our own state did not ask for', () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    vi.spyOn(video, 'play').mockResolvedValue(undefined);
+
+    renderControls(video, { mode: 'live', paused: false, cameraId: 'cam-a' });
+    fireEvent(video, new Event('pause'));
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('[paused-externally]'));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('camera=cam-a'));
+  });
+
+  /** Pausa pedida por nós não é anomalia: o listener sai antes. */
+  it('says nothing when the pause is the one we commanded', () => {
+    const video = makeVideo({ currentTime: 0, seekable: [0, 600], duration: 600 });
+    vi.spyOn(video, 'play').mockResolvedValue(undefined);
+    vi.spyOn(video, 'pause').mockImplementation(() => {});
+
+    const { rerender } = renderControls(video, { mode: 'live', paused: false, cameraId: 'cam-a' });
+    warn.mockClear();
+
+    rerender({ mode: 'live', paused: true, cameraId: 'cam-a' });
+    fireEvent(video, new Event('pause'));
+
+    expect(warn).not.toHaveBeenCalled();
   });
 });

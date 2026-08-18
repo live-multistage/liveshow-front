@@ -1,3 +1,7 @@
+import type { ReplaySegmentCoverage } from '../utils/replay-timeline';
+
+export type { ReplaySegmentCoverage };
+
 export interface LiveCamera {
   cameraId: string;
   name: string;
@@ -9,6 +13,10 @@ export interface LiveCamera {
   // is selectable, the player should show a connecting state and this
   // becomes non-null once the backend's queue processor promotes the job.
   manifestPath: string | null;
+  // Replay: os trechos de gravação desta câmera, para o painel traduzir o
+  // instante absoluto do evento em tempo local dela. Ausente no ao vivo, onde
+  // não existe timeline arquivada para mapear.
+  coverage?: ReplaySegmentCoverage[];
   // e.g. '/ll/<streamKey>/index.m3u8?token=...' — only set on LOW-latency
   // events (see LivePlaybackResponse.latencyMode). Null on STANDARD events
   // and while not yet transcoding.
@@ -48,6 +56,18 @@ export interface ReplayCameraPlayback {
   // e.g. '/packages/<packageId>/replay/master.m3u8' (relative to API base).
   // Null when this camera has no archived, replayable broadcast yet.
   replayPath: string | null;
+  // Maps this camera's stitched (local) VOD timeline onto the event's
+  // absolute wall-clock timeline — see replay-timeline.ts. Empty when the
+  // camera has no replay.
+  coverage: ReplaySegmentCoverage[];
+}
+
+// The event's absolute replay timeline — the domain every camera's coverage
+// is expressed against. Null (at the call site) when no camera has any
+// replay at all.
+export interface ReplayEventTimeline {
+  startsAtMs: number;
+  endsAtMs: number;
 }
 
 export interface ReplayStagePlayback {
@@ -66,4 +86,7 @@ export interface ReplayPlaybackResponse {
   primaryCameraId: string | null;
   // NBR 15290 — camera pinned as the mandatory Libras window (null if none/VOD).
   librasCameraId: string | null;
+  // União das coberturas de todas as câmeras — a timeline do evento e o
+  // domínio do scrubber. Null quando nenhuma câmera tem replay arquivado.
+  timeline: ReplayEventTimeline | null;
 }

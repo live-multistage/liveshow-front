@@ -11,9 +11,14 @@ import styles from './ReplayTransportBar.module.scss';
 interface Props {
   paused: boolean;
   onTogglePlay: () => void;
-  currentTime: number;
-  duration: number;
-  onSeek: (time: number) => void;
+  // Absolute event-timeline domain (ms) — NOT a camera's local duration. The
+  // scrubber spans the whole event, since cameras can join/leave mid-way and
+  // no single camera's local time is a valid stand-in for it.
+  timelineStartMs: number;
+  timelineEndMs: number;
+  // Absolute instant (ms) currently playing — see ReplayPlayer's positionMs.
+  positionMs: number;
+  onSeek: (absoluteMs: number) => void;
   globalMuted: boolean;
   onToggleMute: () => void;
   volume: number;
@@ -45,8 +50,9 @@ function formatTime(seconds: number): string {
 export function ReplayTransportBar({
   paused,
   onTogglePlay,
-  currentTime,
-  duration,
+  timelineStartMs,
+  timelineEndMs,
+  positionMs,
   onSeek,
   globalMuted,
   onToggleMute,
@@ -79,14 +85,17 @@ export function ReplayTransportBar({
       <span className={styles.replayBadge}>REPLAY</span>
 
       <div className={styles.seekGroup}>
-        <span className={styles.timeLabel}>{formatTime(currentTime)}</span>
+        {/* Labels show elapsed-since-timeline-start (0:00 at the beginning),
+            not the underlying wall-clock ms — viewers read a stopwatch, not a date. */}
+        <span className={styles.timeLabel}>{formatTime((positionMs - timelineStartMs) / 1000)}</span>
         <SeekSlider
-          max={duration || 0}
-          value={currentTime}
+          min={timelineStartMs}
+          max={timelineEndMs}
+          value={positionMs}
           onSeek={onSeek}
           ariaLabel="Posição de reprodução"
         />
-        <span className={styles.timeLabel}>{formatTime(duration)}</span>
+        <span className={styles.timeLabel}>{formatTime((timelineEndMs - timelineStartMs) / 1000)}</span>
       </div>
 
       <div className={transportStyles.volumeGroup}>

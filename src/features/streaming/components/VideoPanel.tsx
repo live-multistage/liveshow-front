@@ -13,6 +13,8 @@ import type { LiveSeekCommand, LiveWindow } from '../hooks/use-transport-control
 import { useClockSync } from '../hooks/use-clock-sync';
 import type { ClockRole, ClockSample } from '../hooks/use-clock-sync';
 import type { MutableRefObject } from 'react';
+import type { ReplaySegmentCoverage } from '../utils/replay-timeline';
+import { CameraPlaceholder } from './CameraPlaceholder';
 import styles from './VideoPanel.module.scss';
 
 // Re-exported so existing importers (CameraGrid, tests) keep their paths.
@@ -89,6 +91,15 @@ interface VideoPanelProps {
   // position already reached still works. Replay seeks every active panel;
   // live seeks the primary only and lets use-clock-sync pull the rest along.
   seekCommand?: LiveSeekCommand | null;
+  // Replay only. This panel's own stretches of archived coverage — a camera
+  // that joined the event late or dropped out has gaps the others don't, so
+  // the seek command's absolute instant is translated per-panel against this
+  // rather than applied as one shared offset. Omit for live and the panel
+  // behaves exactly as before.
+  coverage?: ReplaySegmentCoverage[];
+  // Replay: instante absoluto atual do evento. É contra ele que a cobertura
+  // deste painel é julgada — ver use-transport-controls.
+  positionMs?: number;
   // True for exactly one active camera's panel (the current main/focused one)
   // — only that panel's native playback events drive the transport bar's
   // clock and end-of-video handling.
@@ -120,6 +131,8 @@ export function VideoPanel({
   paused,
   dvrActive = false,
   seekCommand,
+  coverage,
+  positionMs,
   isTimeSource = false,
   onProgress,
   onEnded,
@@ -189,7 +202,19 @@ export function VideoPanel({
   // Transport wiring (paused/seek/progress/ended) for replay AND the live DVR
   // scrubber — see the hook. hlsRef is what makes the live edge (rather than
   // the seekable end) reportable.
-  useTransportControls({ videoRef, hlsRef, mode, paused, seekCommand, isTimeSource, onProgress, onEnded });
+  const { outsideCoverage } = useTransportControls({
+    videoRef,
+    hlsRef,
+    mode,
+    paused,
+    seekCommand,
+    coverage,
+    positionMs,
+    cameraId: camera.cameraId,
+    isTimeSource,
+    onProgress,
+    onEnded,
+  });
 
   // Wall-clock sync against the primary panel's PROGRAM-DATE-TIME.
   useClockSync({ videoRef, hlsRef, mode, role: clockRole, clockRef });
@@ -213,6 +238,8 @@ export function VideoPanel({
         muted={muted}
         playsInline
       />
+
+      {outsideCoverage && <CameraPlaceholder />}
 
       {connecting && (
         <div className={styles.panelError}>
