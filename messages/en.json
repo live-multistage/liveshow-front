@@ -1062,5 +1062,21 @@
         "a": "Contact support using the button at the bottom of this page, telling us the event and the email used for the purchase. Our team confirms the conditions and, once approved, the refund follows your card issuer timeline."
       }
     }
+  },
+  "collaborations": {
+    "invite": "Invite",
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "acceptInvite": "Accept invite",
+    "declineInvite": "Decline invite",
+    "collaborationInvites": "Collaboration invites",
+    "collaborators": "Collaborators",
+    "inviteOrganization": "Invite organization",
+    "searchOrgPlaceholder": "Search organization",
+    "cancelInvite": "Cancel invite",
+    "collabChip": "Collaboration",
+    "organizedBy": "Organized by",
+    "withCollaborators": "with collaborators",
+    "errorToast": "An error occurred while processing your request."
   }
 }

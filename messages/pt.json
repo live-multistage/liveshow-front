@@ -1065,5 +1065,21 @@
         "a": "Fale com o suporte pelo botão no fim desta página, informando o evento e o e-mail da compra. Nosso time confirma as condições e, aprovado o reembolso, o estorno segue o prazo da operadora do cartão."
       }
     }
+  },
+  "collaborations": {
+    "invite": "Convidar",
+    "pending": "Pendente",
+    "accepted": "Aceito",
+    "acceptInvite": "Aceitar convite",
+    "declineInvite": "Recusar convite",
+    "collaborationInvites": "Convites de colaboração",
+    "collaborators": "Colaboradores",
+    "inviteOrganization": "Convidar organização",
+    "searchOrgPlaceholder": "Buscar organização",
+    "cancelInvite": "Cancelar convite",
+    "collabChip": "Colaboração",
+    "organizedBy": "Organizado por",
+    "withCollaborators": "com colaboradores",
+    "errorToast": "Ocorreu um erro ao processar sua solicitação."
   }
 }

@@ -1062,5 +1062,21 @@
         "a": "Habla con soporte usando el botón al final de esta página, indicando el evento y el correo de la compra. Nuestro equipo confirma las condiciones y, una vez aprobado, el reembolso sigue el plazo de tu tarjeta."
       }
     }
+  },
+  "collaborations": {
+    "invite": "Invitar",
+    "pending": "Pendiente",
+    "accepted": "Aceptado",
+    "acceptInvite": "Aceptar invitación",
+    "declineInvite": "Rechazar invitación",
+    "collaborationInvites": "Invitaciones de colaboración",
+    "collaborators": "Colaboradores",
+    "inviteOrganization": "Invitar organización",
+    "searchOrgPlaceholder": "Buscar organización",
+    "cancelInvite": "Cancelar invitación",
+    "collabChip": "Colaboración",
+    "organizedBy": "Organizado por",
+    "withCollaborators": "con colaboradores",
+    "errorToast": "Ocurrió un error al procesar su solicitud."
   }
 }

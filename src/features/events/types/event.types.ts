@@ -74,6 +74,8 @@ export interface EventResponse {
   publiclyFunded: boolean;
   priceFromCents?: number;
   priceToCents?: number;
+  collaborators?: EventOrganization[];
+  collaborationRole?: 'OWNER' | 'COLLABORATOR';
 }
 
 // NBR 15290 — Libras window accessibility state for an event.
