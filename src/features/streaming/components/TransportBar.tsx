@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Volume2, VolumeX, Settings, PictureInPicture, Maximize, Minimize } from 'lucide-react';
+import { Volume2, VolumeX, Settings, PictureInPicture, Maximize, Minimize, Play, Pause } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import type { QualityLevel } from './VideoPanel';
 import { SeekSlider } from './SeekSlider';
@@ -37,6 +37,11 @@ interface Props {
   // False once the viewer has scrubbed back out of the live edge tolerance.
   atLive?: boolean;
   onSeek?: (time: number) => void;
+  // Pausing a live stream is a DVR rewind: the broadcast keeps running, so
+  // resuming continues from where the viewer stopped, and the AO VIVO badge
+  // becomes the way back to the edge.
+  paused: boolean;
+  onTogglePlay: () => void;
   globalMuted: boolean;
   onToggleMute: () => void;
   volume: number;
@@ -57,6 +62,8 @@ export function TransportBar({
   dvr = null,
   atLive = true,
   onSeek,
+  paused,
+  onTogglePlay,
   globalMuted,
   onToggleMute,
   volume,
@@ -78,6 +85,15 @@ export function TransportBar({
 
   return (
     <div className={styles.bar}>
+      <button
+        type="button"
+        onClick={onTogglePlay}
+        className={styles.iconBtn}
+        aria-label={paused ? 'Reproduzir' : 'Pausar'}
+      >
+        {paused ? <Play size={16} /> : <Pause size={16} />}
+      </button>
+
       {atLive ? (
         <span className={styles.liveBadge}>
           <span className={styles.liveDot} />

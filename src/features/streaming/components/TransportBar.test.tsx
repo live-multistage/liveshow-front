@@ -10,6 +10,8 @@ import type { DvrState } from './TransportBar';
 import { LIVE_EDGE_TOLERANCE_SEC } from '../hooks/use-transport-controls';
 
 const baseProps = {
+  paused: false,
+  onTogglePlay: vi.fn(),
   globalMuted: false,
   onToggleMute: vi.fn(),
   volume: 1,
@@ -110,5 +112,26 @@ describe('TransportBar — DVR scrubber', () => {
   it('stays hidden when nothing can act on a seek', () => {
     const { queryByLabelText } = render(<TransportBar {...baseProps} dvr={dvrAt(1200)} atLive />);
     expect(queryByLabelText('Posição de reprodução')).toBeNull();
+  });
+});
+
+describe('TransportBar — play/pause', () => {
+  it('exposes a pause control while the live stream is playing', () => {
+    const onTogglePlay = vi.fn();
+    const { getByLabelText } = render(
+      <TransportBar {...baseProps} paused={false} onTogglePlay={onTogglePlay} />,
+    );
+
+    fireEvent.click(getByLabelText('Pausar'));
+    expect(onTogglePlay).toHaveBeenCalledTimes(1);
+  });
+
+  it('flips to a play control once paused', () => {
+    const { getByLabelText, queryByLabelText } = render(
+      <TransportBar {...baseProps} paused onTogglePlay={vi.fn()} />,
+    );
+
+    expect(getByLabelText('Reproduzir')).toBeInTheDocument();
+    expect(queryByLabelText('Pausar')).toBeNull();
   });
 });

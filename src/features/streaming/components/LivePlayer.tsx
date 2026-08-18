@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
-import { Volume2 } from 'lucide-react';
+import { Volume2, Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -72,6 +72,10 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   const [mainCameraId, setMainCameraId] = useState<string | null>(null);
   const [activeCameraIds, setActiveCameraIds] = useState<string[]>([]);
   const [cameraStripOpen, setCameraStripOpen] = useState(false);
+  // A live stream can be paused: the broadcast keeps going, so resuming picks
+  // up where the viewer stopped — behind the live edge, inside the DVR window.
+  // Returning to the edge is the transport bar's job, not this state's.
+  const [paused, setPaused] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const { user } = useAuth();
 
@@ -246,6 +250,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     onToggleFullscreen: toggleFullscreen,
     onToggleCameraPanel: () => setCameraStripOpen((o) => !o),
     onToggleMute: () => setGlobalMuted((m) => !m),
+    onTogglePlay: () => setPaused((p) => !p),
     onVolumeUp: () => { setVolume((v) => clampVolume(v + VOLUME_STEP)); setGlobalMuted(false); },
     onVolumeDown: () => setVolume((v) => clampVolume(v - VOLUME_STEP)),
   });
@@ -285,6 +290,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
               audioCameraId={effectiveAudioCameraId}
               onAudioCameraChange={handleAudioCameraChange}
               volume={volume}
+              paused={paused}
               viewMode={effectiveViewMode}
               onViewModeChange={setViewMode}
               mainCameraId={effectiveMainCameraId}
@@ -301,6 +307,21 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
           )}
 
           <SessionWatermark />
+
+          {/* Sem isto, uma live pausada é indistinguível de uma transmissão
+              travada: a imagem congela e nada na tela explica por quê. */}
+          {paused && (
+            <button
+              type="button"
+              className={styles.centerPlayOverlay}
+              onClick={() => setPaused(false)}
+              aria-label={t('resume')}
+            >
+              <span className={styles.centerPlayBtn}>
+                <Play size={28} fill="currentColor" />
+              </span>
+            </button>
+          )}
 
           {autoplayBlocked && globalMuted && (
             <button
@@ -330,6 +351,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
           dvr={dvr}
           atLive={atLive}
           onSeek={handleSeek}
+          paused={paused}
+          onTogglePlay={() => setPaused((p) => !p)}
           globalMuted={globalMuted}
           onToggleMute={() => setGlobalMuted((m) => !m)}
           volume={volume}
