@@ -115,13 +115,13 @@ describe('collaborationsService', () => {
   });
 
   describe('accept', () => {
-    it('posts to /collaboration-invites/:id/accept', async () => {
+    it('patches /collaborations/:id/accept', async () => {
       const seen = capture(INVITE);
 
       await collaborationsService.accept('invite-1');
 
-      expect(seen[0].url).toBe('/collaboration-invites/invite-1/accept');
-      expect(seen[0].method?.toLowerCase()).toBe('post');
+      expect(seen[0].url).toBe('/collaborations/invite-1/accept');
+      expect(seen[0].method?.toLowerCase()).toBe('patch');
     });
 
     it('returns the invite', async () => {
@@ -132,13 +132,13 @@ describe('collaborationsService', () => {
   });
 
   describe('decline', () => {
-    it('posts to /collaboration-invites/:id/decline', async () => {
+    it('patches /collaborations/:id/decline', async () => {
       const seen = capture(undefined);
 
       await collaborationsService.decline('invite-1');
 
-      expect(seen[0].url).toBe('/collaboration-invites/invite-1/decline');
-      expect(seen[0].method?.toLowerCase()).toBe('post');
+      expect(seen[0].url).toBe('/collaborations/invite-1/decline');
+      expect(seen[0].method?.toLowerCase()).toBe('patch');
     });
   });
 

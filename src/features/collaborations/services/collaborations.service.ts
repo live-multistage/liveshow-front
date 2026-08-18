@@ -22,12 +22,12 @@ export const collaborationsService = {
   },
 
   accept: async (id: string): Promise<CollaborationInvite> => {
-    const { data } = await httpClient.post<CollaborationInvite>(`/collaboration-invites/${id}/accept`);
+    const { data } = await httpClient.patch<CollaborationInvite>(`/collaborations/${id}/accept`);
     return data;
   },
 
   decline: async (id: string): Promise<void> => {
-    await httpClient.post(`/collaboration-invites/${id}/decline`);
+    await httpClient.patch(`/collaborations/${id}/decline`);
   },
 
   searchOrganizations: async (q: string): Promise<OrganizationSearchResult[]> => {
