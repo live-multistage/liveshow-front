@@ -204,7 +204,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
 
         {!editing && <EventTicketList tickets={tickets} />}
 
-        <EventMetadataSection eventId={id} />
+        <EventMetadataSection eventId={id} readOnly={readOnly} />
 
         <EventCollaboratorsSection eventId={id} readOnly={readOnly} />
       </div>

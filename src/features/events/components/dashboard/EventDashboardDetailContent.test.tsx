@@ -32,7 +32,11 @@ vi.mock('./EventTicketList', () => ({ EventTicketList: () => null }));
 vi.mock('./EditTicketSection', () => ({ EditTicketSection: () => null }));
 vi.mock('./PhotosSection', () => ({ PhotosSection: () => null }));
 vi.mock('../VodUploadCard/VodUploadCard', () => ({ VodUploadCard: () => null }));
-vi.mock('@/features/metadata', () => ({ EventMetadataSection: () => null }));
+vi.mock('@/features/metadata', () => ({
+  EventMetadataSection: (props: { readOnly?: boolean }) => (
+    <div>metadata-section{props.readOnly ? '-readonly' : ''}</div>
+  ),
+}));
 vi.mock('./EventCollaboratorsSection', () => ({
   EventCollaboratorsSection: (props: { readOnly?: boolean }) => (
     <div>collaborators-section{props.readOnly ? '-readonly' : ''}</div>
@@ -207,6 +211,7 @@ describe('EventDashboardDetailContent collaboration read-only gate', () => {
 
     expect(screen.getByText('header-actions-readonly')).toBeInTheDocument();
     expect(screen.getByText('collaborators-section-readonly')).toBeInTheDocument();
+    expect(screen.getByText('metadata-section-readonly')).toBeInTheDocument();
   });
 
   it('shows write-action surfaces for the OWNER role', () => {
@@ -220,6 +225,7 @@ describe('EventDashboardDetailContent collaboration read-only gate', () => {
 
     expect(screen.getByText('header-actions')).toBeInTheDocument();
     expect(screen.getByText('collaborators-section')).toBeInTheDocument();
+    expect(screen.getByText('metadata-section')).toBeInTheDocument();
   });
 
   it('grants access to a COLLABORATOR org that has no owning-org membership', () => {
@@ -248,5 +254,6 @@ describe('EventDashboardDetailContent collaboration read-only gate', () => {
 
     expect(screen.getByText('header-actions')).toBeInTheDocument();
     expect(screen.getByText('collaborators-section')).toBeInTheDocument();
+    expect(screen.getByText('metadata-section')).toBeInTheDocument();
   });
 });
