@@ -89,14 +89,20 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
     reset();
   }
 
+  // FINISHED events accept content edits only; the datetime-local round-trip
+  // loses seconds, so re-sending the schedule would read as a change and 400.
+  const scheduleLocked = event?.status === 'FINISHED';
+
   async function onSave(values: EditFormValues) {
     await updateMutation.mutateAsync({
       title: values.title,
       description: values.description,
-      startsAt: new Date(values.startsAt).toISOString(),
-      endsAt: new Date(values.endsAt).toISOString(),
-      latencyMode: values.latencyMode,
       publiclyFunded: values.publiclyFunded,
+      ...(scheduleLocked ? {} : {
+        startsAt: new Date(values.startsAt).toISOString(),
+        endsAt: new Date(values.endsAt).toISOString(),
+        latencyMode: values.latencyMode,
+      }),
     });
     setEditing(false);
   }
@@ -188,6 +194,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
               errors={errors}
               isPending={updateMutation.isPending}
               errorMessage={updateMutation.error?.message}
+              scheduleLocked={scheduleLocked}
             />
             <EditTicketSection eventId={id} tickets={tickets} />
             <PhotosSection event={event} />

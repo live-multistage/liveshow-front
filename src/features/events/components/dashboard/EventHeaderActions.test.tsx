@@ -212,4 +212,28 @@ describe('EventHeaderActions readOnly', () => {
     expect(screen.getByText('edit')).toBeInTheDocument();
     expect(screen.getByText('publish')).toBeInTheDocument();
   });
+
+  it('shows the edit button for FINISHED events (content curation)', () => {
+    render(
+      <EventHeaderActions
+        {...baseProps}
+        event={makeEvent({ status: 'FINISHED', finishedAt: '2026-01-01T02:00:00Z' })}
+        onResumeLive={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('edit')).toBeInTheDocument();
+  });
+
+  it('still hides the edit button for LIVE and CANCELLED events', () => {
+    const { rerender } = render(
+      <EventHeaderActions {...baseProps} event={makeEvent({ status: 'LIVE' })} onResumeLive={vi.fn()} />,
+    );
+    expect(screen.queryByText('edit')).not.toBeInTheDocument();
+
+    rerender(
+      <EventHeaderActions {...baseProps} event={makeEvent({ status: 'CANCELLED' })} onResumeLive={vi.fn()} />,
+    );
+    expect(screen.queryByText('edit')).not.toBeInTheDocument();
+  });
 });
