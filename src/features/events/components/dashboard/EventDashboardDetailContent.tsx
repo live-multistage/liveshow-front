@@ -20,6 +20,7 @@ import { EventInfoGrid } from './EventInfoGrid';
 import { EventTicketList } from './EventTicketList';
 import { EditTicketSection } from './EditTicketSection';
 import { PhotosSection } from './PhotosSection';
+import { EventCollaboratorsSection } from './EventCollaboratorsSection';
 import { VodUploadCard } from '../VodUploadCard/VodUploadCard';
 import { EventMetadataSection } from '@/features/metadata';
 import type { EventResponse } from '../../types/event.types';
@@ -196,6 +197,8 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
         {!editing && <EventTicketList tickets={tickets} />}
 
         <EventMetadataSection eventId={id} />
+
+        <EventCollaboratorsSection eventId={id} />
       </div>
     </div>
   );

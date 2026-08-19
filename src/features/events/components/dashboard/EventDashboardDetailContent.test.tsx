@@ -29,6 +29,7 @@ vi.mock('./EditTicketSection', () => ({ EditTicketSection: () => null }));
 vi.mock('./PhotosSection', () => ({ PhotosSection: () => null }));
 vi.mock('../VodUploadCard/VodUploadCard', () => ({ VodUploadCard: () => null }));
 vi.mock('@/features/metadata', () => ({ EventMetadataSection: () => null }));
+vi.mock('./EventCollaboratorsSection', () => ({ EventCollaboratorsSection: () => null }));
 
 import { render, screen } from '@testing-library/react';
 import { EventDashboardDetailContent } from './EventDashboardDetailContent';
