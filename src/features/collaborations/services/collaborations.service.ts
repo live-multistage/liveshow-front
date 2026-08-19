@@ -31,7 +31,9 @@ export const collaborationsService = {
   },
 
   searchOrganizations: async (q: string): Promise<OrganizationSearchResult[]> => {
-    const { data } = await httpClient.get<OrganizationSearchResult[]>('/organizations/search', { params: { q } });
-    return data;
+    const { data } = await httpClient.get<{ items: OrganizationSearchResult[] }>('/organizations/search', {
+      params: { q },
+    });
+    return data.items;
   },
 };

@@ -144,7 +144,7 @@ describe('collaborationsService', () => {
 
   describe('searchOrganizations', () => {
     it('reads from /organizations/search with query param', async () => {
-      const seen = capture([SEARCH_RESULT]);
+      const seen = capture({ items: [SEARCH_RESULT] });
 
       await collaborationsService.searchOrganizations('query');
 
@@ -153,8 +153,8 @@ describe('collaborationsService', () => {
       expect(seen[0].method?.toLowerCase()).toBe('get');
     });
 
-    it('returns the results as given', async () => {
-      capture([SEARCH_RESULT]);
+    it('unwraps the { items } envelope', async () => {
+      capture({ items: [SEARCH_RESULT] });
 
       await expect(collaborationsService.searchOrganizations('query')).resolves.toEqual([SEARCH_RESULT]);
     });
