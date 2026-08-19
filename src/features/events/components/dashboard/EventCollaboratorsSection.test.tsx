@@ -107,6 +107,29 @@ describe('EventCollaboratorsSection', () => {
     expect(inviteMutate).toHaveBeenCalledWith('org-9');
   });
 
+  it('renders a loading placeholder and no rows while loading', () => {
+    (useEventCollaboratorsQuery as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+    });
+
+    render(<EventCollaboratorsSection eventId="evt-1" />);
+
+    expect(screen.queryByText('Partner Org')).not.toBeInTheDocument();
+    expect(screen.queryByText('noCollaborators')).not.toBeInTheDocument();
+  });
+
+  it('renders an empty-state message when there are no collaborators', () => {
+    (useEventCollaboratorsQuery as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      data: [],
+      isLoading: false,
+    });
+
+    render(<EventCollaboratorsSection eventId="evt-1" />);
+
+    expect(screen.getByText('noCollaborators')).toBeInTheDocument();
+  });
+
   it('hides the invite search box and cancel buttons when readOnly', () => {
     (useEventCollaboratorsQuery as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       data: [makeCollaborator({ status: 'PENDING' })],

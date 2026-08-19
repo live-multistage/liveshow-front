@@ -28,7 +28,7 @@ export function EventCollaboratorsSection({ eventId, readOnly = false }: Props) 
     return () => clearTimeout(timer);
   }, [query]);
 
-  const { data: collaborators = [] } = useEventCollaboratorsQuery(eventId);
+  const { data: collaborators = [], isLoading } = useEventCollaboratorsQuery(eventId);
   const { data: searchResults = [] } = useOrganizationSearchQuery(debouncedQuery);
   const inviteMutation = useInviteCollaboratorMutation(eventId);
   const cancelMutation = useCancelInviteMutation(eventId);
@@ -69,7 +69,16 @@ export function EventCollaboratorsSection({ eventId, readOnly = false }: Props) 
       )}
 
       <div className={styles.list}>
-        {collaborators.map((collaborator) => (
+        {isLoading && (
+          <>
+            <div className={styles.skeletonRow} />
+            <div className={styles.skeletonRow} />
+          </>
+        )}
+        {!isLoading && collaborators.length === 0 && (
+          <p className={styles.empty}>{t('noCollaborators')}</p>
+        )}
+        {!isLoading && collaborators.map((collaborator) => (
           <div key={collaborator.id} className={styles.row}>
             <span className={styles.orgName}>{collaborator.organization.name}</span>
             <span className={`${styles.chip} ${collaborator.status === 'PENDING' ? styles.pending : styles.accepted}`}>

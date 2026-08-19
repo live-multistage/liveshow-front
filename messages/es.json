@@ -1077,6 +1077,7 @@
     "collabChip": "Colaboración",
     "organizedBy": "Organizado por",
     "withCollaborators": "con colaboradores",
-    "errorToast": "Ocurrió un error al procesar su solicitud."
+    "errorToast": "Ocurrió un error al procesar su solicitud.",
+    "noCollaborators": "Aún no hay colaboradores."
   }
 }

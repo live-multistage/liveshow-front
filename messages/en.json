@@ -1077,6 +1077,7 @@
     "collabChip": "Collaboration",
     "organizedBy": "Organized by",
     "withCollaborators": "with collaborators",
-    "errorToast": "An error occurred while processing your request."
+    "errorToast": "An error occurred while processing your request.",
+    "noCollaborators": "No collaborators yet."
   }
 }
