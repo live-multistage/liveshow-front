@@ -193,9 +193,7 @@
 .heroV2Glow {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(65% 90% at 70% 40%, rgba(255, 90, 160, .28), transparent 60%),
-    radial-gradient(50% 70% at 40% 20%, rgba(155, 123, 255, .22), transparent 60%);
+  background: rgba(0, 0, 0, .2);
 }
 
 .heroV2Scrim {
