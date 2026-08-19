@@ -30,15 +30,17 @@ export function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const isHome = pathname === '/';
+  // Immersive routes render a full-bleed hero the nav floats over: home and
+  // the public event detail page (but not its /checkout subroutes).
+  const isImmersive = pathname === '/' || /^\/events\/[^/]+$/.test(pathname);
 
   useEffect(() => {
-    if (!isHome) { setScrolled(false); return; }
+    if (!isImmersive) { setScrolled(false); return; }
     const onScroll = () => setScrolled(window.scrollY > 10);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [isHome]);
+  }, [isImmersive]);
   // isLoading intentionally not gated on here: isLoggedIn is already correct
   // from the very first server-rendered paint (see AuthProvider's SSR seed),
   // so waiting on isLoading before rendering the real nav actions would just
@@ -50,15 +52,16 @@ export function Navbar() {
   const cartCount = useCartCount();
   const t = useTranslations('nav');
   
-  // Home only: the nav floats transparent over the hero and never reserves
-  // flow space (position: fixed for the page's whole lifetime — switching
-  // fixed↔sticky exactly at the scroll threshold would jump the layout by
-  // the nav's own height right as the class toggles). Background/blur/border
-  // alone respond to scroll. Every other page keeps today's sticky+solid bar.
+  // Immersive routes only: the nav floats transparent over the hero and never
+  // reserves flow space (position: fixed for the page's whole lifetime —
+  // switching fixed↔sticky exactly at the scroll threshold would jump the
+  // layout by the nav's own height right as the class toggles). Background/
+  // blur/border alone respond to scroll. Every other page keeps the
+  // sticky+solid bar.
   const navClassName = [
     styles.nav,
-    isHome && styles.navFixed,
-    (!isHome || scrolled) && styles.navSolid,
+    isImmersive && styles.navFixed,
+    (!isImmersive || scrolled) && styles.navSolid,
   ].filter(Boolean).join(' ');
 
   return (

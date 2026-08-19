@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useNavigationLoadingStore } from '@/shared/stores/navigation-loading.store';
+import { isCurrentUrl, useNavigationLoadingStore } from '@/shared/stores/navigation-loading.store';
 
 export function useNavigate() {
   const router = useRouter();
@@ -9,11 +9,11 @@ export function useNavigate() {
 
   return {
     push: (href: string) => {
-      start();
+      if (!isCurrentUrl(href)) start();
       router.push(href);
     },
     replace: (href: string) => {
-      start();
+      if (!isCurrentUrl(href)) start();
       router.replace(href);
     },
   };

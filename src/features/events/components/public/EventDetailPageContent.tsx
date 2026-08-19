@@ -1,14 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { isAxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
-import { Calendar, Clock, MapPin, Camera, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
 import { TicketPanel } from './TicketPanel';
-import { formatDate, formatTime, formatDuration, statusLabel } from '../../utils/event-formatters';
+import { formatDateShort, formatTime, formatDuration, statusLabel } from '../../utils/event-formatters';
 import { useOrganization } from '@/features/organizations';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { useTrackEventView } from '../../hooks/use-track-event-view';
@@ -23,7 +22,6 @@ interface Props {
 }
 
 export function EventDetailPageContent({ id }: Props) {
-  const router = useRouter();
   const t = useTranslations('events.detail');
   const tc = useTranslations('collaborations');
   const { data: event, isLoading, isError, error, refetch } = useGetEventQuery(id);
@@ -61,51 +59,33 @@ export function EventDetailPageContent({ id }: Props) {
   // event itself is the one camera fact a visitor is allowed to see.
   const cameraCount = event.camerasCount || 0;
 
+  const metaRows = [
+    { label: t('date'), value: formatDateShort(event.startsAt) },
+    { label: t('time'), value: `${formatTime(event.startsAt)} · ${formatDuration(event.startsAt, event.endsAt)}` },
+    { label: t('venue'), value: [event.city, event.country].filter(Boolean).join(', ') || '—' },
+    { label: t('cameras'), value: t('angles', { count: cameraCount }), accent: true },
+  ];
+
   return (
     <div className={styles.page}>
-      <div className={styles.inner}>
-        <div className={styles.topRow}>
-          <button onClick={() => router.back()} className={styles.backBtn}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M11 18l-6-6 6-6"/>
-            </svg>
-            VOLTAR
-          </button>
-          {/* Agrupadas porque .topRow é space-between: um terceiro filho solto
-              cairia no centro da faixa em vez de encostar na direita. */}
-          <div className={styles.topActions}>
-            <WishlistButton eventId={id} variant="inline" />
-            <ReportButton eventId={id} className={styles.reportTrigger} />
-          </div>
-        </div>
+      <div className={styles.heroFull}>
+        {heroImage
+          ? (
+            <MediaWithTeaserVideo
+              posterSrc={heroImage}
+              posterAlt={event.title}
+              videoSrc={event.teaserVideoUrl}
+              posterClassName={styles.heroImg}
+              videoClassName={styles.heroVideo}
+              videoVisibleClassName={styles.heroVideoVisible}
+              posterOnError={() => setHeroImgFailed(true)}
+            />
+          )
+          : <div className={styles.heroPlaceholder} />}
+        <div className={styles.heroFullScrim} />
 
-        <div className={styles.hero}>
-          {heroImage
-            ? (
-              <MediaWithTeaserVideo
-                posterSrc={heroImage}
-                posterAlt={event.title}
-                videoSrc={event.teaserVideoUrl}
-                posterClassName={styles.heroImg}
-                videoClassName={styles.heroVideo}
-                videoVisibleClassName={styles.heroVideoVisible}
-                posterOnError={() => setHeroImgFailed(true)}
-              />
-            )
-            : <div className={styles.heroPlaceholder} />}
-          <div className={styles.heroScrim} />
-
-          {cameraCount > 0 && (
-            <div className={styles.camerasChip}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M23 7l-7 5 7 5V7Z"/>
-                <rect x="1" y="5" width="15" height="14" rx="2"/>
-              </svg>
-              {cameraCount} CÂMERAS
-            </div>
-          )}
-
-          <div className={styles.heroContent}>
+        <div className={styles.heroBottom}>
+          <div className={styles.heroText}>
             <div className={styles.heroBadges}>
               {isFinished && (
                 <span className={styles.badgeReplay}>
@@ -120,37 +100,39 @@ export function EventDetailPageContent({ id }: Props) {
               {!isLive && (
                 <span className={styles.badgeStatus}>{statusLabel(event.status)}</span>
               )}
+              {cameraCount > 0 && (
+                <span className={styles.camerasChip}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M23 7l-7 5 7 5V7Z"/>
+                    <rect x="1" y="5" width="15" height="14" rx="2"/>
+                  </svg>
+                  {cameraCount} CÂMERAS
+                </span>
+              )}
             </div>
-            <h1 className={styles.heroTitle}>{event.title}</h1>
-            {event.venue && (
-              <div className={styles.heroVenue}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff5fb4" strokeWidth="2">
-                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-                  <circle cx="12" cy="10" r="2.6"/>
-                </svg>
-                {event.venue}
-              </div>
-            )}
+            <h1 className={styles.heroFullTitle}>{event.title}</h1>
+            {event.venue && <p className={styles.heroPlace}>{event.venue}</p>}
+            <p className={styles.heroDateLine}>
+              {formatDateShort(event.startsAt)} · {formatTime(event.startsAt)} · duração {formatDuration(event.startsAt, event.endsAt)}
+            </p>
+          </div>
+          <div className={styles.heroPanel}>
+            <TicketPanel event={event} tickets={tickets} />
           </div>
         </div>
+      </div>
 
+      <div className={styles.inner}>
         <div className={styles.grid}>
           <div>
-            <div className={styles.metaGrid}>
-              {[
-                { icon: <Calendar size={14} />, label: t('date'), value: formatDate(event.startsAt) },
-                { icon: <Clock size={14} />, label: t('time'), value: `${formatTime(event.startsAt)} · ${formatDuration(event.startsAt, event.endsAt)}` },
-                { icon: <MapPin size={14} />, label: t('venue'), value: [event.city, event.country].filter(Boolean).join(', ') || '—' },
-                { icon: <Camera size={14} />, label: t('cameras'), value: t('angles', { count: cameraCount }) },
-              ].map((info) => (
-                <div key={info.label} className={styles.metaCard}>
-                  <div className={styles.metaLabel}>
-                    <span className={styles.metaIcon}>{info.icon}</span>
-                    {info.label}
-                  </div>
-                  <p className={styles.metaValue}>{info.value}</p>
-                </div>
-              ))}
+            <div className={styles.topActions}>
+              <WishlistButton eventId={id} variant="inline" />
+              <ReportButton eventId={id} className={styles.reportTrigger} />
+            </div>
+
+            <div className={styles.section}>
+              <div className={styles.sectionLabel}>SOBRE O SHOW</div>
+              <p className={styles.description}>{event.description}</p>
             </div>
 
             {org && (
@@ -190,16 +172,15 @@ export function EventDetailPageContent({ id }: Props) {
                 )}
               </>
             )}
-
-            <div className={styles.section}>
-              <div className={styles.sectionLabel}>SOBRE O SHOW</div>
-              <p className={styles.description}>{event.description}</p>
-            </div>
-
           </div>
 
           <div className={styles.sidebarCol}>
-            <TicketPanel event={event} tickets={tickets} />
+            {metaRows.map((info) => (
+              <div key={info.label} className={styles.metaRow}>
+                <span className={styles.metaRowLabel}>{info.label}</span>
+                <span className={info.accent ? styles.metaRowValueAccent : styles.metaRowValue}>{info.value}</span>
+              </div>
+            ))}
 
             <AdBanner placement="EVENT_DETAIL" className={styles.sidebarAd} />
           </div>

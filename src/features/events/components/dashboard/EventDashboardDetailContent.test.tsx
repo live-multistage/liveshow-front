@@ -22,8 +22,12 @@ vi.mock('../../mutations/publish-event.mutation', () => ({
   useResumeLiveMutation: vi.fn(() => ({ isPending: false, mutateAsync: vi.fn() })),
 }));
 vi.mock('./EventHeaderActions', () => ({
-  EventHeaderActions: (props: { readOnly?: boolean }) => (
-    <div>header-actions{props.readOnly ? '-readonly' : ''}</div>
+  EventHeaderActions: (props: { readOnly?: boolean; onEdit: () => void; onSave: () => void }) => (
+    <div>
+      header-actions{props.readOnly ? '-readonly' : ''}
+      <button onClick={props.onEdit}>mock-edit</button>
+      <button onClick={props.onSave}>mock-save</button>
+    </div>
   ),
 }));
 vi.mock('./LibrasAccessibilityPanel', () => ({ LibrasAccessibilityPanel: () => null }));
@@ -43,9 +47,11 @@ vi.mock('./EventCollaboratorsSection', () => ({
   ),
 }));
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { EventDashboardDetailContent } from './EventDashboardDetailContent';
 import { useGetEventQuery } from '../../queries/get-event';
+import { useUpdateEventMutation } from '../../mutations/update-event.mutation';
 import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
 import type { EventResponse } from '../../types/event.types';
 import type { OrganizationResponse, OrganizationRole } from '@/features/organizations/types/organization.types';
@@ -255,5 +261,53 @@ describe('EventDashboardDetailContent collaboration read-only gate', () => {
     expect(screen.getByText('header-actions')).toBeInTheDocument();
     expect(screen.getByText('collaborators-section')).toBeInTheDocument();
     expect(screen.getByText('metadata-section')).toBeInTheDocument();
+  });
+});
+
+// Finished events accept content edits only: the update payload must omit the
+// frozen schedule fields (startsAt/endsAt/latencyMode) or the backend 400s.
+describe('EventDashboardDetailContent finished-event editing', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  async function editAndSave(status: EventResponse['status']) {
+    const mutateAsync = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(useUpdateEventMutation).mockReturnValue({
+      isPending: false,
+      error: null,
+      mutateAsync,
+    } as unknown as ReturnType<typeof useUpdateEventMutation>);
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: {
+        ...EVENT,
+        description: 'a description long enough for the edit schema',
+        status,
+        finishedAt: status === 'FINISHED' ? '2026-01-01T02:00:00Z' : null,
+      },
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+    mockOrgs([makeOrg('org-owner', 'ADMIN')]);
+
+    renderPage();
+    await userEvent.click(screen.getByText('mock-edit'));
+    await userEvent.click(screen.getByText('mock-save'));
+    await waitFor(() => expect(mutateAsync).toHaveBeenCalled());
+    return mutateAsync.mock.calls[0][0];
+  }
+
+  it('omits schedule fields when saving a FINISHED event', async () => {
+    const payload = await editAndSave('FINISHED');
+    expect(payload.title).toBe(EVENT.title);
+    expect(payload.description).toBe('a description long enough for the edit schema');
+    expect(payload).not.toHaveProperty('startsAt');
+    expect(payload).not.toHaveProperty('endsAt');
+    expect(payload).not.toHaveProperty('latencyMode');
+  });
+
+  it('keeps sending schedule fields for editable statuses', async () => {
+    const payload = await editAndSave('PUBLISHED');
+    expect(payload.startsAt).toBeDefined();
+    expect(payload.endsAt).toBeDefined();
+    expect(payload.latencyMode).toBe('STANDARD');
   });
 });

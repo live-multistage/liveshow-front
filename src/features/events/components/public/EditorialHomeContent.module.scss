@@ -24,7 +24,7 @@
 
 
 .inner {
-  max-width: 1280px;
+  max-width: none;
   margin: 0 auto;
 }
 
@@ -215,7 +215,7 @@
   // Background stays full-bleed; content aligns to the same 1280px + 40px
   // container as the Navbar (80rem) and the .inner grid sections below.
   width: 100%;
-  max-width: 1280px;
+  max-width: none;
   margin: 0 auto;
   box-sizing: border-box;
   padding: 50px 40px;
@@ -353,7 +353,7 @@
   display: flex;
   gap: 8px;
   width: 100%;
-  max-width: 1280px;
+  max-width: none;
   margin: 0 auto;
   padding: 0 40px;
   box-sizing: border-box;

@@ -47,45 +47,20 @@
 }
 
 .inner {
-  max-width: 1240px;
+  max-width: none;
   margin: 0 auto;
-  padding: 28px 40px 72px;
+  padding: 44px 40px 72px;
 
-  @media (max-width: 860px) { padding: 20px 20px 48px; }
+  @media (max-width: 860px) { padding: 24px 20px 48px; }
 }
 
 // ── Back link ────────────────────────────────────────────────────
-.topRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 22px;
-}
-
-.backBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  letter-spacing: .08em;
-  color: #9a9aa2;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: color .15s;
-
-  &:hover { color: $text-primary; }
-  svg { flex-shrink: 0; }
-}
-
 .topActions {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  margin-bottom: 22px;
 }
 
 .reportTrigger {
@@ -142,9 +117,6 @@
 }
 
 .camerasChip {
-  position: absolute;
-  top: 18px;
-  right: 18px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -257,7 +229,7 @@
 // ── Body grid ────────────────────────────────────────────────────
 .grid {
   display: grid;
-  grid-template-columns: 1fr 388px;
+  grid-template-columns: 1fr 360px;
   gap: 28px;
   align-items: start;
 
@@ -454,4 +426,116 @@
 
 .sidebarAd {
   width: 100%;
+}
+
+// ── Full-bleed hero (event page) ─────────────────────────────────
+// The navbar floats transparent over this block (see Navbar.tsx isImmersive),
+// so the top padding reserves its 72px height.
+.heroFull {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 620px;
+  // 40px gutter matches .navInner and .inner so hero content, navbar and
+  // body columns align on both edges.
+  padding: 96px 40px 52px;
+  background: linear-gradient(140deg, #2a0818 0%, #12060d 45%, #050406 100%);
+  overflow: hidden;
+
+  @media (max-width: 860px) { padding: 88px 20px 32px; min-height: 0; }
+}
+
+.heroFullScrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 70% 20%, rgba(255, 46, 158, .22), transparent 55%),
+    linear-gradient(to top, #08080a 4%, rgba(8, 8, 10, .55) 40%, transparent 75%);
+  pointer-events: none;
+}
+
+.heroBottom {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+  margin-top: 40px;
+
+  @media (max-width: 860px) {
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 28px;
+  }
+}
+
+.heroText {
+  max-width: 720px;
+  min-width: 0;
+}
+
+.heroFullTitle {
+  margin: 0;
+  font-size: 76px;
+  font-weight: 900;
+  letter-spacing: -.045em;
+  line-height: .95;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+
+  @media (max-width: 1100px) { font-size: 56px; }
+  @media (max-width: 640px) { font-size: 38px; }
+}
+
+.heroPlace {
+  margin: 16px 0 0;
+  font-size: 17px;
+  color: #d6d6db;
+}
+
+.heroDateLine {
+  margin: 14px 0 0;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #ff8ec9;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.heroPanel {
+  flex: 0 0 360px;
+  min-width: 0;
+
+  @media (max-width: 860px) { flex: none; }
+}
+
+// ── Sidebar meta rows ────────────────────────────────────────────
+.metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.metaRowLabel {
+  font-size: 13px;
+  color: #8f8f97;
+}
+
+.metaRowValue {
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.metaRowValueAccent {
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: right;
+  color: #ff8ec9;
 }

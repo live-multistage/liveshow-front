@@ -27,9 +27,12 @@ interface Props {
   errors: FieldErrors<EditFormValues>;
   isPending: boolean;
   errorMessage?: string;
+  // FINISHED events: schedule is historical record — fields render disabled
+  // and the container omits them from the update payload.
+  scheduleLocked?: boolean;
 }
 
-export function EventEditForm({ register, control, errors, errorMessage }: Props) {
+export function EventEditForm({ register, control, errors, errorMessage, scheduleLocked = false }: Props) {
   const t = useTranslations('eventDetail');
 
   return (
@@ -59,6 +62,7 @@ export function EventEditForm({ register, control, errors, errorMessage }: Props
           <input
             type="datetime-local"
             {...register('startsAt')}
+            disabled={scheduleLocked}
             className={`${styles.input} ${errors.startsAt ? styles.inputError : ''}`}
           />
           {errors.startsAt && <p className={styles.error}>{errors.startsAt.message}</p>}
@@ -68,6 +72,7 @@ export function EventEditForm({ register, control, errors, errorMessage }: Props
           <input
             type="datetime-local"
             {...register('endsAt')}
+            disabled={scheduleLocked}
             className={`${styles.input} ${errors.endsAt ? styles.inputError : ''}`}
           />
           {errors.endsAt && <p className={styles.error}>{errors.endsAt.message}</p>}
@@ -83,6 +88,7 @@ export function EventEditForm({ register, control, errors, errorMessage }: Props
             <SimpleCustomSelect
               value={field.value}
               onValueChange={field.onChange}
+              disabled={scheduleLocked}
               options={[
                 { value: 'STANDARD', label: t('latencyStandard') },
                 { value: 'LOW', label: t('latencyLow') },

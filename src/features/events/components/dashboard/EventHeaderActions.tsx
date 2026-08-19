@@ -58,7 +58,13 @@ export function EventHeaderActions({
 }: Props) {
   const t = useTranslations('eventDetail');
   const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
-  const canEdit = event.status === 'DRAFT' || event.status === 'PUBLISHED' || event.status === 'SCHEDULED';
+  // FINISHED events stay editable for content curation (photos, description);
+  // the backend freezes schedule fields, mirrored by EventEditForm's scheduleLocked.
+  const canEdit =
+    event.status === 'DRAFT' ||
+    event.status === 'PUBLISHED' ||
+    event.status === 'SCHEDULED' ||
+    event.status === 'FINISHED';
   const canPublish = event.status === 'DRAFT';
   const canUnpublish = event.status === 'PUBLISHED' || event.status === 'SCHEDULED';
   const canFinish = event.status === 'LIVE';
