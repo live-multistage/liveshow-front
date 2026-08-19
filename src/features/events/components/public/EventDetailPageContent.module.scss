@@ -254,7 +254,7 @@
 // ── Body grid ────────────────────────────────────────────────────
 .grid {
   display: grid;
-  grid-template-columns: 1fr 388px;
+  grid-template-columns: 1fr 360px;
   gap: 28px;
   align-items: start;
 
@@ -462,7 +462,9 @@
   flex-direction: column;
   justify-content: space-between;
   min-height: 620px;
-  padding: 96px 56px 52px;
+  // 40px gutter matches .navInner and .inner so hero content, navbar and
+  // body columns align on both edges.
+  padding: 96px 40px 52px;
   background: linear-gradient(140deg, #2a0818 0%, #12060d 45%, #050406 100%);
   overflow: hidden;
 
