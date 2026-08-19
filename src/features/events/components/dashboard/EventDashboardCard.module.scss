@@ -41,6 +41,14 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  gap: 12px;
+}
+
+.cardTopLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 // ── Status badge ──────────────────────────────────────────────────
@@ -137,4 +145,12 @@
   color: #9a9aa2;
 
   svg { flex-shrink: 0; }
+}
+
+.collabChip {
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }

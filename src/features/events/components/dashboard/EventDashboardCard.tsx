@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
+import { Chip } from '@live-show/design-system';
 import type { EventResponse, EventStatus } from '../../types/event.types';
 import styles from './EventDashboardCard.module.scss';
 
@@ -27,6 +28,7 @@ interface Props {
 
 export function EventDashboardCard({ event }: Props) {
   const t = useTranslations('eventCard');
+  const tCollab = useTranslations('collaborations');
   const locale = useLocale();
   const location = [event.venue, event.city, event.country].filter(Boolean).join(', ');
   const glow = STATUS_GLOW[event.status];
@@ -43,10 +45,17 @@ export function EventDashboardCard({ event }: Props) {
       {glow && <span className={`${styles.glow} ${glow}`} />}
       <div className={styles.body}>
         <div className={styles.cardTop}>
-          <span className={`${styles.status} ${STATUS_MOD[event.status]}`}>
-            {event.status === 'LIVE' && <span className={styles.livePulse} />}
-            {t(`status.${event.status}`)}
-          </span>
+          <div className={styles.cardTopLeft}>
+            <span className={`${styles.status} ${STATUS_MOD[event.status]}`}>
+              {event.status === 'LIVE' && <span className={styles.livePulse} />}
+              {t(`status.${event.status}`)}
+            </span>
+            {event.collaborationRole === 'COLLABORATOR' && (
+              <Chip className={styles.collabChip} variant="default">
+                {tCollab('collabChip')}
+              </Chip>
+            )}
+          </div>
           <span className={styles.cameras}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="2" y="7" width="20" height="13" rx="2" />
