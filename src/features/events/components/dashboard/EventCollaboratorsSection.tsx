@@ -13,9 +13,12 @@ import styles from './EventCollaboratorsSection.module.scss';
 
 interface Props {
   eventId: string;
+  // Viewing org is a COLLABORATOR, not the owner: backend 403s invite/cancel,
+  // so show the list read-only and hide the write controls.
+  readOnly?: boolean;
 }
 
-export function EventCollaboratorsSection({ eventId }: Props) {
+export function EventCollaboratorsSection({ eventId, readOnly = false }: Props) {
   const t = useTranslations('collaborations');
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -40,28 +43,30 @@ export function EventCollaboratorsSection({ eventId }: Props) {
     <div className={styles.section}>
       <h2 className={styles.title}>{t('collaborators')}</h2>
 
-      <div className={styles.searchWrap}>
-        <input
-          className={styles.searchInput}
-          placeholder={t('searchOrgPlaceholder')}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        {debouncedQuery && searchResults.length > 0 && (
-          <div className={styles.results}>
-            {searchResults.map((org) => (
-              <button
-                key={org.id}
-                type="button"
-                className={styles.resultItem}
-                onClick={() => handleInvite(org.id)}
-              >
-                {org.name}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      {!readOnly && (
+        <div className={styles.searchWrap}>
+          <input
+            className={styles.searchInput}
+            placeholder={t('searchOrgPlaceholder')}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {debouncedQuery && searchResults.length > 0 && (
+            <div className={styles.results}>
+              {searchResults.map((org) => (
+                <button
+                  key={org.id}
+                  type="button"
+                  className={styles.resultItem}
+                  onClick={() => handleInvite(org.id)}
+                >
+                  {org.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className={styles.list}>
         {collaborators.map((collaborator) => (
@@ -70,7 +75,7 @@ export function EventCollaboratorsSection({ eventId }: Props) {
             <span className={`${styles.chip} ${collaborator.status === 'PENDING' ? styles.pending : styles.accepted}`}>
               {collaborator.status === 'PENDING' ? t('pending') : t('accepted')}
             </span>
-            {collaborator.status === 'PENDING' && (
+            {collaborator.status === 'PENDING' && !readOnly && (
               <Button
                 variant="ghost"
                 size="sm"

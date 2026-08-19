@@ -26,6 +26,9 @@ interface Props {
   isFinishing: boolean;
   isResuming: boolean;
   publishBlocked?: boolean;
+  // Event's org is a COLLABORATOR, not the owner: backend 403s every mutation
+  // below, so hide the buttons instead of showing dead ones. Status stays visible.
+  readOnly?: boolean;
   onEdit: () => void;
   onCancelEdit: () => void;
   onSave: () => void;
@@ -44,6 +47,7 @@ export function EventHeaderActions({
   isFinishing,
   isResuming,
   publishBlocked = false,
+  readOnly = false,
   onEdit,
   onCancelEdit,
   onSave,
@@ -85,13 +89,13 @@ export function EventHeaderActions({
         {t(`status.${event.status}`)}
       </span>
 
-      {canEdit && !editing && (
+      {canEdit && !editing && !readOnly && (
         <Button variant="outline" icon={<Pencil size={14} />} onClick={onEdit}>
           {t('edit')}
         </Button>
       )}
 
-      {canPublish && !editing && (
+      {canPublish && !editing && !readOnly && (
         <Button
           variant="primary"
           icon={<Globe size={14} />}
@@ -105,7 +109,7 @@ export function EventHeaderActions({
         </Button>
       )}
 
-      {canUnpublish && !editing && (
+      {canUnpublish && !editing && !readOnly && (
         <Button
           variant="outline"
           icon={<EyeOff size={14} />}
@@ -117,7 +121,7 @@ export function EventHeaderActions({
         </Button>
       )}
 
-      {canFinish && (
+      {canFinish && !readOnly && (
         <Button
           variant="danger"
           icon={<StopCircle size={14} />}
@@ -129,7 +133,7 @@ export function EventHeaderActions({
         </Button>
       )}
 
-      {canResume && (
+      {canResume && !readOnly && (
         <>
           <Button
             variant="outline"
@@ -149,7 +153,7 @@ export function EventHeaderActions({
         </>
       )}
 
-      {editing && (
+      {editing && !readOnly && (
         <>
           <Button variant="outline" icon={<X size={14} />} onClick={onCancelEdit}>
             {t('cancel')}

@@ -173,3 +173,43 @@ describe('EventHeaderActions resume live', () => {
     expect(screen.getByText('resumeDialogTitle')).toBeInTheDocument();
   });
 });
+
+describe('EventHeaderActions readOnly', () => {
+  it('hides every write action but keeps the status badge visible', () => {
+    render(
+      <EventHeaderActions
+        {...baseProps}
+        event={makeEvent({ status: 'DRAFT' })}
+        onResumeLive={vi.fn()}
+        readOnly
+      />,
+    );
+
+    expect(screen.getByText('status.DRAFT')).toBeInTheDocument();
+    expect(screen.queryByText('edit')).not.toBeInTheDocument();
+    expect(screen.queryByText('publish')).not.toBeInTheDocument();
+  });
+
+  it('hides finish and resume actions when readOnly', () => {
+    const finishedAt = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    render(
+      <EventHeaderActions
+        {...baseProps}
+        event={makeEvent({ status: 'FINISHED', finishedAt })}
+        onResumeLive={vi.fn()}
+        readOnly
+      />,
+    );
+
+    expect(screen.queryByText('resumeLive')).not.toBeInTheDocument();
+  });
+
+  it('shows write actions when readOnly is false or omitted', () => {
+    render(
+      <EventHeaderActions {...baseProps} event={makeEvent({ status: 'DRAFT' })} onResumeLive={vi.fn()} />,
+    );
+
+    expect(screen.getByText('edit')).toBeInTheDocument();
+    expect(screen.getByText('publish')).toBeInTheDocument();
+  });
+});

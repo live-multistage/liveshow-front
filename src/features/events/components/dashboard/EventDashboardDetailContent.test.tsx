@@ -21,7 +21,11 @@ vi.mock('../../mutations/publish-event.mutation', () => ({
   useFinishEventMutation: vi.fn(() => ({ isPending: false, mutate: vi.fn() })),
   useResumeLiveMutation: vi.fn(() => ({ isPending: false, mutateAsync: vi.fn() })),
 }));
-vi.mock('./EventHeaderActions', () => ({ EventHeaderActions: () => <div>header-actions</div> }));
+vi.mock('./EventHeaderActions', () => ({
+  EventHeaderActions: (props: { readOnly?: boolean }) => (
+    <div>header-actions{props.readOnly ? '-readonly' : ''}</div>
+  ),
+}));
 vi.mock('./LibrasAccessibilityPanel', () => ({ LibrasAccessibilityPanel: () => null }));
 vi.mock('./EventInfoGrid', () => ({ EventInfoGrid: () => null }));
 vi.mock('./EventTicketList', () => ({ EventTicketList: () => null }));
@@ -29,7 +33,11 @@ vi.mock('./EditTicketSection', () => ({ EditTicketSection: () => null }));
 vi.mock('./PhotosSection', () => ({ PhotosSection: () => null }));
 vi.mock('../VodUploadCard/VodUploadCard', () => ({ VodUploadCard: () => null }));
 vi.mock('@/features/metadata', () => ({ EventMetadataSection: () => null }));
-vi.mock('./EventCollaboratorsSection', () => ({ EventCollaboratorsSection: () => null }));
+vi.mock('./EventCollaboratorsSection', () => ({
+  EventCollaboratorsSection: (props: { readOnly?: boolean }) => (
+    <div>collaborators-section{props.readOnly ? '-readonly' : ''}</div>
+  ),
+}));
 
 import { render, screen } from '@testing-library/react';
 import { EventDashboardDetailContent } from './EventDashboardDetailContent';
@@ -177,5 +185,53 @@ describe('EventDashboardDetailContent ownership gate', () => {
     renderPage();
 
     expect(screen.getByText('notFound')).toBeInTheDocument();
+  });
+});
+
+// GET /events/:id also serves collaborator orgs the event, but the backend only
+// lets an OWNER-org member mutate it — a COLLABORATOR org's every write call 403s.
+// The dashboard must hide those buttons instead of showing dead ones.
+describe('EventDashboardDetailContent collaboration read-only gate', () => {
+  beforeEach(() => {
+    mockOrgs([makeOrg('org-owner', 'ADMIN')]);
+  });
+
+  it('hides write-action surfaces for a COLLABORATOR org', () => {
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: { ...EVENT, collaborationRole: 'COLLABORATOR' },
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+
+    renderPage();
+
+    expect(screen.getByText('header-actions-readonly')).toBeInTheDocument();
+    expect(screen.getByText('collaborators-section-readonly')).toBeInTheDocument();
+  });
+
+  it('shows write-action surfaces for the OWNER role', () => {
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: { ...EVENT, collaborationRole: 'OWNER' },
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+
+    renderPage();
+
+    expect(screen.getByText('header-actions')).toBeInTheDocument();
+    expect(screen.getByText('collaborators-section')).toBeInTheDocument();
+  });
+
+  it('shows write-action surfaces when collaborationRole is undefined', () => {
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: EVENT,
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+
+    renderPage();
+
+    expect(screen.getByText('header-actions')).toBeInTheDocument();
+    expect(screen.getByText('collaborators-section')).toBeInTheDocument();
   });
 });

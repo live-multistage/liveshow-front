@@ -124,6 +124,9 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
   }
 
   const location = [event.venue, event.city, event.country].filter(Boolean).join(', ');
+  // Collaborator orgs get read-only access: backend 403s every mutation, so
+  // hide the buttons that would trigger them instead of showing dead ones.
+  const readOnly = event.collaborationRole === 'COLLABORATOR';
 
   return (
     <div className={styles.page}>
@@ -147,6 +150,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
           isFinishing={finishMutation.isPending}
           isResuming={resumeLiveMutation.isPending}
           publishBlocked={publishBlocked}
+          readOnly={readOnly}
           onEdit={startEditing}
           onCancelEdit={cancelEditing}
           onSave={handleSubmit(onSave)}
@@ -198,7 +202,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
 
         <EventMetadataSection eventId={id} />
 
-        <EventCollaboratorsSection eventId={id} />
+        <EventCollaboratorsSection eventId={id} readOnly={readOnly} />
       </div>
     </div>
   );

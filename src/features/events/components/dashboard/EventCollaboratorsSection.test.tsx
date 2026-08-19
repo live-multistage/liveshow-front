@@ -106,4 +106,17 @@ describe('EventCollaboratorsSection', () => {
 
     expect(inviteMutate).toHaveBeenCalledWith('org-9');
   });
+
+  it('hides the invite search box and cancel buttons when readOnly', () => {
+    (useEventCollaboratorsQuery as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      data: [makeCollaborator({ status: 'PENDING' })],
+      isLoading: false,
+    });
+
+    render(<EventCollaboratorsSection eventId="evt-1" readOnly />);
+
+    expect(screen.queryByPlaceholderText('searchOrgPlaceholder')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'cancelInvite' })).not.toBeInTheDocument();
+    expect(screen.getByText('Partner Org')).toBeInTheDocument();
+  });
 });
