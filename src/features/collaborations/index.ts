@@ -11,3 +11,4 @@ export {
   useRespondToInviteMutation,
 } from './mutations/collaborations.mutations';
 export type { EventCollaborator, CollaborationInvite, OrganizationSearchResult } from './types/collaboration.types';
+export { CollaborationInvitesCard } from './components/CollaborationInvitesCard';

@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { CollaborationInvitesCard } from '@/features/collaborations';
 import { OrganizationHeader } from '../components/OrganizationHeader';
 import { useOrganization } from '../hooks/use-organizations';
 import { useOrganizationMembers } from '../hooks/use-organization-members';
@@ -147,6 +148,8 @@ export function OrganizationDashboardPage({ organizationId }: Props) {
 
         {/* Left */}
         <div className={styles.left}>
+
+          <CollaborationInvitesCard organizationId={organizationId} />
 
           {/* KPI strip */}
           <div className={styles.kpiStrip}>
