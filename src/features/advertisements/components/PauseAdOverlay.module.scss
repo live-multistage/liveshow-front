@@ -6,9 +6,10 @@
   justify-content: flex-end;
   padding: 16px 24px;
   pointer-events: none;
-  // Acima do maior z-index de irmão no gridArea (unmutePrompt: 30 em
-  // LivePlayer.module.scss; centerPlayOverlay: 10 nos dois players).
-  z-index: 31;
+  // Acima do centerPlayOverlay (10 nos dois players), para o anúncio ser
+  // clicável, mas abaixo do ChatDock (15) e da chrome do player (header e
+  // bottomStack: 20/30) — o anúncio não pode cobrir o chat nem os controles.
+  z-index: 14;
 
   > * {
     pointer-events: auto;
