@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { isAxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
@@ -23,7 +22,6 @@ interface Props {
 }
 
 export function EventDetailPageContent({ id }: Props) {
-  const router = useRouter();
   const t = useTranslations('events.detail');
   const tc = useTranslations('collaborations');
   const { data: event, isLoading, isError, error, refetch } = useGetEventQuery(id);
@@ -86,19 +84,6 @@ export function EventDetailPageContent({ id }: Props) {
           : <div className={styles.heroPlaceholder} />}
         <div className={styles.heroFullScrim} />
 
-        <div className={styles.heroTopRow}>
-          <button onClick={() => router.back()} className={styles.backBtn}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M11 18l-6-6 6-6"/>
-            </svg>
-            VOLTAR
-          </button>
-          <div className={styles.topActions}>
-            <WishlistButton eventId={id} variant="inline" />
-            <ReportButton eventId={id} className={styles.reportTrigger} />
-          </div>
-        </div>
-
         <div className={styles.heroBottom}>
           <div className={styles.heroText}>
             <div className={styles.heroBadges}>
@@ -140,6 +125,11 @@ export function EventDetailPageContent({ id }: Props) {
       <div className={styles.inner}>
         <div className={styles.grid}>
           <div>
+            <div className={styles.topActions}>
+              <WishlistButton eventId={id} variant="inline" />
+              <ReportButton eventId={id} className={styles.reportTrigger} />
+            </div>
+
             <div className={styles.section}>
               <div className={styles.sectionLabel}>SOBRE O SHOW</div>
               <p className={styles.description}>{event.description}</p>
