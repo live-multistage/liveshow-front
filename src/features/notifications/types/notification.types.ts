@@ -1,4 +1,4 @@
-export type NotificationType = 'EVENT' | 'TICKET' | 'PAYMENT' | 'SYSTEM' | 'ADVERTISEMENT';
+export type NotificationType = 'EVENT' | 'TICKET' | 'PAYMENT' | 'SYSTEM' | 'ADVERTISEMENT' | 'COLLABORATION';
 
 export interface NotificationResponse {
   id: string;
