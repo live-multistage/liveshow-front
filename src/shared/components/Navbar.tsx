@@ -38,13 +38,23 @@ export function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [isImmersive]);
+  // isLoading intentionally not gated on here: isLoggedIn is already correct
+  // from the very first server-rendered paint (see AuthProvider's SSR seed),
+  // so waiting on isLoading before rendering the real nav actions would just
+  // reintroduce the "Loading" placeholder flash this was meant to remove.
   const { user, isLoggedIn, logout } = useAuth();
   const { data: dashboardCheck } = useAuthCheck('access_dashboard', {}, { enabled: isLoggedIn });
   const canAccessDashboard = dashboardCheck?.allowed === true;
 
   const cartCount = useCartCount();
   const t = useTranslations('nav');
-  
+
+  // Immersive routes only: the nav floats transparent over the hero and never
+  // reserves flow space (position: fixed for the page's whole lifetime —
+  // switching fixed↔sticky exactly at the scroll threshold would jump the
+  // layout by the nav's own height right as the class toggles). Background/
+  // blur/border alone respond to scroll. Every other page keeps the
+  // sticky+solid bar.
   const navClassName = [
     styles.nav,
     isImmersive && styles.navFixed,
