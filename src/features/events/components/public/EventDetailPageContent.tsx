@@ -25,6 +25,7 @@ interface Props {
 export function EventDetailPageContent({ id }: Props) {
   const router = useRouter();
   const t = useTranslations('events.detail');
+  const tc = useTranslations('collaborations');
   const { data: event, isLoading, isError, error, refetch } = useGetEventQuery(id);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
   const { data: org } = useOrganization(event?.organizationId ?? '');
@@ -153,16 +154,41 @@ export function EventDetailPageContent({ id }: Props) {
             </div>
 
             {org && (
-              <Link href={`/o/${org.slug}`} className={styles.orgCard}>
-                <div className={styles.orgAvatar}>
-                  {org.logoUrl && <img src={org.logoUrl} alt={org.name} className={styles.orgAvatarImg} />}
-                </div>
-                <div className={styles.orgInfo}>
-                  <span className={styles.orgLabel}>{t('organization')}</span>
-                  <span className={styles.orgName}>{org.name}</span>
-                </div>
-                <span className={styles.orgArrow}>VER PERFIL →</span>
-              </Link>
+              <>
+                <Link href={`/o/${org.slug}`} className={styles.orgCard}>
+                  <div className={styles.orgAvatar}>
+                    {org.logoUrl && <img src={org.logoUrl} alt={org.name} className={styles.orgAvatarImg} />}
+                  </div>
+                  <div className={styles.orgInfo}>
+                    <span className={styles.orgLabel}>
+                      {event.collaborators?.length ? tc('organizedBy') : t('organization')}
+                    </span>
+                    <span className={styles.orgName}>{org.name}</span>
+                  </div>
+                  <span className={styles.orgArrow}>VER PERFIL →</span>
+                </Link>
+                {!!event.collaborators?.length && (
+                  <div className={styles.collaboratorsRow}>
+                    <span className={styles.collaboratorsLabel}>{tc('withCollaborators')}</span>
+                    {event.collaborators.map((collaborator) => (
+                      <Link
+                        key={collaborator.id}
+                        href={`/o/${collaborator.slug}`}
+                        className={styles.collaboratorLink}
+                      >
+                        {collaborator.logoUrl && (
+                          <img
+                            src={collaborator.logoUrl}
+                            alt={collaborator.name}
+                            className={styles.collaboratorLogo}
+                          />
+                        )}
+                        {collaborator.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
 
             <div className={styles.section}>

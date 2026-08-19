@@ -30,6 +30,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { EventDetailPageContent } from './EventDetailPageContent';
 import { useGetEventQuery } from '../../queries/get-event';
 import { useEventCamerasQuery } from '@/features/streams/queries/streams.queries';
+import { useOrganization } from '@/features/organizations';
 import type { EventResponse } from '../../types/event.types';
 
 const BANNER = 'https://example.com/banner.jpg';
@@ -190,5 +191,37 @@ describe('EventDetailPageContent wishlist', () => {
     renderWithEvent(makeEvent());
 
     expect(screen.getByTestId('wishlist-button')).toHaveAttribute('data-event-id', 'evt-1');
+  });
+});
+
+describe('EventDetailPageContent attribution', () => {
+  const owner = { id: 'org-1', name: 'Dona do Show', slug: 'dona-do-show', logoUrl: null };
+
+  it('renders only the owner when the event has no collaborators', () => {
+    vi.mocked(useOrganization).mockReturnValue({ data: owner } as unknown as ReturnType<typeof useOrganization>);
+
+    renderWithEvent(makeEvent({ collaborators: [] }));
+
+    expect(screen.getByText('Dona do Show')).toBeInTheDocument();
+    expect(screen.queryByText('withCollaborators')).toBeNull();
+  });
+
+  it('renders the owner and links each collaborator to its org page', () => {
+    vi.mocked(useOrganization).mockReturnValue({ data: owner } as unknown as ReturnType<typeof useOrganization>);
+
+    renderWithEvent(makeEvent({
+      collaborators: [
+        { id: 'org-2', name: 'Colaboradora Um', slug: 'colaboradora-um', logoUrl: null },
+        { id: 'org-3', name: 'Colaboradora Dois', slug: 'colaboradora-dois', logoUrl: null },
+      ],
+    }));
+
+    expect(screen.getByText('organizedBy')).toBeInTheDocument();
+    expect(screen.getByText('Dona do Show')).toBeInTheDocument();
+
+    const collab1 = screen.getByText('Colaboradora Um').closest('a');
+    const collab2 = screen.getByText('Colaboradora Dois').closest('a');
+    expect(collab1).toHaveAttribute('href', '/o/colaboradora-um');
+    expect(collab2).toHaveAttribute('href', '/o/colaboradora-dois');
   });
 });
