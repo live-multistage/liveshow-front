@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useNavigationLoadingStore } from '@/shared/stores/navigation-loading.store';
+import { isCurrentUrl, useNavigationLoadingStore } from '@/shared/stores/navigation-loading.store';
 
 function NavigationEventsInner() {
   const pathname = usePathname();
@@ -35,7 +35,7 @@ function NavigationEventsInner() {
       const opensNewTab = target.target === '_blank';
       const isModifiedClick = e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
 
-      if (isInternal && !isHashOnly && !opensNewTab && !isModifiedClick) {
+      if (isInternal && !isHashOnly && !opensNewTab && !isModifiedClick && !isCurrentUrl(href)) {
         start();
       }
     };
