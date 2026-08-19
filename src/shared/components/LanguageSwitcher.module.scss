@@ -8,7 +8,7 @@
 }
 
 .icon {
-  color: $text-muted;
+  color: $text-primary;
   flex-shrink: 0;
   pointer-events: none;
 }
@@ -16,7 +16,7 @@
 .trigger {
   background: transparent;
   border: none;
-  color: $text-secondary;
+  color: $text-primary;
   font-size: 0.78rem;
   font-family: inherit;
   height: auto;
@@ -28,5 +28,5 @@
   &:focus { box-shadow: none; outline: none; }
   &[data-disabled] { opacity: 0.5; cursor: not-allowed; }
 
-  svg:last-child { width: 12px; height: 12px; opacity: 0.6; }
+  svg:last-child { width: 12px; height: 12px; opacity: 1; }
 }

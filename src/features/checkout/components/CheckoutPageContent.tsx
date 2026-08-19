@@ -1,7 +1,9 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Shield, AlertCircle, Clock } from 'lucide-react';
 import { useGetEventQuery, useListTicketProductsQuery, formatPrice } from '@/features/events';
 import { useAuth } from '@/features/account';
@@ -28,6 +30,7 @@ interface SuccessSummary {
   ticket: string;
   total: number;
   qty: number;
+  currency: string;
 }
 
 interface AppliedCoupon {
@@ -51,6 +54,7 @@ function handlePaymentAction(
         ticket: summary.ticket,
         total: String(summary.total),
         qty: String(summary.qty),
+        currency: summary.currency,
       });
       router.push(`${base}?${q}`);
     } else {
@@ -62,6 +66,7 @@ function handlePaymentAction(
 }
 
 export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: Props) {
+  const t = useTranslations('checkout');
   const router = useRouter();
   const { isLoggedIn, isLoading: authLoading } = useAuth();
 
@@ -85,7 +90,11 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
 
   useEffect(() => {
     if (!isLoggedIn && !authLoading) {
-      router.replace(`/login?next=/events/${eventId}/checkout?ticketId=${ticketProductId}&qty=${quantity}`);
+      router.replace(
+        `/login?redirect=${encodeURIComponent(
+          `/events/${eventId}/checkout?ticketId=${ticketProductId}&qty=${quantity}`,
+        )}`,
+      );
     }
   }, [isLoggedIn, authLoading, eventId, ticketProductId, quantity, router]);
 
@@ -119,7 +128,7 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
           router,
           eventId,
           event.data && ticket && session
-            ? { name: event.data.title, ticket: ticket.name, total: session.totalAmount, qty: quantity }
+            ? { name: event.data.title, ticket: ticket.name, total: session.totalAmount, qty: quantity, currency: session.currency }
             : undefined,
         ),
         onError: () => router.push(`/events/${eventId}/checkout/failed`),
@@ -148,10 +157,10 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
       <div className={styles.page}>
         <div className={styles.error}>
           <AlertCircle size={32} />
-          <p>Ingresso não encontrado.</p>
-          <button onClick={() => router.push(`/events/${eventId}`)} className={styles.backBtn}>
+          <p>{t('ticketNotFound')}</p>
+          <Link href={`/events/${eventId}`} className={styles.backBtn}>
             Voltar ao evento
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -207,6 +216,7 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
               onApply={handleCouponApply}
               onRemove={handleCouponRemove}
               disabled={!session}
+              currency={session?.currency ?? ticket.currency}
             />
 
             <button
@@ -222,8 +232,8 @@ export function CheckoutPageContent({ eventId, ticketProductId, quantity = 1 }: 
               {processPayment.isPending
                 ? 'Processando…'
                 : session
-                ? `Pagar ${formatPrice(session.totalAmount)}`
-                : 'Aguardando sessão…'}
+                ? `Pagar ${formatPrice(session.totalAmount, session.currency)}`
+                : t('waitingSession')}
             </button>
 
             <div className={styles.secure}>

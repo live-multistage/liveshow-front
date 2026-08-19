@@ -12,7 +12,7 @@
 }
 
 .container {
-  max-width: 1240px;
+  max-width: none;
   margin: 0 auto;
   padding: 44px 40px 64px;
 
@@ -289,7 +289,12 @@
     color: #ff5fb4;
   }
 
+  &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
+
   &:disabled { opacity: .5; cursor: not-allowed; }
+
+  // ≥44px tap target on touch (visual size stays 32px on pointer devices).
+  @media (pointer: coarse) { width: 44px; height: 44px; }
 }
 
 // ─── Chips ────────────────────────────────────────────────────
@@ -436,7 +441,8 @@
   font-size: 13px;
   padding: 14px 0;
 
-  &::placeholder { color: #6f6f77; }
+  // #6f6f77 measured ~3.8:1 on the input bg — below AA. Bump to ~6:1.
+  &::placeholder { color: #8f8f97; }
 }
 
 .promoApply {
@@ -450,6 +456,11 @@
   cursor: pointer;
   flex-shrink: 0;
   padding: 0;
+
+  &:focus-visible { outline: 2px solid $action; outline-offset: 3px; border-radius: 4px; }
+
+  // The wrap is only ~48px tall; give the tap zone real height on touch.
+  @media (pointer: coarse) { padding: 12px 4px; }
 }
 
 .promoFeedback {
@@ -476,6 +487,9 @@
   margin-left: auto;
   padding: 0 2px;
   &:hover { opacity: 1; }
+  &:focus-visible { outline: 2px solid $action; outline-offset: 2px; border-radius: 4px; opacity: 1; }
+
+  @media (pointer: coarse) { min-width: 44px; min-height: 44px; }
 }
 
 // ─── Summary lines ────────────────────────────────────────────
@@ -567,6 +581,7 @@
   transition: filter 0.15s;
 
   &:hover { filter: brightness(1.08); }
+  &:focus-visible { outline: 2px solid $action; outline-offset: 3px; }
 }
 
 .continueBtn {
@@ -589,6 +604,7 @@
     border-color: #ff2e9e;
     color: #ff5fb4;
   }
+  &:focus-visible { outline: 2px solid $action; outline-offset: 3px; }
 }
 
 .securePayment {
@@ -600,7 +616,7 @@
   font-family: 'Space Mono', monospace;
   font-size: 10.5px;
   letter-spacing: .06em;
-  color: #6f6f77;
+  color: #8f8f97; // was #6f6f77 (~3.8:1); AA at this size needs ~4.5:1
 }
 
 // ─── Empty state ──────────────────────────────────────────────
@@ -638,4 +654,10 @@
   transition: filter 0.15s;
 
   &:hover { filter: brightness(1.08); }
+  &:focus-visible { outline: 2px solid $action; outline-offset: 3px; }
+}
+
+// Freeze the live-dot pulse for users who ask for reduced motion.
+@media (prefers-reduced-motion: reduce) {
+  .liveDot { animation: none; }
 }

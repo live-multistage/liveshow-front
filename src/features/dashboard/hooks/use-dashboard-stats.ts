@@ -14,12 +14,18 @@ export interface DashboardStats {
   recentEvents: EventResponse[];
   isLoading: boolean;
   isError: boolean;
+  // Powers the "ATUALIZADO AGORA" indicator: when the query last resolved,
+  // whether a (re)fetch is in flight, and a manual refetch trigger.
+  dataUpdatedAt: number;
+  isFetching: boolean;
+  refetch: () => void;
 }
 
 export function useDashboardStats(): DashboardStats {
-  const { data: events = [], isLoading, isError } = useMyEventsQuery();
+  const { data: events = [], isLoading, isError, dataUpdatedAt, isFetching, refetch } =
+    useMyEventsQuery();
 
-  return useMemo(() => {
+  const derived = useMemo(() => {
     const now = new Date();
     const recentEvents = [...events]
       .sort((a, b) => new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime())
@@ -39,4 +45,6 @@ export function useDashboardStats(): DashboardStats {
       isError,
     };
   }, [events, isLoading, isError]);
+
+  return { ...derived, dataUpdatedAt, isFetching, refetch: () => void refetch() };
 }

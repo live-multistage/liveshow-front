@@ -133,6 +133,7 @@
   font-size: 10.5px;
   letter-spacing: .08em;
   cursor: pointer;
+  text-decoration: none;
   transition: color .15s;
 
   &:hover { color: #ff5fb4; }
@@ -149,6 +150,7 @@
   font-size: 10.5px;
   letter-spacing: .08em;
   cursor: pointer;
+  text-decoration: none;
   transition: color .15s;
 
   &:hover { color: #ff2e9e; }
@@ -160,6 +162,7 @@
   letter-spacing: .06em;
   color: #ff5fb4;
   cursor: pointer;
+  text-decoration: none;
   transition: color .15s;
 
   &:hover { color: #ff2e9e; }

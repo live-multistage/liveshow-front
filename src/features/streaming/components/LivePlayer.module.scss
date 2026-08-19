@@ -28,7 +28,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 20;
+  // Above the CameraGrid overlays (PiP slot z:21, picker drawer z:21 + its
+  // add-tiles z:22) so the transport bar's audio/quality popover menus — which
+  // are trapped in .bar's backdrop-filter stacking context and can't escape via
+  // their own z-index — render on top of the PiP preview and camera selector.
+  z-index: 30;
   display: flex;
   flex-direction: column;
   padding-top: 2rem;
@@ -37,5 +41,77 @@
 
   > * {
     pointer-events: auto;
+  }
+}
+
+// "Tap for sound" prompt — shown when the browser blocked unmuted autoplay.
+.unmutePrompt {
+  position: absolute;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(8, 8, 10, 0.82);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-family: 'Archivo', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: $action;
+    border-color: $action;
+  }
+}
+
+// Overlay de "pausado". Mesmas medidas do ReplayPlayer de propósito: os dois
+// players são a mesma experiência, e um botão de play de tamanho diferente
+// entre eles leria como duas UIs distintas.
+.centerPlayOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.centerPlayBtn {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background: rgba(10, 10, 12, 0.72);
+  backdrop-filter: blur(14px);
+  border: 1px solid $border;
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0.25rem; // optically center the play triangle
+  transition: background-color 0.15s, transform 0.15s;
+
+  .centerPlayOverlay:hover & {
+    background-color: rgba(255, 255, 255, 0.12);
+    transform: scale(1.05);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: background-color 0.15s;
+
+    .centerPlayOverlay:hover & {
+      transform: none;
+    }
   }
 }

@@ -25,7 +25,7 @@ export function TicketSummaryCard({ ticket, quantity, eventName }: Props) {
 
         <div className={styles.row}>
           <p className={styles.name}>{ticket.name}</p>
-          <p className={styles.price}>{quantity}× {formatPrice(ticket.price)}</p>
+          <p className={styles.price}>{quantity}× {formatPrice(ticket.price, ticket.currency)}</p>
         </div>
 
         {ticket.capabilities.length > 0 && (

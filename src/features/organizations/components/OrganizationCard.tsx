@@ -1,7 +1,9 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import type { OrganizationResponse } from '../types/organization.types';
+import { dominantSale, formatMoney } from '../utils/org-stats';
 import styles from './OrganizationCard.module.scss';
 
 // ── Helpers ───────────────────────────────────────────────────────
@@ -32,15 +34,12 @@ interface Props {
 }
 
 export function OrganizationCard({ organization: org }: Props) {
-  const router = useRouter();
-
+  const t = useTranslations('organizations');
   const initials = getInitials(org.name);
   const bg = avatarColor(org.id);
 
-  const goToOrg = () => router.push(`/dashboard/organizations/${org.id}`);
-
   return (
-    <div className={styles.card} onClick={goToOrg}>
+    <Link href={`/dashboard/organizations/${org.id}`} className={styles.card}>
       {/* corner glow */}
       <div className={styles.glow} style={{ background: `radial-gradient(circle, ${bg}28, transparent 70%)` }} />
 
@@ -59,37 +58,36 @@ export function OrganizationCard({ organization: org }: Props) {
           <div className={styles.name}>{org.name}</div>
           <div className={styles.handle}>@{org.slug}</div>
         </div>
-        <button
-          className={styles.menuBtn}
-          onClick={(e) => { e.stopPropagation(); goToOrg(); }}
-          aria-label="Abrir organização"
-        >
+        <span className={styles.menuBtn} aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="5" cy="12" r="1.6" />
             <circle cx="12" cy="12" r="1.6" />
             <circle cx="19" cy="12" r="1.6" />
           </svg>
-        </button>
+        </span>
       </div>
 
       {/* description */}
       <p className={styles.description}>
-        {org.description ?? 'Sem descrição.'}
+        {org.description ?? t('noDescription')}
       </p>
 
       {/* stats row */}
       <div className={styles.stats}>
         <div className={styles.stat}>
           <div className={styles.statLabel}>EVENTOS</div>
-          <div className={styles.statValue}>—</div>
+          <div className={styles.statValue}>{org.activeEventsCount ?? '—'}</div>
         </div>
         <div className={styles.stat}>
           <div className={styles.statLabel}>EQUIPE</div>
-          <div className={styles.statValue}>—</div>
+          <div className={styles.statValue}>{org.memberCount ?? '—'}</div>
         </div>
         <div className={styles.stat}>
           <div className={styles.statLabel}>VENDAS</div>
-          <div className={`${styles.statValue} ${styles.statValuePink}`}>—</div>
+          <div className={`${styles.statValue} ${styles.statValuePink}`}>{(() => {
+            const d = dominantSale(org.salesThisMonth);
+            return d ? formatMoney(d.amount, d.currency) : '—';
+          })()}</div>
         </div>
       </div>
 
@@ -105,6 +103,6 @@ export function OrganizationCard({ organization: org }: Props) {
         </div>
         <span className={styles.statusBadge}>ATIVO</span>
       </div>
-    </div>
+    </Link>
   );
 }

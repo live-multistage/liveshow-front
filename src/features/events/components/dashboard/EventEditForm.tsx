@@ -1,8 +1,10 @@
 'use client';
 
 import { z } from 'zod';
-import type { UseFormRegister, FieldErrors } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
+import type { UseFormRegister, FieldErrors, Control } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
+import { Checkbox, SimpleCustomSelect } from '@live-show/design-system';
 import styles from './EventDashboardDetailContent.module.scss';
 
 export const editSchema = z.object({
@@ -10,6 +12,8 @@ export const editSchema = z.object({
   description: z.string().min(10, 'Mínimo 10 caracteres'),
   startsAt: z.string().min(1, 'Obrigatório'),
   endsAt: z.string().min(1, 'Obrigatório'),
+  latencyMode: z.enum(['STANDARD', 'LOW']),
+  publiclyFunded: z.boolean().default(false),
 }).refine((d) => new Date(d.endsAt) > new Date(d.startsAt), {
   message: 'Fim deve ser após o início',
   path: ['endsAt'],
@@ -19,12 +23,16 @@ export type EditFormValues = z.infer<typeof editSchema>;
 
 interface Props {
   register: UseFormRegister<EditFormValues>;
+  control: Control<EditFormValues>;
   errors: FieldErrors<EditFormValues>;
   isPending: boolean;
   errorMessage?: string;
+  // FINISHED events: schedule is historical record — fields render disabled
+  // and the container omits them from the update payload.
+  scheduleLocked?: boolean;
 }
 
-export function EventEditForm({ register, errors, errorMessage }: Props) {
+export function EventEditForm({ register, control, errors, errorMessage, scheduleLocked = false }: Props) {
   const t = useTranslations('eventDetail');
 
   return (
@@ -54,6 +62,7 @@ export function EventEditForm({ register, errors, errorMessage }: Props) {
           <input
             type="datetime-local"
             {...register('startsAt')}
+            disabled={scheduleLocked}
             className={`${styles.input} ${errors.startsAt ? styles.inputError : ''}`}
           />
           {errors.startsAt && <p className={styles.error}>{errors.startsAt.message}</p>}
@@ -63,11 +72,50 @@ export function EventEditForm({ register, errors, errorMessage }: Props) {
           <input
             type="datetime-local"
             {...register('endsAt')}
+            disabled={scheduleLocked}
             className={`${styles.input} ${errors.endsAt ? styles.inputError : ''}`}
           />
           {errors.endsAt && <p className={styles.error}>{errors.endsAt.message}</p>}
         </div>
       </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>{t('editLatencyMode')}</label>
+        <Controller
+          name="latencyMode"
+          control={control}
+          render={({ field }) => (
+            <SimpleCustomSelect
+              value={field.value}
+              onValueChange={field.onChange}
+              disabled={scheduleLocked}
+              options={[
+                { value: 'STANDARD', label: t('latencyStandard') },
+                { value: 'LOW', label: t('latencyLow') },
+              ]}
+            />
+          )}
+        />
+      </div>
+
+      <Controller
+        name="publiclyFunded"
+        control={control}
+        render={({ field }) => (
+          <div className={styles.checkboxRow}>
+            <Checkbox
+              id="editPubliclyFunded"
+              checked={!!field.value}
+              onCheckedChange={(v) => field.onChange(v === true)}
+            />
+            <label htmlFor="editPubliclyFunded" className={styles.checkboxText}>
+              <strong>{t('publiclyFundedLabel')}</strong>
+              <span className={styles.checkboxHint}>{t('publiclyFundedHint')}</span>
+            </label>
+          </div>
+        )}
+      />
+
 
       {errorMessage && <p className={styles.globalError}>{errorMessage}</p>}
     </div>

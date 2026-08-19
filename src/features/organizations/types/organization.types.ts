@@ -1,4 +1,13 @@
-export type OrganizationRole = 'OWNER' | 'ADMIN' | 'EVENT_MANAGER' | 'CONTENT_MANAGER' | 'OPERATOR' | 'VIEWER';
+export type OrganizationRole = 'OWNER' | 'ADMIN' | 'EVENT_MANAGER' | 'CONTENT_MANAGER' | 'OPERATOR' | 'STAFF' | 'VIEWER';
+
+// Roles allowed to create events/coupons — mirrors the backend's
+// member.isAdmin() (OWNER/ADMIN). Used to filter org selectors in the
+// creation flows so a user can't pick an org they'd be 403'd on.
+export const ORG_MANAGE_ROLES: OrganizationRole[] = ['OWNER', 'ADMIN'];
+
+export function canManageOrg(role: OrganizationRole | undefined): boolean {
+  return role !== undefined && ORG_MANAGE_ROLES.includes(role);
+}
 
 export interface OrganizationResponse {
   id: string;
@@ -10,6 +19,12 @@ export interface OrganizationResponse {
   ownerId: string;
   createdAt: string;
   updatedAt: string;
+  // Present only on /organizations/mine — the caller's role in this org.
+  role?: OrganizationRole;
+  // Present only on /organizations/mine — dashboard aggregates.
+  activeEventsCount?: number;
+  memberCount?: number;
+  salesThisMonth?: { currency: string; amount: number }[];
 }
 
 export interface OrganizationSettings {
@@ -89,4 +104,32 @@ export interface StripeAccountStatus {
   onboardingComplete: boolean;
   feeRateOverride: number | null;
   effectiveFeeRate: number;
+}
+
+export type OrganizationLedgerEntryType = 'SALE' | 'REFUND' | 'PAYOUT';
+
+export interface OrganizationLedgerEntry {
+  id: string;
+  organizationId: string;
+  type: OrganizationLedgerEntryType;
+  amount: number;
+  currency: string;
+  orderId: string | null;
+  paymentId: string | null;
+  transferId: string | null;
+  gross: number | null;
+  buyerFee: number | null;
+  commissionRate: number | null;
+  commissionAmount: number | null;
+  createdAt: string;
+}
+
+export interface OrganizationLedgerBalance {
+  currency: string;
+  balance: number;
+}
+
+export interface OrganizationLedgerResponse {
+  balances: OrganizationLedgerBalance[];
+  entries: OrganizationLedgerEntry[];
 }

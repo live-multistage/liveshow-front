@@ -7,7 +7,7 @@
 }
 
 .inner {
-  max-width: 1240px;
+  max-width: none;
   margin: 0 auto;
   padding: 44px 40px 64px;
 
@@ -110,6 +110,7 @@
 
   &:hover:not(:disabled) { filter: brightness(1.08); }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $action; outline-offset: 3px; }
 
   svg { flex-shrink: 0; }
 }
@@ -132,7 +133,7 @@
 // ── Loading skeleton ──────────────────────────────────────────────
 
 .container {
-  max-width: 1240px;
+  max-width: none;
   margin: 0 auto;
   padding: 3rem 40px;
   display: flex;
@@ -184,8 +185,11 @@
   border-radius: 8px;
   padding: 0.6rem 1.25rem;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
   font-size: 0.9rem;
   transition: border-color .15s;
 
   &:hover { border-color: $text-muted; }
+  &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
 }

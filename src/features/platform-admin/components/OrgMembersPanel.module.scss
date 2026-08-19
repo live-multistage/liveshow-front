@@ -1,0 +1,132 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .14);
+  color: #e7e7ea;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s ease;
+
+  &:hover { background: rgba(255, 255, 255, .1); }
+}
+
+.roleTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, .08);
+  color: #e7e7ea;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  padding: 5px 9px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: border-color .15s ease;
+
+  &:hover { border-color: rgba(255, 46, 158, .34); }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+
+.roleDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.card {
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.headRow {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.2fr;
+  gap: 16px;
+  align-items: center;
+  padding: 13px 20px;
+  background: #0c0c0f;
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: #7d7d85;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.2fr;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, .05);
+  transition: background .15s ease;
+
+  &:hover { background: rgba(255, 255, 255, .022); }
+  &:last-child { border-bottom: none; }
+}
+
+.memberCell {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex: none;
+  color: #0a0a0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.email {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #9a9aa2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--muted-foreground);
+}

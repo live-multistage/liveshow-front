@@ -3,14 +3,21 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { httpClient } from '@/lib/http/client';
 import type { AppError } from '@/lib/http/errors';
+import { useAuthContextValue } from '../context/AuthProvider';
 import type { AuthUser } from '../types/account.types';
+import type { AgeBracket } from '../types/age-bracket.types';
 
 interface UpdateProfilePayload {
   displayName?: string;
+  phone?: string;
+  cpf?: string;
+  bio?: string;
+  ageBracket?: AgeBracket;
 }
 
 export function useUpdateProfileMutation() {
   const queryClient = useQueryClient();
+  const { login } = useAuthContextValue();
 
   return useMutation<AuthUser, AppError, UpdateProfilePayload>({
     mutationFn: async (payload) => {
@@ -19,6 +26,7 @@ export function useUpdateProfileMutation() {
     },
     onSuccess: (data) => {
       localStorage.setItem('user', JSON.stringify(data));
+      login(data);
       queryClient.invalidateQueries({ queryKey: ['me'] });
     },
   });

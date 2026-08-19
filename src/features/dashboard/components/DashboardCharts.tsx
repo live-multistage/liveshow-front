@@ -43,13 +43,13 @@ const CHART_OPTIONS = {
   },
   scales: {
     x: {
-      grid: { color: 'rgba(39,39,42,0.6)' },
-      ticks: { color: '#71717A', font: { size: 11 } },
+      grid: { color: 'rgba(255,255,255,0.06)' },
+      ticks: { color: '#6f6f77', font: { size: 9, family: "'Space Mono', monospace" } },
       border: { display: false },
     },
     y: {
-      grid: { color: 'rgba(39,39,42,0.6)' },
-      ticks: { color: '#71717A', font: { size: 11 }, precision: 0 },
+      grid: { color: 'rgba(255,255,255,0.06)' },
+      ticks: { color: '#6f6f77', font: { size: 9, family: "'Space Mono', monospace" }, precision: 0 },
       border: { display: false },
       beginAtZero: true,
     },
@@ -86,12 +86,19 @@ interface Props {
 export function DashboardCharts({ events, eventsOnly = false }: Props) {
   const months = getLast6Months().map((m) => m.label);
   const eventsData = buildEventsData(events);
-  const { data: salesData } = useGetMySalesQuery('month');
+  const { data: salesByCurrency } = useGetMySalesQuery('month');
 
-  // Sales API returns 12 months; take last 6 to match the events chart window
-  const last6Sales = salesData?.data.slice(-6) ?? [];
-  const salesValues = last6Sales.map((p) => p.orders);
-  const revenueValues = last6Sales.map((p) => p.revenue);
+  // Overview mini-chart. Order COUNTS are currency-agnostic → summed across
+  // currencies. Revenue can't be summed without FX, so the revenue line shows
+  // the primary (largest) currency only; the per-currency breakdown lives on
+  // the dedicated /dashboard/sales panel.
+  const summaries = salesByCurrency ?? [];
+  const slotCount = summaries[0]?.summary.data.length ?? 0;
+  const orderTotals = Array.from({ length: slotCount }, (_, i) =>
+    summaries.reduce((sum, c) => sum + (c.summary.data[i]?.orders ?? 0), 0),
+  );
+  const salesValues = orderTotals.slice(-6);
+  const revenueValues = (summaries[0]?.summary.data ?? []).slice(-6).map((p) => p.revenue);
 
   const eventsChartData = {
     labels: months,
@@ -99,12 +106,12 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
       {
         label: 'Eventos',
         data: eventsData,
-        borderColor: '#ff2e9e',
-        backgroundColor: 'rgba(255,46,158,0.08)',
+        borderColor: '#ff5a4d',
+        backgroundColor: 'rgba(255,90,77,0.12)',
         fill: true,
         tension: 0.4,
-        pointRadius: 4,
-        pointBackgroundColor: '#ff2e9e',
+        pointRadius: 3.4,
+        pointBackgroundColor: '#ff5a4d',
         pointBorderColor: '#08080a',
         pointBorderWidth: 2,
       },
@@ -117,12 +124,12 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
       {
         label: 'Vendas',
         data: salesValues,
-        borderColor: '#9810fa',
-        backgroundColor: 'rgba(152,16,250,0.08)',
+        borderColor: '#9b7bff',
+        backgroundColor: 'rgba(155,123,255,0.12)',
         fill: true,
         tension: 0.4,
-        pointRadius: 4,
-        pointBackgroundColor: '#9810fa',
+        pointRadius: 3.4,
+        pointBackgroundColor: '#9b7bff',
         pointBorderColor: '#08080a',
         pointBorderWidth: 2,
       },
@@ -135,12 +142,12 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
       {
         label: 'Receita (R$)',
         data: revenueValues,
-        borderColor: '#FB64B6',
-        backgroundColor: 'rgba(251,100,182,0.08)',
+        borderColor: '#ff2e9e',
+        backgroundColor: 'rgba(255,46,158,0.12)',
         fill: true,
         tension: 0.4,
-        pointRadius: 4,
-        pointBackgroundColor: '#FB64B6',
+        pointRadius: 3.4,
+        pointBackgroundColor: '#ff2e9e',
         pointBorderColor: '#08080a',
         pointBorderWidth: 2,
       },

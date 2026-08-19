@@ -1,20 +1,363 @@
 @use '../../../styles/_variables' as *;
 
-.videoArea {
-  flex: 1;
-  min-height: 0;
-  min-width: 0;
-  height: 100%;
+.stage {
   position: relative;
-  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background-color: #000;
+}
+
+// Every camera panel is an absolutely-positioned slot. The transition animates
+// the rect change when a camera moves between roles (thumbnail → main, grid →
+// rail, …) so the swap reads as a smooth move of the same element, not a cut.
+.slot {
+  position: absolute;
+  overflow: hidden;
+  transition: left 0.28s ease, top 0.28s ease, right 0.28s ease,
+    bottom 0.28s ease, width 0.28s ease, height 0.28s ease;
+}
+
+.mainSlot {
+  z-index: 0;
+}
+
+.pipSlot {
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: border-color 0.15s, left 0.28s ease, top 0.28s ease,
+    right 0.28s ease, bottom 0.28s ease, width 0.28s ease, height 0.28s ease;
+
+  &:hover {
+    border-color: $action;
+  }
+}
+
+// NBR 15290 — mandatory Libras window. Fixed bottom-right, non-interactive,
+// visually distinct so it reads as the accessibility feed, not a regular PiP.
+.librasSlot {
+  border-radius: 10px;
+  border: 2px solid $action;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  transition: left 0.28s ease, top 0.28s ease, right 0.28s ease,
+    bottom 0.28s ease, width 0.28s ease, height 0.28s ease;
+}
+
+.librasBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: $action;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+}
+
+.activeRowLibras {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: $action;
+}
+
+.railSlot {
+  border: 1px solid $border;
+  cursor: pointer;
+  transition: border-color 0.15s, left 0.28s ease, top 0.28s ease,
+    right 0.28s ease, bottom 0.28s ease, width 0.28s ease, height 0.28s ease;
+
+  &:hover {
+    border-color: $action;
+  }
+}
+
+.gridSlot {
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: border-color 0.15s, left 0.28s ease, top 0.28s ease,
+    width 0.28s ease, height 0.28s ease;
+
+  &:hover {
+    border-color: $action;
+  }
+}
+
+.hiddenSlot {
+  pointer-events: none;
 }
 
 .emptyState {
-  flex: 1;
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   color: $muted;
   font-family: 'Space Mono', monospace;
   font-size: 0.875rem;
+}
+
+.stripSlot {
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, left 0.28s ease, top 0.28s ease,
+    width 0.28s ease, height 0.28s ease;
+
+  &:hover {
+    border-color: $action;
+  }
+}
+
+.stripBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(10, 10, 11, 0.65);
+  backdrop-filter: blur(4px);
+  color: #7fe0a0;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.stripDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #7fe0a0;
+}
+
+.stripClose {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 5px;
+  background: rgba(10, 10, 11, 0.6);
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+
+  &:hover {
+    background: $danger;
+  }
+}
+
+.stripInfo {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 5px 7px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+  text-align: left;
+  pointer-events: none;
+}
+
+.stripName {
+  color: #fff;
+  font-family: 'Archivo', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stripAngle {
+  color: $text-secondary;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin: 0;
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 21;
+  background: rgba(10, 10, 12, 0.72);
+  backdrop-filter: blur(14px);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  animation: drawerIn 0.22s ease;
+}
+
+@keyframes drawerIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  padding: 0 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.drawerTitle {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+}
+
+.drawerLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
+  color: $text-muted;
+}
+
+.drawerCount {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.drawerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.drawerModes {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  border: 1px solid $border;
+  padding: 0.2rem;
+}
+
+.modeBtn {
+  padding: 0.3rem 0.4rem;
+  border-radius: 5px;
+  background: none;
+  border: none;
+  color: $muted;
+  cursor: pointer;
+  display: flex;
+  transition: color 0.15s, background-color 0.15s;
+
+  &:hover { color: $text-primary; background-color: rgba(255, 255, 255, 0.08); }
+}
+
+.modeBtnActive {
+  background-color: $action;
+  color: $text-primary;
+}
+
+.drawerClose {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: $muted;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover { color: $text-primary; background-color: rgba(255, 255, 255, 0.12); }
+}
+
+.stripAdd {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #0a0a0b;
+  background: $action;
+  padding: 2px 6px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+
+.stripSlot:hover .stripAdd {
+  opacity: 1;
+}
+
+.drawerRows {
+  display: flex;
+  flex-direction: column;
+}
+
+.activeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  height: 44px;
+  padding: 0 12px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: $text-primary;
+  font-family: 'Archivo', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(255, 46, 158, 0.12);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+}
+
+.activeRowName {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.activeRowMinus {
+  flex: none;
+  color: $muted;
+}
+
+.activeRow:hover:not(:disabled) .activeRowMinus {
+  color: $action;
 }

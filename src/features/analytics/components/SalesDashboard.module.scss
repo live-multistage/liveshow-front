@@ -1,105 +1,218 @@
 @use '../../../styles/_variables' as *;
 
+// Liveshow design system — sales surfaces
+$mono: 'Space Mono', monospace;
+$sans: 'Archivo', sans-serif;
+
+$card-bg: #101013;
+$card-line: rgba(255, 255, 255, 0.08);
+$inset-bg: #0c0c0f;
+$accent: #ff2e9e;
+$accent-soft: #ff7ec2;
+$purple: #9b7bff;
+$mono-muted: #8f8f97;
+$hint: #7d7d85;
+
 .page {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.375rem;
 }
 
+// ── KPI row ───────────────────────────────────────────────────────
 .metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .metricCard {
-  background-color: $surface;
-  border: 1px solid $border;
-  border-radius: 10px;
-  padding: 1.25rem 1.5rem;
+  position: relative;
+  background: $card-bg;
+  border: 1px solid $card-line;
+  border-radius: 16px;
+  padding: 20px 20px 18px;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: rgba(255, 46, 158, 0.28);
+  }
+}
+
+.metricGlow {
+  position: absolute;
+  top: -46px;
+  right: -34px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, 0.22), transparent 70%);
+  pointer-events: none;
+}
+
+.metricInner {
+  position: relative;
+}
+
+.metricTop {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
 }
 
 .metricLabel {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: $text-muted;
-  font-family: 'Archivo', sans-serif;
+  font-family: $mono;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: $mono-muted;
+}
+
+.metricIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: $mono-muted;
+}
+
+.metricIconAccent {
+  background: rgba(255, 46, 158, 0.12);
+  border-color: rgba(255, 46, 158, 0.3);
+  color: $accent-soft;
 }
 
 .metricValue {
-  font-size: 1.6rem;
-  font-weight: 700;
-  font-family: 'Archivo', sans-serif;
-  color: $text-primary;
+  font-family: $sans;
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   line-height: 1;
+  color: #f4f4f5;
 }
 
-.metricRevenue { color: $action; }
-.metricPrice   { color: $price; }
+.metricValueAccent {
+  color: $accent;
+}
 
+.metricHint {
+  font-size: 12.5px;
+  color: $hint;
+  margin-top: 12px;
+}
+
+// ── Chart card ────────────────────────────────────────────────────
 .chartCard {
-  background-color: $surface;
-  border: 1px solid $border;
-  border-radius: 10px;
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  background: $card-bg;
+  border: 1px solid $card-line;
+  border-radius: 16px;
+  padding: 22px 24px 16px;
 }
 
 .chartControls {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
-  gap: 0.75rem;
 }
 
-.chartViewToggle,
-.granularityToggle {
+.chartHeading {
   display: flex;
-  gap: 0.25rem;
-  background-color: $surface-dark;
-  border: 1px solid $border;
-  border-radius: 8px;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chartTitle {
+  font-family: $mono;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: #fff;
+  font-weight: 700;
+}
+
+.chartSub {
+  font-family: $mono;
+  font-size: 11px;
+  color: $hint;
+}
+
+.toggles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.segment {
+  display: inline-flex;
+  background: $inset-bg;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
   padding: 3px;
 }
 
-.toggleBtn {
-  padding: 0.25rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  font-family: 'Archivo', sans-serif;
-  color: $text-muted;
+.segBtn {
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
+  color: $mono-muted;
+  font-family: $sans;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 15px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: color 0.15s, background-color 0.15s;
+  transition: color 0.15s ease;
 
   &:hover {
-    color: $text-primary;
+    color: #fff;
   }
 }
 
-.toggleActive {
-  background-color: $surface;
-  color: $text-primary;
-  border: 1px solid $border;
+.segBtnActive {
+  background: rgba(255, 46, 158, 0.14);
+  border-color: rgba(255, 46, 158, 0.34);
+  color: $accent-soft;
+  font-weight: 600;
+
+  &:hover {
+    color: $accent-soft;
+  }
+}
+
+// mono variant (granularity)
+.segMono .segBtn {
+  font-family: $mono;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  padding: 7px 14px;
+}
+
+.segMono .segBtnActive {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-weight: 700;
 }
 
 .chartWrap {
-  height: 240px;
+  height: 300px;
   position: relative;
 }
 
 .loadingWrap {
-  height: 100%;
+  height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -108,8 +221,8 @@
 .spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid $border;
-  border-top-color: $action;
+  border: 2px solid $card-line;
+  border-top-color: $accent;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -118,81 +231,189 @@
   to { transform: rotate(360deg); }
 }
 
+// ── Table card ────────────────────────────────────────────────────
 .tableCard {
-  background-color: $surface;
-  border: 1px solid $border;
-  border-radius: 10px;
-  padding: 1.25rem;
+  background: $card-bg;
+  border: 1px solid $card-line;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.tableHead {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .tableTitle {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: $text-muted;
-  font-family: 'Archivo', sans-serif;
-  margin: 0;
+  font-family: $mono;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: #fff;
+  font-weight: 700;
 }
 
-.tableWrap {
-  overflow-x: auto;
+.tableCount {
+  font-family: $mono;
+  font-size: 11px;
+  color: $hint;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: 'Archivo', sans-serif;
-  font-size: 0.85rem;
+.colHead {
+  display: grid;
+  grid-template-columns: 2.6fr 1fr 1.2fr;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 22px;
+  background: $inset-bg;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-family: $mono;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: $hint;
 }
 
-.th {
-  padding: 0.5rem 0.75rem;
-  text-align: left;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: $text-muted;
-  border-bottom: 1px solid $border;
-}
-
-.thRight {
+.colRight {
   text-align: right;
 }
 
-.tr {
-  border-bottom: 1px solid rgba($border, 0.5);
-
-  &:last-child {
-    border-bottom: none;
-  }
+.row {
+  display: grid;
+  grid-template-columns: 2.6fr 1fr 1.2fr;
+  gap: 16px;
+  align-items: center;
+  padding: 15px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.15s ease;
 
   &:hover {
-    background-color: $surface-dark;
+    background: rgba(255, 255, 255, 0.022);
   }
 }
 
-.td {
-  padding: 0.6rem 0.75rem;
-  color: $text-primary;
+.rowEvent {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
 }
 
-.tdRight {
+.thumb {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  flex: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-size: cover;
+  background-position: center;
+}
+
+.rowName {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rowMeta {
+  font-family: $mono;
+  font-size: 11px;
+  color: $mono-muted;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rowSales {
+  text-align: right;
+  font-family: $mono;
+  font-size: 15px;
+  font-weight: 700;
+  color: #f4f4f5;
+}
+
+.rowSalesZero {
+  color: #5a5a62;
+}
+
+.rowRevenue {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.rowRevenueValue {
+  font-family: $mono;
+  font-size: 14px;
+  font-weight: 700;
+  color: $accent;
+}
+
+.rowRevenueZero {
+  color: #5a5a62;
+}
+
+.bar {
+  width: 90px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff2e9e, #ff7ec2);
+}
+
+.tableFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  background: $inset-bg;
+}
+
+.footLabel {
+  font-family: $mono;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: $mono-muted;
+}
+
+.footValues {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+}
+
+.footSales {
+  font-family: $mono;
+  font-size: 14px;
+  font-weight: 700;
+  color: #f4f4f5;
+}
+
+.footRevenue {
+  font-family: $mono;
+  font-size: 14px;
+  font-weight: 700;
+  color: $accent;
+  min-width: 110px;
   text-align: right;
 }
 
-.tdRevenue {
-  color: $action;
-  font-weight: 600;
-}
-
-.emptyCell {
-  padding: 1.5rem 0.75rem;
+.emptyRow {
+  padding: 28px 22px;
   text-align: center;
-  color: $text-muted;
-  font-size: 0.85rem;
+  color: $hint;
+  font-size: 14px;
 }

@@ -1,6 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { CollaborationInvitesCard } from '@/features/collaborations';
 import { OrganizationHeader } from '../components/OrganizationHeader';
 import { useOrganization } from '../hooks/use-organizations';
 import { useOrganizationMembers } from '../hooks/use-organization-members';
@@ -9,6 +11,8 @@ import { useOrganizationSettings } from '../hooks/use-organization-settings';
 import type { OrganizationMemberResponse } from '../types/organization.types';
 import type { EventResponse, EventStatus } from '@/features/events/types/event.types';
 import styles from './OrganizationDashboardPage.module.scss';
+import { KpiCard } from '../components/KpiCard';
+import { SectionHeader } from '../components/SectionHeader';
 
 // ── Helpers ───────────────────────────────────────────────────────
 
@@ -23,17 +27,7 @@ function getInitials(name: string): string {
   return (name ?? '').split(' ').slice(0, 2).map((w) => w[0] ?? '').join('').toUpperCase();
 }
 
-function rolePtBr(role: string): string {
-  const map: Record<string, string> = {
-    OWNER: 'Proprietário',
-    ADMIN: 'Administrador',
-    EVENT_MANAGER: 'Produtor',
-    CONTENT_MANAGER: 'Gestor de Conteúdo',
-    OPERATOR: 'Operador',
-    VIEWER: 'Visualizador',
-  };
-  return map[role] ?? role;
-}
+const ROLE_LABEL_KEYS = ['OWNER','ADMIN','EVENT_MANAGER','CONTENT_MANAGER','OPERATOR','STAFF','VIEWER'];
 
 const MONTHS_PT = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
 
@@ -44,69 +38,22 @@ function parseEventDate(iso: string) {
 
 function eventStatusBadge(status: EventStatus) {
   switch (status) {
-    case 'LIVE':      return { label: 'AO VIVO', live: true };
+    case 'LIVE':      return { labelKey: 'statusLive', live: true };
     case 'PUBLISHED':
-    case 'SCHEDULED': return { label: 'PUBLICADO', color: '#7fe0a0', bg: 'rgba(127,224,160,.08)', border: 'rgba(127,224,160,.32)' };
-    case 'DRAFT':     return { label: 'RASCUNHO', color: '#c7c7cd', bg: 'rgba(255,255,255,.06)', border: 'rgba(255,255,255,.12)' };
-    case 'FINISHED':  return { label: 'ENCERRADO', color: '#8f8f97', bg: 'rgba(255,255,255,.04)', border: 'rgba(255,255,255,.1)' };
-    case 'CANCELLED': return { label: 'CANCELADO', color: '#f87171', bg: 'rgba(248,113,113,.08)', border: 'rgba(248,113,113,.2)' };
-    default:          return { label: status, color: '#8f8f97', bg: 'rgba(255,255,255,.04)', border: 'rgba(255,255,255,.1)' };
-  }
-}
-
-// ── KPI icon ──────────────────────────────────────────────────────
-
-function KpiIcon({ kind }: { kind: string }) {
-  const p = { width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none' as const, stroke: 'currentColor', strokeWidth: 2 };
-  switch (kind) {
-    case 'event':   return <svg {...p}><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" /></svg>;
-    case 'team':    return <svg {...p}><circle cx="9" cy="8" r="3" /><path d="M3 21a6 6 0 0 1 12 0M16 11a3 3 0 1 0 0-6M21 21a5 5 0 0 0-4-4.9" /></svg>;
-    case 'ticket':  return <svg {...p}><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4Z" /></svg>;
-    case 'sales':   return <svg {...p}><path d="M3 17l5-5 4 4 8-9" /><path d="M14 7h6v6" /></svg>;
-    default:        return null;
+    case 'SCHEDULED': return { labelKey: 'statusPublished', color: '#7fe0a0', bg: 'rgba(127,224,160,.08)', border: 'rgba(127,224,160,.32)' };
+    case 'DRAFT':     return { labelKey: 'statusDraft', color: '#c7c7cd', bg: 'rgba(255,255,255,.06)', border: 'rgba(255,255,255,.12)' };
+    case 'FINISHED':  return { labelKey: 'statusFinished', color: '#8f8f97', bg: 'rgba(255,255,255,.04)', border: 'rgba(255,255,255,.1)' };
+    case 'CANCELLED': return { labelKey: 'statusCancelled', color: '#f87171', bg: 'rgba(248,113,113,.08)', border: 'rgba(248,113,113,.2)' };
+    default:          return { labelKey: null as string | null, fallback: status, color: '#8f8f97', bg: 'rgba(255,255,255,.04)', border: 'rgba(255,255,255,.1)' };
   }
 }
 
 // ── Sub-components ────────────────────────────────────────────────
 
-function KpiCard({
-  label, value, unit, kind, accent,
-}: {
-  label: string; value: string | number; unit: string; kind: string; accent?: boolean;
-}) {
-  return (
-    <div className={`${styles.kpiCard} ${accent ? styles.kpiCardAccent : ''}`}>
-      {accent && <div className={styles.kpiGlow} />}
-      <div className={styles.kpiLabel}><KpiIcon kind={kind} /> {label}</div>
-      <div className={styles.kpiValue}>
-        <span className={`${styles.kpiNum} ${accent ? styles.kpiNumPink : ''}`}>{value}</span>
-        <span className={styles.kpiUnit}>{unit}</span>
-      </div>
-    </div>
-  );
-}
-
-function SectionHeader({ label, icon, action }: { label: string; icon: string; action?: React.ReactNode }) {
-  const p = { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none' as const, stroke: '#ff5fb4', strokeWidth: 2 };
-  const svg = icon === 'info'
-    ? <svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 8v4l3 2" /></svg>
-    : icon === 'calendar'
-    ? <svg {...p}><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" /></svg>
-    : icon === 'team'
-    ? <svg {...p}><circle cx="9" cy="8" r="3" /><path d="M3 21a6 6 0 0 1 12 0M16 11a3 3 0 1 0 0-6M21 21a5 5 0 0 0-4-4.9" /></svg>
-    : <svg {...p}><path d="M3 12h4l3-8 4 16 3-8h4" /></svg>;
-
-  return (
-    <div className={styles.sectionHeaderRow}>
-      <div className={styles.sectionHeaderTitle}>{svg}{label}</div>
-      {action}
-    </div>
-  );
-}
-
 // ── Event row ─────────────────────────────────────────────────────
 
 function EventRow({ event }: { event: EventResponse }) {
+  const t = useTranslations('organizations');
   const { month, day } = parseEventDate(event.startsAt);
   const badge = eventStatusBadge(event.status);
   const time = new Date(event.startsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -140,7 +87,7 @@ function EventRow({ event }: { event: EventResponse }) {
           className={styles.statusPill}
           style={{ color: badge.color, background: badge.bg, borderColor: badge.border }}
         >
-          {badge.label}
+          {badge.labelKey ? t(badge.labelKey) : (badge as { fallback?: string }).fallback}
         </span>
       )}
     </div>
@@ -150,6 +97,8 @@ function EventRow({ event }: { event: EventResponse }) {
 // ── Member row ────────────────────────────────────────────────────
 
 function MemberRow({ member, isYou }: { member: OrganizationMemberResponse; isYou: boolean }) {
+  const t = useTranslations('organizations');
+  const roleLabelT = (role: string) => (ROLE_LABEL_KEYS.includes(role) ? t(`role${role}`) : role);
   const name     = member.displayName ?? member.email ?? 'Membro';
   const initials = getInitials(name);
   const bg       = avatarColor(member.userId);
@@ -161,7 +110,7 @@ function MemberRow({ member, isYou }: { member: OrganizationMemberResponse; isYo
       </div>
       <div className={styles.memberInfo}>
         <div className={styles.memberName}>{name}</div>
-        <div className={styles.memberRole}>{rolePtBr(member.role)}</div>
+        <div className={styles.memberRole}>{roleLabelT(member.role)}</div>
       </div>
       {isYou && <span className={styles.youBadge}>VOCÊ</span>}
     </div>
@@ -175,15 +124,14 @@ interface Props {
 }
 
 export function OrganizationDashboardPage({ organizationId }: Props) {
-  const router = useRouter();
-
+  const t = useTranslations('organizations');
   const { data: org,      isLoading: orgLoading,     isError: orgError  } = useOrganization(organizationId);
   const { data: members = [],                                            } = useOrganizationMembers(organizationId);
   const { data: events  = [], isLoading: eventsLoading                   } = useOrganizationEvents(organizationId, 'all');
   const { data: settings                                                 } = useOrganizationSettings(organizationId);
 
   if (orgLoading) return <p className={styles.state}>Carregando...</p>;
-  if (orgError || !org) return <p className={`${styles.state} ${styles.stateError}`}>Organização não encontrada.</p>;
+  if (orgError || !org) return <p className={`${styles.state} ${styles.stateError}`}>{t('notFoundOrg')}</p>;
 
   const foundedDate = new Date(org.createdAt).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
   const location    = [settings?.city, settings?.country].filter(Boolean).join(', ') || null;
@@ -201,29 +149,31 @@ export function OrganizationDashboardPage({ organizationId }: Props) {
         {/* Left */}
         <div className={styles.left}>
 
+          <CollaborationInvitesCard organizationId={organizationId} />
+
           {/* KPI strip */}
           <div className={styles.kpiStrip}>
-            <KpiCard label="EVENTOS"   value={events.length}   unit="total"    kind="event" />
-            <KpiCard label="MEMBROS"   value={members.length}  unit="na equipe" kind="team" />
-            <KpiCard label="INGRESSOS" value="—"               unit="vendidos"  kind="ticket" />
-            <KpiCard label="RECEITA"   value="—"               unit="BRL"       kind="sales" accent />
+            <KpiCard label={t('kpiEvents')}   value={events.length}   unit={t('kpiEventsUnit')}    kind="event" />
+            <KpiCard label={t('kpiMembers')}   value={members.length}  unit={t('kpiMembersUnit')} kind="team" />
+            <KpiCard label={t('kpiTickets')} value="—"               unit={t('kpiTicketsUnit')}  kind="ticket" />
+            <KpiCard label={t('kpiRevenue')}   value="—"               unit="BRL"       kind="sales" accent />
           </div>
 
           {/* About */}
           <div className={styles.card}>
             <SectionHeader
-              label="SOBRE A ORGANIZAÇÃO"
+              label={t('aboutOrg')}
               icon="info"
               action={
-                <button
+                <Link
+                  href={`/dashboard/organizations/${organizationId}/settings`}
                   className={styles.editBtn}
-                  onClick={() => router.push(`/dashboard/organizations/${organizationId}/settings`)}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
                   </svg>
                   EDITAR
-                </button>
+                </Link>
               }
             />
             <p className={styles.description}>{org.description || 'Sem descrição.'}</p>
@@ -242,15 +192,15 @@ export function OrganizationDashboardPage({ organizationId }: Props) {
           {/* Upcoming events */}
           <div className={styles.card}>
             <SectionHeader
-              label="PRÓXIMOS EVENTOS"
+              label={t('upcomingEvents')}
               icon="calendar"
               action={
-                <a
+                <Link
+                  href={`/dashboard/organizations/${organizationId}/eventos`}
                   className={styles.seeAllLink}
-                  onClick={() => router.push(`/dashboard/organizations/${organizationId}/eventos`)}
                 >
                   VER TODOS →
-                </a>
+                </Link>
               }
             />
             {eventsLoading && <p className={styles.muted}>Carregando eventos...</p>}
@@ -271,18 +221,18 @@ export function OrganizationDashboardPage({ organizationId }: Props) {
           {/* Team */}
           <div className={styles.card}>
             <SectionHeader
-              label="EQUIPE"
+              label={t('team')}
               icon="team"
               action={
-                <button
+                <Link
+                  href={`/dashboard/organizations/${organizationId}/members`}
                   className={styles.inviteBtn}
-                  onClick={() => router.push(`/dashboard/organizations/${organizationId}/members`)}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
                     <path d="M12 5v14M5 12h14" />
                   </svg>
                   CONVIDAR
-                </button>
+                </Link>
               }
             />
             <div className={styles.memberList}>
@@ -295,7 +245,7 @@ export function OrganizationDashboardPage({ organizationId }: Props) {
 
           {/* Activity */}
           <div className={styles.card}>
-            <SectionHeader label="ATIVIDADE RECENTE" icon="activity" />
+            <SectionHeader label={t('recentActivity')} icon="activity" />
             <p className={styles.muted}>Nenhuma atividade registrada.</p>
           </div>
         </div>

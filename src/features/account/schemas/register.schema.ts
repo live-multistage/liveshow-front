@@ -4,18 +4,18 @@ export const registerSchema = z
   .object({
     email: z
       .string()
-      .min(1, 'E-mail é obrigatório')
-      .email('E-mail inválido')
-      .max(255, 'E-mail deve ter no máximo 255 caracteres'),
+      .min(1, 'Informe seu e-mail.')
+      .email('Informe um e-mail válido.')
+      .max(255, 'O e-mail deve ter no máximo 255 caracteres.'),
     displayName: z
       .string()
-      .min(2, 'Nome deve ter pelo menos 2 caracteres')
-      .max(100, 'Nome deve ter no máximo 100 caracteres'),
-    password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres'),
-    confirmPassword: z.string().min(1, 'Confirme sua senha'),
+      .min(2, 'Seu nome deve ter pelo menos 2 caracteres.')
+      .max(100, 'O nome deve ter no máximo 100 caracteres.'),
+    password: z.string().min(8, 'A senha deve ter pelo menos 8 caracteres.'),
+    confirmPassword: z.string().min(1, 'Confirme sua senha.'),
   })
   .refine((d) => d.password === d.confirmPassword, {
-    message: 'As senhas não coincidem',
+    message: 'As senhas não coincidem.',
     path: ['confirmPassword'],
   });
 

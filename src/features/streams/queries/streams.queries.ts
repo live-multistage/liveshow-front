@@ -59,6 +59,47 @@ export function useFeedCamerasQuery(feedId: string | null) {
   });
 }
 
+// ── Full camera list for a single Stream (stages → feeds → cameras) ──────────
+// Reuses STREAM_KEYS.feeds/STREAM_KEYS.cameras directly (not new keys) — this
+// caches the same bare FeedResponse[]/CameraResponse[] shapes those keys
+// already hold for useStageFeedsQuery/useFeedCamerasQuery, so sharing is safe
+// and gives free cache reuse with StageRow/FeedRow. Contrast with
+// useEventCamerasQuery below, which needs its own keys because it wraps a
+// differently-shaped result.
+
+export function useStreamCamerasQuery(streamId: string): {
+  cameras: CameraResponse[];
+  isLoading: boolean;
+} {
+  const stagesQuery = useStreamStagesQuery(streamId);
+  const stages = stagesQuery.data ?? [];
+
+  const feedQueries = useQueries({
+    queries: stages.map((stage) => ({
+      queryKey: STREAM_KEYS.feeds(stage.id),
+      queryFn: () => streamsService.listFeeds(stage.id),
+      enabled: stages.length > 0,
+    })),
+  });
+
+  const feeds = feedQueries.flatMap((q) => q.data ?? []);
+
+  const cameraQueries = useQueries({
+    queries: feeds.map((feed) => ({
+      queryKey: STREAM_KEYS.cameras(feed.id),
+      queryFn: () => streamsService.listCameras(feed.id),
+      enabled: feeds.length > 0,
+    })),
+  });
+
+  const cameras = cameraQueries.flatMap((q) => q.data ?? []);
+
+  const isLoading =
+    stagesQuery.isLoading || feedQueries.some((q) => q.isLoading) || cameraQueries.some((q) => q.isLoading);
+
+  return { cameras, isLoading };
+}
+
 export function useEventStagesQuery(eventId: string | null): {
   stages: StageResponse[];
   isLoading: boolean;

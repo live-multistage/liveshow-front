@@ -1,15 +1,22 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 import { useListEventsQuery, eventToShow } from '@/features/events';
+import type { EventResponse } from '@/features/events';
 import { HomeHero } from './home/HomeHero';
 import { HomeLiveStrip } from './home/HomeLiveStrip';
 import { HomeExplore } from './home/HomeExplore';
 import styles from './HomePageContent.module.scss';
 
-export function HomePageContent() {
+interface Props {
+  initialEvents?: EventResponse[];
+}
+
+export function HomePageContent({ initialEvents }: Props) {
+  const t = useTranslations('home');
   const [activeGenre, setActiveGenre] = useState('Todos');
-  const { data: events = [], isLoading } = useListEventsQuery('all');
+  const { data: events = [], isLoading } = useListEventsQuery('all', initialEvents);
 
   const shows = useMemo(() => events.map(eventToShow), [events]);
 
@@ -17,12 +24,12 @@ export function HomePageContent() {
   const liveShows = useMemo(() => shows.filter((s) => s.isLive).slice(0, 2), [shows]);
 
   const genres = useMemo(() => {
-    const unique = [...new Set(shows.map((s) => s.genre))].filter(Boolean);
+    const unique = [...new Set(shows.map((s) => s.category))].filter(Boolean);
     return ['Todos', ...unique];
   }, [shows]);
 
   const filtered = useMemo(
-    () => (activeGenre === 'Todos' ? shows : shows.filter((s) => s.genre === activeGenre)),
+    () => (activeGenre === 'Todos' ? shows : shows.filter((s) => s.category === activeGenre)),
     [shows, activeGenre],
   );
 
@@ -37,7 +44,7 @@ export function HomePageContent() {
   if (!featuredShow) {
     return (
       <div className={styles.empty}>
-        <p>Nenhum show disponível no momento.</p>
+        <p>{t('noShows')}</p>
       </div>
     );
   }

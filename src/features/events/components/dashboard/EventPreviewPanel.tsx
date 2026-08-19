@@ -118,7 +118,7 @@ export function EventPreviewPanel({ control, orgs, tickets }: Props) {
               <div key={ticket._key} className={styles.ticketItem}>
                 <div className={styles.ticketItemHeader}>
                   <span className={styles.ticketName}>{ticket.name}</span>
-                  <span className={styles.ticketPrice}>{formatPrice(ticket.price)}</span>
+                  <span className={styles.ticketPrice}>{formatPrice(ticket.price, ticket.currency)}</span>
                 </div>
                 {ticket.description && (
                   <p className={styles.ticketDesc}>{ticket.description}</p>

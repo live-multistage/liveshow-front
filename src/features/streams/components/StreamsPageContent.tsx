@@ -1,37 +1,53 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useMyEventsQuery } from '@/features/events/queries/get-my-events';
 import { useEventStreamsQuery } from '../queries/streams.queries';
+import { useOnAirCamera, useStreamStatsQuery } from '../queries/ingest.queries';
+import { useViewerCount } from '@/features/streaming';
+import { formatElapsed } from '../utils/format-elapsed';
 import { useCreateStreamMutation } from '../mutations/stream.mutations';
 import { StreamCard } from './StreamCard';
 import { StreamBuilder } from './StreamBuilder';
 import { StreamSetupTutorial } from './StreamSetupTutorial';
-import { SimpleCustomSelect } from '@/shared/components/ui/custom-select';
+import { StreamsHowItWorks } from './StreamsHowItWorks';
+import { SimpleCustomSelect } from '@live-show/design-system';
 import type { StreamResponse } from '../types/stream.types';
 import styles from './StreamsPageContent.module.scss';
 
 // ── Live timer ─────────────────────────────────────────────────────
-function useLiveTimer(active: boolean) {
-  const [seconds, setSeconds] = useState(0);
-  const ref = useRef<ReturnType<typeof setInterval> | null>(null);
-
+// Ticks every second so the elapsed clock re-renders; the value itself is
+// derived from the real on-air start (formatElapsed), not a page-load counter.
+function useLiveClock(startedAt: string | null | undefined) {
+  const [nowMs, setNowMs] = useState(() => Date.now());
   useEffect(() => {
-    if (!active) { setSeconds(0); return; }
-    ref.current = setInterval(() => setSeconds((s) => s + 1), 1000);
-    return () => { if (ref.current) clearInterval(ref.current); };
-  }, [active]);
-
-  const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-  const s = String(seconds % 60).padStart(2, '0');
-  return `${h}:${m}:${s}`;
+    if (!startedAt) return;
+    const id = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [startedAt]);
+  return formatElapsed(startedAt, nowMs);
 }
 
 // ── Stats strip ───────────────────────────────────────────────────
-function StatsStrip({ stream }: { stream: StreamResponse }) {
+function StatsStrip({ stream, eventId }: { stream: StreamResponse; eventId: string }) {
+  const t = useTranslations('controlRoom');
+  const HEALTH_LABEL = { OTIMA: t('healthGood'), ATENCAO: t('healthWarn'), CRITICA: t('healthBad') } as const;
   const isLive = stream.status === 'LIVE';
-  const timer  = useLiveTimer(isLive);
+  // READY already has ingest flowing (OBS connected), so bitrate/RTT/health
+  // are real pre-live; latency only exists once a transcode is RUNNING.
+  const monitorable = isLive || stream.status === 'READY';
+  // The clock counts from when a camera actually went on air (RUNNING transcode
+  // job startedAt), NOT from stream status or page open. No on-air camera → dash.
+  const { onAir } = useOnAirCamera(stream.id, isLive);
+  const timer = useLiveClock(onAir?.startedAt);
+  const { data: stats } = useStreamStatsQuery(stream.id, monitorable);
+  const { currentViewers } = useViewerCount(isLive ? eventId : undefined);
+
+  const healthClass =
+    stats?.health === 'CRITICA' ? styles.healthDotBad
+    : stats?.health === 'ATENCAO' ? styles.healthDotWarn
+    : styles.healthDot;
 
   return (
     <div className={styles.statsStrip}>
@@ -39,31 +55,36 @@ function StatsStrip({ stream }: { stream: StreamResponse }) {
         {isLive && <div className={styles.statCardGlow} />}
         <div className={styles.statLabel}>
           <span className={isLive ? styles.liveDot : styles.offlineDot} />
-          {isLive ? 'AO VIVO' : 'OFFLINE'}
+          {isLive ? t('liveBadge') : t('offline')}
         </div>
-        <div className={styles.statValue}>{isLive ? timer : '—'}</div>
+        <div className={styles.statValue}>{onAir ? timer : '—'}</div>
       </div>
       <div className={styles.statCard}>
-        <div className={styles.statLabel}>ESPECTADORES</div>
-        <div className={styles.statValue}>—</div>
+        <div className={styles.statLabel}>{t('viewersLabel')}</div>
+        <div className={styles.statValue}>{isLive ? currentViewers.toLocaleString('pt-BR') : '—'}</div>
       </div>
       <div className={styles.statCard}>
-        <div className={styles.statLabel}>BITRATE</div>
+        <div className={styles.statLabel}>{t('bitrateLabel')}</div>
         <div className={styles.statValue}>
-          — <span className={styles.statUnit}>Mbps</span>
+          {stats?.ingestBitrateMbps != null ? stats.ingestBitrateMbps.toFixed(1) : '—'}{' '}
+          <span className={styles.statUnit}>Mbps</span>
         </div>
       </div>
       <div className={styles.statCard}>
-        <div className={styles.statLabel}>LATÊNCIA</div>
+        <div className={styles.statLabel}>{t('latencyLabel')}</div>
         <div className={styles.statValue}>
-          —<span className={styles.statUnit}>s</span>
+          {stats?.originLatencySec != null ? stats.originLatencySec.toFixed(1) : '—'}
+          <span className={styles.statUnit}>s</span>
         </div>
       </div>
-      <div className={styles.statCard}>
-        <div className={styles.statLabel}>SAÚDE</div>
+      <div
+        className={styles.statCard}
+        title={stats?.healthReasons.length ? stats.healthReasons.join(' · ') : undefined}
+      >
+        <div className={styles.statLabel}>{t('healthLabel')}</div>
         <div className={styles.statHealthRow}>
-          <span className={styles.healthDot} />
-          <span className={styles.statValue}>—</span>
+          <span className={healthClass} />
+          <span className={styles.statValue}>{stats ? HEALTH_LABEL[stats.health] : '—'}</span>
         </div>
       </div>
     </div>
@@ -174,8 +195,13 @@ export function StreamsPageContent() {
         </div>
       </div>
 
+      {/* How-it-works doc panel */}
+      <StreamsHowItWorks />
+
       {/* Stats strip — only when a stream is selected */}
-      {selectedStream && <StatsStrip stream={selectedStream} />}
+      {selectedStream && selectedEventId && (
+        <StatsStrip stream={selectedStream} eventId={selectedEventId} />
+      )}
 
       {/* 2-col layout */}
       <div className={styles.layout}>

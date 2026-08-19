@@ -1,6 +1,7 @@
 'use client';
 
-import { Crown, Shield, Calendar, Eye } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Crown, Shield, Calendar, Eye, ScanLine } from 'lucide-react';
 import type { OrganizationMemberResponse, OrganizationRole } from '../types/organization.types';
 import { MemberRoleSelector } from './MemberRoleSelector';
 import styles from './MembersTable.module.scss';
@@ -11,17 +12,11 @@ const ROLE_ICONS: Record<OrganizationRole, React.ReactNode> = {
   EVENT_MANAGER: <Calendar size={13} />,
   CONTENT_MANAGER: <Calendar size={13} />,
   OPERATOR: <Calendar size={13} />,
+  STAFF: <ScanLine size={13} />,
   VIEWER: <Eye size={13} />,
 };
 
-const ROLE_LABEL: Record<OrganizationRole, string> = {
-  OWNER: 'Owner',
-  ADMIN: 'Admin',
-  EVENT_MANAGER: 'Gestor de Eventos',
-  CONTENT_MANAGER: 'Gestor de Conteúdo',
-  OPERATOR: 'Operador',
-  VIEWER: 'Visualizador',
-};
+const ROLE_LABEL_KEYS = ['OWNER','ADMIN','EVENT_MANAGER','CONTENT_MANAGER','OPERATOR','STAFF','VIEWER'];
 
 interface Props {
   members: OrganizationMemberResponse[];
@@ -42,6 +37,7 @@ export function MembersTable({
   isRemoving,
   isUpdatingRole,
 }: Props) {
+  const t = useTranslations('organizations');
   if (members.length === 0) {
     return <p className={styles.empty}>Nenhum membro encontrado.</p>;
   }
@@ -59,7 +55,7 @@ export function MembersTable({
                 {ROLE_ICONS[member.role]}
               </span>
               <span className={styles.roleBadge} data-role={member.role}>
-                {ROLE_LABEL[member.role]}
+                {(ROLE_LABEL_KEYS.includes(member.role) ? t(`role${member.role}`) : member.role)}
               </span>
             </div>
 

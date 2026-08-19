@@ -4,15 +4,7 @@ import { ChevronUp, LogOut, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account';
-import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/shared/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@live-show/design-system';
 import styles from './DashboardUserMenu.module.scss';
 
 function getInitials(name: string) {
@@ -24,7 +16,7 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-export function DashboardUserMenu() {
+export function DashboardUserMenu({ compact = false }: { compact?: boolean } = {}) {
   const t = useTranslations('dashboard');
   const { user, logout } = useAuth();
 
@@ -33,20 +25,30 @@ export function DashboardUserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className={styles.trigger}>
-          <div className={styles.left}>
+        {compact ? (
+          <button className={styles.compactTrigger} aria-label={user.displayName}>
             <Avatar className={styles.avatar}>
               <AvatarFallback className={styles.avatarFallback}>
                 {getInitials(user.displayName)}
               </AvatarFallback>
             </Avatar>
-            <div className={styles.info}>
-              <span className={styles.name}>{user.displayName}</span>
-              <span className={styles.email}>{user.email}</span>
+          </button>
+        ) : (
+          <button className={styles.trigger}>
+            <div className={styles.left}>
+              <Avatar className={styles.avatar}>
+                <AvatarFallback className={styles.avatarFallback}>
+                  {getInitials(user.displayName)}
+                </AvatarFallback>
+              </Avatar>
+              <div className={styles.info}>
+                <span className={styles.name}>{user.displayName}</span>
+                <span className={styles.email}>{user.email}</span>
+              </div>
             </div>
-          </div>
-          <ChevronUp size={12} className={styles.chevron} />
-        </button>
+            <ChevronUp size={12} className={styles.chevron} />
+          </button>
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent side="top" align="start" className={styles.dropdownContent}>
         <DropdownMenuLabel className={styles.dropdownLabel}>

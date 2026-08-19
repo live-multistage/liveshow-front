@@ -12,7 +12,6 @@
   border: 1px solid rgba(255, 255, 255, .08);
   border-radius: 18px;
   overflow: hidden;
-  cursor: pointer;
   transition: transform .18s ease, border-color .18s ease;
   height: 100%;
 
@@ -26,16 +25,37 @@
   }
 }
 
+.cardLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
 // ── Horizontal layout ─────────────────────────────────────────────
+// cardLink carries the row layout (not .card) so cardFooter can live
+// outside the anchor. The image is absolutely positioned against the
+// card so it spans the FULL card height (alongside the footer band,
+// matching the original); it stays inside the Link markup so it
+// remains clickable. Footer margins reproduce the original
+// text-column insets (200px image + 20px content padding).
 
 .cardHorizontal {
-  flex-direction: row;
-  height: 162px;
+  position: relative;
+  min-height: 162px;
+
+  & .cardLink {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    margin-left: 200px;
+  }
 
   & .imageWrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
     width: 200px;
-    height: 100%;
-    flex-shrink: 0;
     border-radius: 18px 0 0 18px;
     aspect-ratio: unset;
   }
@@ -43,6 +63,12 @@
   & .content {
     flex: 1;
     min-width: 0;
+  }
+
+  & .cardFooter {
+    margin-left: 220px;
+    margin-right: 20px;
+    padding: 14px 0 20px;
   }
 
   & .genreLabel { display: none; }
@@ -57,6 +83,8 @@
 }
 
 .image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -165,7 +193,7 @@
 // ── Content ───────────────────────────────────────────────────────
 
 .content {
-  padding: 20px;
+  padding: 20px 20px 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -233,7 +261,7 @@
   align-items: center;
   justify-content: space-between;
   margin-top: auto;
-  padding-top: 14px;
+  padding: 14px 20px 20px;
   border-top: 1px solid rgba(255, 255, 255, .06);
 }
 
@@ -282,6 +310,13 @@
   cursor: pointer;
   transition: filter .15s;
   white-space: nowrap;
+  text-decoration: none;
 
   &:hover { filter: brightness(1.08); }
+}
+
+.wishlistButton {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
 }

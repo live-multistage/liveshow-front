@@ -1,0 +1,116 @@
+@use '../../../../styles/_variables' as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.searchWrap {
+  position: relative;
+  max-width: 360px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: $surface;
+  color: inherit;
+  font-size: 14px;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: $surface-dark;
+  overflow: hidden;
+}
+
+.resultItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    background: $bg-hover;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid $border;
+}
+
+.orgName {
+  flex: 1;
+  font-size: 14px;
+}
+
+.chip {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.pending {
+  color: $error;
+  background: $error-bg;
+  border: 1px solid $error;
+}
+
+.accepted {
+  color: $success-light;
+  background: $success-bg;
+  border: 1px solid $success;
+}
+
+.empty {
+  font-size: 14px;
+  color: $text-secondary;
+}
+
+.skeletonRow {
+  height: 40px;
+  border-radius: 8px;
+  background: $surface;
+  border: 1px solid $border;
+}

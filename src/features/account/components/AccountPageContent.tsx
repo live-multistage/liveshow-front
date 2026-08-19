@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Ticket, ShoppingBag, Settings, LogOut, ChevronRight } from 'lucide-react';
 import { useAuth } from '../hooks/use-auth';
@@ -8,7 +8,6 @@ import styles from './AccountPageContent.module.scss';
 
 export function AccountPageContent() {
   const { user, isLoading, logout } = useAuth();
-  const router = useRouter();
   const t = useTranslations('account');
 
   if (isLoading) {
@@ -40,21 +39,21 @@ export function AccountPageContent() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>{t('nav.title')}</h2>
           <div className={styles.navList}>
-            <button className={styles.navCard} onClick={() => router.push('/tickets')}>
+            <Link href="/tickets" className={styles.navCard}>
               <Ticket size={20} className={styles.navIcon} />
               <span className={styles.navLabel}>{t('nav.tickets')}</span>
               <ChevronRight size={16} className={styles.navChevron} />
-            </button>
-            <button className={styles.navCard} onClick={() => router.push('/purchases')}>
+            </Link>
+            <Link href="/purchases" className={styles.navCard}>
               <ShoppingBag size={20} className={styles.navIcon} />
               <span className={styles.navLabel}>{t('nav.purchases')}</span>
               <ChevronRight size={16} className={styles.navChevron} />
-            </button>
-            <button className={styles.navCard} onClick={() => router.push('/settings')}>
+            </Link>
+            <Link href="/settings" className={styles.navCard}>
               <Settings size={20} className={styles.navIcon} />
               <span className={styles.navLabel}>{t('nav.settings')}</span>
               <ChevronRight size={16} className={styles.navChevron} />
-            </button>
+            </Link>
           </div>
         </section>
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { useController, type Control } from 'react-hook-form';
 import { Check, X, Loader2 } from 'lucide-react';
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function OrganizationSlugField({ control, excludeId, initialSlug }: Props) {
+  const t = useTranslations('organizations');
   const { field, fieldState } = useController({ name: 'slug', control });
   const [status, setStatus] = useState<SlugStatus>('idle');
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -57,7 +59,7 @@ export function OrganizationSlugField({ control, excludeId, initialSlug }: Props
 
   return (
     <div className={styles.field}>
-      <label className={styles.label}>Slug (URL única) *</label>
+      <label className={styles.label}>{t('slugLabel')}</label>
       <div className={`${styles.wrapper} ${hasError ? styles.wrapperError : ''} ${status === 'available' ? styles.wrapperOk : ''}`}>
         <div className={styles.prefix}>
         <span>@</span>
@@ -78,10 +80,10 @@ export function OrganizationSlugField({ control, excludeId, initialSlug }: Props
         <p className={styles.error}>{fieldState.error.message}</p>
       )}
       {!fieldState.error && status === 'taken' && (
-        <p className={styles.error}>Slug já está em uso</p>
+        <p className={styles.error}>{t('slugTaken')}</p>
       )}
       {!fieldState.error && status === 'available' && (
-        <p className={styles.hint}>Disponível</p>
+        <p className={styles.hint}>{t('slugAvailable')}</p>
       )}
     </div>
   );

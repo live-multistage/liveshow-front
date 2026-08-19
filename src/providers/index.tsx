@@ -1,10 +1,15 @@
 'use client';
 
+import { useEffect } from 'react';
 import { isServer, QueryClient, QueryClientProvider, HydrationBoundary, type DehydratedState } from '@tanstack/react-query';
-import { Toaster } from '@/shared/components/ui/sonner';
+import { captureAttribution } from '@/lib/analytics/attribution';
+import { Toaster } from '@live-show/design-system';
 import { NavigationEvents } from '@/shared/components/NavigationEvents';
 import { NavigationOverlay } from '@/shared/components/NavigationOverlay';
 import { AuthProvider } from '@/features/account/context/AuthProvider';
+import { AgePersonalizationPrompt } from '@/features/account/components/AgePersonalizationPrompt';
+import { NotificationsStreamListener } from '@/features/notifications/components/NotificationsStreamListener';
+import { ImpersonationBanner } from '@/features/platform-admin/impersonation/ImpersonationBanner';
 import type { AuthUser } from '@/features/account';
 
 function makeQueryClient() {
@@ -39,14 +44,22 @@ interface ProvidersProps {
 
 export function Providers({ children, initialIsLoggedIn, initialUser, dehydratedState }: ProvidersProps) {
   const queryClient = getQueryClient();
+
+  useEffect(() => {
+    captureAttribution();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <HydrationBoundary state={dehydratedState}>
         <AuthProvider initialIsLoggedIn={initialIsLoggedIn} initialUser={initialUser}>
           {children}
+          <ImpersonationBanner />
           <Toaster />
           <NavigationEvents />
           <NavigationOverlay />
+          <NotificationsStreamListener />
+          <AgePersonalizationPrompt />
         </AuthProvider>
       </HydrationBoundary>
     </QueryClientProvider>

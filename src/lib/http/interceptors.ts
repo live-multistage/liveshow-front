@@ -1,12 +1,25 @@
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { tokenStore } from '@/lib/auth/token-store';
+import { getAttribution } from '@/lib/analytics/attribution';
+import { getAnalyticsConsent } from '@/lib/analytics/consent';
+
+// Reached when a 401 could not be refreshed — the session died mid-flow, so
+// carry where the user was and let login put them back. Auth pages are
+// excluded: bouncing /login back to /login is noise, not a destination.
+// `safeRedirect` guards the consuming side; this only ever builds a
+// same-origin path, never a full URL.
+function loginUrlPreservingLocation(): string {
+  const { pathname, search } = window.location;
+  if (pathname.startsWith('/login') || pathname.startsWith('/register')) return '/login';
+  return `/login?redirect=${encodeURIComponent(`${pathname}${search}`)}`;
+}
 
 function clearSession() {
   tokenStore.clear();
   if (typeof window !== 'undefined') {
     localStorage.removeItem('user');
     fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
-    window.location.href = '/login';
+    window.location.href = loginUrlPreservingLocation();
   }
 }
 
@@ -25,6 +38,21 @@ export function applyInterceptors(client: AxiosInstance) {
   client.interceptors.request.use((req: InternalAxiosRequestConfig) => {
     const token = tokenStore.get();
     if (token) req.headers.set('Authorization', `Bearer ${token}`);
+
+    // LGPD: signal opt-out so server-side tracking (e.g. ticket.purchased on
+    // checkout) is dropped for users who declined non-essential collection.
+    const consent = getAnalyticsConsent();
+    if (consent) req.headers.set('x-analytics-consent', consent);
+
+    const attribution = getAttribution();
+    if (attribution) {
+      req.headers.set('x-attribution-channel', attribution.channel);
+      if (attribution.utmSource) req.headers.set('x-attribution-source', attribution.utmSource);
+      if (attribution.utmMedium) req.headers.set('x-attribution-medium', attribution.utmMedium);
+      if (attribution.utmCampaign) req.headers.set('x-attribution-campaign', attribution.utmCampaign);
+      if (attribution.referrerHost) req.headers.set('x-attribution-referrer', attribution.referrerHost);
+    }
+
     return req;
   });
 

@@ -45,5 +45,16 @@ export function ReplayGate({ eventId, eventTitle }: Props) {
     );
   }
 
-  return <ReplayPlayer cameras={playback.data.cameras} title={eventTitle} eventId={eventId} />;
+  return (
+    <ReplayPlayer
+      cameras={playback.data.cameras}
+      librasCameraId={playback.data.librasCameraId}
+      title={eventTitle}
+      eventId={eventId}
+      // União das coberturas de todas as câmeras, calculada pelo servidor. É o
+      // domínio do scrubber e o referencial que faz uma câmera que entrou
+      // atrasada saber onde ela cai no evento.
+      timeline={playback.data.timeline}
+    />
+  );
 }

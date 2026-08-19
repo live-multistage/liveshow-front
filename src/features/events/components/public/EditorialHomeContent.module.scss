@@ -19,11 +19,12 @@
   background: #08080a;
   color: #f4f4f5;
   min-height: 100vh;
+  overflow-x: clip; // safety net: no child may cause horizontal scroll on mobile
 }
 
 
 .inner {
-  max-width: 1280px;
+  max-width: none;
   margin: 0 auto;
 }
 
@@ -104,164 +105,206 @@
 }
 
 .adBannerWrapper {
-  padding: 32px 40px 8px;
+  padding: 0 40px;
+  // The banner sits between two 40px-padded .gridSections; pull it up/down so
+  // it reads as part of the flow instead of floating in a large gap.
+  margin: -20px 0;
+
+  // Match the content gutter at each breakpoint — 40px here on a 390px screen
+  // insets the ad past the cards it sits between.
+  @media (max-width: 767px) { padding: 0 20px; margin: -12px 0; }
 }
 
 // ── Inner layout ──────────────────────────────────────────────────
 
-.heroGrid {
-  display: grid;
-  grid-template-columns: 1.75fr 1fr;
-  gap: 22px;
-  padding: 32px 40px 8px;
+// ── Hero v2 (full-width) ────────────────────────────────────────────
 
-  @media (max-width: 1023px) {
-    grid-template-columns: 1fr;
-  }
+.heroV2 {
+  position: relative;
+  border-radius: 0;
+  overflow: hidden;
+  min-height: 650px;
+  margin: 0 0 8px;
+  width: 100%;
 
   @media (max-width: 767px) {
-    padding: 20px;
+    min-height: 520px;
   }
 }
 
-// ── Hero card ─────────────────────────────────────────────────────
-
-.heroCard {
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  min-height: 452px;
-  border: 1px solid rgba(255, 255, 255, .08);
-  cursor: pointer;
-
-  &:hover .heroImage { transform: scale(1.03); }
+.heroV2Track {
+  // Absolute (not normal flow): with only min-height on .heroV2, a normal-flow
+  // Track's percentage height is indefinite (circular) in most engines and
+  // falls back to shrink-wrapping slide content — which pushed .heroV2Dots
+  // (bottom: 50px, absolute against .heroV2) far below the visible image.
+  // Absolute positioning gives Track a real, definite height straight from
+  // .heroV2's own box, matching every other absolutely-positioned layer here
+  // (.heroV2Image, .heroV2Glow, .heroV2Scrim, .heroV2Dots).
+  position: absolute;
+  inset: 0;
+  display: flex;
+  will-change: transform;
 }
 
-.heroImage {
+.heroV2Slide {
+  position: relative;
+  flex: 0 0 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.heroV2Image {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 600ms ease;
 }
 
-.heroOverlay {
+// Layered on top of .heroV2Image (the poster); fades in once the teaser
+// has buffered enough to play, so the swap reads as seamless instead of a
+// hard cut from image to video.
+.heroV2Video {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(5, 4, 6, .94) 6%, rgba(5, 4, 6, .18) 48%, transparent 70%);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 300ms ease;
 }
 
-.heroBadges {
+.heroV2VideoVisible {
+  opacity: 1;
+}
+
+.heroV2Glow {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  inset: 0;
+  background:
+    radial-gradient(65% 90% at 70% 40%, rgba(255, 90, 160, .28), transparent 60%),
+    radial-gradient(50% 70% at 40% 20%, rgba(155, 123, 255, .22), transparent 60%);
+}
+
+.heroV2Scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #08080a 0%, rgba(8, 8, 10, .75) 30%, rgba(8, 8, 10, .15) 55%, transparent 75%);
+}
+
+.heroV2Content {
+  position: relative;
+  z-index: 1;
   display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 520px;
+  height: 100%;
+  // Background stays full-bleed; content aligns to the same 1280px + 40px
+  // container as the Navbar (80rem) and the .inner grid sections below.
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 50px 40px;
+
+  @media (max-width: 767px) {
+    min-height: 420px;
+    padding: 28px 20px;
+  }
+}
+
+.heroV2Badge {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-  z-index: 1;
-}
-
-.heroFeaturedBadge {
-  display: inline-flex;
-  align-items: center;
-  background: rgba(255, 46, 158, .16);
+  width: fit-content;
+  background: rgba(255, 46, 158, .18);
   border: 1px solid rgba(255, 46, 158, .5);
-  color: #ff7ec2;
+  color: #ff8ec9;
   font-family: 'Space Mono', monospace;
   font-size: 11px;
-  letter-spacing: .1em;
-  padding: 6px 11px;
-  border-radius: 999px;
-}
-
-.heroCamBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(0, 0, 0, .5);
-  backdrop-filter: blur(6px);
-  color: #e7e7ea;
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  padding: 6px 11px;
-  border-radius: 999px;
-}
-
-.heroPlayBtn {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -60%);
-  width: 74px;
-  height: 74px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, .92);
-  color: #0a0a0b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  animation: lsRing 2.4s ease-out infinite;
-  z-index: 1;
-  transition: transform .15s;
-
-  &:hover { transform: translate(-50%, -60%) scale(1.07); }
-}
-
-.heroContent {
-  position: absolute;
-  left: 26px;
-  right: 26px;
-  bottom: 24px;
-  z-index: 1;
-}
-
-.heroGenre {
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
+  font-weight: 700;
   letter-spacing: .14em;
-  color: #ffa6d4;
-  margin-bottom: 8px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-bottom: 22px;
 }
 
-.heroTitle {
+.heroV2BadgeDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ff2e9e;
+  flex-shrink: 0;
+  animation: lsPulse 1.4s ease-in-out infinite;
+}
+
+.heroV2Title {
   font-family: 'Archivo', sans-serif;
-  font-size: 58px;
-  font-weight: 800;
-  letter-spacing: -.03em;
-  line-height: .96;
+  font-weight: 900;
+  font-size: clamp(44px, 8vw, 80px);
+  letter-spacing: -.035em;
+  line-height: .94;
+  max-width: 640px;
   color: #f4f4f5;
-  margin: 0;
-
-  @media (max-width: 1200px) { font-size: 42px; }
-  @media (max-width: 767px)  { font-size: 32px; }
+  margin: 0 0 22px;
 }
 
-.heroMeta {
+.heroV2Watching {
   display: flex;
   align-items: center;
-  gap: 18px;
-  margin: 16px 0 18px;
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  color: #b9b9c0;
+  gap: 9px;
+  font-size: 15px;
+  color: #d4d4da;
+  margin-bottom: 14px;
+
+  svg { color: #ff2e9e; flex-shrink: 0; }
+}
+
+.heroV2WatchingCount {
+  font-weight: 700;
+  color: #ff2e9e;
+}
+
+.heroV2Meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #a5a5ad;
+  margin-bottom: 32px;
   flex-wrap: wrap;
 }
 
-.heroMetaItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.heroV2MetaDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #5f5f67;
+  flex-shrink: 0;
 }
 
-.heroActions {
+.heroV2Actions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  margin-bottom: 28px;
 }
 
-.heroWatchBtn {
+.heroV2PrimaryBtn {
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -274,16 +317,17 @@
   border-radius: 999px;
   cursor: pointer;
   transition: filter .15s;
+  text-decoration: none;
 
   &:hover { filter: brightness(1.08); }
 }
 
-.heroTicketsBtn {
+.heroV2SecondaryBtn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, .07);
-  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(20, 18, 24, .7);
+  border: 1px solid rgba(255, 255, 255, .15);
   color: #fff;
   font-weight: 600;
   font-size: 14px;
@@ -291,201 +335,64 @@
   border-radius: 999px;
   cursor: pointer;
   transition: background .15s;
+  text-decoration: none;
 
-  &:hover { background: rgba(255, 255, 255, .12); }
+  &:hover { background: rgba(255, 255, 255, .1); }
 }
 
-.heroTicketsPrice {
-  font-family: 'Space Mono', monospace;
-  color: #ff7ec2;
-}
-
-// ── Live rail ─────────────────────────────────────────────────────
-
-.liveRail {
-  display: flex;
-  flex-direction: column;
-}
-
-.liveRailHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-.liveRailTitle {
-  font-family: 'Archivo', sans-serif;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -.01em;
-  margin: 0;
-}
-
-.liveRailBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  color: #ff7ec2;
-}
-
-.liveDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #ff2e9e;
-  flex-shrink: 0;
-  animation: lsPulse 1.4s ease-in-out infinite;
-}
-
-.liveItems {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  flex: 1;
-}
-
-.liveRailEmpty {
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  color: #6f6f77;
-  padding: 20px 0;
-}
-
-.liveItem {
-  display: flex;
-  gap: 14px;
-  background: #111114;
-  border: 1px solid rgba(255, 255, 255, .07);
-  border-radius: 16px;
-  padding: 12px;
-  cursor: pointer;
-  transition: border-color .18s;
-
-  &:hover { border-color: rgba(255, 46, 158, .4); }
-}
-
-.liveThumbWrapper {
-  position: relative;
-  width: 128px;
-  height: 96px;
-  border-radius: 11px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.liveThumb {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.liveThumbOverlay {
+.heroV2Dots {
+  // Sibling of .heroV2Track (not nested in .heroV2Content anymore, since it's
+  // shared navigation for all slides) — absolutely overlaid at the same
+  // bottom-left spot the single-hero dots used to sit in, aligned to the
+  // same 1280px + 40px container as the content.
   position: absolute;
-  inset: 0;
-  background: rgba(8, 8, 10, .2);
-}
-
-.liveItemBadge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: #ff2e9e;
-  color: #0a0a0b;
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  padding: 4px 8px;
-  border-radius: 6px;
-}
-
-.liveBadgeDot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #0a0a0b;
-  animation: lsPulse 1.4s ease-in-out infinite;
-}
-
-.liveItemBody {
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 50px;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 2px 0;
-  min-width: 0;
-  flex: 1;
-}
-
-.liveItemTop {}
-
-.liveItemTitle {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.liveItemVenue {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  color: #8f8f97;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.liveItemFooter {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.liveItemViewers {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  color: #ff7ec2;
-}
-
-.liveItemPrice {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  color: #ff2e9e;
-}
-
-.liveRailMore {
-  margin-top: 14px;
+  gap: 8px;
   width: 100%;
-  background: transparent;
-  border: 1px dashed rgba(255, 255, 255, .16);
-  color: #c7c7cd;
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  letter-spacing: .08em;
-  padding: 13px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: border-color .15s, color .15s;
+  max-width: none;
+  margin: 0 auto;
+  padding: 0 40px;
+  box-sizing: border-box;
+  pointer-events: none;
 
-  &:hover { border-color: rgba(255, 46, 158, .4); color: #ff7ec2; }
+  > * { pointer-events: auto; }
+
+  @media (max-width: 767px) {
+    bottom: 28px;
+    padding: 0 20px;
+  }
+}
+
+.heroV2Dot {
+  width: 22px;
+  height: 3px;
+  border: none;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, .2);
+  padding: 0;
+  cursor: pointer;
+
+  &:hover { background: rgba(255, 255, 255, .35); }
+}
+
+.heroV2DotActive {
+  width: 22px;
+  height: 3px;
+  border: none;
+  border-radius: 2px;
+  background: #ff2e9e;
+  padding: 0;
+  cursor: pointer;
 }
 
 // ── Genre + Grid section ──────────────────────────────────────────
 
 .gridSection {
-  padding: 0 40px 56px;
+  padding: 40px;
 
   @media (max-width: 767px) {
     padding: 20px 20px 48px;
@@ -498,6 +405,21 @@
   gap: 10px;
   margin: 14px 0 20px;
   flex-wrap: wrap;
+
+  // On phones 6+ chips wrap into 3 stacked rows — a wall. Switch to a single
+  // swipeable strip (the Netflix/streaming pattern) that stays one row tall.
+  @media (max-width: 767px) {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    // Bleed to the screen edge so the strip reads as scrollable, then pad back.
+    margin-inline: -20px;
+    padding-inline: 20px;
+
+    &::-webkit-scrollbar { display: none; }
+  }
 }
 
 .genreLabel {
@@ -519,7 +441,11 @@
   white-space: nowrap;
   font-size: 12px;
   padding: 10px 17px;
+  scroll-snap-align: start;
   transition: background .15s, color .15s, border-color .15s;
+
+  // Comfortable thumb target on touch (was ~36px tall).
+  @media (pointer: coarse) { padding: 12px 18px; }
 }
 
 .genreChipActive {
@@ -574,6 +500,7 @@
   transition: opacity .15s;
   white-space: nowrap;
   flex-shrink: 0;
+  text-decoration: none;
 
   &:hover { opacity: .8; }
 }
@@ -608,6 +535,27 @@
   font-family: 'Space Mono', monospace;
   font-size: 13px;
   color: #8f8f97;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.retryBtn {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #f4f4f5;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 999px;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+
+  &:hover { border-color: #ff2e9e; color: #ff5fb4; }
 }
 
 // ── Event card ────────────────────────────────────────────────────
@@ -619,15 +567,29 @@
   border: 1px solid rgba(255, 255, 255, .07);
   border-radius: 16px;
   overflow: hidden;
-  cursor: pointer;
   transition: transform .18s ease, border-color .18s ease;
 
-  &:hover {
-    transform: translateY(-4px);
-    border-color: rgba(255, 46, 158, .4);
+  // Lift + zoom is pointer-only; on touch it sticks after tap. Touch gets a
+  // brief press feedback instead.
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 46, 158, .4);
 
-    .eventImage { transform: scale(1.04); }
+      .eventImage { transform: scale(1.04); }
+    }
   }
+
+  @media (hover: none) {
+    &:active { border-color: rgba(255, 46, 158, .4); }
+  }
+}
+
+.eventCardLink {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
 }
 
 .eventImageWrapper {
@@ -689,6 +651,15 @@
   border-radius: 6px;
 }
 
+// Canto inferior direito: .eventBadgesTop ocupa o superior esquerdo e
+// .eventCamBadge o superior direito.
+.wishlistButton {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 2;
+}
+
 .eventCamBadge {
   position: absolute;
   top: 10px;
@@ -706,7 +677,7 @@
 }
 
 .eventContent {
-  padding: 14px 15px 16px;
+  padding: 14px 15px 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -724,6 +695,12 @@
   font-weight: 700;
   line-height: 1.2;
   color: #f4f4f5;
+  // Long titles must not desync card heights within a grid row (DESIGN.md
+  // mandates truncation on cards).
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .eventPrice {
@@ -758,7 +735,7 @@
 .eventActions {
   display: flex;
   gap: 8px;
-  margin-top: 2px;
+  padding: 12px 15px 16px;
 }
 
 .eventWatchBtn {
@@ -772,8 +749,11 @@
   border-radius: 9px;
   cursor: pointer;
   transition: filter .15s;
+  text-decoration: none;
+  text-align: center;
 
-  &:hover { filter: brightness(1.08); }
+  @media (pointer: coarse) { padding: 12px; } // ≥44px thumb target
+  @media (hover: hover) { &:hover { filter: brightness(1.08); } }
 }
 
 .eventInfoBtn {
@@ -787,14 +767,34 @@
   border-radius: 9px;
   cursor: pointer;
   transition: border-color .15s, color .15s;
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-  &:hover { border-color: rgba(255, 46, 158, .4); color: #ff7ec2; }
+  @media (pointer: coarse) { padding: 12px; }
+  @media (hover: hover) { &:hover { border-color: rgba(255, 46, 158, .4); color: #ff7ec2; } }
 }
 
 // ── Feed ad banner ────────────────────────────────────────────
 .feedAd {
-  margin: 0 0 32px;
+  margin: 0;
   border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
+}
+
+// ── Reduced motion ────────────────────────────────────────────
+// The looping marquee, pulsing live dots and expanding play-button ring run
+// forever — exactly what vestibular users need stopped. Keep the "live" signal
+// as a static dot; freeze the perpetual motion.
+@media (prefers-reduced-motion: reduce) {
+  .tickerTrack { animation: none; }
+  .tickerDot,
+  .heroV2BadgeDot,
+  .eventLiveDot { animation: none; }
+  .eventImage,
+  .eventCard { transition: none; }
 }

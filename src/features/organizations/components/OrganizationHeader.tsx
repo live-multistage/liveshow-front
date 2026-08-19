@@ -1,6 +1,8 @@
 'use client';
 
-import { useRouter, usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useOrganizationMembers } from '../hooks/use-organization-members';
 import { useOrganizationEvents } from '../hooks/use-organizations';
 import { useOrganizationSettings } from '../hooks/use-organization-settings';
@@ -38,12 +40,12 @@ function TabIcon({ kind }: { kind: string }) {
 // ── Tabs config ───────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'visao',     label: 'Visão Geral',    href: '',          badge: null as 'events' | 'members' | null },
-  { id: 'eventos',   label: 'Eventos',         href: '/eventos',  badge: 'events' as const },
-  { id: 'membros',   label: 'Membros',         href: '/members',  badge: 'members' as const },
-  { id: 'analytics', label: 'Análises',        href: '/analytics', badge: null },
-  { id: 'config',   label: 'Configurações',   href: '/settings', badge: null },
-  { id: 'perfil',   label: 'Perfil Público',  href: '/public',   badge: null },
+  { id: 'visao',     labelKey: 'tabOverview',    href: '',          badge: null as 'events' | 'members' | null },
+  { id: 'eventos',   labelKey: 'tabEvents',         href: '/eventos',  badge: 'events' as const },
+  { id: 'membros',   labelKey: 'tabMembers',         href: '/members',  badge: 'members' as const },
+  { id: 'analytics', labelKey: 'tabAnalytics',        href: '/analytics', badge: null },
+  { id: 'config',   labelKey: 'tabSettings',   href: '/settings', badge: null },
+  { id: 'perfil',   labelKey: 'tabPublicProfile',  href: '/public',   badge: null },
 ];
 
 // ── Component ─────────────────────────────────────────────────────
@@ -53,7 +55,7 @@ interface Props {
 }
 
 export function OrganizationHeader({ organization: org }: Props) {
-  const router   = useRouter();
+  const t = useTranslations('organizations');
   const pathname = usePathname();
   const base     = `/dashboard/organizations/${org.id}`;
 
@@ -118,23 +120,20 @@ export function OrganizationHeader({ organization: org }: Props) {
 
         {/* Actions */}
         <div className={styles.actions}>
-          <button
-            className={styles.btnGhost}
-            onClick={() => router.push(`/organizations/${org.slug}`)}
-          >
+          <Link href={`/organizations/${org.slug}`} className={styles.btnGhost}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="9" />
               <path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" />
             </svg>
             VER PERFIL PÚBLICO
-          </button>
+          </Link>
           <button className={styles.btnPrimary}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
               <path d="M12 5v14M5 12h14" />
             </svg>
             NOVO EVENTO
           </button>
-          <button className={styles.btnIcon} aria-label="Mais opções">
+          <button className={styles.btnIcon} aria-label={t('moreOptions')}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" />
             </svg>
@@ -150,19 +149,19 @@ export function OrganizationHeader({ organization: org }: Props) {
           const count  = tab.badge ? badgeCounts[tab.badge] : null;
 
           return (
-            <button
+            <Link
               key={tab.id}
+              href={to}
               className={`${styles.tab} ${active ? styles.tabActive : styles.tabInactive}`}
-              onClick={() => router.push(to)}
             >
               <TabIcon kind={tab.id} />
-              {tab.label}
+              {t(tab.labelKey)}
               {count !== null && count > 0 && (
                 <span className={active ? styles.tabBadgeActive : styles.tabBadgeInactive}>
                   {count}
                 </span>
               )}
-            </button>
+            </Link>
           );
         })}
       </div>

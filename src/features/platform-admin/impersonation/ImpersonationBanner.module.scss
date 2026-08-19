@@ -1,0 +1,59 @@
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 16px;
+  background: linear-gradient(90deg, #7a4a00, #b06b00);
+  border-bottom: 1px solid rgba(255, 190, 90, .5);
+  color: #fff2dc;
+  font-size: 13px;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, .35);
+}
+
+.icon {
+  flex-shrink: 0;
+  color: #ffd9a0;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+
+  b { color: #fff; font-weight: 700; }
+}
+
+.roPill {
+  flex-shrink: 0;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: #ffd9a0;
+  background: rgba(0, 0, 0, .28);
+  border: 1px solid rgba(255, 210, 140, .5);
+}
+
+.endBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  color: #fff;
+  background: rgba(0, 0, 0, .3);
+  border: 1px solid rgba(255, 255, 255, .3);
+
+  &:hover:not(:disabled) { background: rgba(0, 0, 0, .5); }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}

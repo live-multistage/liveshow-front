@@ -1,24 +1,44 @@
 import { z } from 'zod';
+import { DEFAULT_CURRENCY } from '@/shared/constants/currencies';
 
 export const ticketSchema = z
   .object({
     name: z.string().min(2, 'Mínimo 2 caracteres').max(255),
     description: z.string().min(5, 'Mínimo 5 caracteres'),
     price: z.coerce.number().min(0, 'Preço não pode ser negativo'),
+    currency: z.string().default(DEFAULT_CURRENCY),
     liveView: z.boolean().default(false),
     replayView: z.boolean().default(false),
     cameraView: z.boolean().default(false),
+    physicalEntry: z.boolean().default(false),
     camerasLimit: z
       .preprocess(
         (val) => (val === '' || val === undefined ? null : val),
         z.coerce.number().int('Deve ser número inteiro').min(1, 'Mínimo 1 câmera').nullable(),
       )
       .optional(),
+    // Capacidade do local, obrigatória quando o ingresso é presencial.
+    capacity: z
+      .preprocess(
+        (val) => (val === '' || val === undefined ? null : val),
+        z.coerce.number().int('Deve ser número inteiro').min(1, 'Mínimo 1 lugar').nullable(),
+      )
+      .optional(),
     allowedStageIds: z.array(z.string().uuid()).optional(),
   })
-  .refine((d) => d.liveView || d.replayView || d.cameraView, {
+  .refine((d) => d.liveView || d.replayView || d.cameraView || d.physicalEntry, {
     message: 'Selecione ao menos um tipo de acesso',
     path: ['liveView'],
+  })
+  .refine((d) => !d.physicalEntry || (d.capacity != null && d.capacity >= 1), {
+    message: 'Informe a capacidade do local',
+    path: ['capacity'],
+  })
+  // Presencial nunca existe sozinho — sempre acompanha Ao vivo ou Reprise
+  // (mesma regra validada no backend).
+  .refine((d) => !d.physicalEntry || d.liveView || d.replayView, {
+    message: 'Ingresso presencial precisa incluir Ao vivo ou Reprise',
+    path: ['physicalEntry'],
   });
 
 export type TicketFormInput = z.input<typeof ticketSchema>;
@@ -26,8 +46,16 @@ export type TicketFormValues = z.output<typeof ticketSchema>;
 
 export const EVENT_CATEGORY_VALUES = [
   'MUSIC', 'COMEDY', 'THEATER', 'DANCE', 'SPORTS',
+  'FOOTBALL', 'MOTORSPORT', 'CORPORATE',
   'TALK', 'RELIGIOUS', 'EDUCATION', 'OTHER',
 ] as const;
+
+// Categories where real-time interaction makes the ~10-30s HLS delay costly
+// (live betting, second-screen, spoilers) — the create form auto-suggests LOW
+// latency for these. Extend when gaming/e-sports categories are added.
+export const LOW_LATENCY_SUGGESTED_CATEGORIES: readonly string[] = [
+  'SPORTS', 'FOOTBALL', 'MOTORSPORT',
+];
 
 export const createEventSchema = z
   .object({
@@ -45,6 +73,10 @@ export const createEventSchema = z
     city: z.string().max(100).optional(),
     country: z.string().max(100).optional(),
     camerasCount: z.coerce.number().int().min(1).max(32).default(1),
+    format: z.enum(['LIVE', 'VOD']).default('LIVE'),
+    latencyMode: z.enum(['STANDARD', 'LOW']).default('STANDARD'),
+    // Financiado com dinheiro público → exige Janela de Libras (NBR 15290).
+    publiclyFunded: z.boolean().default(false),
   })
   .refine((d) => new Date(d.endsAt) > new Date(d.startsAt), {
     message: 'Fim deve ser após o início',

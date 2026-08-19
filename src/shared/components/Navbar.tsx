@@ -3,22 +3,17 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutGrid, ShoppingCart } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/shared/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
+import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutGrid, ShoppingCart, LibraryBig, Heart } from 'lucide-react';
+import { Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Logo } from '@live-show/design-system';
 import { useTranslations } from 'next-intl';
-import { useAuth, useAuthCheck } from '@/features/account';
-import { NotificationsDropdown } from '@/features/notifications';
-import { useCartCount } from '@/features/cart';
+// Direct paths, NOT feature barrels: importing from '@/features/account' etc.
+// drags every re-export (LoginForm/RegisterForm → react-hook-form) into the
+// Navbar's chunk, which the root layout loads on every page (perf: TBT).
+import { useAuth } from '@/features/account/hooks/use-auth';
+import { useAuthCheck } from '@/features/account/hooks/use-auth-check';
+import { NotificationsDropdown } from '@/features/notifications/components/NotificationsDropdown';
+import { useCartCount } from '@/features/cart/hooks/use-cart-count';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { Logo } from './Logo';
 import styles from './Navbar.module.scss';
 
 function getInitials(name: string) {
@@ -35,125 +30,153 @@ export function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const isHome = pathname === '/';
+  // Immersive routes render a full-bleed hero the nav floats over: home and
+  // the public event detail page (but not its /checkout subroutes).
+  const isImmersive = pathname === '/' || /^\/events\/[^/]+$/.test(pathname);
 
   useEffect(() => {
-    if (!isHome) { setScrolled(false); return; }
+    if (!isImmersive) { setScrolled(false); return; }
     const onScroll = () => setScrolled(window.scrollY > 10);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [isHome]);
-  const { user, isLoggedIn, isLoading, logout } = useAuth();
+  }, [isImmersive]);
+  // isLoading intentionally not gated on here: isLoggedIn is already correct
+  // from the very first server-rendered paint (see AuthProvider's SSR seed),
+  // so waiting on isLoading before rendering the real nav actions would just
+  // reintroduce the "Loading" placeholder flash this was meant to remove.
+  const { user, isLoggedIn, logout } = useAuth();
   const { data: dashboardCheck } = useAuthCheck('access_dashboard', {}, { enabled: isLoggedIn });
   const canAccessDashboard = dashboardCheck?.allowed === true;
 
   const cartCount = useCartCount();
   const t = useTranslations('nav');
   
+  // Immersive routes only: the nav floats transparent over the hero and never
+  // reserves flow space (position: fixed for the page's whole lifetime —
+  // switching fixed↔sticky exactly at the scroll threshold would jump the
+  // layout by the nav's own height right as the class toggles). Background/
+  // blur/border alone respond to scroll. Every other page keeps the
+  // sticky+solid bar.
+  const navClassName = [
+    styles.nav,
+    isImmersive && styles.navFixed,
+    (!isImmersive || scrolled) && styles.navSolid,
+  ].filter(Boolean).join(' ');
+
   return (
-    <nav className={`${styles.nav}`}>
+    <nav className={navClassName}>
       <div className={styles.navInner}>
         <div className={styles.leftSection}>
           <Link href="/" className={styles.logo}>
-            <Logo size={22} wordmarkClassName={styles.logoText} />
+            <Logo size={22} wordmarkClassName={styles.logoText} color="#ff2e9e" />
           </Link>
 
           <div className={styles.desktopNav}>
             <Link href="/" className={styles.navLink}>{t('home')}</Link>
             <Link href="/events" className={styles.navLink}>{t('schedule')}</Link>
+            {/* Fora da guarda de isLoggedIn de propósito: quem mais precisa da
+                central de ajuda é justamente quem ainda não tem conta. */}
+            <Link href="/help" className={styles.navLink}>{t('help')}</Link>
+            {/* Só faz sentido para quem tem acesso a algo, e a razão de existir
+                da página é ser ACHÁVEL -- escondê-la no dropdown repetiria o
+                problema que ela resolve. */}
+            {isLoggedIn && (
+              <>
+                <Link href="/my-list" className={styles.navLink}>{t('myList')}</Link>
+                <Link href="/wishlist" className={styles.navLink}>{t('wishlist')}</Link>
+              </>
+            )}
           </div>
         </div>
 
         {/* Actions */}
         <div className={styles.actions}>
-          {searchOpen ? (
-            <div className={styles.searchBox}>
-              <Search size={14} color="#71717A" />
-              <input
-                autoFocus
-                className={styles.searchInput}
-                placeholder={t('searchPlaceholder')}
-                onBlur={() => setSearchOpen(false)}
-              />
-            </div>
-          ) : (
-            <button onClick={() => setSearchOpen(true)} className={styles.iconBtn}>
-              <Search size={19} />
-            </button>
-          )}
-
-          {!isLoading && (
+          {isLoggedIn ? (
             <>
-              {isLoggedIn ? (
-                <>
-                  {canAccessDashboard && (
-                    <Link href="/dashboard" className={styles.iconBtn} aria-label="Dashboard">
-                      <LayoutGrid size={19} />
-                    </Link>
-                  )}
-
-                  <NotificationsDropdown />
-
-                  <Link href="/tickets" className={styles.ticketsBtn}>
-                    <Ticket size={15} />
-                    {t('tickets')}
-                  </Link>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className={styles.avatarBtn}>
-                        <Avatar className={styles.avatar}>
-                          <AvatarFallback className={styles.avatarFallback}>
-                            {user ? getInitials(user.displayName) : <User size={14} />}
-                          </AvatarFallback>
-                        </Avatar>
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className={styles.dropdownContent}>
-                      <DropdownMenuLabel className={styles.dropdownLabel}>
-                        <p className={styles.dropdownLabelName}>{user?.displayName}</p>
-                        <p className={styles.dropdownLabelEmail}>{user?.email}</p>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator className={styles.dropdownSeparator} />
-                      {canAccessDashboard && (
-                        <DropdownMenuItem asChild className={styles.dropdownItem}>
-                          <Link href="/dashboard">
-                            <LayoutGrid size={14} style={{ marginRight: '0.5rem' }} />
-                            {t('dashboard')}
-                          </Link>
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem asChild className={styles.dropdownItem}>
-                        <Link href="/account">
-                          <Settings size={14} style={{ marginRight: '0.5rem' }} />
-                          {t('account')}
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className={styles.dropdownItem}>
-                        <Link href="/tickets">
-                          <Ticket size={14} style={{ marginRight: '0.5rem' }} />
-                          {t('myTickets')}
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator className={styles.dropdownSeparator} />
-                      <DropdownMenuItem onClick={logout} className={styles.dropdownItemDestructive}>
-                        <LogOut size={14} style={{ marginRight: '0.5rem' }} />
-                        {t('logout')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
-              ) : (
-                <>
-                  <Link href={`/login?redirect=${encodeURIComponent(pathname)}`} className={styles.loginLink}>{t('login')}</Link>
-                  <Link href={`/register?redirect=${encodeURIComponent(pathname)}`} className={styles.registerBtn}>{t('register')}</Link>
-                </>
+              {canAccessDashboard && (
+                <Link href="/dashboard" className={styles.iconBtn} aria-label="Dashboard">
+                  <LayoutGrid size={19} />
+                </Link>
               )}
+
+              {/* Hidden on phones — the navbar's min-content otherwise
+                  overflows the viewport and pushes cart+menu off-screen. */}
+              <span className={styles.hideMobile}>
+                <NotificationsDropdown />
+              </span>
+
+              <Link href="/tickets" className={styles.ticketsBtn}>
+                <Ticket size={15} />
+                {t('tickets')}
+              </Link>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className={styles.avatarBtn}>
+                    <Avatar className={styles.avatar}>
+                      <AvatarFallback className={styles.avatarFallback}>
+                        {user ? getInitials(user.displayName) : <User size={14} />}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className={styles.dropdownContent}>
+                  <DropdownMenuLabel className={styles.dropdownLabel}>
+                    <p className={styles.dropdownLabelName}>{user?.displayName}</p>
+                    <p className={styles.dropdownLabelEmail}>{user?.email}</p>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className={styles.dropdownSeparator} />
+                  {canAccessDashboard && (
+                    <DropdownMenuItem asChild className={styles.dropdownItem}>
+                      <Link href="/dashboard">
+                        <LayoutGrid size={14} style={{ marginRight: '0.5rem' }} />
+                        {t('dashboard')}
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem asChild className={styles.dropdownItem}>
+                    <Link href="/account">
+                      <Settings size={14} style={{ marginRight: '0.5rem' }} />
+                      {t('account')}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className={styles.dropdownItem}>
+                    <Link href="/my-list">
+                      <LibraryBig size={14} style={{ marginRight: '0.5rem' }} />
+                      {t('myList')}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className={styles.dropdownItem}>
+                    <Link href="/wishlist">
+                      <Heart size={14} style={{ marginRight: '0.5rem' }} />
+                      {t('wishlist')}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className={styles.dropdownItem}>
+                    <Link href="/tickets">
+                      <Ticket size={14} style={{ marginRight: '0.5rem' }} />
+                      {t('myTickets')}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className={styles.dropdownSeparator} />
+                  <DropdownMenuItem onClick={logout} className={styles.dropdownItemDestructive}>
+                    <LogOut size={14} style={{ marginRight: '0.5rem' }} />
+                    {t('logout')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <Link href={`/login?redirect=${encodeURIComponent(pathname)}`} className={styles.loginLink}>{t('login')}</Link>
+              <Link href={`/register?redirect=${encodeURIComponent(pathname)}`} className={styles.registerBtn}>{t('register')}</Link>
             </>
           )}
 
-          <LanguageSwitcher />
+          <span className={styles.hideMobile}>
+            <LanguageSwitcher />
+          </span>
 
           <Link href="/cart" className={styles.cartBtn} aria-label={t('cart')}>
             <ShoppingCart size={19} />
@@ -171,8 +194,15 @@ export function Navbar() {
         <div className={styles.mobileMenu}>
           <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('home')}</Link>
           <Link href="/events" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('schedule')}</Link>
+          <Link href="/help" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('help')}</Link>
+          {/* Language switcher lives here on phones (hidden from the bar). */}
+          <div className={styles.mobileLang}>
+            <LanguageSwitcher />
+          </div>
           {isLoggedIn ? (
             <>
+              <Link href="/my-list" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('myList')}</Link>
+              <Link href="/wishlist" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('wishlist')}</Link>
               <Link href="/tickets" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('tickets')}</Link>
               {canAccessDashboard && (
                 <Link href="/dashboard" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('dashboard')}</Link>

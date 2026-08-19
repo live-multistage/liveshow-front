@@ -4,8 +4,11 @@ import type {
   CreateOrganizationRequest,
   UpdateOrganizationRequest,
   StripeAccountStatus,
+  OrganizationLedgerResponse,
 } from '../types/organization.types';
 import type { EventResponse } from '@/features/events/types/event.types';
+import type { OrganizationAnalyticsResponse } from '../types/organization-analytics.types';
+import type { SalesGranularity } from '@/features/analytics/types/sales.types';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -76,9 +79,24 @@ export const organizationService = {
     return data;
   },
 
+  getLedger: async (orgId: string): Promise<OrganizationLedgerResponse> => {
+    const { data } = await httpClient.get<OrganizationLedgerResponse>(
+      `/organizations/${orgId}/ledger`,
+    );
+    return data;
+  },
+
   initiateStripeConnect: async (orgId: string): Promise<{ url: string }> => {
     const { data } = await httpClient.post<{ url: string }>(
       `/organizations/${orgId}/stripe/connect`,
+    );
+    return data;
+  },
+
+  getAnalytics: async (orgId: string, granularity: SalesGranularity): Promise<OrganizationAnalyticsResponse> => {
+    const { data } = await httpClient.get<OrganizationAnalyticsResponse>(
+      `/organizations/${orgId}/analytics`,
+      { params: { granularity } },
     );
     return data;
   },

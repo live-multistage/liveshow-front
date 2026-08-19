@@ -5,10 +5,15 @@ import { ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { CreateEventForm } from './CreateEventForm';
+import { CreateEventTips } from './CreateEventTips';
 import { MY_EVENTS_KEY } from '../../queries/get-my-events';
 import styles from './CreateEventPageContent.module.scss';
 
-export function CreateEventPageContent() {
+interface Props {
+  vodUploadEnabled?: boolean;
+}
+
+export function CreateEventPageContent({ vodUploadEnabled = false }: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const t = useTranslations('createEvent');
@@ -26,8 +31,11 @@ export function CreateEventPageContent() {
         </div>
       </div>
 
+      <CreateEventTips />
+
       <div className={styles.body}>
         <CreateEventForm
+          vodUploadEnabled={vodUploadEnabled}
           onSuccess={() => {
             queryClient.invalidateQueries({ queryKey: MY_EVENTS_KEY });
             router.push('/dashboard/events');

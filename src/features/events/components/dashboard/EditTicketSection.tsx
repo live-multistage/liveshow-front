@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Lock, Pencil } from 'lucide-react';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +13,14 @@ import {
 } from '../../mutations/ticket-product.mutation';
 import type { AccessCapability, TicketProductResponse } from '../../types/event.types';
 import { useEventStagesQuery } from '../../../streams/queries/streams.queries';
+import { ISO_CURRENCIES, DEFAULT_CURRENCY } from '@/shared/constants/currencies';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@live-show/design-system';
 import styles from './TicketSection.module.scss';
 
 interface Props {
@@ -25,19 +33,25 @@ function ticketToForm(ticket: TicketProductResponse): TicketFormValues {
     name: ticket.name,
     description: ticket.description,
     price: ticket.price,
+    currency: ticket.currency ?? DEFAULT_CURRENCY,
     liveView: ticket.capabilities.includes('LIVE_VIEW'),
     replayView: ticket.capabilities.includes('REPLAY_VIEW'),
     cameraView: ticket.capabilities.includes('CAMERA_VIEW'),
+    physicalEntry: ticket.capabilities.includes('PHYSICAL_ENTRY'),
     camerasLimit: ticket.camerasLimit ?? undefined,
+    capacity: ticket.capacity ?? undefined,
     allowedStageIds: ticket.allowedStageIds ?? [],
   };
 }
 
 const EMPTY_FORM: Partial<TicketFormInput> = {
+  currency: DEFAULT_CURRENCY,
   liveView: false,
   replayView: false,
   cameraView: false,
+  physicalEntry: false,
   camerasLimit: undefined,
+  capacity: undefined,
   allowedStageIds: [],
 };
 
@@ -55,6 +69,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<TicketFormInput, unknown, TicketFormValues>({
     resolver: zodResolver(ticketSchema),
@@ -63,7 +78,16 @@ export function EditTicketSection({ eventId, tickets }: Props) {
 
   const cameraView = useWatch({ control, name: 'cameraView' });
   const liveView = useWatch({ control, name: 'liveView' });
+  const replayView = useWatch({ control, name: 'replayView' });
+  const physicalEntry = useWatch({ control, name: 'physicalEntry' });
   const showStageSelector = (liveView || cameraView) && stages.length > 0;
+
+  // Presencial nunca sozinho: sem Ao vivo/Reprise o checkbox trava, e se o
+  // usuário desmarcar o stream com presencial já ligado, desliga junto.
+  const canPhysical = liveView || replayView;
+  useEffect(() => {
+    if (!canPhysical && physicalEntry) setValue('physicalEntry', false);
+  }, [canPhysical, physicalEntry, setValue]);
 
   const isEditing = editingId !== null;
   const isPending = createMutation.isPending || updateMutation.isPending;
@@ -75,6 +99,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
     if (caps.includes('CAMERA_VIEW')) {
       parts.push(camerasLimit != null ? t('cameras', { count: camerasLimit }) : t('allCameras'));
     }
+    if (caps.includes('PHYSICAL_ENTRY')) parts.push('Presencial');
     return parts.join(' + ');
   }
 
@@ -93,13 +118,16 @@ export function EditTicketSection({ eventId, tickets }: Props) {
     if (values.liveView) capabilities.push('LIVE_VIEW');
     if (values.replayView) capabilities.push('REPLAY_VIEW');
     if (values.cameraView) capabilities.push('CAMERA_VIEW');
+    if (values.physicalEntry) capabilities.push('PHYSICAL_ENTRY');
 
     const payload = {
       name: values.name,
       description: values.description,
       price: values.price,
+      currency: values.currency,
       capabilities,
       camerasLimit: values.cameraView ? (values.camerasLimit ?? null) : null,
+      capacity: values.physicalEntry ? (values.capacity ?? null) : null,
       allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
     };
 
@@ -112,6 +140,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
       createMutation.mutate(payload, { onSuccess: () => reset(EMPTY_FORM) });
     }
   };
+
 
   return (
     <div className={styles.wrapper}>
@@ -167,6 +196,24 @@ export function EditTicketSection({ eventId, tickets }: Props) {
           />
           {errors.price && <p className={styles.error}>{errors.price.message}</p>}
         </div>
+
+        <div className={styles.field}>
+          <label className={styles.label}>{t('currencyLabel')}</label>
+          <Controller
+            control={control}
+            name="currency"
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className={styles.input}><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ISO_CURRENCIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
       </div>
 
       <div className={styles.field}>
@@ -194,9 +241,38 @@ export function EditTicketSection({ eventId, tickets }: Props) {
             <input type="checkbox" {...register('cameraView')} className={styles.checkbox} />
             <span>{t('cameraView')}</span>
           </label>
+          <label
+            className={styles.checkboxLabel}
+            title={canPhysical ? undefined : 'Requer Ao vivo ou Reprise'}
+          >
+            <input
+              type="checkbox"
+              {...register('physicalEntry')}
+              className={styles.checkbox}
+              disabled={!canPhysical}
+            />
+            <span>Acesso presencial</span>
+          </label>
         </div>
         {errors.liveView && <p className={styles.error}>{errors.liveView.message}</p>}
+        {errors.physicalEntry && <p className={styles.error}>{errors.physicalEntry.message}</p>}
       </div>
+
+      {physicalEntry && (
+        <div className={styles.field}>
+          <label className={styles.label}>Capacidade do local</label>
+          <input
+            type="number"
+            min={1}
+            step={1}
+            {...register('capacity')}
+            className={`${styles.input} ${errors.capacity ? styles.inputError : ''}`}
+            placeholder="Ex: 500"
+          />
+          <p className={styles.inputHint}>Nº de lugares presenciais. Esgota quando vendidos.</p>
+          {errors.capacity && <p className={styles.error}>{errors.capacity.message}</p>}
+        </div>
+      )}
 
       {cameraView && (
         <div className={styles.field}>
@@ -296,6 +372,13 @@ export function EditTicketSection({ eventId, tickets }: Props) {
           <p className={styles.ticketPrice}>
             R$ {ticket.price.toFixed(2).replace('.', ',')}
           </p>
+          {ticket.capacity != null && (
+            <p className={styles.inputHint}>
+              {ticket.soldOut
+                ? 'Esgotado'
+                : `${ticket.capacity - (ticket.remaining ?? ticket.capacity)}/${ticket.capacity} vendidos · ${ticket.remaining ?? 0} restantes`}
+            </p>
+          )}
         </div>
       ))}
 

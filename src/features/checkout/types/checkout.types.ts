@@ -50,7 +50,6 @@ export interface PaymentMethod {
 export interface CreateCheckoutSessionRequest {
   ticketProductId: string;
   couponCode?: string;
-  currency?: string;
 }
 
 export interface CouponPreviewRequest {
@@ -59,10 +58,18 @@ export interface CouponPreviewRequest {
   orderAmount: number;
 }
 
-export interface CartCheckoutResult {
+// One Stripe session per currency group in the cart. Named `CartCheckoutSession`
+// (not `CheckoutSession`) because that name is already taken by the single
+// ticket-product checkout session above — different shape, different endpoint.
+export interface CartCheckoutSession {
   url: string;
-  totalAmount: number;
+  currency: string;
+  amount: number;
   orderIds: string[];
+}
+
+export interface CartCheckoutResult {
+  sessions: CartCheckoutSession[];
 }
 
 export interface CouponPreviewResult {
@@ -70,14 +77,28 @@ export interface CouponPreviewResult {
   discountType: string;
   discountValue: number;
   discountAmount: number;
-  orgId: string | null;
+  orgIds: string[];
   eventId: string | null;
+}
+
+export interface CartCouponPreviewRequest {
+  code: string;
+  items: { eventId: string; amount: number }[];
+}
+
+export interface CartCouponPreviewResult {
+  couponId: string;
+  discountType: string;
+  discountValue: number;
+  discountAmount: number;
+  orgIds: string[];
+  eventId: string | null;
+  eligibleEventIds: string[];
 }
 
 export interface ProcessPaymentRequest {
   sessionId: string;
   provider: PaymentProvider;
-  currency?: string;
 }
 
 export type PaymentStatus =
@@ -91,4 +112,8 @@ export type PaymentStatus =
 export interface PaymentStatusResponse {
   paymentId: string;
   status: PaymentStatus;
+}
+
+export interface ClaimFreeTicketResult {
+  granted: boolean;
 }

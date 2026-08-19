@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { useListEventsQuery, eventToShow } from '@/features/events';
+import { useInfiniteEventsQuery, eventToShow } from '@/features/events';
+import type { PaginatedEventsResponse } from '@/features/events';
 import { AdBanner } from '@/features/advertisements';
 import { ShowCard } from './ShowCard';
 import styles from '../../../../app/(public)/events/page.module.scss';
@@ -29,10 +30,13 @@ function isWeekend(dateStr: string) {
   return day === 0 || day === 6;
 }
 
-export function EventsListPageContent() {
+export function EventsListPageContent({ initialFirstPage }: { initialFirstPage?: PaginatedEventsResponse }) {
   const t = useTranslations('events.list');
 
-  const { data: events = [], isLoading, isError } = useListEventsQuery('all');
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteEventsQuery('all', initialFirstPage);
+  const events = useMemo(() => data?.pages.flatMap((p) => p.items) ?? [], [data]);
+  const totalCatalog = data?.pages[0]?.total ?? 0;
   const SHOWS = useMemo(() => events.map(eventToShow), [events]);
 
   const [search, setSearch] = useState('');
@@ -101,7 +105,7 @@ export function EventsListPageContent() {
       s.title.toLowerCase().includes(q) ||
       s.city.toLowerCase().includes(q) ||
       s.venue.toLowerCase().includes(q) ||
-      s.genre.toLowerCase().includes(q);
+      s.category.toLowerCase().includes(q);
 
     const matchChip =
       chip === 'all'     ? true :
@@ -154,7 +158,7 @@ export function EventsListPageContent() {
               <div className={styles.statCard}>
                 <div className={styles.statLabel}>CATÁLOGO</div>
                 <div className={styles.statValue}>
-                  <span className={styles.statNumber}>{SHOWS.length}</span>
+                  <span className={styles.statNumber}>{totalCatalog}</span>
                   <span className={styles.statUnit}>no total</span>
                 </div>
               </div>
@@ -281,6 +285,19 @@ export function EventsListPageContent() {
             {filtered.map((show) => (
               <ShowCard key={show.id} show={show} layout={view === 'list' ? 'horizontal' : 'vertical'} />
             ))}
+          </div>
+        )}
+
+        {/* Load more */}
+        {!isLoading && !isError && hasNextPage && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
+            <button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              className={styles.clearBtn}
+            >
+              {isFetchingNextPage ? 'CARREGANDO…' : 'CARREGAR MAIS'}
+            </button>
           </div>
         )}
 

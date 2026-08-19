@@ -1,21 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { MapPin, ArrowLeft, ScanLine } from 'lucide-react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
+import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
+import { canManageOrg } from '@/features/organizations/types/organization.types';
 import { useUpdateEventMutation } from '../../mutations/update-event.mutation';
-import { usePublishEventMutation, useUnpublishEventMutation, useFinishEventMutation } from '../../mutations/publish-event.mutation';
+import { usePublishEventMutation, useUnpublishEventMutation, useFinishEventMutation, useResumeLiveMutation } from '../../mutations/publish-event.mutation';
 import { EventHeaderActions } from './EventHeaderActions';
+import { LibrasAccessibilityPanel } from './LibrasAccessibilityPanel';
+import { useAccessibilityQuery } from '../../queries/get-accessibility';
 import { EventEditForm, editSchema } from './EventEditForm';
 import type { EditFormValues } from './EventEditForm';
 import { EventInfoGrid } from './EventInfoGrid';
 import { EventTicketList } from './EventTicketList';
 import { EditTicketSection } from './EditTicketSection';
 import { PhotosSection } from './PhotosSection';
+import { EventCollaboratorsSection } from './EventCollaboratorsSection';
+import { VodUploadCard } from '../VodUploadCard/VodUploadCard';
 import { EventMetadataSection } from '@/features/metadata';
 import type { EventResponse } from '../../types/event.types';
 import styles from './EventDashboardDetailContent.module.scss';
@@ -27,22 +33,41 @@ function toDatetimeLocal(iso: string) {
 interface Props {
   id: string;
   initialEvent?: EventResponse;
+  // Server-resolved vod_upload feature flag. Off at launch → the upload card is
+  // hidden entirely. Resolved on the server (flags never resolve client-side).
+  vodUploadEnabled?: boolean;
 }
 
-export function EventDashboardDetailContent({ id, initialEvent }: Props) {
-  const router = useRouter();
+export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled = false }: Props) {
   const t = useTranslations('eventDetail');
   const [editing, setEditing] = useState(false);
 
   const { data: event, isLoading, isError } = useGetEventQuery(id, initialEvent);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
 
+  // GET /events/:id is public — it serves any non-DRAFT event to anyone — so it
+  // proves nothing about ownership. Every mutation below is gated server-side on
+  // orgRepo.findMember(...).isAdmin(); mirror that gate on the view so a stranger
+  // doesn't get a management UI whose every button 403s. Fails closed: a 401/error
+  // on /organizations/mine leaves the list empty and denies.
+  // A COLLABORATOR org is let in too (server-derived on the event payload), but
+  // strictly for the read-only view below — write actions stay gated on `readOnly`.
+  const { data: myOrgs = [], isLoading: orgsLoading } = useMyOrganizationsQuery();
+  const canManage =
+    event?.collaborationRole === 'COLLABORATOR' ||
+    myOrgs.some((o) => o.id === event?.organizationId && canManageOrg(o.role));
+
   const updateMutation = useUpdateEventMutation(id);
   const publishMutation = usePublishEventMutation(id);
   const unpublishMutation = useUnpublishEventMutation(id);
   const finishMutation = useFinishEventMutation(id);
+  const resumeLiveMutation = useResumeLiveMutation(id);
+  const { data: accessibility } = useAccessibilityQuery(id, !!event?.publiclyFunded);
+  // Publicly-funded events can't publish until the NBR 15290 gate is satisfied.
+  // Default to blocked while the status is still loading (avoids a 400 round-trip).
+  const publishBlocked = !!event?.publiclyFunded && !accessibility?.publishable;
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<EditFormValues>({
+  const { register, control, handleSubmit, reset, formState: { errors } } = useForm<EditFormValues>({
     resolver: zodResolver(editSchema),
   });
 
@@ -53,6 +78,8 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
       description: event.description,
       startsAt: toDatetimeLocal(event.startsAt),
       endsAt: toDatetimeLocal(event.endsAt),
+      latencyMode: event.latencyMode ?? 'STANDARD',
+      publiclyFunded: event.publiclyFunded ?? false,
     });
     setEditing(true);
   }
@@ -62,19 +89,25 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
     reset();
   }
 
-  function onSave(values: EditFormValues) {
-    updateMutation.mutate(
-      {
-        title: values.title,
-        description: values.description,
+  // FINISHED events accept content edits only; the datetime-local round-trip
+  // loses seconds, so re-sending the schedule would read as a change and 400.
+  const scheduleLocked = event?.status === 'FINISHED';
+
+  async function onSave(values: EditFormValues) {
+    await updateMutation.mutateAsync({
+      title: values.title,
+      description: values.description,
+      publiclyFunded: values.publiclyFunded,
+      ...(scheduleLocked ? {} : {
         startsAt: new Date(values.startsAt).toISOString(),
         endsAt: new Date(values.endsAt).toISOString(),
-      },
-      { onSuccess: () => setEditing(false) },
-    );
+        latencyMode: values.latencyMode,
+      }),
+    });
+    setEditing(false);
   }
 
-  if (isLoading) {
+  if (isLoading || orgsLoading) {
     return <div className={styles.centered}><span className={styles.spinner} /></div>;
   }
 
@@ -82,21 +115,41 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
     return (
       <div className={styles.centered}>
         <p className={styles.notFound}>{t('notFound')}</p>
-        <button onClick={() => router.push('/dashboard/events')} className={styles.backLink}>
+        <Link href="/dashboard/events" className={styles.backLink}>
           {t('backLink')}
-        </button>
+        </Link>
+      </div>
+    );
+  }
+
+  if (!canManage) {
+    return (
+      <div className={styles.centered}>
+        <p className={styles.notFound}>{t('noAccess')}</p>
+        <Link href="/dashboard/events" className={styles.backLink}>
+          {t('backLink')}
+        </Link>
       </div>
     );
   }
 
   const location = [event.venue, event.city, event.country].filter(Boolean).join(', ');
+  // Collaborator orgs get read-only access: backend 403s every mutation, so
+  // hide the buttons that would trigger them instead of showing dead ones.
+  const readOnly = event.collaborationRole === 'COLLABORATOR';
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <button onClick={() => router.push('/dashboard/events')} className={styles.back}>
+        <Link href="/dashboard/events" className={styles.back}>
           <ArrowLeft size={16} /> {t('back')}
-        </button>
+        </Link>
+
+        {tickets.some((tk) => tk.capabilities.includes('PHYSICAL_ENTRY')) && (
+          <Link href={`/checkin/${id}`} className={styles.back}>
+            <ScanLine size={16} /> Check-in
+          </Link>
+        )}
 
         <EventHeaderActions
           event={event}
@@ -105,12 +158,16 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
           isPublishing={publishMutation.isPending}
           isUnpublishing={unpublishMutation.isPending}
           isFinishing={finishMutation.isPending}
+          isResuming={resumeLiveMutation.isPending}
+          publishBlocked={publishBlocked}
+          readOnly={readOnly}
           onEdit={startEditing}
           onCancelEdit={cancelEditing}
           onSave={handleSubmit(onSave)}
           onPublish={() => publishMutation.mutate()}
           onUnpublish={() => unpublishMutation.mutate()}
           onFinish={() => finishMutation.mutate()}
+          onResumeLive={async () => { await resumeLiveMutation.mutateAsync(); }}
         />
       </div>
 
@@ -125,13 +182,19 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
       </div>
 
       <div className={styles.body}>
+        {event.publiclyFunded && <LibrasAccessibilityPanel eventId={id} />}
+
+        {event.format === 'VOD' && vodUploadEnabled && <VodUploadCard eventId={id} />}
+
         {editing ? (
           <>
             <EventEditForm
               register={register}
+              control={control}
               errors={errors}
               isPending={updateMutation.isPending}
               errorMessage={updateMutation.error?.message}
+              scheduleLocked={scheduleLocked}
             />
             <EditTicketSection eventId={id} tickets={tickets} />
             <PhotosSection event={event} />
@@ -148,7 +211,9 @@ export function EventDashboardDetailContent({ id, initialEvent }: Props) {
 
         {!editing && <EventTicketList tickets={tickets} />}
 
-        <EventMetadataSection eventId={id} />
+        <EventMetadataSection eventId={id} readOnly={readOnly} />
+
+        <EventCollaboratorsSection eventId={id} readOnly={readOnly} />
       </div>
     </div>
   );

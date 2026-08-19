@@ -66,6 +66,7 @@
   border-radius: 14px;
   cursor: pointer;
   white-space: nowrap;
+  text-decoration: none;
   flex-shrink: 0;
   transition: filter .15s;
 
@@ -279,6 +280,7 @@
   color: #9a9aa2;
   cursor: pointer;
   padding: 24px;
+  text-decoration: none;
   transition: border-color .18s, color .18s;
 
   &:hover {

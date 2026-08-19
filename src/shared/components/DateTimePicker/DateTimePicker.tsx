@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { ptBR } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Popover, PopoverTrigger, PopoverContent } from '@/shared/components/ui/popover';
+import { Popover, PopoverTrigger, PopoverContent } from '@live-show/design-system';
 import { ScrollWheelPicker } from './ScrollWheelPicker';
 import styles from './DateTimePicker.module.scss';
 import 'react-day-picker/dist/style.css';
@@ -18,6 +18,11 @@ interface Props {
   onChange: (value: string) => void;
   error?: string;
   placeholder?: string;
+  // datetime-local string. Calendar days before this date are disabled (day
+  // granularity — the min day itself stays selectable; the same-day earlier
+  // time is caught by the form's endsAt > startsAt refine). Used to stop an
+  // event's end from landing before its start.
+  min?: string;
 }
 
 interface Draft {
@@ -52,10 +57,19 @@ function formatTrigger(value: string): string | null {
   return `${dateLabel}, ${timeLabel}`;
 }
 
-export function DateTimePicker({ value, onChange, error, placeholder = 'Selecionar data e horário' }: Props) {
+export function DateTimePicker({ value, onChange, error, placeholder = 'Selecionar data e horário', min }: Props) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<Draft>(() => parseValue(value));
   const [month, setMonth] = useState<Date>(() => parseValue(value).date ?? new Date());
+
+  // Disable every day before the min day (start-of-day so the min day itself
+  // stays pickable). undefined when no min → nothing disabled.
+  const disabledDays = min
+    ? (() => {
+        const m = new Date(min);
+        return { before: new Date(m.getFullYear(), m.getMonth(), m.getDate()) };
+      })()
+    : undefined;
 
   function handleOpenChange(next: boolean) {
     if (next) {
@@ -85,7 +99,7 @@ export function DateTimePicker({ value, onChange, error, placeholder = 'Selecion
         </button>
       </PopoverTrigger>
 
-      <PopoverContent className={styles.content} align="start">
+      <PopoverContent className={styles.content} align="start" collisionPadding={16}>
         <div className={styles.header}>
           <CalendarIcon size={15} />
           Selecionar data e horário
@@ -98,6 +112,7 @@ export function DateTimePicker({ value, onChange, error, placeholder = 'Selecion
           onMonthChange={setMonth}
           selected={draft.date ?? undefined}
           onSelect={(d) => d && setDraft((prev) => ({ ...prev, date: d }))}
+          disabled={disabledDays}
           showOutsideDays
           className={styles.calendar}
           classNames={{

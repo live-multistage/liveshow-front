@@ -1,6 +1,7 @@
 import { Info, MapPin, Camera, Ticket, Image, Radio, Check } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import type { EventFormat } from '../../types/event.types';
 import styles from './CreateEventForm.module.scss';
 
 interface Step {
@@ -20,20 +21,24 @@ const STEPS: Step[] = [
 
 interface Props {
   current: number;
+  format?: EventFormat;
   onNavigate?: (step: number) => void;
 }
 
-export function CreateEventStepper({ current, onNavigate }: Props) {
+export function CreateEventStepper({ current, format, onNavigate }: Props) {
   const t = useTranslations('createEvent.steps');
+  // VOD events have no stream topology to configure — hide the step instead
+  // of rendering a screen the wizard will never route to.
+  const steps = format === 'VOD' ? STEPS.filter((s) => s.key !== 'stream') : STEPS;
 
   return (
     <div className={styles.stepper}>
-      {STEPS.map((s, i) => (
+      {steps.map((s, i) => (
         <StepGroup
           key={s.id}
           step={s}
           label={t(s.key as Parameters<typeof t>[0])}
-          isLast={i === STEPS.length - 1}
+          isLast={i === steps.length - 1}
           done={current > s.id}
           active={current === s.id}
           onNavigate={s.id < 6 && current > s.id ? onNavigate : undefined}

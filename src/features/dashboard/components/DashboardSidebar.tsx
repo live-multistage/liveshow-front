@@ -2,13 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Logo } from '@/shared/components/Logo';
+import { Logo } from '@live-show/design-system';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account';
+import { NotificationsDropdown } from '@/features/notifications';
 import { NAV_BY_ROLE, DASHBOARD_ROLES } from '../types/dashboard.types';
 import { DashboardUserMenu } from './DashboardUserMenu';
 import type { UserRole } from '@/types';
 import styles from './DashboardSidebar.module.scss';
+import { ArrowUpRight } from 'lucide-react';
 
 export function DashboardSidebar() {
   const t = useTranslations('dashboard.nav');
@@ -25,29 +27,42 @@ export function DashboardSidebar() {
       {/* Logo */}
       <Link href="/" className={styles.logoWrapper}>
         <Logo size={26} wordmarkClassName={styles.logoText} />
+        <span className={styles.logoBadge}>{role === 'SUPER_ADMIN' ? 'ADMIN' : 'STUDIO'}</span>
       </Link>
 
-      {/* Nav */}
+      {/* Nav — renders a section label whenever an item's group changes. */}
       <nav className={styles.nav}>
-        {navItems.map((item) => {
+        {navItems.map((item, i) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+          const isExternal = item.href.startsWith('http');
+          const isActive = !isExternal && (pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)));
+          const showGroup = item.group && item.group !== navItems[i - 1]?.group;
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`${styles.navItem} ${isActive ? styles.active : ''}`}
-            >
-              <Icon size={18} className={styles.navIcon} />
-              {t(item.navKey as Parameters<typeof t>[0])}
-            </Link>
+            <div key={item.href}>
+              {showGroup && <div className={styles.navSectionLabel}>{item.group}</div>}
+              <Link
+                href={item.href}
+                target={isExternal ? '_blank' : undefined}
+                rel={isExternal ? 'noopener noreferrer' : undefined}
+                className={`${styles.navItem} ${isActive ? styles.active : ''}`}
+              >
+                <Icon size={18} className={styles.navIcon} />
+                {t(item.navKey as Parameters<typeof t>[0])}
+                {item.badge?.()}
+
+                {item.external && <ArrowUpRight size={14} />}
+              </Link>
+            </div>
           );
         })}
       </nav>
 
-      {/* User block */}
+      {/* User block + notifications */}
       <div className={styles.userMenuWrapper}>
-        <DashboardUserMenu />
+        <div className={styles.userMenuMain}>
+          <DashboardUserMenu />
+        </div>
+        <NotificationsDropdown triggerClassName={styles.notifTrigger} />
       </div>
     </aside>
   );

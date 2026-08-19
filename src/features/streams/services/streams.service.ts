@@ -4,6 +4,7 @@ import type {
   StreamResponse, StageResponse, FeedResponse, CameraResponse,
   CreateStreamRequest, CreateStageRequest, CreateFeedRequest, CreateCameraRequest,
   CameraIngestResponse, FeedIngestResponse, TranscodeJobResponse, UpdateStreamRequest,
+  StreamStatsResponse,
 } from '../types/stream.types';
 
 export const streamsService = {
@@ -115,6 +116,12 @@ export const streamsService = {
     return data;
   },
 
+  // ── Ops stats (admin control-room strip) ───────────────────────
+  getStreamStats: async (streamId: string): Promise<StreamStatsResponse> => {
+    const { data } = await httpClient.get<StreamStatsResponse>(`/streams/${streamId}/stats`);
+    return data;
+  },
+
   // ── Ingest credentials (admin) ─────────────────────────────────
   getCameraIngest: async (cameraId: string): Promise<CameraIngestResponse> => {
     const { data } = await httpClient.get<CameraIngestResponse>(`/cameras/${cameraId}/ingest`);
@@ -129,6 +136,12 @@ export const streamsService = {
   // ── Live ingest status ─────────────────────────────────────────
   getFeedIngest: async (feedId: string): Promise<FeedIngestResponse> => {
     const { data } = await httpClient.get<FeedIngestResponse>(`/feeds/${feedId}/ingest`);
+    return data;
+  },
+
+  // ── Admin camera preview (LL-HLS ingest, works pre-live) ───────
+  getCameraPreview: async (cameraId: string): Promise<{ llPath: string }> => {
+    const { data } = await httpClient.get<{ llPath: string }>(`/cameras/${cameraId}/preview`);
     return data;
   },
 

@@ -5,7 +5,8 @@ import { getMessages, getLocale } from 'next-intl/server';
 import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { Providers } from '@/providers';
 import { getInitialIsLoggedIn, getUserServer, checkAuthServer } from '@/features/account/queries/get-auth-state.server';
-import '@/styles/index.css';
+import { ConsentBanner } from '@/features/consent';
+import '@/styles/globals.scss';
 
 export const metadata: Metadata = {
   title: {
@@ -35,6 +36,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={locale} className="dark">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
       <body>
         <NextIntlClientProvider messages={messages}>
           <Providers
@@ -43,6 +53,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             dehydratedState={dehydrate(qc)}
           >
             {children}
+            <ConsentBanner />
           </Providers>
         </NextIntlClientProvider>
       </body>

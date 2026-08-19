@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Clock, QrCode } from 'lucide-react';
 import { usePaymentStatusQuery } from '../mutations/checkout.mutations';
 import styles from './CheckoutResultContent.module.scss';
@@ -39,12 +40,9 @@ export function CheckoutPendingContent({ eventId, paymentId }: Props) {
         </div>
 
         <div className={styles.actions}>
-          <button
-            className={styles.secondary}
-            onClick={() => router.push(`/events/${eventId}`)}
-          >
+          <Link href={`/events/${eventId}`} className={styles.secondary}>
             Voltar ao evento
-          </button>
+          </Link>
         </div>
       </div>
     </div>

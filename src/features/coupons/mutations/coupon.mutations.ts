@@ -24,3 +24,13 @@ export function useDeactivateCouponMutation(orgId?: string) {
     },
   });
 }
+
+export function useActivateCouponMutation(orgId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => couponsService.activate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: couponsKey(orgId) });
+    },
+  });
+}

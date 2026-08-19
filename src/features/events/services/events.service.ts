@@ -1,15 +1,12 @@
 import { httpClient } from '@/lib/http/client';
-import type { CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, RecommendedEventsResponse, TicketProductResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
-
-interface FeedOutput {
-  events: Array<{ event: EventResponse; score: number }>;
-  total: number;
-}
+import type { AccessibilityStatus, CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
 
 export const eventsService = {
-  listEvents: async (filter: ListEventsFilter = 'all'): Promise<EventResponse[]> => {
-    const { data } = await httpClient.get<FeedOutput>('/v1/feed', { params: { filter } });
-    return data.events.map((item) => item.event);
+  listEvents: async (filter: ListEventsFilter = 'all', page = 1, pageSize = 50): Promise<PaginatedEventsResponse> => {
+    const { data } = await httpClient.get<PaginatedEventsResponse>('/events', {
+      params: { filter, page, pageSize },
+    });
+    return data;
   },
 
   getRecommendedEvents: async (): Promise<RecommendedEventsResponse> => {
@@ -19,8 +16,10 @@ export const eventsService = {
     return data;
   },
 
-  searchEvents: async (title: string): Promise<EventResponse[]> => {
-    const { data } = await httpClient.get<EventResponse[]>('/events/search', { params: { title } });
+  searchEvents: async (title: string, page = 1, pageSize = 20): Promise<PaginatedEventsResponse> => {
+    const { data } = await httpClient.get<PaginatedEventsResponse>('/events/search', {
+      params: { title, page, pageSize },
+    });
     return data;
   },
 
@@ -34,8 +33,8 @@ export const eventsService = {
     return data;
   },
 
-  listTicketProducts: async (eventId: string): Promise<TicketProductResponse[]> => {
-    const { data } = await httpClient.get<TicketProductResponse[]>(`/shows/${eventId}/tickets`);
+  listTicketProducts: async (eventId: string): Promise<TicketProductsResponse> => {
+    const { data } = await httpClient.get<TicketProductsResponse>(`/shows/${eventId}/tickets`);
     return data;
   },
 
@@ -58,7 +57,7 @@ export const eventsService = {
     await httpClient.delete(`/shows/${eventId}/tickets/${ticketId}`);
   },
 
-  uploadAsset: async (eventId: string, assetType: 'banner' | 'thumbnail', file: File): Promise<EventResponse> => {
+  uploadAsset: async (eventId: string, assetType: 'banner' | 'thumbnail' | 'teaserVideo', file: File): Promise<EventResponse> => {
     const form = new FormData();
     form.append('file', file);
     const { data } = await httpClient.post<EventResponse>(`/events/${eventId}/assets/${assetType}`, form, {
@@ -98,6 +97,27 @@ export const eventsService = {
 
   finishEvent: async (eventId: string): Promise<EventResponse> => {
     const { data } = await httpClient.patch<EventResponse>(`/events/${eventId}/finish`);
+    return data;
+  },
+
+  resumeLive: async (eventId: string): Promise<EventResponse> => {
+    const { data } = await httpClient.patch<EventResponse>(`/events/${eventId}/resume-live`);
+    return data;
+  },
+
+  // ── Accessibility (NBR 15290 — Libras window) ──────────────────
+  getAccessibility: async (eventId: string): Promise<AccessibilityStatus> => {
+    const { data } = await httpClient.get<AccessibilityStatus>(`/events/${eventId}/accessibility`);
+    return data;
+  },
+
+  setLibrasCamera: async (eventId: string, cameraId: string): Promise<AccessibilityStatus> => {
+    const { data } = await httpClient.patch<AccessibilityStatus>(`/events/${eventId}/libras-camera`, { cameraId });
+    return data;
+  },
+
+  approveAccessibility: async (eventId: string): Promise<AccessibilityStatus> => {
+    const { data } = await httpClient.post<AccessibilityStatus>(`/events/${eventId}/accessibility-approve`);
     return data;
   },
 };

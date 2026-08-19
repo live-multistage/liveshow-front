@@ -29,17 +29,37 @@ export function useViewerTracking(
     const current = new Set(activeCameraIds);
     const joined = joinedRef.current;
 
+    const added: string[] = [];
+    const removed: string[] = [];
+
     for (const cameraId of current) {
       if (!joined.has(cameraId)) {
-        viewerTrackingService.join(eventId, cameraSessionId(baseSessionId, cameraId), cameraId, userId);
+        viewerTrackingService.join(eventId, cameraSessionId(baseSessionId, cameraId), cameraId, baseSessionId, userId);
         joined.add(cameraId);
+        added.push(cameraId);
       }
     }
     for (const cameraId of [...joined]) {
       if (!current.has(cameraId)) {
         viewerTrackingService.leave(eventId, cameraSessionId(baseSessionId, cameraId));
         joined.delete(cameraId);
+        removed.push(cameraId);
       }
+    }
+
+    // One event per grid-change moment (not per camera) — consumers derive
+    // swap vs. pure addition/removal from added.length/removed.length rather
+    // than the frontend pre-classifying the diff. Fires on the initial
+    // mount's empty-to-N join too, which is correct: it's the viewer's
+    // initial camera selection.
+    if (added.length > 0 || removed.length > 0) {
+      track({
+        eventType: 'stream.camera_switched',
+        entityType: 'event',
+        entityId: eventId,
+        userId: userId ?? undefined,
+        properties: { added, removed, gridCameraIds: [...current] },
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId, activeCameraIds.join(','), userId]);
@@ -59,7 +79,7 @@ export function useViewerTracking(
           .then((res) => {
             if (res.status === 404) {
               // session expired on server — re-join
-              viewerTrackingService.join(eventId, sessionId, cameraId, userId);
+              viewerTrackingService.join(eventId, sessionId, cameraId, baseSessionId, userId);
             }
           })
           .catch(() => {});

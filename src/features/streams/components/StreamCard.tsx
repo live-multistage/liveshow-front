@@ -3,7 +3,7 @@
 import type { StreamResponse, StreamStatus } from '../types/stream.types';
 import styles from './StreamCard.module.scss';
 
-const STATUS_LABEL: Record<StreamStatus, string> = {
+export const STATUS_LABEL: Record<StreamStatus, string> = {
   DRAFT:     'RASCUNHO',
   READY:     'PRONTO',
   LIVE:      'AO VIVO',

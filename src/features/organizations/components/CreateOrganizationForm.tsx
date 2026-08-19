@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export function CreateOrganizationForm({ onSuccess }: Props) {
+  const t = useTranslations('organizations');
   const {
     register,
     handleSubmit,
@@ -41,7 +43,7 @@ export function CreateOrganizationForm({ onSuccess }: Props) {
   return (
     <form onSubmit={handleSubmit((v) => mutation.mutate({ name: v.name, slug: v.slug }))} className={styles.form}>
       <div className={styles.field}>
-        <label className={styles.label}>Nome da Organização *</label>
+        <label className={styles.label}>{t('nameLabel')}</label>
         <input
           {...register('name', {
             onChange: (e) => onNameChange(e.target.value),
@@ -53,7 +55,7 @@ export function CreateOrganizationForm({ onSuccess }: Props) {
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>Slug (URL única) *</label>
+        <label className={styles.label}>{t('slugLabel')}</label>
         <div className={styles.slugWrapper}>
           <span className={styles.slugPrefix}>@</span>
           <input
@@ -71,7 +73,7 @@ export function CreateOrganizationForm({ onSuccess }: Props) {
 
       <div className={styles.actions}>
         <button type="submit" className={styles.submit} disabled={mutation.isPending}>
-          {mutation.isPending ? 'Criando...' : 'Criar Organização'}
+          {mutation.isPending ? t('creating') : t('createBtn')}
         </button>
       </div>
     </form>

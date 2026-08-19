@@ -38,6 +38,84 @@ export function useActiveTranscodeJobQuery(cameraId: string, enabled: boolean) {
   });
 }
 
+export interface IngestPreviewCamera {
+  cameraId: string;
+  cameraName: string;
+  stageName: string;
+}
+
+// Pre-live monitor sources: walks the stream's stages → feeds → ingest status
+// and returns every camera currently receiving signal, sorted by priority
+// (primary first). Mirrors useOnAirCamera, but keyed on ingest `live` instead
+// of a RUNNING transcode job — so it resolves at READY, before going live.
+export function useIngestPreviewCameras(streamId: string | null, enabled: boolean): IngestPreviewCamera[] {
+  const stagesQuery = useQuery({
+    queryKey: STREAM_KEYS.stages(streamId ?? ''),
+    queryFn: () => streamsService.listStages(streamId!),
+    enabled: enabled && !!streamId,
+  });
+  const stages = stagesQuery.data ?? [];
+
+  const feedQueries = useQueries({
+    queries: stages.map((stage) => ({
+      queryKey: INGEST_KEYS.onAirFeeds(stage.id),
+      queryFn: async () => ({ feeds: await streamsService.listFeeds(stage.id), stageName: stage.name }),
+      enabled: enabled && stages.length > 0,
+    })),
+  });
+  const feedsWithStage = feedQueries.flatMap((q) =>
+    q.data ? q.data.feeds.map((feed) => ({ feed, stageName: q.data!.stageName })) : [],
+  );
+
+  // Shares INGEST_KEYS.feed(feedId) with useFeedIngestQuery, so the shape stored
+  // MUST stay the bare FeedIngestResponse (mixing a wrapped shape under this key
+  // caused a cache-race crash). stageName is carried by index from feedsWithStage
+  // — useQueries preserves input order.
+  const ingestQueries = useQueries({
+    queries: feedsWithStage.map(({ feed }) => ({
+      queryKey: INGEST_KEYS.feed(feed.id),
+      queryFn: () => streamsService.getFeedIngest(feed.id),
+      enabled: enabled && feedsWithStage.length > 0,
+      refetchInterval: enabled ? 5000 : false,
+    })),
+  });
+
+  const candidates = ingestQueries.flatMap((q, i) =>
+    q.data
+      ? q.data.cameras
+          .filter((c) => c.enabled && c.live)
+          .map((c) => ({ cameraId: c.id, cameraName: c.name, stageName: feedsWithStage[i].stageName, priority: c.priority }))
+      : [],
+  );
+  return candidates
+    .sort((a, b) => a.priority - b.priority)
+    .map(({ cameraId, cameraName, stageName }) => ({ cameraId, cameraName, stageName }));
+}
+
+// Ops stats for the control-room strip (bitrate/latency/health). Polls while
+// the stream is monitorable (READY: ingest stats; LIVE: everything).
+export function useStreamStatsQuery(streamId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['stream-stats', streamId] as const,
+    queryFn: () => streamsService.getStreamStats(streamId),
+    enabled,
+    refetchInterval: enabled ? 5000 : false,
+  });
+}
+
+// Admin LL-HLS preview URL for a camera's raw ingest (works pre-live). The
+// token inside expires in 5 min; refetch on a shorter interval while open so a
+// long-lived preview keeps a fresh token.
+export function useCameraPreviewQuery(cameraId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['camera-preview', cameraId] as const,
+    queryFn: () => streamsService.getCameraPreview(cameraId),
+    enabled,
+    refetchInterval: enabled ? 240_000 : false,
+    staleTime: 240_000,
+  });
+}
+
 // On-demand fetch of the secret OBS credentials. Not auto-polled; `enabled`
 // flips when the user opens the credentials panel.
 export function useCameraIngestQuery(cameraId: string, enabled: boolean) {
@@ -54,6 +132,9 @@ export interface OnAirCamera {
   cameraName: string;
   stageName: string;
   packageId: string;
+  // When the transcode job went RUNNING — the real "on air since" timestamp
+  // that drives the live clock (not page-open time).
+  startedAt: string | null;
 }
 
 // Walks this stream's stages → feeds → cameras and returns the first camera
@@ -107,7 +188,7 @@ export function useOnAirCamera(streamId: string | null, enabled: boolean): {
   jobQueries.forEach((q, i) => {
     if (onAir || !q.data || q.data.status !== 'RUNNING') return;
     const cam = cameras[i];
-    onAir = { cameraId: cam.id, cameraName: cam.name, stageName: cam.stageName, packageId: q.data.packageId };
+    onAir = { cameraId: cam.id, cameraName: cam.name, stageName: cam.stageName, packageId: q.data.packageId, startedAt: q.data.startedAt };
   });
 
   const isLoading =

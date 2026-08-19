@@ -1,11 +1,13 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useMemo } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { createEventSchema, type CreateEventFormValues } from '../../schemas/create-event.schema';
 import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
+import { canManageOrg } from '@/features/organizations/types/organization.types';
 import { useCreateEventWizard } from '../../hooks/use-create-event-wizard';
 import { CreateEventStepper } from './CreateEventStepper';
 import { EventPhotoUploader } from './EventPhotoUploader';
@@ -20,34 +22,42 @@ import styles from './CreateEventForm.module.scss';
 
 interface Props {
   onSuccess?: (event: EventResponse) => void;
+  vodUploadEnabled?: boolean;
 }
 
-export function CreateEventForm({ onSuccess }: Props) {
+export function CreateEventForm({ onSuccess, vodUploadEnabled = false }: Props) {
   const t = useTranslations('createEvent');
-  const { data: orgs = [] } = useMyOrganizationsQuery();
+  const { data: allOrgs = [] } = useMyOrganizationsQuery();
+  // Only orgs the user is OWNER/ADMIN of can host an event (backend enforces
+  // the same); don't let them pick one they'd be 403'd on.
+  const orgs = useMemo(() => allOrgs.filter((o) => canManageOrg(o.role)), [allOrgs]);
 
-  const { register, control, handleSubmit, trigger, formState: { errors } } = useForm<CreateEventFormValues>({
+  const { register, control, handleSubmit, trigger, setValue, formState: { errors } } = useForm<CreateEventFormValues>({
     resolver: zodResolver(createEventSchema),
-    defaultValues: { camerasCount: 1, tags: [] },
+    defaultValues: { camerasCount: 1, tags: [], format: 'LIVE', latencyMode: 'STANDARD', publiclyFunded: false },
   });
 
-  const wizard = useCreateEventWizard(onSuccess);
+  const format = useWatch({ control, name: 'format' });
+
+  const wizard = useCreateEventWizard(format, onSuccess);
   const {
     step, setStep, tickets, setTickets, ticketsError,
     streamConfig, setStreamConfig, createdEvent, mutation,
   } = wizard;
 
   const stepContent: Record<number, React.ReactNode> = {
-    1: <EventInfoStep register={register} errors={errors} orgs={orgs} control={control} />,
+    1: <EventInfoStep register={register} errors={errors} orgs={orgs} control={control} setValue={setValue} vodUploadEnabled={vodUploadEnabled} />,
     2: <EventLocationStep register={register} errors={errors} control={control} />,
-    3: <EventProductionStep register={register} errors={errors} />,
-    4: <EventStreamStep value={streamConfig} onChange={setStreamConfig} />,
+    3: <EventProductionStep register={register} errors={errors} format={format} />,
+    // VOD events skip this step entirely (see useCreateEventWizard advance/back).
+    4: format === 'VOD' ? null : <EventStreamStep value={streamConfig} onChange={setStreamConfig} />,
     5: (
       <EventTicketsStep
         tickets={tickets}
         onTicketsChange={setTickets}
         ticketsError={ticketsError}
         mutationError={mutation.error?.message ?? null}
+        format={format}
       />
     ),
   };
@@ -55,7 +65,7 @@ export function CreateEventForm({ onSuccess }: Props) {
   if (step === 6 && createdEvent) {
     return (
       <>
-        <CreateEventStepper current={6} />
+        <CreateEventStepper current={6} format={format} />
         <EventPhotoUploader event={createdEvent} onDone={wizard.finish} />
       </>
     );
@@ -63,7 +73,7 @@ export function CreateEventForm({ onSuccess }: Props) {
 
   return (
     <div className={styles.wizard}>
-      <CreateEventStepper current={step} onNavigate={setStep} />
+      <CreateEventStepper current={step} format={format} onNavigate={setStep} />
 
       <div className={styles.layout}>
         <form onSubmit={handleSubmit(wizard.submit)} className={styles.form}>

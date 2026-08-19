@@ -5,16 +5,31 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background-color: rgba(8, 8, 10, 0.86);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(12px);
+  background-color: transparent;
+  border-bottom: 1px solid transparent;
+  backdrop-filter: none;
   transition: background-color 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease;
 }
 
+// Home, pre-scroll: floats over the hero, never reserves layout space.
+.navFixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+// Default everywhere except home-before-scroll (see Navbar.tsx's navClassName).
+.navSolid {
+  background-color: rgba(8, 8, 10, 0.86);
+  border-bottom-color: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
+}
+
 .navInner {
-  max-width: 80rem;
+  max-width: none;
   margin: 0 auto;
-  padding: 16px 1.5rem;
+  padding: 16px 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -36,7 +51,7 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
   flex-shrink: 0;
   text-decoration: none;
   color: $text-primary;
@@ -60,7 +75,7 @@
 }
 
 .navLink {
-  color: #c7c7cd;
+  color: $text-primary;
   font-size: 14px;
   text-decoration: none;
   transition: color 0.15s;
@@ -72,7 +87,25 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 4px;
+
+  @media (min-width: $sm) { gap: 14px; }
+}
+
+// Items the phone bar can't afford (notifications, language switcher) — the
+// bar's min-content must stay under ~390px or cart+menu get pushed off-screen.
+.hideMobile {
+  display: none;
+
+  @media (min-width: $sm) {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.mobileLang {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid $border;
 }
 
 .searchBox {
@@ -99,7 +132,7 @@
 
 .iconBtn {
   padding: 0.5rem;
-  color: $muted;
+  color: $text-primary;
   background: none;
   border: none;
   cursor: pointer;
@@ -260,7 +293,7 @@
 .cartBtn {
   position: relative;
   padding: 0.5rem;
-  color: $muted;
+  color: $text-primary;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -291,7 +324,7 @@
 .menuToggle {
   display: flex;
   padding: 0.5rem;
-  color: $muted;
+  color: $text-primary;
   background: none;
   border: none;
   cursor: pointer;

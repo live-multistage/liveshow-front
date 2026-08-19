@@ -2,6 +2,7 @@
 export { OrganizationListPage } from './pages/OrganizationListPage';
 export { CreateOrganizationPage } from './pages/CreateOrganizationPage';
 export { OrganizationDashboardPage } from './pages/OrganizationDashboardPage';
+export { OrganizationAnalyticsPage } from './pages/OrganizationAnalyticsPage';
 export { MembersPage } from './pages/MembersPage';
 export { SettingsPage } from './pages/SettingsPage';
 export { PublicPreviewPage } from './pages/PublicPreviewPage';
@@ -37,6 +38,7 @@ export {
 } from './hooks/use-organizations';
 export { useOrganizationMembers } from './hooks/use-organization-members';
 export { useOrganizationSettings } from './hooks/use-organization-settings';
+export { useOrganizationAnalytics, organizationAnalyticsKey } from './hooks/use-organization-analytics';
 export { useCreateOrganization } from './hooks/use-create-organization';
 export { useUpdateOrganization } from './hooks/use-update-organization';
 export { useInviteMember } from './hooks/use-invite-member';
@@ -61,6 +63,11 @@ export type {
   UpdateMemberRoleRequest,
   UpdateOrganizationSettingsRequest,
 } from './types/organization.types';
+export type {
+  OrganizationAnalyticsResponse,
+  OrganizationAnalyticsFunnel,
+  OrganizationAnalyticsCreatorScores,
+} from './types/organization-analytics.types';
 
 // Legacy (kept for backward compat with /dashboard/organizations routes)
 export { OrganizationsPageContent } from './components/OrganizationsPageContent';

@@ -12,9 +12,10 @@ import styles from './StreamBuilder.module.scss';
 interface Props {
   stage: StageResponse;
   streamStatus: string;
+  eventId: string;
 }
 
-export function StageBody({ stage, streamStatus }: Props) {
+export function StageBody({ stage, streamStatus, eventId }: Props) {
   const { data: feeds = [], isLoading } = useStageFeedsQuery(stage.id);
   const createFeed = useCreateFeedMutation(stage.id);
   const deleteFeed = useDeleteFeedMutation(stage.id);
@@ -56,7 +57,7 @@ export function StageBody({ stage, streamStatus }: Props) {
                 </button>
               )}
             </div>
-            {open && <FeedBody feed={feed} streamStatus={streamStatus} />}
+            {open && <FeedBody feed={feed} streamStatus={streamStatus} eventId={eventId} />}
           </div>
         );
       })}

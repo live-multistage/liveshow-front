@@ -5,11 +5,14 @@ import type {
   CartCheckoutResult,
   CouponPreviewRequest,
   CouponPreviewResult,
+  CartCouponPreviewRequest,
+  CartCouponPreviewResult,
   ProcessPaymentRequest,
   ProcessPaymentResult,
   PaymentMethod,
   PaymentStatusResponse,
   PaymentProvider,
+  ClaimFreeTicketResult,
 } from '../types/checkout.types';
 
 export const checkoutService = {
@@ -26,7 +29,7 @@ export const checkoutService = {
   processPayment: async (payload: ProcessPaymentRequest): Promise<ProcessPaymentResult> => {
     const { data } = await httpClient.post<ProcessPaymentResult>(
       `/payments/sessions/${payload.sessionId}/process`,
-      { provider: payload.provider, currency: payload.currency },
+      { provider: payload.provider },
     );
     return data;
   },
@@ -41,12 +44,23 @@ export const checkoutService = {
     return data;
   },
 
+  previewCartCoupon: async (payload: CartCouponPreviewRequest): Promise<CartCouponPreviewResult> => {
+    const { data } = await httpClient.post<CartCouponPreviewResult>('/coupons/preview-cart', payload);
+    return data;
+  },
+
   createCartSession: async (payload: {
     items: { ticketProductId: string; eventId: string }[];
     provider: PaymentProvider;
     currency?: string;
+    couponCode?: string;
   }): Promise<CartCheckoutResult> => {
     const { data } = await httpClient.post<CartCheckoutResult>('/payments/cart-session', payload);
+    return data;
+  },
+
+  claimFreeTicket: async (ticketProductId: string): Promise<ClaimFreeTicketResult> => {
+    const { data } = await httpClient.post<ClaimFreeTicketResult>('/orders/free-ticket', { ticketProductId });
     return data;
   },
 };

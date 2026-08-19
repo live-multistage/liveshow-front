@@ -1,0 +1,23 @@
+@use '../../../styles/_variables' as *;
+
+// Base PRETA com um halo do gradiente da marca — não o gradiente de capa de
+// evento, que é um preenchimento magenta cheio. Este tile aparece onde uma
+// câmera está ausente: ele tem que recuar, não competir com o conteúdo das
+// câmeras que estão mostrando imagem ao lado.
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 46, 158, 0.16), transparent 62%),
+    radial-gradient(circle at 78% 82%, rgba(155, 123, 255, 0.1), transparent 58%),
+    $bg;
+}
+
+// A logo marca a ausência; ela não é conteúdo. Em opacidade cheia leria como
+// tela de carregamento ou erro.
+.logo {
+  opacity: 0.55;
+}

@@ -1,8 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { Camera } from 'lucide-react';
 import type { Show } from '../../../types/show';
+import { WishlistButton } from '@/features/wishlist/components/WishlistButton';
 import styles from './HomePosterCard.module.scss';
 
 interface SpanPlan {
@@ -17,22 +19,20 @@ interface HomePosterCardProps {
 }
 
 export function HomePosterCard({ show, span }: HomePosterCardProps) {
-  const router = useRouter();
-
-  const priceLabel = show.price === 0 ? 'Gratuito' : `R$ ${Math.round(show.price)}`;
+  const t = useTranslations('home');
+  const priceLabel = show.price === 0 ? t('freePrice') : `R$ ${Math.round(show.price)}`;
   const isFree = show.price === 0;
 
   return (
-    <div
+    <Link
+      href={`/events/${show.id}`}
       className={styles.card}
       style={{ gridColumn: span.gridColumn, gridRow: span.gridRow }}
-      onClick={() => router.push(`/events/${show.id}`)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && router.push(`/events/${show.id}`)}
     >
       <div className={styles.art} style={{ backgroundImage: `url(${show.image})` }} />
       <div className={styles.overlay} />
+
+      <WishlistButton eventId={show.id} variant="overlay" className={styles.wishlistButton} />
 
       <div className={styles.topRow}>
         <div className={styles.badges}>
@@ -53,7 +53,7 @@ export function HomePosterCard({ show, span }: HomePosterCardProps) {
       </div>
 
       <div className={styles.bottom}>
-        <div className={styles.genre}>{show.genre}</div>
+        <div className={styles.genre}>{show.category}</div>
         <div className={styles.title} style={{ fontSize: span.titleSize }}>
           {show.title}
         </div>
@@ -64,6 +64,6 @@ export function HomePosterCard({ show, span }: HomePosterCardProps) {
           <span className={isFree ? styles.priceFree : styles.price}>{priceLabel}</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

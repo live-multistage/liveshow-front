@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { X } from 'lucide-react';
 import styles from './AdBanner.module.scss';
@@ -29,7 +29,6 @@ function gradientFor(id: string): string {
 }
 
 export function AdBanner({ placement, className }: Props) {
-  const router = useRouter();
   const [dismissed, setDismissed] = useState(false);
   const impressionFired = useRef(false);
 
@@ -45,9 +44,9 @@ export function AdBanner({ placement, className }: Props) {
   useEffect(() => {
     if (ad && !impressionFired.current) {
       impressionFired.current = true;
-      advertisementsService.recordImpression(ad.adId);
+      advertisementsService.recordImpression(ad.adId, placement);
     }
-  }, [ad]);
+  }, [ad, placement]);
 
   if (!ad || dismissed) return null;
 
@@ -57,36 +56,70 @@ export function AdBanner({ placement, className }: Props) {
     : gradientFor(ad.adId);
 
   function handleClick() {
-    advertisementsService.recordClick(ad!.adId);
-    if (ad!.eventId) router.push(`/events/${ad!.eventId}`);
+    advertisementsService.recordClick(ad!.adId, placement);
   }
 
-  return (
-    <div
-      className={`${styles.banner} ${isVertical ? styles.bannerV : styles.bannerH} ${className ?? ''}`}
-      style={{ background: bg }}
-      onClick={handleClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && handleClick()}
-      aria-label={`Anúncio: ${ad.title}`}
-    >
+  const bannerClassName = `${styles.banner} ${isVertical ? styles.bannerV : styles.bannerH} ${className ?? ''}`;
+
+  const content = (
+    <>
       <span className={styles.sponsored}>PATROCINADO</span>
 
       <div className={styles.content}>
         <p className={styles.adTitle}>{ad.title}</p>
-        {ad.eventId && (
+        {ad.destination && (
           <span className={styles.cta}>SAIBA MAIS →</span>
         )}
       </div>
 
       <button
         className={styles.closeBtn}
-        onClick={(e) => { e.stopPropagation(); setDismissed(true); }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissed(true); }}
         aria-label="Fechar anúncio"
       >
         <X size={12} />
       </button>
+    </>
+  );
+
+  if (ad.destination?.type === 'EVENT') {
+    return (
+      <Link
+        href={`/events/${ad.destination.eventId}`}
+        className={bannerClassName}
+        style={{ background: bg }}
+        onClick={handleClick}
+        aria-label={`Anúncio: ${ad.title}`}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  if (ad.destination?.type === 'EXTERNAL_URL') {
+    return (
+      <a
+        href={ad.destination.url}
+        target="_blank"
+        rel="noopener sponsored"
+        className={bannerClassName}
+        style={{ background: bg }}
+        onClick={handleClick}
+        aria-label={`Anúncio: ${ad.title}`}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <div
+      className={bannerClassName}
+      style={{ background: bg }}
+      onClick={handleClick}
+      aria-label={`Anúncio: ${ad.title}`}
+    >
+      {content}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { config } from '@/config';
 import { tokenStore } from '@/lib/auth/token-store';
 import { getSessionId } from './session-id';
+import { hasAnalyticsConsent } from './consent';
 
 type TrackParams = {
   eventType: string;
@@ -12,6 +13,8 @@ type TrackParams = {
 
 export function track(params: TrackParams): void {
   if (typeof window === 'undefined') return; // skip SSR
+  // LGPD: no behavioral analytics/profiling without opt-in consent.
+  if (!hasAnalyticsConsent()) return;
 
   const sessionId = getSessionId();
   const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
@@ -19,12 +22,15 @@ export function track(params: TrackParams): void {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-session-id': sessionId,
+    'x-analytics-consent': 'granted', // gate above guarantees consent here
   };
 
   const token = tokenStore.get();
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  fetch(`${config.apiUrl}/v1/analytics/events`, {
+  // apiUrl already ends in /api (the API's global prefix); the controller is
+  // @Controller('analytics'), so there is no extra /v1 segment.
+  fetch(`${config.apiUrl}/analytics/events`, {
     method: 'POST',
     headers,
     body: JSON.stringify({

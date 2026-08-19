@@ -1,9 +1,29 @@
 @use '../../../styles/_variables' as *;
 
+@keyframes lsPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .35; transform: scale(.7); }
+}
+
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 34px;
+}
+
+// ── Header ────────────────────────────────────────────────────────
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+
+  // Mobile: title stacks above a full-width primary CTA (design pattern).
+  @media (max-width: 720px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .titles {
@@ -12,7 +32,7 @@
 }
 
 .upperSubTitle {
-  font-family: 'Space Mono',monospace;
+  font-family: 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .16em;
   color: #ff7ec2;
@@ -20,78 +40,135 @@
 }
 
 .heading {
-  font-size: 2rem;
+  font-size: 32px;
   font-weight: 800;
   letter-spacing: -.02em;
   font-family: 'Archivo', sans-serif;
-  color: $text-primary;
+  color: #f4f4f5;
+  margin: 0;
 }
 
-.header {
+.headerRight {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
   align-items: center;
+  gap: 14px;
+
+  // The updated-indicator is hidden < 720px, leaving only the CTA — stretch it.
+  @media (max-width: 720px) {
+    width: 100%;
+    button { width: 100%; }
+  }
 }
 
-.actions {
-  display: flex;
+.updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .04em;
+  color: #7d7d85;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color .15s;
+
+  &:hover:not(:disabled) { color: #b9b9c0; }
+  &:disabled { cursor: default; }
+
+  @media (max-width: 720px) { display: none; }
 }
 
+.pulseDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7fe0a0;
+  animation: lsPulse 1.6s infinite;
+  flex-shrink: 0;
+}
+
+// While a (re)fetch is in flight — amber + faster pulse.
+.pulseDotBusy {
+  background: #ffb020;
+  animation-duration: .7s;
+}
+
+// ── KPI grid ──────────────────────────────────────────────────────
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
+  // Admin/organizer (6 KPIs) render 6-up per the spec; artist (4 KPIs) fills
+  // its own row. auto-fit keeps every count balanced and wraps on narrow.
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
 }
 
 .card {
-  background-color: $surface;
-  border: 1px solid $border;
-  border-radius: 8px;
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  position: relative;
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  overflow: hidden;
+}
+
+// Radial glow off the top-right corner (magenta) — only the live KPI.
+.cardGlow {
+  position: absolute;
+  top: -40px;
+  right: -30px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, .25), transparent 70%);
+  pointer-events: none;
+}
+
+.cardBody {
+  position: relative;
 }
 
 .cardValue {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: $text-primary;
-  font-family: 'Archivo', sans-serif;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -.03em;
   line-height: 1;
+  color: #f4f4f5;
+  font-family: 'Archivo', sans-serif;
+  margin: 0;
 }
 
-.cardValueLive {
-  color: $action;
-}
+.cardValueLive  { color: #ff2e9e; }
+.cardValueMuted { color: #5a5a62; }
 
 .cardLabel {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: $text-secondary;
-  font-family: 'Archivo', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: #cfcfd6;
+  margin: 14px 0 6px;
 }
 
 .cardHint {
-  font-size: 0.75rem;
-  color: $text-muted;
+  font-size: 12px;
+  color: #7d7d85;
+  line-height: 1.35;
+  margin: 0;
 }
 
 .valueSkeleton {
-  height: 2.25rem;
+  height: 42px;
   width: 3rem;
   border-radius: 4px;
 }
 
-// ── Events section ────────────────────────────────────────────────
+// ── Sections ──────────────────────────────────────────────────────
 .section {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-top: 0.5rem;
+  gap: 16px;
 }
 
 .sectionHeader {
@@ -101,46 +178,54 @@
 }
 
 .sectionTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  letter-spacing: .16em;
+  color: #fff;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: $text-primary;
   margin: 0;
 }
 
 .viewAll {
-  font-size: 0.8rem;
-  color: $text-secondary;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  letter-spacing: .05em;
+  color: #ff2e9e;
   text-decoration: none;
-  transition: color 0.15s;
+  transition: opacity 0.15s;
 
-  &:hover {
-    color: $text-primary;
-  }
+  &:hover { opacity: .8; }
 }
 
+// ── Recent events grid ────────────────────────────────────────────
 .eventsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+
+  @media (max-width: 1000px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 620px)  { grid-template-columns: 1fr; }
 }
 
 .eventsEmpty {
-  font-size: 0.875rem;
-  color: $text-muted;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #7d7d85;
   padding: 2rem 0;
   text-align: center;
 }
 
 .eventsSkeletonList {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+
+  @media (max-width: 1000px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 620px)  { grid-template-columns: 1fr; }
 }
 
 .eventSkeleton {
-  height: 130px;
-  border-radius: 10px;
+  height: 210px;
+  border-radius: 16px;
 }

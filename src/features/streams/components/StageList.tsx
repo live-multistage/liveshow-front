@@ -11,9 +11,10 @@ import styles from './StreamBuilder.module.scss';
 interface Props {
   streamId: string;
   streamStatus: string;
+  eventId: string;
 }
 
-export function StageList({ streamId, streamStatus }: Props) {
+export function StageList({ streamId, streamStatus, eventId }: Props) {
   const { data: stages = [], isLoading } = useStreamStagesQuery(streamId);
   const createStage = useCreateStageMutation(streamId);
   const deleteStage = useDeleteStageMutation(streamId);
@@ -71,7 +72,7 @@ export function StageList({ streamId, streamStatus }: Props) {
                 </button>
               )}
             </div>
-            {open && <StageBody stage={stage} streamStatus={streamStatus} />}
+            {open && <StageBody stage={stage} streamStatus={streamStatus} eventId={eventId} />}
           </div>
         );
       })}

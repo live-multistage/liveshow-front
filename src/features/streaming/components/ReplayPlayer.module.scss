@@ -60,6 +60,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  text-decoration: none;
   flex-shrink: 0;
   transition: background-color 0.15s;
 
@@ -105,6 +106,23 @@
   transition: background-color 0.15s;
 
   &:hover { background-color: rgba(255, 255, 255, 0.12); }
+}
+
+.iconBtn {
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid $border;
+  color: $text-secondary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s, background-color 0.15s;
+
+  &:hover { color: $text-primary; background-color: rgba(255, 255, 255, 0.12); }
 }
 
 .centerPlayOverlay {

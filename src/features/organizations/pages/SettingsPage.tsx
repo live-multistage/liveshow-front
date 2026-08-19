@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { X } from 'lucide-react';
@@ -9,6 +10,7 @@ import { OrganizationForm } from '../components/OrganizationForm';
 import { OrganizationLogoUploader } from '../components/OrganizationLogoUploader';
 import { OrganizationBannerUploader } from '../components/OrganizationBannerUploader';
 import { StripeConnectSection } from '../components/StripeConnectSection';
+import { LedgerBalanceSection } from '../components/LedgerBalanceSection';
 import { useOrganization } from '../hooks/use-organizations';
 import { useOrganizationSettings } from '../hooks/use-organization-settings';
 import { useUpdateOrganization } from '../hooks/use-update-organization';
@@ -22,6 +24,7 @@ interface Props {
 type StripeBannerState = 'complete' | 'refresh' | null;
 
 export function SettingsPage({ organizationId }: Props) {
+  const t = useTranslations('organizations');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -53,7 +56,7 @@ export function SettingsPage({ organizationId }: Props) {
 
   if (orgLoading) return <p className={styles.state}>Carregando...</p>;
   if (orgError || !org) {
-    return <p className={`${styles.state} ${styles.stateError}`}>Organização não encontrada.</p>;
+    return <p className={`${styles.state} ${styles.stateError}`}>{t('notFoundOrg')}</p>;
   }
 
   const isOwner = user?.id === org.ownerId;
@@ -64,7 +67,7 @@ export function SettingsPage({ organizationId }: Props) {
 
       <div className={styles.sections}>
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Geral</h2>
+          <h2 className={styles.sectionTitle}>{t('sectionGeneral')}</h2>
           <div className={styles.sectionBody}>
             <OrganizationForm
               defaultValues={{
@@ -75,7 +78,7 @@ export function SettingsPage({ organizationId }: Props) {
               onSubmit={handleGeneralSubmit}
               isPending={updateMutation.isPending}
               error={updateMutation.error?.message}
-              submitLabel="Salvar Alterações"
+              submitLabel={t('saveChanges')}
               organizationId={organizationId}
               initialSlug={org.slug}
             />
@@ -83,7 +86,7 @@ export function SettingsPage({ organizationId }: Props) {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Identidade Visual</h2>
+          <h2 className={styles.sectionTitle}>{t('sectionVisual')}</h2>
           <div className={styles.sectionBody}>
             <div className={styles.brandingGrid}>
               <OrganizationLogoUploader
@@ -99,14 +102,14 @@ export function SettingsPage({ organizationId }: Props) {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Informações de Contato</h2>
+          <h2 className={styles.sectionTitle}>{t('sectionContact')}</h2>
           <div className={styles.sectionBody}>
             <ContactSettingsForm settings={settings} orgId={organizationId} />
           </div>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Informações de Identidade</h2>
+          <h2 className={styles.sectionTitle}>{t('sectionIdentity')}</h2>
           <div className={styles.sectionBody}>
             <IdentitySettingsForm settings={settings} orgId={organizationId} />
           </div>
@@ -114,7 +117,7 @@ export function SettingsPage({ organizationId }: Props) {
 
         {isOwner && (
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Recebimentos (Stripe)</h2>
+            <h2 className={styles.sectionTitle}>{t('sectionPayouts')}</h2>
             {stripeBanner && (
               <div
                 className={styles.banner}
@@ -122,13 +125,13 @@ export function SettingsPage({ organizationId }: Props) {
               >
                 <span>
                   {stripeBanner === 'complete'
-                    ? 'Conta Stripe conectada com sucesso!'
-                    : 'Link expirado. Clique em continuar para tentar novamente.'}
+                    ? t('stripeConnected')
+                    : t('stripeLinkExpired')}
                 </span>
                 <button
                   className={styles.bannerClose}
                   onClick={() => setStripeBanner(null)}
-                  aria-label="Fechar"
+                  aria-label={t('close')}
                 >
                   <X size={14} />
                 </button>
@@ -136,6 +139,7 @@ export function SettingsPage({ organizationId }: Props) {
             )}
             <div className={styles.sectionBody}>
               <StripeConnectSection orgId={organizationId} />
+              <LedgerBalanceSection orgId={organizationId} />
             </div>
           </section>
         )}
@@ -150,11 +154,12 @@ function ContactSettingsForm({
   settings?: ReturnType<typeof useOrganizationSettings>['data'];
   orgId: string;
 }) {
+  const t = useTranslations('organizations');
   return (
     <div className={styles.fieldGrid}>
-      <Field label="E-mail" name="email" defaultValue={settings?.email} />
-      <Field label="E-mail de Suporte" name="supportEmail" defaultValue={settings?.supportEmail} />
-      <Field label="Telefone" name="phone" defaultValue={settings?.phone} />
+      <Field label={t('fieldEmail')} name="email" defaultValue={settings?.email} />
+      <Field label={t('fieldSupportEmail')} name="supportEmail" defaultValue={settings?.supportEmail} />
+      <Field label={t('fieldPhone')} name="phone" defaultValue={settings?.phone} />
     </div>
   );
 }
@@ -165,14 +170,15 @@ function IdentitySettingsForm({
   settings?: ReturnType<typeof useOrganizationSettings>['data'];
   orgId: string;
 }) {
+  const t = useTranslations('organizations');
   return (
     <div className={styles.fieldGrid}>
-      <Field label="Razão Social" name="legalName" defaultValue={settings?.legalName} />
-      <Field label="CNPJ / Documento" name="documentNumber" defaultValue={settings?.documentNumber} />
-      <Field label="País" name="country" defaultValue={settings?.country} />
-      <Field label="Estado" name="state" defaultValue={settings?.state} />
-      <Field label="Cidade" name="city" defaultValue={settings?.city} />
-      <Field label="Fuso Horário" name="timezone" defaultValue={settings?.timezone} />
+      <Field label={t('fieldLegalName')} name="legalName" defaultValue={settings?.legalName} />
+      <Field label={t('fieldDocument')} name="documentNumber" defaultValue={settings?.documentNumber} />
+      <Field label={t('fieldCountry')} name="country" defaultValue={settings?.country} />
+      <Field label={t('fieldState')} name="state" defaultValue={settings?.state} />
+      <Field label={t('fieldCity')} name="city" defaultValue={settings?.city} />
+      <Field label={t('fieldTimezone')} name="timezone" defaultValue={settings?.timezone} />
     </div>
   );
 }

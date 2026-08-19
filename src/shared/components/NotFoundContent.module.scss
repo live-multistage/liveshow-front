@@ -1,0 +1,166 @@
+@use '../../styles/_variables' as *;
+
+.main {
+  flex: 1;
+  min-height: calc(100vh - 72px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  position: relative;
+  // Os halos estouram a viewport de propósito; sem isto viram barra de rolagem.
+  overflow: hidden;
+
+  @media (max-width: $md) {
+    padding: 40px 20px;
+  }
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.glowPink {
+  top: -220px;
+  right: -180px;
+  width: 560px;
+  height: 560px;
+  background: radial-gradient(circle, rgba(255, 46, 158, 0.14), transparent 65%);
+}
+
+.glowViolet {
+  bottom: -260px;
+  left: -200px;
+  width: 620px;
+  height: 620px;
+  background: radial-gradient(circle, rgba(155, 123, 255, 0.1), transparent 65%);
+}
+
+.content {
+  position: relative;
+  text-align: center;
+  max-width: 640px;
+}
+
+.equalizer {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 7px;
+  height: 44px;
+  margin-bottom: 34px;
+}
+
+.bar {
+  width: 7px;
+  border-radius: 4px;
+  background: var(--primary);
+  transform-origin: bottom;
+  animation: notFoundBars 1.1s ease-in-out infinite;
+
+  // Barras pulsando são o único movimento da página; para quem pediu menos
+  // movimento elas param, mas continuam desenhando a marca.
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes notFoundBars {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.35);
+  }
+}
+
+.eyebrow {
+  margin: 0 0 18px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: #ff8ec9;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(3.5rem, 9vw, 6rem);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  // O desenho quebra o título em duas linhas. Um <br> fixo só funcionaria em
+  // português; balance distribui as linhas sozinho em qualquer idioma.
+  text-wrap: balance;
+}
+
+.description {
+  margin: 22px auto 0;
+  font-size: 1.03rem;
+  line-height: 1.6;
+  color: $text-muted;
+  max-width: 440px;
+  text-wrap: pretty;
+}
+
+.actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 38px;
+  flex-wrap: wrap;
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+}
+
+.primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 700;
+  padding: 15px 30px;
+  font-size: 0.9375rem;
+
+  &:hover {
+    background: #ff5fb4;
+    color: var(--primary-foreground);
+  }
+}
+
+.secondary {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--foreground);
+  padding: 15px 26px;
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  &:hover {
+    border-color: rgba(255, 46, 158, 0.4);
+    color: var(--foreground);
+  }
+}
+
+.help {
+  margin: 44px 0 0;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.719rem;
+  letter-spacing: 0.06em;
+  color: #6f6f77;
+}
+
+.helpLink {
+  font-weight: 700;
+  color: var(--primary);
+
+  &:hover {
+    color: #ff5fb4;
+  }
+}

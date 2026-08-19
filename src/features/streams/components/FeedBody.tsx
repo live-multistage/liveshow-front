@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Video, Play } from 'lucide-react';
+import { Video, Play, HandMetal } from 'lucide-react';
 import { useFeedCamerasQuery } from '../queries/streams.queries';
 import { useFeedIngestQuery, useActiveTranscodeJobQuery } from '../queries/ingest.queries';
 import { useCreateCameraMutation, useToggleCameraMutation } from '../mutations/camera.mutations';
+import { useAccessibilityQuery, useSetLibrasCameraMutation } from '@/features/events/queries/get-accessibility';
 import type { CameraResponse, FeedResponse } from '../types/stream.types';
 import { InlineAddForm } from './InlineAddForm';
 import { IngestCredentials } from './IngestCredentials';
@@ -15,20 +16,27 @@ import styles from './StreamBuilder.module.scss';
 interface Props {
   feed: FeedResponse;
   streamStatus: string;
+  eventId: string;
 }
 
 // One camera row: name + priority + signal/transcode badges + live preview +
 // OBS credentials + enable/disable (allowed live).
 function CameraRow({
-  cam, feedId, isLiveStream, onPreview,
+  cam, feedId, eventId, isLiveStream, canMonitor, publiclyFunded, isLibras, onPreview,
 }: {
   cam: CameraResponse;
   feedId: string;
+  eventId: string;
   isLiveStream: boolean;
+  // READY or LIVE — the states where MediaMTX will serve the ingest.
+  canMonitor: boolean;
+  publiclyFunded: boolean;
+  isLibras: boolean;
   onPreview: (packageId: string) => void;
 }) {
   const toggleCamera = useToggleCameraMutation(feedId);
-  const { data: ingest } = useFeedIngestQuery(feedId, isLiveStream);
+  const setLibras = useSetLibrasCameraMutation(eventId);
+  const { data: ingest } = useFeedIngestQuery(feedId, canMonitor);
   const { data: job } = useActiveTranscodeJobQuery(cam.id, isLiveStream);
 
   const live = ingest?.cameras.find((c) => c.id === cam.id)?.live ?? false;
@@ -39,7 +47,7 @@ function CameraRow({
         <span className={`${styles.cameraDot} ${cam.enabled ? styles.enabled : ''}`} />
         <span className={styles.cameraName}>{cam.name}</span>
         <span className={styles.cameraPriority}>p:{cam.priority}</span>
-        {isLiveStream && <SignalBadge live={live} jobStatus={job?.status} />}
+        {canMonitor && <SignalBadge live={live} jobStatus={job?.status} />}
 
         {isLiveStream && job?.status === 'RUNNING' && (
           <button
@@ -48,6 +56,19 @@ function CameraRow({
             title="Pré-visualizar"
           >
             <Play size={12} />
+          </button>
+        )}
+        {/* NBR 15290 — mark this camera as the mandatory Janela de Libras.
+            Only relevant on publicly-funded events. */}
+        {publiclyFunded && (
+          <button
+            className={`${styles.iconBtn} ${isLibras ? styles.success : ''}`}
+            onClick={() => !isLibras && setLibras.mutate(cam.id)}
+            disabled={setLibras.isPending}
+            title={isLibras ? 'Janela de Libras (marcada)' : 'Marcar como Janela de Libras'}
+            aria-pressed={isLibras}
+          >
+            <HandMetal size={12} />
           </button>
         )}
         <button
@@ -63,10 +84,14 @@ function CameraRow({
   );
 }
 
-export function FeedBody({ feed, streamStatus }: Props) {
+export function FeedBody({ feed, streamStatus, eventId }: Props) {
   const { data: cameras = [], isLoading } = useFeedCamerasQuery(feed.id);
+  const { data: accessibility } = useAccessibilityQuery(eventId);
   const createCamera = useCreateCameraMutation(feed.id);
   const isLive = streamStatus === 'LIVE';
+  // READY or LIVE: MediaMTX accepts the OBS push and serves the ingest, so the
+  // signal badge + pre-live preview can work.
+  const canMonitor = isLive || streamStatus === 'READY';
   const isTerminal = streamStatus === 'ENDED' || streamStatus === 'CANCELLED';
   const canAddCamera = !isTerminal;
   const [previewPkg, setPreviewPkg] = useState<string | null>(null);
@@ -82,7 +107,11 @@ export function FeedBody({ feed, streamStatus }: Props) {
           key={cam.id}
           cam={cam}
           feedId={feed.id}
+          eventId={eventId}
           isLiveStream={isLive}
+          canMonitor={canMonitor}
+          publiclyFunded={!!accessibility?.publiclyFunded}
+          isLibras={accessibility?.librasCameraId === cam.id}
           onPreview={setPreviewPkg}
         />
       ))}

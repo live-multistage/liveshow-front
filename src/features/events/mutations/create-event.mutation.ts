@@ -15,6 +15,7 @@ export function useCreateEventMutation(onSuccess?: (event: EventResponse) => voi
     mutationFn: async ({ event, tickets }) => {
       try {
         const created = await eventsService.create(event);
+        // Free tiers are just tickets with price 0 — created like any other.
         await Promise.all(tickets.map((t) => eventsService.createTicket(created.id, t)));
         return created;
       } catch (err) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ShoppingBag } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useListEventsQuery, eventToShow, ShowCard } from '@/features/events';
@@ -9,7 +9,6 @@ import { useTickets } from '../hooks/use-tickets';
 import styles from '../../../app/(user)/tickets/page.module.scss';
 
 export function MyTicketsPageContent() {
-  const router = useRouter();
   const t = useTranslations('tickets');
   const { tickets, withReplay, withoutReplay, withCamera, isLoading } = useTickets();
   const { data: events = [] } = useListEventsQuery('all');
@@ -63,9 +62,9 @@ export function MyTicketsPageContent() {
             </div>
             <h3 className={styles.emptyTitle}>{t('empty.title')}</h3>
             <p className={styles.emptyDesc}>{t('empty.desc')}</p>
-            <button onClick={() => router.push('/')} className={styles.emptyBtn}>
+            <Link href="/" className={styles.emptyBtn}>
               {t('empty.cta')}
-            </button>
+            </Link>
           </div>
         ) : (
           <>
@@ -83,9 +82,9 @@ export function MyTicketsPageContent() {
                     <div className={styles.recoLabel}>{t('recommendations.title')}</div>
                     <p className={styles.recoSub}>{t('recommendations.subtitle')}</p>
                   </div>
-                  <button onClick={() => router.push('/')} className={styles.recoLink}>
+                  <Link href="/" className={styles.recoLink}>
                     VER TODOS →
-                  </button>
+                  </Link>
                 </div>
                 <div className={styles.recoGrid}>
                   {upcomingShows.map((show) => (

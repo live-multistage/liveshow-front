@@ -71,3 +71,13 @@ next-env.d.ts
 .worktrees/
 
 certificates
+# local prod-HTTPS server (run: pnpm build && node server.mjs)
+server.mjs
+
+# tooling / skill scratch
+.impeccable/
+
+# tooling state (local only)
+.claude/
+.codegraph/
+*.code-workspace

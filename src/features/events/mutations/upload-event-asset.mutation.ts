@@ -6,7 +6,7 @@ import { normalizeError, type AppError } from '@/lib/http/errors';
 import type { EventPhotoResponse, EventResponse } from '../types/event.types';
 
 export function useUploadAssetMutation(eventId: string) {
-  return useMutation<EventResponse, AppError, { assetType: 'banner' | 'thumbnail'; file: File }>({
+  return useMutation<EventResponse, AppError, { assetType: 'banner' | 'thumbnail' | 'teaserVideo'; file: File }>({
     mutationFn: async ({ assetType, file }) => {
       try {
         return await eventsService.uploadAsset(eventId, assetType, file);

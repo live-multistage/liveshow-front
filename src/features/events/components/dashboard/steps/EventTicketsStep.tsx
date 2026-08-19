@@ -1,4 +1,5 @@
 import { TicketSection, type AddedTicket } from '../TicketSection';
+import type { EventFormat } from '../../../types/event.types';
 import styles from '../CreateEventForm.module.scss';
 
 interface Props {
@@ -6,13 +7,18 @@ interface Props {
   onTicketsChange: (tickets: AddedTicket[]) => void;
   ticketsError: string | null;
   mutationError: string | null;
+  format?: EventFormat;
 }
 
-export function EventTicketsStep({ tickets, onTicketsChange, ticketsError, mutationError }: Props) {
+// Free tiers are just tickets with price R$ 0 — added like any other ticket.
+export function EventTicketsStep({
+  tickets, onTicketsChange, ticketsError, mutationError, format,
+}: Props) {
   return (
     <section className={styles.section}>
-      <TicketSection tickets={tickets} onChange={onTicketsChange} />
+      <TicketSection tickets={tickets} onChange={onTicketsChange} format={format} />
       {ticketsError && <p className={styles.error}>{ticketsError}</p>}
+
       {mutationError && (
         <p className={`${styles.error} ${styles.globalError}`}>{mutationError}</p>
       )}

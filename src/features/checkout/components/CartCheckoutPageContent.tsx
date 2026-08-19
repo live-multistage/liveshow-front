@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Shield, AlertCircle, Check, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
 import { useAuth } from '@/features/account';
 import { useCartQuery, CAPABILITY_LABELS, type CartLineView } from '@/features/cart';
+import { groupCartByCurrency } from '../utils/group-cart-by-currency';
 import { checkoutService } from '../services/checkout.service';
 import { usePaymentMethodsQuery } from '../mutations/checkout.mutations';
 import type { PaymentProvider } from '../types/checkout.types';
@@ -15,18 +18,58 @@ import styles from './CheckoutPageContent.module.scss';
 import cartStyles from './CartCheckoutPageContent.module.scss';
 
 export function CartCheckoutPageContent() {
-  const router = useRouter();
+  const t = useTranslations('checkout');
   const { isLoggedIn, isLoading: authLoading } = useAuth();
   const { data: cart, isLoading: cartLoading } = useCartQuery();
+  const router = useRouter();
+
+  // Checkout requires auth. Instead of rendering a blank page, send guests to
+  // login and bring them straight back here after they sign in.
+  useEffect(() => {
+    if (!authLoading && !isLoggedIn) {
+      router.replace(`/login?redirect=${encodeURIComponent('/checkout')}`);
+    }
+  }, [authLoading, isLoggedIn, router]);
 
   const items = cart?.items ?? [];
   const totalAmount = cart?.totals.total ?? 0;
 
+  // A mixed-currency cart has no single valid total — the backend already
+  // charges one Stripe session per currency group (see handlePay below), so
+  // the display groups the same way instead of summing incompatible amounts.
+  const currencyGroups = groupCartByCurrency(items);
+  const isMixedCurrency = currencyGroups.length > 1;
+  const singleCurrency = currencyGroups[0]?.currency ?? 'BRL';
+
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState(false);
+  const [coupon, setCoupon] = useState<{ code: string; discountAmount: number; eligibleEventIds: string[] } | null>(null);
 
   const paymentMethods = usePaymentMethodsQuery();
+
+  // Which currency group the applied coupon's discount belongs to — the
+  // backend only ever validates a coupon against one currency's events
+  // (eligibleEventIds), so attribute the discount line to that group only.
+  const couponCurrency = coupon
+    ? (items.find((i) => coupon.eligibleEventIds.includes(i.eventId))?.currency ?? singleCurrency)
+    : null;
+
+  // Coupon applied on the cart page travels here via sessionStorage;
+  // re-validate against the server so a stale/expired code is dropped silently.
+  useEffect(() => {
+    const raw = typeof window !== 'undefined' ? sessionStorage.getItem('cart:coupon') : null;
+    if (!raw || items.length === 0) return;
+    const { code } = JSON.parse(raw) as { code: string };
+    checkoutService
+      .previewCartCoupon({ code, items: items.map((i) => ({ eventId: i.eventId, amount: i.price })) })
+      .then((r) => setCoupon({ code, discountAmount: r.discountAmount, eligibleEventIds: r.eligibleEventIds }))
+      .catch(() => {
+        sessionStorage.removeItem('cart:coupon');
+        setCoupon(null);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
 
   const selectedMethod = paymentMethods.data?.find((m) => m.id === selectedMethodId);
 
@@ -38,8 +81,22 @@ export function CartCheckoutPageContent() {
       const result = await checkoutService.createCartSession({
         items: items.map((i) => ({ ticketProductId: i.ticketProductId, eventId: i.eventId })),
         provider: selectedMethod.provider as PaymentProvider,
+        couponCode: coupon?.code,
       });
-      window.location.href = result.url;
+      const [first, ...rest] = result.sessions;
+      if (!first) {
+        setPayError(true);
+        setPaying(false);
+        return;
+      }
+      // ponytail: client-side sessionStorage queue for the remaining per-currency
+      // groups. If the buyer clears storage mid-flow they stop auto-redirecting,
+      // but every group's orders are already persisted server-side, so they can
+      // finish the remaining groups later from the purchases page. Upgrade path:
+      // derive pending groups from unpaid orders server-side if that ever bites.
+      sessionStorage.setItem('checkout:pendingSessions', JSON.stringify(rest));
+      sessionStorage.removeItem('cart:coupon');
+      window.location.href = first.url;
     } catch {
       setPayError(true);
       setPaying(false);
@@ -66,10 +123,10 @@ export function CartCheckoutPageContent() {
       <div className={styles.page}>
         <div className={styles.error}>
           <AlertCircle size={32} />
-          <p>Seu carrinho está vazio.</p>
-          <button onClick={() => router.push('/events')} className={styles.backBtn}>
+          <p>{t('emptyCart')}</p>
+          <Link href="/events" className={styles.backBtn}>
             Explorar eventos
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -81,7 +138,7 @@ export function CartCheckoutPageContent() {
         <h1 className={styles.title}>Finalizar compra</h1>
 
         {payError && (
-          <div className={styles.error} style={{ marginBottom: '1rem' }}>
+          <div className={styles.error} style={{ marginBottom: '1rem' }} role="alert">
             <AlertCircle size={20} />
             <p>Erro ao iniciar pagamento. Tente novamente.</p>
           </div>
@@ -102,7 +159,11 @@ export function CartCheckoutPageContent() {
               disabled={!selectedMethodId || paying || items.length === 0}
               aria-busy={paying}
             >
-              {paying ? 'Processando…' : `Pagar ${formatPrice(totalAmount)}`}
+              {paying
+                ? 'Processando…'
+                : isMixedCurrency
+                ? t('payButtonNeutral')
+                : `Pagar ${formatPrice(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)), singleCurrency)}`}
             </button>
 
             <div className={styles.secure}>
@@ -118,18 +179,42 @@ export function CartCheckoutPageContent() {
 
             <AdBanner placement="CHECKOUT" />
 
-            <div className={cartStyles.totals}>
-              {(cart?.totals.lines ?? []).map((line) => (
-                <div key={line.key} className={cartStyles.totalRow}>
-                  <span>{line.label}</span>
-                  <span>{formatPrice(line.amount)}</span>
-                </div>
-              ))}
-              <div className={cartStyles.totalRow}>
-                <span>Total</span>
-                <span className={cartStyles.totalValue}>{formatPrice(totalAmount)}</span>
+            {isMixedCurrency ? (
+              <div className={cartStyles.totals} data-testid="mixed-currency-totals">
+                {currencyGroups.map((group) => {
+                  const discount = couponCurrency === group.currency ? (coupon?.discountAmount ?? 0) : 0;
+                  return (
+                    <div key={group.currency} className={cartStyles.totalRow}>
+                      <span>{t('subtotal')} ({group.currency})</span>
+                      <span className={cartStyles.totalValue}>
+                        {formatPrice(Math.max(0, group.subtotal - discount), group.currency)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
+            ) : (
+              <div className={cartStyles.totals}>
+                {(cart?.totals.lines ?? []).map((line) => (
+                  <div key={line.key} className={cartStyles.totalRow}>
+                    <span>{line.label}</span>
+                    <span>{formatPrice(line.amount, singleCurrency)}</span>
+                  </div>
+                ))}
+                {coupon && (
+                  <div className={cartStyles.totalRow}>
+                    <span>Cupom {coupon.code}</span>
+                    <span>−{formatPrice(coupon.discountAmount, singleCurrency)}</span>
+                  </div>
+                )}
+                <div className={cartStyles.totalRow}>
+                  <span>Total</span>
+                  <span className={cartStyles.totalValue}>
+                    {formatPrice(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)), singleCurrency)}
+                  </span>
+                </div>
+              </div>
+            )}
           </aside>
         </div>
       </div>
@@ -146,7 +231,7 @@ function CartItemCard({ item }: { item: CartLineView }) {
       </div>
       <div className={cartStyles.itemBody}>
         <p className={cartStyles.itemTicket}>{item.ticketName}</p>
-        <span className={cartStyles.itemPrice}>{formatPrice(item.price)}</span>
+        <span className={cartStyles.itemPrice}>{formatPrice(item.price, item.currency)}</span>
       </div>
       {item.capabilities.length > 0 && (
         <ul className={cartStyles.itemCaps}>

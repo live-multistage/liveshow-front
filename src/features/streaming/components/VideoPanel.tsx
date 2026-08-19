@@ -1,18 +1,25 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import Hls from 'hls.js';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Maximize2, Volume2, VolumeX } from 'lucide-react';
-import { config } from '@/config';
-import { tokenStore } from '@/lib/auth/token-store';
+import { track } from '@/lib/analytics/analytics-client';
 import type { LiveCamera } from '../types/live.types';
+import { useHlsPlayer } from '../hooks/use-hls-player';
+import type { QualityLevel } from '../hooks/use-hls-player';
+import { useTransportControls } from '../hooks/use-transport-controls';
+import type { LiveSeekCommand, LiveWindow } from '../hooks/use-transport-controls';
+import { useClockSync } from '../hooks/use-clock-sync';
+import type { ClockRole, ClockSample } from '../hooks/use-clock-sync';
+import type { MutableRefObject } from 'react';
+import type { ReplaySegmentCoverage } from '../utils/replay-timeline';
+import { CameraPlaceholder } from './CameraPlaceholder';
 import styles from './VideoPanel.module.scss';
 
-export interface QualityLevel {
-  index: number;
-  height: number;
-}
+// Re-exported so existing importers (CameraGrid, tests) keep their paths.
+export { playBestEffort } from '../hooks/use-hls-player';
+export type { QualityLevel } from '../hooks/use-hls-player';
 
 interface VideoPanelProps {
   camera: LiveCamera;
@@ -22,6 +29,17 @@ interface VideoPanelProps {
   showLabel?: boolean;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
+  // Camera whose audio track should play through this panel's hls instance
+  // (live AND replay — both use hls.js; only Safari's native HLS path, which
+  // has no hls instance, is a no-op). Only the primary/unmuted panel gets
+  // this — see Task 12.
+  selectedAudioCameraId?: string;
+  // Pin this panel to the smallest rendition, overriding selectedLevel. Used
+  // for background/thumbnail panels (hidden, PIP, rail, strip previews) that
+  // stay decoding for instant switching but don't need full quality — cuts
+  // their CPU/bandwidth. Cleared (→ auto/selectedLevel) the moment the panel
+  // becomes the main view, which upshifts over a segment or two, no reload.
+  lowQuality?: boolean;
   // Real aspect ratio (videoWidth/videoHeight), reported once known and again
   // on any resolution change. CameraGrid uses this to row-justify the grid —
   // sizing here is entirely up to the wrapper it's rendered in.
@@ -31,6 +49,14 @@ interface VideoPanelProps {
   // toolbar where AO VIVO/fullscreen live, so it was effectively hidden).
   muted: boolean;
   onMutedChange: (muted: boolean) => void;
+  // Fired when best-effort unmuted autoplay is blocked by the browser and this
+  // panel falls back to muted — lets the parent sync its global mute UI.
+  onAutoplayBlocked?: () => void;
+  // Wall-clock camera sync (live): 'master' publishes its PROGRAM-DATE-TIME
+  // position into clockRef; 'follower' corrects its playback against it so
+  // every camera shows the same real-world instant. See use-clock-sync.
+  clockRole?: ClockRole;
+  clockRef?: MutableRefObject<ClockSample | null>;
   // 'contain' (default) never crops — used for full-bleed playback (Solo,
   // Main, Grid tiles). 'cover' fills a fixed small box even if it crops —
   // used for utility thumbnails (PIP, rail) where showing the whole frame
@@ -56,15 +82,29 @@ interface VideoPanelProps {
   // <video> gets the same paused state so switching the main camera mid-
   // playback doesn't leave a background tile still running.
   paused?: boolean;
-  // Replay only. A new object (even with the same `time`) re-applies the
-  // seek — the token is what triggers the effect, not the time value alone,
-  // so re-seeking to a position already reached still works.
-  seekCommand?: { time: number; token: number } | null;
-  // Replay only. True for exactly one active camera's panel (the current
-  // main/focused one) — only that panel's native playback events drive
-  // ReplayTransportBar's clock and end-of-video handling.
+  // Live only. The viewer is scrubbed back in the DVR window — see
+  // use-hls-player, which relaxes hls.js's forced catch-up and suspends the
+  // focus live-edge snap while this holds.
+  dvrActive?: boolean;
+  // A new object (even with the same `time`) re-applies the seek — the token
+  // is what triggers the effect, not the time value alone, so re-seeking to a
+  // position already reached still works. Replay seeks every active panel;
+  // live seeks the primary only and lets use-clock-sync pull the rest along.
+  seekCommand?: LiveSeekCommand | null;
+  // Replay only. This panel's own stretches of archived coverage — a camera
+  // that joined the event late or dropped out has gaps the others don't, so
+  // the seek command's absolute instant is translated per-panel against this
+  // rather than applied as one shared offset. Omit for live and the panel
+  // behaves exactly as before.
+  coverage?: ReplaySegmentCoverage[];
+  // Replay: instante absoluto atual do evento. É contra ele que a cobertura
+  // deste painel é julgada — ver use-transport-controls.
+  positionMs?: number;
+  // True for exactly one active camera's panel (the current main/focused one)
+  // — only that panel's native playback events drive the transport bar's
+  // clock and end-of-video handling.
   isTimeSource?: boolean;
-  onProgress?: (currentTime: number, duration: number) => void;
+  onProgress?: (currentTime: number, duration: number, live?: LiveWindow) => void;
   onEnded?: () => void;
 }
 
@@ -76,35 +116,61 @@ export function VideoPanel({
   showLabel = true,
   selectedLevel,
   onLevelsReady,
+  selectedAudioCameraId,
+  lowQuality = false,
   onAspectRatioReady,
   muted,
   onMutedChange,
+  onAutoplayBlocked,
+  clockRole,
+  clockRef,
   fit = 'contain',
   showMuteButton = true,
   volume = 1,
   mode = 'live',
   paused,
+  dvrActive = false,
   seekCommand,
+  coverage,
+  positionMs,
   isTimeSource = false,
   onProgress,
   onEnded,
 }: VideoPanelProps) {
+  const t = useTranslations('player');
   const videoRef = useRef<HTMLVideoElement>(null);
-  const hlsRef = useRef<Hls | null>(null);
-  // MANIFEST_PARSED's handler is created once per `src` (see the hls effect's
-  // own deps below) and fires asynchronously — its closure would otherwise
-  // see the `paused` value from whenever that effect last ran, not whatever
-  // it is by the time the manifest actually finishes parsing.
-  const pausedRef = useRef(paused);
-  pausedRef.current = paused;
-  const [error, setError] = useState(false);
-  // manifestPath is null while the camera is broadcasting but not yet
-  // transcoding (WAITING_VIEWERS/QUEUED/STARTING on the backend) — this
-  // viewer joining is what triggers the backend to start it. The parent's
-  // live-playback query keeps polling every 5s, so this becomes non-null on
-  // its own once the backend promotes the job to RUNNING.
-  const connecting = camera.manifestPath === null;
-  const src = connecting ? null : `${config.apiUrl}${camera.manifestPath}`;
+
+  // Full hls.js lifecycle (build/tuning, Safari branch, levels, audio tracks,
+  // LL→STANDARD fallback, live-edge focus snap) lives in the hook; analytics
+  // and toasts stay here as callbacks.
+  const { connecting, error, hlsRef } = useHlsPlayer({
+    videoRef,
+    camera,
+    mode,
+    isFocused,
+    dvrActive,
+    paused,
+    selectedLevel,
+    lowQuality,
+    selectedAudioCameraId,
+    onLevelsReady,
+    onAutoplayBlocked,
+    onLlFallback: (reason, detail) => {
+      track({
+        eventType: 'll_fallback_to_standard',
+        entityType: 'camera',
+        entityId: camera.cameraId,
+        properties: { reason, detail: detail ?? null, cameraName: camera.name },
+      });
+      console.warn(`[ll-fallback] camera=${camera.cameraId} reason=${reason} detail=${detail ?? '-'}`);
+    },
+    onFatalError: () => {
+      toast.error(t('signalLostTitle', { name: camera.name }), {
+        id: `stream-error-${camera.cameraId}`,
+        description: t('signalLostDesc'),
+      });
+    },
+  });
 
   // Real dimensions from the video element itself — works whether hls.js or
   // native HLS attached the source, and 'resize' also catches ABR quality
@@ -126,82 +192,6 @@ export function VideoPanel({
   }, [camera.cameraId, onAspectRatioReady]);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !src) return;
-    setError(false);
-
-    if (!Hls.isSupported()) {
-      if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = src;
-        const onErr = () => setError(true);
-        video.addEventListener('error', onErr);
-        // Live only: jump to the live edge once metadata loads. Replay is a
-        // closed VOD timeline — starting at 0 (the browser default) is correct.
-        if (mode === 'live') {
-          const seekLive = () => {
-            const s = video.seekable;
-            if (s.length) video.currentTime = s.end(s.length - 1);
-          };
-          video.addEventListener('loadedmetadata', seekLive);
-          return () => {
-            video.removeEventListener('loadedmetadata', seekLive);
-            video.removeEventListener('error', onErr);
-          };
-        }
-        return () => video.removeEventListener('error', onErr);
-      }
-      setError(true);
-      return;
-    }
-
-    const hls = new Hls({
-      lowLatencyMode: mode === 'live',
-      liveSyncDurationCount: 2,
-      liveMaxLatencyDurationCount: 6,
-      backBufferLength: 10,
-      maxLiveSyncPlaybackRate: 1.5,
-      // Replay routes (manifest + segments) are JWT-gated, unlike live's
-      // public /origin/* origin serving — attach the bearer token to every
-      // request hls.js makes. No-op for live (mode default), so live's
-      // network behavior is unchanged.
-      ...(mode === 'replay' && {
-        xhrSetup: (xhr: XMLHttpRequest) => {
-          const token = tokenStore.get();
-          if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-        },
-      }),
-    });
-    hls.loadSource(src);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      const sorted = hls.levels
-        .map((l, i) => ({ index: i, height: l.height }))
-        .sort((a, b) => b.height - a.height);
-      onLevelsReady?.(sorted);
-      // Live always autoplays; replay only if not currently paused (a fresh
-      // camera thumbnail/tile shouldn't start itself just because its own
-      // manifest happened to finish parsing after the shared paused state
-      // was already set).
-      if (mode !== 'replay' || !pausedRef.current) void video.play().catch(() => {});
-    });
-    hls.on(Hls.Events.ERROR, (_evt, data) => {
-      if (data.fatal) {
-        setError(true);
-        toast.error(`Sinal perdido: ${camera.name}`, {
-          id: `stream-error-${camera.cameraId}`,
-          description: 'A câmera perdeu a conexão com o servidor.',
-        });
-      }
-    });
-    hlsRef.current = hls;
-
-    return () => {
-      hls.destroy();
-      hlsRef.current = null;
-    };
-  }, [src]);
-
-  useEffect(() => {
     if (videoRef.current) videoRef.current.muted = muted;
   }, [muted]);
 
@@ -209,44 +199,25 @@ export function VideoPanel({
     if (videoRef.current) videoRef.current.volume = volume;
   }, [volume]);
 
-  useEffect(() => {
-    if (hlsRef.current && selectedLevel !== undefined) {
-      hlsRef.current.currentLevel = selectedLevel;
-    }
-  }, [selectedLevel]);
+  // Transport wiring (paused/seek/progress/ended) for replay AND the live DVR
+  // scrubber — see the hook. hlsRef is what makes the live edge (rather than
+  // the seekable end) reportable.
+  const { outsideCoverage } = useTransportControls({
+    videoRef,
+    hlsRef,
+    mode,
+    paused,
+    seekCommand,
+    coverage,
+    positionMs,
+    cameraId: camera.cameraId,
+    isTimeSource,
+    onProgress,
+    onEnded,
+  });
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || mode !== 'replay' || paused === undefined) return;
-    if (paused) video.pause();
-    else void video.play().catch(() => {});
-  }, [paused, mode]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !seekCommand) return;
-    video.currentTime = seekCommand.time;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seekCommand?.token]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !isTimeSource || !onProgress) return;
-    const report = () => onProgress(video.currentTime, video.duration || 0);
-    video.addEventListener('timeupdate', report);
-    video.addEventListener('durationchange', report);
-    return () => {
-      video.removeEventListener('timeupdate', report);
-      video.removeEventListener('durationchange', report);
-    };
-  }, [isTimeSource, onProgress]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !isTimeSource || !onEnded) return;
-    video.addEventListener('ended', onEnded);
-    return () => video.removeEventListener('ended', onEnded);
-  }, [isTimeSource, onEnded]);
+  // Wall-clock sync against the primary panel's PROGRAM-DATE-TIME.
+  useClockSync({ videoRef, hlsRef, mode, role: clockRole, clockRef });
 
   const panelClass = [
     styles.panel,
@@ -268,12 +239,14 @@ export function VideoPanel({
         playsInline
       />
 
+      {outsideCoverage && <CameraPlaceholder />}
+
       {connecting && (
         <div className={styles.panelError}>
-          {mode === 'replay' ? 'Replay indisponível' : 'Conectando…'}
+          {mode === 'replay' ? t('replayUnavailable') : t('connecting')}
         </div>
       )}
-      {!connecting && error && <div className={styles.panelError}>Sem sinal</div>}
+      {!connecting && error && <div className={styles.panelError}>{t('noSignal')}</div>}
 
       <div className={styles.topBar}>
         {showLabel && (

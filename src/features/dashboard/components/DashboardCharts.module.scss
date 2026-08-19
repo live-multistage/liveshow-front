@@ -2,55 +2,81 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+
+  @media (max-width: 1000px) and (min-width: 721px) { grid-template-columns: 1fr; }
+
+  // Mobile: horizontal snap-scroll of fixed-width cards (design pattern).
+  @media (max-width: 720px) {
+    display: flex;
+    // flex-start (not stretch): a stretched card + chart.js responsive canvas
+    // feed back into each other and balloon the card height.
+    align-items: flex-start;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -16px;
+    padding: 0 16px 4px;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
 }
 
 .chartCard {
-  background-color: $surface-dark;
-  border: 1px solid $border;
-  border-radius: 10px;
-  padding: 1.25rem;
+  @media (max-width: 720px) {
+    flex: none;
+    width: 290px;
+    scroll-snap-align: start;
+  }
+}
+
+.chartCard {
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 16px;
+  padding: 18px 18px 12px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 14px;
 }
 
 .chartHeader {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 9px;
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.dotRed    { background-color: $action; }
-.dotViolet { background-color: $violet; }
-.dotPink   { background-color: $price; }
+.dotRed    { background-color: #ff5a4d; } // EVENTOS REALIZADOS (coral)
+.dotViolet { background-color: #9b7bff; } // VENDAS
+.dotPink   { background-color: #ff2e9e; } // RECEITA (magenta)
 
 .chartTitle {
-  font-size: 0.8rem;
-  font-weight: 600;
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  letter-spacing: .1em;
+  color: #fff;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: $text-primary;
   margin: 0;
 }
 
 .mock {
-  font-size: 0.65rem;
-  color: $text-muted;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #6f6f77;
   margin-left: auto;
   font-style: italic;
 }
 
 .chartWrap {
-  height: 160px;
+  height: 170px;
   position: relative;
 }

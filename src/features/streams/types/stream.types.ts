@@ -136,3 +136,12 @@ export interface UpdateStreamRequest {
   title?: string;
   description?: string;
 }
+
+// ── Ops stats (GET /streams/:id/stats) ───────────────────────────
+export interface StreamStatsResponse {
+  ingestBitrateMbps: number | null;
+  ingestRttMs: number | null;
+  originLatencySec: number | null;
+  health: 'OTIMA' | 'ATENCAO' | 'CRITICA';
+  healthReasons: string[];
+}

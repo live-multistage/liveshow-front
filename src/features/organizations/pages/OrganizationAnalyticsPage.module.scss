@@ -1,0 +1,94 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.state { font-size: 14px; color: #7d7d85; padding: 24px 0; }
+.stateError { color: #ef6b6b; }
+
+.errorNotice {
+  background: rgba(220, 38, 38, .08);
+  border: 1px solid rgba(220, 38, 38, .28);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #f87171;
+  margin: 0;
+}
+
+.card {
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 18px;
+  padding: 22px;
+}
+
+.kpiStrip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.chartWrap {
+  position: relative;
+  height: 260px;
+}
+
+.loadingWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, .1);
+  border-top-color: #ff2e9e;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.currencyPicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.currencyPickerLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8f8f97;
+}
+
+.currencySelect {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.06)
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9aa2' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>")
+    no-repeat right 12px center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #e7e7ea;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 9px 34px 9px 14px;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+
+  &:hover { border-color: rgba(255, 46, 158, 0.34); }
+  &:focus-visible { outline: none; border-color: rgba(255, 46, 158, 0.5); }
+
+  option { background: #141418; color: #e7e7ea; }
+}

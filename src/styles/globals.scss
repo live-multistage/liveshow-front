@@ -1,0 +1,57 @@
+// Único entry global de estilos, compilado pelo sass — substitui o antigo
+// index.css, cuja cadeia de @import (css puro apontando para .scss) nunca
+// passava pelo sass-loader e produzia bundle vazio em runtime.
+@use './reset';
+
+// Design tokens consumidos via var(--*) pelos SCSS modules.
+:root {
+  --font-size: 16px;
+  --background: #08080a;
+  --foreground: #f4f4f5;
+  --card: #101013;
+  --card-foreground: #f4f4f5;
+  --popover: #101013;
+  --popover-foreground: #f4f4f5;
+  --primary: #ff2e9e;
+  --primary-foreground: #0a0a0b;
+  --secondary: #101013;
+  --secondary-foreground: #f4f4f5;
+  --muted: #27272a;
+  --muted-foreground: #b9b9c0;
+  --accent: #1a0a12;
+  --accent-foreground: #f4f4f5;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.07);
+  --input: rgba(255, 255, 255, 0.07);
+  --input-background: #0b0b0d;
+  --switch-background: #101013;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #ff2e9e;
+  --chart-1: #ff2e9e;
+  --chart-2: #9b7bff;
+  --chart-3: #ff7a4d;
+  --chart-4: #46d6d8;
+  --chart-5: #7fe0a0;
+  --radius: 0.5rem;
+  --sidebar: #0b0b0d;
+  --sidebar-foreground: #f4f4f5;
+  --sidebar-primary: #ff2e9e;
+  --sidebar-primary-foreground: #0a0a0b;
+  --sidebar-accent: #1a0a12;
+  --sidebar-accent-foreground: #f4f4f5;
+  --sidebar-border: rgba(255, 255, 255, 0.07);
+  --sidebar-ring: #ff2e9e;
+}
+
+html {
+  font-size: var(--font-size);
+  background-color: var(--background);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Archivo', sans-serif;
+}

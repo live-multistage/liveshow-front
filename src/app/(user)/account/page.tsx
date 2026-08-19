@@ -1,8 +1,6 @@
-import type { Metadata } from 'next';
-import { AccountPageContent } from '@/features/account';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = { title: 'Minha conta' };
-
+// The account hub was unified into the redesigned settings screen.
 export default function AccountPage() {
-  return <AccountPageContent />;
+  redirect('/settings');
 }

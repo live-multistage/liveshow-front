@@ -1,0 +1,131 @@
+.filter {
+  height: 40px;
+  padding: 0 12px;
+  background: #17171b;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid #ff2e9e; outline-offset: 2px; }
+}
+
+.card {
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 18px;
+  padding: 8px 22px 18px;
+}
+
+.empty {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #8f8f97;
+  padding: 32px 4px;
+  text-align: center;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: baseline;
+  padding: 13px 4px;
+  border-top: 1px solid rgba(255, 255, 255, .06);
+
+  &:first-child { border-top: none; }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+.action {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  padding: 3px 7px;
+  border-radius: 5px;
+  white-space: nowrap;
+  color: #9b9ba3;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .1);
+  justify-self: start;
+}
+
+.actionDanger {
+  color: #ff8f8f;
+  background: rgba(255, 143, 143, .1);
+  border-color: rgba(255, 143, 143, .3);
+}
+
+.actionMoney {
+  color: #7fe0a0;
+  background: rgba(127, 224, 160, .1);
+  border-color: rgba(127, 224, 160, .3);
+}
+
+.body {
+  min-width: 0;
+  font-size: 13px;
+  color: #c7c7cd;
+}
+
+.actor { color: #fff; font-weight: 600; }
+.target { color: #fff; font-weight: 600; }
+
+.meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #7d7d85;
+}
+
+.time {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  color: #6f6f77;
+  white-space: nowrap;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+  flex-wrap: wrap;
+}
+
+.pagerInfo {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #8f8f97;
+}
+
+.pagerBtns { display: flex; gap: 8px; }
+
+.pagerBtn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #c7c7cd;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .14);
+
+  &:hover:not(:disabled) { background: rgba(255, 255, 255, .1); color: #fff; }
+  &:focus-visible { outline: 2px solid #ff2e9e; outline-offset: 2px; }
+  &:disabled { opacity: .4; cursor: not-allowed; }
+}

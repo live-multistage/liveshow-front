@@ -154,6 +154,16 @@
   flex-shrink: 0;
 }
 
+.healthDotWarn {
+  @extend .healthDot;
+  background: #f0b429;
+}
+
+.healthDotBad {
+  @extend .healthDot;
+  background: #ef4444;
+}
+
 // ── Layout ────────────────────────────────────────────────────────
 
 .layout {

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { AppError } from '@/lib/http/errors';
 import { tokenStore } from '@/lib/auth/token-store';
 import { safeRedirect } from '@/lib/auth/safe-redirect';
+import { useAuthContextValue } from '../context/AuthProvider';
 import type { LoginRequest, AuthUser } from '../types/account.types';
 
 interface LoginResult {
@@ -14,6 +15,7 @@ interface LoginResult {
 
 export function useLoginMutation(callbackUrl?: string) {
   const router = useRouter();
+  const { login } = useAuthContextValue();
 
   return useMutation<LoginResult, AppError, LoginRequest>({
     mutationFn: async (payload) => {
@@ -32,6 +34,7 @@ export function useLoginMutation(callbackUrl?: string) {
     onSuccess: (data) => {
       tokenStore.set(data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
+      login(data.user);
       router.push(safeRedirect(callbackUrl));
     },
   });

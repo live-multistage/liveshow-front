@@ -1,11 +1,13 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/features/account';
 import { useOrganizations } from '../hooks/use-organizations';
 import { OrganizationCard } from '../components/OrganizationCard';
+import { sumByCurrency } from '../utils/org-stats';
 import styles from './OrganizationListPage.module.scss';
 
 type ChipId = 'todas' | 'minhas' | 'convidadas' | 'arquivadas';
@@ -31,7 +33,7 @@ function KpiIcon({ kind }: { kind: 'org' | 'event' | 'team' | 'sales' }) {
 // ── Main ─────────────────────────────────────────────────────────
 
 export function OrganizationListPage() {
-  const router = useRouter();
+  const t = useTranslations('organizations');
   const { user } = useAuth();
   const { data: orgs = [], isLoading, isError } = useOrganizations();
 
@@ -41,11 +43,18 @@ export function OrganizationListPage() {
   const myOrgs = useMemo(() => orgs.filter((o) => o.ownerId === user?.id), [orgs, user?.id]);
   const invitedOrgs = useMemo(() => orgs.filter((o) => o.ownerId !== user?.id), [orgs, user?.id]);
 
+  const hasEventStat = orgs.some((o) => o.activeEventsCount !== undefined);
+  const hasMemberStat = orgs.some((o) => o.memberCount !== undefined);
+  const hasSalesStat = orgs.some((o) => o.salesThisMonth !== undefined);
+  const totalActiveEvents = orgs.reduce((s, o) => s + (o.activeEventsCount ?? 0), 0);
+  const totalMembers = orgs.reduce((s, o) => s + (o.memberCount ?? 0), 0);
+  const totalBrlSales = sumByCurrency(orgs, 'BRL');
+
   const CHIPS: { id: ChipId; label: string; count: number }[] = [
-    { id: 'todas', label: 'TODAS', count: orgs.length },
-    { id: 'minhas', label: 'MINHAS', count: myOrgs.length },
-    { id: 'convidadas', label: 'CONVIDADAS', count: invitedOrgs.length },
-    { id: 'arquivadas', label: 'ARQUIVADAS', count: 0 },
+    { id: 'todas', label: t('tabAll'), count: orgs.length },
+    { id: 'minhas', label: t('tabMine'), count: myOrgs.length },
+    { id: 'convidadas', label: t('tabInvited'), count: invitedOrgs.length },
+    { id: 'arquivadas', label: t('tabArchived'), count: 0 },
   ];
 
   const filtered = useMemo(() => {
@@ -75,13 +84,13 @@ export function OrganizationListPage() {
             <span className={styles.breadcrumbSep}>/</span>
             <span className={styles.breadcrumbActive}>ORGANIZAÇÕES</span>
           </div>
-          <h1 className={styles.heading}>Organizações</h1>
-          <p className={styles.subheading}>Gerencie suas organizações, equipes e permissões</p>
+          <h1 className={styles.heading}>{t('heading')}</h1>
+          <p className={styles.subheading}>{t('subheadingFull')}</p>
         </div>
-        <button className={styles.btnCreate} onClick={() => router.push('/dashboard/organizations/new')}>
+        <Link href="/dashboard/organizations/new" className={styles.btnCreate}>
           <Plus size={16} strokeWidth={2.6} />
           Nova Organização
-        </button>
+        </Link>
       </div>
 
       {/* KPI strip */}
@@ -98,21 +107,21 @@ export function OrganizationListPage() {
           <div className={styles.kpiCard}>
             <div className={styles.kpiLabel}><KpiIcon kind="event" /> EVENTOS ATIVOS</div>
             <div className={styles.kpiValue}>
-              <span className={styles.kpiNum}>—</span>
+              <span className={styles.kpiNum}>{hasEventStat ? totalActiveEvents : '—'}</span>
               <span className={styles.kpiUnit}>em curso</span>
             </div>
           </div>
           <div className={styles.kpiCard}>
             <div className={styles.kpiLabel}><KpiIcon kind="team" /> EQUIPE TOTAL</div>
             <div className={styles.kpiValue}>
-              <span className={styles.kpiNum}>—</span>
+              <span className={styles.kpiNum}>{hasMemberStat ? totalMembers : '—'}</span>
               <span className={styles.kpiUnit}>membros</span>
             </div>
           </div>
           <div className={styles.kpiCard}>
             <div className={styles.kpiLabel}><KpiIcon kind="sales" /> VENDAS NO MÊS</div>
             <div className={styles.kpiValue}>
-              <span className={`${styles.kpiNum} ${styles.kpiNumPink}`}>—</span>
+              <span className={`${styles.kpiNum} ${styles.kpiNumPink}`}>{hasSalesStat ? totalBrlSales.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}</span>
               <span className={styles.kpiUnit}>BRL</span>
             </div>
           </div>
@@ -127,12 +136,12 @@ export function OrganizationListPage() {
           </svg>
           <input
             className={styles.searchInput}
-            placeholder="Buscar organização, handle ou equipe…"
+            placeholder={t('searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
           {search && (
-            <button className={styles.searchClear} onClick={() => setSearch('')} aria-label="Limpar">
+            <button className={styles.searchClear} onClick={() => setSearch('')} aria-label={t('clear')}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M5 5l14 14M19 5L5 19" />
               </svg>
@@ -158,8 +167,8 @@ export function OrganizationListPage() {
       </div>
 
       {/* States */}
-      {isLoading && <p className={styles.state}>Carregando organizações...</p>}
-      {isError && <p className={`${styles.state} ${styles.stateError}`}>Erro ao carregar organizações. Tente novamente.</p>}
+      {isLoading && <p className={styles.state}>{t('loading')}</p>}
+      {isError && <p className={`${styles.state} ${styles.stateError}`}>{t('loadErrorRetry')}</p>}
 
       {/* Grid */}
       {!isLoading && !isError && (
@@ -167,18 +176,15 @@ export function OrganizationListPage() {
           {filtered.map((org) => (
             <OrganizationCard key={org.id} organization={org} />
           ))}
-          <button
-            className={styles.createCard}
-            onClick={() => router.push('/dashboard/organizations/new')}
-          >
+          <Link href="/dashboard/organizations/new" className={styles.createCard}>
             <div className={styles.createCardIcon}>
               <Plus size={22} strokeWidth={2.4} />
             </div>
             <div>
-              <div className={styles.createCardTitle}>Criar Organização</div>
+              <div className={styles.createCardTitle}>{t('createCard')}</div>
               <div className={styles.createCardSub}>Convide sua equipe e comece a vender</div>
             </div>
-          </button>
+          </Link>
         </div>
       )}
     </div>

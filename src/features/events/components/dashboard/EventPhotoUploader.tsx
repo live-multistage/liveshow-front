@@ -2,7 +2,9 @@
 
 import { useRef, useState } from 'react';
 import Image from 'next/image';
-import { useUploadAssetMutation, useUploadGalleryPhotoMutation } from '../../mutations/upload-event-asset.mutation';
+import { useUploadGalleryPhotoMutation } from '../../mutations/upload-event-asset.mutation';
+import { useEventAssetUpload } from '../../hooks/use-event-asset-upload';
+import type { AssetSlot } from '../../hooks/use-event-asset-upload';
 import type { EventPhotoResponse, EventResponse } from '../../types/event.types';
 import styles from './EventPhotoUploader.module.scss';
 
@@ -11,30 +13,16 @@ interface Props {
   onDone: () => void;
 }
 
-type AssetSlot = { url: string | null; uploading: boolean; error: string | null };
-
 export function EventPhotoUploader({ event, onDone }: Props) {
-  const [banner, setBanner] = useState<AssetSlot>({ url: event.bannerUrl, uploading: false, error: null });
-  const [thumbnail, setThumbnail] = useState<AssetSlot>({ url: event.thumbnailUrl, uploading: false, error: null });
+  const { banner, thumbnail, teaser, handleAsset } = useEventAssetUpload(event);
   const [gallery, setGallery] = useState<EventPhotoResponse[]>([]);
 
   const bannerRef = useRef<HTMLInputElement>(null);
   const thumbnailRef = useRef<HTMLInputElement>(null);
+  const teaserRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
 
-  const uploadAsset = useUploadAssetMutation(event.id);
   const uploadPhoto = useUploadGalleryPhotoMutation(event.id);
-
-  const handleAsset = async (assetType: 'banner' | 'thumbnail', file: File) => {
-    const setter = assetType === 'banner' ? setBanner : setThumbnail;
-    setter((s) => ({ ...s, uploading: true, error: null }));
-    try {
-      const updated = await uploadAsset.mutateAsync({ assetType, file });
-      setter({ url: assetType === 'banner' ? updated.bannerUrl : updated.thumbnailUrl, uploading: false, error: null });
-    } catch (err: any) {
-      setter((s) => ({ ...s, uploading: false, error: err?.message ?? 'Erro no upload' }));
-    }
-  };
 
   const handleGallery = async (files: FileList) => {
     for (const file of Array.from(files)) {
@@ -71,6 +59,14 @@ export function EventPhotoUploader({ event, onDone }: Props) {
           slot={thumbnail}
           inputRef={thumbnailRef}
           onChange={(f) => handleAsset('thumbnail', f)}
+        />
+        <AssetUpload
+          label="Teaser"
+          hint="Vídeo curto de divulgação (máx. 30s, 50MB, MP4)"
+          slot={teaser}
+          inputRef={teaserRef}
+          onChange={(f) => handleAsset('teaserVideo', f)}
+          kind="video"
         />
       </div>
 
@@ -127,9 +123,10 @@ interface AssetUploadProps {
   slot: AssetSlot;
   inputRef: React.RefObject<HTMLInputElement | null>;
   onChange: (file: File) => void;
+  kind?: 'image' | 'video';
 }
 
-function AssetUpload({ label, hint, slot, inputRef, onChange }: AssetUploadProps) {
+function AssetUpload({ label, hint, slot, inputRef, onChange, kind = 'image' }: AssetUploadProps) {
   return (
     <div className={styles.assetSlot}>
       <p className={styles.assetLabel}>{label}</p>
@@ -142,11 +139,23 @@ function AssetUpload({ label, hint, slot, inputRef, onChange }: AssetUploadProps
         {slot.uploading ? (
           <span className={styles.spinner} />
         ) : slot.url ? (
-          <Image src={slot.url} alt={label} fill style={{ objectFit: 'cover', borderRadius: '8px' }} sizes="320px" />
+          kind === 'video' ? (
+            <video
+              data-testid="teaser-video-preview"
+              src={slot.url}
+              muted
+              loop
+              playsInline
+              autoPlay
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
+            />
+          ) : (
+            <Image src={slot.url} alt={label} fill style={{ objectFit: 'cover', borderRadius: '8px' }} sizes="320px" />
+          )
         ) : (
           <span className={styles.uploadPlaceholder}>
             <span className={styles.uploadIcon}>↑</span>
-            <span>Selecionar imagem</span>
+            <span>{kind === 'video' ? 'Selecionar vídeo' : 'Selecionar imagem'}</span>
           </span>
         )}
       </button>
@@ -155,7 +164,7 @@ function AssetUpload({ label, hint, slot, inputRef, onChange }: AssetUploadProps
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept={kind === 'video' ? 'video/mp4' : 'image/jpeg,image/png,image/webp'}
         className={styles.hidden}
         onChange={(e) => e.target.files?.[0] && onChange(e.target.files[0])}
       />

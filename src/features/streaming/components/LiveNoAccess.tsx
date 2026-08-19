@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Lock, Ticket, Camera, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 import { Navbar } from '@/shared/components/Navbar';
@@ -28,6 +29,7 @@ function fmtCompact(v: number): string {
 
 export function LiveNoAccess({ eventId, eventTitle, isLoggedIn }: Props) {
   const t = useTranslations('liveGate');
+  const pathname = usePathname();
   const { data: event } = useGetEventQuery(eventId);
   const { data: tickets } = useListTicketProductsQuery(eventId);
   const { currentViewers } = useViewerCount(eventId);
@@ -38,7 +40,10 @@ export function LiveNoAccess({ eventId, eventTitle, isLoggedIn }: Props) {
   const priceRange = tickets && tickets.length > 0
     ? { min: Math.min(...tickets.map((tk) => tk.price)), max: Math.max(...tickets.map((tk) => tk.price)) }
     : undefined;
-  const priceLabel = priceRange ? formatPriceRange(priceRange) : null;
+  // All ticket tiers for a single event share one currency (see backend
+  // TicketProductResponse) — safe to key off the first ticket's.
+  const ticketsCurrency = tickets?.[0]?.currency ?? 'BRL';
+  const priceLabel = priceRange ? formatPriceRange(priceRange, undefined, ticketsCurrency) : null;
 
   const buyHref = `/events/${eventId}`;
 
@@ -68,8 +73,13 @@ export function LiveNoAccess({ eventId, eventTitle, isLoggedIn }: Props) {
               <Ticket size={16} aria-hidden="true" />
               {t('buyTicket')}
             </Link>
+            {/* Carry the stream they were trying to reach: a viewer who
+                already owns a ticket on this account lands straight in it. */}
             {!isLoggedIn && (
-              <Link href="/login" className={styles.secondaryBtn}>
+              <Link
+                href={`/login?redirect=${encodeURIComponent(pathname)}`}
+                className={styles.secondaryBtn}
+              >
                 {t('login')}
                 <ArrowRight size={14} aria-hidden="true" />
               </Link>
@@ -133,7 +143,7 @@ export function LiveNoAccess({ eventId, eventTitle, isLoggedIn }: Props) {
                 <div className={styles.priceRow}>
                   <div>
                     <div className={styles.priceLabel}>{t('startingFrom')}</div>
-                    <div className={styles.priceValue}>{priceRange && priceRange.min === priceRange.max ? formatPrice(priceRange.min) : priceLabel}</div>
+                    <div className={styles.priceValue}>{priceRange && priceRange.min === priceRange.max ? formatPrice(priceRange.min, ticketsCurrency) : priceLabel}</div>
                   </div>
                   <Link href={buyHref} className={styles.priceBtn}>
                     {t('viewTickets')}

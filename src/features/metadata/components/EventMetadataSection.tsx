@@ -161,9 +161,12 @@ function EditForm({
 
 interface Props {
   eventId: string;
+  // Viewing org is a COLLABORATOR, not the owner: backend 403s add/update/delete,
+  // so show entries read-only and hide the write controls.
+  readOnly?: boolean;
 }
 
-export function EventMetadataSection({ eventId }: Props) {
+export function EventMetadataSection({ eventId, readOnly = false }: Props) {
   const { data: entries = [], isLoading } = useEventMetadataQuery(eventId);
   const addMutation = useAddMetadataMutation(eventId);
   const updateMutation = useUpdateMetadataMutation(eventId);
@@ -193,14 +196,14 @@ export function EventMetadataSection({ eventId }: Props) {
     <div className={styles.section}>
       <div className={styles.header}>
         <h2 className={styles.title}>Metadata</h2>
-        {!showAddForm && (
+        {!showAddForm && !readOnly && (
           <button className={styles.btnAdd} onClick={() => setShowAddForm(true)}>
             <Plus size={12} /> Adicionar
           </button>
         )}
       </div>
 
-      {showAddForm && (
+      {showAddForm && !readOnly && (
         <AddForm
           isPending={addMutation.isPending}
           error={addMutation.error?.message}
@@ -245,23 +248,25 @@ export function EventMetadataSection({ eventId }: Props) {
                     <span className={styles.valueBadge}>{entry.valueType}</span>
                   </td>
                   <td className={styles.td}>
-                    <div className={styles.actions}>
-                      <button
-                        className={styles.iconBtn}
-                        onClick={() => setEditingId(entry.id)}
-                        title="Editar"
-                      >
-                        <Pencil size={13} />
-                      </button>
-                      <button
-                        className={`${styles.iconBtn} ${styles.danger}`}
-                        onClick={() => handleDelete(entry.id)}
-                        disabled={deleteMutation.isPending}
-                        title="Remover"
-                      >
-                        <Trash2 size={13} />
-                      </button>
-                    </div>
+                    {!readOnly && (
+                      <div className={styles.actions}>
+                        <button
+                          className={styles.iconBtn}
+                          onClick={() => setEditingId(entry.id)}
+                          title="Editar"
+                        >
+                          <Pencil size={13} />
+                        </button>
+                        <button
+                          className={`${styles.iconBtn} ${styles.danger}`}
+                          onClick={() => handleDelete(entry.id)}
+                          disabled={deleteMutation.isPending}
+                          title="Remover"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ),

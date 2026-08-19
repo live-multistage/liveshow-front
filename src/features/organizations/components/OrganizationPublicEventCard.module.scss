@@ -8,6 +8,8 @@
   border-radius: 10px;
   padding: 0.875rem;
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
   transition: border-color 0.15s, background-color 0.15s;
 
   &:hover {
@@ -122,4 +124,10 @@
   font-size: 0.7rem;
   color: $text-muted;
   white-space: nowrap;
+}
+
+.wishlistButton {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
 }

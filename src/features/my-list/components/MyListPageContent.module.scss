@@ -1,0 +1,213 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  max-width: none;
+  margin: 0 auto;
+  padding: 44px 40px 90px;
+
+  @media (max-width: $md) {
+    padding: 28px 20px 64px;
+  }
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 26px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #ff8ec9;
+}
+
+.heading {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  color: $text-muted;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--input-background);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 11px 18px;
+  width: 320px;
+  max-width: 100%;
+  color: $text-muted;
+
+  &:focus-within {
+    border-color: rgba(255, 46, 158, 0.4);
+  }
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.875rem;
+  width: 100%;
+
+  &::placeholder {
+    color: #6f6f77;
+  }
+
+  // O X nativo do type="search" no WebKit desenha fora da paleta da pílula.
+  &::-webkit-search-cancel-button {
+    filter: grayscale(1) brightness(1.6);
+  }
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.section {
+  margin-bottom: 48px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--muted-foreground);
+}
+
+.sectionTitleLive {
+  color: #ff8ec9;
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: listPulse 1.4s infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes listPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.72);
+  }
+}
+
+.stack,
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rows {
+  gap: 10px;
+}
+
+.continueGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @media (max-width: $lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.replayGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+
+  @media (max-width: $lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.heroSkeleton {
+  height: 250px;
+  border-radius: 16px;
+}
+
+.cardSkeleton {
+  height: 240px;
+  border-radius: 16px;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 56px 20px;
+  text-align: center;
+  color: var(--muted-foreground);
+}
+
+.noResults {
+  text-align: center;
+  padding: 80px 0;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+}
+
+.noResultsTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.noResultsHint {
+  margin: 8px 0 0;
+  font-size: 0.844rem;
+  color: $text-muted;
+}

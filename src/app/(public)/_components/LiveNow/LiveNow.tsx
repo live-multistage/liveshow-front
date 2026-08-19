@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { Show } from '@/features/events/types/show';
 import { ShowCard } from '@/features/events';
@@ -12,7 +11,6 @@ interface LiveNowProps {
 
 export function LiveNow({ shows }: LiveNowProps) {
   const t = useTranslations('home');
-  const router = useRouter();
 
   if (shows.length === 0) return null;
 
@@ -20,7 +18,7 @@ export function LiveNow({ shows }: LiveNowProps) {
     <Carousel
       title={t('liveNow')}
       showLiveDot
-      onSeeAll={() => router.push('/events?live=true')}
+      seeAllHref="/events?live=true"
     >
       {shows.map((show) => (
         <Carousel.Item key={show.id}>

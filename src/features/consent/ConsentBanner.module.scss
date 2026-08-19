@@ -1,0 +1,88 @@
+$card: #101013;
+$line: rgba(255, 255, 255, 0.07);
+$accent: #ff2e9e;
+$muted: #9a9aa2;
+$sans: 'Archivo', sans-serif;
+
+.banner {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: min(760px, calc(100vw - 2rem));
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 1rem 1.25rem;
+  background: $card;
+  border: 1px solid $line;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  font-family: $sans;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1 1 320px;
+}
+
+.title {
+  font-size: 0.9375rem;
+  color: #fff;
+}
+
+.body {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: $muted;
+}
+
+.link {
+  color: $accent;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.625rem;
+  flex: 0 0 auto;
+}
+
+.reject,
+.accept {
+  padding: 0.5rem 1.125rem;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: $sans;
+  cursor: pointer;
+  border: 1px solid $line;
+}
+
+.reject {
+  background: transparent;
+  color: #fff;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.accept {
+  background: $accent;
+  border-color: $accent;
+  color: #fff;
+
+  &:hover {
+    filter: brightness(1.08);
+  }
+}

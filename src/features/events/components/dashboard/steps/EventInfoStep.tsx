@@ -1,10 +1,15 @@
+import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { Controller } from 'react-hook-form';
-import type { UseFormRegister, FieldErrors, Control } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
+import type { UseFormRegister, FieldErrors, Control, UseFormSetValue } from 'react-hook-form';
 import type { OrganizationResponse } from '@/features/organizations/types/organization.types';
-import type { CreateEventFormValues } from '../../../schemas/create-event.schema';
+import {
+  type CreateEventFormValues,
+  LOW_LATENCY_SUGGESTED_CATEGORIES,
+} from '../../../schemas/create-event.schema';
 import { EVENT_CATEGORIES } from '../../../types/event.types';
 import { TagsInput } from '../TagsInput';
+import { Checkbox, SimpleCustomSelect } from '@live-show/design-system';
 import styles from '../CreateEventForm.module.scss';
 
 interface Props {
@@ -12,24 +17,42 @@ interface Props {
   errors: FieldErrors<CreateEventFormValues>;
   orgs: OrganizationResponse[];
   control: Control<CreateEventFormValues>;
+  setValue: UseFormSetValue<CreateEventFormValues>;
+  vodUploadEnabled?: boolean;
 }
 
-export function EventInfoStep({ register, errors, orgs, control }: Props) {
+export function EventInfoStep({ register, errors, orgs, control, setValue, vodUploadEnabled = false }: Props) {
   const t = useTranslations('createEvent.info');
+
+  const category = useWatch({ control, name: 'category' });
+  const latencyMode = useWatch({ control, name: 'latencyMode' });
+  const isSportCategory = LOW_LATENCY_SUGGESTED_CATEGORIES.includes(category);
+
+  // Auto-suggest LOW latency for real-time-interactive categories (sports),
+  // but never override a choice the organizer made by hand: once they touch
+  // the latency select, this effect stops steering it.
+  const latencyTouched = useRef(false);
+  useEffect(() => {
+    if (latencyTouched.current) return;
+    setValue('latencyMode', isSportCategory ? 'LOW' : 'STANDARD');
+  }, [isSportCategory, setValue]);
 
   return (
     <section className={styles.section}>
       <div className={styles.field}>
         <label className={styles.label}>{t('orgLabel')}</label>
-        <select
-          {...register('organizationId')}
-          className={`${styles.input} ${errors.organizationId ? styles.inputError : ''}`}
-        >
-          <option value="">{t('orgPlaceholder')}</option>
-          {orgs.map((org) => (
-            <option key={org.id} value={org.id}>{org.name}</option>
-          ))}
-        </select>
+        <Controller
+          control={control}
+          name="organizationId"
+          render={({ field }) => (
+            <SimpleCustomSelect
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder={t('orgPlaceholder')}
+              options={orgs.map((org) => ({ value: org.id, label: org.name }))}
+            />
+          )}
+        />
         {errors.organizationId && <p className={styles.error}>{errors.organizationId.message}</p>}
         {orgs.length === 0 && (
           <p className={styles.hint}>{t('noOrgs')}</p>
@@ -48,16 +71,63 @@ export function EventInfoStep({ register, errors, orgs, control }: Props) {
 
       <div className={styles.field}>
         <label className={styles.label}>{t('categoryLabel')}</label>
-        <select
-          {...register('category')}
-          className={`${styles.input} ${errors.category ? styles.inputError : ''}`}
-        >
-          <option value="">{t('categoryPlaceholder')}</option>
-          {EVENT_CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>{t(`categories.${cat}`)}</option>
-          ))}
-        </select>
+        <Controller
+          control={control}
+          name="category"
+          render={({ field }) => (
+            <SimpleCustomSelect
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder={t('categoryPlaceholder')}
+              options={EVENT_CATEGORIES.map((cat) => ({ value: cat, label: t(`categories.${cat}`) }))}
+            />
+          )}
+        />
         {errors.category && <p className={styles.error}>{errors.category.message}</p>}
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>{t('formatLabel')}</label>
+        <Controller
+          control={control}
+          name="format"
+          render={({ field }) => (
+            <SimpleCustomSelect
+              value={field.value}
+              onValueChange={field.onChange}
+              options={[
+                { value: 'LIVE', label: t('formatLive') },
+                // VOD is only offered while the vod_upload flag is on — the
+                // backend rejects creating a VOD event otherwise.
+                ...(vodUploadEnabled ? [{ value: 'VOD', label: t('formatVod') }] : []),
+              ]}
+            />
+          )}
+        />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>{t('latencyLabel')}</label>
+        <Controller
+          control={control}
+          name="latencyMode"
+          render={({ field }) => (
+            <SimpleCustomSelect
+              value={field.value}
+              onValueChange={(v) => {
+                latencyTouched.current = true;
+                field.onChange(v);
+              }}
+              options={[
+                { value: 'STANDARD', label: t('latencyStandard') },
+                { value: 'LOW', label: t('latencyLow') },
+              ]}
+            />
+          )}
+        />
+        {isSportCategory && latencyMode === 'LOW' && (
+          <p className={styles.hint}>{t('latencySportHint')}</p>
+        )}
       </div>
 
       <div className={styles.field}>
@@ -81,6 +151,24 @@ export function EventInfoStep({ register, errors, orgs, control }: Props) {
           )}
         />
       </div>
+
+      <Controller
+        control={control}
+        name="publiclyFunded"
+        render={({ field }) => (
+          <div className={styles.checkboxRow}>
+            <Checkbox
+              id="publiclyFunded"
+              checked={!!field.value}
+              onCheckedChange={(v) => field.onChange(v === true)}
+            />
+            <label htmlFor="publiclyFunded" className={styles.checkboxText}>
+              <strong>{t('publiclyFundedLabel')}</strong>
+              <span className={styles.checkboxHint}>{t('publiclyFundedHint')}</span>
+            </label>
+          </div>
+        )}
+      />
     </section>
   );
 }

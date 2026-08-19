@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { Show } from '@/features/events/types/show';
 import { ShowCard } from '@/features/events';
-import { Chip } from '@/shared/components/ui/chip';
+import { Chip } from '@live-show/design-system';
 import { Carousel } from '../Carousel/Carousel';
 import styles from './ShowsSection.module.scss';
 
@@ -17,13 +16,12 @@ interface ShowsSectionProps {
 
 export function ShowsSection({ shows }: ShowsSectionProps) {
   const t = useTranslations('home');
-  const router = useRouter();
   const [selectedGenre, setSelectedGenre] = useState('All');
 
   const filtered =
     selectedGenre === 'All'
       ? shows
-      : shows.filter((s) => s.genre === selectedGenre);
+      : shows.filter((s) => s.category === selectedGenre);
 
   return (
     <div className={styles.wrapper}>
@@ -42,7 +40,7 @@ export function ShowsSection({ shows }: ShowsSectionProps) {
         </div>
       </div>
 
-      <Carousel onSeeAll={() => router.push('/events')}>
+      <Carousel seeAllHref="/events">
         {filtered.map((show) => (
           <Carousel.Item key={show.id}>
             <ShowCard show={show} />

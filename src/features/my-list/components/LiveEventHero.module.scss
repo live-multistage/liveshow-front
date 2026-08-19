@@ -1,0 +1,158 @@
+@use '../../../styles/_variables' as *;
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  background: var(--card);
+  border: 1px solid rgba(255, 46, 158, 0.3);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.18s ease;
+
+  &:hover {
+    border-color: rgba(255, 46, 158, 0.5);
+  }
+
+  @media (max-width: $md) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cover {
+  position: relative;
+  min-height: 250px;
+
+  @media (max-width: $md) {
+    min-height: 180px;
+  }
+}
+
+.image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(5, 4, 6, 0.55) 0%, transparent 55%);
+}
+
+.liveBadge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: 7px;
+  padding: 5px 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: heroPulse 1.4s infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes heroPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.72);
+  }
+}
+
+.body {
+  padding: 30px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+
+  @media (max-width: $md) {
+    padding: 22px;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: 1.625rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.place {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.note {
+  margin: 0;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  color: $text-muted;
+  letter-spacing: 0.05em;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 13px 26px;
+  font-size: 0.9rem;
+
+  &:hover {
+    background: #ff5fb4;
+    color: var(--primary-foreground);
+  }
+}
+
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--foreground);
+  border-radius: 999px;
+  padding: 13px 22px;
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  &:hover {
+    border-color: rgba(255, 46, 158, 0.4);
+    color: var(--foreground);
+  }
+}

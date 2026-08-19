@@ -1,8 +1,9 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { UserPlus, Trash2, Crown, Shield, User, Music, ArrowLeft, Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useOrgMembersQuery } from '../queries/get-members';
 import { useAddMemberMutation } from '../mutations/add-member.mutation';
 import { useRemoveMemberMutation } from '../mutations/remove-member.mutation';
@@ -16,17 +17,10 @@ const ROLE_ICONS: Record<OrganizationRole, React.ReactNode> = {
   EVENT_MANAGER: <Music size={14} />,
   CONTENT_MANAGER: <Music size={14} />,
   OPERATOR: <Music size={14} />,
+  STAFF: <User size={14} />,
   VIEWER: <User size={14} />,
 };
 
-const ROLE_LABEL: Record<OrganizationRole, string> = {
-  OWNER: 'Owner',
-  ADMIN: 'Admin',
-  EVENT_MANAGER: 'Gestor de Eventos',
-  CONTENT_MANAGER: 'Gestor de Conteúdo',
-  OPERATOR: 'Operador',
-  VIEWER: 'Visualizador',
-};
 
 interface Props {
   org: OrganizationResponse;
@@ -34,8 +28,7 @@ interface Props {
 }
 
 export function OrgDetailPageContent({ org, currentUserId }: Props) {
-  const router = useRouter();
-
+  const t = useTranslations('organizations');
   const [searchEmail, setSearchEmail] = useState('');
   const [searchResult, setSearchResult] = useState<UserSearchResult | null>(null);
   const [searchError, setSearchError] = useState('');
@@ -52,7 +45,7 @@ export function OrgDetailPageContent({ org, currentUserId }: Props) {
   const canManage = currentMember?.role === 'OWNER' || currentMember?.role === 'ADMIN';
 
   const handleSearch = async () => {
-    if (!searchEmail.trim()) { setSearchError('Informe o e-mail'); return; }
+    if (!searchEmail.trim()) { setSearchError(t('emailRequired')); return; }
     setSearchError('');
     setSearchResult(null);
     setSearching(true);
@@ -60,7 +53,7 @@ export function OrgDetailPageContent({ org, currentUserId }: Props) {
       const result = await organizationsService.searchUser(searchEmail.trim());
       setSearchResult(result);
     } catch {
-      setSearchError('Usuário não encontrado');
+      setSearchError(t('userNotFound'));
     } finally {
       setSearching(false);
     }
@@ -84,9 +77,9 @@ export function OrgDetailPageContent({ org, currentUserId }: Props) {
 
   return (
     <div className={styles.page}>
-      <button className={styles.back} onClick={() => router.push('/dashboard/organizations')}>
+      <Link href="/dashboard/organizations" className={styles.back}>
         <ArrowLeft size={16} /> Organizações
-      </button>
+      </Link>
 
       <div className={styles.header}>
         <div>
@@ -106,7 +99,7 @@ export function OrgDetailPageContent({ org, currentUserId }: Props) {
               <div className={styles.memberRole}>
                 {ROLE_ICONS[member.role]}
                 <span className={styles.roleBadge} data-role={member.role}>
-                  {ROLE_LABEL[member.role]}
+                  {t(`role${member.role}`)}
                 </span>
               </div>
               <div className={styles.memberInfo}>
@@ -141,14 +134,14 @@ export function OrgDetailPageContent({ org, currentUserId }: Props) {
               <input
                 className={styles.input}
                 type="email"
-                placeholder="E-mail do usuário"
+                placeholder={t('userEmailPlaceholder')}
                 value={searchEmail}
                 onChange={(e) => { setSearchEmail(e.target.value); setSearchResult(null); setSearchError(''); }}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
               <button className={styles.searchBtn} onClick={handleSearch} disabled={searching}>
                 <Search size={14} />
-                {searching ? 'Buscando...' : 'Buscar'}
+                {searching ? t('searching') : t('searchBtn')}
               </button>
             </div>
 
@@ -166,11 +159,12 @@ export function OrgDetailPageContent({ org, currentUserId }: Props) {
                     value={addRole}
                     onChange={(e) => setAddRole(e.target.value as OrganizationRole)}
                   >
-                    <option value="CONTENT_MANAGER">Gestor de Conteúdo</option>
-                    <option value="EVENT_MANAGER">Gestor de Eventos</option>
-                    <option value="OPERATOR">Operador</option>
-                    <option value="VIEWER">Visualizador</option>
-                    <option value="ADMIN">Admin</option>
+                    <option value="CONTENT_MANAGER">{t('roleCONTENT_MANAGER')}</option>
+                    <option value="EVENT_MANAGER">{t('roleEVENT_MANAGER')}</option>
+                    <option value="OPERATOR">{t('roleOPERATOR')}</option>
+                    <option value="STAFF">{t('roleSTAFFDoor')}</option>
+                    <option value="VIEWER">{t('roleVIEWER')}</option>
+                    <option value="ADMIN">{t('roleADMIN')}</option>
                   </select>
                   <button
                     className={styles.addBtn}
@@ -178,7 +172,7 @@ export function OrgDetailPageContent({ org, currentUserId }: Props) {
                     disabled={addMutation.isPending}
                   >
                     <UserPlus size={14} />
-                    {addMutation.isPending ? 'Adicionando...' : 'Adicionar'}
+                    {addMutation.isPending ? t('adding') : t('addBtn')}
                   </button>
                 </div>
                 {addError && <p className={styles.error}>{addError}</p>}

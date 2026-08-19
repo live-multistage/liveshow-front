@@ -1,10 +1,12 @@
 'use client';
 
 import { ChevronLeft, Users, Video, MessageSquare, Share2 } from 'lucide-react';
+import { ReportButton } from '@/features/reports';
 import type { LiveStage } from '../types/live.types';
 import styles from './Header.module.scss';
 
 interface Props {
+  eventId: string;
   eventTitle?: string;
   metaLine: string;
   stages: LiveStage[];
@@ -30,6 +32,7 @@ function fmtCompact(v: number): string {
 }
 
 export function Header({
+  eventId,
   eventTitle,
   metaLine,
   stages,
@@ -112,6 +115,7 @@ export function Header({
         <button className={styles.iconBtn} onClick={onShare} title="Compartilhar" aria-label="Compartilhar">
           <Share2 size={14} />
         </button>
+        <ReportButton eventId={eventId} className={styles.iconBtn} iconOnly />
       </div>
     </header>
   );

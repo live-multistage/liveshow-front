@@ -53,7 +53,7 @@ export function StreamBuilder({ stream, eventId, eventTitle, onStreamUpdated, on
         onDeleted={onStreamDeleted}
       />
       <StreamPreviewPanel stream={stream} eventId={eventId} eventTitle={eventTitle} />
-      <StageList streamId={stream.id} streamStatus={stream.status} />
+      <StageList streamId={stream.id} streamStatus={stream.status} eventId={eventId} />
     </div>
   );
 }

@@ -1,0 +1,134 @@
+@use '../../../styles/_variables' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.balanceRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.balanceIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  background-color: rgba(161, 161, 170, 0.1);
+  color: $text-secondary;
+}
+
+.balanceInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.balanceLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $text-secondary;
+}
+
+.balanceValue {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: $text-primary;
+
+  &[data-negative] {
+    color: $error;
+  }
+}
+
+.notice {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  border-radius: 7px;
+
+  &[data-variant='pending'] {
+    background-color: rgba(251, 100, 182, 0.08);
+    color: $text-secondary;
+  }
+
+  &[data-variant='ready'] {
+    background-color: $success-bg;
+    color: $success-light;
+  }
+
+  &[data-variant='debt'] {
+    background-color: rgba(239, 68, 68, 0.08);
+    color: $text-secondary;
+  }
+}
+
+.entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.entry {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(161, 161, 170, 0.12);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.entryType {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background-color: rgba(161, 161, 170, 0.1);
+  color: $text-secondary;
+
+  &[data-type='SALE'] {
+    background-color: $success-bg;
+    color: $success-light;
+  }
+}
+
+.entryDate {
+  font-size: 0.8rem;
+  color: $text-secondary;
+}
+
+.entryAmount {
+  margin-left: auto;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $text-primary;
+
+  &[data-negative] {
+    color: $error;
+  }
+}
+
+.loading {
+  font-size: 0.875rem;
+  color: $text-secondary;
+}
+
+.error {
+  font-size: 0.8rem;
+  color: $error;
+  margin: 0;
+}

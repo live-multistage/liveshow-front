@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { XCircle } from 'lucide-react';
 import styles from './CheckoutResultContent.module.scss';
 
@@ -10,8 +10,6 @@ interface Props {
 }
 
 export function CheckoutFailedContent({ eventId, ticketProductId }: Props) {
-  const router = useRouter();
-
   const retryUrl = ticketProductId
     ? `/events/${eventId}/checkout?ticketId=${ticketProductId}`
     : `/events/${eventId}`;
@@ -28,15 +26,12 @@ export function CheckoutFailedContent({ eventId, ticketProductId }: Props) {
         </p>
 
         <div className={styles.actions}>
-          <button className={styles.primary} onClick={() => router.push(retryUrl)}>
+          <Link href={retryUrl} className={styles.primary}>
             Tentar novamente
-          </button>
-          <button
-            className={styles.secondary}
-            onClick={() => router.push(`/events/${eventId}`)}
-          >
+          </Link>
+          <Link href={`/events/${eventId}`} className={styles.secondary}>
             Voltar ao evento
-          </button>
+          </Link>
         </div>
       </div>
     </div>

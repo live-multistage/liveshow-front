@@ -4,15 +4,21 @@ import { useState } from 'react';
 import { Play, Pause, Volume2, VolumeX, Settings, PictureInPicture, Maximize, Minimize } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import type { QualityLevel } from './VideoPanel';
+import { SeekSlider } from './SeekSlider';
 import transportStyles from './TransportBar.module.scss';
 import styles from './ReplayTransportBar.module.scss';
 
 interface Props {
   paused: boolean;
   onTogglePlay: () => void;
-  currentTime: number;
-  duration: number;
-  onSeek: (time: number) => void;
+  // Absolute event-timeline domain (ms) — NOT a camera's local duration. The
+  // scrubber spans the whole event, since cameras can join/leave mid-way and
+  // no single camera's local time is a valid stand-in for it.
+  timelineStartMs: number;
+  timelineEndMs: number;
+  // Absolute instant (ms) currently playing — see ReplayPlayer's positionMs.
+  positionMs: number;
+  onSeek: (absoluteMs: number) => void;
   globalMuted: boolean;
   onToggleMute: () => void;
   volume: number;
@@ -44,8 +50,9 @@ function formatTime(seconds: number): string {
 export function ReplayTransportBar({
   paused,
   onTogglePlay,
-  currentTime,
-  duration,
+  timelineStartMs,
+  timelineEndMs,
+  positionMs,
   onSeek,
   globalMuted,
   onToggleMute,
@@ -64,7 +71,6 @@ export function ReplayTransportBar({
 }: Props) {
   const [showAudioMenu, setShowAudioMenu] = useState(false);
   const [showQuality, setShowQuality] = useState(false);
-  const seekPercent = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
 
   return (
     <div className={transportStyles.bar}>
@@ -79,25 +85,17 @@ export function ReplayTransportBar({
       <span className={styles.replayBadge}>REPLAY</span>
 
       <div className={styles.seekGroup}>
-        <span className={styles.timeLabel}>{formatTime(currentTime)}</span>
-        <input
-          type="range"
-          min={0}
-          max={duration || 0}
-          step={0.1}
-          value={Math.min(currentTime, duration || 0)}
-          onChange={(e) => onSeek(Number(e.target.value))}
-          className={styles.seekSlider}
-          // WebKit has no ::-moz-range-progress equivalent — the played vs.
-          // remaining split is painted here as a hard-stop gradient instead
-          // (see ReplayTransportBar.module.scss for why the track pseudo-
-          // elements are left transparent to let this show through).
-          style={{
-            background: `linear-gradient(to right, #ff2e9e ${seekPercent}%, rgba(255, 255, 255, 0.15) ${seekPercent}%)`,
-          }}
-          aria-label="Posição de reprodução"
+        {/* Labels show elapsed-since-timeline-start (0:00 at the beginning),
+            not the underlying wall-clock ms — viewers read a stopwatch, not a date. */}
+        <span className={styles.timeLabel}>{formatTime((positionMs - timelineStartMs) / 1000)}</span>
+        <SeekSlider
+          min={timelineStartMs}
+          max={timelineEndMs}
+          value={positionMs}
+          onSeek={onSeek}
+          ariaLabel="Posição de reprodução"
         />
-        <span className={styles.timeLabel}>{formatTime(duration)}</span>
+        <span className={styles.timeLabel}>{formatTime((timelineEndMs - timelineStartMs) / 1000)}</span>
       </div>
 
       <div className={transportStyles.volumeGroup}>
@@ -119,6 +117,9 @@ export function ReplayTransportBar({
             if (globalMuted) onToggleMute();
           }}
           className={transportStyles.volumeSlider}
+          style={{
+            background: `linear-gradient(to right, #ff2e9e ${(globalMuted ? 0 : volume) * 100}%, rgba(255, 255, 255, 0.15) ${(globalMuted ? 0 : volume) * 100}%)`,
+          }}
           aria-label="Volume"
         />
       </div>

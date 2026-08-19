@@ -7,6 +7,7 @@ export interface EventMetricsFunnel {
   cartToPurchaseRate: number | null;
   avgWatchSeconds: number | null;
   completionRate: number | null;
+  cameraSwitchCount: number;
 }
 
 export interface ChartPoint {
@@ -15,10 +16,18 @@ export interface ChartPoint {
   newAccesses: number;
 }
 
+export interface WindowedMetrics {
+  viewCount: number;
+  purchaseCount: number;
+  avgWatchSeconds: number | null;
+}
+
 export interface EventMetricsResult {
   eventId: string;
   funnel: EventMetricsFunnel;
   chart: ChartPoint[];
   peakViewers: number;
   peakHour: string | null;
+  currentWindow: WindowedMetrics | null;
+  previousWindow: WindowedMetrics | null;
 }

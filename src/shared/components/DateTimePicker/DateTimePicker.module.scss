@@ -52,6 +52,8 @@
   border-radius: 10px !important;
   padding: 1rem !important;
   width: 320px !important;
+  max-height: var(--radix-popover-content-available-height) !important;
+  overflow-y: auto;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
   color: $text-primary;
 }

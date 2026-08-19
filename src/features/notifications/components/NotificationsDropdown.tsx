@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Bell } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@live-show/design-system';
 import { useNotificationsQuery, useUnreadCountQuery } from '../queries/get-notifications';
 import { useMarkAllAsReadMutation, useMarkAsReadMutation } from '../mutations/mark-as-read.mutation';
 import type { NotificationResponse } from '../types/notification.types';
 import { NotificationItem } from './NotificationItem';
 import styles from './NotificationsDropdown.module.scss';
 
-export function NotificationsDropdown() {
+export function NotificationsDropdown({ triggerClassName }: { triggerClassName?: string } = {}) {
   const [open, setOpen] = useState(false);
 
   const { data: unreadCount = 0 } = useUnreadCountQuery();
@@ -34,7 +34,7 @@ export function NotificationsDropdown() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className={styles.trigger} aria-label="Notificações">
+        <button className={`${styles.trigger} ${triggerClassName ?? ''}`} aria-label="Notificações">
           <Bell size={16} />
           {unreadCount > 0 && (
             <span className={styles.badge}>{unreadCount > 99 ? '99+' : unreadCount}</span>
