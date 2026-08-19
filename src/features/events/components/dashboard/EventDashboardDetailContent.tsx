@@ -50,8 +50,12 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
   // orgRepo.findMember(...).isAdmin(); mirror that gate on the view so a stranger
   // doesn't get a management UI whose every button 403s. Fails closed: a 401/error
   // on /organizations/mine leaves the list empty and denies.
+  // A COLLABORATOR org is let in too (server-derived on the event payload), but
+  // strictly for the read-only view below — write actions stay gated on `readOnly`.
   const { data: myOrgs = [], isLoading: orgsLoading } = useMyOrganizationsQuery();
-  const canManage = myOrgs.some((o) => o.id === event?.organizationId && canManageOrg(o.role));
+  const canManage =
+    event?.collaborationRole === 'COLLABORATOR' ||
+    myOrgs.some((o) => o.id === event?.organizationId && canManageOrg(o.role));
 
   const updateMutation = useUpdateEventMutation(id);
   const publishMutation = usePublishEventMutation(id);

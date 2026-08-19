@@ -222,6 +222,21 @@ describe('EventDashboardDetailContent collaboration read-only gate', () => {
     expect(screen.getByText('collaborators-section')).toBeInTheDocument();
   });
 
+  it('grants access to a COLLABORATOR org that has no owning-org membership', () => {
+    mockOrgs([makeOrg('org-other', 'OWNER')]);
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: { ...EVENT, collaborationRole: 'COLLABORATOR' },
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+
+    renderPage();
+
+    expect(screen.queryByText('noAccess')).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Show Alheio' })).toBeInTheDocument();
+    expect(screen.getByText('header-actions-readonly')).toBeInTheDocument();
+  });
+
   it('shows write-action surfaces when collaborationRole is undefined', () => {
     vi.mocked(useGetEventQuery).mockReturnValue({
       data: EVENT,
