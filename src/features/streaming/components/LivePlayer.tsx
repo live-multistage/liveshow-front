@@ -19,6 +19,7 @@ import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-
 import { useViewerTracking } from '../hooks/use-viewer-tracking';
 import { useViewerCount } from '../hooks/use-viewer-count';
 import { SessionWatermark } from './SessionWatermark';
+import { PauseAdOverlay } from '@/features/advertisements/components/PauseAdOverlay';
 import styles from './LivePlayer.module.scss';
 
 interface LivePlayerProps {
@@ -322,6 +323,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
               </span>
             </button>
           )}
+
+          <PauseAdOverlay paused={paused} />
 
           {autoplayBlocked && globalMuted && (
             <button

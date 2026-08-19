@@ -8,6 +8,7 @@ import type { ReplayCameraPlayback, ReplayEventTimeline, LiveCamera } from '../t
 import { CameraGrid } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
 import { SessionWatermark } from './SessionWatermark';
+import { PauseAdOverlay } from '@/features/advertisements/components/PauseAdOverlay';
 import { ReplayTransportBar } from './ReplayTransportBar';
 import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
 import { localToAbsolute } from '../utils/replay-timeline';
@@ -263,6 +264,8 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
             onEnded={handleEnded}
           />
           <SessionWatermark />
+
+          <PauseAdOverlay paused={paused} />
         </div>
 
         {paused && (

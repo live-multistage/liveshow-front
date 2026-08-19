@@ -1,6 +1,6 @@
 // Advertiser-side types (CreateAdRequest, AdResponse, AdReviewEntry, etc.)
 // moved to the external Ads Manager. Only the serve-side contract remains.
-export type AdPlacement = 'FEED' | 'EVENT_DETAIL' | 'CHECKOUT' | 'POST_PURCHASE';
+export type AdPlacement = 'FEED' | 'EVENT_DETAIL' | 'CHECKOUT' | 'POST_PURCHASE' | 'PLAYER_PAUSE';
 
 export type AdDestination =
   | { type: 'EVENT'; eventId: string }
