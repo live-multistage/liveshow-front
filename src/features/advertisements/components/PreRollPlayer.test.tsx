@@ -103,6 +103,34 @@ describe('PreRollPlayer', () => {
     expect(onFinished).not.toHaveBeenCalled();
   });
 
+  it('offers "Ativar som" after the muted fallback, and unmutes on click', async () => {
+    const play = vi.fn();
+    play.mockReturnValueOnce(Promise.reject(new Error('NotAllowedError')));
+    play.mockReturnValueOnce(Promise.resolve());
+    HTMLMediaElement.prototype.play = play;
+
+    render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const unmute = screen.getByRole('button', { name: /ativar som/i });
+    fireEvent.click(unmute);
+
+    const video = screen.getByTestId('preroll-video') as HTMLVideoElement;
+    expect(video.muted).toBe(false);
+    expect(screen.queryByRole('button', { name: /ativar som/i })).toBeNull();
+  });
+
+  it('does not offer "Ativar som" when unmuted autoplay succeeds', async () => {
+    render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.queryByRole('button', { name: /ativar som/i })).toBeNull();
+  });
+
   it('finishes when both the unmuted and muted autoplay attempts are blocked', async () => {
     const play = vi.fn().mockReturnValue(Promise.reject(new Error('NotAllowedError')));
     HTMLMediaElement.prototype.play = play;

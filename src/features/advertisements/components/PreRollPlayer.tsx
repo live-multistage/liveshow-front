@@ -16,6 +16,7 @@ interface Props {
 
 export function PreRollPlayer({ ad, onFinished }: Props) {
   const [skippable, setSkippable] = useState(false);
+  const [mutedFallback, setMutedFallback] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(ad.videoDurationSec);
   const impressionFired = useRef(false);
   const finished = useRef(false);
@@ -76,7 +77,10 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
     if (!video) return;
     video.play().catch(() => {
       video.muted = true;
-      video.play().catch(() => finish());
+      video
+        .play()
+        .then(() => setMutedFallback(true))
+        .catch(() => finish());
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -105,6 +109,19 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
         <span className={styles.badge}>
           Anúncio{remaining !== null ? ` · ${remaining}s` : ''}
         </span>
+        {mutedFallback && (
+          <button
+            type="button"
+            className={styles.unmute}
+            onClick={() => {
+              const video = videoRef.current;
+              if (video) video.muted = false;
+              setMutedFallback(false);
+            }}
+          >
+            Ativar som
+          </button>
+        )}
         {href && (
           <a
             className={styles.cta}
