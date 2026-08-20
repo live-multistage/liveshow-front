@@ -1,7 +1,9 @@
 .container {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  // Ocupa a viewport como o LivePlayer que ele antecede — aspect-ratio em
+  // largura total estoura a altura da tela e gera scroll.
+  height: 100vh;
   background: #000;
   overflow: hidden;
 }
