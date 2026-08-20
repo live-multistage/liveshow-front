@@ -7,25 +7,11 @@ import { X } from 'lucide-react';
 import styles from './AdBanner.module.scss';
 import { advertisementsService } from '../services/advertisements.service';
 import type { AdPlacement } from '../types/advertisement.types';
+import { gradientFor } from '../utils/ad-gradient';
 
 interface Props {
   placement: AdPlacement;
   className?: string;
-}
-
-const GRADIENTS = [
-  'linear-gradient(135deg,#ff2e9e 0%,#9b7bff 100%)',
-  'linear-gradient(160deg,#ff7a4d 0%,#ffd166 100%)',
-  'linear-gradient(135deg,#5fb4ff 0%,#9b7bff 100%)',
-  'linear-gradient(135deg,#ffd166 0%,#ff7a4d 100%)',
-  'linear-gradient(135deg,#bba6ff 0%,#5fb4ff 100%)',
-  'linear-gradient(135deg,#7fe0a0 0%,#5fb4ff 100%)',
-];
-
-function gradientFor(id: string): string {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-  return GRADIENTS[h % GRADIENTS.length];
 }
 
 export function AdBanner({ placement, className }: Props) {

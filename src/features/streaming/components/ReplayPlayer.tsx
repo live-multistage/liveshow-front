@@ -8,7 +8,7 @@ import type { ReplayCameraPlayback, ReplayEventTimeline, LiveCamera } from '../t
 import { CameraGrid } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
 import { SessionWatermark } from './SessionWatermark';
-import { PauseAdOverlay } from '@/features/advertisements/components/PauseAdOverlay';
+import { PauseAdTakeover } from '@/features/advertisements/components/PauseAdTakeover';
 import { ReplayTransportBar } from './ReplayTransportBar';
 import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
 import { localToAbsolute } from '../utils/replay-timeline';
@@ -66,6 +66,10 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
   // autoplay policies block anyway — same big-play-button pattern as any
   // VOD player.
   const [paused, setPaused] = useState(true);
+  // Drives the video-shrinks-into-a-card takeover: fed by PauseAdTakeover's
+  // onVisibleChange, which fires false on resume/unmount so this can never
+  // get stuck shrunk without an ad actually on screen.
+  const [pauseAdVisible, setPauseAdVisible] = useState(false);
   // The absolute instant (ms, event timeline) playback is currently at — NOT
   // a camera's local media time. Each camera's <video> only knows its own
   // local seconds; positionMs is what lets cameras that joined the event at
@@ -208,7 +212,7 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
 
   return (
     <div ref={containerRef} className={styles.player}>
-      <header className={styles.header}>
+      <header className={`${styles.header} ${pauseAdVisible ? styles.headerHidden : ''}`}>
         <Link href={`/events/${eventId}`} className={styles.backBtn} aria-label="Voltar">
           <ChevronLeft size={16} />
         </Link>
@@ -227,54 +231,67 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
 
       <div className={styles.main}>
         <div className={styles.gridArea}>
-          <CameraGrid
-            cameras={cameras}
-            selectedLevel={currentLevel}
-            onLevelsReady={setLevels}
-            globalMuted={globalMuted}
-            onGlobalMutedChange={setGlobalMuted}
-            audioCameraId={effectiveAudioCameraId}
-            onAudioCameraChange={handleAudioCameraChange}
-            volume={volume}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            mainCameraId={effectiveMainCameraId}
-            onMainCameraChange={setMainCameraId}
-            activeCameraIds={activeCameraIds}
-            librasCameraId={librasInSet}
-            pickerOpen={cameraStripOpen}
-            onToggleCamera={handleToggleCamera}
-            onClosePicker={() => setCameraStripOpen(false)}
-            mode="replay"
+          <PauseAdTakeover
             paused={paused}
-            // Sem isto o painel julgaria a cobertura pelo último seek, e uma
-            // câmera que entra em cobertura enquanto o vídeo avança nunca
-            // voltaria a tocar.
-            positionMs={positionMs}
-            seekCommand={seekCommand}
-            onProgress={(localSeconds) => {
-              const absoluteMs = localToAbsolute(primaryCoverage, localSeconds);
-              // Outside the primary camera's coverage (a gap between its
-              // stitched stretches) — nothing maps there. Keep the last known
-              // position rather than write a wrong one.
-              if (absoluteMs === null) return;
-              setPositionMs(absoluteMs);
-              report((absoluteMs - timeline.startsAtMs) / 1000, (timeline.endsAtMs - timeline.startsAtMs) / 1000);
-            }}
-            onEnded={handleEnded}
+            onResume={() => setPaused(false)}
+            onVisibleChange={setPauseAdVisible}
           />
-          <SessionWatermark />
 
-          <PauseAdOverlay paused={paused} />
+          <div className={`${styles.stageArea} ${pauseAdVisible ? styles.stageAreaShrunk : ''}`}>
+            <CameraGrid
+              cameras={cameras}
+              selectedLevel={currentLevel}
+              onLevelsReady={setLevels}
+              globalMuted={globalMuted}
+              onGlobalMutedChange={setGlobalMuted}
+              audioCameraId={effectiveAudioCameraId}
+              onAudioCameraChange={handleAudioCameraChange}
+              volume={volume}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              mainCameraId={effectiveMainCameraId}
+              onMainCameraChange={setMainCameraId}
+              activeCameraIds={activeCameraIds}
+              librasCameraId={librasInSet}
+              pickerOpen={cameraStripOpen}
+              onToggleCamera={handleToggleCamera}
+              onClosePicker={() => setCameraStripOpen(false)}
+              mode="replay"
+              paused={paused}
+              // Sem isto o painel julgaria a cobertura pelo último seek, e uma
+              // câmera que entra em cobertura enquanto o vídeo avança nunca
+              // voltaria a tocar.
+              positionMs={positionMs}
+              seekCommand={seekCommand}
+              onProgress={(localSeconds) => {
+                const absoluteMs = localToAbsolute(primaryCoverage, localSeconds);
+                // Outside the primary camera's coverage (a gap between its
+                // stitched stretches) — nothing maps there. Keep the last known
+                // position rather than write a wrong one.
+                if (absoluteMs === null) return;
+                setPositionMs(absoluteMs);
+                report((absoluteMs - timeline.startsAtMs) / 1000, (timeline.endsAtMs - timeline.startsAtMs) / 1000);
+              }}
+              onEnded={handleEnded}
+            />
+            <SessionWatermark />
+
+            {paused && (
+              <button className={styles.centerPlayOverlay} onClick={() => setPaused(false)} aria-label="Reproduzir">
+                <span className={styles.centerPlayBtn}>
+                  <Play size={28} fill="currentColor" />
+                </span>
+              </button>
+            )}
+
+            {pauseAdVisible && (
+              <span className={styles.pausedChip}>
+                <span className={styles.pausedDot} />
+                PAUSADO
+              </span>
+            )}
+          </div>
         </div>
-
-        {paused && (
-          <button className={styles.centerPlayOverlay} onClick={() => setPaused(false)} aria-label="Reproduzir">
-            <span className={styles.centerPlayBtn}>
-              <Play size={28} fill="currentColor" />
-            </span>
-          </button>
-        )}
       </div>
 
       <div className={styles.bottomStack}>

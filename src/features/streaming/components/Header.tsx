@@ -6,6 +6,7 @@ import type { LiveStage } from '../types/live.types';
 import styles from './Header.module.scss';
 
 interface Props {
+  className?: string;
   eventId: string;
   eventTitle?: string;
   metaLine: string;
@@ -32,6 +33,7 @@ function fmtCompact(v: number): string {
 }
 
 export function Header({
+  className,
   eventId,
   eventTitle,
   metaLine,
@@ -50,7 +52,7 @@ export function Header({
   onShare,
 }: Props) {
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} ${className ?? ''}`}>
       <button onClick={onExit} className={styles.backBtn} aria-label="Voltar">
         <ChevronLeft size={16} />
       </button>

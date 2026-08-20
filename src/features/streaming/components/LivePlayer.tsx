@@ -19,7 +19,7 @@ import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-
 import { useViewerTracking } from '../hooks/use-viewer-tracking';
 import { useViewerCount } from '../hooks/use-viewer-count';
 import { SessionWatermark } from './SessionWatermark';
-import { PauseAdOverlay } from '@/features/advertisements/components/PauseAdOverlay';
+import { PauseAdTakeover } from '@/features/advertisements/components/PauseAdTakeover';
 import styles from './LivePlayer.module.scss';
 
 interface LivePlayerProps {
@@ -78,6 +78,10 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   // Returning to the edge is the transport bar's job, not this state's.
   const [paused, setPaused] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  // Drives the video-shrinks-into-a-card takeover: fed by PauseAdTakeover's
+  // onVisibleChange, which fires false on resume/unmount so this can never
+  // get stuck shrunk without an ad actually on screen.
+  const [pauseAdVisible, setPauseAdVisible] = useState(false);
   const { user } = useAuth();
 
   useViewerTracking(eventId, activeCameraIds, user?.id);
@@ -259,6 +263,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   return (
     <div ref={containerRef} className={styles.player}>
       <Header
+        className={pauseAdVisible ? styles.headerHidden : undefined}
         eventId={eventId}
         eventTitle={title}
         metaLine={metaLine}
@@ -279,52 +284,65 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
 
       <div className={styles.main}>
         <div className={styles.gridArea}>
-          {activeStage && (
-            <CameraGrid
-              key={activeStage.stageId}
-              cameras={activeStage.cameras}
-              selectedLevel={currentLevel}
-              onLevelsReady={setLevels}
-              globalMuted={globalMuted}
-              onGlobalMutedChange={setGlobalMuted}
-              onAutoplayBlocked={() => { setGlobalMuted(true); setAutoplayBlocked(true); }}
-              audioCameraId={effectiveAudioCameraId}
-              onAudioCameraChange={handleAudioCameraChange}
-              volume={volume}
-              paused={paused}
-              viewMode={effectiveViewMode}
-              onViewModeChange={setViewMode}
-              mainCameraId={effectiveMainCameraId}
-              onMainCameraChange={handleMainCameraChange}
-              activeCameraIds={activeCameraIds}
-              librasCameraId={librasInStage}
-              pickerOpen={cameraStripOpen}
-              onToggleCamera={handleToggleCamera}
-              onClosePicker={() => setCameraStripOpen(false)}
-              dvrActive={dvrSeeking}
-              seekCommand={seekCommand}
-              onProgress={handleProgress}
-            />
-          )}
+          <PauseAdTakeover
+            paused={paused}
+            onResume={() => setPaused(false)}
+            onVisibleChange={setPauseAdVisible}
+          />
 
-          <SessionWatermark />
+          <div className={`${styles.stageArea} ${pauseAdVisible ? styles.stageAreaShrunk : ''}`}>
+            {activeStage && (
+              <CameraGrid
+                key={activeStage.stageId}
+                cameras={activeStage.cameras}
+                selectedLevel={currentLevel}
+                onLevelsReady={setLevels}
+                globalMuted={globalMuted}
+                onGlobalMutedChange={setGlobalMuted}
+                onAutoplayBlocked={() => { setGlobalMuted(true); setAutoplayBlocked(true); }}
+                audioCameraId={effectiveAudioCameraId}
+                onAudioCameraChange={handleAudioCameraChange}
+                volume={volume}
+                paused={paused}
+                viewMode={effectiveViewMode}
+                onViewModeChange={setViewMode}
+                mainCameraId={effectiveMainCameraId}
+                onMainCameraChange={handleMainCameraChange}
+                activeCameraIds={activeCameraIds}
+                librasCameraId={librasInStage}
+                pickerOpen={cameraStripOpen}
+                onToggleCamera={handleToggleCamera}
+                onClosePicker={() => setCameraStripOpen(false)}
+                dvrActive={dvrSeeking}
+                seekCommand={seekCommand}
+                onProgress={handleProgress}
+              />
+            )}
 
-          {/* Sem isto, uma live pausada é indistinguível de uma transmissão
-              travada: a imagem congela e nada na tela explica por quê. */}
-          {paused && (
-            <button
-              type="button"
-              className={styles.centerPlayOverlay}
-              onClick={() => setPaused(false)}
-              aria-label={t('resume')}
-            >
-              <span className={styles.centerPlayBtn}>
-                <Play size={28} fill="currentColor" />
+            <SessionWatermark />
+
+            {/* Sem isto, uma live pausada é indistinguível de uma transmissão
+                travada: a imagem congela e nada na tela explica por quê. */}
+            {paused && (
+              <button
+                type="button"
+                className={styles.centerPlayOverlay}
+                onClick={() => setPaused(false)}
+                aria-label={t('resume')}
+              >
+                <span className={styles.centerPlayBtn}>
+                  <Play size={28} fill="currentColor" />
+                </span>
+              </button>
+            )}
+
+            {pauseAdVisible && (
+              <span className={styles.pausedChip}>
+                <span className={styles.pausedDot} />
+                AO VIVO · PAUSADO
               </span>
-            </button>
-          )}
-
-          <PauseAdOverlay paused={paused} />
+            )}
+          </div>
 
           {autoplayBlocked && globalMuted && (
             <button
