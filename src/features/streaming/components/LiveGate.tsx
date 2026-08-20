@@ -1,7 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
+import { usePrerollGate } from '@/features/advertisements/hooks/use-preroll-gate';
+import { PreRollPlayer } from '@/features/advertisements/components/PreRollPlayer';
 import { useLiveAccessQuery, useLivePlaybackQuery } from '../queries/live.queries';
 import { LivePlayer } from './LivePlayer';
 import { LiveGateLoading } from './LiveGateLoading';
@@ -19,6 +22,8 @@ export function LiveGate({ eventId, eventTitle, chatEnabled }: Props) {
   const access = useLiveAccessQuery(eventId, !authLoading);
   const authorized = access.data === true;
   const playback = useLivePlaybackQuery(eventId, authorized);
+  const preroll = usePrerollGate(eventId);
+  const [prerollDone, setPrerollDone] = useState(false);
 
   if (authLoading || access.isLoading) {
     return <LiveGateLoading message={t('checkingAccess')} />;
@@ -39,6 +44,22 @@ export function LiveGate({ eventId, eventTitle, chatEnabled }: Props) {
         <h2>{eventTitle}</h2>
         <p>{t('notStarted')}</p>
       </div>
+    );
+  }
+
+  if (!prerollDone && preroll.pending) {
+    return <LiveGateLoading message={t('loadingStream')} eventTitle={eventTitle} />;
+  }
+
+  if (!prerollDone && preroll.ad) {
+    return (
+      <PreRollPlayer
+        ad={preroll.ad}
+        onFinished={() => {
+          preroll.markSeen();
+          setPrerollDone(true);
+        }}
+      />
     );
   }
 
