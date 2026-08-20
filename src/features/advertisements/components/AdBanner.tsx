@@ -51,6 +51,7 @@ export function AdBanner({ placement, className }: Props) {
   if (!ad || dismissed) return null;
 
   const isVertical = ad.format === 'VERTICAL_300x600';
+  const isWide = ad.format === 'WIDE_16_9';
   const bg = ad.bannerUrl
     ? `url(${ad.bannerUrl}) center/cover no-repeat`
     : gradientFor(ad.adId);
@@ -59,7 +60,11 @@ export function AdBanner({ placement, className }: Props) {
     advertisementsService.recordClick(ad!.adId, placement);
   }
 
-  const bannerClassName = `${styles.banner} ${isVertical ? styles.bannerV : styles.bannerH} ${className ?? ''}`;
+  let bannerVariant = styles.bannerH;
+  if (isVertical) bannerVariant = styles.bannerV;
+  else if (isWide) bannerVariant = styles.bannerWide;
+
+  const bannerClassName = `${styles.banner} ${bannerVariant} ${className ?? ''}`;
 
   const content = (
     <>
