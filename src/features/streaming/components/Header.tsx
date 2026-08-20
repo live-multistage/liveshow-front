@@ -8,10 +8,12 @@ import styles from './Header.module.scss';
 
 interface Props {
   className?: string;
-  // Set by LivePlayer to `paddingRight: DRAWER_W` while the camera drawer is
-  // open, so the round action buttons shift clear of it instead of sitting
-  // underneath it (see CameraGrid's DRAWER_W — the single source for that
-  // width, shared here instead of duplicating the pixel value).
+  // Set by LivePlayer to `right: DRAWER_W` while the camera drawer is open,
+  // constraining the header bar's own box so it stops before the drawer's
+  // strip instead of just padding its (still full-width) contents — a
+  // padding-only fix left the bar's transparent right edge sitting over the
+  // drawer's close/mode buttons and swallowing their clicks (see
+  // CameraGrid's DRAWER_W — the single source for that width).
   style?: CSSProperties;
   eventId: string;
   eventTitle?: string;

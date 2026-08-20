@@ -264,9 +264,11 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     <div ref={containerRef} className={styles.player}>
       <Header
         className={pauseAdVisible ? styles.headerHidden : undefined}
-        // Keep the header's round buttons clear of the camera drawer's
-        // DRAWER_W-wide strip on the right instead of sitting underneath it.
-        style={cameraStripOpen ? { paddingRight: DRAWER_W } : undefined}
+        // Constrain the bar's own box to stop before the camera drawer's
+        // DRAWER_W-wide strip — padding alone left the (transparent, but
+        // still hit-testable) right edge of the bar sitting over the
+        // drawer's close/mode buttons and swallowing their clicks.
+        style={cameraStripOpen ? { right: DRAWER_W } : undefined}
         eventId={eventId}
         eventTitle={title}
         metaLine={metaLine}

@@ -214,10 +214,11 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
     <div ref={containerRef} className={styles.player}>
       <header
         className={`${styles.header} ${pauseAdVisible ? styles.headerHidden : ''}`}
-        // Keep the back button/title/report icon clear of the camera
-        // drawer's DRAWER_W-wide strip on the right instead of sitting
-        // underneath it (see CameraGrid's DRAWER_W).
-        style={cameraStripOpen ? { paddingRight: DRAWER_W } : undefined}
+        // Constrain the bar's own box to stop before the camera drawer's
+        // DRAWER_W-wide strip — padding alone left the (transparent, but
+        // still hit-testable) right edge of the bar sitting over the
+        // drawer's close/mode buttons and swallowing their clicks.
+        style={cameraStripOpen ? { right: DRAWER_W } : undefined}
       >
         <Link href={`/events/${eventId}`} className={styles.backBtn} aria-label="Voltar">
           <ChevronLeft size={16} />

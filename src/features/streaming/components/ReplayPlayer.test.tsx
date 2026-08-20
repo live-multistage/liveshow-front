@@ -4,6 +4,8 @@
  * for the same pattern), next-intl echoes keys, media play/pause stubbed on
  * HTMLMediaElement.prototype.
  */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, act, fireEvent } from '@testing-library/react';
 import { ReplayPlayer } from './ReplayPlayer';
@@ -184,22 +186,45 @@ describe('ReplayPlayer — absolute timeline', () => {
 
 // The header's round buttons used to overlap the camera drawer's top-right
 // corner and eat its clicks (the drawer sits at a fixed DRAWER_W strip on
-// the right). Fix: the header gets an inline padding-right offset — sourced
-// from CameraGrid's DRAWER_W, not a duplicated pixel value — while the
-// picker is open, so its controls shift clear of the drawer instead of
-// sitting on top of it.
+// the right). A padding-only fix (tried and reverted) padded the header's
+// CONTENTS but left its own (transparent) box full-width, still sitting
+// over the drawer's close/mode buttons. Fix: while the picker is open, the
+// header's own box is constrained with `right: DRAWER_W` (sourced from
+// CameraGrid, not a duplicated pixel value) so it stops before the drawer's
+// strip, AND the bar gets `pointer-events: none` with `auto` restored on its
+// own buttons/links (see Header.module.scss's `.header`) so its transparent
+// area can never swallow a click meant for whatever's underneath.
 describe('ReplayPlayer — header stays clear of the camera drawer', () => {
-  it('offsets the header by DRAWER_W once the camera drawer opens, and clears it on close', () => {
+  it('constrains the header box by DRAWER_W once the camera drawer opens, and clears it on close', () => {
     const { container, getByTitle } = render(
       <ReplayPlayer cameras={[camA, camB]} title="Show" eventId="evt-1" timeline={timeline} />,
     );
     const header = container.querySelector('header')!;
-    expect(header.style.paddingRight).toBe('');
+    expect(header.style.right).toBe('');
 
     fireEvent.click(getByTitle('Alternar câmeras'));
-    expect(header.style.paddingRight).toBe(`${DRAWER_W}px`);
+    expect(header.style.right).toBe(`${DRAWER_W}px`);
 
     fireEvent.click(getByTitle('Alternar câmeras'));
-    expect(header.style.paddingRight).toBe('');
+    expect(header.style.right).toBe('');
+  });
+
+  it('keeps the drawer close button reachable through the (offset) header bar', () => {
+    const { container, getByTitle, getByLabelText, queryByLabelText } = render(
+      <ReplayPlayer cameras={[camA, camB]} title="Show" eventId="evt-1" timeline={timeline} />,
+    );
+
+    fireEvent.click(getByTitle('Alternar câmeras'));
+    expect(container.querySelector('[class*="drawer"]')).not.toBeNull();
+
+    fireEvent.click(getByLabelText('Fechar câmeras'));
+    expect(queryByLabelText('Fechar câmeras')).toBeNull();
+  });
+
+  it('declares pointer-events: none on the bar and auto on its buttons/links in the stylesheet', () => {
+    const scss = readFileSync(join(__dirname, 'ReplayPlayer.module.scss'), 'utf-8');
+    const headerRule = scss.slice(scss.indexOf('.header {'), scss.indexOf('.headerHidden'));
+    expect(headerRule).toMatch(/pointer-events:\s*none/);
+    expect(headerRule).toMatch(/button,\s*\n\s*a\s*\{\s*\n\s*pointer-events:\s*auto/);
   });
 });
