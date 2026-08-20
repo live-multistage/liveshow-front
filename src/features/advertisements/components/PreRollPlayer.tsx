@@ -19,6 +19,7 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
   const impressionFired = useRef(false);
   const finished = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const skipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const finish = () => {
     if (finished.current) return;
@@ -30,8 +31,16 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
     if (impressionFired.current) return;
     impressionFired.current = true;
     advertisementsService.recordImpression(ad.adId, PLACEMENT);
-    setTimeout(() => setSkippable(true), SKIP_AFTER_MS);
+    skipTimer.current = setTimeout(() => setSkippable(true), SKIP_AFTER_MS);
   };
+
+  // Clears the skip-reveal timer on unmount so it doesn't fire setState after
+  // the player is gone (e.g. viewer navigates away mid pre-roll).
+  useEffect(() => {
+    return () => {
+      if (skipTimer.current) clearTimeout(skipTimer.current);
+    };
+  }, []);
 
   const handleTimeUpdate = () => {
     const video = videoRef.current;
@@ -39,11 +48,18 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
     setRemaining(Math.max(0, Math.ceil(video.duration - video.currentTime)));
   };
 
-  // Autoplay bloqueado sem interação: melhor liberar o show do que travar o viewer.
+  // Unmuted autoplay gets rejected by Chrome/Safari without a user gesture —
+  // retry muted (browsers always allow muted autoplay) before giving up.
+  // Mirrors playBestEffort in use-hls-player.ts, but a failed muted retry
+  // here means the ad genuinely can't play, so it finishes instead of
+  // swallowing the error.
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    video.play().catch(() => finish());
+    video.play().catch(() => {
+      video.muted = true;
+      video.play().catch(() => finish());
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

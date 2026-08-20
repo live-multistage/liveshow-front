@@ -84,4 +84,46 @@ describe('PreRollPlayer', () => {
     fireEvent.click(screen.getByRole('button', { name: /pular/i }));
     expect(onFinished).toHaveBeenCalledTimes(1);
   });
+
+  it('retries muted when unmuted autoplay is blocked, and does not finish', async () => {
+    const play = vi.fn();
+    play.mockReturnValueOnce(Promise.reject(new Error('NotAllowedError')));
+    play.mockReturnValueOnce(Promise.resolve());
+    HTMLMediaElement.prototype.play = play;
+
+    render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(play).toHaveBeenCalledTimes(2);
+    const video = screen.getByTestId('preroll-video') as HTMLVideoElement;
+    expect(video.muted).toBe(true);
+    expect(onFinished).not.toHaveBeenCalled();
+  });
+
+  it('finishes when both the unmuted and muted autoplay attempts are blocked', async () => {
+    const play = vi.fn().mockReturnValue(Promise.reject(new Error('NotAllowedError')));
+    HTMLMediaElement.prototype.play = play;
+
+    render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(play).toHaveBeenCalledTimes(2);
+    expect(onFinished).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears the skip-reveal timer on unmount so it never fires after unmount', () => {
+    const { unmount } = render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+    fireEvent(screen.getByTestId('preroll-video'), new Event('playing'));
+    unmount();
+    // No act-warning / crash expected — timer must be cleared, not fired
+    // against an unmounted component.
+    act(() => vi.advanceTimersByTime(5000));
+    expect(onFinished).not.toHaveBeenCalled();
+  });
 });
