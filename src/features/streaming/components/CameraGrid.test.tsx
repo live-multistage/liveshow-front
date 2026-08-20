@@ -136,3 +136,65 @@ describe('CameraGrid — live seek command routing', () => {
     expect(videos(container).map((v) => v.currentTime)).toEqual([42, 42]);
   });
 });
+
+// The camera drawer used to render inside CameraGrid's own `.stage` root,
+// which sits inside LivePlayer/ReplayPlayer's `.stageArea` — an element with
+// its own z-index (and therefore its own stacking context). A z-index on the
+// drawer could never outrank the player header from in there (see
+// LivePlayer.tsx / CameraGrid.module.scss). CameraGrid now portals the
+// drawer into a `drawerContainer` supplied by the player, escaping that
+// stacking context.
+describe('CameraGrid — camera drawer placement', () => {
+  it('portals the drawer into drawerContainer, out of the stage wrapper, when open', () => {
+    const portalTarget = document.createElement('div');
+    document.body.appendChild(portalTarget);
+
+    const { container } = render(
+      <CameraGrid
+        {...baseProps}
+        activeCameraIds={['cam-a', 'cam-b']}
+        mainCameraId="cam-a"
+        pickerOpen
+        drawerContainer={portalTarget}
+      />,
+    );
+
+    const stage = container.firstElementChild as HTMLElement;
+    expect(stage.querySelector('[class*="drawer"]')).toBeNull();
+    expect(portalTarget.querySelector('[class*="drawer"]')).not.toBeNull();
+
+    document.body.removeChild(portalTarget);
+  });
+
+  it('renders nothing in drawerContainer, and nothing at all, when the picker is closed', () => {
+    const portalTarget = document.createElement('div');
+    document.body.appendChild(portalTarget);
+
+    render(
+      <CameraGrid
+        {...baseProps}
+        activeCameraIds={['cam-a', 'cam-b']}
+        mainCameraId="cam-a"
+        pickerOpen={false}
+        drawerContainer={portalTarget}
+      />,
+    );
+
+    expect(portalTarget.querySelector('[class*="drawer"]')).toBeNull();
+
+    document.body.removeChild(portalTarget);
+  });
+
+  it('falls back to rendering the drawer inline when no drawerContainer is given', () => {
+    const { container } = render(
+      <CameraGrid
+        {...baseProps}
+        activeCameraIds={['cam-a', 'cam-b']}
+        mainCameraId="cam-a"
+        pickerOpen
+      />,
+    );
+
+    expect(container.querySelector('[class*="drawer"]')).not.toBeNull();
+  });
+});

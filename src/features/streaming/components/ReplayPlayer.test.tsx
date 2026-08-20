@@ -106,6 +106,15 @@ const camA: ReplayCameraPlayback = {
   coverage: [{ startsAtMs: CAM_A_START_MS, endsAtMs: CAM_A_START_MS + 600_000, localStartSec: 0 }],
 };
 
+const camB: ReplayCameraPlayback = {
+  cameraId: 'cam-b',
+  name: 'Câmera B',
+  slug: 'camera-b',
+  priority: 2,
+  replayPath: '/packages/pkg-b/replay/master.m3u8',
+  coverage: [{ startsAtMs: CAM_B_START_MS, endsAtMs: CAM_B_START_MS + 300_000, localStartSec: 0 }],
+};
+
 const timeline = { startsAtMs: CAM_A_START_MS, endsAtMs: CAM_A_START_MS + 600_000 };
 
 describe('ReplayPlayer — absolute timeline', () => {
@@ -169,5 +178,31 @@ describe('ReplayPlayer — absolute timeline', () => {
     // currentTime é sempre em segundos; comparar com milissegundos aqui pediria
     // 150 mil segundos de vídeo.
     expect(video.currentTime).toBe(150);
+  });
+});
+
+// Regression: the camera drawer used to render inside CameraGrid's `.stage`
+// root, nested inside `.stageArea` — an element with its own z-index/stacking
+// context — so it could never legitimately outrank the player header (fixed
+// z-index 20). CameraGrid now portals the drawer to a `.gridArea` sibling of
+// `.stageArea` (see ReplayPlayer.tsx), which lets the drawer's z-index (25)
+// compete with the header directly.
+describe('ReplayPlayer — camera drawer stacking', () => {
+  it('renders the drawer outside the stage/grid wrapper, not covered by the header', () => {
+    const { container, getByTitle } = render(
+      <ReplayPlayer cameras={[camA, camB]} title="Show" eventId="evt-1" timeline={timeline} />,
+    );
+
+    fireEvent.click(getByTitle('Alternar câmeras'));
+
+    const drawer = container.querySelector('[class*="drawer"]');
+    expect(drawer).not.toBeNull();
+
+    // `.stageArea` is the wrapper with its own z-index (see
+    // ReplayPlayer.module.scss / LivePlayer.module.scss) — the stacking
+    // context that used to trap the drawer below the header.
+    const stageArea = container.querySelector('[class*="stageArea"]');
+    expect(stageArea).not.toBeNull();
+    expect(stageArea!.contains(drawer)).toBe(false);
   });
 });

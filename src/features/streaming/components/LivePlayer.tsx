@@ -58,6 +58,10 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   const t = useTranslations('player');
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
+  // Portal target for the camera drawer (see CameraGrid) — a sibling of
+  // `.stageArea` so the drawer's z-index competes with the header directly
+  // instead of being trapped inside `.stageArea`'s own stacking context.
+  const [gridAreaEl, setGridAreaEl] = useState<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   // Start with sound (YouTube-style). VideoPanel attempts unmuted autoplay and,
   // if the browser blocks it, falls back to muted and flips this back to true
@@ -283,7 +287,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
       />
 
       <div className={styles.main}>
-        <div className={styles.gridArea}>
+        <div className={styles.gridArea} ref={setGridAreaEl}>
           <PauseAdTakeover
             paused={paused}
             onResume={() => setPaused(false)}
@@ -313,6 +317,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
                 pickerOpen={cameraStripOpen}
                 onToggleCamera={handleToggleCamera}
                 onClosePicker={() => setCameraStripOpen(false)}
+                drawerContainer={gridAreaEl}
                 dvrActive={dvrSeeking}
                 seekCommand={seekCommand}
                 onProgress={handleProgress}

@@ -42,6 +42,10 @@ interface ReplayPlayerProps {
 // later.
 export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title, eventId, timeline }: ReplayPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  // Portal target for the camera drawer (see CameraGrid) — a sibling of
+  // `.stageArea` so the drawer's z-index competes with the header directly
+  // instead of being trapped inside `.stageArea`'s own stacking context.
+  const [gridAreaEl, setGridAreaEl] = useState<HTMLDivElement | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
   const [mainCameraId, setMainCameraId] = useState<string | null>(null);
   // The Libras window (if this event has one) is always active and never removable.
@@ -230,7 +234,7 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
       </header>
 
       <div className={styles.main}>
-        <div className={styles.gridArea}>
+        <div className={styles.gridArea} ref={setGridAreaEl}>
           <PauseAdTakeover
             paused={paused}
             onResume={() => setPaused(false)}
@@ -256,6 +260,7 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
               pickerOpen={cameraStripOpen}
               onToggleCamera={handleToggleCamera}
               onClosePicker={() => setCameraStripOpen(false)}
+              drawerContainer={gridAreaEl}
               mode="replay"
               paused={paused}
               // Sem isto o painel julgaria a cobertura pelo último seek, e uma
