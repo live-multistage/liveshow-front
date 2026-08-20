@@ -31,6 +31,8 @@ const baseAd: Omit<ServedAd, 'destination'> = {
   format: 'HORIZONTAL_728x90',
   advertiserAccountId: 'acc-1',
   bannerUrl: null,
+  videoUrl: null,
+  videoDurationSec: null,
 };
 
 describe('AdBanner', () => {

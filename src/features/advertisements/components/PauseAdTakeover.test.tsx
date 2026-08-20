@@ -22,6 +22,8 @@ const baseAd: ServedAd = {
   advertiserAccountId: 'acc-1',
   destination: { type: 'EVENT', eventId: 'evt-1' },
   bannerUrl: null,
+  videoUrl: null,
+  videoDurationSec: null,
 };
 
 function renderTakeover(props: Partial<Parameters<typeof PauseAdTakeover>[0]> & { ad?: ServedAd } = {}) {
