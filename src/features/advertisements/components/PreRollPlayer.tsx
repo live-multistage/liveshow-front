@@ -6,6 +6,7 @@ import { advertisementsService } from '../services/advertisements.service';
 import type { ServedAd } from '../types/advertisement.types';
 
 const SKIP_AFTER_MS = 5000;
+const PLAYING_WATCHDOG_MS = 8000;
 const PLACEMENT = 'PRE_ROLL';
 
 interface Props {
@@ -27,7 +28,13 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
     onFinished();
   };
 
+  const watchdogTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const handlePlaying = () => {
+    if (watchdogTimer.current) {
+      clearTimeout(watchdogTimer.current);
+      watchdogTimer.current = null;
+    }
     if (impressionFired.current) return;
     impressionFired.current = true;
     advertisementsService.recordImpression(ad.adId, PLACEMENT);
@@ -40,6 +47,17 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
     return () => {
       if (skipTimer.current) clearTimeout(skipTimer.current);
     };
+  }, []);
+
+  // Watchdog: if the media connects but never fires 'playing' (stalls before
+  // first frame), no 'error' event fires either — skip never arms and the
+  // viewer is stuck on a black frame forever. Force-finish after a timeout.
+  useEffect(() => {
+    watchdogTimer.current = setTimeout(() => finish(), PLAYING_WATCHDOG_MS);
+    return () => {
+      if (watchdogTimer.current) clearTimeout(watchdogTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleTimeUpdate = () => {

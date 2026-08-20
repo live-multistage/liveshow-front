@@ -117,6 +117,20 @@ describe('PreRollPlayer', () => {
     expect(onFinished).toHaveBeenCalledTimes(1);
   });
 
+  it('finishes via the watchdog when playing never fires', () => {
+    render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+    act(() => vi.advanceTimersByTime(8000));
+    expect(onFinished).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancels the watchdog once playing fires, no premature finish', () => {
+    render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+    act(() => vi.advanceTimersByTime(3000));
+    fireEvent(screen.getByTestId('preroll-video'), new Event('playing'));
+    act(() => vi.advanceTimersByTime(8000));
+    expect(onFinished).not.toHaveBeenCalled();
+  });
+
   it('clears the skip-reveal timer on unmount so it never fires after unmount', () => {
     const { unmount } = render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
     fireEvent(screen.getByTestId('preroll-video'), new Event('playing'));
