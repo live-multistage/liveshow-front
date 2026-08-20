@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, act, fireEvent } from '@testing-library/react';
 import { ReplayPlayer } from './ReplayPlayer';
+import { DRAWER_W } from './CameraGrid';
 import type { ReplayCameraPlayback } from '../types/live.types';
 
 // ── hls.js mock ──────────────────────────────────────────────────────────────
@@ -181,28 +182,24 @@ describe('ReplayPlayer — absolute timeline', () => {
   });
 });
 
-// Regression: the camera drawer used to render inside CameraGrid's `.stage`
-// root, nested inside `.stageArea` — an element with its own z-index/stacking
-// context — so it could never legitimately outrank the player header (fixed
-// z-index 20). CameraGrid now portals the drawer to a `.gridArea` sibling of
-// `.stageArea` (see ReplayPlayer.tsx), which lets the drawer's z-index (25)
-// compete with the header directly.
-describe('ReplayPlayer — camera drawer stacking', () => {
-  it('renders the drawer outside the stage/grid wrapper, not covered by the header', () => {
+// The header's round buttons used to overlap the camera drawer's top-right
+// corner and eat its clicks (the drawer sits at a fixed DRAWER_W strip on
+// the right). Fix: the header gets an inline padding-right offset — sourced
+// from CameraGrid's DRAWER_W, not a duplicated pixel value — while the
+// picker is open, so its controls shift clear of the drawer instead of
+// sitting on top of it.
+describe('ReplayPlayer — header stays clear of the camera drawer', () => {
+  it('offsets the header by DRAWER_W once the camera drawer opens, and clears it on close', () => {
     const { container, getByTitle } = render(
       <ReplayPlayer cameras={[camA, camB]} title="Show" eventId="evt-1" timeline={timeline} />,
     );
+    const header = container.querySelector('header')!;
+    expect(header.style.paddingRight).toBe('');
 
     fireEvent.click(getByTitle('Alternar câmeras'));
+    expect(header.style.paddingRight).toBe(`${DRAWER_W}px`);
 
-    const drawer = container.querySelector('[class*="drawer"]');
-    expect(drawer).not.toBeNull();
-
-    // `.stageArea` is the wrapper with its own z-index (see
-    // ReplayPlayer.module.scss / LivePlayer.module.scss) — the stacking
-    // context that used to trap the drawer below the header.
-    const stageArea = container.querySelector('[class*="stageArea"]');
-    expect(stageArea).not.toBeNull();
-    expect(stageArea!.contains(drawer)).toBe(false);
+    fireEvent.click(getByTitle('Alternar câmeras'));
+    expect(header.style.paddingRight).toBe('');
   });
 });

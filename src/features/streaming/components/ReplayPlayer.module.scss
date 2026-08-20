@@ -96,7 +96,10 @@
   gap: 0.875rem;
   padding: 0.875rem 1.25rem;
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.35) 60%, transparent);
-  transition: opacity 0.3s ease;
+  // padding-right animates the inline style set while the camera drawer is
+  // open (paddingRight: DRAWER_W, see ReplayPlayer.tsx), so the header
+  // controls slide clear of the drawer instead of jumping.
+  transition: opacity 0.3s ease, padding-right 0.2s ease;
 }
 
 // While the pause-ad takeover is up: hide the chrome so the creative breathes.

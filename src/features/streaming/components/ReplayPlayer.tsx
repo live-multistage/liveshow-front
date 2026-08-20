@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ChevronLeft, Play, Video } from 'lucide-react';
 import { ReportButton } from '@/features/reports';
 import type { ReplayCameraPlayback, ReplayEventTimeline, LiveCamera } from '../types/live.types';
-import { CameraGrid } from './CameraGrid';
+import { CameraGrid, DRAWER_W } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
 import { SessionWatermark } from './SessionWatermark';
 import { PauseAdTakeover } from '@/features/advertisements/components/PauseAdTakeover';
@@ -42,10 +42,6 @@ interface ReplayPlayerProps {
 // later.
 export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title, eventId, timeline }: ReplayPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  // Portal target for the camera drawer (see CameraGrid) — a sibling of
-  // `.stageArea` so the drawer's z-index competes with the header directly
-  // instead of being trapped inside `.stageArea`'s own stacking context.
-  const [gridAreaEl, setGridAreaEl] = useState<HTMLDivElement | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
   const [mainCameraId, setMainCameraId] = useState<string | null>(null);
   // The Libras window (if this event has one) is always active and never removable.
@@ -216,7 +212,13 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
 
   return (
     <div ref={containerRef} className={styles.player}>
-      <header className={`${styles.header} ${pauseAdVisible ? styles.headerHidden : ''}`}>
+      <header
+        className={`${styles.header} ${pauseAdVisible ? styles.headerHidden : ''}`}
+        // Keep the back button/title/report icon clear of the camera
+        // drawer's DRAWER_W-wide strip on the right instead of sitting
+        // underneath it (see CameraGrid's DRAWER_W).
+        style={cameraStripOpen ? { paddingRight: DRAWER_W } : undefined}
+      >
         <Link href={`/events/${eventId}`} className={styles.backBtn} aria-label="Voltar">
           <ChevronLeft size={16} />
         </Link>
@@ -234,7 +236,7 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
       </header>
 
       <div className={styles.main}>
-        <div className={styles.gridArea} ref={setGridAreaEl}>
+        <div className={styles.gridArea}>
           <PauseAdTakeover
             paused={paused}
             onResume={() => setPaused(false)}
@@ -260,7 +262,6 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
               pickerOpen={cameraStripOpen}
               onToggleCamera={handleToggleCamera}
               onClosePicker={() => setCameraStripOpen(false)}
-              drawerContainer={gridAreaEl}
               mode="replay"
               paused={paused}
               // Sem isto o painel julgaria a cobertura pelo último seek, e uma

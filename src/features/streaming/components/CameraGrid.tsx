@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import type { CSSProperties, KeyboardEvent, ReactNode } from 'react';
+import type { CSSProperties, KeyboardEvent } from 'react';
 import { X, Square, PanelRight, LayoutGrid, Minus, HandMetal } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
@@ -25,7 +24,7 @@ const GAP = 2;
 
 // Right picker drawer (MULTICAM). Floats over the right edge of the stage;
 // thumbnails stack vertically inside, reusing the persistent panels.
-const DRAWER_W = 220;        // drawer width (px)
+export const DRAWER_W = 220;        // drawer width (px)
 const DRAWER_HEADER_H = 52;  // header row (title + modes + close)
 const DRAWER_PAD = 12;
 const DRAWER_BOTTOM = 96;    // clear the floating transport bar at the bottom
@@ -83,14 +82,6 @@ interface CameraGridProps {
   pickerOpen?: boolean;
   onToggleCamera?: (cameraId: string) => void;
   onClosePicker?: () => void;
-  // The stage (this component's own root) sits inside LivePlayer/ReplayPlayer's
-  // `.stageArea`, which has its own z-index and therefore its own stacking
-  // context — a z-index set on anything inside it can never outrank the
-  // player header, which lives outside that context. When given, the drawer
-  // is portaled into this node (a sibling of `.stageArea`, see LivePlayer/
-  // ReplayPlayer) so its z-index competes with the header directly instead of
-  // being trapped. Falls back to rendering inline when omitted.
-  drawerContainer?: HTMLElement | null;
 }
 
 // One persistent VideoPanel per active camera, positioned absolutely by its
@@ -128,7 +119,6 @@ export function CameraGrid({
   pickerOpen = false,
   onToggleCamera = () => {},
   onClosePicker = () => {},
-  drawerContainer = null,
 }: CameraGridProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -323,8 +313,10 @@ export function CameraGrid({
   // ponytail: every stage camera streams from page load. Fine for the handful a
   // stage has; cap or lower-rendition the hidden ones if a big stage hurts
   // bandwidth/CPU.
-  const drawerNode: ReactNode =
-    pickerOpen && mainCamera ? (
+  return (
+    <div ref={stageRef} className={styles.stage} data-mode={effectiveMode}>
+      {!mainCamera && <div className={styles.emptyState}>Nenhuma câmera ativa</div>}
+      {pickerOpen && mainCamera && (
         <div className={styles.drawer} style={{ width: DRAWER_W, bottom: DRAWER_BOTTOM }}>
           <div className={styles.drawerHeader}>
             <div className={styles.drawerTitle}>
@@ -386,12 +378,7 @@ export function CameraGrid({
               })}
           </div>
         </div>
-      ) : null;
-
-  return (
-    <div ref={stageRef} className={styles.stage} data-mode={effectiveMode}>
-      {!mainCamera && <div className={styles.emptyState}>Nenhuma câmera ativa</div>}
-      {drawerNode && (drawerContainer ? createPortal(drawerNode, drawerContainer) : drawerNode)}
+      )}
       {cameras.map((cam) => {
         const slot = layouts.get(cam.cameraId) ?? { role: 'hidden' as Role, style: HIDDEN_STYLE };
         const { role } = slot;

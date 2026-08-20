@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { LiveCamera, LiveStage } from '../types/live.types';
-import { CameraGrid } from './CameraGrid';
+import { CameraGrid, DRAWER_W } from './CameraGrid';
 import type { QualityLevel, ViewMode } from './CameraGrid';
 import { Header } from './Header';
 import { TransportBar } from './TransportBar';
@@ -58,10 +58,6 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   const t = useTranslations('player');
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
-  // Portal target for the camera drawer (see CameraGrid) — a sibling of
-  // `.stageArea` so the drawer's z-index competes with the header directly
-  // instead of being trapped inside `.stageArea`'s own stacking context.
-  const [gridAreaEl, setGridAreaEl] = useState<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   // Start with sound (YouTube-style). VideoPanel attempts unmuted autoplay and,
   // if the browser blocks it, falls back to muted and flips this back to true
@@ -268,6 +264,9 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     <div ref={containerRef} className={styles.player}>
       <Header
         className={pauseAdVisible ? styles.headerHidden : undefined}
+        // Keep the header's round buttons clear of the camera drawer's
+        // DRAWER_W-wide strip on the right instead of sitting underneath it.
+        style={cameraStripOpen ? { paddingRight: DRAWER_W } : undefined}
         eventId={eventId}
         eventTitle={title}
         metaLine={metaLine}
@@ -287,7 +286,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
       />
 
       <div className={styles.main}>
-        <div className={styles.gridArea} ref={setGridAreaEl}>
+        <div className={styles.gridArea}>
           <PauseAdTakeover
             paused={paused}
             onResume={() => setPaused(false)}
@@ -317,7 +316,6 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
                 pickerOpen={cameraStripOpen}
                 onToggleCamera={handleToggleCamera}
                 onClosePicker={() => setCameraStripOpen(false)}
-                drawerContainer={gridAreaEl}
                 dvrActive={dvrSeeking}
                 seekCommand={seekCommand}
                 onProgress={handleProgress}

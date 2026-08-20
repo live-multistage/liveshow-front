@@ -1,12 +1,18 @@
 'use client';
 
 import { ChevronLeft, Users, Video, MessageSquare, Share2 } from 'lucide-react';
+import type { CSSProperties } from 'react';
 import { ReportButton } from '@/features/reports';
 import type { LiveStage } from '../types/live.types';
 import styles from './Header.module.scss';
 
 interface Props {
   className?: string;
+  // Set by LivePlayer to `paddingRight: DRAWER_W` while the camera drawer is
+  // open, so the round action buttons shift clear of it instead of sitting
+  // underneath it (see CameraGrid's DRAWER_W — the single source for that
+  // width, shared here instead of duplicating the pixel value).
+  style?: CSSProperties;
   eventId: string;
   eventTitle?: string;
   metaLine: string;
@@ -34,6 +40,7 @@ function fmtCompact(v: number): string {
 
 export function Header({
   className,
+  style,
   eventId,
   eventTitle,
   metaLine,
@@ -52,7 +59,7 @@ export function Header({
   onShare,
 }: Props) {
   return (
-    <header className={`${styles.header} ${className ?? ''}`}>
+    <header className={`${styles.header} ${className ?? ''}`} style={style}>
       <button onClick={onExit} className={styles.backBtn} aria-label="Voltar">
         <ChevronLeft size={16} />
       </button>
