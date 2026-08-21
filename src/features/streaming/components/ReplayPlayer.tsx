@@ -2,14 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, Play, Video } from 'lucide-react';
+import { ChevronLeft, Video } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ReportButton } from '@/features/reports';
 import type { ReplayCameraPlayback, ReplayEventTimeline, LiveCamera } from '../types/live.types';
 import { CameraGrid, DRAWER_W } from './CameraGrid';
 import type { ViewMode } from './CameraGrid';
-import { SessionWatermark } from './SessionWatermark';
-import { PauseAdTakeover } from '@/features/advertisements/components/PauseAdTakeover';
+import { PlayerStage } from './PlayerStage';
 import { ReplayTransportBar } from './ReplayTransportBar';
 import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
 import { localToAbsolute } from '../utils/replay-timeline';
@@ -223,13 +222,13 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
 
       <div className={styles.main}>
         <div className={styles.gridArea}>
-          <PauseAdTakeover
+          <PlayerStage
+            mode="replay"
             paused={paused}
             onResume={() => setPaused(false)}
-            onVisibleChange={setPauseAdVisible}
-          />
-
-          <div className={`${styles.stageArea} ${pauseAdVisible ? styles.stageAreaShrunk : ''}`}>
+            pauseAdVisible={pauseAdVisible}
+            onPauseAdVisibleChange={setPauseAdVisible}
+          >
             <CameraGrid
               cameras={cameras}
               selectedLevel={currentLevel}
@@ -266,23 +265,7 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
               }}
               onEnded={handleEnded}
             />
-            <SessionWatermark />
-
-            {paused && (
-              <button className={styles.centerPlayOverlay} onClick={() => setPaused(false)} aria-label={t('play')}>
-                <span className={styles.centerPlayBtn}>
-                  <Play size={28} fill="currentColor" />
-                </span>
-              </button>
-            )}
-
-            {pauseAdVisible && (
-              <span className={styles.pausedChip}>
-                <span className={styles.pausedDot} />
-                {t('pausedChip')}
-              </span>
-            )}
-          </div>
+          </PlayerStage>
         </div>
       </div>
 

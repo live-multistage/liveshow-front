@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState, useEffect } from 'react';
-import { Volume2, Play } from 'lucide-react';
+import { Volume2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -21,8 +21,7 @@ import { useQualityLevels } from '../hooks/use-quality-levels';
 import { usePlayerAudio } from '../hooks/use-player-audio';
 import { useCameraSelection } from '../hooks/use-camera-selection';
 import { useLiveDvr } from '../hooks/use-live-dvr';
-import { SessionWatermark } from './SessionWatermark';
-import { PauseAdTakeover } from '@/features/advertisements/components/PauseAdTakeover';
+import { PlayerStage } from './PlayerStage';
 import { RecommendedOverlay } from './RecommendedOverlay';
 import styles from './LivePlayer.module.scss';
 
@@ -217,13 +216,13 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
 
       <div className={styles.main}>
         <div className={styles.gridArea}>
-          <PauseAdTakeover
+          <PlayerStage
+            mode="live"
             paused={paused}
             onResume={() => setPaused(false)}
-            onVisibleChange={setPauseAdVisible}
-          />
-
-          <div className={`${styles.stageArea} ${pauseAdVisible ? styles.stageAreaShrunk : ''}`}>
+            pauseAdVisible={pauseAdVisible}
+            onPauseAdVisibleChange={setPauseAdVisible}
+          >
             {activeStage && (
               <CameraGrid
                 key={activeStage.stageId}
@@ -251,31 +250,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
                 onProgress={handleProgress}
               />
             )}
-
-            <SessionWatermark />
-
-            {/* Sem isto, uma live pausada é indistinguível de uma transmissão
-                travada: a imagem congela e nada na tela explica por quê. */}
-            {paused && (
-              <button
-                type="button"
-                className={styles.centerPlayOverlay}
-                onClick={() => setPaused(false)}
-                aria-label={t('resume')}
-              >
-                <span className={styles.centerPlayBtn}>
-                  <Play size={28} fill="currentColor" />
-                </span>
-              </button>
-            )}
-
-            {pauseAdVisible && (
-              <span className={styles.pausedChip}>
-                <span className={styles.pausedDot} />
-                {t('pausedChipLive')}
-              </span>
-            )}
-          </div>
+          </PlayerStage>
 
           {autoplayBlocked && globalMuted && (
             <button
