@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { LivePlayer } from '@/features/streaming/components/LivePlayer';
 import type { LivePlaybackResponse } from '@/features/streaming/types/live.types';
@@ -9,13 +10,15 @@ interface Props {
   channel: PublicChannel;
   playback: LivePlaybackResponse;
   chatEnabled: boolean;
+  // Repassado ao container do player para que sobreviva ao fullscreen.
+  overlay?: ReactNode;
 }
 
 const EMPTY = '—';
 
 // O canal reusa o player ao vivo inteiro; o que muda é a variante (sem
 // controles de playback) e a linha de meta, que vira a programação.
-export function ChannelPlayer({ channel, playback, chatEnabled }: Props) {
+export function ChannelPlayer({ channel, playback, chatEnabled, overlay }: Props) {
   const t = useTranslations();
 
   const metaLine = [
@@ -35,6 +38,7 @@ export function ChannelPlayer({ channel, playback, chatEnabled }: Props) {
       primaryCameraId={playback.primaryCameraId}
       librasCameraId={playback.librasCameraId}
       chatEnabled={chatEnabled}
+      overlay={overlay}
     />
   );
 }

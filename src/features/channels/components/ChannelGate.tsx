@@ -34,7 +34,10 @@ export function ChannelGate({ slug, chatEnabled }: Props) {
   const playback = useLivePlaybackQuery(eventId, !!eventId && authorized);
 
   if (channel.isLoading) return <LiveGateLoading message={t('checkingAccess')} />;
-  if (channel.isError || !channel.data) return <NotFoundContent />;
+  // Sem `isError`: um refetch de fundo que falha não apaga o `data` em cache,
+  // e derrubar o player em 404 por causa dele tiraria o espectador do ar. Um
+  // erro de primeira carga cai aqui de qualquer forma — `data` é undefined.
+  if (!channel.data) return <NotFoundContent />;
 
   if (!isFree && (authLoading || access.isLoading)) {
     return <LiveGateLoading message={t('checkingAccess')} />;
@@ -48,17 +51,21 @@ export function ChannelGate({ slug, chatEnabled }: Props) {
     return <LiveGateLoading message={t('loadingStream')} eventTitle={channel.data.name} />;
   }
 
-  const hasStream = !!playback.data?.live || (playback.data?.stages?.length ?? 0) > 0;
+  // O sinal de fora do ar é o `live` do playback (polling de 5 s), não o
+  // `isOnAir` da grade (refetch de 60 s): a grade atrasa o encoder em até um
+  // minuto nos dois sentidos, e as duas divergem quando a transmissão sai do
+  // horário. O overlay entra dentro do player para sobreviver ao fullscreen.
+  const offAir = !playback.data?.live;
+  const overlay = offAir ? <OffAirOverlay next={channel.data.next} /> : null;
+
+  if (!playback.data) return <div className={styles.stage}>{overlay}</div>;
 
   return (
-    <div className={styles.stage}>
-      {playback.data && hasStream && (
-        <ChannelPlayer channel={channel.data} playback={playback.data} chatEnabled={chatEnabled} />
-      )}
-
-      {/* Sem stream resolvido o canal está, na prática, fora do ar — a grade
-          diverge da transmissão de vez em quando e o espectador vê o mesmo. */}
-      {(!channel.data.isOnAir || !hasStream) && <OffAirOverlay next={channel.data.next} />}
-    </div>
+    <ChannelPlayer
+      channel={channel.data}
+      playback={playback.data}
+      chatEnabled={chatEnabled}
+      overlay={overlay}
+    />
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { Volume2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -42,6 +43,9 @@ interface LivePlayerProps {
   // a programação (agora / a seguir) nesse espaço.
   metaLineOverride?: string;
   exitHref?: string;
+  // Camada opcional sobre o stage inteiro, dentro do elemento que vira
+  // fullscreen — o overlay de fora do ar do canal some se ficar de fora dele.
+  overlay?: ReactNode;
 }
 
 function useStages(cameras: LiveCamera[], rawStages?: LiveStage[]): LiveStage[] {
@@ -65,7 +69,7 @@ function initialStageId(stages: LiveStage[], primaryCameraId?: string | null): s
   return stages.find((s) => s.cameras.length > 0)?.stageId ?? stages[0]?.stageId ?? '__main__';
 }
 
-export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, chatEnabled, variant = 'event', metaLineOverride, exitHref }: LivePlayerProps) {
+export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, chatEnabled, variant = 'event', metaLineOverride, exitHref, overlay }: LivePlayerProps) {
   const t = useTranslations('player');
   const isChannel = variant === 'channel';
   const router = useRouter();
@@ -314,6 +318,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
       <ReactionsTicker totalReactions={chat.totalReactions} />
 
       <RecommendedOverlay eventId={eventId} containerRef={containerRef} isFullscreen={isFullscreen} />
+
+      {overlay}
     </div>
   );
 }

@@ -16,6 +16,8 @@ export function OffAirOverlay({ next }: Props) {
 
   // Hora e nome ficam em elementos separados de propósito: a mensagem
   // traduzida é o rótulo, o horário é o dado — sem interpolação para traduzir.
+  // Por contrato, `channels.backAt` é um rótulo puro ("Volta às"), sem
+  // placeholder `{time}`: nada é passado para o `t`.
   const time = next
     ? new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }).format(
         new Date(next.startsAt),

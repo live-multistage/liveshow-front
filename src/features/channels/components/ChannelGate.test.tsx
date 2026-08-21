@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import type { PublicChannel } from '../types/channel.types';
@@ -40,7 +41,12 @@ vi.mock('@/features/streaming/queries/live.queries', () => ({
 }));
 
 vi.mock('./ChannelPlayer', () => ({
-  ChannelPlayer: () => <div>channel-player-stub</div>,
+  ChannelPlayer: ({ overlay }: { overlay?: ReactNode }) => (
+    <div>
+      channel-player-stub
+      {overlay}
+    </div>
+  ),
 }));
 
 vi.mock('@/features/streaming/components/LiveGateLoading', () => ({
@@ -83,6 +89,7 @@ describe('ChannelGate', () => {
     channelState.isError = false;
     accessState.data = true;
     playbackState.isLoading = false;
+    playbackState.data.live = true;
   });
 
   it('shows the loading state while the channel is resolving', () => {
@@ -100,6 +107,17 @@ describe('ChannelGate', () => {
     expect(screen.getByText('not-found-stub')).toBeInTheDocument();
   });
 
+  it('keeps the player mounted when a background refetch fails', () => {
+    channelState.isLoading = false;
+    channelState.isError = true;
+    channelState.data = channel();
+
+    render(<ChannelGate slug="canal" chatEnabled={false} />);
+
+    expect(screen.getByText('channel-player-stub')).toBeInTheDocument();
+    expect(screen.queryByText('not-found-stub')).toBeNull();
+  });
+
   it('renders the player when the channel is on air', () => {
     channelState.isLoading = false;
     channelState.data = channel();
@@ -110,13 +128,28 @@ describe('ChannelGate', () => {
     expect(screen.queryByText('channels.offAir')).toBeNull();
   });
 
-  it('layers the off-air overlay over the player when the channel is off air', () => {
+  // A grade (`isOnAir`, refetch de 60s) atrasa o encoder; quem manda é o
+  // `live` do playback, que é pollado de 5 em 5 segundos.
+  it('layers the off-air overlay inside the player when the stream is down', () => {
     channelState.isLoading = false;
-    channelState.data = channel({ isOnAir: false });
+    channelState.data = channel({ isOnAir: true });
+    playbackState.data.live = false;
 
     render(<ChannelGate slug="canal" chatEnabled={false} />);
 
+    expect(screen.getByText('channel-player-stub')).toBeInTheDocument();
     expect(screen.getByText('channels.offAir')).toBeInTheDocument();
+  });
+
+  it('hides the overlay while the stream is up, even on a stale off-air schedule', () => {
+    channelState.isLoading = false;
+    channelState.data = channel({ isOnAir: false });
+    playbackState.data.live = true;
+
+    render(<ChannelGate slug="canal" chatEnabled={false} />);
+
+    expect(screen.getByText('channel-player-stub')).toBeInTheDocument();
+    expect(screen.queryByText('channels.offAir')).toBeNull();
   });
 
   it('blocks a subscription channel the viewer has no access to', () => {
