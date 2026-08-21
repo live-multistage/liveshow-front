@@ -1,0 +1,62 @@
+@use '../../../styles/_variables' as *;
+
+// Container do gate: o player ocupa a viewport inteira e o overlay se ancora
+// nele. Importado também pelo ChannelGate — é a mesma peça visual.
+.stage {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  background-color: $bg;
+}
+
+// Acima da grade de câmeras e da barra de transporte (z-index 30 no
+// LivePlayer), abaixo de nada: fora do ar, não há o que operar embaixo.
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+  background: rgba(8, 8, 10, 0.88);
+  backdrop-filter: blur(10px);
+  color: $text-primary;
+}
+
+.title {
+  font-family: 'Archivo', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.backAt {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $text-muted;
+  margin: 0;
+}
+
+.time {
+  font-family: 'Archivo', sans-serif;
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: $action;
+  margin: 0;
+}
+
+.nextName {
+  font-family: 'Archivo', sans-serif;
+  font-size: 0.9375rem;
+  color: $text-secondary;
+  margin: 0;
+}

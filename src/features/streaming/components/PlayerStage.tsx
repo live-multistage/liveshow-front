@@ -8,7 +8,7 @@ import { SessionWatermark } from './SessionWatermark';
 import styles from './PlayerStage.module.scss';
 
 interface PlayerStageProps {
-  mode: 'live' | 'replay';
+  mode: 'live' | 'replay' | 'channel';
   paused: boolean;
   onResume: () => void;
   // Owned by the player (its header also hides on it); fed by
@@ -28,21 +28,27 @@ interface PlayerStageProps {
 // travada: a imagem congela e nada na tela explica por quê.
 export function PlayerStage({ mode, paused, onResume, pauseAdVisible, onPauseAdVisibleChange, children }: PlayerStageProps) {
   const t = useTranslations('player');
+  // Um canal não tem arquivo atrás da janela de ~12 s da origem: não há para
+  // onde pausar. Sem pausa, o takeover de anúncio, o play central e o chip de
+  // "pausado" não têm o que representar.
+  const pausable = mode !== 'channel';
 
   return (
     <>
-      <PauseAdTakeover
-        paused={paused}
-        onResume={onResume}
-        onVisibleChange={onPauseAdVisibleChange}
-      />
+      {pausable && (
+        <PauseAdTakeover
+          paused={paused}
+          onResume={onResume}
+          onVisibleChange={onPauseAdVisibleChange}
+        />
+      )}
 
-      <div className={`${styles.stageArea} ${pauseAdVisible ? styles.stageAreaShrunk : ''}`}>
+      <div className={`${styles.stageArea} ${pausable && pauseAdVisible ? styles.stageAreaShrunk : ''}`}>
         {children}
 
         <SessionWatermark />
 
-        {paused && (
+        {pausable && paused && (
           <button
             type="button"
             className={styles.centerPlayOverlay}
@@ -55,7 +61,7 @@ export function PlayerStage({ mode, paused, onResume, pauseAdVisible, onPauseAdV
           </button>
         )}
 
-        {pauseAdVisible && (
+        {pausable && pauseAdVisible && (
           <span className={styles.pausedChip}>
             <span className={styles.pausedDot} />
             {mode === 'live' ? t('pausedChipLive') : t('pausedChip')}

@@ -34,6 +34,14 @@ interface LivePlayerProps {
   title: string;
   eventId: string;
   chatEnabled: boolean;
+  // 'channel': transmissão contínua sem arquivo atrás da janela da origem —
+  // não há o que pausar nem para onde rebobinar, então os controles de
+  // playback (e o takeover de anúncio que depende deles) saem de cena.
+  variant?: 'event' | 'channel';
+  // Substitui a linha "palco · câmera · qualidade" do header — o canal mostra
+  // a programação (agora / a seguir) nesse espaço.
+  metaLineOverride?: string;
+  exitHref?: string;
 }
 
 function useStages(cameras: LiveCamera[], rawStages?: LiveStage[]): LiveStage[] {
@@ -57,8 +65,9 @@ function initialStageId(stages: LiveStage[], primaryCameraId?: string | null): s
   return stages.find((s) => s.cameras.length > 0)?.stageId ?? stages[0]?.stageId ?? '__main__';
 }
 
-export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, chatEnabled }: LivePlayerProps) {
+export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, chatEnabled, variant = 'event', metaLineOverride, exitHref }: LivePlayerProps) {
   const t = useTranslations('player');
+  const isChannel = variant === 'channel';
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
@@ -73,6 +82,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   // up where the viewer stopped — behind the live edge, inside the DVR window.
   // Returning to the edge is the transport bar's job, not this state's.
   const [paused, setPaused] = useState(false);
+  const togglePlay = () => setPaused((p) => !p);
   const [chatOpen, setChatOpen] = useState(false);
   // Drives the video-shrinks-into-a-card takeover: fed by PauseAdTakeover's
   // onVisibleChange, which fires false on resume/unmount so this can never
@@ -171,7 +181,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   const effectiveViewMode: ViewMode = activeCameraIds.length <= 1 ? 'solo' : viewMode;
 
   const mainCameraName = activeStage?.cameras.find((c) => c.cameraId === effectiveMainCameraId)?.name;
-  const metaLine = [activeStage?.name, mainCameraName, qualityLabel].filter(Boolean).join(' · ');
+  const metaLine = metaLineOverride ?? [activeStage?.name, mainCameraName, qualityLabel].filter(Boolean).join(' · ');
 
   // Once the viewer turns sound on, the autoplay prompt is done for the session.
   useEffect(() => {
@@ -182,7 +192,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     onToggleFullscreen: toggleFullscreen,
     onToggleCameraPanel: () => setCameraStripOpen((o) => !o),
     onToggleMute: () => setGlobalMuted((m) => !m),
-    onTogglePlay: () => setPaused((p) => !p),
+    // Sem pausa no canal, a tecla de espaço não tem o que alternar.
+    onTogglePlay: isChannel ? () => {} : togglePlay,
     onVolumeUp: () => { setVolume((v) => clampVolume(v + VOLUME_STEP)); setGlobalMuted(false); },
     onVolumeDown: () => setVolume((v) => clampVolume(v - VOLUME_STEP)),
   });
@@ -202,7 +213,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
         stages={stages}
         activeStageId={activeStageId}
         onStageChange={setActiveStageId}
-        onExit={() => router.push(`/events/${eventId}`)}
+        onExit={() => router.push(exitHref ?? `/events/${eventId}`)}
         currentViewers={currentViewers}
         cameraCount={activeStage?.cameras.length ?? 0}
         cameraStripOpen={cameraStripOpen}
@@ -217,7 +228,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
       <div className={styles.main}>
         <div className={styles.gridArea}>
           <PlayerStage
-            mode="live"
+            mode={isChannel ? 'channel' : 'live'}
             paused={paused}
             onResume={() => setPaused(false)}
             pauseAdVisible={pauseAdVisible}
@@ -281,7 +292,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
           atLive={atLive}
           onSeek={handleSeek}
           paused={paused}
-          onTogglePlay={() => setPaused((p) => !p)}
+          onTogglePlay={togglePlay}
+          showPlayback={!isChannel}
           globalMuted={globalMuted}
           onToggleMute={() => setGlobalMuted((m) => !m)}
           volume={volume}

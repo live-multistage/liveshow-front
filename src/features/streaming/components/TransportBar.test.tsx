@@ -137,3 +137,36 @@ describe('TransportBar — play/pause', () => {
     expect(queryByLabelText('pause')).toBeNull();
   });
 });
+
+// A channel is a broadcast with no archive behind it: there is nothing to
+// pause into and nothing to scrub back to, so the whole playback half of the
+// bar goes away. The AO VIVO badge stays — a channel is always live.
+describe('TransportBar — showPlayback=false', () => {
+  it('drops the play/pause control', () => {
+    const { queryByLabelText } = render(<TransportBar {...baseProps} showPlayback={false} />);
+
+    expect(queryByLabelText('pause')).toBeNull();
+    expect(queryByLabelText('play')).toBeNull();
+  });
+
+  it('drops the DVR scrubber even when the window is seekable', () => {
+    const { queryByLabelText, queryByText } = render(
+      <TransportBar
+        {...baseProps}
+        showPlayback={false}
+        dvr={dvrAt(3517)}
+        atLive={false}
+        onSeek={vi.fn()}
+      />,
+    );
+
+    expect(queryByLabelText('seekPosition')).toBeNull();
+    expect(queryByText('-1:23')).toBeNull();
+  });
+
+  it('keeps the live badge', () => {
+    const { getByText } = render(<TransportBar {...baseProps} showPlayback={false} />);
+
+    expect(getByText('AO VIVO')).toBeInTheDocument();
+  });
+});

@@ -44,6 +44,10 @@ interface Props {
   // becomes the way back to the edge.
   paused: boolean;
   onTogglePlay: () => void;
+  // False no player de canal: sem arquivo atrás da janela da origem, não há
+  // como pausar nem para onde voltar — os dois controles somem juntos. O
+  // badge AO VIVO fica: um canal está sempre ao vivo.
+  showPlayback?: boolean;
   globalMuted: boolean;
   onToggleMute: () => void;
   volume: number;
@@ -66,6 +70,7 @@ export function TransportBar({
   onSeek,
   paused,
   onTogglePlay,
+  showPlayback = true,
   globalMuted,
   onToggleMute,
   volume,
@@ -82,11 +87,12 @@ export function TransportBar({
   onToggleFullscreen,
 }: Props) {
   const t = useTranslations('player');
-  const showScrubber = !!dvr && !!onSeek && dvr.end - dvr.start >= MIN_DVR_WINDOW_SEC;
+  const showScrubber =
+    showPlayback && !!dvr && !!onSeek && dvr.end - dvr.start >= MIN_DVR_WINDOW_SEC;
 
   return (
     <div className={styles.bar}>
-      <PlayPauseButton paused={paused} onTogglePlay={onTogglePlay} />
+      {showPlayback && <PlayPauseButton paused={paused} onTogglePlay={onTogglePlay} />}
 
       {atLive ? (
         <span className={styles.liveBadge}>
@@ -108,7 +114,7 @@ export function TransportBar({
         </button>
       )}
 
-      {dvr && onSeek && showScrubber && (
+      {showScrubber && dvr && onSeek && (
         <div className={styles.seekGroup}>
           <span className={styles.timeLabel}>{formatBehind(dvr.edge - dvr.position)}</span>
           <SeekSlider
