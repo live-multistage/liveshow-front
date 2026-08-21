@@ -20,6 +20,8 @@ import { useViewerTracking } from '../hooks/use-viewer-tracking';
 import { useViewerCount } from '../hooks/use-viewer-count';
 import { SessionWatermark } from './SessionWatermark';
 import { PauseAdTakeover } from '@/features/advertisements/components/PauseAdTakeover';
+import { useFullscreen } from '../hooks/use-fullscreen';
+import { RecommendedOverlay } from './RecommendedOverlay';
 import styles from './LivePlayer.module.scss';
 
 interface LivePlayerProps {
@@ -58,7 +60,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   const t = useTranslations('player');
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
   // Start with sound (YouTube-style). VideoPanel attempts unmuted autoplay and,
   // if the browser blocks it, falls back to muted and flips this back to true
   // (see onAutoplayBlocked → CameraGrid → here).
@@ -158,12 +160,6 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     setDvrSeeking(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stageCameraKey]);
-
-  const toggleFullscreen = () => {
-    if (!isFullscreen) containerRef.current?.requestFullscreen?.();
-    else document.exitFullscreen?.();
-    setIsFullscreen(!isFullscreen);
-  };
 
   const handleTogglePip = async () => {
     const video = containerRef.current?.querySelector<HTMLVideoElement>('video[data-focused="true"]');
@@ -397,6 +393,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
       </div>
 
       <ReactionsTicker totalReactions={chat.totalReactions} />
+
+      <RecommendedOverlay eventId={eventId} containerRef={containerRef} isFullscreen={isFullscreen} />
     </div>
   );
 }

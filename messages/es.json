@@ -710,7 +710,11 @@
     "connecting": "Conectando…",
     "noSignal": "Sin señal",
     "visitor": "visitante",
-    "resume": "Reanudar"
+    "resume": "Reanudar",
+    "recommendedTitle": "Recomendadas",
+    "recommendedOpen": "Mostrar lives recomendadas",
+    "recommendedClose": "Ocultar lives recomendadas",
+    "recommendedEmpty": "Nada que recomendar ahora"
   },
   "controlRoom": {
     "noCameraOnAir": "Ninguna cámara al aire",

@@ -9,11 +9,15 @@ import type { RecommendedEventsResponse } from '../types/event.types';
 // same boundary constraint documented in get-event.ts's eventKeys.
 export const RECOMMENDED_EVENTS_KEY = ['events', 'recommended'];
 
-export function useRecommendedEventsQuery(initialData?: RecommendedEventsResponse) {
+export function useRecommendedEventsQuery(
+  initialData?: RecommendedEventsResponse,
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: RECOMMENDED_EVENTS_KEY,
     queryFn: eventsService.getRecommendedEvents,
     initialData,
     staleTime: 5 * 60_000,
+    enabled: options?.enabled ?? true,
   });
 }

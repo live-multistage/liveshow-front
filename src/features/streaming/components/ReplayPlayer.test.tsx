@@ -52,6 +52,8 @@ const h = vi.hoisted(() => {
 vi.mock('hls.js', () => ({ default: h.MockHls }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock('@/lib/analytics/analytics-client', () => ({ track: vi.fn() }));
+// Needs a React Query provider; not what these tests exercise.
+vi.mock('./RecommendedOverlay', () => ({ RecommendedOverlay: () => null }));
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
 

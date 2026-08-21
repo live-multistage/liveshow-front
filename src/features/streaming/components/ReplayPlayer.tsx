@@ -14,6 +14,8 @@ import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-
 import { localToAbsolute } from '../utils/replay-timeline';
 import { useTrackPlaybackProgress, usePlaybackProgressQuery } from '@/features/playback-progress';
 import { useAuth } from '@/features/account/hooks/use-auth';
+import { useFullscreen } from '../hooks/use-fullscreen';
+import { RecommendedOverlay } from './RecommendedOverlay';
 import styles from './ReplayPlayer.module.scss';
 
 interface ReplayPlayerProps {
@@ -60,7 +62,7 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
   const [audioCameraId, setAudioCameraId] = useState<string | null>(null);
   const [levels, setLevels] = useState<QualityLevel[]>([]);
   const [currentLevel, setCurrentLevel] = useState(-1);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
   // Starts paused: a VOD stream autoplaying with sound the moment the page
   // loads (no direct user gesture on this element) is exactly what browser
   // autoplay policies block anyway — same big-play-button pattern as any
@@ -158,12 +160,6 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
   };
 
   const handleEnded = () => setPaused(true);
-
-  const toggleFullscreen = () => {
-    if (!isFullscreen) containerRef.current?.requestFullscreen?.();
-    else document.exitFullscreen?.();
-    setIsFullscreen(!isFullscreen);
-  };
 
   const handleTogglePip = async () => {
     const video = containerRef.current?.querySelector<HTMLVideoElement>('video[data-focused="true"]');
@@ -325,6 +321,8 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
           onToggleFullscreen={toggleFullscreen}
         />
       </div>
+
+      <RecommendedOverlay eventId={eventId} containerRef={containerRef} isFullscreen={isFullscreen} />
     </div>
   );
 }
