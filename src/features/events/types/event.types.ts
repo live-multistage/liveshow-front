@@ -76,6 +76,8 @@ export interface EventResponse {
   priceToCents?: number;
   collaborators?: EventOrganization[];
   collaborationRole?: 'OWNER' | 'COLLABORATOR';
+  // How long after the last camera drops the backend auto-finishes a LIVE event.
+  lifecycle: { idleFinishMinutes: number };
 }
 
 // NBR 15290 — Libras window accessibility state for an event.

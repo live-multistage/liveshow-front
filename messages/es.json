@@ -490,6 +490,8 @@
     },
     "finish": "Finalizar",
     "finishing": "Finalizando...",
+    "autoFinishHint": "Finaliza automáticamente {minutes} min después de que caiga la última señal",
+    "finishOverrideTitle": "Finalizar ahora (ignora el cierre automático)",
     "resumeLive": "Reanudar transmisión ({minutes} min restantes)",
     "resuming": "Reanudando...",
     "resumeDialogTitle": "¿Reanudar la transmisión en vivo?",

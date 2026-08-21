@@ -490,6 +490,8 @@
     },
     "finish": "Finish",
     "finishing": "Finishing...",
+    "autoFinishHint": "Auto-finishes {minutes} min after the last signal drops",
+    "finishOverrideTitle": "Finish now (overrides auto-finish)",
     "resumeLive": "Resume broadcast ({minutes} min left)",
     "resuming": "Resuming...",
     "resumeDialogTitle": "Resume live broadcast?",

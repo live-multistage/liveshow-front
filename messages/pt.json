@@ -490,6 +490,8 @@
     },
     "finish": "Encerrar",
     "finishing": "Encerrando...",
+    "autoFinishHint": "Encerra automaticamente {minutes} min após o último sinal cair",
+    "finishOverrideTitle": "Encerrar agora (ignora o encerramento automático)",
     "resumeLive": "Retomar transmissão ({minutes} min restantes)",
     "resuming": "Retomando...",
     "resumeDialogTitle": "Retomar transmissão ao vivo?",

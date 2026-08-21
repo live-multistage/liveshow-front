@@ -133,10 +133,17 @@ export function EventHeaderActions({
           icon={<StopCircle size={14} />}
           isLoading={isFinishing}
           loadingLabel={t('finishing')}
+          title={t('finishOverrideTitle')}
           onClick={onFinish}
         >
           {t('finish')}
         </Button>
+      )}
+
+      {event.status === 'LIVE' && (
+        <span className={styles.autoFinishHint}>
+          {t('autoFinishHint', { minutes: event.lifecycle.idleFinishMinutes })}
+        </span>
       )}
 
       {canResume && !readOnly && (

@@ -71,6 +71,7 @@ function makeEvent(overrides: Partial<EventResponse> = {}): EventResponse {
     camerasCount: 3,
     isFree: false,
     publiclyFunded: false,
+    lifecycle: { idleFinishMinutes: 10 },
     ...overrides,
   };
 }

@@ -196,6 +196,12 @@
 .statusFinished  { background: rgba(22,163,74,0.12);   color: $success-light; border: 1px solid rgba(22,163,74,0.3); }
 .statusCancelled { background: rgba(161,161,170,0.1);  color: #52525b; border: 1px solid rgba(161,161,170,0.2); }
 
+.autoFinishHint {
+  font-size: 0.75rem;
+  color: $text-muted;
+  white-space: nowrap;
+}
+
 .livePulse {
   display: inline-block;
   width: 6px;

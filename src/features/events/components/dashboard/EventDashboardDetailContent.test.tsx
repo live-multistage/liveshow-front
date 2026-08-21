@@ -82,6 +82,7 @@ const EVENT: EventResponse = {
   camerasCount: 0,
   isFree: true,
   publiclyFunded: false,
+  lifecycle: { idleFinishMinutes: 10 },
 };
 
 function makeOrg(id: string, role: OrganizationRole): OrganizationResponse {

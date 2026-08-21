@@ -33,6 +33,7 @@ function makeEvent(overrides: Partial<EventResponse> = {}): EventResponse {
     camerasCount: 0,
     isFree: true,
     publiclyFunded: false,
+    lifecycle: { idleFinishMinutes: 10 },
     ...overrides,
   };
 }
@@ -171,6 +172,28 @@ describe('EventHeaderActions resume live', () => {
 
     await waitFor(() => expect(onResumeLive).toHaveBeenCalledTimes(1));
     expect(screen.getByText('resumeDialogTitle')).toBeInTheDocument();
+  });
+});
+
+describe('EventHeaderActions auto-finish hint', () => {
+  it('explains the automatic finish next to the Finish button for a LIVE event', () => {
+    render(
+      <EventHeaderActions
+        {...baseProps}
+        event={makeEvent({ status: 'LIVE', lifecycle: { idleFinishMinutes: 10 } })}
+        onResumeLive={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('autoFinishHint')).toBeInTheDocument();
+  });
+
+  it('hides the hint when the event is not LIVE', () => {
+    render(
+      <EventHeaderActions {...baseProps} event={makeEvent({ status: 'DRAFT' })} onResumeLive={vi.fn()} />,
+    );
+
+    expect(screen.queryByText('autoFinishHint')).not.toBeInTheDocument();
   });
 });
 
