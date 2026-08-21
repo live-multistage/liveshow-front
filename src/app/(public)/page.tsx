@@ -5,13 +5,15 @@ import { fetchFeed } from '@/features/events/queries/get-feed.server';
 import { fetchRecommendedEvents } from '@/features/events/queries/get-recommended-events.server';
 import { fetchReplayCatalog } from '@/features/events/queries/get-replay-catalog.server';
 import { getInitialIsLoggedIn } from '@/features/account/queries/get-auth-state.server';
+import { fetchChannels } from '@/features/channels/queries/get-channels.server';
 
 export default async function Home() {
-  const [initialEvents, initialRecommended, initialReplayCatalog, locale, isLoggedIn] =
+  const [initialEvents, initialRecommended, initialReplayCatalog, initialChannels, locale, isLoggedIn] =
     await Promise.all([
       fetchFeed(),
       fetchRecommendedEvents(),
       fetchReplayCatalog(),
+      fetchChannels(),
       getLocale(),
       getInitialIsLoggedIn(),
     ]);
@@ -20,6 +22,7 @@ export default async function Home() {
       initialEvents={initialEvents}
       initialRecommended={initialRecommended}
       initialReplayCatalog={initialReplayCatalog}
+      initialChannels={initialChannels}
       localeCode={LOCALE_CODE[locale] ?? 'pt-BR'}
       isLoggedIn={isLoggedIn}
     />

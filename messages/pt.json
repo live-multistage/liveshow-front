@@ -329,7 +329,8 @@
       "platformAds": "Anúncios",
       "platformCoupons": "Cupons",
       "platformSettings": "Configurações",
-      "platformAudit": "Audit log"
+      "platformAudit": "Audit log",
+      "channels": "Canais"
     },
     "navMobile": {
       "overview": "Painel",
@@ -341,7 +342,8 @@
       "platformOrganizations": "Orgs",
       "platformEvents": "Eventos",
       "platformStreams": "Streams",
-      "platformRevenue": "Receita"
+      "platformRevenue": "Receita",
+      "channels": "Canais"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -1116,5 +1118,39 @@
     "withCollaborators": "com colaboradores",
     "errorToast": "Ocorreu um erro ao processar sua solicitação.",
     "noCollaborators": "Nenhum colaborador ainda."
+  },
+  "channels": {
+    "title": "Canais",
+    "now": "AGORA",
+    "next": "A SEGUIR",
+    "onAir": "NO AR",
+    "offAir": "Fora do ar",
+    "backAt": "Volta às",
+    "watch": "Assistir",
+    "errorToast": "Não foi possível concluir a ação",
+    "dashboard": {
+      "title": "Canais",
+      "new": "Novo canal",
+      "name": "Nome",
+      "slug": "Slug",
+      "description": "Descrição",
+      "timezone": "Fuso horário",
+      "publish": "Publicar",
+      "archive": "Arquivar",
+      "configureCameras": "Configurar câmeras",
+      "programs": "Programação",
+      "newProgram": "Novo programa",
+      "programName": "Nome do programa",
+      "startTime": "Início",
+      "duration": "Duração (min)",
+      "weekdays": "Dias da semana",
+      "save": "Salvar",
+      "delete": "Excluir",
+      "status": {
+        "DRAFT": "Rascunho",
+        "PUBLISHED": "Publicado",
+        "ARCHIVED": "Arquivado"
+      }
+    }
   }
 }

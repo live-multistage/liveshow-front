@@ -329,7 +329,8 @@
       "platformAds": "Advertisements",
       "platformCoupons": "Coupons",
       "platformSettings": "Settings",
-      "platformAudit": "Audit log"
+      "platformAudit": "Audit log",
+      "channels": "Channels"
     },
     "navMobile": {
       "overview": "Home",
@@ -341,7 +342,8 @@
       "platformOrganizations": "Orgs",
       "platformEvents": "Events",
       "platformStreams": "Streams",
-      "platformRevenue": "Revenue"
+      "platformRevenue": "Revenue",
+      "channels": "Channels"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -1113,5 +1115,39 @@
     "withCollaborators": "with collaborators",
     "errorToast": "An error occurred while processing your request.",
     "noCollaborators": "No collaborators yet."
+  },
+  "channels": {
+    "title": "Channels",
+    "now": "NOW",
+    "next": "NEXT",
+    "onAir": "ON AIR",
+    "offAir": "Off air",
+    "backAt": "Back at",
+    "watch": "Watch",
+    "errorToast": "The action could not be completed",
+    "dashboard": {
+      "title": "Channels",
+      "new": "New channel",
+      "name": "Name",
+      "slug": "Slug",
+      "description": "Description",
+      "timezone": "Timezone",
+      "publish": "Publish",
+      "archive": "Archive",
+      "configureCameras": "Configure cameras",
+      "programs": "Schedule",
+      "newProgram": "New program",
+      "programName": "Program name",
+      "startTime": "Start",
+      "duration": "Duration (min)",
+      "weekdays": "Weekdays",
+      "save": "Save",
+      "delete": "Delete",
+      "status": {
+        "DRAFT": "Draft",
+        "PUBLISHED": "Published",
+        "ARCHIVED": "Archived"
+      }
+    }
   }
 }

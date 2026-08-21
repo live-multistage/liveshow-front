@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useMyEventsQuery } from '@/features/events/queries/get-my-events';
 import { useEventStreamsQuery } from '../queries/streams.queries';
@@ -150,7 +151,13 @@ function CreateStreamForm({ eventId, onSuccess, onCancel }: CreateFormProps) {
 
 export function StreamsPageContent() {
   const { data: events = [], isLoading: eventsLoading } = useMyEventsQuery();
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  // `?eventId=` pré-seleciona o evento (o detalhe do canal manda "configurar
+  // câmeras" para cá). Só semeia o estado inicial: trocar de evento no seletor
+  // continua valendo, sem a URL puxar de volta.
+  const searchParams = useSearchParams();
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(
+    () => searchParams.get('eventId'),
+  );
   const [selectedStream, setSelectedStream]   = useState<StreamResponse | null>(null);
   const [showCreate, setShowCreate]           = useState(false);
   const [showTutorial, setShowTutorial]       = useState(false);

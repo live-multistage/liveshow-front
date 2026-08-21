@@ -7,6 +7,7 @@ import {
   CalendarDays,
   ShoppingCart,
   Radio,
+  Tv,
   BarChart2,
   Ticket,
   Megaphone,
@@ -40,6 +41,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'sales',          href: '/dashboard/sales',          icon: ShoppingCart },
     { navKey: 'coupons',        href: '/dashboard/coupons',        icon: Ticket },
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
+    { navKey: 'channels',       href: '/dashboard/channels',       icon: Tv },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
     { navKey: 'advertisement',  href: config.adsManagerUrl,        icon: Megaphone, external: true },
   ],
@@ -50,6 +52,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'sales',          href: '/dashboard/sales',          icon: ShoppingCart },
     { navKey: 'coupons',        href: '/dashboard/coupons',        icon: Ticket },
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
+    { navKey: 'channels',       href: '/dashboard/channels',       icon: Tv },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
     { navKey: 'advertisement',  href: config.adsManagerUrl,        icon: Megaphone, external: true },
   ],
@@ -82,8 +85,8 @@ export const DASHBOARD_ROLES: UserRole[] = ['ADMIN', 'ORGANIZER', 'ARTIST', 'SUP
 // by navKey. Order here is the on-screen order; labels come from
 // dashboard.navMobile.<navKey>. External items are never in the bottom bar.
 export const MOBILE_NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, string[]> = {
-  ADMIN: ['overview', 'organizations', 'events', 'streams', 'analytics'],
-  ORGANIZER: ['overview', 'organizations', 'events', 'streams', 'analytics'],
+  ADMIN: ['overview', 'events', 'streams', 'channels', 'analytics'],
+  ORGANIZER: ['overview', 'events', 'streams', 'channels', 'analytics'],
   ARTIST: ['overview', 'streams', 'analytics'],
   SUPER_ADMIN: ['overviewGlobal', 'platformOrganizations', 'platformEvents', 'platformStreams', 'platformRevenue'],
 };
