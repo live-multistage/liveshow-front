@@ -45,7 +45,11 @@ export function ProgramForm({ channelId, slug, onDone, program }: Props) {
     );
 
   const duration = Number(durationMin);
-  const canSubmit = Boolean(name.trim() && startTime && duration > 0 && days.length > 0);
+  // Espelha o UpsertProgramDto do backend (@Min(5) @Max(1440)): o form recusa
+  // antes de gastar um round-trip que voltaria 400.
+  const canSubmit = Boolean(
+    name.trim() && startTime && duration >= 5 && duration <= 1440 && days.length > 0,
+  );
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -96,7 +100,8 @@ export function ProgramForm({ channelId, slug, onDone, program }: Props) {
           <Input
             id="program-duration"
             type="number"
-            min={1}
+            min={5}
+            max={1440}
             value={durationMin}
             onChange={(e) => setDurationMin(e.target.value)}
           />

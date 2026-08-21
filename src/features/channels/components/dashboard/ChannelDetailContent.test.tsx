@@ -114,12 +114,14 @@ describe('ChannelDetailContent', () => {
     expect(screen.getAllByText('onAir')).toHaveLength(1);
   });
 
-  it('links the camera setup to the channel broadcast event', () => {
+  // O nome vai junto porque o container do canal não aparece em /events, então o
+  // seletor da página de streams não teria como rotular a opção.
+  it('links the camera setup to the channel broadcast event, carrying its name', () => {
     render(<ChannelDetailContent slug="canal-um" />);
 
     expect(screen.getByText('dashboard.configureCameras')).toHaveAttribute(
       'href',
-      '/dashboard/streams?eventId=evt-1',
+      `/dashboard/streams?eventId=evt-1&title=${encodeURIComponent(channelState.data!.name)}`,
     );
   });
 

@@ -155,16 +155,34 @@ export function StreamsPageContent() {
   // câmeras" para cá). Só semeia o estado inicial: trocar de evento no seletor
   // continua valendo, sem a URL puxar de volta.
   const searchParams = useSearchParams();
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(
-    () => searchParams.get('eventId'),
-  );
+  const [seeded] = useState(() => ({
+    id: searchParams.get('eventId'),
+    title: searchParams.get('title'),
+  }));
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(() => seeded.id);
   const [selectedStream, setSelectedStream]   = useState<StreamResponse | null>(null);
   const [showCreate, setShowCreate]           = useState(false);
   const [showTutorial, setShowTutorial]       = useState(false);
 
   const { data: streams = [], isLoading: streamsLoading } = useEventStreamsQuery(selectedEventId);
 
-  const activeEvent = events.find((e) => e.id === selectedEventId);
+  // useMyEventsQuery omite containers de canal (format=CHANNEL), então o evento
+  // vindo da URL pode não estar na lista. Sem uma opção sintética o seletor cai
+  // no placeholder e qualquer toque nele perde o canal. Ela fica ancorada na URL,
+  // não na seleção atual, para o canal continuar reselecionável depois da troca.
+  const orphanSeed =
+    seeded.id && !events.some((e) => e.id === seeded.id)
+      ? { id: seeded.id, title: seeded.title ?? seeded.id }
+      : null;
+
+  const eventOptions = [
+    ...(orphanSeed ? [{ value: orphanSeed.id, label: orphanSeed.title }] : []),
+    ...events.map((e) => ({ value: e.id, label: e.title })),
+  ];
+
+  const activeEvent =
+    events.find((e) => e.id === selectedEventId) ??
+    (orphanSeed && orphanSeed.id === selectedEventId ? orphanSeed : undefined);
 
   const handleEventChange = (eventId: string) => {
     setSelectedEventId(eventId || null);
@@ -196,7 +214,7 @@ export function StreamsPageContent() {
             onValueChange={handleEventChange}
             placeholder="Selecionar evento..."
             disabled={eventsLoading}
-            options={events.map((e) => ({ value: e.id, label: e.title }))}
+            options={eventOptions}
             leadingIcon={activeEvent && <span className={styles.eventDot} />}
           />
         </div>

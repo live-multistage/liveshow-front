@@ -73,9 +73,11 @@ export function ChannelDetailContent({ slug }: Props) {
               {t('dashboard.archive')}
             </Button>
           )}
+          {/* O container do canal não aparece em /events (é format=CHANNEL), então
+              o seletor de streams não sabe o nome dele — mandamos junto na URL. */}
           <Link
             className={styles.camerasLink}
-            href={`/dashboard/streams?eventId=${channel.broadcastEventId}`}
+            href={`/dashboard/streams?eventId=${channel.broadcastEventId}&title=${encodeURIComponent(channel.name)}`}
           >
             <Video size={14} />
             {t('dashboard.configureCameras')}

@@ -85,6 +85,31 @@ describe('ProgramForm', () => {
     expect(mutate).not.toHaveBeenCalled();
   });
 
+  // Espelha @Min(5)/@Max(1440) do UpsertProgramDto.
+  it.each(['4', '1441'])('does not submit a duration of %s minutes', (durationMin) => {
+    renderForm();
+    fillBase();
+    checkDays(0);
+    fireEvent.change(screen.getByLabelText('dashboard.duration'), {
+      target: { value: durationMin },
+    });
+
+    fireEvent.click(screen.getByText('dashboard.save'));
+
+    expect(mutate).not.toHaveBeenCalled();
+  });
+
+  it('accepts the duration bounds themselves', () => {
+    renderForm();
+    fillBase();
+    checkDays(0);
+    fireEvent.change(screen.getByLabelText('dashboard.duration'), { target: { value: '5' } });
+
+    fireEvent.click(screen.getByText('dashboard.save'));
+
+    expect(mutate.mock.calls[0][0].input.durationMin).toBe(5);
+  });
+
   it('closes itself once the program is saved', () => {
     mutate.mockImplementation((_args, options) => options.onSuccess());
 
