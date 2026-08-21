@@ -135,7 +135,7 @@ describe('ReplayPlayer — absolute timeline', () => {
     const { container } = render(
       <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} />,
     );
-    const slider = container.querySelector('input[type="range"][aria-label="Posição de reprodução"]') as HTMLInputElement;
+    const slider = container.querySelector('input[type="range"][aria-label="seekPosition"]') as HTMLInputElement;
     expect(slider.min).toBe(String(timeline.startsAtMs));
     expect(slider.max).toBe(String(timeline.endsAtMs));
   });
@@ -144,7 +144,7 @@ describe('ReplayPlayer — absolute timeline', () => {
     const { container } = render(
       <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} />,
     );
-    const slider = container.querySelector('input[type="range"][aria-label="Posição de reprodução"]') as HTMLInputElement;
+    const slider = container.querySelector('input[type="range"][aria-label="seekPosition"]') as HTMLInputElement;
     const seekTarget = CAM_A_START_MS + 120_000; // 2 minutes in, absolute ms
     fireEvent.change(slider, { target: { value: String(seekTarget) } });
 
