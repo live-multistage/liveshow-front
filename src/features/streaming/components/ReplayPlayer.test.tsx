@@ -127,7 +127,7 @@ describe('ReplayPlayer — absolute timeline', () => {
     const { getByText, queryByRole } = render(
       <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={null} />,
     );
-    expect(getByText('Replay ainda não disponível para este evento.')).toBeTruthy();
+    expect(getByText('replayNotAvailable')).toBeTruthy();
     expect(queryByRole('slider')).toBeNull();
   });
 
@@ -204,10 +204,10 @@ describe('ReplayPlayer — header stays clear of the camera drawer', () => {
     const header = container.querySelector('header')!;
     expect(header.style.right).toBe('');
 
-    fireEvent.click(getByTitle('Alternar câmeras'));
+    fireEvent.click(getByTitle('toggleCameras'));
     expect(header.style.right).toBe(`${DRAWER_W}px`);
 
-    fireEvent.click(getByTitle('Alternar câmeras'));
+    fireEvent.click(getByTitle('toggleCameras'));
     expect(header.style.right).toBe('');
   });
 
@@ -216,11 +216,11 @@ describe('ReplayPlayer — header stays clear of the camera drawer', () => {
       <ReplayPlayer cameras={[camA, camB]} title="Show" eventId="evt-1" timeline={timeline} />,
     );
 
-    fireEvent.click(getByTitle('Alternar câmeras'));
+    fireEvent.click(getByTitle('toggleCameras'));
     expect(container.querySelector('[class*="drawer"]')).not.toBeNull();
 
-    fireEvent.click(getByLabelText('Fechar câmeras'));
-    expect(queryByLabelText('Fechar câmeras')).toBeNull();
+    fireEvent.click(getByLabelText('closeCameras'));
+    expect(queryByLabelText('closeCameras')).toBeNull();
   });
 
   it('declares pointer-events: none on the bar and auto on its buttons/links in the stylesheet', () => {

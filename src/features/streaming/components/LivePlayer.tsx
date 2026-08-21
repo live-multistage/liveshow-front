@@ -1,26 +1,28 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { Volume2, Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { LiveCamera, LiveStage } from '../types/live.types';
 import { CameraGrid, DRAWER_W } from './CameraGrid';
-import type { QualityLevel, ViewMode } from './CameraGrid';
+import type { ViewMode } from './CameraGrid';
 import { Header } from './Header';
 import { TransportBar } from './TransportBar';
-import type { DvrState } from './TransportBar';
-import { isAtLiveEdge } from '../hooks/use-transport-controls';
-import type { LiveSeekCommand, LiveWindow } from '../hooks/use-transport-controls';
 import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
 import { useViewerTracking } from '../hooks/use-viewer-tracking';
 import { useViewerCount } from '../hooks/use-viewer-count';
+import { useFullscreen } from '../hooks/use-fullscreen';
+import { usePictureInPicture } from '../hooks/use-picture-in-picture';
+import { useQualityLevels } from '../hooks/use-quality-levels';
+import { usePlayerAudio } from '../hooks/use-player-audio';
+import { useCameraSelection } from '../hooks/use-camera-selection';
+import { useLiveDvr } from '../hooks/use-live-dvr';
 import { SessionWatermark } from './SessionWatermark';
 import { PauseAdTakeover } from '@/features/advertisements/components/PauseAdTakeover';
-import { useFullscreen } from '../hooks/use-fullscreen';
 import { RecommendedOverlay } from './RecommendedOverlay';
 import styles from './LivePlayer.module.scss';
 
@@ -61,19 +63,12 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
-  // Start with sound (YouTube-style). VideoPanel attempts unmuted autoplay and,
-  // if the browser blocks it, falls back to muted and flips this back to true
-  // (see onAutoplayBlocked → CameraGrid → here).
-  const [globalMuted, setGlobalMuted] = useState(false);
-  const [volume, setVolume] = useState(1);
+  const { togglePictureInPicture } = usePictureInPicture(containerRef);
   // Set when the browser blocked unmuted autoplay → drives the "tap for sound"
   // prompt. Cleared for good on the first unmute (see effect below), so it never
   // reappears after the viewer has chosen.
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
-  const [audioCameraId, setAudioCameraId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
-  const [mainCameraId, setMainCameraId] = useState<string | null>(null);
-  const [activeCameraIds, setActiveCameraIds] = useState<string[]>([]);
   const [cameraStripOpen, setCameraStripOpen] = useState(false);
   // A live stream can be paused: the broadcast keeps going, so resuming picks
   // up where the viewer stopped — behind the live edge, inside the DVR window.
@@ -86,50 +81,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   const [pauseAdVisible, setPauseAdVisible] = useState(false);
   const { user } = useAuth();
 
-  useViewerTracking(eventId, activeCameraIds, user?.id);
-  const { currentViewers } = useViewerCount(eventId);
-  const chat = useChat(eventId);
-
   const stages = useStages(cameras, rawStages);
   const [activeStageId, setActiveStageId] = useState<string>(() => initialStageId(stages, primaryCameraId));
-
-  const [levels, setLevels] = useState<QualityLevel[]>([]);
-  const [currentLevel, setCurrentLevel] = useState(-1);
-
-  // DVR: where the primary panel sits inside the manifest's seekable window,
-  // reported by that panel's own playback events. Null until the first report.
-  const [dvr, setDvr] = useState<DvrState | null>(null);
-  // The viewer's INTENT to sit behind the live edge, set only by an actual
-  // scrub-back. Deliberately NOT derived from `atLive` below: that is a
-  // MEASURED distance, and an ordinary rebuffer of more than
-  // LIVE_EDGE_TOLERANCE_SEC also puts the position behind the edge. Feeding
-  // that into hls.js's liveMaxLatencyDurationCount (which DVR lifts to
-  // Infinity) would permanently disable its catch-up for any viewer who ever
-  // stalls, on STANDARD live where nothing else reduces drift.
-  const [dvrSeeking, setDvrSeeking] = useState(false);
-  const [seekCommand, setSeekCommand] = useState<LiveSeekCommand | null>(null);
-
-  // Stable identity: this lands on the primary VideoPanel's timeupdate
-  // listener, which would otherwise be torn down and re-added on every tick.
-  const handleProgress = useCallback((position: number, end: number, live?: LiveWindow) => {
-    if (!live) return;
-    setDvr({ position, end, start: live.start, edge: live.edge, tolerance: live.tolerance });
-  }, []);
-
-  const atLive = !dvr || isAtLiveEdge(dvr.position, dvr.edge, dvr.tolerance);
-
-  // Live seek commands are addressed to the camera they were issued for (see
-  // CameraGrid, which now filters on seekCommand.cameraId). Clearing here is
-  // belt-and-suspenders for that, but it does own the intent flag: promoting
-  // another camera ends the rewind, and the promoted panel is at the same
-  // wall-clock instant anyway from following the previous primary's
-  // PROGRAM-DATE-TIME (use-clock-sync).
-  const handleMainCameraChange = useCallback((cameraId: string) => {
-    setMainCameraId(cameraId);
-    setSeekCommand(null);
-    setDvrSeeking(false);
-  }, []);
-
   const activeStage = stages.find((s) => s.stageId === activeStageId) ?? stages[0];
 
   // NBR 15290: the Libras window is only relevant when it belongs to the stage
@@ -138,6 +91,53 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     librasCameraId && activeStage?.cameras.some((c) => c.cameraId === librasCameraId)
       ? librasCameraId
       : null;
+
+  const {
+    activeCameraIds,
+    setActiveCameraIds,
+    setMainCameraId,
+    effectiveMainCameraId,
+    toggleCamera,
+  } = useCameraSelection({
+    librasCameraId: librasInStage,
+    // Deselecting the current main camera promotes a different one — a
+    // scrub-back intent tagged for the old camera no longer applies to the
+    // new primary, same as the explicit main-camera-change and stage-change
+    // clears below.
+    onMainDeselected: () => clearRewindIntent(),
+  });
+
+  const dvrState = useLiveDvr(effectiveMainCameraId);
+  const { dvr, dvrSeeking, seekCommand, atLive, handleProgress, handleSeek, endRewind, resetForStageChange, clearRewindIntent } = dvrState;
+
+  // Audio follows the MAIN camera unless the viewer explicitly picked an audio
+  // source. Falling back to cameras[0] instead used to leave the previous
+  // default camera's audio playing after switching the main view.
+  const {
+    globalMuted,
+    setGlobalMuted,
+    volume,
+    setVolume,
+    effectiveAudioCameraId,
+    handleAudioCameraChange,
+  } = usePlayerAudio({
+    cameras: activeStage?.cameras ?? [],
+    fallbackCameraId: effectiveMainCameraId ?? activeStage?.cameras[0]?.cameraId ?? null,
+  });
+
+  const { levels, onLevelsReady, currentLevel, onSelectLevel, qualityLabel } = useQualityLevels();
+
+  useViewerTracking(eventId, activeCameraIds, user?.id);
+  const { currentViewers } = useViewerCount(eventId);
+  const chat = useChat(eventId);
+
+  // Live seek commands are addressed to the camera they were issued for (see
+  // CameraGrid, which filters on seekCommand.cameraId). endRewind is
+  // belt-and-suspenders for that, and owns the intent flag.
+  const handleMainCameraChange = (cameraId: string) => {
+    setMainCameraId(cameraId);
+    endRewind();
+  };
 
   const stageCameraKey = (activeStage?.cameras ?? []).map((c) => c.cameraId).sort().join(',');
   useEffect(() => {
@@ -151,26 +151,9 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
         ? [librasInStage]
         : [];
     setActiveCameraIds(initial);
-    // A seek/DVR position belongs to the stage it was taken in: the new stage's
-    // cameras are different manifests with unrelated media timelines, and
-    // CameraGrid remounts on the stage key, so a surviving command would be
-    // replayed onto a fresh panel as a meaningless offset.
-    setSeekCommand(null);
-    setDvr(null);
-    setDvrSeeking(false);
+    resetForStageChange();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stageCameraKey]);
-
-  const handleTogglePip = async () => {
-    const video = containerRef.current?.querySelector<HTMLVideoElement>('video[data-focused="true"]');
-    if (!video) return;
-    try {
-      if (document.pictureInPictureElement) await document.exitPictureInPicture();
-      else await video.requestPictureInPicture();
-    } catch {
-      // PiP unsupported or blocked by the browser — no-op.
-    }
-  };
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -186,61 +169,10 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     }
   };
 
-  const handleToggleCamera = (cameraId: string) => {
-    // The Libras window is mandatory (NBR 15290) — never removable.
-    if (cameraId === librasInStage) return;
-    if (activeCameraIds.includes(cameraId)) {
-      if (activeCameraIds.length > 1) {
-        setActiveCameraIds(activeCameraIds.filter((id) => id !== cameraId));
-        // Deselecting the current main camera promotes a different one (see
-        // effectiveMainCameraId) — a scrub-back intent tagged for the old
-        // camera no longer applies to the new primary, same as the explicit
-        // main-camera-change and stage-change clears above.
-        if (cameraId === effectiveMainCameraId) setDvrSeeking(false);
-      }
-    } else {
-      setActiveCameraIds([...activeCameraIds, cameraId]);
-    }
-  };
-
-  const activeLevel = levels.find((l) => l.index === currentLevel);
-  const qualityLabel = currentLevel === -1 ? 'Auto' : activeLevel ? `${activeLevel.height}p` : 'Auto';
-
-  const effectiveMainCameraId =
-    mainCameraId && activeCameraIds.includes(mainCameraId)
-      ? mainCameraId
-      : (activeCameraIds[0] ?? null);
-
-  // Audio follows the MAIN camera unless the viewer explicitly picked an audio
-  // source. Falling back to cameras[0] instead used to leave the previous
-  // default camera's audio playing after switching the main view.
-  const effectiveAudioCameraId =
-    audioCameraId && activeStage?.cameras.some((c) => c.cameraId === audioCameraId)
-      ? audioCameraId
-      : (effectiveMainCameraId ?? activeStage?.cameras[0]?.cameraId ?? null);
-
-  // Declared here (not memoized) because it needs the camera the seek is
-  // addressed to. onSeek fires on a scrubber drag / badge click, never on a
-  // playback tick, so a fresh identity per render costs nothing.
-  const handleSeek = (time: number) => {
-    // Optimistic, so the scrubber tracks the drag instead of snapping back
-    // between timeupdates (same pattern as ReplayPlayer).
-    setDvr((d) => (d ? { ...d, position: time } : d));
-    // Intent: seeking meaningfully behind the edge starts a DVR rewind;
-    // seeking TO the edge (the badge's "back to live") ends it.
-    setDvrSeeking(!!dvr && !isAtLiveEdge(time, dvr.edge, dvr.tolerance));
-    setSeekCommand({ time, token: Date.now(), cameraId: effectiveMainCameraId });
-  };
-
   const effectiveViewMode: ViewMode = activeCameraIds.length <= 1 ? 'solo' : viewMode;
 
   const mainCameraName = activeStage?.cameras.find((c) => c.cameraId === effectiveMainCameraId)?.name;
   const metaLine = [activeStage?.name, mainCameraName, qualityLabel].filter(Boolean).join(' · ');
-
-  const handleAudioCameraChange = (id: string) => {
-    setAudioCameraId(id);
-    setGlobalMuted(false);
-  };
 
   // Once the viewer turns sound on, the autoplay prompt is done for the session.
   useEffect(() => {
@@ -297,7 +229,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
                 key={activeStage.stageId}
                 cameras={activeStage.cameras}
                 selectedLevel={currentLevel}
-                onLevelsReady={setLevels}
+                onLevelsReady={onLevelsReady}
                 globalMuted={globalMuted}
                 onGlobalMutedChange={setGlobalMuted}
                 onAutoplayBlocked={() => { setGlobalMuted(true); setAutoplayBlocked(true); }}
@@ -312,7 +244,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
                 activeCameraIds={activeCameraIds}
                 librasCameraId={librasInStage}
                 pickerOpen={cameraStripOpen}
-                onToggleCamera={handleToggleCamera}
+                onToggleCamera={toggleCamera}
                 onClosePicker={() => setCameraStripOpen(false)}
                 dvrActive={dvrSeeking}
                 seekCommand={seekCommand}
@@ -340,7 +272,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
             {pauseAdVisible && (
               <span className={styles.pausedChip}>
                 <span className={styles.pausedDot} />
-                AO VIVO · PAUSADO
+                {t('pausedChipLive')}
               </span>
             )}
           </div>
@@ -385,8 +317,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
           levels={levels}
           currentLevel={currentLevel}
           qualityLabel={qualityLabel}
-          onSelectLevel={setCurrentLevel}
-          onTogglePip={handleTogglePip}
+          onSelectLevel={onSelectLevel}
+          onTogglePip={togglePictureInPicture}
           isFullscreen={isFullscreen}
           onToggleFullscreen={toggleFullscreen}
         />

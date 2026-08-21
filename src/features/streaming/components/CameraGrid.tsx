@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { CSSProperties, KeyboardEvent } from 'react';
 import { X, Square, PanelRight, LayoutGrid, Minus, HandMetal } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
@@ -120,6 +121,7 @@ export function CameraGrid({
   onToggleCamera = () => {},
   onClosePicker = () => {},
 }: CameraGridProps) {
+  const t = useTranslations('player');
   const stageRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [aspectRatios, setAspectRatios] = useState<Record<string, number>>({});
@@ -344,7 +346,7 @@ export function CameraGrid({
                 type="button"
                 className={styles.drawerClose}
                 onClick={onClosePicker}
-                aria-label="Fechar câmeras"
+                aria-label={t('closeCameras')}
               >
                 <X size={13} />
               </button>
