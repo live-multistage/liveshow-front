@@ -62,7 +62,7 @@ describe('Header — stays clear of the camera drawer', () => {
     const { getByTitle } = render(
       <Header {...baseProps} cameraStripOpen style={{ right: DRAWER_W }} onToggleCameraStrip={onToggleCameraStrip} />,
     );
-    fireEvent.click(getByTitle('Alternar câmeras'));
+    fireEvent.click(getByTitle('toggleCameras'));
     expect(onToggleCameraStrip).toHaveBeenCalledTimes(1);
   });
 

@@ -2,6 +2,7 @@
 
 import { ChevronLeft, Users, Video, MessageSquare, Share2 } from 'lucide-react';
 import type { CSSProperties } from 'react';
+import { useTranslations } from 'next-intl';
 import { ReportButton } from '@/features/reports';
 import type { LiveStage } from '../types/live.types';
 import styles from './Header.module.scss';
@@ -60,9 +61,10 @@ export function Header({
   chatMessageCount,
   onShare,
 }: Props) {
+  const t = useTranslations('player');
   return (
     <header className={`${styles.header} ${className ?? ''}`} style={style}>
-      <button onClick={onExit} className={styles.backBtn} aria-label="Voltar">
+      <button onClick={onExit} className={styles.backBtn} aria-label={t('back')}>
         <ChevronLeft size={16} />
       </button>
 
@@ -78,7 +80,7 @@ export function Header({
       </div>
 
       {stages.length > 1 && (
-        <div className={styles.tabs} role="tablist" aria-label="Palcos">
+        <div className={styles.tabs} role="tablist" aria-label={t('stages')}>
           <span className={styles.tabsLabel}>PALCOS</span>
           {stages.map((stage) => (
             <button
@@ -106,24 +108,24 @@ export function Header({
         <button
           className={`${styles.drawerBtn} ${cameraStripOpen ? styles.drawerBtnActive : ''}`}
           onClick={onToggleCameraStrip}
-          title="Alternar câmeras"
+          title={t('toggleCameras')}
         >
           <Video size={13} />
-          Câmeras
+          {t('cameras')}
           <span className={styles.badge}>{cameraCount}</span>
         </button>
         {chatEnabled && (
           <button
             className={`${styles.drawerBtn} ${chatOpen ? styles.drawerBtnActive : ''}`}
             onClick={onToggleChat}
-            title="Alternar chat"
+            title={t('toggleChat')}
           >
             <MessageSquare size={13} />
             Chat
             <span className={styles.badge}>{chatMessageCount}</span>
           </button>
         )}
-        <button className={styles.iconBtn} onClick={onShare} title="Compartilhar" aria-label="Compartilhar">
+        <button className={styles.iconBtn} onClick={onShare} title={t('share')} aria-label={t('share')}>
           <Share2 size={14} />
         </button>
         <ReportButton eventId={eventId} className={styles.iconBtn} iconOnly />

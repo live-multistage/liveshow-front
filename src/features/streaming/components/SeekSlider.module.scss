@@ -14,7 +14,9 @@
   height: 4px;
   border-radius: 2px;
   cursor: pointer;
+  --fill: 0%;
   background-color: rgba(255, 255, 255, 0.15); // Firefox track fallback
+  background-image: linear-gradient(to right, $action var(--fill), rgba(255, 255, 255, 0.15) var(--fill));
 
   &::-webkit-slider-runnable-track {
     height: 4px;

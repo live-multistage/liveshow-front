@@ -1,5 +1,6 @@
 'use client';
 
+import type { CSSProperties } from 'react';
 import styles from './SeekSlider.module.scss';
 
 interface Props {
@@ -29,9 +30,7 @@ export function SeekSlider({ min = 0, max, value, onSeek, ariaLabel }: Props) {
       value={Math.min(Math.max(value, min), max)}
       onChange={(e) => onSeek(Number(e.target.value))}
       className={styles.seekSlider}
-      style={{
-        background: `linear-gradient(to right, #ff2e9e ${percent}%, rgba(255, 255, 255, 0.15) ${percent}%)`,
-      }}
+      style={{ '--fill': `${percent}%` } as CSSProperties}
       aria-label={ariaLabel}
     />
   );

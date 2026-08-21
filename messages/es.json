@@ -739,7 +739,10 @@
     "toggleCameras": "Alternar cámaras",
     "viewModeSolo": "Solo",
     "viewModeMainRail": "Principal + carril",
-    "viewModeGrid": "Cuadrícula"
+    "viewModeGrid": "Cuadrícula",
+    "toggleChat": "Alternar chat",
+    "share": "Compartir",
+    "stages": "Escenarios"
   },
   "controlRoom": {
     "noCameraOnAir": "Ninguna cámara al aire",

@@ -742,7 +742,10 @@
     "toggleCameras": "Alternar câmeras",
     "viewModeSolo": "Solo",
     "viewModeMainRail": "Principal + trilha",
-    "viewModeGrid": "Grade"
+    "viewModeGrid": "Grade",
+    "toggleChat": "Alternar chat",
+    "share": "Compartilhar",
+    "stages": "Palcos"
   },
   "controlRoom": {
     "noCameraOnAir": "Nenhuma câmera no ar",

@@ -739,7 +739,10 @@
     "toggleCameras": "Toggle cameras",
     "viewModeSolo": "Solo",
     "viewModeMainRail": "Main + rail",
-    "viewModeGrid": "Grid"
+    "viewModeGrid": "Grid",
+    "toggleChat": "Toggle chat",
+    "share": "Share",
+    "stages": "Stages"
   },
   "controlRoom": {
     "noCameraOnAir": "No camera on air",
