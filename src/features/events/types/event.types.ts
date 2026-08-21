@@ -77,7 +77,8 @@ export interface EventResponse {
   collaborators?: EventOrganization[];
   collaborationRole?: 'OWNER' | 'COLLABORATOR';
   // How long after the last camera drops the backend auto-finishes a LIVE event.
-  lifecycle: { idleFinishMinutes: number };
+  // Optional: a response cached before this field shipped won't carry it.
+  lifecycle?: { idleFinishMinutes: number };
 }
 
 // NBR 15290 — Libras window accessibility state for an event.

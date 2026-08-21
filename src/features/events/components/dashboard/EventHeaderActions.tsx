@@ -142,7 +142,7 @@ export function EventHeaderActions({
 
       {event.status === 'LIVE' && (
         <span className={styles.autoFinishHint}>
-          {t('autoFinishHint', { minutes: event.lifecycle.idleFinishMinutes })}
+          {t('autoFinishHint', { minutes: event.lifecycle?.idleFinishMinutes ?? 10 })}
         </span>
       )}
 

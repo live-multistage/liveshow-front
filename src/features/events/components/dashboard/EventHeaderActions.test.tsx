@@ -188,6 +188,19 @@ describe('EventHeaderActions auto-finish hint', () => {
     expect(screen.getByText('autoFinishHint')).toBeInTheDocument();
   });
 
+  // A response cached before `lifecycle` shipped used to throw here.
+  it('still renders the hint when a cached event carries no lifecycle', () => {
+    render(
+      <EventHeaderActions
+        {...baseProps}
+        event={makeEvent({ status: 'LIVE', lifecycle: undefined })}
+        onResumeLive={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('autoFinishHint')).toBeInTheDocument();
+  });
+
   it('hides the hint when the event is not LIVE', () => {
     render(
       <EventHeaderActions {...baseProps} event={makeEvent({ status: 'DRAFT' })} onResumeLive={vi.fn()} />,
