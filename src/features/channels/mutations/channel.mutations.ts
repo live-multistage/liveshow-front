@@ -1,0 +1,181 @@
+'use client';
+
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
+import { channelService } from '../services/channel.service';
+import { channelKeys } from '../queries/channel.queries';
+import { normalizeError } from '@/lib/http/errors';
+import type { CreateChannelInput, UpdateChannelInput, UpsertProgramInput } from '../types/channel.types';
+
+function useInvalidateChannel() {
+  const qc = useQueryClient();
+  return (slug: string, organizationId: string) => {
+    qc.invalidateQueries({ queryKey: channelKeys.org(organizationId) });
+    qc.invalidateQueries({ queryKey: channelKeys.detail(slug) });
+  };
+}
+
+function useErrorToast() {
+  const t = useTranslations('channels');
+  return () => toast.error(t('errorToast'));
+}
+
+export function useCreateChannelMutation() {
+  const qc = useQueryClient();
+  const toastError = useErrorToast();
+
+  return useMutation({
+    mutationFn: async (input: CreateChannelInput) => {
+      try {
+        return await channelService.create(input);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    onError: toastError,
+    onSettled: (_data, _error, input) => {
+      qc.invalidateQueries({ queryKey: channelKeys.list });
+      qc.invalidateQueries({ queryKey: channelKeys.org(input.organizationId) });
+    },
+  });
+}
+
+interface UpdateChannelArgs {
+  id: string;
+  slug: string;
+  organizationId: string;
+  input: UpdateChannelInput;
+}
+
+export function useUpdateChannelMutation() {
+  const invalidate = useInvalidateChannel();
+  const toastError = useErrorToast();
+
+  return useMutation({
+    mutationFn: async ({ id, input }: UpdateChannelArgs) => {
+      try {
+        return await channelService.update(id, input);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    onError: toastError,
+    onSettled: (_data, _error, { slug, organizationId }) => invalidate(slug, organizationId),
+  });
+}
+
+interface ChannelActionArgs {
+  id: string;
+  slug: string;
+  organizationId: string;
+}
+
+export function usePublishChannelMutation() {
+  const invalidate = useInvalidateChannel();
+  const toastError = useErrorToast();
+
+  return useMutation({
+    mutationFn: async ({ id }: ChannelActionArgs) => {
+      try {
+        return await channelService.publish(id);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    onError: toastError,
+    onSettled: (_data, _error, { slug, organizationId }) => invalidate(slug, organizationId),
+  });
+}
+
+export function useArchiveChannelMutation() {
+  const invalidate = useInvalidateChannel();
+  const toastError = useErrorToast();
+
+  return useMutation({
+    mutationFn: async ({ id }: ChannelActionArgs) => {
+      try {
+        return await channelService.archive(id);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    onError: toastError,
+    onSettled: (_data, _error, { slug, organizationId }) => invalidate(slug, organizationId),
+  });
+}
+
+interface UploadCoverArgs {
+  id: string;
+  slug: string;
+  organizationId: string;
+  file: File;
+}
+
+export function useUploadChannelCoverMutation() {
+  const invalidate = useInvalidateChannel();
+  const toastError = useErrorToast();
+
+  return useMutation({
+    mutationFn: async ({ id, file }: UploadCoverArgs) => {
+      try {
+        return await channelService.uploadCover(id, file);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    onError: toastError,
+    onSettled: (_data, _error, { slug, organizationId }) => invalidate(slug, organizationId),
+  });
+}
+
+interface UpsertProgramArgs {
+  input: UpsertProgramInput;
+  programId?: string;
+  slug: string;
+}
+
+export function useUpsertProgramMutation(channelId: string) {
+  const qc = useQueryClient();
+  const toastError = useErrorToast();
+
+  return useMutation({
+    mutationFn: async ({ input, programId }: UpsertProgramArgs) => {
+      try {
+        return await channelService.upsertProgram(channelId, input, programId);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    onError: toastError,
+    onSettled: (_data, _error, { slug }) => {
+      qc.invalidateQueries({ queryKey: channelKeys.detail(slug) });
+      qc.invalidateQueries({ queryKey: ['channels', 'schedule', slug] });
+    },
+  });
+}
+
+interface DeleteProgramArgs {
+  programId: string;
+  slug: string;
+}
+
+export function useDeleteProgramMutation(channelId: string) {
+  const qc = useQueryClient();
+  const toastError = useErrorToast();
+
+  return useMutation({
+    mutationFn: async ({ programId }: DeleteProgramArgs) => {
+      try {
+        await channelService.deleteProgram(channelId, programId);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    onError: toastError,
+    onSettled: (_data, _error, { slug }) => {
+      qc.invalidateQueries({ queryKey: channelKeys.detail(slug) });
+      qc.invalidateQueries({ queryKey: ['channels', 'schedule', slug] });
+    },
+  });
+}
