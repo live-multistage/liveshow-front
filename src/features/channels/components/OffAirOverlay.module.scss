@@ -9,12 +9,14 @@
   background-color: $bg;
 }
 
-// Acima da grade de câmeras e da barra de transporte (z-index 30 no
-// LivePlayer), abaixo de nada: fora do ar, não há o que operar embaixo.
+// Acima de toda a grade de câmeras (stageArea 2, slots até ~24 com a janela
+// de Libras) e abaixo do header (35) e da bottomStack (30): fora do ar não há
+// imagem para ver, mas sair do canal, abrir o chat e mexer no volume têm de
+// continuar clicáveis.
 .overlay {
   position: absolute;
   inset: 0;
-  z-index: 40;
+  z-index: 25;
   display: flex;
   flex-direction: column;
   align-items: center;

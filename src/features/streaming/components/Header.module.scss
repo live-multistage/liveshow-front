@@ -10,7 +10,10 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 20;
+  // Acima do overlay de fora do ar do canal (25) e da bottomStack (30): a
+  // barra é um gradiente transparente com pointer-events: none fora dos
+  // botões, então subi-la não rouba clique de nada embaixo.
+  z-index: 35;
   display: flex;
   align-items: center;
   gap: 0.875rem;
