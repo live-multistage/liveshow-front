@@ -12,6 +12,7 @@ import styles from './ChannelsPageContent.module.scss';
 export function ChannelsPageContent() {
   const t = useTranslations('channels');
   const tDashboard = useTranslations('dashboard');
+  const tCommon = useTranslations('common');
   const { data: organizations = [] } = useMyOrganizationsQuery();
   const [organizationId, setOrganizationId] = useState('');
 
@@ -47,12 +48,11 @@ export function ChannelsPageContent() {
         </div>
       </header>
 
-      {isLoading && <p className={styles.state}>…</p>}
+      {isLoading && <p className={styles.state}>{tCommon('loading')}</p>}
 
       {!isLoading && channels.length === 0 && (
         <div className={styles.empty}>
           <Tv size={32} className={styles.emptyIcon} />
-          <p>{t('dashboard.title')}</p>
           <Link href="/dashboard/channels/new" className={styles.newLink}>
             <Plus size={14} />
             {t('dashboard.new')}

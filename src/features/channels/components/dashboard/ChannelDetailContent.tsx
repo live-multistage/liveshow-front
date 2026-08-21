@@ -18,11 +18,13 @@ interface Props {
 
 export function ChannelDetailContent({ slug }: Props) {
   const t = useTranslations('channels');
+  const tCommon = useTranslations('common');
   const { data: channel, isLoading } = useChannelQuery(slug);
   const publish = usePublishChannelMutation();
   const archive = useArchiveChannelMutation();
 
-  if (!channel) return <p className={styles.state}>{isLoading ? '…' : t('offAir')}</p>;
+  if (!channel)
+    return <p className={styles.state}>{tCommon(isLoading ? 'loading' : 'notFound')}</p>;
 
   // As três mutations invalidam por slug + organização, então o alvo vai
   // completo em toda ação.
