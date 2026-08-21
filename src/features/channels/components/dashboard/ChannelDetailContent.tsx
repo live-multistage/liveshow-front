@@ -1,9 +1,18 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Video } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Badge, Button } from '@live-show/design-system';
+import {
+  Badge,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@live-show/design-system';
+import { ChannelForm } from './ChannelForm';
 import { useChannelQuery } from '../../queries/channel.queries';
 import {
   useArchiveChannelMutation,
@@ -22,6 +31,7 @@ export function ChannelDetailContent({ slug }: Props) {
   const { data: channel, isLoading } = useChannelQuery(slug);
   const publish = usePublishChannelMutation();
   const archive = useArchiveChannelMutation();
+  const [editing, setEditing] = useState(false);
 
   if (!channel)
     return <p className={styles.state}>{tCommon(isLoading ? 'loading' : 'notFound')}</p>;
@@ -45,6 +55,9 @@ export function ChannelDetailContent({ slug }: Props) {
         </div>
 
         <div className={styles.actions}>
+          <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
+            {t('dashboard.edit')}
+          </Button>
           {channel.status !== 'PUBLISHED' && (
             <Button size="sm" disabled={publish.isPending} onClick={() => publish.mutate(target)}>
               {t('dashboard.publish')}
@@ -70,7 +83,21 @@ export function ChannelDetailContent({ slug }: Props) {
         </div>
       </header>
 
-      <ProgramGridEditor channelId={channel.id} slug={channel.slug} />
+      <ProgramGridEditor
+        channelId={channel.id}
+        slug={channel.slug}
+        timezone={channel.timezone}
+        status={channel.status}
+      />
+
+      <Dialog open={editing} onOpenChange={setEditing}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('dashboard.edit')}</DialogTitle>
+          </DialogHeader>
+          <ChannelForm mode="edit" initial={channel} onDone={() => setEditing(false)} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -3,14 +3,17 @@
 import { useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Button, Input } from '@live-show/design-system';
-import { WEEKDAYS, buildRRule, type Weekday } from '../../utils/rrule';
+import { WEEKDAYS, buildRRule, parseRRule, type Weekday } from '../../utils/rrule';
 import { useUpsertProgramMutation } from '../../mutations/channel.mutations';
+import type { Program } from '../../types/channel.types';
 import styles from './ProgramForm.module.scss';
 
 interface Props {
   channelId: string;
   slug: string;
   onDone: () => void;
+  // Presente = edição: os campos vêm do programa e o upsert leva o programId.
+  program?: Program;
 }
 
 // 2024-01-01 caiu numa segunda-feira: a semana começando nele dá os nomes
@@ -18,15 +21,18 @@ interface Props {
 // nova para cada dia.
 const REFERENCE_MONDAY = Date.UTC(2024, 0, 1);
 
-export function ProgramForm({ channelId, slug, onDone }: Props) {
+export function ProgramForm({ channelId, slug, onDone, program }: Props) {
   const t = useTranslations('channels');
   const locale = useLocale();
   const mutation = useUpsertProgramMutation(channelId);
 
-  const [name, setName] = useState('');
-  const [startTime, setStartTime] = useState('20:00');
-  const [durationMin, setDurationMin] = useState('60');
-  const [days, setDays] = useState<Weekday[]>([]);
+  const [name, setName] = useState(program?.name ?? '');
+  // O backend guarda HH:mm:ss em alguns casos; o input type="time" só aceita HH:mm.
+  const [startTime, setStartTime] = useState(program?.startTime.slice(0, 5) ?? '20:00');
+  const [durationMin, setDurationMin] = useState(String(program?.durationMin ?? 60));
+  const [days, setDays] = useState<Weekday[]>(() =>
+    program ? parseRRule(program.rrule) : [],
+  );
 
   const dayLabels = useMemo(() => {
     const format = new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' });
@@ -54,6 +60,7 @@ export function ProgramForm({ channelId, slug, onDone }: Props) {
           durationMin: duration,
           rrule: buildRRule(days),
         },
+        programId: program?.id,
         slug,
       },
       { onSuccess: onDone },

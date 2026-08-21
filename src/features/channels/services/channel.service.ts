@@ -66,6 +66,11 @@ export const channelService = {
     return data;
   },
 
+  listPrograms: async (channelId: string): Promise<Program[]> => {
+    const { data } = await httpClient.get<Program[]>(`/channels/${channelId}/programs`);
+    return data;
+  },
+
   upsertProgram: async (
     channelId: string,
     input: UpsertProgramInput,

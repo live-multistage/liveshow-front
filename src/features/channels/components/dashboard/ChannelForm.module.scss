@@ -28,6 +28,16 @@
   color: $text-secondary;
 }
 
+.file {
+  font-size: 0.8125rem;
+  color: $text-secondary;
+}
+
+.hint {
+  font-size: 0.6875rem;
+  color: $text-muted;
+}
+
 .select {
   height: 2.25rem;
   padding: 0 0.6rem;

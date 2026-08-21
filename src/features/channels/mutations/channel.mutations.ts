@@ -150,6 +150,7 @@ export function useUpsertProgramMutation(channelId: string) {
     onError: toastError,
     onSettled: (_data, _error, { slug }) => {
       qc.invalidateQueries({ queryKey: channelKeys.detail(slug) });
+      qc.invalidateQueries({ queryKey: channelKeys.programs(channelId) });
       qc.invalidateQueries({ queryKey: ['channels', 'schedule', slug] });
     },
   });
@@ -175,6 +176,7 @@ export function useDeleteProgramMutation(channelId: string) {
     onError: toastError,
     onSettled: (_data, _error, { slug }) => {
       qc.invalidateQueries({ queryKey: channelKeys.detail(slug) });
+      qc.invalidateQueries({ queryKey: channelKeys.programs(channelId) });
       qc.invalidateQueries({ queryKey: ['channels', 'schedule', slug] });
     },
   });

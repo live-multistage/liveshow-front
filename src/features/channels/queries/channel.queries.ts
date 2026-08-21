@@ -9,6 +9,7 @@ export const channelKeys = {
   detail: (slug: string) => ['channels', 'detail', slug] as const,
   schedule: (slug: string, day?: string) => ['channels', 'schedule', slug, day] as const,
   org: (organizationId: string) => ['channels', 'org', organizationId] as const,
+  programs: (channelId: string) => ['channels', 'programs', channelId] as const,
 };
 
 export function useChannelsQuery(options?: { enabled?: boolean }) {
@@ -39,6 +40,20 @@ export function useChannelScheduleQuery(
     queryKey: channelKeys.schedule(slug, day),
     queryFn: () => channelService.schedule(slug, day),
     enabled: options?.enabled !== false,
+    // Canal em rascunho responde 404 na grade pública — repetir três vezes por
+    // coluna só atrasa a tela.
+    retry: false,
+  });
+}
+
+// A grade pública (schedule) só devolve slots — nome e horário de cada
+// ocorrência. Para editar um programa é preciso a regra crua, que só existe
+// aqui.
+export function useChannelProgramsQuery(channelId: string, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: channelKeys.programs(channelId),
+    queryFn: () => channelService.listPrograms(channelId),
+    enabled: options?.enabled !== false && Boolean(channelId),
   });
 }
 

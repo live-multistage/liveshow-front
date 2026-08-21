@@ -85,8 +85,8 @@ export const DASHBOARD_ROLES: UserRole[] = ['ADMIN', 'ORGANIZER', 'ARTIST', 'SUP
 // by navKey. Order here is the on-screen order; labels come from
 // dashboard.navMobile.<navKey>. External items are never in the bottom bar.
 export const MOBILE_NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, string[]> = {
-  ADMIN: ['overview', 'events', 'streams', 'channels', 'analytics'],
-  ORGANIZER: ['overview', 'events', 'streams', 'channels', 'analytics'],
+  ADMIN: ['overview', 'organizations', 'events', 'streams', 'channels'],
+  ORGANIZER: ['overview', 'organizations', 'events', 'streams', 'channels'],
   ARTIST: ['overview', 'streams', 'analytics'],
   SUPER_ADMIN: ['overviewGlobal', 'platformOrganizations', 'platformEvents', 'platformStreams', 'platformRevenue'],
 };

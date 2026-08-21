@@ -7,71 +7,137 @@ import {
   Button,
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@live-show/design-system';
-import { useChannelScheduleQuery } from '../../queries/channel.queries';
+import {
+  useChannelProgramsQuery,
+  useChannelScheduleQuery,
+} from '../../queries/channel.queries';
 import { useDeleteProgramMutation } from '../../mutations/channel.mutations';
+import type { ChannelStatus, Program, ScheduledSlot } from '../../types/channel.types';
 import { ProgramForm } from './ProgramForm';
 import styles from './ProgramGridEditor.module.scss';
 
 interface Props {
   channelId: string;
   slug: string;
+  // Fuso DO CANAL, não do navegador: quem administra um canal de Tóquio de
+  // São Paulo precisa ver a grade como ela vai ao ar.
+  timezone: string;
+  status: ChannelStatus;
 }
 
 const DAYS_AHEAD = 7;
 
-// A grade vem do backend (`/channels/:slug/schedule`), não de uma expansão
-// local do RRULE: o fuso do canal e a resolução de conflitos moram lá. Um canal
-// ainda em rascunho não tem grade pública — a coluna aparece vazia até publicar.
-export function ProgramGridEditor({ channelId, slug }: Props) {
+// Data civil (YYYY-MM-DD) de um instante no fuso pedido. Nada de toISOString:
+// ele responde sempre em UTC e erra o dia por até 14 horas.
+function dayKeyInTimezone(instant: Date, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(instant);
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((p) => p.type === type)?.value ?? '';
+  return `${part('year')}-${part('month')}-${part('day')}`;
+}
+
+export function ProgramGridEditor({ channelId, slug, timezone, status }: Props) {
   const t = useTranslations('channels');
   const locale = useLocale();
-  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<Program | 'new' | null>(null);
+  const [deleting, setDeleting] = useState<ScheduledSlot | null>(null);
   const deleteProgram = useDeleteProgramMutation(channelId);
+  const { data: programs = [] } = useChannelProgramsQuery(channelId);
 
-  // Sete dias a partir de hoje, em YYYY-MM-DD no fuso local (en-CA já entrega
-  // nesse formato, sem passar por UTC e errar o dia por causa do offset).
-  const days = useMemo(
-    () =>
-      Array.from({ length: DAYS_AHEAD }, (_, offset) => {
-        const date = new Date();
-        date.setDate(date.getDate() + offset);
-        return date;
-      }),
-    [],
-  );
+  // Sete datas civis a partir de hoje NO FUSO DO CANAL. Cada uma vira uma
+  // âncora ao meio-dia UTC: mexer no dia a partir daí não escorrega por causa
+  // de horário de verão.
+  const days = useMemo(() => {
+    const today = dayKeyInTimezone(new Date(), timezone);
+    return Array.from({ length: DAYS_AHEAD }, (_, offset) => {
+      const anchor = new Date(`${today}T12:00:00Z`);
+      anchor.setUTCDate(anchor.getUTCDate() + offset);
+      return anchor;
+    });
+  }, [timezone]);
+
+  const confirmDelete = () => {
+    if (!deleting) return;
+    deleteProgram.mutate({ programId: deleting.programId, slug });
+    setDeleting(null);
+  };
 
   return (
     <section className={styles.section}>
       <header className={styles.header}>
         <h2 className={styles.heading}>{t('dashboard.programs')}</h2>
-        <Button size="sm" onClick={() => setShowForm(true)}>
+        <Button size="sm" onClick={() => setEditing('new')}>
           <Plus size={14} />
           {t('dashboard.newProgram')}
         </Button>
       </header>
 
+      {status !== 'PUBLISHED' && (
+        <p className={styles.note}>{t('dashboard.draftScheduleNote')}</p>
+      )}
+
       <div className={styles.grid}>
-        {days.map((date) => (
+        {days.map((anchor) => (
           <DayColumn
-            key={date.toLocaleDateString('en-CA')}
+            key={anchor.toISOString()}
             slug={slug}
-            date={date}
+            anchor={anchor}
             locale={locale}
+            timezone={timezone}
             deleteLabel={t('dashboard.delete')}
-            onDelete={(programId) => deleteProgram.mutate({ programId, slug })}
+            onEdit={(slot) => {
+              const program = programs.find((p) => p.id === slot.programId);
+              if (program) setEditing(program);
+            }}
+            onDelete={setDeleting}
           />
         ))}
       </div>
 
-      <Dialog open={showForm} onOpenChange={setShowForm}>
+      <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('dashboard.newProgram')}</DialogTitle>
+            <DialogTitle>
+              {t(editing === 'new' ? 'dashboard.newProgram' : 'dashboard.editProgram')}
+            </DialogTitle>
           </DialogHeader>
-          <ProgramForm channelId={channelId} slug={slug} onDone={() => setShowForm(false)} />
+          {editing !== null && (
+            <ProgramForm
+              channelId={channelId}
+              slug={slug}
+              program={editing === 'new' ? undefined : editing}
+              onDone={() => setEditing(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleting !== null} onOpenChange={(open) => !open && setDeleting(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t('dashboard.deleteProgramTitle', { name: deleting?.name ?? '' })}
+            </DialogTitle>
+            <DialogDescription>{t('dashboard.deleteProgramBody')}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleting(null)}>
+              {t('dashboard.cancel')}
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              {t('dashboard.confirm')}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </section>
@@ -80,38 +146,60 @@ export function ProgramGridEditor({ channelId, slug }: Props) {
 
 interface DayColumnProps {
   slug: string;
-  date: Date;
+  anchor: Date;
   locale: string;
+  timezone: string;
   deleteLabel: string;
-  onDelete: (programId: string) => void;
+  onEdit: (slot: ScheduledSlot) => void;
+  onDelete: (slot: ScheduledSlot) => void;
 }
 
-function DayColumn({ slug, date, locale, deleteLabel, onDelete }: DayColumnProps) {
-  const day = date.toLocaleDateString('en-CA');
+function DayColumn({
+  slug,
+  anchor,
+  locale,
+  timezone,
+  deleteLabel,
+  onEdit,
+  onDelete,
+}: DayColumnProps) {
+  // A âncora é meio-dia UTC representando uma data civil: o rótulo lê essa data
+  // em UTC de propósito, senão o fuso do canal a puxaria para o dia vizinho.
+  const day = anchor.toISOString().slice(0, 10);
   const { data: slots = [] } = useChannelScheduleQuery(slug, day);
 
-  const time = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' });
+  const time = new Intl.DateTimeFormat(locale, {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: timezone,
+  });
 
   return (
     <div className={styles.column}>
       <div className={styles.columnHeader}>
         <span className={styles.weekday}>
-          {new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date)}
+          {new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' }).format(anchor)}
         </span>
         <span className={styles.date}>
-          {new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit' }).format(date)}
+          {new Intl.DateTimeFormat(locale, {
+            day: '2-digit',
+            month: '2-digit',
+            timeZone: 'UTC',
+          }).format(anchor)}
         </span>
       </div>
 
       {slots.map((slot) => (
         <div key={`${slot.programId}-${slot.startsAt}`} className={styles.slot}>
-          <span className={styles.slotTime}>{time.format(new Date(slot.startsAt))}</span>
-          <span className={styles.slotName}>{slot.name}</span>
+          <button type="button" className={styles.slotOpen} onClick={() => onEdit(slot)}>
+            <span className={styles.slotTime}>{time.format(new Date(slot.startsAt))}</span>
+            <span className={styles.slotName}>{slot.name}</span>
+          </button>
           <button
             type="button"
             className={styles.slotDelete}
             aria-label={deleteLabel}
-            onClick={() => onDelete(slot.programId)}
+            onClick={() => onDelete(slot)}
           >
             <Trash2 size={13} />
           </button>

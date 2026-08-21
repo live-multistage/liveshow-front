@@ -23,8 +23,16 @@ vi.mock('../../mutations/channel.mutations', () => ({
   useArchiveChannelMutation: () => ({ mutate: archiveMutate, isPending: false }),
 }));
 
+const gridProps: Record<string, unknown> = {};
 vi.mock('./ProgramGridEditor', () => ({
-  ProgramGridEditor: () => <div>program-grid-stub</div>,
+  ProgramGridEditor: (props: Record<string, unknown>) => {
+    Object.assign(gridProps, props);
+    return <div>program-grid-stub</div>;
+  },
+}));
+
+vi.mock('./ChannelForm', () => ({
+  ChannelForm: ({ mode }: { mode?: string }) => <div>channel-form-stub:{mode}</div>,
 }));
 
 const channel = (overrides: Partial<PublicChannel> = {}): PublicChannel =>
@@ -115,9 +123,24 @@ describe('ChannelDetailContent', () => {
     );
   });
 
-  it('renders the program grid', () => {
+  it('renders the program grid with the channel timezone and status', () => {
     render(<ChannelDetailContent slug="canal-um" />);
 
     expect(screen.getByText('program-grid-stub')).toBeInTheDocument();
+    expect(gridProps).toMatchObject({
+      channelId: 'ch-1',
+      slug: 'canal-um',
+      timezone: 'America/Sao_Paulo',
+      status: 'DRAFT',
+    });
+  });
+
+  it('opens the edit form from the header', () => {
+    render(<ChannelDetailContent slug="canal-um" />);
+    expect(screen.queryByText(/channel-form-stub/)).toBeNull();
+
+    fireEvent.click(screen.getByText('dashboard.edit'));
+
+    expect(screen.getByText(/channel-form-stub:edit/)).toBeInTheDocument();
   });
 });
