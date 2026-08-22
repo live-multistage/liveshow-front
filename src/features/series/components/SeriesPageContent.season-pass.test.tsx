@@ -67,7 +67,6 @@ function makeSeries(): SeriesDetail {
         currency: 'BRL',
         capabilities: ['LIVE_VIEW'],
         camerasLimit: null,
-        allowedStageIds: [],
         capacity: null,
       },
     ],

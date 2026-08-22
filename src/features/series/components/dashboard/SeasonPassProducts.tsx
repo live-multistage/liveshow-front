@@ -20,7 +20,8 @@ interface Props {
 function toDisplayItem(product: SeriesTicketProduct) {
   const remaining = product.capacity != null ? Math.max(0, product.capacity - product.sold) : null;
   const soldOut = product.capacity != null && product.sold >= product.capacity;
-  return { ...product, remaining, soldOut };
+  // Season passes carry no stage restriction; the shared ticket editor still expects the field.
+  return { ...product, allowedStageIds: [], remaining, soldOut };
 }
 
 export function SeasonPassProducts({ seriesId, templateEventId }: Props) {

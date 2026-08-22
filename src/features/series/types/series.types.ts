@@ -53,7 +53,6 @@ export interface SeasonPass {
   currency: string;
   capabilities: AccessCapability[];
   camerasLimit: number | null;
-  allowedStageIds: string[];
   capacity: number | null;
 }
 

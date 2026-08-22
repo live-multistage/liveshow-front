@@ -158,7 +158,6 @@ describe('useCreateSeriesTicketProductMutation', () => {
       currency: 'BRL',
       capabilities: ['LIVE_VIEW'],
       camerasLimit: null,
-      allowedStageIds: [],
       capacity: null,
       sold: 0,
       immutable: false,

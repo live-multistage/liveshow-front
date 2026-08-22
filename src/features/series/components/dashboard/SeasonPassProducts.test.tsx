@@ -27,7 +27,6 @@ const product = (overrides: Partial<SeriesTicketProduct> = {}): SeriesTicketProd
   currency: 'BRL',
   capabilities: ['LIVE_VIEW'],
   camerasLimit: null,
-  allowedStageIds: [],
   capacity: 100,
   sold: 30,
   immutable: false,

@@ -103,7 +103,6 @@ describe('SeriesPageContent', () => {
             currency: 'BRL',
             capabilities: ['LIVE_VIEW'],
             camerasLimit: null,
-            allowedStageIds: [],
             capacity: null,
           },
         ],
