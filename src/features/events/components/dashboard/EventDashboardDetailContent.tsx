@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, ArrowLeft, ScanLine } from 'lucide-react';
+import { isAxiosError } from 'axios';
+import { MapPin, ArrowLeft, ScanLine, Check, Copy } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
@@ -23,6 +24,7 @@ import { PhotosSection } from './PhotosSection';
 import { EventCollaboratorsSection } from './EventCollaboratorsSection';
 import { VodUploadCard } from '../VodUploadCard/VodUploadCard';
 import { EventMetadataSection } from '@/features/metadata';
+import { eventHref, publicOrigin } from '../../utils/slug';
 import type { EventResponse } from '../../types/event.types';
 import styles from './EventDashboardDetailContent.module.scss';
 
@@ -74,6 +76,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
   function startEditing() {
     if (!event) return;
     reset({
+      slug: event.slug,
       title: event.title,
       description: event.description,
       startsAt: toDatetimeLocal(event.startsAt),
@@ -95,6 +98,9 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
 
   async function onSave(values: EditFormValues) {
     await updateMutation.mutateAsync({
+      // Only sent when actually changed: re-sending the current slug would make
+      // the backend's uniqueness check race against the event's own row.
+      ...(values.slug === event?.slug ? {} : { slug: values.slug }),
       title: values.title,
       description: values.description,
       publiclyFunded: values.publiclyFunded,
@@ -134,6 +140,9 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
   }
 
   const location = [event.venue, event.city, event.country].filter(Boolean).join(', ');
+  // 409 is the one save failure with a field to blame — surface it on the slug
+  // input instead of the generic banner, which reads as "something broke".
+  const slugTaken = isAxiosError(updateMutation.error) && updateMutation.error.response?.status === 409;
   // Collaborator orgs get read-only access: backend 403s every mutation, so
   // hide the buttons that would trigger them instead of showing dead ones.
   const readOnly = event.collaborationRole === 'COLLABORATOR';
@@ -193,7 +202,8 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
               control={control}
               errors={errors}
               isPending={updateMutation.isPending}
-              errorMessage={updateMutation.error?.message}
+              slugError={slugTaken ? t('slugTaken') : undefined}
+              errorMessage={slugTaken ? undefined : updateMutation.error?.message}
               scheduleLocked={scheduleLocked}
             />
             <EditTicketSection eventId={id} tickets={tickets} />
@@ -201,6 +211,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
           </>
         ) : (
           <>
+            <PublicUrlRow event={event} label={t('publicUrl')} copyLabel={t('copyUrl')} copiedLabel={t('copied')} />
             <EventInfoGrid event={event} ticketCount={tickets.length} />
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>{t('description')}</h2>
@@ -215,6 +226,39 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
 
         <EventCollaboratorsSection eventId={id} readOnly={readOnly} />
       </div>
+    </div>
+  );
+}
+
+function PublicUrlRow({ event, label, copyLabel, copiedLabel }: {
+  event: EventResponse;
+  label: string;
+  copyLabel: string;
+  copiedLabel: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const url = `${publicOrigin()}${eventHref(event)}`;
+
+  async function copy() {
+    // clipboard is unavailable over plain http and in some embedded webviews;
+    // failing silently beats throwing an unhandled rejection at the organizer.
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignored — the URL is on screen and selectable
+    }
+  }
+
+  return (
+    <div className={styles.publicUrlRow}>
+      <span className={styles.publicUrlLabel}>{label}</span>
+      <code className={styles.publicUrlValue}>{url}</code>
+      <button type="button" onClick={copy} className={styles.publicUrlCopy} aria-label={copyLabel}>
+        {copied ? <Check size={14} /> : <Copy size={14} />}
+        {copied ? copiedLabel : copyLabel}
+      </button>
     </div>
   );
 }

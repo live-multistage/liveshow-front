@@ -182,7 +182,7 @@ describe('TicketPanel direct watch', () => {
 
     await userEvent.click(watchButton());
 
-    expect(state.push).toHaveBeenCalledWith('/login?redirect=%2Fevents%2Fevt-1');
+    expect(state.push).toHaveBeenCalledWith('/login?redirect=%2Fevents%2Fevt-1-slug');
     expect(claimFreeTicket).not.toHaveBeenCalled();
   });
 

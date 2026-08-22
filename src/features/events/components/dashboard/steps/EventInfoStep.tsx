@@ -8,6 +8,7 @@ import {
   LOW_LATENCY_SUGGESTED_CATEGORIES,
 } from '../../../schemas/create-event.schema';
 import { EVENT_CATEGORIES } from '../../../types/event.types';
+import { slugify, publicOrigin } from '../../../utils/slug';
 import { TagsInput } from '../TagsInput';
 import { Checkbox, SimpleCustomSelect } from '@live-show/design-system';
 import styles from '../CreateEventForm.module.scss';
@@ -24,6 +25,7 @@ interface Props {
 export function EventInfoStep({ register, errors, orgs, control, setValue, vodUploadEnabled = false }: Props) {
   const t = useTranslations('createEvent.info');
 
+  const titleSlug = slugify(useWatch({ control, name: 'title' }) ?? '');
   const category = useWatch({ control, name: 'category' });
   const latencyMode = useWatch({ control, name: 'latencyMode' });
   const isSportCategory = LOW_LATENCY_SUGGESTED_CATEGORIES.includes(category);
@@ -67,6 +69,13 @@ export function EventInfoStep({ register, errors, orgs, control, setValue, vodUp
           placeholder={t('titlePlaceholder')}
         />
         {errors.title && <p className={styles.error}>{errors.title.message}</p>}
+        {/* Read-only: the backend derives the slug from the title on create.
+            It only becomes editable on the event's detail page afterwards. */}
+        {titleSlug && (
+          <p className={styles.hint} data-testid="slug-preview">
+            {t('slugPreview', { url: `${publicOrigin()}/events/${titleSlug}` })}
+          </p>
+        )}
       </div>
 
       <div className={styles.field}>

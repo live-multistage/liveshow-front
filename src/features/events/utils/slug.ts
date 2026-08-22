@@ -36,3 +36,13 @@ export function isEventId(param: string): boolean {
 export function eventHref(event: { id: string; slug?: string | null }): string {
   return `/events/${event.slug || event.id}`;
 }
+
+/**
+ * Origin for the "this is what your URL will look like" previews. Reads the live
+ * origin in the browser so a staging/preview host previews itself rather than
+ * promising a production URL it doesn't serve.
+ */
+export function publicOrigin(): string {
+  if (typeof window !== 'undefined') return window.location.origin;
+  return process.env.NEXT_PUBLIC_SITE_URL ?? 'https://liveshow.app';
+}
