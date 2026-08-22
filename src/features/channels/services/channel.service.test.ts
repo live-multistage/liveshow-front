@@ -25,6 +25,8 @@ const PUBLIC_CHANNEL: PublicChannel = {
   current: null,
   next: null,
   today: [],
+  pricing: null,
+  viewer: null,
 };
 
 const LIST_ITEM: ChannelListItem = {
@@ -227,6 +229,20 @@ describe('channelService', () => {
 
       expect(seen[0].url).toBe('/channels/ch-1/programs/prog-1');
       expect(seen[0].method?.toLowerCase()).toBe('delete');
+    });
+  });
+
+  describe('subscribe', () => {
+    it('posts the interval to /channels/:id/subscribe', async () => {
+      const seen = capture({ url: 'https://checkout.stripe.com/session-1' });
+
+      await expect(channelService.subscribe('ch-1', 'YEARLY')).resolves.toEqual({
+        url: 'https://checkout.stripe.com/session-1',
+      });
+
+      expect(seen[0].url).toBe('/channels/ch-1/subscribe');
+      expect(seen[0].method?.toLowerCase()).toBe('post');
+      expect(JSON.parse(seen[0].data as string)).toEqual({ interval: 'YEARLY' });
     });
   });
 });

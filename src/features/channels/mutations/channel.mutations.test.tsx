@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('../services/channel.service', () => ({
-  channelService: { publish: vi.fn() },
+  channelService: { publish: vi.fn(), subscribe: vi.fn() },
 }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
@@ -9,12 +9,14 @@ vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { usePublishChannelMutation } from './channel.mutations';
+import { toast } from 'sonner';
+import { usePublishChannelMutation, useSubscribeChannelMutation } from './channel.mutations';
 import { channelService } from '../services/channel.service';
 import { channelKeys } from '../queries/channel.queries';
 import type { Channel } from '../types/channel.types';
 
 const mockedPublish = vi.mocked(channelService.publish);
+const mockedSubscribe = vi.mocked(channelService.subscribe);
 
 const CHANNEL: Channel = {
   id: 'ch-1',
@@ -62,5 +64,52 @@ describe('usePublishChannelMutation', () => {
     expect(invalidateSpy).toHaveBeenCalledWith({
       queryKey: channelKeys.detail('my-channel'),
     });
+  });
+});
+
+describe('useSubscribeChannelMutation', () => {
+  const originalAssign = window.location.assign;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, assign: vi.fn() },
+      writable: true,
+    });
+  });
+
+  afterEach(() => {
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, assign: originalAssign },
+      writable: true,
+    });
+  });
+
+  it('redirects to the checkout url on success', async () => {
+    mockedSubscribe.mockResolvedValue({ url: 'https://checkout.stripe.com/session-1' });
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(() => useSubscribeChannelMutation(), { wrapper });
+
+    result.current.mutate({ channelId: 'ch-1', interval: 'MONTHLY' });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(mockedSubscribe).toHaveBeenCalledWith('ch-1', 'MONTHLY');
+    expect(window.location.assign).toHaveBeenCalledWith('https://checkout.stripe.com/session-1');
+  });
+
+  it('shows the already-subscribed toast on a 409', async () => {
+    mockedSubscribe.mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 409, data: {} },
+    });
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(() => useSubscribeChannelMutation(), { wrapper });
+
+    result.current.mutate({ channelId: 'ch-1', interval: 'MONTHLY' });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(toast.error).toHaveBeenCalledWith('alreadySubscribed');
   });
 });

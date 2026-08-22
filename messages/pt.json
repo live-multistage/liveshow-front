@@ -1127,6 +1127,21 @@
     "backAt": "Volta às",
     "watch": "Assistir",
     "errorToast": "Não foi possível concluir a ação",
+    "subscription": {
+      "restricted": "Conteúdo por assinatura",
+      "headline": "Assine {name} para assistir",
+      "subtitle": "Escolha um plano para ter acesso completo a este canal.",
+      "monthly": "Mensal",
+      "yearly": "Anual",
+      "perMonth": "/mês",
+      "perYear": "/ano",
+      "savePercent": "Economize {percent}%",
+      "subscribe": "Assinar",
+      "unavailable": "Assinatura indisponível no momento.",
+      "alreadySubscribed": "Você já é assinante deste canal.",
+      "error": "Não foi possível iniciar a assinatura",
+      "subscribed": "Assinatura confirmada!"
+    },
     "dashboard": {
       "title": "Canais",
       "new": "Novo canal",

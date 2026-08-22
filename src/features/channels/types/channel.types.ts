@@ -1,5 +1,20 @@
 export type ChannelStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 export type ChannelAccessMode = 'FREE' | 'SUBSCRIPTION';
+export type SubscriptionInterval = 'MONTHLY' | 'YEARLY';
+export type ChannelSubscriptionStatus = 'INCOMPLETE' | 'ACTIVE' | 'PAST_DUE' | 'CANCELED';
+
+export interface ChannelPricing {
+  currency: string | null;
+  monthlyPriceCents: number | null;
+  yearlyPriceCents: number | null;
+}
+
+export interface ChannelViewerState {
+  subscribed: boolean;
+  status: ChannelSubscriptionStatus | null;
+  cancelAtPeriodEnd: boolean;
+  currentPeriodEnd: string | null;
+}
 
 export interface ScheduledSlot {
   programId: string;
@@ -28,6 +43,9 @@ export interface PublicChannel extends Channel {
   current: ScheduledSlot | null;
   next: ScheduledSlot | null;
   today: ScheduledSlot[];
+  pricing: ChannelPricing | null;
+  /** Null for anonymous readers — there is no viewer to describe. */
+  viewer: ChannelViewerState | null;
 }
 
 export interface ChannelListItem extends Channel {

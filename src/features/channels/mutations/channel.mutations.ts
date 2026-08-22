@@ -5,8 +5,13 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { channelService } from '../services/channel.service';
 import { channelKeys } from '../queries/channel.queries';
-import { normalizeError } from '@/lib/http/errors';
-import type { CreateChannelInput, UpdateChannelInput, UpsertProgramInput } from '../types/channel.types';
+import { normalizeError, type AppError } from '@/lib/http/errors';
+import type {
+  CreateChannelInput,
+  SubscriptionInterval,
+  UpdateChannelInput,
+  UpsertProgramInput,
+} from '../types/channel.types';
 
 function useInvalidateChannel() {
   const qc = useQueryClient();
@@ -178,6 +183,33 @@ export function useDeleteProgramMutation(channelId: string) {
       qc.invalidateQueries({ queryKey: channelKeys.detail(slug) });
       qc.invalidateQueries({ queryKey: channelKeys.programs(channelId) });
       qc.invalidateQueries({ queryKey: ['channels', 'schedule', slug] });
+    },
+  });
+}
+
+interface SubscribeChannelArgs {
+  channelId: string;
+  interval: SubscriptionInterval;
+}
+
+export function useSubscribeChannelMutation() {
+  const t = useTranslations('channels.subscription');
+
+  return useMutation({
+    mutationFn: async ({ channelId, interval }: SubscribeChannelArgs) => {
+      try {
+        return await channelService.subscribe(channelId, interval);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    // O checkout do Stripe é hospedado — a navegação sai do app, não há
+    // estado local para atualizar antes disso.
+    onSuccess: ({ url }) => {
+      window.location.assign(url);
+    },
+    onError: (err: AppError) => {
+      toast.error(err.status === 409 ? t('alreadySubscribed') : t('error'));
     },
   });
 }

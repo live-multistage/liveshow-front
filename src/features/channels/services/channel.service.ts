@@ -6,6 +6,7 @@ import type {
   Program,
   PublicChannel,
   ScheduledSlot,
+  SubscriptionInterval,
   UpdateChannelInput,
   UpsertProgramInput,
 } from '../types/channel.types';
@@ -87,5 +88,15 @@ export const channelService = {
 
   deleteProgram: async (channelId: string, programId: string): Promise<void> => {
     await httpClient.delete(`/channels/${channelId}/programs/${programId}`);
+  },
+
+  subscribe: async (
+    id: string,
+    interval: SubscriptionInterval,
+  ): Promise<{ url: string }> => {
+    const { data } = await httpClient.post<{ url: string }>(`/channels/${id}/subscribe`, {
+      interval,
+    });
+    return data;
   },
 };
