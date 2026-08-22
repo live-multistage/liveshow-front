@@ -20,6 +20,7 @@ import { useFullscreen } from '../hooks/use-fullscreen';
 import { usePictureInPicture } from '../hooks/use-picture-in-picture';
 import { useQualityLevels } from '../hooks/use-quality-levels';
 import { usePlayerAudio } from '../hooks/use-player-audio';
+import type { PlayerAudioState } from '../hooks/use-player-audio';
 import { useCameraSelection } from '../hooks/use-camera-selection';
 import { useLiveDvr } from '../hooks/use-live-dvr';
 import { PlayerStage } from './PlayerStage';
@@ -46,6 +47,13 @@ interface LivePlayerProps {
   // Camada opcional sobre o stage inteiro, dentro do elemento que vira
   // fullscreen — o overlay de fora do ar do canal some se ficar de fora dele.
   overlay?: ReactNode;
+  // Seed for mute/volume and a way to hear about further changes — lets a
+  // caller that remounts this component (the channel player, keyed on its
+  // resolved source) preserve the viewer's audio choice across the remount
+  // instead of resetting to unmuted/full volume. Undefined for the default
+  // (event/replay) behaviour: starts unmuted at full volume, reports nothing.
+  initialAudio?: PlayerAudioState;
+  onAudioChange?: (audio: PlayerAudioState) => void;
 }
 
 function useStages(cameras: LiveCamera[], rawStages?: LiveStage[]): LiveStage[] {
@@ -69,7 +77,7 @@ function initialStageId(stages: LiveStage[], primaryCameraId?: string | null): s
   return stages.find((s) => s.cameras.length > 0)?.stageId ?? stages[0]?.stageId ?? '__main__';
 }
 
-export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, chatEnabled, variant = 'event', metaLineOverride, exitHref, overlay }: LivePlayerProps) {
+export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, chatEnabled, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
   const t = useTranslations('player');
   const isChannel = variant === 'channel';
   const router = useRouter();
@@ -136,6 +144,9 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   } = usePlayerAudio({
     cameras: activeStage?.cameras ?? [],
     fallbackCameraId: effectiveMainCameraId ?? activeStage?.cameras[0]?.cameraId ?? null,
+    initialMuted: initialAudio?.muted,
+    initialVolume: initialAudio?.volume,
+    onChange: onAudioChange,
   });
 
   const { levels, onLevelsReady, currentLevel, onSelectLevel, qualityLabel } = useQualityLevels();

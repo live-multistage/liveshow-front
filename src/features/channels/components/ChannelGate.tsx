@@ -10,6 +10,7 @@ import { useLiveAccessQuery } from '@/features/streaming/queries/live.queries';
 import Link from 'next/link';
 import { X } from 'lucide-react';
 import { NotFoundContent } from '@/shared/components/NotFoundContent';
+import type { PlayerAudioState } from '@/features/streaming/hooks/use-player-audio';
 import { useChannelPlaybackQuery, useChannelQuery } from '../queries/channel.queries';
 import { resolveChannelAccess } from '../utils/resolveChannelAccess';
 import { ChannelPaywall } from './ChannelPaywall';
@@ -69,6 +70,11 @@ export function ChannelGate({ slug, chatEnabled }: Props) {
   // is currently simulcasting (its own feed or a carried event) and applies
   // the channel's own access rule, ignoring the carried event's tickets.
   const playback = useChannelPlaybackQuery(slug, derivedAccess.authorized);
+
+  // Held here, above ChannelPlayer's remount boundary (it keys its LivePlayer
+  // on the resolved source), so a source switch doesn't reset the viewer back
+  // to unmuted/full volume.
+  const [audio, setAudio] = useState<PlayerAudioState>({ muted: false, volume: 1 });
 
   const [awaitingSubscription, setAwaitingSubscription] = useState(false);
   const [subscribedPollTries, setSubscribedPollTries] = useState(0);
@@ -164,6 +170,8 @@ export function ChannelGate({ slug, chatEnabled }: Props) {
         playback={playback.data}
         chatEnabled={chatEnabled}
         overlay={overlay}
+        initialAudio={audio}
+        onAudioChange={setAudio}
       />
     </>
   );

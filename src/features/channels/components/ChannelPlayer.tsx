@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { LivePlayer } from '@/features/streaming/components/LivePlayer';
+import type { PlayerAudioState } from '@/features/streaming/hooks/use-player-audio';
 import type { ChannelPlaybackResponse, PublicChannel } from '../types/channel.types';
 import { NowPlayingBadge } from './NowPlayingBadge';
 
@@ -12,13 +13,24 @@ interface Props {
   chatEnabled: boolean;
   // Repassado ao container do player para que sobreviva ao fullscreen.
   overlay?: ReactNode;
+  // Held by ChannelGate (above this remount boundary) so mute/volume survive
+  // the key change below when the simulcast source switches.
+  initialAudio?: PlayerAudioState;
+  onAudioChange?: (audio: PlayerAudioState) => void;
 }
 
 const EMPTY = '—';
 
 // O canal reusa o player ao vivo inteiro; o que muda é a variante (sem
 // controles de playback) e a linha de meta, que vira a programação.
-export function ChannelPlayer({ channel, playback, chatEnabled, overlay }: Props) {
+export function ChannelPlayer({
+  channel,
+  playback,
+  chatEnabled,
+  overlay,
+  initialAudio,
+  onAudioChange,
+}: Props) {
   const t = useTranslations();
   const { source } = playback;
 
@@ -46,6 +58,8 @@ export function ChannelPlayer({ channel, playback, chatEnabled, overlay }: Props
       primaryCameraId={playback.primaryCameraId}
       librasCameraId={playback.librasCameraId}
       chatEnabled={chatEnabled}
+      initialAudio={initialAudio}
+      onAudioChange={onAudioChange}
       overlay={
         <>
           {overlay}

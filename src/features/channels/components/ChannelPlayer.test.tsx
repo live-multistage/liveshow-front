@@ -9,18 +9,26 @@ vi.mock('next-intl', () => ({
 }));
 
 let mountCount = 0;
+let lastInitialAudio: unknown;
+let lastOnAudioChange: unknown;
 vi.mock('@/features/streaming/components/LivePlayer', () => ({
   // Mirrors LivePlayer's shape just enough to observe remounts (via the
   // mount-only effect) and to render the overlay it's handed.
   LivePlayer: ({
     cameras,
     overlay,
+    initialAudio,
+    onAudioChange,
   }: {
     cameras: unknown[];
     overlay?: React.ReactNode;
+    initialAudio?: unknown;
+    onAudioChange?: unknown;
   }) => {
     useEffect(() => {
       mountCount += 1;
+      lastInitialAudio = initialAudio;
+      lastOnAudioChange = onAudioChange;
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     return (
@@ -89,6 +97,7 @@ const eventPlayback: ChannelPlaybackResponse = {
 describe('ChannelPlayer', () => {
   beforeEach(() => {
     mountCount = 0;
+    lastInitialAudio = undefined;
   });
 
   it('does not show the now-playing badge when the channel plays its own feed', () => {
@@ -135,5 +144,38 @@ describe('ChannelPlayer', () => {
 
     expect(mountCount).toBe(1);
     expect(screen.getByTestId('camera-count')).toHaveTextContent('2');
+  });
+
+  it('keeps the muted/volume state across a source remount', () => {
+    const audio = { muted: true, volume: 0.4 };
+    const { rerender } = render(
+      <ChannelPlayer channel={channel} playback={ownPlayback} chatEnabled={false} initialAudio={audio} />,
+    );
+    expect(mountCount).toBe(1);
+    expect(lastInitialAudio).toEqual(audio);
+
+    rerender(
+      <ChannelPlayer channel={channel} playback={eventPlayback} chatEnabled={false} initialAudio={audio} />,
+    );
+
+    // The player remounted (new source), but the fresh mount was seeded with
+    // the same audio state instead of the LivePlayer default (unmuted/full
+    // volume) — that seed lives in ChannelGate, above this remount boundary.
+    expect(mountCount).toBe(2);
+    expect(lastInitialAudio).toEqual(audio);
+  });
+
+  it('forwards onAudioChange through to LivePlayer', () => {
+    const onAudioChange = vi.fn();
+    render(
+      <ChannelPlayer
+        channel={channel}
+        playback={ownPlayback}
+        chatEnabled={false}
+        onAudioChange={onAudioChange}
+      />,
+    );
+
+    expect(lastOnAudioChange).toBe(onAudioChange);
   });
 });
