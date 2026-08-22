@@ -1164,5 +1164,22 @@
         "ARCHIVED": "Arquivado"
       }
     }
+  },
+  "series": {
+    "title": "Séries",
+    "railTitle": "Programas",
+    "badge": "Série",
+    "badgeLinkLabel": "Ver série",
+    "eyebrow": "Programa recorrente",
+    "nextEpisode": "Próximo episódio",
+    "upcoming": "Próximos episódios",
+    "seasonPasses": "Passe da temporada",
+    "replays": "Reprises",
+    "buyEpisode": "Comprar episódio",
+    "buySeasonPass": "Comprar passe da temporada",
+    "alreadyInCart": "Já no carrinho",
+    "notFound": "Não foi possível carregar esta série.",
+    "retry": "Tentar novamente",
+    "empty": "Nenhuma série ativa no momento."
   }
 }

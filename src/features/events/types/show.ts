@@ -21,6 +21,8 @@ export interface Show {
   rating?: number;
   priceRange?: { min: number; max: number };
   teaserVideoUrl?: string | null;
+  seriesId?: string | null;
+  detachedFromSeries?: boolean;
 }
 
 export interface Camera {

@@ -79,6 +79,11 @@ export interface EventResponse {
   // How long after the last camera drops the backend auto-finishes a LIVE event.
   // Optional: a response cached before this field shipped won't carry it.
   lifecycle?: { idleFinishMinutes: number };
+  // Set when this event is an episode of an EventSeries. No `seriesSlug` is
+  // returned yet — see docs/superpowers/sdd/2026-08-21-event-series task-12
+  // report for the backend gap this leaves in the series badge link.
+  seriesId?: string | null;
+  detachedFromSeries?: boolean;
 }
 
 // NBR 15290 — Libras window accessibility state for an event.
