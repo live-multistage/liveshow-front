@@ -1,3 +1,5 @@
+@use '../../../styles/_variables' as *;
+
 .link {
   text-decoration: none;
 }
@@ -10,9 +12,9 @@
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: .1em;
-  color: #ff8ec9;
-  background: rgba(255, 46, 158, .1);
-  border: 1px solid rgba(255, 46, 158, .3);
+  color: $action;
+  background: rgba($action, .1);
+  border: 1px solid rgba($action, .3);
   padding: 4px 8px;
   border-radius: 6px;
   text-transform: uppercase;
