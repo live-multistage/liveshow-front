@@ -330,7 +330,8 @@
       "platformCoupons": "Cupons",
       "platformSettings": "Configurações",
       "platformAudit": "Audit log",
-      "channels": "Canais"
+      "channels": "Canais",
+      "series": "Séries"
     },
     "navMobile": {
       "overview": "Painel",
@@ -1180,6 +1181,57 @@
     "alreadyInCart": "Já no carrinho",
     "notFound": "Não foi possível carregar esta série.",
     "retry": "Tentar novamente",
-    "empty": "Nenhuma série ativa no momento."
+    "empty": "Nenhuma série ativa no momento.",
+    "dashboard": {
+      "title": "Séries",
+      "new": "Nova série",
+      "name": "Nome",
+      "slug": "Slug",
+      "description": "Descrição",
+      "weekdays": "Dias da semana",
+      "weekdayMO": "Segunda",
+      "weekdayTU": "Terça",
+      "weekdayWE": "Quarta",
+      "weekdayTH": "Quinta",
+      "weekdayFR": "Sexta",
+      "weekdaySA": "Sábado",
+      "weekdaySU": "Domingo",
+      "firstDate": "Primeira data",
+      "startTime": "Início",
+      "duration": "Duração (min)",
+      "horizon": "Horizonte (semanas)",
+      "timezone": "Fuso horário",
+      "save": "Salvar",
+      "edit": "Editar",
+      "pause": "Pausar",
+      "resume": "Retomar",
+      "end": "Encerrar",
+      "materialize": "Materializar agora",
+      "configureCameras": "Configurar câmeras do modelo",
+      "templateTickets": "Ingressos do modelo",
+      "episodes": "Episódios",
+      "episodeStatus": {
+        "DRAFT": "Rascunho",
+        "PUBLISHED": "Publicado",
+        "SCHEDULED": "Agendado",
+        "LIVE": "Ao vivo",
+        "FINISHED": "Encerrado",
+        "CANCELLED": "Cancelado"
+      },
+      "detached": "Editado manualmente — não acompanha mais a série",
+      "reattach": "Reanexar",
+      "openEvent": "Abrir evento",
+      "seasonPasses": "Passe da temporada",
+      "errorToast": "Não foi possível concluir a ação",
+      "empty": "Nenhuma série cadastrada.",
+      "notFound": "Série não encontrada.",
+      "status": {
+        "ACTIVE": "Ativa",
+        "PAUSED": "Pausada",
+        "ENDED": "Encerrada"
+      },
+      "episodeStatusLabel": "Status",
+      "episodeDate": "Data"
+    }
   }
 }

@@ -56,3 +56,49 @@ export interface SeriesDetail extends SeriesResponse {
   replays: SeriesEpisode[];
   seasonPasses: SeasonPass[];
 }
+
+export interface CreateSeriesInput {
+  organizationId: string;
+  slug: string;
+  name: string;
+  description?: string;
+  rrule: string;
+  dtstart: string;
+  timezone: string;
+  durationMin: number;
+  horizonWeeks: number;
+}
+
+export interface UpdateSeriesInput {
+  name?: string;
+  description?: string;
+  rrule?: string;
+  dtstart?: string;
+  timezone?: string;
+  durationMin?: number;
+  horizonWeeks?: number;
+}
+
+// Org-management projection of an episode Event (GET /series/:id/episodes) —
+// same fields as SeriesEpisode, kept as an alias so the dashboard and the
+// public page can diverge later without a rename.
+export type SeriesEpisodeDetail = SeriesEpisode;
+
+// Org-management shape of a season-pass ticket product
+// (GET/POST/PATCH /series/:id/ticket-products) — adds the operator-only
+// bookkeeping the public SeasonPass withholds.
+export interface SeriesTicketProduct extends SeasonPass {
+  sold: number;
+  immutable: boolean;
+}
+
+export interface UpsertSeriesTicketProductInput {
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  capabilities: AccessCapability[];
+  camerasLimit?: number | null;
+  allowedStageIds?: string[];
+  capacity?: number | null;
+}

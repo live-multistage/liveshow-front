@@ -77,4 +77,120 @@ describe('seriesService', () => {
       await expect(seriesService.getBySlug('quinta-do-rock')).resolves.toEqual(DETAIL);
     });
   });
+
+  describe('org management routes', () => {
+    it('lists org series from /organizations/:organizationId/series', async () => {
+      const seen = capture([LIST_ITEM]);
+
+      await seriesService.listByOrg('org-1');
+
+      expect(seen[0].url).toBe('/organizations/org-1/series');
+      expect(seen[0].method?.toLowerCase()).toBe('get');
+    });
+
+    it('creates a series with POST /series', async () => {
+      const seen = capture(LIST_ITEM);
+
+      await seriesService.create({
+        organizationId: 'org-1',
+        slug: 'quinta-do-rock',
+        name: 'Quinta do Rock',
+        rrule: 'FREQ=WEEKLY;BYDAY=TH',
+        dtstart: '2026-01-01T23:00:00.000Z',
+        timezone: 'America/Sao_Paulo',
+        durationMin: 90,
+        horizonWeeks: 4,
+      });
+
+      expect(seen[0].url).toBe('/series');
+      expect(seen[0].method?.toLowerCase()).toBe('post');
+    });
+
+    it('updates a series with PATCH /series/:id', async () => {
+      const seen = capture(LIST_ITEM);
+
+      await seriesService.update('series-1', { name: 'Novo nome' });
+
+      expect(seen[0].url).toBe('/series/series-1');
+      expect(seen[0].method?.toLowerCase()).toBe('patch');
+    });
+
+    it.each(['pause', 'resume', 'end', 'materialize'] as const)(
+      'calls POST /series/:id/%s for %s()',
+      async (action) => {
+        const seen = capture(LIST_ITEM);
+
+        await seriesService[action]('series-1');
+
+        expect(seen[0].url).toBe(`/series/series-1/${action}`);
+        expect(seen[0].method?.toLowerCase()).toBe('post');
+      },
+    );
+
+    it('lists episodes from /series/:id/episodes', async () => {
+      const seen = capture([]);
+
+      await seriesService.listEpisodes('series-1');
+
+      expect(seen[0].url).toBe('/series/series-1/episodes');
+      expect(seen[0].method?.toLowerCase()).toBe('get');
+    });
+
+    it('reattaches an episode with POST /series/:id/episodes/:eventId/reattach', async () => {
+      const seen = capture({});
+
+      await seriesService.reattachEpisode('series-1', 'evt-1');
+
+      expect(seen[0].url).toBe('/series/series-1/episodes/evt-1/reattach');
+      expect(seen[0].method?.toLowerCase()).toBe('post');
+    });
+
+    it('lists ticket products from /series/:id/ticket-products', async () => {
+      const seen = capture([]);
+
+      await seriesService.listTicketProducts('series-1');
+
+      expect(seen[0].url).toBe('/series/series-1/ticket-products');
+      expect(seen[0].method?.toLowerCase()).toBe('get');
+    });
+
+    it('creates a ticket product with POST /series/:id/ticket-products', async () => {
+      const seen = capture({});
+
+      await seriesService.createTicketProduct('series-1', {
+        name: 'Passe',
+        description: 'Passe da temporada',
+        price: 100,
+        currency: 'BRL',
+        capabilities: ['LIVE_VIEW'],
+      });
+
+      expect(seen[0].url).toBe('/series/series-1/ticket-products');
+      expect(seen[0].method?.toLowerCase()).toBe('post');
+    });
+
+    it('updates a ticket product with PATCH /series/:id/ticket-products/:productId', async () => {
+      const seen = capture({});
+
+      await seriesService.updateTicketProduct('series-1', 'prod-1', {
+        name: 'Passe',
+        description: 'Passe da temporada',
+        price: 100,
+        currency: 'BRL',
+        capabilities: ['LIVE_VIEW'],
+      });
+
+      expect(seen[0].url).toBe('/series/series-1/ticket-products/prod-1');
+      expect(seen[0].method?.toLowerCase()).toBe('patch');
+    });
+
+    it('deletes a ticket product with DELETE /series/:id/ticket-products/:productId', async () => {
+      const seen = capture(undefined);
+
+      await seriesService.deleteTicketProduct('series-1', 'prod-1');
+
+      expect(seen[0].url).toBe('/series/series-1/ticket-products/prod-1');
+      expect(seen[0].method?.toLowerCase()).toBe('delete');
+    });
+  });
 });

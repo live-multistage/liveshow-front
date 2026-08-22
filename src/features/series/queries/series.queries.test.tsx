@@ -4,6 +4,9 @@ vi.mock('../services/series.service', () => ({
   seriesService: {
     list: vi.fn().mockResolvedValue([]),
     getBySlug: vi.fn().mockResolvedValue(null),
+    listByOrg: vi.fn().mockResolvedValue([]),
+    listEpisodes: vi.fn().mockResolvedValue([]),
+    listTicketProducts: vi.fn().mockResolvedValue([]),
   },
 }));
 
@@ -24,7 +27,14 @@ vi.mock('@tanstack/react-query', async () => {
 import { renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { useSeriesListQuery, useSeriesQuery, seriesKeys } from './series.queries';
+import {
+  useSeriesListQuery,
+  useSeriesQuery,
+  useOrgSeriesQuery,
+  useSeriesEpisodesQuery,
+  useSeriesTicketProductsQuery,
+  seriesKeys,
+} from './series.queries';
 
 function makeWrapper() {
   const queryClient = new QueryClient({
@@ -65,5 +75,52 @@ describe('useSeriesQuery', () => {
     renderHook(() => useSeriesQuery(''), { wrapper });
 
     expect(useQuerySpy).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }));
+  });
+});
+
+describe('useOrgSeriesQuery', () => {
+  it('queries the org series key for the given organization', () => {
+    const { wrapper } = makeWrapper();
+
+    renderHook(() => useOrgSeriesQuery('org-1'), { wrapper });
+
+    expect(useQuerySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ queryKey: seriesKeys.org('org-1'), enabled: true }),
+    );
+  });
+
+  it('disables the query when the organizationId is empty', () => {
+    const { wrapper } = makeWrapper();
+
+    renderHook(() => useOrgSeriesQuery(''), { wrapper });
+
+    expect(useQuerySpy).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }));
+  });
+});
+
+describe('useSeriesEpisodesQuery', () => {
+  it('queries the episodes key for the given series', () => {
+    const { wrapper } = makeWrapper();
+
+    renderHook(() => useSeriesEpisodesQuery('series-1'), { wrapper });
+
+    expect(useQuerySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ queryKey: seriesKeys.episodes('series-1'), enabled: true }),
+    );
+  });
+});
+
+describe('useSeriesTicketProductsQuery', () => {
+  it('queries the ticket-products key for the given series', () => {
+    const { wrapper } = makeWrapper();
+
+    renderHook(() => useSeriesTicketProductsQuery('series-1'), { wrapper });
+
+    expect(useQuerySpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: seriesKeys.ticketProducts('series-1'),
+        enabled: true,
+      }),
+    );
   });
 });
