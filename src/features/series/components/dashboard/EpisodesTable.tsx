@@ -44,7 +44,7 @@ export function EpisodesTable({ seriesId }: Props) {
               <th>{t('dashboard.episodeDate')}</th>
               <th>{t('dashboard.episodeStatusLabel')}</th>
               <th>{t('dashboard.episodeSales')}</th>
-              <th />
+              <th className={styles.srOnly}>{t('dashboard.episodeActions')}</th>
             </tr>
           </thead>
           <tbody>

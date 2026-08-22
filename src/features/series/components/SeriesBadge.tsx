@@ -6,9 +6,6 @@ import { Repeat } from 'lucide-react';
 import styles from './SeriesBadge.module.scss';
 
 interface Props {
-  // Episode events only carry `seriesId` today, not `seriesSlug` — see
-  // task-12 report for the backend gap. Without a slug the badge still
-  // labels the episode as part of a series, just without a working link.
   seriesSlug?: string | null;
   className?: string;
 }
@@ -25,7 +22,7 @@ export function SeriesBadge({ seriesSlug, className }: Props) {
   if (!seriesSlug) return chip;
 
   return (
-    <Link href={`/series/${seriesSlug}`} className={styles.link} aria-label={t('badgeLinkLabel')}>
+    <Link href={`/series/${seriesSlug}`} className={styles.link}>
       {chip}
     </Link>
   );

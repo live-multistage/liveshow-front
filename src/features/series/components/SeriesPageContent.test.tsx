@@ -143,6 +143,51 @@ describe('SeriesPageContent', () => {
     expect(screen.getByText('Episódio 5').closest('a')).toHaveAttribute('href', '/events/evt-3');
   });
 
+  it('drops the next episode from the upcoming list to avoid showing it twice', () => {
+    useSeriesQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: makeSeries({
+        nextEpisode: {
+          id: 'evt-2',
+          title: 'Episódio 4',
+          startsAt: '2026-01-08T23:00:00.000Z',
+          endsAt: '2026-01-09T01:00:00.000Z',
+          status: 'SCHEDULED',
+          detachedFromSeries: false,
+          thumbnailUrl: null,
+        },
+        upcoming: [
+          {
+            id: 'evt-2',
+            title: 'Episódio 4',
+            startsAt: '2026-01-08T23:00:00.000Z',
+            endsAt: '2026-01-09T01:00:00.000Z',
+            status: 'SCHEDULED',
+            detachedFromSeries: false,
+            thumbnailUrl: null,
+          },
+          {
+            id: 'evt-3',
+            title: 'Episódio 5',
+            startsAt: '2026-01-15T23:00:00.000Z',
+            endsAt: '2026-01-16T01:00:00.000Z',
+            status: 'SCHEDULED',
+            detachedFromSeries: false,
+            thumbnailUrl: null,
+          },
+        ],
+      }),
+    });
+
+    render(<SeriesPageContent slug="quinta-do-rock" />);
+
+    // "Episódio 4" still shows once, in the next-episode hero — just not
+    // duplicated in the upcoming list below it.
+    expect(screen.getAllByText('Episódio 4')).toHaveLength(1);
+    expect(screen.getByText('Episódio 5')).toBeInTheDocument();
+  });
+
   it('renders replays using ShowCard', () => {
     useSeriesQueryMock.mockReturnValue({
       isLoading: false,

@@ -134,6 +134,19 @@ describe('SeriesForm — create', () => {
     expect(push).toHaveBeenCalledWith('/dashboard/series/quinta-do-rock');
   });
 
+  it('does not submit with a timezone that is not a real IANA zone', () => {
+    render(<SeriesForm />);
+    type('dashboard.name', 'Quinta do Rock');
+    type('dashboard.firstDate', '2026-09-03');
+    type('dashboard.startTime', '20:00');
+    type('dashboard.timezone', 'Not/AZone');
+    fireEvent.click(screen.getByLabelText('dashboard.weekdayTH'));
+
+    fireEvent.click(screen.getByText('dashboard.save'));
+
+    expect(createMutate).not.toHaveBeenCalled();
+  });
+
   it('defaults the horizon to 4 weeks and the duration to 60 minutes', () => {
     render(<SeriesForm />);
     fill();

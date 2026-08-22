@@ -2,6 +2,7 @@ import { httpClient } from '@/lib/http/client';
 import type {
   CreateSeriesInput,
   SeriesDetail,
+  SeriesEpisode,
   SeriesEpisodeDetail,
   SeriesListItem,
   SeriesResponse,
@@ -62,8 +63,11 @@ export const seriesService = {
     return data;
   },
 
-  reattachEpisode: async (seriesId: string, eventId: string): Promise<SeriesEpisodeDetail> => {
-    const { data } = await httpClient.post<SeriesEpisodeDetail>(
+  // toEpisodeResponse on the backend is called without a hasSales argument
+  // for this route, so the response never carries it — SeriesEpisode, not
+  // SeriesEpisodeDetail.
+  reattachEpisode: async (seriesId: string, eventId: string): Promise<SeriesEpisode> => {
+    const { data } = await httpClient.post<SeriesEpisode>(
       `/series/${seriesId}/episodes/${eventId}/reattach`,
     );
     return data;

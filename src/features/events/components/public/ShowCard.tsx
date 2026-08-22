@@ -100,7 +100,7 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
 
       <div className={styles.cardFooter}>
         <div className={styles.footerChips}>
-          {show.seriesId && <SeriesBadge />}
+          {show.seriesId && <SeriesBadge seriesSlug={show.seriesSlug} />}
           {show.tags.length > 0
             ? show.tags.slice(0, 2).map((tag) => (
                 <span key={tag} className={styles.chipTag}>{tag}</span>

@@ -72,9 +72,11 @@ export function SeriesForm({ mode = 'create', initial, onDone }: Props) {
   const slugIsValid = slug.length >= SLUG_MIN && slug.length <= SLUG_MAX && SLUG_REGEX.test(slug);
   const duration = Number(durationMin);
   const horizon = Number(horizonWeeks);
+  const timezoneIsValid = timezones.length === 0 || timezones.includes(timezone);
   const canSubmit = Boolean(
     name.trim() &&
       timezone.trim() &&
+      timezoneIsValid &&
       firstDate &&
       startTime &&
       days.length > 0 &&

@@ -83,7 +83,7 @@ describe('useCreateSeriesMutation', () => {
 describe('useUpdateSeriesMutation', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('invalidates the org list and the series detail on settle', async () => {
+  it('invalidates every series query on settle', async () => {
     vi.mocked(seriesService.update).mockResolvedValue(SERIES);
     const { queryClient, wrapper } = makeWrapper();
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
@@ -98,8 +98,7 @@ describe('useUpdateSeriesMutation', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: seriesKeys.org('org-1') });
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: seriesKeys.detail('quinta-do-rock') });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: seriesKeys.all });
   });
 });
 
@@ -132,7 +131,6 @@ describe('useReattachEpisodeMutation', () => {
       status: 'SCHEDULED',
       detachedFromSeries: false,
       thumbnailUrl: null,
-      hasSales: false,
     });
     const { queryClient, wrapper } = makeWrapper();
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');

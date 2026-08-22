@@ -69,6 +69,6 @@ export function eventToShow(event: EventResponse): Show {
     viewers: undefined,
     rating: undefined,
     seriesId: event.seriesId,
-    detachedFromSeries: event.detachedFromSeries,
+    seriesSlug: event.seriesSlug,
   };
 }

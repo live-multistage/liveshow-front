@@ -34,8 +34,8 @@ export function getRecurrenceParts(rrule: string, startTime: string, locale = 'p
 
 // `series.dtstart` is a UTC instant; the recurrence phrase needs the local
 // clock time in the series' own timezone, not UTC.
-export function formatStartTime(dtstart: string, timezone: string): string {
-  return new Intl.DateTimeFormat('pt-BR', {
+export function formatStartTime(dtstart: string, timezone: string, locale = 'pt-BR'): string {
+  return new Intl.DateTimeFormat(locale, {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,

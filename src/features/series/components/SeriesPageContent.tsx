@@ -47,7 +47,7 @@ export function SeriesPageContent({ slug }: Props) {
 
   const recurrenceParts = getRecurrenceParts(
     series.rrule,
-    formatStartTime(series.dtstart, series.timezone),
+    formatStartTime(series.dtstart, series.timezone, locale),
     locale,
   );
   const recurrence =
@@ -55,6 +55,9 @@ export function SeriesPageContent({ slug }: Props) {
       ? t('recurrence.daily', { time: recurrenceParts.time })
       : t('recurrence.weekly', { day: recurrenceParts.day, time: recurrenceParts.time });
   const { nextEpisode, upcoming, replays, seasonPasses } = series;
+  // nextEpisode is already the first upcoming episode — drop it from the
+  // list below so it isn't shown twice.
+  const upcomingList = nextEpisode ? upcoming.slice(1) : upcoming;
 
   const isPassInCart = (passId: string) =>
     isLoggedIn && (cart?.items.some((item) => item.ticketProductId === passId) ?? false);
@@ -99,11 +102,11 @@ export function SeriesPageContent({ slug }: Props) {
         )}
       </section>
 
-      {upcoming.length > 0 && (
+      {upcomingList.length > 0 && (
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>{t('upcoming')}</h2>
           <ul className={styles.upcomingList}>
-            {upcoming.map((episode) => (
+            {upcomingList.map((episode) => (
               <li key={episode.id} className={styles.upcomingItem}>
                 <Link href={`/events/${episode.id}`} className={styles.upcomingLink}>
                   <span className={styles.upcomingItemTitle}>{episode.title}</span>
@@ -149,7 +152,7 @@ export function SeriesPageContent({ slug }: Props) {
           </h2>
           <div className={styles.replayGrid}>
             {replays.map((episode) => (
-              <ShowCard key={episode.id} show={episodeToShow(episode, series.name)} />
+              <ShowCard key={episode.id} show={episodeToShow(episode, series.name, locale)} />
             ))}
           </div>
         </section>

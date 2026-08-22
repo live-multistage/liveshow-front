@@ -15,7 +15,7 @@
 .spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid rgba(255, 255, 255, .15);
+  border: 2px solid rgba($text-primary, .15);
   border-top-color: $action;
   border-radius: 50%;
   animation: spin .7s linear infinite;
@@ -118,7 +118,7 @@
   display: inline-flex;
   align-items: center;
   background: $action;
-  color: #0a0a0b;
+  color: $bg;
   font-weight: 700;
   font-size: .875rem;
   padding: .7rem 1.25rem;
@@ -228,7 +228,7 @@
 .passBuyBtn {
   width: 100%;
   background: $action;
-  color: #0a0a0b;
+  color: $bg;
   border: none;
   font-weight: 700;
   font-size: .875rem;

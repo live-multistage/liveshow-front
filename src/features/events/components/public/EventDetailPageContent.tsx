@@ -110,7 +110,7 @@ export function EventDetailPageContent({ id }: Props) {
                   {cameraCount} CÂMERAS
                 </span>
               )}
-              {event.seriesId && <SeriesBadge />}
+              {event.seriesId && <SeriesBadge seriesSlug={event.seriesSlug} />}
             </div>
             <h1 className={styles.heroFullTitle}>{event.title}</h1>
             {event.venue && <p className={styles.heroPlace}>{event.venue}</p>}

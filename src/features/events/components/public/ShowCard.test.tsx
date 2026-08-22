@@ -52,4 +52,13 @@ describe('ShowCard', () => {
 
     expect(screen.getByText('badge')).toBeInTheDocument();
   });
+
+  it('links the series badge to the series page when a seriesSlug is present', () => {
+    render(<ShowCard show={makeShow({ seriesId: 'series-1', seriesSlug: 'quinta-do-rock' })} />);
+
+    expect(screen.getByText('badge').closest('a')).toHaveAttribute(
+      'href',
+      '/series/quinta-do-rock',
+    );
+  });
 });

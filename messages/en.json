@@ -450,7 +450,6 @@
   "eventCard": {
     "status": {
       "DRAFT": "Draft",
-      "PUBLISHED": "Published",
       "LIVE": "Live",
       "FINISHED": "Finished",
       "CANCELLED": "Cancelled"
@@ -486,7 +485,6 @@
     "cameraCount": "{count, plural, one {# camera} other {# cameras}}",
     "status": {
       "DRAFT": "Draft",
-      "PUBLISHED": "Published",
       "LIVE": "Live",
       "FINISHED": "Finished",
       "CANCELLED": "Cancelled"
@@ -1158,7 +1156,6 @@
       "draftScheduleNote": "The public schedule appears once the channel is published.",
       "status": {
         "DRAFT": "Draft",
-        "PUBLISHED": "Published",
         "ARCHIVED": "Archived"
       }
     }
@@ -1167,7 +1164,6 @@
     "title": "Programs",
     "railTitle": "Programs",
     "badge": "Series",
-    "badgeLinkLabel": "View series",
     "eyebrow": "Recurring show",
     "nextEpisode": "Next episode",
     "upcoming": "Upcoming",
@@ -1211,9 +1207,9 @@
       "configureCameras": "Configure template cameras",
       "templateTickets": "Template tickets",
       "episodes": "Episodes",
+      "episodeActions": "Actions",
       "episodeStatus": {
         "DRAFT": "Draft",
-        "PUBLISHED": "Published",
         "SCHEDULED": "Scheduled",
         "LIVE": "Live",
         "FINISHED": "Finished",

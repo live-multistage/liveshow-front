@@ -10,10 +10,9 @@ import type { CreateSeriesInput, UpdateSeriesInput, UpsertSeriesTicketProductInp
 
 function useInvalidateSeries() {
   const qc = useQueryClient();
-  return (organizationId: string, slug?: string) => {
-    qc.invalidateQueries({ queryKey: seriesKeys.org(organizationId) });
-    if (slug) qc.invalidateQueries({ queryKey: seriesKeys.detail(slug) });
-  };
+  // seriesKeys.all is the ['series'] prefix — this invalidates every series
+  // query (list, org, detail) in one call, since react-query matches by prefix.
+  return () => qc.invalidateQueries({ queryKey: seriesKeys.all });
 }
 
 function useErrorToast() {
@@ -60,7 +59,7 @@ export function useUpdateSeriesMutation() {
       }
     },
     onError: toastError,
-    onSettled: (_data, _error, { organizationId, slug }) => invalidate(organizationId, slug),
+    onSettled: () => invalidate(),
   });
 }
 
@@ -77,7 +76,7 @@ export function usePauseSeriesMutation() {
       }
     },
     onError: toastError,
-    onSettled: (_data, _error, { organizationId, slug }) => invalidate(organizationId, slug),
+    onSettled: () => invalidate(),
   });
 }
 
@@ -94,7 +93,7 @@ export function useResumeSeriesMutation() {
       }
     },
     onError: toastError,
-    onSettled: (_data, _error, { organizationId, slug }) => invalidate(organizationId, slug),
+    onSettled: () => invalidate(),
   });
 }
 
@@ -111,7 +110,7 @@ export function useEndSeriesMutation() {
       }
     },
     onError: toastError,
-    onSettled: (_data, _error, { organizationId, slug }) => invalidate(organizationId, slug),
+    onSettled: () => invalidate(),
   });
 }
 

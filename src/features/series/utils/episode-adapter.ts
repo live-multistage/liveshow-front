@@ -8,7 +8,7 @@ import type { SeriesEpisode } from '../types/series.types';
 // doesn't render for a series episode get safe defaults instead of firing an
 // extra fetch per replay just to reuse the card. Upgrade to a real fetch if a
 // future page needs those fields to be accurate here.
-export function episodeToShow(episode: SeriesEpisode, seriesName: string): Show {
+export function episodeToShow(episode: SeriesEpisode, seriesName: string, locale = 'pt-BR'): Show {
   const startsAt = new Date(episode.startsAt);
 
   return {
@@ -20,7 +20,7 @@ export function episodeToShow(episode: SeriesEpisode, seriesName: string): Show 
     city: '',
     country: '',
     date: startsAt.toISOString().split('T')[0],
-    time: startsAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+    time: startsAt.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
     duration: '',
     image: episode.thumbnailUrl ?? FALLBACK_IMAGE,
     price: 0,
