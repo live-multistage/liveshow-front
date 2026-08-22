@@ -1154,7 +1154,6 @@
     "onAir": "AL AIRE",
     "offAir": "Fuera del aire",
     "backAt": "Vuelve a las",
-    "watch": "Ver",
     "errorToast": "No se pudo completar la acción",
     "dashboard": {
       "title": "Canales",
@@ -1206,6 +1205,19 @@
         "summaryCanceledThisMonth": "Canceladas este mes",
         "summaryMrr": "Ingresos recurrentes mensuales",
         "setPriceAfterCreate": "Define el precio después de crear el canal."
+      },
+      "linkToEvent": "Vincular a evento",
+      "linkToEventNone": "Ninguno",
+      "linkToEventOverlapWarning": "El horario del evento no coincide con la ventana de este programa.",
+      "linkedEvent": "Vinculado al evento: {title}",
+      "onAir": {
+        "title": "En vivo ahora",
+        "currentOwn": "Feed propio del canal",
+        "currentEvent": "Evento: {title}",
+        "waiting": "Esperando que el evento entre en vivo",
+        "selectEvent": "Seleccionar evento",
+        "putOnAir": "Poner evento en vivo",
+        "backToChannel": "Volver al feed del canal"
       }
     },
     "subscription": {
@@ -1229,7 +1241,8 @@
       "pastDueBanner": "Pago pendiente — actualiza tu tarjeta para mantener el acceso.",
       "pastDueAction": "Actualizar pago",
       "dismiss": "Descartar"
-    }
+    },
+    "nowPlaying": "Ahora: {title}"
   },
   "series": {
     "title": "Programas",

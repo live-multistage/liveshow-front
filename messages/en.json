@@ -1154,7 +1154,6 @@
     "onAir": "ON AIR",
     "offAir": "Off air",
     "backAt": "Back at",
-    "watch": "Watch",
     "errorToast": "The action could not be completed",
     "dashboard": {
       "title": "Channels",
@@ -1206,6 +1205,19 @@
         "summaryCanceledThisMonth": "Canceled this month",
         "summaryMrr": "Monthly recurring revenue",
         "setPriceAfterCreate": "Set the price after creating the channel."
+      },
+      "linkToEvent": "Link to event",
+      "linkToEventNone": "None",
+      "linkToEventOverlapWarning": "This event's time does not overlap this program's window.",
+      "linkedEvent": "Linked to event: {title}",
+      "onAir": {
+        "title": "On air now",
+        "currentOwn": "Channel's own feed",
+        "currentEvent": "Event: {title}",
+        "waiting": "Waiting for an event to go live",
+        "selectEvent": "Select event",
+        "putOnAir": "Put event on air",
+        "backToChannel": "Back to channel's feed"
       }
     },
     "subscription": {
@@ -1229,7 +1241,8 @@
       "pastDueBanner": "Payment past due — update your card to keep access.",
       "pastDueAction": "Update payment",
       "dismiss": "Dismiss"
-    }
+    },
+    "nowPlaying": "Now: {title}"
   },
   "series": {
     "title": "Programs",
