@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { fetchEvent } from '@/features/events/queries/get-event.server';
+import { fetchEventByParam } from '@/features/events/queries/get-event.server';
 
 export const alt = 'Evento no Liveshow';
 export const size = { width: 1200, height: 630 };
@@ -28,15 +28,15 @@ export default async function OpengraphImage({ params }: Props) {
   let venue: string | null = null;
   let bannerUrl: string | null = null;
 
-  try {
-    const event = await fetchEvent(id);
+  // O unfurl chega pela URL canônica (slug), então resolve os dois formatos.
+  // Evento inacessível (rascunho, deletado, API fora): cai no card genérico da
+  // marca em vez de quebrar o unfurl do link.
+  const event = await fetchEventByParam(id);
+  if (event) {
     title = event.title;
     dateLabel = formatEventDate(event.startsAt);
     venue = event.venue;
     bannerUrl = event.bannerUrl;
-  } catch {
-    // Evento inacessível (rascunho, deletado, API fora): cai no card genérico
-    // da marca em vez de quebrar o unfurl do link.
   }
 
   return new ImageResponse(
