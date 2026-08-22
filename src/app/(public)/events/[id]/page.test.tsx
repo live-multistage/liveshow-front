@@ -5,6 +5,7 @@ const EVENT = {
   id: '9f8b1c2d-3e4f-4a5b-8c9d-0e1f2a3b4c5d',
   slug: 'rock-in-rio-2026',
   title: 'Rock in Rio 2026',
+  description: 'Tres dias de rock.',
 } as unknown as EventResponse;
 
 const fetchEvent = vi.fn(async (_id: string) => EVENT);
@@ -80,9 +81,23 @@ describe('/events/[id]', () => {
     expect(screen.getByTestId('detail')).toHaveTextContent('nao-existe');
   });
 
-  it('canonicalises metadata on the slug', async () => {
+  it('canonicalises metadata on the slug and describes the event', async () => {
     const meta = await generateMetadata({ params: Promise.resolve({ id: EVENT.id }) });
     expect(meta.title).toBe('Rock in Rio 2026');
     expect(meta.alternates?.canonical).toContain('/events/rock-in-rio-2026');
+    expect(meta.description).toBe('Tres dias de rock.');
+    expect(meta.openGraph?.title).toBe('Rock in Rio 2026');
+    expect(meta.openGraph?.description).toBe('Tres dias de rock.');
+    expect(meta.robots).toBeUndefined();
+  });
+
+  // A dead link still renders a 200; without noindex every one of them accretes
+  // in the index as a thin duplicate page.
+  it('noindexes metadata when the event cannot be resolved', async () => {
+    fetchEventBySlug.mockRejectedValue(new Error('404'));
+
+    const meta = await generateMetadata({ params: Promise.resolve({ id: 'nao-existe' }) });
+
+    expect(meta.robots).toEqual({ index: false, follow: false });
   });
 });

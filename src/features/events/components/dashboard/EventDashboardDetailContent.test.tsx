@@ -368,9 +368,7 @@ describe('EventDashboardDetailContent friendly URL', () => {
     await userEvent.type(input, 'Slug Invalido!');
     await userEvent.click(screen.getByText('mock-save'));
 
-    await waitFor(() =>
-      expect(screen.getByText('Use apenas letras minúsculas, números e hífens')).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText('slugInvalid')).toBeInTheDocument());
     expect(mutateAsync).not.toHaveBeenCalled();
   });
 

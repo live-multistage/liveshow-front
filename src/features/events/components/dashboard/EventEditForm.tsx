@@ -11,11 +11,13 @@ import styles from './EventDashboardDetailContent.module.scss';
 export const editSchema = z.object({
   // Mirrors UpdateEventDto in live-show-orchestrator; uniqueness is the one rule
   // only the server can check, and it comes back as a 409 handled by the caller.
+  // Messages are i18n keys, not copy: the schema is module scope, where the
+  // next-intl hook can't run, so the component translates them on render.
   slug: z
     .string()
-    .min(SLUG_MIN_LENGTH, 'Mínimo 3 caracteres')
-    .max(SLUG_MAX_LENGTH, 'Máximo 120 caracteres')
-    .regex(SLUG_PATTERN, 'Use apenas letras minúsculas, números e hífens'),
+    .min(SLUG_MIN_LENGTH, 'slugTooShort')
+    .max(SLUG_MAX_LENGTH, 'slugTooLong')
+    .regex(SLUG_PATTERN, 'slugInvalid'),
   title: z.string().min(3, 'Mínimo 3 caracteres'),
   description: z.string().min(10, 'Mínimo 10 caracteres'),
   startsAt: z.string().min(1, 'Obrigatório'),
@@ -37,12 +39,14 @@ interface Props {
   errorMessage?: string;
   /** Server-side slug rejection (409) — only the backend can detect it. */
   slugError?: string;
+  /** Clears `slugError`: the 409 describes the old value, not what's being typed. */
+  onSlugChange?: () => void;
   // FINISHED events: schedule is historical record — fields render disabled
   // and the container omits them from the update payload.
   scheduleLocked?: boolean;
 }
 
-export function EventEditForm({ register, control, errors, errorMessage, slugError, scheduleLocked = false }: Props) {
+export function EventEditForm({ register, control, errors, errorMessage, slugError, onSlugChange, scheduleLocked = false }: Props) {
   const t = useTranslations('eventDetail');
   const slug = useWatch({ control, name: 'slug' });
 
@@ -52,14 +56,16 @@ export function EventEditForm({ register, control, errors, errorMessage, slugErr
         <label className={styles.label} htmlFor="editSlug">{t('editSlug')}</label>
         <input
           id="editSlug"
-          {...register('slug')}
+          {...register('slug', { onChange: onSlugChange })}
           className={`${styles.input} ${errors.slug || slugError ? styles.inputError : ''}`}
         />
         <p className={styles.slugPreview} data-testid="slug-preview">
           {publicOrigin()}/events/{slug ?? ''}
         </p>
         {(errors.slug || slugError) && (
-          <p className={styles.error}>{errors.slug?.message ?? slugError}</p>
+          <p className={styles.error}>
+            {errors.slug?.message ? t(errors.slug.message) : slugError}
+          </p>
         )}
         <p className={styles.slugHint}>{t('editSlugHint')}</p>
       </div>

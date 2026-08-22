@@ -98,8 +98,8 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
 
   async function onSave(values: EditFormValues) {
     await updateMutation.mutateAsync({
-      // Only sent when actually changed: re-sending the current slug would make
-      // the backend's uniqueness check race against the event's own row.
+      // Omitted when unchanged, so an edit that only touches copy never depends
+      // on the slug uniqueness check at all.
       ...(values.slug === event?.slug ? {} : { slug: values.slug }),
       title: values.title,
       description: values.description,
@@ -203,6 +203,9 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
               errors={errors}
               isPending={updateMutation.isPending}
               slugError={slugTaken ? t('slugTaken') : undefined}
+              // The 409 describes the value that was rejected; the moment it's
+              // edited the message is stale, so drop it.
+              onSlugChange={slugTaken ? () => updateMutation.reset() : undefined}
               errorMessage={slugTaken ? undefined : updateMutation.error?.message}
               scheduleLocked={scheduleLocked}
             />
@@ -255,7 +258,7 @@ function PublicUrlRow({ event, label, copyLabel, copiedLabel }: {
     <div className={styles.publicUrlRow}>
       <span className={styles.publicUrlLabel}>{label}</span>
       <code className={styles.publicUrlValue}>{url}</code>
-      <button type="button" onClick={copy} className={styles.publicUrlCopy} aria-label={copyLabel}>
+      <button type="button" onClick={copy} className={styles.publicUrlCopy} aria-live="polite">
         {copied ? <Check size={14} /> : <Copy size={14} />}
         {copied ? copiedLabel : copyLabel}
       </button>

@@ -36,6 +36,18 @@ export async function fetchEventByParam(param: string): Promise<EventResponse | 
   }
 }
 
+/**
+ * Narrows the `/events/[id]/...` segment down to the event's UUID for the
+ * sub-routes that only ever key off the id (checkout and friends). A param that
+ * resolves to nothing is handed back untouched so the client component renders
+ * its own error state rather than the route 500ing.
+ */
+export async function resolveEventId(param: string): Promise<string> {
+  if (isEventId(param)) return param;
+  const event = await fetchEventByParam(param);
+  return event?.id ?? param;
+}
+
 export const fetchTicketProducts = cache(async (eventId: string): Promise<TicketProductsResponse> => {
   const res = await fetch(`${apiBase()}/shows/${eventId}/tickets`, { next: { revalidate: 30 } });
   if (!res.ok) throw new Error(`fetchTicketProducts ${eventId}: ${res.status}`);
