@@ -11,7 +11,12 @@ import {
   useDeleteTicketProductMutation,
   useUpdateTicketProductMutation,
 } from '../../mutations/ticket-product.mutation';
-import type { AccessCapability, TicketProductResponse } from '../../types/event.types';
+import {
+  useCreateSeriesTicketProductMutation,
+  useDeleteSeriesTicketProductMutation,
+  useUpdateSeriesTicketProductMutation,
+} from '../../../series/mutations/series.mutations';
+import type { AccessCapability } from '../../types/event.types';
 import { useEventStagesQuery } from '../../../streams/queries/streams.queries';
 import { ISO_CURRENCIES, DEFAULT_CURRENCY } from '@/shared/constants/currencies';
 import {
@@ -23,12 +28,37 @@ import {
 } from '@live-show/design-system';
 import styles from './TicketSection.module.scss';
 
-interface Props {
-  eventId: string;
-  tickets: TicketProductResponse[];
+// Common shape both an event's TicketProductResponse and a series'
+// SeriesTicketProduct satisfy — the form only ever reads/writes these fields,
+// so it stays agnostic of which backend resource it's editing.
+interface TicketProductLike {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  capabilities: AccessCapability[];
+  camerasLimit: number | null;
+  allowedStageIds: string[];
+  capacity: number | null;
+  immutable: boolean;
+  remaining?: number | null;
+  soldOut?: boolean;
 }
 
-function ticketToForm(ticket: TicketProductResponse): TicketFormValues {
+interface Props {
+  // Exactly one of eventId/seriesId is set — mirrors the backend's
+  // TicketProduct invariant (either eventId or seriesId, never both).
+  eventId?: string;
+  seriesId?: string;
+  // Stage checkboxes always come from an Event's streams. For a series
+  // that's the template event, which differs from seriesId — defaults to
+  // eventId when omitted.
+  stagesEventId?: string;
+  tickets: TicketProductLike[];
+}
+
+function ticketToForm(ticket: TicketProductLike): TicketFormValues {
   return {
     name: ticket.name,
     description: ticket.description,
@@ -55,12 +85,22 @@ const EMPTY_FORM: Partial<TicketFormInput> = {
   allowedStageIds: [],
 };
 
-export function EditTicketSection({ eventId, tickets }: Props) {
+export function EditTicketSection({ eventId, seriesId, stagesEventId, tickets }: Props) {
   const t = useTranslations('editTicket');
-  const createMutation = useCreateTicketProductMutation(eventId);
-  const updateMutation = useUpdateTicketProductMutation(eventId);
-  const deleteMutation = useDeleteTicketProductMutation(eventId);
-  const { stages } = useEventStagesQuery(eventId);
+  const isSeries = Boolean(seriesId);
+
+  const createEventMutation = useCreateTicketProductMutation(eventId ?? '');
+  const updateEventMutation = useUpdateTicketProductMutation(eventId ?? '');
+  const deleteEventMutation = useDeleteTicketProductMutation(eventId ?? '');
+  const createSeriesMutation = useCreateSeriesTicketProductMutation();
+  const updateSeriesMutation = useUpdateSeriesTicketProductMutation();
+  const deleteSeriesMutation = useDeleteSeriesTicketProductMutation();
+
+  const createMutation = isSeries ? createSeriesMutation : createEventMutation;
+  const updateMutation = isSeries ? updateSeriesMutation : updateEventMutation;
+  const deleteMutation = isSeries ? deleteSeriesMutation : deleteEventMutation;
+
+  const { stages } = useEventStagesQuery(stagesEventId ?? eventId ?? null);
 
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -103,7 +143,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
     return parts.join(' + ');
   }
 
-  const startEdit = (ticket: TicketProductResponse) => {
+  const startEdit = (ticket: TicketProductLike) => {
     setEditingId(ticket.id);
     reset(ticketToForm(ticket));
   };
@@ -132,12 +172,24 @@ export function EditTicketSection({ eventId, tickets }: Props) {
     };
 
     if (editingId) {
-      updateMutation.mutate(
-        { ticketId: editingId, payload },
-        { onSuccess: () => cancelEdit() },
+      if (isSeries) {
+        updateSeriesMutation.mutate(
+          { seriesId: seriesId!, productId: editingId, input: payload },
+          { onSuccess: () => cancelEdit() },
+        );
+      } else {
+        updateEventMutation.mutate(
+          { ticketId: editingId, payload },
+          { onSuccess: () => cancelEdit() },
+        );
+      }
+    } else if (isSeries) {
+      createSeriesMutation.mutate(
+        { seriesId: seriesId!, input: payload },
+        { onSuccess: () => reset(EMPTY_FORM) },
       );
     } else {
-      createMutation.mutate(payload, { onSuccess: () => reset(EMPTY_FORM) });
+      createEventMutation.mutate(payload, { onSuccess: () => reset(EMPTY_FORM) });
     }
   };
 
@@ -358,7 +410,11 @@ export function EditTicketSection({ eventId, tickets }: Props) {
                 <button
                   type="button"
                   className={styles.removeBtn}
-                  onClick={() => deleteMutation.mutate(ticket.id)}
+                  onClick={() =>
+                    isSeries
+                      ? deleteSeriesMutation.mutate({ seriesId: seriesId!, productId: ticket.id })
+                      : deleteEventMutation.mutate(ticket.id)
+                  }
                   disabled={deleteMutation.isPending || editingId === ticket.id}
                   aria-label="remove"
                 >
