@@ -120,7 +120,9 @@ export function EditTicketSection({ eventId, seriesId, stagesEventId, tickets }:
   const liveView = useWatch({ control, name: 'liveView' });
   const replayView = useWatch({ control, name: 'replayView' });
   const physicalEntry = useWatch({ control, name: 'physicalEntry' });
-  const showStageSelector = (liveView || cameraView) && stages.length > 0;
+  // Season passes have no stage-restriction concept — the series
+  // ticket-product endpoint 400s if allowedStageIds is present at all.
+  const showStageSelector = !isSeries && (liveView || cameraView) && stages.length > 0;
 
   // Presencial nunca sozinho: sem Ao vivo/Reprise o checkbox trava, e se o
   // usuário desmarcar o stream com presencial já ligado, desliga junto.
@@ -160,7 +162,7 @@ export function EditTicketSection({ eventId, seriesId, stagesEventId, tickets }:
     if (values.cameraView) capabilities.push('CAMERA_VIEW');
     if (values.physicalEntry) capabilities.push('PHYSICAL_ENTRY');
 
-    const payload = {
+    const basePayload = {
       name: values.name,
       description: values.description,
       price: values.price,
@@ -168,28 +170,39 @@ export function EditTicketSection({ eventId, seriesId, stagesEventId, tickets }:
       capabilities,
       camerasLimit: values.cameraView ? (values.camerasLimit ?? null) : null,
       capacity: values.physicalEntry ? (values.capacity ?? null) : null,
-      allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
     };
 
     if (editingId) {
       if (isSeries) {
         updateSeriesMutation.mutate(
-          { seriesId: seriesId!, productId: editingId, input: payload },
+          { seriesId: seriesId!, productId: editingId, input: basePayload },
           { onSuccess: () => cancelEdit() },
         );
       } else {
         updateEventMutation.mutate(
-          { ticketId: editingId, payload },
+          {
+            ticketId: editingId,
+            payload: {
+              ...basePayload,
+              allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
+            },
+          },
           { onSuccess: () => cancelEdit() },
         );
       }
     } else if (isSeries) {
       createSeriesMutation.mutate(
-        { seriesId: seriesId!, input: payload },
+        { seriesId: seriesId!, input: basePayload },
         { onSuccess: () => reset(EMPTY_FORM) },
       );
     } else {
-      createEventMutation.mutate(payload, { onSuccess: () => reset(EMPTY_FORM) });
+      createEventMutation.mutate(
+        {
+          ...basePayload,
+          allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
+        },
+        { onSuccess: () => reset(EMPTY_FORM) },
+      );
     }
   };
 

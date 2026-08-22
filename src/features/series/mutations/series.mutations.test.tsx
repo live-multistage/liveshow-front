@@ -24,9 +24,9 @@ import {
 } from './series.mutations';
 import { seriesService } from '../services/series.service';
 import { seriesKeys } from '../queries/series.queries';
-import type { SeriesResponse } from '../types/series.types';
+import type { SeriesOrgResponse } from '../types/series.types';
 
-const SERIES: SeriesResponse = {
+const SERIES: SeriesOrgResponse = {
   id: 'series-1',
   organizationId: 'org-1',
   slug: 'quinta-do-rock',

@@ -5,7 +5,7 @@ import type {
   SeriesEpisode,
   SeriesEpisodeDetail,
   SeriesListItem,
-  SeriesResponse,
+  SeriesOrgResponse,
   SeriesTicketProduct,
   UpdateSeriesInput,
   UpsertSeriesTicketProductInput,
@@ -22,35 +22,35 @@ export const seriesService = {
     return data;
   },
 
-  listByOrg: async (organizationId: string): Promise<SeriesResponse[]> => {
-    const { data } = await httpClient.get<SeriesResponse[]>(
+  listByOrg: async (organizationId: string): Promise<SeriesOrgResponse[]> => {
+    const { data } = await httpClient.get<SeriesOrgResponse[]>(
       `/organizations/${organizationId}/series`,
     );
     return data;
   },
 
-  create: async (input: CreateSeriesInput): Promise<SeriesResponse> => {
-    const { data } = await httpClient.post<SeriesResponse>('/series', input);
+  create: async (input: CreateSeriesInput): Promise<SeriesOrgResponse> => {
+    const { data } = await httpClient.post<SeriesOrgResponse>('/series', input);
     return data;
   },
 
-  update: async (id: string, input: UpdateSeriesInput): Promise<SeriesResponse> => {
-    const { data } = await httpClient.patch<SeriesResponse>(`/series/${id}`, input);
+  update: async (id: string, input: UpdateSeriesInput): Promise<SeriesOrgResponse> => {
+    const { data } = await httpClient.patch<SeriesOrgResponse>(`/series/${id}`, input);
     return data;
   },
 
-  pause: async (id: string): Promise<SeriesResponse> => {
-    const { data } = await httpClient.post<SeriesResponse>(`/series/${id}/pause`);
+  pause: async (id: string): Promise<SeriesOrgResponse> => {
+    const { data } = await httpClient.post<SeriesOrgResponse>(`/series/${id}/pause`);
     return data;
   },
 
-  resume: async (id: string): Promise<SeriesResponse> => {
-    const { data } = await httpClient.post<SeriesResponse>(`/series/${id}/resume`);
+  resume: async (id: string): Promise<SeriesOrgResponse> => {
+    const { data } = await httpClient.post<SeriesOrgResponse>(`/series/${id}/resume`);
     return data;
   },
 
-  end: async (id: string): Promise<SeriesResponse> => {
-    const { data } = await httpClient.post<SeriesResponse>(`/series/${id}/end`);
+  end: async (id: string): Promise<SeriesOrgResponse> => {
+    const { data } = await httpClient.post<SeriesOrgResponse>(`/series/${id}/end`);
     return data;
   },
 

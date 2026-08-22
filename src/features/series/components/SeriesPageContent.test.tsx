@@ -46,7 +46,6 @@ function makeSeries(overrides: Partial<SeriesDetail> = {}): SeriesDetail {
     timezone: 'America/Sao_Paulo',
     durationMin: 90,
     horizonWeeks: 4,
-    templateEventId: 'evt-template-1',
     status: 'ACTIVE',
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',

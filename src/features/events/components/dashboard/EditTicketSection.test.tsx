@@ -12,9 +12,27 @@ vi.mock('@live-show/design-system', () => ({
   SelectValue: () => <span />,
 }));
 
+const useEventStagesQueryMock = vi.fn(
+  (_eventId: string | null): { stages: { id: string; name: string }[]; isLoading: boolean } => ({
+    stages: [],
+    isLoading: false,
+  }),
+);
 vi.mock('../../../streams/queries/streams.queries', () => ({
-  useEventStagesQuery: () => ({ stages: [], isLoading: false }),
+  useEventStagesQuery: (eventId: string | null) => useEventStagesQueryMock(eventId),
 }));
+
+const STAGES = [
+  {
+    id: '11111111-1111-4111-8111-111111111111',
+    streamId: 'stream-1',
+    name: 'Palco A',
+    slug: 'palco-a',
+    position: 0,
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
+  },
+];
 
 const createEventMutate = vi.fn();
 const updateEventMutate = vi.fn();
@@ -62,7 +80,10 @@ const fillRequiredFields = () => {
 };
 
 describe('EditTicketSection — eventId target (unchanged behavior)', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useEventStagesQueryMock.mockReturnValue({ stages: [], isLoading: false });
+  });
 
   it('creates through the event ticket-product mutation', async () => {
     render(<EditTicketSection eventId="evt-1" tickets={[]} />);
@@ -73,10 +94,30 @@ describe('EditTicketSection — eventId target (unchanged behavior)', () => {
     await waitFor(() => expect(createEventMutate).toHaveBeenCalled());
     expect(createSeriesMutate).not.toHaveBeenCalled();
   });
+
+  it('still shows the stage selector and sends allowedStageIds for an event ticket', async () => {
+    useEventStagesQueryMock.mockReturnValue({ stages: STAGES, isLoading: false });
+    render(<EditTicketSection eventId="evt-1" tickets={[]} />);
+    fillRequiredFields();
+
+    expect(screen.getByText('Palco A')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Palco A'));
+    fireEvent.click(screen.getByText('add'));
+
+    await waitFor(() =>
+      expect(createEventMutate).toHaveBeenCalledWith(
+        expect.objectContaining({ allowedStageIds: ['11111111-1111-4111-8111-111111111111'] }),
+        expect.anything(),
+      ),
+    );
+  });
 });
 
 describe('EditTicketSection — seriesId target', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useEventStagesQueryMock.mockReturnValue({ stages: [], isLoading: false });
+  });
 
   it('creates through the series ticket-product mutation with the seriesId', async () => {
     render(<EditTicketSection seriesId="series-1" stagesEventId="evt-template" tickets={[]} />);
@@ -94,6 +135,26 @@ describe('EditTicketSection — seriesId target', () => {
       ),
     );
     expect(createEventMutate).not.toHaveBeenCalled();
+  });
+
+  it('never renders the stage selector, even with stages available', () => {
+    useEventStagesQueryMock.mockReturnValue({ stages: STAGES, isLoading: false });
+    render(<EditTicketSection seriesId="series-1" stagesEventId="evt-template" tickets={[]} />);
+    fillRequiredFields();
+
+    expect(screen.queryByText('Palco A')).not.toBeInTheDocument();
+  });
+
+  it('submits without an allowedStageIds key in the body (backend 400s if present)', async () => {
+    useEventStagesQueryMock.mockReturnValue({ stages: STAGES, isLoading: false });
+    render(<EditTicketSection seriesId="series-1" stagesEventId="evt-template" tickets={[]} />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText('add'));
+
+    await waitFor(() => expect(createSeriesMutate).toHaveBeenCalled());
+    const call = createSeriesMutate.mock.calls[0][0];
+    expect(call.input).not.toHaveProperty('allowedStageIds');
   });
 
   it('deletes through the series ticket-product mutation with the seriesId and productId', () => {

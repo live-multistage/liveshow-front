@@ -17,7 +17,7 @@ import {
 import { SeriesForm } from './SeriesForm';
 import { EpisodesTable } from './EpisodesTable';
 import { SeasonPassProducts } from './SeasonPassProducts';
-import { useSeriesQuery } from '../../queries/series.queries';
+import { useSeriesQuery, useOrgSeriesQuery } from '../../queries/series.queries';
 import {
   usePauseSeriesMutation,
   useResumeSeriesMutation,
@@ -34,6 +34,12 @@ export function SeriesDetailContent({ slug }: Props) {
   const t = useTranslations('series');
   const tCommon = useTranslations('common');
   const { data: series, isLoading } = useSeriesQuery(slug);
+  // templateEventId is org-only now (dropped from the public GET /series/:slug
+  // this page otherwise reads from) — fetch it from the org list instead.
+  const { data: orgSeries } = useOrgSeriesQuery(series?.organizationId ?? '', {
+    enabled: !!series?.organizationId,
+  });
+  const templateEventId = orgSeries?.find((s) => s.slug === slug)?.templateEventId;
   const pause = usePauseSeriesMutation();
   const resume = useResumeSeriesMutation();
   const end = useEndSeriesMutation();
@@ -98,22 +104,28 @@ export function SeriesDetailContent({ slug }: Props) {
           {/* O modelo (template Event) fica fora de qualquer listagem — quem
               administra a série chega nele só por aqui, com o nome da série
               junto na URL igual ao canal faz com o broadcastEventId. */}
-          <Link
-            className={styles.link}
-            href={`/dashboard/streams?eventId=${series.templateEventId}&title=${encodeURIComponent(series.name)}`}
-          >
-            <Video size={14} />
-            {t('dashboard.configureCameras')}
-          </Link>
-          <Link className={styles.link} href={`/dashboard/events/${series.templateEventId}`}>
-            <Ticket size={14} />
-            {t('dashboard.templateTickets')}
-          </Link>
+          {templateEventId && (
+            <>
+              <Link
+                className={styles.link}
+                href={`/dashboard/streams?eventId=${templateEventId}&title=${encodeURIComponent(series.name)}`}
+              >
+                <Video size={14} />
+                {t('dashboard.configureCameras')}
+              </Link>
+              <Link className={styles.link} href={`/dashboard/events/${templateEventId}`}>
+                <Ticket size={14} />
+                {t('dashboard.templateTickets')}
+              </Link>
+            </>
+          )}
         </div>
       </header>
 
       <EpisodesTable seriesId={series.id} />
-      <SeasonPassProducts seriesId={series.id} templateEventId={series.templateEventId} />
+      {templateEventId && (
+        <SeasonPassProducts seriesId={series.id} templateEventId={templateEventId} />
+      )}
 
       <Dialog open={editing} onOpenChange={setEditing}>
         <DialogContent>

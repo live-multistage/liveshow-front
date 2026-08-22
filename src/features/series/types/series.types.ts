@@ -25,10 +25,17 @@ export interface SeriesResponse {
   timezone: string;
   durationMin: number;
   horizonWeeks: number;
-  templateEventId: string;
   status: SeriesStatus;
   createdAt: string;
   updatedAt: string;
+}
+
+// Org-only: templateEventId is the private DRAFT event handle the series
+// hangs on, meaningless to a buyer — the backend only adds it on org routes
+// (GET /organizations/:organizationId/series, POST/PATCH/pause/resume/end
+// /series/:id), never on the public GET /series or GET /series/:slug.
+export interface SeriesOrgResponse extends SeriesResponse {
+  templateEventId: string;
 }
 
 export interface SeriesListItem extends SeriesResponse {
@@ -95,6 +102,9 @@ export interface SeriesTicketProduct extends SeasonPass {
   immutable: boolean;
 }
 
+// No allowedStageIds — the backend DTO (UpsertSeriesTicketProductDto) uses
+// forbidNonWhitelisted and 400s if the key is present at all, unlike the
+// event ticket-product endpoint which still supports stage restriction.
 export interface UpsertSeriesTicketProductInput {
   name: string;
   description: string;
@@ -102,6 +112,5 @@ export interface UpsertSeriesTicketProductInput {
   currency: string;
   capabilities: AccessCapability[];
   camerasLimit?: number | null;
-  allowedStageIds?: string[];
   capacity?: number | null;
 }

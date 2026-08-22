@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import type { SeriesResponse } from '../../types/series.types';
+import type { SeriesOrgResponse } from '../../types/series.types';
 import { SeriesPageContent } from './SeriesPageContent';
 
 vi.mock('next-intl', () => ({
@@ -18,7 +18,7 @@ vi.mock('../../queries/series.queries', () => ({
   useOrgSeriesQuery: (...args: unknown[]) => useOrgSeriesQuery(...args),
 }));
 
-const series = (overrides: Partial<SeriesResponse> = {}): SeriesResponse => ({
+const series = (overrides: Partial<SeriesOrgResponse> = {}): SeriesOrgResponse => ({
   id: 'series-1',
   organizationId: 'org-1',
   slug: 'quinta-do-rock',

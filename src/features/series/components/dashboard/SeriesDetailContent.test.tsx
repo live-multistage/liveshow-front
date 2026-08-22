@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import type { SeriesResponse } from '../../types/series.types';
+import type { SeriesOrgResponse, SeriesResponse } from '../../types/series.types';
 import { SeriesDetailContent } from './SeriesDetailContent';
 
 vi.mock('next-intl', () => ({
@@ -15,8 +15,10 @@ vi.mock('./SeasonPassProducts', () => ({
 }));
 
 const useSeriesQuery = vi.fn();
+const useOrgSeriesQuery = vi.fn();
 vi.mock('../../queries/series.queries', () => ({
   useSeriesQuery: (...args: unknown[]) => useSeriesQuery(...args),
+  useOrgSeriesQuery: (...args: unknown[]) => useOrgSeriesQuery(...args),
 }));
 
 const pauseMutate = vi.fn();
@@ -41,10 +43,17 @@ const series = (overrides: Partial<SeriesResponse> = {}): SeriesResponse => ({
   timezone: 'America/Sao_Paulo',
   durationMin: 90,
   horizonWeeks: 4,
-  templateEventId: 'evt-template-1',
   status: 'ACTIVE',
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
+  ...overrides,
+});
+
+// templateEventId only ever comes back on the org list — GET /series/:slug
+// (useSeriesQuery, mocked above) never carries it anymore.
+const orgSeries = (overrides: Partial<SeriesOrgResponse> = {}): SeriesOrgResponse => ({
+  ...series(),
+  templateEventId: 'evt-template-1',
   ...overrides,
 });
 
@@ -54,6 +63,7 @@ describe('SeriesDetailContent', () => {
     resumeMutate.mockReset();
     endMutate.mockReset();
     materializeMutate.mockReset();
+    useOrgSeriesQuery.mockReturnValue({ data: [orgSeries()] });
   });
 
   it('renders the series name, status, episodes and season passes', () => {
