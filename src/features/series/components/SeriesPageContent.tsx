@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { eventHref } from '@/features/events/utils/slug';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { CalendarDays, RotateCcw } from 'lucide-react';
@@ -89,7 +90,7 @@ export function SeriesPageContent({ slug }: Props) {
               {formatDate(nextEpisode.startsAt)} · {formatTime(nextEpisode.startsAt)}
             </p>
             <div className={styles.ctaRow}>
-              <Link href={`/events/${nextEpisode.id}`} className={styles.ctaPrimary}>
+              <Link href={eventHref(nextEpisode)} className={styles.ctaPrimary}>
                 {t('buyEpisode')}
               </Link>
               {seasonPasses.length > 0 && (
@@ -108,7 +109,7 @@ export function SeriesPageContent({ slug }: Props) {
           <ul className={styles.upcomingList}>
             {upcomingList.map((episode) => (
               <li key={episode.id} className={styles.upcomingItem}>
-                <Link href={`/events/${episode.id}`} className={styles.upcomingLink}>
+                <Link href={eventHref(episode)} className={styles.upcomingLink}>
                   <span className={styles.upcomingItemTitle}>{episode.title}</span>
                   <span className={styles.upcomingItemDate}>
                     {formatDate(episode.startsAt)} · {formatTime(episode.startsAt)}

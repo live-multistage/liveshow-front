@@ -9,6 +9,7 @@ export type AccessCapability = 'LIVE_VIEW' | 'REPLAY_VIEW' | 'CAMERA_VIEW' | 'PH
 /** Um item de `GET /me/accessible-events`. */
 export interface AccessibleEvent {
   id: string;
+  slug?: string | null;
   title: string;
   status: EventStatus;
   startsAt: string;

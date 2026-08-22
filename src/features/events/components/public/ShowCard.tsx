@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Show } from '../../types/show';
 import { formatPriceRange } from '../../utils/event-formatters';
+import { eventHref } from '../../utils/slug';
 import { WishlistButton } from '@/features/wishlist/components/WishlistButton';
 import { SeriesBadge } from '@/features/series/components/SeriesBadge';
 import styles from './ShowCard.module.scss';
@@ -33,8 +34,8 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
   const priceLabel = purchased ? '—' : formatPriceRange(show.priceRange, show.price);
   const cta = purchased ? t('watch') : show.isLive ? t('watch') : t('details');
 
-  const cardHref = `/events/${show.id}`;
-  const ctaHref = purchased || show.isLive ? `/live/${show.id}` : `/events/${show.id}`;
+  const cardHref = eventHref(show);
+  const ctaHref = purchased || show.isLive ? `/live/${show.id}` : eventHref(show);
 
   return (
     <div className={`${styles.card} ${layout === 'horizontal' ? styles.cardHorizontal : ''}`}>

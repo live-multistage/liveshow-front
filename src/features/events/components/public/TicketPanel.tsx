@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Tv2, RotateCcw, CheckCircle2, Play } from 'lucide-react';
 import { formatPrice } from '../../utils/event-formatters';
+import { eventHref } from '../../utils/slug';
 import { useServiceFeeRateQuery } from '../../queries/get-event';
 import type { EventResponse, TicketProductResponse } from '../../types/event.types';
 import { useTranslations } from 'next-intl';
@@ -216,7 +217,7 @@ export function TicketPanel({ event, tickets }: Props) {
             disabled={claimFreeTicket.isPending}
             onClick={() => {
               if (!isLoggedIn) {
-                router.push(`/login?redirect=${encodeURIComponent(`/events/${event.id}`)}`);
+                router.push(`/login?redirect=${encodeURIComponent(eventHref(event))}`);
                 return;
               }
               // Only navigate once the grant exists; a failed claim leaves the
@@ -292,7 +293,7 @@ export function TicketPanel({ event, tickets }: Props) {
             disabled={claimFreeTicket.isPending}
             onClick={() => {
               if (!isLoggedIn) {
-                router.push(`/login?redirect=${encodeURIComponent(`/events/${event.id}`)}`);
+                router.push(`/login?redirect=${encodeURIComponent(eventHref(event))}`);
                 return;
               }
               claimFreeTicket.mutate(ticket.id);
@@ -351,7 +352,7 @@ export function TicketPanel({ event, tickets }: Props) {
           onClick={() => {
             if (!ticket || soldOut) return;
             if (!isLoggedIn) {
-              router.push(`/login?redirect=${encodeURIComponent(`/events/${event.id}`)}`);
+              router.push(`/login?redirect=${encodeURIComponent(eventHref(event))}`);
               return;
             }
             setPendingAction('cart');

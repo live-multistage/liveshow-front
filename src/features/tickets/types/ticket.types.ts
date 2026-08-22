@@ -5,6 +5,7 @@ import type { AccessCapability } from '@/features/events';
 // render. Null only when the event row itself no longer exists.
 export interface OrderEvent {
   id: string;
+  slug?: string | null;
   title: string;
   status: string;
   startsAt: string;

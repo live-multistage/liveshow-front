@@ -6,6 +6,7 @@
 import Link from 'next/link';
 import type { Show } from '@/features/events/types/show';
 import { formatPriceRange } from '@/features/events/utils/event-formatters';
+import { eventHref } from '@/features/events/utils/slug';
 import { WishlistButton } from '@/features/wishlist';
 import { SmartImage } from './SmartImage';
 import styles from '../EditorialHomeContent.module.scss';
@@ -24,11 +25,11 @@ export function fmtDate(dateStr: string, localeCode: string) {
 }
 
 export function playHref(show: Show) {
-  return show.isLive ? `/live/${show.id}` : `/events/${show.id}`;
+  return show.isLive ? `/live/${show.id}` : eventHref(show);
 }
 
 export function infoHref(show: Show) {
-  return `/events/${show.id}`;
+  return eventHref(show);
 }
 
 // ── Ticker ─────────────────────────────────────────────────────────

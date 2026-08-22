@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import type { PaginatedEventsResponse } from '@/features/events/types/event.types';
+import { eventHref } from '@/features/events/utils/slug';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://liveshow.app';
 
@@ -44,7 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const eventEntries: MetadataRoute.Sitemap = events.map((event) => ({
-    url: `${SITE_URL}/events/${event.id}`,
+    url: `${SITE_URL}${eventHref(event)}`,
     changeFrequency: event.status === 'LIVE' ? 'hourly' : 'daily',
     priority: event.status === 'LIVE' ? 0.9 : 0.7,
   }));

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { ChannelSourceEvent } from '../types/channel.types';
+import { eventHref } from '@/features/events/utils/slug';
 import styles from './NowPlayingBadge.module.scss';
 
 interface Props {
@@ -16,7 +17,7 @@ export function NowPlayingBadge({ event }: Props) {
   const t = useTranslations('channels');
 
   return (
-    <Link href={`/events/${event.id}`} className={styles.badge}>
+    <Link href={eventHref(event)} className={styles.badge}>
       {t('nowPlaying', { title: event.title })}
     </Link>
   );

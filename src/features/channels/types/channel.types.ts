@@ -13,6 +13,9 @@ export type ChannelSourceReason = 'own' | 'override' | 'program';
 
 export interface ChannelSourceEvent {
   id: string;
+  // Optional across every projection below: these routes don't all select the
+  // event's slug yet, and eventHref falls back to the id when it's absent.
+  slug?: string | null;
   title: string;
   startsAt: string;
   endsAt: string;

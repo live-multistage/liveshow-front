@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { PurchasedTicket } from '../types/ticket.types';
-import { formatDate, formatTime } from '@/features/events';
+import { formatDate, formatTime, eventHref } from '@/features/events';
 import styles from './TicketCard.module.scss';
 
 interface TicketCardProps {
@@ -121,7 +121,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
               Ingresso presencial
             </Link>
           )}
-          <Link className={styles.btnDetails} href={`/events/${event.id}`}>
+          <Link className={styles.btnDetails} href={eventHref(event)}>
             {t('details')}
           </Link>
         </div>

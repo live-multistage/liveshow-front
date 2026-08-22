@@ -6,6 +6,7 @@ export type SeriesStatus = 'ACTIVE' | 'PAUSED' | 'ENDED';
 // (GET /series, GET /series/:slug) — not the full EventResponse.
 export interface SeriesEpisode {
   id: string;
+  slug?: string | null;
   title: string;
   startsAt: string;
   endsAt: string;

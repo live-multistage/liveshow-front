@@ -4,6 +4,7 @@ export interface WishlistItem {
   // O id é o do EVENTO, não da linha da wishlist: todo consumidor navega para
   // o evento, e expor os dois ids convidaria a usar o errado em um href.
   id: string;
+  slug?: string | null;
   title: string;
   status: EventStatus;
   startsAt: string;
