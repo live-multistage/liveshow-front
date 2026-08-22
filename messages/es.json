@@ -694,7 +694,37 @@
       "settings": "Configuración"
     },
     "logout": "Cerrar sesión",
-    "loggingOut": "Cerrando sesión..."
+    "loggingOut": "Cerrando sesión...",
+    "subscriptions": {
+      "title": "Mis suscripciones",
+      "loading": "Cargando...",
+      "empty": "Todavía no tienes ninguna suscripción.",
+      "unknownChannel": "Canal",
+      "status": {
+        "ACTIVE": "Activa",
+        "PAST_DUE": "Pago pendiente",
+        "CANCELED": "Cancelada",
+        "INCOMPLETE": "Incompleta"
+      },
+      "interval": {
+        "MONTHLY": "Mensual",
+        "YEARLY": "Anual"
+      },
+      "periodEnd": "Se renueva el {date}",
+      "cancelScheduledNotice": "Cancelación programada para el fin del período.",
+      "managePayment": "Gestionar pago",
+      "resume": "Reactivar",
+      "cancel": "Cancelar",
+      "cancelTitle": "¿Cancelar la suscripción?",
+      "cancelBody": "Conservarás el acceso a {name} hasta el fin del período pagado. Después de eso, el acceso termina.",
+      "cancelDismiss": "Volver",
+      "cancelConfirm": "Cancelar suscripción",
+      "cancelling": "Cancelando...",
+      "error": "No se pudo completar la acción",
+      "accessUntil": "Acceso hasta {date}",
+      "ended": "Finalizada",
+      "noSubscriptionToManage": "Ninguna suscripción para gestionar"
+    }
   },
   "consent": {
     "title": "Privacidad",
@@ -1148,7 +1178,7 @@
       "coverHint": "JPEG, PNG o WebP hasta 10 MB",
       "accessMode": "Acceso",
       "accessFree": "Gratuito",
-      "accessSubscription": "Suscripción (próximamente)",
+      "accessSubscription": "Suscripción",
       "deleteProgramTitle": "¿Eliminar el programa «{name}»?",
       "deleteProgramBody": "Elimina todas las ocurrencias.",
       "confirm": "Confirmar",
@@ -1156,8 +1186,47 @@
       "draftScheduleNote": "La programación pública aparece al publicar el canal.",
       "status": {
         "DRAFT": "Borrador",
-        "ARCHIVED": "Archivado"
+        "ARCHIVED": "Archivado",
+        "PUBLISHED": "Publicado"
+      },
+      "pricing": {
+        "currency": "Moneda",
+        "monthlyPrice": "Precio mensual",
+        "yearlyPrice": "Precio anual",
+        "priceChangeHint": "Los suscriptores actuales mantienen el precio anterior hasta que cancelen. Cambiar el precio aquí aplica a las nuevas suscripciones.",
+        "syncStatusSynced": "Sincronizado con Stripe",
+        "syncStatusPending": "Pendiente",
+        "syncButton": "Sincronizar",
+        "syncing": "Sincronizando...",
+        "summaryTitle": "Suscripciones",
+        "summaryActive": "Activas",
+        "summaryPastDue": "Pago pendiente",
+        "summaryCanceledThisMonth": "Canceladas este mes",
+        "summaryMrr": "Ingresos recurrentes mensuales",
+        "setPriceAfterCreate": "Define el precio después de crear el canal."
       }
+    },
+    "subscription": {
+      "restricted": "Contenido por suscripción",
+      "headline": "Suscríbete a {name} para ver",
+      "subtitle": "Elige un plan para tener acceso completo a este canal.",
+      "monthly": "Mensual",
+      "yearly": "Anual",
+      "planNameMonthly": "mensual",
+      "planNameYearly": "anual",
+      "perMonth": "/mes",
+      "perYear": "/año",
+      "savePercent": "Ahorra {percent}%",
+      "savePercentAria": "Ahorra {percent}% con el plan anual",
+      "subscribe": "Suscribirse",
+      "subscribeAria": "Suscribirse al plan {plan}",
+      "unavailable": "La suscripción no está disponible en este momento.",
+      "alreadySubscribed": "Ya estás suscrito a este canal.",
+      "error": "No se pudo iniciar la suscripción",
+      "subscribed": "¡Suscripción confirmada!",
+      "pastDueBanner": "Pago pendiente — actualiza tu tarjeta para mantener el acceso.",
+      "pastDueAction": "Actualizar pago",
+      "dismiss": "Descartar"
     }
   },
   "series": {

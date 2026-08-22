@@ -694,7 +694,37 @@
       "settings": "Settings"
     },
     "logout": "Sign out",
-    "loggingOut": "Signing out..."
+    "loggingOut": "Signing out...",
+    "subscriptions": {
+      "title": "My subscriptions",
+      "loading": "Loading...",
+      "empty": "You don't have any subscriptions yet.",
+      "unknownChannel": "Channel",
+      "status": {
+        "ACTIVE": "Active",
+        "PAST_DUE": "Past due",
+        "CANCELED": "Canceled",
+        "INCOMPLETE": "Incomplete"
+      },
+      "interval": {
+        "MONTHLY": "Monthly",
+        "YEARLY": "Yearly"
+      },
+      "periodEnd": "Renews on {date}",
+      "cancelScheduledNotice": "Cancellation scheduled for the end of the period.",
+      "managePayment": "Manage payment",
+      "resume": "Resume",
+      "cancel": "Cancel",
+      "cancelTitle": "Cancel subscription?",
+      "cancelBody": "You'll keep access to {name} until the end of the paid period. After that, access ends.",
+      "cancelDismiss": "Back",
+      "cancelConfirm": "Cancel subscription",
+      "cancelling": "Canceling...",
+      "error": "Could not complete the action",
+      "accessUntil": "Access until {date}",
+      "ended": "Ended",
+      "noSubscriptionToManage": "No subscription to manage"
+    }
   },
   "consent": {
     "title": "Privacy",
@@ -1148,7 +1178,7 @@
       "coverHint": "JPEG, PNG or WebP up to 10 MB",
       "accessMode": "Access",
       "accessFree": "Free",
-      "accessSubscription": "Subscription (coming soon)",
+      "accessSubscription": "Subscription",
       "deleteProgramTitle": "Delete program “{name}”?",
       "deleteProgramBody": "It removes every occurrence.",
       "confirm": "Confirm",
@@ -1156,8 +1186,47 @@
       "draftScheduleNote": "The public schedule appears once the channel is published.",
       "status": {
         "DRAFT": "Draft",
-        "ARCHIVED": "Archived"
+        "ARCHIVED": "Archived",
+        "PUBLISHED": "Published"
+      },
+      "pricing": {
+        "currency": "Currency",
+        "monthlyPrice": "Monthly price",
+        "yearlyPrice": "Yearly price",
+        "priceChangeHint": "Current subscribers keep the old price until they cancel. Changing the price here applies to new subscriptions.",
+        "syncStatusSynced": "Synced with Stripe",
+        "syncStatusPending": "Pending",
+        "syncButton": "Sync",
+        "syncing": "Syncing...",
+        "summaryTitle": "Subscriptions",
+        "summaryActive": "Active",
+        "summaryPastDue": "Past due",
+        "summaryCanceledThisMonth": "Canceled this month",
+        "summaryMrr": "Monthly recurring revenue",
+        "setPriceAfterCreate": "Set the price after creating the channel."
       }
+    },
+    "subscription": {
+      "restricted": "Subscriber-only content",
+      "headline": "Subscribe to {name} to watch",
+      "subtitle": "Choose a plan to get full access to this channel.",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "planNameMonthly": "monthly",
+      "planNameYearly": "yearly",
+      "perMonth": "/mo",
+      "perYear": "/yr",
+      "savePercent": "Save {percent}%",
+      "savePercentAria": "Save {percent}% with the yearly plan",
+      "subscribe": "Subscribe",
+      "subscribeAria": "Subscribe to the {plan} plan",
+      "unavailable": "Subscription is unavailable right now.",
+      "alreadySubscribed": "You are already subscribed to this channel.",
+      "error": "Could not start the subscription",
+      "subscribed": "Subscription confirmed!",
+      "pastDueBanner": "Payment past due — update your card to keep access.",
+      "pastDueAction": "Update payment",
+      "dismiss": "Dismiss"
     }
   },
   "series": {

@@ -1212,7 +1212,8 @@
       "draftScheduleNote": "A grade pública aparece após publicar o canal.",
       "status": {
         "DRAFT": "Rascunho",
-        "ARCHIVED": "Arquivado"
+        "ARCHIVED": "Arquivado",
+        "PUBLISHED": "Publicado"
       },
       "pricing": {
         "currency": "Moeda",
