@@ -47,3 +47,12 @@
   color: $text-primary;
   font-size: 0.875rem;
 }
+
+.pricingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+}

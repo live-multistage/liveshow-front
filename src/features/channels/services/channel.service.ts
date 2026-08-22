@@ -2,7 +2,9 @@ import { httpClient } from '@/lib/http/client';
 import type {
   Channel,
   ChannelListItem,
+  ChannelSubscriptionSummary,
   CreateChannelInput,
+  OrgChannel,
   Program,
   PublicChannel,
   ScheduledSlot,
@@ -29,39 +31,51 @@ export const channelService = {
     return data;
   },
 
-  listByOrg: async (organizationId: string): Promise<Channel[]> => {
-    const { data } = await httpClient.get<Channel[]>(`/organizations/${organizationId}/channels`);
+  listByOrg: async (organizationId: string): Promise<OrgChannel[]> => {
+    const { data } = await httpClient.get<OrgChannel[]>(`/organizations/${organizationId}/channels`);
     return data;
   },
 
-  create: async (input: CreateChannelInput): Promise<Channel> => {
-    const { data } = await httpClient.post<Channel>('/channels', input);
+  create: async (input: CreateChannelInput): Promise<OrgChannel> => {
+    const { data } = await httpClient.post<OrgChannel>('/channels', input);
     return data;
   },
 
-  update: async (id: string, input: UpdateChannelInput): Promise<Channel> => {
-    const { data } = await httpClient.patch<Channel>(`/channels/${id}`, input);
+  update: async (id: string, input: UpdateChannelInput): Promise<OrgChannel> => {
+    const { data } = await httpClient.patch<OrgChannel>(`/channels/${id}`, input);
     return data;
   },
 
-  publish: async (id: string): Promise<Channel> => {
-    const { data } = await httpClient.post<Channel>(`/channels/${id}/publish`);
+  publish: async (id: string): Promise<OrgChannel> => {
+    const { data } = await httpClient.post<OrgChannel>(`/channels/${id}/publish`);
     return data;
   },
 
-  archive: async (id: string): Promise<Channel> => {
-    const { data } = await httpClient.post<Channel>(`/channels/${id}/archive`);
+  archive: async (id: string): Promise<OrgChannel> => {
+    const { data } = await httpClient.post<OrgChannel>(`/channels/${id}/archive`);
     return data;
   },
 
-  uploadCover: async (id: string, file: File): Promise<Channel> => {
+  syncPricing: async (id: string): Promise<OrgChannel> => {
+    const { data } = await httpClient.post<OrgChannel>(`/channels/${id}/pricing/sync`);
+    return data;
+  },
+
+  subscriptionSummary: async (id: string): Promise<ChannelSubscriptionSummary> => {
+    const { data } = await httpClient.get<ChannelSubscriptionSummary>(
+      `/channels/${id}/subscriptions/summary`,
+    );
+    return data;
+  },
+
+  uploadCover: async (id: string, file: File): Promise<OrgChannel> => {
     const formData = new FormData();
     formData.append('file', file);
     // Content negotiation for multipart depends on the runtime's FormData
     // being recognized by axios's isFormData check, which is realm-sensitive
     // (fails under jsdom); passthrough transformRequest sidesteps that
     // instead of relying on detection.
-    const { data } = await httpClient.post<Channel>(`/channels/${id}/cover`, formData, {
+    const { data } = await httpClient.post<OrgChannel>(`/channels/${id}/cover`, formData, {
       transformRequest: (payload) => payload,
     });
     return data;

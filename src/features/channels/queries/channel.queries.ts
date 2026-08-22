@@ -10,6 +10,8 @@ export const channelKeys = {
   schedule: (slug: string, day?: string) => ['channels', 'schedule', slug, day] as const,
   org: (organizationId: string) => ['channels', 'org', organizationId] as const,
   programs: (channelId: string) => ['channels', 'programs', channelId] as const,
+  subscriptionSummary: (channelId: string) =>
+    ['channels', 'subscriptionSummary', channelId] as const,
 };
 
 export function useChannelsQuery(options?: { enabled?: boolean }) {
@@ -62,5 +64,16 @@ export function useOrgChannelsQuery(organizationId: string, options?: { enabled?
     queryKey: channelKeys.org(organizationId),
     queryFn: () => channelService.listByOrg(organizationId),
     enabled: options?.enabled !== false,
+  });
+}
+
+export function useChannelSubscriptionSummaryQuery(
+  channelId: string,
+  options?: { enabled?: boolean },
+) {
+  return useQuery({
+    queryKey: channelKeys.subscriptionSummary(channelId),
+    queryFn: () => channelService.subscriptionSummary(channelId),
+    enabled: options?.enabled !== false && Boolean(channelId),
   });
 }

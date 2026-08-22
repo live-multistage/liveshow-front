@@ -12,15 +12,23 @@ const channelState: { data: PublicChannel | undefined; isLoading: boolean } = {
   data: undefined,
   isLoading: false,
 };
+const orgChannelsState: { data: unknown[] | undefined } = { data: undefined };
 vi.mock('../../queries/channel.queries', () => ({
   useChannelQuery: () => channelState,
+  useOrgChannelsQuery: () => orgChannelsState,
 }));
 
 const publishMutate = vi.fn();
 const archiveMutate = vi.fn();
+const syncPricingMutate = vi.fn();
 vi.mock('../../mutations/channel.mutations', () => ({
   usePublishChannelMutation: () => ({ mutate: publishMutate, isPending: false }),
   useArchiveChannelMutation: () => ({ mutate: archiveMutate, isPending: false }),
+  useSyncChannelPricingMutation: () => ({ mutate: syncPricingMutate, isPending: false }),
+}));
+
+vi.mock('./SubscriptionSummaryCard', () => ({
+  SubscriptionSummaryCard: () => <div>summary-card-stub</div>,
 }));
 
 const gridProps: Record<string, unknown> = {};
@@ -60,8 +68,10 @@ describe('ChannelDetailContent', () => {
   beforeEach(() => {
     publishMutate.mockReset();
     archiveMutate.mockReset();
+    syncPricingMutate.mockReset();
     channelState.data = channel();
     channelState.isLoading = false;
+    orgChannelsState.data = undefined;
   });
 
   it('shows the channel name and its status chip', () => {
@@ -144,5 +154,40 @@ describe('ChannelDetailContent', () => {
     fireEvent.click(screen.getByText('dashboard.edit'));
 
     expect(screen.getByText(/channel-form-stub:edit/)).toBeInTheDocument();
+  });
+
+  it('hides sync status and the summary card for a FREE channel', () => {
+    render(<ChannelDetailContent slug="canal-um" />);
+
+    expect(screen.queryByText('syncStatusPending')).toBeNull();
+    expect(screen.queryByText('syncStatusSynced')).toBeNull();
+    expect(screen.queryByText('summary-card-stub')).toBeNull();
+  });
+
+  it('shows a pending sync chip and a sync button for an unsynced SUBSCRIPTION channel', () => {
+    channelState.data = channel({ accessMode: 'SUBSCRIPTION' });
+    orgChannelsState.data = [{ id: 'ch-1', pricingSynced: false, currency: 'BRL' }];
+
+    render(<ChannelDetailContent slug="canal-um" />);
+
+    expect(screen.getByText('syncStatusPending')).toBeInTheDocument();
+    expect(screen.getByText('summary-card-stub')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('syncButton'));
+    expect(syncPricingMutate).toHaveBeenCalledWith({
+      id: 'ch-1',
+      slug: 'canal-um',
+      organizationId: 'org-1',
+    });
+  });
+
+  it('shows a synced chip and hides the sync button once pricing is synced', () => {
+    channelState.data = channel({ accessMode: 'SUBSCRIPTION' });
+    orgChannelsState.data = [{ id: 'ch-1', pricingSynced: true, currency: 'BRL' }];
+
+    render(<ChannelDetailContent slug="canal-um" />);
+
+    expect(screen.getByText('syncStatusSynced')).toBeInTheDocument();
+    expect(screen.queryByText('syncButton')).toBeNull();
   });
 });

@@ -63,6 +63,23 @@ export interface Program {
   rrule: string;
 }
 
+// Org-only shape: create/update/publish/archive/pricing-sync and the org
+// channel list all return these pricing fields on top of the base Channel;
+// the public catalog (by-slug, published list) never does.
+export interface OrgChannel extends Channel {
+  currency: string | null;
+  monthlyPriceCents: number | null;
+  yearlyPriceCents: number | null;
+  pricingSynced: boolean;
+}
+
+export interface ChannelSubscriptionSummary {
+  active: number;
+  pastDue: number;
+  canceledThisMonth: number;
+  mrrCents: number;
+}
+
 export interface CreateChannelInput {
   organizationId: string;
   slug: string;
@@ -77,6 +94,9 @@ export interface UpdateChannelInput {
   description?: string;
   timezone?: string;
   accessMode?: ChannelAccessMode;
+  currency?: string;
+  monthlyPriceCents?: number;
+  yearlyPriceCents?: number;
 }
 
 export interface UpsertProgramInput {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('../services/channel.service', () => ({
-  channelService: { publish: vi.fn(), subscribe: vi.fn() },
+  channelService: { publish: vi.fn(), subscribe: vi.fn(), syncPricing: vi.fn() },
 }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
@@ -10,15 +10,20 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { toast } from 'sonner';
-import { usePublishChannelMutation, useSubscribeChannelMutation } from './channel.mutations';
+import {
+  usePublishChannelMutation,
+  useSubscribeChannelMutation,
+  useSyncChannelPricingMutation,
+} from './channel.mutations';
 import { channelService } from '../services/channel.service';
 import { channelKeys } from '../queries/channel.queries';
-import type { Channel } from '../types/channel.types';
+import type { OrgChannel } from '../types/channel.types';
 
 const mockedPublish = vi.mocked(channelService.publish);
 const mockedSubscribe = vi.mocked(channelService.subscribe);
+const mockedSyncPricing = vi.mocked(channelService.syncPricing);
 
-const CHANNEL: Channel = {
+const CHANNEL: OrgChannel = {
   id: 'ch-1',
   organizationId: 'org-1',
   slug: 'my-channel',
@@ -28,6 +33,10 @@ const CHANNEL: Channel = {
   accessMode: 'FREE',
   status: 'PUBLISHED',
   broadcastEventId: 'evt-1',
+  currency: null,
+  monthlyPriceCents: null,
+  yearlyPriceCents: null,
+  pricingSynced: false,
   timezone: 'America/Sao_Paulo',
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
@@ -64,6 +73,27 @@ describe('usePublishChannelMutation', () => {
     expect(invalidateSpy).toHaveBeenCalledWith({
       queryKey: channelKeys.detail('my-channel'),
     });
+  });
+});
+
+describe('useSyncChannelPricingMutation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('calls the sync endpoint and invalidates the org list and channel detail', async () => {
+    mockedSyncPricing.mockResolvedValue({ ...CHANNEL, currency: 'BRL', monthlyPriceCents: 1990, yearlyPriceCents: null, pricingSynced: true });
+    const { queryClient, wrapper } = makeWrapper();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useSyncChannelPricingMutation(), { wrapper });
+
+    result.current.mutate({ id: 'ch-1', organizationId: 'org-1', slug: 'my-channel' });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(mockedSyncPricing).toHaveBeenCalledWith('ch-1');
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.org('org-1') });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.detail('my-channel') });
   });
 });
 

@@ -110,6 +110,23 @@ export function useArchiveChannelMutation() {
   });
 }
 
+export function useSyncChannelPricingMutation() {
+  const invalidate = useInvalidateChannel();
+  const toastError = useErrorToast();
+
+  return useMutation({
+    mutationFn: async ({ id }: ChannelActionArgs) => {
+      try {
+        return await channelService.syncPricing(id);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    onError: toastError,
+    onSettled: (_data, _error, { slug, organizationId }) => invalidate(slug, organizationId),
+  });
+}
+
 interface UploadCoverArgs {
   id: string;
   slug: string;

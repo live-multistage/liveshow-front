@@ -6,6 +6,7 @@ export {
   useChannelScheduleQuery,
   useChannelProgramsQuery,
   useOrgChannelsQuery,
+  useChannelSubscriptionSummaryQuery,
 } from './queries/channel.queries';
 export {
   useCreateChannelMutation,
@@ -13,15 +14,18 @@ export {
   usePublishChannelMutation,
   useArchiveChannelMutation,
   useUploadChannelCoverMutation,
+  useSyncChannelPricingMutation,
   useUpsertProgramMutation,
   useDeleteProgramMutation,
 } from './mutations/channel.mutations';
 export type {
   Channel,
   PublicChannel,
+  OrgChannel,
   ChannelListItem,
   ChannelStatus,
   ChannelAccessMode,
+  ChannelSubscriptionSummary,
   ScheduledSlot,
   Program,
   CreateChannelInput,
