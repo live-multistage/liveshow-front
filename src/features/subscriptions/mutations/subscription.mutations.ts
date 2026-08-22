@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { subscriptionService } from '../services/subscription.service';
 import { subscriptionKeys } from '../queries/subscription.queries';
+import { channelKeys } from '@/features/channels/queries/channel.queries';
 import { normalizeError, type AppError } from '@/lib/http/errors';
 
 function useErrorToast() {
@@ -25,7 +26,12 @@ export function useCancelSubscriptionMutation() {
       }
     },
     onError: toastError,
-    onSettled: () => qc.invalidateQueries({ queryKey: subscriptionKeys.mine }),
+    // channelKeys.all too: cancel flips `viewer.subscribed` on the channel the
+    // subscription belongs to, and ChannelGate/ChannelPaywall read it from there.
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: subscriptionKeys.mine });
+      qc.invalidateQueries({ queryKey: channelKeys.all });
+    },
   });
 }
 
@@ -42,7 +48,10 @@ export function useResumeSubscriptionMutation() {
       }
     },
     onError: toastError,
-    onSettled: () => qc.invalidateQueries({ queryKey: subscriptionKeys.mine }),
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: subscriptionKeys.mine });
+      qc.invalidateQueries({ queryKey: channelKeys.all });
+    },
   });
 }
 

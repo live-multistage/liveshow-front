@@ -181,6 +181,17 @@ describe('ChannelDetailContent', () => {
     });
   });
 
+  it('shows neither the sync chip nor the sync button while org pricing is still loading', () => {
+    channelState.data = channel({ accessMode: 'SUBSCRIPTION' });
+    orgChannelState.data = undefined;
+
+    render(<ChannelDetailContent slug="canal-um" />);
+
+    expect(screen.queryByText('syncStatusPending')).toBeNull();
+    expect(screen.queryByText('syncStatusSynced')).toBeNull();
+    expect(screen.queryByText('syncButton')).toBeNull();
+  });
+
   it('shows a synced chip and hides the sync button once pricing is synced', () => {
     channelState.data = channel({ accessMode: 'SUBSCRIPTION' });
     orgChannelState.data = { id: 'ch-1', pricingSynced: true, currency: 'BRL' };

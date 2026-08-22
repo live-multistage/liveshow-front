@@ -22,8 +22,8 @@ export function formatDuration(startsAt: string, endsAt: string) {
   return m > 0 ? `${h}h ${m}min` : `${h}h`;
 }
 
-export function formatPrice(price: number, currency = 'BRL') {
-  return price.toLocaleString('pt-BR', { style: 'currency', currency });
+export function formatPrice(price: number, currency = 'BRL', locale = 'pt-BR') {
+  return price.toLocaleString(locale, { style: 'currency', currency });
 }
 
 export function formatPriceRange(

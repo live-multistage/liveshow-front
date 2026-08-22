@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { PublicChannel } from '../types/channel.types';
-import { useChannelAccess } from './useChannelAccess';
+import { resolveChannelAccess } from './resolveChannelAccess';
 
 const channel = (overrides: Partial<PublicChannel> = {}): PublicChannel =>
   ({
@@ -25,16 +25,16 @@ const channel = (overrides: Partial<PublicChannel> = {}): PublicChannel =>
     ...overrides,
   }) as PublicChannel;
 
-describe('useChannelAccess', () => {
+describe('resolveChannelAccess', () => {
   it('is always authorized as free for a FREE channel', () => {
-    expect(useChannelAccess(channel({ accessMode: 'FREE' }), false)).toEqual({
+    expect(resolveChannelAccess(channel({ accessMode: 'FREE' }), false)).toEqual({
       mode: 'free',
       authorized: true,
     });
   });
 
   it('is a subscriber when the viewer has an active subscription', () => {
-    const result = useChannelAccess(
+    const result = resolveChannelAccess(
       channel({
         accessMode: 'SUBSCRIPTION',
         viewer: { subscribed: true, status: 'ACTIVE', cancelAtPeriodEnd: false, currentPeriodEnd: null },
@@ -46,7 +46,7 @@ describe('useChannelAccess', () => {
   });
 
   it('is a member when the live-access check grants access without a subscription', () => {
-    const result = useChannelAccess(
+    const result = resolveChannelAccess(
       channel({
         accessMode: 'SUBSCRIPTION',
         viewer: { subscribed: false, status: null, cancelAtPeriodEnd: false, currentPeriodEnd: null },
@@ -58,7 +58,7 @@ describe('useChannelAccess', () => {
   });
 
   it('is a paywall when a SUBSCRIPTION channel grants no access', () => {
-    const result = useChannelAccess(
+    const result = resolveChannelAccess(
       channel({
         accessMode: 'SUBSCRIPTION',
         viewer: { subscribed: false, status: null, cancelAtPeriodEnd: false, currentPeriodEnd: null },
@@ -70,7 +70,7 @@ describe('useChannelAccess', () => {
   });
 
   it('is a paywall when a SUBSCRIPTION channel has no viewer at all (anonymous)', () => {
-    const result = useChannelAccess(
+    const result = resolveChannelAccess(
       channel({ accessMode: 'SUBSCRIPTION', viewer: null }),
       false,
     );

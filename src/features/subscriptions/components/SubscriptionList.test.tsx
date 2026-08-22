@@ -6,11 +6,13 @@ import { SubscriptionList } from './SubscriptionList';
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${JSON.stringify(values)}` : key,
+  useLocale: () => 'pt-BR',
 }));
 
-const listState: { data: MySubscription[] | undefined; isLoading: boolean } = {
+const listState: { data: MySubscription[] | undefined; isLoading: boolean; isError: boolean } = {
   data: undefined,
   isLoading: false,
+  isError: false,
 };
 vi.mock('../queries/subscription.queries', () => ({
   useMySubscriptionsQuery: () => listState,
@@ -46,12 +48,20 @@ describe('SubscriptionList', () => {
     cancelState.isPending = false;
     listState.data = undefined;
     listState.isLoading = false;
+    listState.isError = false;
   });
 
   it('shows a loading state', () => {
     listState.isLoading = true;
     render(<SubscriptionList />);
     expect(screen.getByText('loading')).toBeInTheDocument();
+  });
+
+  it('shows an error state before the empty state, and never the empty copy', () => {
+    listState.isError = true;
+    render(<SubscriptionList />);
+    expect(screen.getByText('loadError')).toBeInTheDocument();
+    expect(screen.queryByText('empty')).toBeNull();
   });
 
   it('shows an empty state', () => {

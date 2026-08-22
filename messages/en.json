@@ -642,6 +642,7 @@
   },
   "settings": {
     "heading": "Settings",
+    "subscriptionsNav": "My subscriptions",
     "profile": {
       "title": "Profile",
       "email": "Email",
@@ -698,6 +699,7 @@
     "subscriptions": {
       "title": "My subscriptions",
       "loading": "Loading...",
+      "loadError": "Couldn't load your subscriptions. Try again.",
       "empty": "You don't have any subscriptions yet.",
       "unknownChannel": "Channel",
       "status": {

@@ -1,5 +1,9 @@
-export type SubscriptionInterval = 'MONTHLY' | 'YEARLY';
-export type SubscriptionStatus = 'INCOMPLETE' | 'ACTIVE' | 'PAST_DUE' | 'CANCELED';
+import type { ChannelSubscriptionStatus, SubscriptionInterval } from '@/features/channels/types/channel.types';
+
+export type { SubscriptionInterval };
+// Same enum as the channel side (`ChannelSubscriptionStatus`) — aliased here
+// under the name this feature's components/tests already use.
+export type SubscriptionStatus = ChannelSubscriptionStatus;
 
 export interface SubscriptionChannel {
   slug: string;

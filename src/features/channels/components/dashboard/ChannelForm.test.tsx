@@ -302,7 +302,7 @@ describe('ChannelForm — subscription pricing', () => {
     expect(updateMutate).not.toHaveBeenCalled();
   });
 
-  it('submits with at least one valid price, converted to cents', () => {
+  it('submits with at least one valid price, converted to cents, and the blank interval as null', () => {
     render(<ChannelForm mode="edit" initial={channel()} />);
     enableSubscription();
     type('dashboard.pricing.monthlyPrice', '19.90');
@@ -315,7 +315,31 @@ describe('ChannelForm — subscription pricing', () => {
           accessMode: 'SUBSCRIPTION',
           currency: 'BRL',
           monthlyPriceCents: 1990,
-          yearlyPriceCents: undefined,
+          // Blank, not just unset — a value the backend must clear, not leave alone.
+          yearlyPriceCents: null,
+        }),
+      }),
+      expect.anything(),
+    );
+  });
+
+  it('clears an existing price by blanking its field, sending null instead of dropping the key', () => {
+    const withPricing = {
+      ...channel({ accessMode: 'SUBSCRIPTION' }),
+      currency: 'USD',
+      monthlyPriceCents: 1990,
+      yearlyPriceCents: 19900,
+    };
+    render(<ChannelForm mode="edit" initial={withPricing} />);
+
+    type('dashboard.pricing.yearlyPrice', '');
+    fireEvent.click(screen.getByText('dashboard.save'));
+
+    expect(updateMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          monthlyPriceCents: 1990,
+          yearlyPriceCents: null,
         }),
       }),
       expect.anything(),

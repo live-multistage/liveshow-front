@@ -95,8 +95,9 @@ export interface UpdateChannelInput {
   timezone?: string;
   accessMode?: ChannelAccessMode;
   currency?: string;
-  monthlyPriceCents?: number;
-  yearlyPriceCents?: number;
+  // `null` clears the price on the backend; `undefined` leaves it untouched.
+  monthlyPriceCents?: number | null;
+  yearlyPriceCents?: number | null;
 }
 
 export interface UpsertProgramInput {

@@ -17,14 +17,15 @@ import {
 } from './subscription.mutations';
 import { subscriptionService } from '../services/subscription.service';
 import { subscriptionKeys } from '../queries/subscription.queries';
+import { channelKeys } from '@/features/channels/queries/channel.queries';
 
 const mockedCancel = vi.mocked(subscriptionService.cancel);
 const mockedResume = vi.mocked(subscriptionService.resume);
 const mockedPortal = vi.mocked(subscriptionService.portal);
 
+// cancel/resume return the subscription row only — no `channel` block.
 const SUBSCRIPTION = {
   id: 'sub-1',
-  channel: { slug: 'canal', name: 'Canal', coverUrl: null },
   interval: 'MONTHLY' as const,
   status: 'ACTIVE' as const,
   currentPeriodEnd: '2026-09-01T00:00:00.000Z',
@@ -57,6 +58,7 @@ describe('useCancelSubscriptionMutation', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(mockedCancel).toHaveBeenCalledWith('sub-1');
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: subscriptionKeys.mine });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.all });
   });
 
   it('toasts on error', async () => {
@@ -85,6 +87,7 @@ describe('useResumeSubscriptionMutation', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(mockedResume).toHaveBeenCalledWith('sub-1');
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: subscriptionKeys.mine });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.all });
   });
 });
 

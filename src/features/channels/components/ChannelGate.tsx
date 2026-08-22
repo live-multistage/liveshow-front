@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { LiveGateLoading } from '@/features/streaming/components/LiveGateLoading';
-import { LiveNoAccess } from '@/features/streaming/components/LiveNoAccess';
 import {
   useLiveAccessQuery,
   useLivePlaybackQuery,
@@ -15,7 +14,7 @@ import Link from 'next/link';
 import { X } from 'lucide-react';
 import { NotFoundContent } from '@/shared/components/NotFoundContent';
 import { useChannelQuery } from '../queries/channel.queries';
-import { useChannelAccess } from '../hooks/useChannelAccess';
+import { resolveChannelAccess } from '../utils/resolveChannelAccess';
 import { ChannelPaywall } from './ChannelPaywall';
 import { ChannelPlayer } from './ChannelPlayer';
 import { OffAirOverlay } from './OffAirOverlay';
@@ -25,6 +24,12 @@ interface Props {
   slug: string;
   chatEnabled: boolean;
 }
+
+// Stripe's webhook lands asynchronously — right after `?subscribed=1` the
+// channel query can still say `!subscribed` for a beat. Poll a few times
+// before conceding to the paywall instead of flashing it at the viewer.
+const SUBSCRIBED_POLL_MAX_TRIES = 5;
+const SUBSCRIBED_POLL_INTERVAL_MS = 2000;
 
 // Payment failed but the subscription still entitles inside the grace
 // window (see backend ChannelViewerState) — nudge without blocking access.
@@ -61,22 +66,54 @@ export function ChannelGate({ slug, chatEnabled }: Props) {
   // recusaria um visitante deslogado que tem acesso legítimo.
   const isFree = channel.data?.accessMode === 'FREE';
   const access = useLiveAccessQuery(eventId, !!eventId && !isFree && !authLoading);
-  const derivedAccess = useChannelAccess(channel.data, access.data === true);
+  const derivedAccess = resolveChannelAccess(channel.data, access.data === true);
 
   const playback = useLivePlaybackQuery(eventId, !!eventId && derivedAccess.authorized);
+
+  const [awaitingSubscription, setAwaitingSubscription] = useState(false);
+  const [subscribedPollTries, setSubscribedPollTries] = useState(0);
+  // Guards against re-processing `?subscribed=1` on every render — needed
+  // because `useSearchParams()` isn't guaranteed to return a stable
+  // reference, and this effect now triggers a state update (awaitingSubscription).
+  const handledSubscribedRef = useRef(false);
 
   // Volta do checkout do Stripe (?subscribed=1): confirma com um toast, tira
   // o parâmetro da URL e refaz as duas queries para refletir o novo direito.
   useEffect(() => {
     if (searchParams.get('subscribed') !== '1') return;
+    if (handledSubscribedRef.current) return;
+    handledSubscribedRef.current = true;
     toast.success(tSub('subscribed'));
     router.replace(`/channels/${slug}`);
+    setAwaitingSubscription(true);
     channel.refetch();
     access.refetch();
     // Deps narrowed to searchParams on purpose: channel/access/router/tSub/slug
     // are stable-enough refs we don't want re-running the redirect+refetch for.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
+
+  // Stripe webhook lag: keep polling the channel query until the viewer shows
+  // up as subscribed, or we run out of tries — then fall through to whatever
+  // the data actually says (paywall included).
+  useEffect(() => {
+    if (!awaitingSubscription) return;
+    if (channel.data?.viewer?.subscribed) {
+      setAwaitingSubscription(false);
+      setSubscribedPollTries(0);
+      return;
+    }
+    if (subscribedPollTries >= SUBSCRIBED_POLL_MAX_TRIES) {
+      setAwaitingSubscription(false);
+      return;
+    }
+    const timer = setTimeout(() => {
+      setSubscribedPollTries((tries) => tries + 1);
+      channel.refetch();
+    }, SUBSCRIBED_POLL_INTERVAL_MS);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [awaitingSubscription, subscribedPollTries, channel.data]);
 
   if (channel.isLoading) return <LiveGateLoading message={t('checkingAccess')} />;
   // Sem `isError`: um refetch de fundo que falha não apaga o `data` em cache,
@@ -89,12 +126,12 @@ export function ChannelGate({ slug, chatEnabled }: Props) {
     return <LiveGateLoading message={t('checkingAccess')} />;
   }
 
-  if (derivedAccess.mode === 'paywall') {
-    return <ChannelPaywall channel={channel.data} isLoggedIn={isLoggedIn} />;
+  if (awaitingSubscription && !channel.data.viewer?.subscribed) {
+    return <LiveGateLoading message={t('checkingAccess')} />;
   }
 
-  if (!derivedAccess.authorized) {
-    return <LiveNoAccess eventId={eventId} eventTitle={channel.data.name} isLoggedIn={isLoggedIn} />;
+  if (derivedAccess.mode === 'paywall') {
+    return <ChannelPaywall channel={channel.data} isLoggedIn={isLoggedIn} />;
   }
 
   if (playback.isLoading) {

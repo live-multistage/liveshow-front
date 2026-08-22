@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Badge, Button } from '@live-show/design-system';
 import { formatDateShort, formatPrice } from '@/features/events/utils/event-formatters';
 import { useMySubscriptionsQuery } from '../queries/subscription.queries';
@@ -23,13 +23,15 @@ const STATUS_VARIANT: Record<SubscriptionStatus, 'default' | 'destructive' | 'ou
 
 export function SubscriptionList() {
   const t = useTranslations('account.subscriptions');
-  const { data: subscriptions, isLoading } = useMySubscriptionsQuery();
+  const locale = useLocale();
+  const { data: subscriptions, isLoading, isError } = useMySubscriptionsQuery();
   const cancel = useCancelSubscriptionMutation();
   const resume = useResumeSubscriptionMutation();
   const portal = usePortalMutation();
   const [cancelTarget, setCancelTarget] = useState<MySubscription | null>(null);
 
   if (isLoading) return <p className={styles.state}>{t('loading')}</p>;
+  if (isError) return <p className={styles.state}>{t('loadError')}</p>;
   if (!subscriptions || subscriptions.length === 0)
     return <p className={styles.state}>{t('empty')}</p>;
 
@@ -50,7 +52,7 @@ export function SubscriptionList() {
               </Badge>
               <span>{t(`interval.${subscription.interval}`)}</span>
               <span>
-                {formatPrice(subscription.priceCents / 100, subscription.currency)}
+                {formatPrice(subscription.priceCents / 100, subscription.currency, locale)}
               </span>
               <span>
                 {t(subscription.cancelAtPeriodEnd ? 'accessUntil' : 'periodEnd', {

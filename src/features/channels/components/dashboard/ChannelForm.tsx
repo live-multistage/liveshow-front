@@ -27,11 +27,14 @@ interface Props {
 const CURRENCIES = ['BRL', 'USD', 'EUR'] as const;
 const MIN_PRICE_CENTS = 100;
 
-// Major-unit input ("19,90" or "19.90") -> integer cents. Empty/blank means
-// "no price for this interval", not zero.
-function toCents(value: string): number | undefined {
+// Major-unit input ("19,90" or "19.90") -> integer cents. Blank means "clear
+// this interval's price" (`null`, sent to the backend to wipe it out) —
+// distinct from an unparseable value, which is left `undefined` so it's
+// simply omitted from the payload (canSubmit blocks it via pricingIsValid
+// anyway).
+function toCents(value: string): number | null | undefined {
   const normalized = value.trim().replace(',', '.');
-  if (!normalized) return undefined;
+  if (!normalized) return null;
   const parsed = Number(normalized);
   if (!Number.isFinite(parsed)) return undefined;
   return Math.round(parsed * 100);
@@ -115,9 +118,11 @@ export function ChannelForm({ mode = 'create', initial, onDone }: Props) {
   const pricingIsValid =
     accessMode !== 'SUBSCRIPTION' ||
     (Boolean(currency) &&
-      (monthlyPriceCents !== undefined || yearlyPriceCents !== undefined) &&
-      (monthlyPrice.trim() === '' || (monthlyPriceCents ?? 0) >= MIN_PRICE_CENTS) &&
-      (yearlyPrice.trim() === '' || (yearlyPriceCents ?? 0) >= MIN_PRICE_CENTS));
+      (typeof monthlyPriceCents === 'number' || typeof yearlyPriceCents === 'number') &&
+      (monthlyPrice.trim() === '' ||
+        (typeof monthlyPriceCents === 'number' && monthlyPriceCents >= MIN_PRICE_CENTS)) &&
+      (yearlyPrice.trim() === '' ||
+        (typeof yearlyPriceCents === 'number' && yearlyPriceCents >= MIN_PRICE_CENTS)));
 
   const canSubmit = isEdit
     ? Boolean(name.trim() && timezone.trim() && pricingIsValid)

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import { toast } from 'sonner';
 import type { PublicChannel } from '../types/channel.types';
 import { ChannelGate } from './ChannelGate';
@@ -115,6 +115,7 @@ describe('ChannelGate', () => {
     channelState.isLoading = true;
     channelState.isError = false;
     accessState.data = true;
+    accessState.isLoading = false;
     playbackState.isLoading = false;
     playbackState.data.live = true;
     searchParamsState.subscribed = null;
@@ -286,5 +287,81 @@ describe('ChannelGate', () => {
     expect(routerReplace).toHaveBeenCalledWith('/channels/canal');
     expect(channelState.refetch).toHaveBeenCalled();
     expect(accessState.refetch).toHaveBeenCalled();
+  });
+
+  it('keeps polling the channel every 2s (webhook lag) instead of flashing the paywall, then gives up after 5 tries', async () => {
+    vi.useFakeTimers();
+    try {
+      channelState.isLoading = false;
+      channelState.data = channel({ accessMode: 'SUBSCRIPTION', viewer: null });
+      accessState.data = false;
+      searchParamsState.subscribed = '1';
+
+      render(<ChannelGate slug="canal" chatEnabled={false} />);
+
+      // Still shows the loading state, not the paywall, right after checkout.
+      expect(screen.getByText('loading-stub')).toBeInTheDocument();
+      expect(screen.queryByText('paywall-stub')).toBeNull();
+      expect(channelState.refetch).toHaveBeenCalledTimes(1); // the ?subscribed=1 refetch
+
+      for (let i = 0; i < 5; i += 1) {
+        await act(async () => {
+          vi.advanceTimersByTime(2000);
+        });
+      }
+      // One extra flush: the 5th retry's state update (awaitingSubscription
+      // -> false) is itself a follow-up effect from the timer callback, so it
+      // needs its own microtask tick to commit.
+      await act(async () => {});
+
+      // 1 initial refetch + 5 poll retries.
+      expect(channelState.refetch).toHaveBeenCalledTimes(6);
+      // Viewer never came back subscribed in this mock — falls through to the paywall.
+      expect(screen.getByText('paywall-stub')).toBeInTheDocument();
+      expect(screen.queryByText('loading-stub')).toBeNull();
+
+      // No further retries scheduled once the polling budget is spent.
+      await act(async () => {
+        vi.advanceTimersByTime(2000);
+      });
+      expect(channelState.refetch).toHaveBeenCalledTimes(6);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('stops polling and renders the player once the viewer shows up as subscribed', async () => {
+    vi.useFakeTimers();
+    try {
+      channelState.isLoading = false;
+      channelState.data = channel({ accessMode: 'SUBSCRIPTION', viewer: null });
+      accessState.data = false;
+      searchParamsState.subscribed = '1';
+
+      render(<ChannelGate slug="canal" chatEnabled={false} />);
+      expect(screen.getByText('loading-stub')).toBeInTheDocument();
+
+      // Webhook lands before the first retry fires.
+      channelState.data = channel({
+        accessMode: 'SUBSCRIPTION',
+        viewer: { subscribed: true, status: 'ACTIVE', cancelAtPeriodEnd: false, currentPeriodEnd: null },
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(2000);
+      });
+
+      expect(screen.getByText('channel-player-stub')).toBeInTheDocument();
+      expect(screen.queryByText('paywall-stub')).toBeNull();
+
+      // No more retries after the viewer is confirmed subscribed.
+      const callsSoFar = vi.mocked(channelState.refetch).mock.calls.length;
+      await act(async () => {
+        vi.advanceTimersByTime(2000);
+      });
+      expect(channelState.refetch).toHaveBeenCalledTimes(callsSoFar);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

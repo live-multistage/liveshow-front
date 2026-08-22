@@ -58,9 +58,9 @@ export function ChannelDetailContent({ slug }: Props) {
         <div className={styles.identity}>
           <h1 className={styles.name}>{channel.name}</h1>
           <Badge variant="outline">{t(`dashboard.status.${channel.status}`)}</Badge>
-          {isSubscription && (
-            <Badge variant={orgChannel?.pricingSynced ? 'default' : 'secondary'}>
-              {orgChannel?.pricingSynced
+          {isSubscription && orgChannel !== undefined && (
+            <Badge variant={orgChannel.pricingSynced ? 'default' : 'secondary'}>
+              {orgChannel.pricingSynced
                 ? tPricing('syncStatusSynced')
                 : tPricing('syncStatusPending')}
             </Badge>
@@ -92,7 +92,7 @@ export function ChannelDetailContent({ slug }: Props) {
               {t('dashboard.archive')}
             </Button>
           )}
-          {isSubscription && !orgChannel?.pricingSynced && (
+          {isSubscription && orgChannel !== undefined && !orgChannel.pricingSynced && (
             <Button
               size="sm"
               variant="outline"

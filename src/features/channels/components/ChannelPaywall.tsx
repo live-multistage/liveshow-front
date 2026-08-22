@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Lock } from 'lucide-react';
 import { Button } from '@live-show/design-system';
 import { formatPrice } from '@/features/events/utils/event-formatters';
@@ -22,6 +22,7 @@ function yearlyDiscountPercent(monthlyCents: number, yearlyCents: number): numbe
 
 export function ChannelPaywall({ channel, isLoggedIn }: Props) {
   const t = useTranslations('channels.subscription');
+  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const subscribe = useSubscribeChannelMutation();
@@ -56,7 +57,7 @@ export function ChannelPaywall({ channel, isLoggedIn }: Props) {
           <div className={styles.plan}>
             <div className={styles.planLabel}>{t('monthly')}</div>
             <div className={styles.planPrice}>
-              {formatPrice(pricing.monthlyPriceCents / 100, currency)}
+              {formatPrice(pricing.monthlyPriceCents / 100, currency, locale)}
               <span className={styles.planPeriod}>{t('perMonth')}</span>
             </div>
             <Button
@@ -78,7 +79,7 @@ export function ChannelPaywall({ channel, isLoggedIn }: Props) {
             )}
             <div className={styles.planLabel}>{t('yearly')}</div>
             <div className={styles.planPrice}>
-              {formatPrice(pricing.yearlyPriceCents / 100, currency)}
+              {formatPrice(pricing.yearlyPriceCents / 100, currency, locale)}
               <span className={styles.planPeriod}>{t('perYear')}</span>
             </div>
             <Button

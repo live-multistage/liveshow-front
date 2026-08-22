@@ -6,6 +6,7 @@ import { ChannelPaywall } from './ChannelPaywall';
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${JSON.stringify(values)}` : key,
+  useLocale: () => 'pt-BR',
 }));
 
 const push = vi.fn();

@@ -11,10 +11,13 @@ export interface ChannelAccessResult {
  * Derives the viewer's access mode for a channel so `ChannelGate` doesn't
  * have to juggle the branching itself.
  *
+ * Not a hook (doesn't call any React/hook APIs) — named `resolveChannelAccess`
+ * to avoid the misleading `use*` prefix.
+ *
  * `hasLiveAccess` is the generic entitlement check (`useLiveAccessQuery`) —
  * it already covers org-member/staff access that isn't a paid subscription.
  */
-export function useChannelAccess(
+export function resolveChannelAccess(
   channel: PublicChannel | undefined,
   hasLiveAccess: boolean,
 ): ChannelAccessResult {
