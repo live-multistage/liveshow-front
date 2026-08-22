@@ -80,9 +80,12 @@ export interface UpdateSeriesInput {
 }
 
 // Org-management projection of an episode Event (GET /series/:id/episodes) —
-// same fields as SeriesEpisode, kept as an alias so the dashboard and the
-// public page can diverge later without a rename.
-export type SeriesEpisodeDetail = SeriesEpisode;
+// adds hasSales, which the backend only ever sends on this org route (see
+// toEpisodeResponse in series.controller.ts); the public shapes
+// (nextEpisode/upcoming/replays on GET /series/:slug) stay plain SeriesEpisode.
+export interface SeriesEpisodeDetail extends SeriesEpisode {
+  hasSales: boolean;
+}
 
 // Org-management shape of a season-pass ticket product
 // (GET/POST/PATCH /series/:id/ticket-products) — adds the operator-only

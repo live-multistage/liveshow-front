@@ -11,11 +11,9 @@ interface Props {
   seriesId: string;
 }
 
-// Backend GET /series/:id/episodes doesn't project sales data onto the
-// episode Event (see toEpisodeResponse in series.controller.ts) — the table
-// has no sales column to show until that lands.
 export function EpisodesTable({ seriesId }: Props) {
   const t = useTranslations('series');
+  const tCommon = useTranslations('common');
   const locale = useLocale();
   const { data: episodes = [], isLoading } = useSeriesEpisodesQuery(seriesId);
   const reattach = useReattachEpisodeMutation();
@@ -33,7 +31,7 @@ export function EpisodesTable({ seriesId }: Props) {
     <section className={styles.section}>
       <h2 className={styles.heading}>{t('dashboard.episodes')}</h2>
 
-      {isLoading && <p className={styles.state}>{t('dashboard.empty')}</p>}
+      {isLoading && <p className={styles.state}>{tCommon('loading')}</p>}
 
       {!isLoading && episodes.length === 0 && (
         <p className={styles.state}>{t('dashboard.empty')}</p>
@@ -45,6 +43,7 @@ export function EpisodesTable({ seriesId }: Props) {
             <tr>
               <th>{t('dashboard.episodeDate')}</th>
               <th>{t('dashboard.episodeStatusLabel')}</th>
+              <th>{t('dashboard.episodeSales')}</th>
               <th />
             </tr>
           </thead>
@@ -61,6 +60,9 @@ export function EpisodesTable({ seriesId }: Props) {
                   <Badge variant="outline">
                     {t(`dashboard.episodeStatus.${episode.status}`)}
                   </Badge>
+                </td>
+                <td>
+                  {episode.hasSales && <Badge variant="outline">{t('dashboard.hasSales')}</Badge>}
                 </td>
                 <td>
                   {episode.detachedFromSeries && (

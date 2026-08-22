@@ -132,6 +132,7 @@ describe('useReattachEpisodeMutation', () => {
       status: 'SCHEDULED',
       detachedFromSeries: false,
       thumbnailUrl: null,
+      hasSales: false,
     });
     const { queryClient, wrapper } = makeWrapper();
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');

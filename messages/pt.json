@@ -1235,7 +1235,9 @@
       "cancel": "Cancelar",
       "confirm": "Confirmar",
       "endTitle": "Encerrar a série?",
-      "endBody": "A série é encerrada em definitivo: nenhum episódio novo é materializado."
+      "endBody": "A série é encerrada em definitivo: nenhum episódio novo é materializado.",
+      "episodeSales": "Vendas",
+      "hasSales": "Com vendas"
     }
   }
 }

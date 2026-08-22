@@ -26,6 +26,7 @@ const episode = (overrides: Partial<SeriesEpisodeDetail> = {}): SeriesEpisodeDet
   status: 'SCHEDULED',
   detachedFromSeries: false,
   thumbnailUrl: null,
+  hasSales: false,
   ...overrides,
 });
 
@@ -75,5 +76,33 @@ describe('EpisodesTable', () => {
     render(<EpisodesTable seriesId="series-1" />);
 
     expect(screen.getByText('dashboard.empty')).toBeInTheDocument();
+  });
+
+  it('uses the common loading copy while the episodes are fetching, not the empty hint', () => {
+    useSeriesEpisodesQuery.mockReturnValue({ data: [], isLoading: true });
+
+    render(<EpisodesTable seriesId="series-1" />);
+
+    expect(screen.getByText('loading')).toBeInTheDocument();
+    expect(screen.queryByText('dashboard.empty')).not.toBeInTheDocument();
+  });
+
+  it('badges an episode that has sales', () => {
+    useSeriesEpisodesQuery.mockReturnValue({
+      data: [episode({ id: 'evt-4', hasSales: true })],
+      isLoading: false,
+    });
+
+    render(<EpisodesTable seriesId="series-1" />);
+
+    expect(screen.getByText('dashboard.hasSales')).toBeInTheDocument();
+  });
+
+  it('does not badge an episode with no sales', () => {
+    useSeriesEpisodesQuery.mockReturnValue({ data: [episode({ hasSales: false })], isLoading: false });
+
+    render(<EpisodesTable seriesId="series-1" />);
+
+    expect(screen.queryByText('dashboard.hasSales')).not.toBeInTheDocument();
   });
 });
