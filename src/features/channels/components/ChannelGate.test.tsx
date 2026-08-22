@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { toast } from 'sonner';
 import type { PublicChannel } from '../types/channel.types';
 import { ChannelGate } from './ChannelGate';
@@ -217,6 +217,61 @@ describe('ChannelGate', () => {
 
     expect(screen.getByText('channel-player-stub')).toBeInTheDocument();
     expect(screen.queryByText('paywall-stub')).toBeNull();
+  });
+
+  it('renders the player for a subscribed viewer without waiting on the live-access query', () => {
+    channelState.isLoading = false;
+    channelState.data = channel({
+      accessMode: 'SUBSCRIPTION',
+      viewer: { subscribed: true, status: 'ACTIVE', cancelAtPeriodEnd: false, currentPeriodEnd: null },
+    });
+    accessState.isLoading = true;
+    accessState.data = false;
+
+    render(<ChannelGate slug="canal" chatEnabled={false} />);
+
+    expect(screen.getByText('channel-player-stub')).toBeInTheDocument();
+    expect(screen.queryByText('loading-stub')).toBeNull();
+  });
+
+  it('shows the past-due banner above the player when the subscription payment failed', () => {
+    channelState.isLoading = false;
+    channelState.data = channel({
+      accessMode: 'SUBSCRIPTION',
+      viewer: { subscribed: true, status: 'PAST_DUE', cancelAtPeriodEnd: false, currentPeriodEnd: null },
+    });
+
+    render(<ChannelGate slug="canal" chatEnabled={false} />);
+
+    expect(screen.getByText('channel-player-stub')).toBeInTheDocument();
+    expect(screen.getByText('pastDueBanner')).toBeInTheDocument();
+    expect(screen.getByText('pastDueAction').closest('a')).toHaveAttribute('href', '/account/subscriptions');
+  });
+
+  it('dismisses the past-due banner on click', () => {
+    channelState.isLoading = false;
+    channelState.data = channel({
+      accessMode: 'SUBSCRIPTION',
+      viewer: { subscribed: true, status: 'PAST_DUE', cancelAtPeriodEnd: false, currentPeriodEnd: null },
+    });
+
+    render(<ChannelGate slug="canal" chatEnabled={false} />);
+
+    fireEvent.click(screen.getByLabelText('dismiss'));
+
+    expect(screen.queryByText('pastDueBanner')).toBeNull();
+  });
+
+  it('omits the past-due banner for an active subscriber', () => {
+    channelState.isLoading = false;
+    channelState.data = channel({
+      accessMode: 'SUBSCRIPTION',
+      viewer: { subscribed: true, status: 'ACTIVE', cancelAtPeriodEnd: false, currentPeriodEnd: null },
+    });
+
+    render(<ChannelGate slug="canal" chatEnabled={false} />);
+
+    expect(screen.queryByText('pastDueBanner')).toBeNull();
   });
 
   it('shows a success toast and clears ?subscribed=1 from the url', async () => {

@@ -62,6 +62,7 @@ export function ChannelPaywall({ channel, isLoggedIn }: Props) {
             <Button
               onClick={() => handleSubscribe('MONTHLY')}
               disabled={subscribe.isPending}
+              aria-label={t('subscribeAria', { plan: t('planNameMonthly') })}
             >
               {t('subscribe')}
             </Button>
@@ -71,7 +72,9 @@ export function ChannelPaywall({ channel, isLoggedIn }: Props) {
         {pricing?.yearlyPriceCents != null && (
           <div className={styles.plan}>
             {discount !== null && discount > 0 && (
-              <div className={styles.discountBadge}>{t('savePercent', { percent: discount })}</div>
+              <div className={styles.discountBadge} aria-label={t('savePercentAria', { percent: discount })}>
+                {t('savePercent', { percent: discount })}
+              </div>
             )}
             <div className={styles.planLabel}>{t('yearly')}</div>
             <div className={styles.planPrice}>
@@ -81,6 +84,7 @@ export function ChannelPaywall({ channel, isLoggedIn }: Props) {
             <Button
               onClick={() => handleSubscribe('YEARLY')}
               disabled={subscribe.isPending}
+              aria-label={t('subscribeAria', { plan: t('planNameYearly') })}
             >
               {t('subscribe')}
             </Button>

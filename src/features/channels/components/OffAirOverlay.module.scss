@@ -62,3 +62,32 @@
   color: $text-secondary;
   margin: 0;
 }
+
+// Banner de pagamento pendente: sobrepõe o topo do player sem bloquear o
+// acesso (a assinatura ainda entitles dentro da janela de graça).
+.pastDueBanner {
+  position: relative;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: $danger-bg;
+  color: $text-primary;
+  font-size: 0.8125rem;
+
+  a {
+    color: $action;
+    font-weight: 600;
+  }
+
+  button {
+    display: inline-flex;
+    background: none;
+    border: none;
+    color: $text-secondary;
+    cursor: pointer;
+    padding: 0.15rem;
+  }
+}

@@ -1133,14 +1133,21 @@
       "subtitle": "Escolha um plano para ter acesso completo a este canal.",
       "monthly": "Mensal",
       "yearly": "Anual",
+      "planNameMonthly": "mensal",
+      "planNameYearly": "anual",
       "perMonth": "/mês",
       "perYear": "/ano",
       "savePercent": "Economize {percent}%",
+      "savePercentAria": "Economize {percent}% no plano anual",
       "subscribe": "Assinar",
+      "subscribeAria": "Assinar plano {plan}",
       "unavailable": "Assinatura indisponível no momento.",
       "alreadySubscribed": "Você já é assinante deste canal.",
       "error": "Não foi possível iniciar a assinatura",
-      "subscribed": "Assinatura confirmada!"
+      "subscribed": "Assinatura confirmada!",
+      "pastDueBanner": "Pagamento pendente — atualize seu cartão para manter o acesso.",
+      "pastDueAction": "Atualizar pagamento",
+      "dismiss": "Dispensar"
     },
     "dashboard": {
       "title": "Canais",

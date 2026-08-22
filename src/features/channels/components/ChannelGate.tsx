@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -11,6 +11,8 @@ import {
   useLiveAccessQuery,
   useLivePlaybackQuery,
 } from '@/features/streaming/queries/live.queries';
+import Link from 'next/link';
+import { X } from 'lucide-react';
 import { NotFoundContent } from '@/shared/components/NotFoundContent';
 import { useChannelQuery } from '../queries/channel.queries';
 import { useChannelAccess } from '../hooks/useChannelAccess';
@@ -22,6 +24,28 @@ import styles from './OffAirOverlay.module.scss';
 interface Props {
   slug: string;
   chatEnabled: boolean;
+}
+
+// Payment failed but the subscription still entitles inside the grace
+// window (see backend ChannelViewerState) — nudge without blocking access.
+function PastDueBanner() {
+  const t = useTranslations('channels.subscription');
+  const [dismissed, setDismissed] = useState(false);
+  if (dismissed) return null;
+
+  return (
+    <div className={styles.pastDueBanner} role="status">
+      <span>{t('pastDueBanner')}</span>
+      <Link href="/account/subscriptions">{t('pastDueAction')}</Link>
+      <button
+        type="button"
+        aria-label={t('dismiss')}
+        onClick={() => setDismissed(true)}
+      >
+        <X size={14} aria-hidden="true" />
+      </button>
+    </div>
+  );
 }
 
 export function ChannelGate({ slug, chatEnabled }: Props) {
@@ -49,6 +73,8 @@ export function ChannelGate({ slug, chatEnabled }: Props) {
     router.replace(`/channels/${slug}`);
     channel.refetch();
     access.refetch();
+    // Deps narrowed to searchParams on purpose: channel/access/router/tSub/slug
+    // are stable-enough refs we don't want re-running the redirect+refetch for.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
@@ -58,7 +84,8 @@ export function ChannelGate({ slug, chatEnabled }: Props) {
   // erro de primeira carga cai aqui de qualquer forma — `data` é undefined.
   if (!channel.data) return <NotFoundContent />;
 
-  if (!isFree && (authLoading || access.isLoading)) {
+  const needsLiveAccessCheck = !isFree && !channel.data.viewer?.subscribed;
+  if (needsLiveAccessCheck && (authLoading || access.isLoading)) {
     return <LiveGateLoading message={t('checkingAccess')} />;
   }
 
@@ -81,14 +108,26 @@ export function ChannelGate({ slug, chatEnabled }: Props) {
   const offAir = !playback.data?.live;
   const overlay = offAir ? <OffAirOverlay next={channel.data.next} /> : null;
 
-  if (!playback.data) return <div className={styles.stage}>{overlay}</div>;
+  const pastDue = channel.data.viewer?.status === 'PAST_DUE';
+
+  if (!playback.data) {
+    return (
+      <div className={styles.stage}>
+        {pastDue && <PastDueBanner />}
+        {overlay}
+      </div>
+    );
+  }
 
   return (
-    <ChannelPlayer
-      channel={channel.data}
-      playback={playback.data}
-      chatEnabled={chatEnabled}
-      overlay={overlay}
-    />
+    <>
+      {pastDue && <PastDueBanner />}
+      <ChannelPlayer
+        channel={channel.data}
+        playback={playback.data}
+        chatEnabled={chatEnabled}
+        overlay={overlay}
+      />
+    </>
   );
 }

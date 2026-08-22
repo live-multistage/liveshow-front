@@ -93,6 +93,23 @@ describe('ChannelPaywall', () => {
     expect(mutate).not.toHaveBeenCalled();
   });
 
+  it('gives the subscribe buttons a plan-specific aria-label', () => {
+    render(<ChannelPaywall channel={channel()} isLoggedIn />);
+
+    expect(
+      screen.getByLabelText('subscribeAria:{"plan":"planNameMonthly"}'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('subscribeAria:{"plan":"planNameYearly"}'),
+    ).toBeInTheDocument();
+  });
+
+  it('gives the discount badge an aria-label', () => {
+    render(<ChannelPaywall channel={channel()} isLoggedIn />);
+
+    expect(screen.getByLabelText('savePercentAria:{"percent":17}')).toBeInTheDocument();
+  });
+
   it('shows the unavailable message when pricing is not configured', () => {
     render(<ChannelPaywall channel={channel({ pricing: null })} isLoggedIn />);
 
