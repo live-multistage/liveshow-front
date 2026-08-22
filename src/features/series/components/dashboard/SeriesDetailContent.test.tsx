@@ -100,6 +100,32 @@ describe('SeriesDetailContent', () => {
     expect(screen.queryByText('dashboard.pause')).not.toBeInTheDocument();
   });
 
+  it('requires confirmation before ending the series, and does not mutate on cancel', () => {
+    useSeriesQuery.mockReturnValue({ data: series({ status: 'ACTIVE' }), isLoading: false });
+
+    render(<SeriesDetailContent slug="quinta-do-rock" />);
+    fireEvent.click(screen.getByText('dashboard.end'));
+
+    // The dialog is open — clicking "end" alone must not have mutated yet.
+    expect(endMutate).not.toHaveBeenCalled();
+    expect(screen.getByText('dashboard.endTitle')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('dashboard.cancel'));
+    expect(endMutate).not.toHaveBeenCalled();
+  });
+
+  it('ends the series once the confirmation dialog is confirmed', () => {
+    useSeriesQuery.mockReturnValue({ data: series({ status: 'ACTIVE' }), isLoading: false });
+
+    render(<SeriesDetailContent slug="quinta-do-rock" />);
+    fireEvent.click(screen.getByText('dashboard.end'));
+    fireEvent.click(screen.getByText('dashboard.confirm'));
+
+    expect(endMutate).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'series-1', organizationId: 'org-1', slug: 'quinta-do-rock' }),
+    );
+  });
+
   it('triggers materialize on demand', () => {
     useSeriesQuery.mockReturnValue({ data: series(), isLoading: false });
 

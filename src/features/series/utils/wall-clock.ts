@@ -1,14 +1,17 @@
 // No existing helper in the codebase converts an arbitrary IANA timezone's
 // wall clock to a UTC instant (ChannelForm/ProgramForm only ever go the other
-// way: UTC -> local display). date-fns-tz isn't installed, so this is the
-// standard Intl-based round-trip: guess the offset by formatting a candidate
-// instant in the target zone, then correct for the difference. One
-// correction pass is enough — a DST boundary can only move the offset by an
-// hour, which the first guess already absorbs.
+// way: UTC -> local display). date-fns-tz isn't installed, so this ports the
+// backend's zonedWallClockToUtc (orchestrator
+// src/series/domain/services/series-schedule.ts) verbatim: a single
+// correction pass is NOT enough near a DST transition — the offset at the
+// first-guess instant can differ from the offset at the actual wall clock
+// (e.g. inside a spring-forward gap), so a second correction re-measures the
+// offset at the corrected instant and applies the delta from the original
+// guess.
 export function wallClockToUtcISOString(date: string, time: string, timeZone: string): string {
   const [year, month, day] = date.split('-').map(Number);
   const [hour, minute] = time.split(':').map(Number);
-  const wallClockUtcMs = Date.UTC(year, month - 1, day, hour, minute, 0);
+  const guess = Date.UTC(year, month - 1, day, hour, minute, 0);
 
   const offsetMs = (instantMs: number) => {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -34,7 +37,8 @@ export function wallClockToUtcISOString(date: string, time: string, timeZone: st
     return shownAsUtc - instantMs;
   };
 
-  const instantMs = wallClockUtcMs - offsetMs(wallClockUtcMs);
+  const first = guess - offsetMs(guess);
+  const instantMs = first - (offsetMs(first) - offsetMs(guess));
   return new Date(instantMs).toISOString();
 }
 

@@ -110,6 +110,18 @@ describe('SeriesForm — create', () => {
     expect(createMutate).not.toHaveBeenCalled();
   });
 
+  it('constrains the episode duration natively and refuses a duration over 1440 minutes', () => {
+    render(<SeriesForm />);
+    fill();
+
+    expect(screen.getByLabelText('dashboard.duration')).toHaveAttribute('max', '1440');
+
+    fireEvent.change(screen.getByLabelText('dashboard.duration'), { target: { value: '1500' } });
+    fireEvent.click(screen.getByText('dashboard.save'));
+
+    expect(createMutate).not.toHaveBeenCalled();
+  });
+
   it('goes to the new series once it is created', () => {
     createMutate.mockImplementation((_input, options) =>
       options.onSuccess({ id: 'series-1', slug: 'quinta-do-rock' }),

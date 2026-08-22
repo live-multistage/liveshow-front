@@ -1231,7 +1231,11 @@
         "ENDED": "Encerrada"
       },
       "episodeStatusLabel": "Status",
-      "episodeDate": "Data"
+      "episodeDate": "Data",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "endTitle": "Encerrar a série?",
+      "endBody": "A série é encerrada em definitivo: nenhum episódio novo é materializado."
     }
   }
 }

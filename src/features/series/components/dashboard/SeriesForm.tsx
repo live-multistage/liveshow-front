@@ -79,6 +79,7 @@ export function SeriesForm({ mode = 'create', initial, onDone }: Props) {
       startTime &&
       days.length > 0 &&
       duration >= 5 &&
+      duration <= 1440 &&
       horizon >= 1 &&
       horizon <= 12 &&
       (isEdit || (activeOrganizationId && slugIsValid)),
@@ -255,6 +256,7 @@ export function SeriesForm({ mode = 'create', initial, onDone }: Props) {
             id="series-duration"
             type="number"
             min={5}
+            max={1440}
             value={durationMin}
             onChange={(e) => setDurationMin(e.target.value)}
           />

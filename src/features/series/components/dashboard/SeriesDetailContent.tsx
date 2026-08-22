@@ -9,6 +9,8 @@ import {
   Button,
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@live-show/design-system';
@@ -37,6 +39,9 @@ export function SeriesDetailContent({ slug }: Props) {
   const end = useEndSeriesMutation();
   const materialize = useMaterializeSeriesMutation();
   const [editing, setEditing] = useState(false);
+  // Encerrar é irreversível (EndSeriesUseCase é terminal) — confirma antes,
+  // igual ao delete de programa do canal (ProgramGridEditor).
+  const [confirmingEnd, setConfirmingEnd] = useState(false);
 
   if (!series)
     return <p className={styles.state}>{tCommon(isLoading ? 'loading' : 'notFound')}</p>;
@@ -77,7 +82,7 @@ export function SeriesDetailContent({ slug }: Props) {
               size="sm"
               variant="outline"
               disabled={end.isPending}
-              onClick={() => end.mutate(target)}
+              onClick={() => setConfirmingEnd(true)}
             >
               {t('dashboard.end')}
             </Button>
@@ -116,6 +121,30 @@ export function SeriesDetailContent({ slug }: Props) {
             <DialogTitle>{t('dashboard.edit')}</DialogTitle>
           </DialogHeader>
           <SeriesForm mode="edit" initial={series} onDone={() => setEditing(false)} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={confirmingEnd} onOpenChange={setConfirmingEnd}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('dashboard.endTitle')}</DialogTitle>
+            <DialogDescription>{t('dashboard.endBody')}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmingEnd(false)}>
+              {t('dashboard.cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={end.isPending}
+              onClick={() => {
+                end.mutate(target);
+                setConfirmingEnd(false);
+              }}
+            >
+              {t('dashboard.confirm')}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
