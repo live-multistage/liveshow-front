@@ -28,7 +28,7 @@ export interface ChannelSource {
 // `until` is server-computed (the event's endsAt) — the frontend never sets it.
 export interface ChannelSourceOverride {
   eventId: string;
-  until: string;
+  until: string | null;
 }
 
 export interface ChannelPricing {
@@ -82,9 +82,11 @@ export interface PublicChannel extends Channel {
 }
 
 // GET /channels/:slug/playback — the existing live playback payload plus the
-// resolved source. Chat and viewer count must bind to `channelEventId`
-// (the channel's own technical event), never `playbackEventId` (the event
-// currently playing, which changes when the source switches).
+// resolved source. Viewer tracking and the viewer count follow whatever is
+// actually on screen, so they bind to `playbackEventId` (the event currently
+// playing — the channel's own broadcast, or a carried event). Chat is scoped
+// to the channel's own persistent room, so it binds to `channelEventId` /
+// `channel.broadcastEventId` instead and never moves when the source does.
 export interface ChannelPlaybackResponse {
   live: boolean;
   latencyMode: 'STANDARD' | 'LOW';

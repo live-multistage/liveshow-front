@@ -176,6 +176,9 @@ export function useUpsertProgramMutation(channelId: string) {
       qc.invalidateQueries({ queryKey: channelKeys.detail(slug) });
       qc.invalidateQueries({ queryKey: channelKeys.programs(channelId) });
       qc.invalidateQueries({ queryKey: ['channels', 'schedule', slug] });
+      // A program upsert can (un)link an Event, which changes what a
+      // currently-carried program window resolves to.
+      qc.invalidateQueries({ queryKey: channelKeys.playback(slug) });
     },
   });
 }
@@ -202,6 +205,9 @@ export function useDeleteProgramMutation(channelId: string) {
       qc.invalidateQueries({ queryKey: channelKeys.detail(slug) });
       qc.invalidateQueries({ queryKey: channelKeys.programs(channelId) });
       qc.invalidateQueries({ queryKey: ['channels', 'schedule', slug] });
+      // Deleting a program can drop the Event it was carrying out of the
+      // resolved playback source.
+      qc.invalidateQueries({ queryKey: channelKeys.playback(slug) });
     },
   });
 }

@@ -63,11 +63,27 @@ vi.mock('@/features/streaming/queries/live.queries', () => ({
   useLiveAccessQuery: () => accessState,
 }));
 
+interface AudioState {
+  muted: boolean;
+  volume: number;
+}
 vi.mock('./ChannelPlayer', () => ({
-  ChannelPlayer: ({ overlay }: { overlay?: ReactNode }) => (
+  ChannelPlayer: ({
+    overlay,
+    initialAudio,
+    onAudioChange,
+  }: {
+    overlay?: ReactNode;
+    initialAudio?: AudioState;
+    onAudioChange?: (audio: AudioState) => void;
+  }) => (
     <div>
       channel-player-stub
       {overlay}
+      <span>muted:{String(initialAudio?.muted)}</span>
+      <button onClick={() => onAudioChange?.({ muted: !initialAudio?.muted, volume: initialAudio?.volume ?? 1 })}>
+        toggle-mute
+      </button>
     </div>
   ),
 }));
@@ -163,7 +179,7 @@ describe('ChannelGate', () => {
   });
 
   // A grade (`isOnAir`, refetch de 60s) atrasa o encoder; quem manda é o
-  // `live` do playback, que é pollado de 5 em 5 segundos.
+  // `live` do playback, que é pollado de 15 em 15 segundos.
   it('layers the off-air overlay inside the player when the stream is down', () => {
     channelState.isLoading = false;
     channelState.data = channel({ isOnAir: true });
@@ -365,5 +381,33 @@ describe('ChannelGate', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('preserves mute across a simulcast source change', () => {
+    channelState.isLoading = false;
+    channelState.data = channel();
+
+    const { rerender } = render(<ChannelGate slug="canal" chatEnabled={false} />);
+
+    expect(screen.getByText('muted:false')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('toggle-mute'));
+    expect(screen.getByText('muted:true')).toBeInTheDocument();
+
+    // The channel's simulcast source switches (own feed <-> a carried
+    // event) — ChannelPlayer remounts its LivePlayer internally, but the
+    // `audio` state held here in ChannelGate, above that boundary, must
+    // still hand back the viewer's choice as the next mount's seed.
+    playbackState.data = {
+      ...playbackState.data,
+      source: {
+        mode: 'event',
+        reason: 'program',
+        event: { id: 'evt-2', title: 'Jogo', startsAt: '2026-08-22T20:00:00.000Z', endsAt: '2026-08-22T22:00:00.000Z' },
+      },
+    };
+    rerender(<ChannelGate slug="canal" chatEnabled={false} />);
+
+    expect(screen.getByText('muted:true')).toBeInTheDocument();
   });
 });

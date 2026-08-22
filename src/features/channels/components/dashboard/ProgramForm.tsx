@@ -11,6 +11,7 @@ import {
   programOverlapsEvent,
   type Weekday,
 } from '../../utils/rrule';
+import { filterLinkableEvents } from '../../utils/filterLinkableEvents';
 import { useUpsertProgramMutation } from '../../mutations/channel.mutations';
 import type { Program } from '../../types/channel.types';
 import styles from './ProgramForm.module.scss';
@@ -47,16 +48,8 @@ export function ProgramForm({ channelId, slug, organizationId, timezone, onDone,
   );
   const [eventId, setEventId] = useState(program?.eventId ?? '');
 
-  // Vinculável = do mesmo org, formato ao vivo, ainda não encerrado. O backend
-  // valida as mesmas invariantes de novo no upsert; isto é só o filtro da lista.
   const linkableEvents = useMemo(
-    () =>
-      myEvents.filter(
-        (event) =>
-          event.organizationId === organizationId &&
-          event.format === 'LIVE' &&
-          (event.status === 'SCHEDULED' || event.status === 'LIVE'),
-      ),
+    () => filterLinkableEvents(myEvents, organizationId),
     [myEvents, organizationId],
   );
 

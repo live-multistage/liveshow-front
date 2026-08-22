@@ -11,6 +11,8 @@ vi.mock('next-intl', () => ({
 let mountCount = 0;
 let lastInitialAudio: unknown;
 let lastOnAudioChange: unknown;
+let lastEventId: unknown;
+let lastTrackingEventId: unknown;
 vi.mock('@/features/streaming/components/LivePlayer', () => ({
   // Mirrors LivePlayer's shape just enough to observe remounts (via the
   // mount-only effect) and to render the overlay it's handed.
@@ -19,16 +21,22 @@ vi.mock('@/features/streaming/components/LivePlayer', () => ({
     overlay,
     initialAudio,
     onAudioChange,
+    eventId,
+    trackingEventId,
   }: {
     cameras: unknown[];
     overlay?: React.ReactNode;
     initialAudio?: unknown;
     onAudioChange?: unknown;
+    eventId?: unknown;
+    trackingEventId?: unknown;
   }) => {
     useEffect(() => {
       mountCount += 1;
       lastInitialAudio = initialAudio;
       lastOnAudioChange = onAudioChange;
+      lastEventId = eventId;
+      lastTrackingEventId = trackingEventId;
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     return (
@@ -164,6 +172,15 @@ describe('ChannelPlayer', () => {
     // volume) — that seed lives in ChannelGate, above this remount boundary.
     expect(mountCount).toBe(2);
     expect(lastInitialAudio).toEqual(audio);
+  });
+
+  it('threads chat (channel event) and tracking (playback event) to separate ids', () => {
+    render(<ChannelPlayer channel={channel} playback={eventPlayback} chatEnabled={false} />);
+
+    // Chat stays on the channel's own room...
+    expect(lastEventId).toBe('evt-channel');
+    // ...while tracking/viewer count follow the event actually carried.
+    expect(lastTrackingEventId).toBe('evt-carried');
   });
 
   it('forwards onAudioChange through to LivePlayer', () => {

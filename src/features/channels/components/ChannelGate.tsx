@@ -144,7 +144,7 @@ export function ChannelGate({ slug, chatEnabled }: Props) {
     return <LiveGateLoading message={t('loadingStream')} eventTitle={channel.data.name} />;
   }
 
-  // O sinal de fora do ar é o `live` do playback (polling de 5 s), não o
+  // O sinal de fora do ar é o `live` do playback (polling de 15 s), não o
   // `isOnAir` da grade (refetch de 60 s): a grade atrasa o encoder em até um
   // minuto nos dois sentidos, e as duas divergem quando a transmissão sai do
   // horário. O overlay entra dentro do player para sobreviver ao fullscreen.

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { LiveCamera } from '../types/live.types';
 
 export interface PlayerAudioState {
@@ -38,7 +38,16 @@ export function usePlayerAudio({
   const [volume, setVolume] = useState(initialVolume);
   const [audioCameraId, setAudioCameraId] = useState<string | null>(null);
 
+  // Skip the mount-time firing — `onChange` reporting back its own seed
+  // (`initialMuted`/`initialVolume`) is a no-op for the caller, but a
+  // caller that uses it to update state (e.g. ChannelGate, held above the
+  // player's remount boundary) would otherwise re-render on every mount.
+  const isFirstRender = useRef(true);
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     onChange?.({ muted: globalMuted, volume });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [globalMuted, volume]);

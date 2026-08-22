@@ -186,11 +186,12 @@ function DayColumn({
             <span className={styles.slotTime}>{time.format(new Date(slot.startsAt))}</span>
             <span className={styles.slotName}>{slot.name}</span>
             {slot.event && (
-              <Cast
-                size={12}
-                className={styles.slotEventIcon}
-                aria-label={t('dashboard.linkedEvent', { title: slot.event.title })}
-              />
+              <span className={styles.slotEventIcon}>
+                <Cast size={12} aria-hidden="true" />
+                <span className={styles.visuallyHidden}>
+                  {t('dashboard.linkedEvent', { title: slot.event.title })}
+                </span>
+              </span>
             )}
           </button>
           <button

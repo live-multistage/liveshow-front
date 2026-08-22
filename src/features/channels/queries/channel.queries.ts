@@ -35,17 +35,19 @@ export function useChannelQuery(slug: string, options?: { enabled?: boolean }) {
   });
 }
 
-// Resolved channel playback — polls every 5s so the player follows the
-// simulcast source (own feed <-> a carried event) the same way the event
-// live-playback query follows an event going live. staleTime sits just under
+// Resolved channel playback — the source only moves on a program-window
+// boundary or a dashboard override, both minutes-granularity events (unlike
+// an event's own live-playback query, which polls at 5s to catch the
+// encoder going live at any second). 15s keeps the source responsive to a
+// manual override without hammering the endpoint. staleTime sits just under
 // the interval so a remount inside that window reuses the cached response.
 export function useChannelPlaybackQuery(slug: string, enabled: boolean) {
   return useQuery({
     queryKey: channelKeys.playback(slug),
     queryFn: () => channelService.getPlayback(slug),
     enabled,
-    staleTime: 4_500,
-    refetchInterval: enabled ? 5000 : false,
+    staleTime: 14_000,
+    refetchInterval: enabled ? 15_000 : false,
     refetchIntervalInBackground: false,
   });
 }

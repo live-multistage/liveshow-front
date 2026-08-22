@@ -46,13 +46,13 @@ describe('useChannelQuery', () => {
 });
 
 describe('useChannelPlaybackQuery', () => {
-  it('polls every 5 seconds while enabled, calling the channel playback route', () => {
+  it('polls every 15 seconds while enabled, calling the channel playback route', () => {
     const { wrapper } = makeWrapper();
 
     renderHook(() => useChannelPlaybackQuery('my-channel', true), { wrapper });
 
     expect(useQuerySpy).toHaveBeenCalledWith(
-      expect.objectContaining({ refetchInterval: 5000, enabled: true }),
+      expect.objectContaining({ refetchInterval: 15_000, enabled: true }),
     );
   });
 

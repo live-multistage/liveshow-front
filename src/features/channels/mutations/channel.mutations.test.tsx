@@ -7,6 +7,8 @@ vi.mock('../services/channel.service', () => ({
     syncPricing: vi.fn(),
     setSourceOverride: vi.fn(),
     clearSourceOverride: vi.fn(),
+    upsertProgram: vi.fn(),
+    deleteProgram: vi.fn(),
   },
 }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
@@ -22,16 +24,31 @@ import {
   useSyncChannelPricingMutation,
   useSetChannelSourceOverrideMutation,
   useClearChannelSourceOverrideMutation,
+  useUpsertProgramMutation,
+  useDeleteProgramMutation,
 } from './channel.mutations';
 import { channelService } from '../services/channel.service';
 import { channelKeys } from '../queries/channel.queries';
-import type { OrgChannel } from '../types/channel.types';
+import type { OrgChannel, Program } from '../types/channel.types';
 
 const mockedPublish = vi.mocked(channelService.publish);
 const mockedSubscribe = vi.mocked(channelService.subscribe);
 const mockedSyncPricing = vi.mocked(channelService.syncPricing);
 const mockedSetSourceOverride = vi.mocked(channelService.setSourceOverride);
 const mockedClearSourceOverride = vi.mocked(channelService.clearSourceOverride);
+const mockedUpsertProgram = vi.mocked(channelService.upsertProgram);
+const mockedDeleteProgram = vi.mocked(channelService.deleteProgram);
+
+const PROGRAM: Program = {
+  id: 'prg-1',
+  channelId: 'ch-1',
+  name: 'Jornal',
+  description: null,
+  startTime: '20:00:00',
+  durationMin: 60,
+  rrule: 'FREQ=WEEKLY;BYDAY=MO',
+  eventId: null,
+};
 
 const CHANNEL: OrgChannel = {
   id: 'ch-1',
@@ -151,6 +168,51 @@ describe('useClearChannelSourceOverrideMutation', () => {
 
     expect(mockedClearSourceOverride).toHaveBeenCalledWith('ch-1');
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.detail('my-channel') });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.playback('my-channel') });
+  });
+});
+
+describe('useUpsertProgramMutation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('invalidates the schedule and the channel playback (a linked event can change what is on air)', async () => {
+    mockedUpsertProgram.mockResolvedValue(PROGRAM);
+    const { queryClient, wrapper } = makeWrapper();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useUpsertProgramMutation('ch-1'), { wrapper });
+
+    result.current.mutate({
+      input: { name: 'Jornal', startTime: '20:00', durationMin: 60, rrule: 'FREQ=WEEKLY;BYDAY=MO' },
+      slug: 'my-channel',
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.detail('my-channel') });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.programs('ch-1') });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.playback('my-channel') });
+  });
+});
+
+describe('useDeleteProgramMutation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('invalidates the schedule and the channel playback (a deleted program can drop its carried event)', async () => {
+    mockedDeleteProgram.mockResolvedValue(undefined);
+    const { queryClient, wrapper } = makeWrapper();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useDeleteProgramMutation('ch-1'), { wrapper });
+
+    result.current.mutate({ programId: 'prg-1', slug: 'my-channel' });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.detail('my-channel') });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.programs('ch-1') });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.playback('my-channel') });
   });
 });

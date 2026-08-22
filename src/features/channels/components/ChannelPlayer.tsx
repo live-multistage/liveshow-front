@@ -50,6 +50,10 @@ export function ChannelPlayer({
       key={sourceKey}
       variant="channel"
       eventId={channel.broadcastEventId}
+      // Tracking/viewer count follow whatever is actually playing — the
+      // channel's own broadcast, or the event it's currently carrying —
+      // while chat (eventId above) stays on the channel's own room.
+      trackingEventId={playback.playbackEventId}
       title={channel.name}
       metaLineOverride={metaLine}
       exitHref="/channels"

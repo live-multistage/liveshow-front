@@ -8,6 +8,7 @@ import {
   useClearChannelSourceOverrideMutation,
   useSetChannelSourceOverrideMutation,
 } from '../../mutations/channel.mutations';
+import { filterLinkableEvents } from '../../utils/filterLinkableEvents';
 import type { ChannelSource, ChannelSourceOverride } from '../../types/channel.types';
 import styles from './ChannelOnAirPanel.module.scss';
 
@@ -29,20 +30,16 @@ export function ChannelOnAirPanel({ channelId, slug, organizationId, source, sou
   const [selectedEventId, setSelectedEventId] = useState('');
 
   const linkableEvents = useMemo(
-    () =>
-      myEvents.filter(
-        (event) =>
-          event.organizationId === organizationId &&
-          event.format === 'LIVE' &&
-          (event.status === 'SCHEDULED' || event.status === 'LIVE'),
-      ),
+    () => filterLinkableEvents(myEvents, organizationId),
     [myEvents, organizationId],
   );
 
   const target = { id: channelId, slug, organizationId };
-  // Override set but the resolver still reads "own": the carried event hasn't
-  // gone LIVE yet.
-  const isWaiting = Boolean(sourceOverride) && source.mode === 'own';
+  // Override set but the resolver isn't actually reflecting it yet (still on
+  // "own", or carrying an event for some other reason e.g. an overlapping
+  // program window) — the carry hasn't caught up with the override.
+  const isWaiting =
+    Boolean(sourceOverride) && !(source.mode === 'event' && source.reason === 'override');
 
   const handlePutOnAir = () => {
     if (!selectedEventId) return;
@@ -66,7 +63,7 @@ export function ChannelOnAirPanel({ channelId, slug, organizationId, source, sou
 
       {isWaiting && <p className={styles.waiting}>{t('waiting')}</p>}
 
-      {sourceOverride ? (
+      {sourceOverride && (
         <Button
           size="sm"
           variant="outline"
@@ -75,30 +72,32 @@ export function ChannelOnAirPanel({ channelId, slug, organizationId, source, sou
         >
           {t('backToChannel')}
         </Button>
-      ) : (
-        <div className={styles.putOnAir}>
-          <select
-            className={styles.select}
-            aria-label={t('selectEvent')}
-            value={selectedEventId}
-            onChange={(e) => setSelectedEventId(e.target.value)}
-          >
-            <option value="">{t('selectEvent')}</option>
-            {linkableEvents.map((event) => (
-              <option key={event.id} value={event.id}>
-                {event.title}
-              </option>
-            ))}
-          </select>
-          <Button
-            size="sm"
-            disabled={!selectedEventId || setOverride.isPending}
-            onClick={handlePutOnAir}
-          >
-            {t('putOnAir')}
-          </Button>
-        </div>
       )}
+
+      {/* Kept visible even with an override active — swapping to a different
+          event is one select + submit, not clear-then-pick-again. */}
+      <div className={styles.putOnAir}>
+        <select
+          className={styles.select}
+          aria-label={t('selectEvent')}
+          value={selectedEventId}
+          onChange={(e) => setSelectedEventId(e.target.value)}
+        >
+          <option value="">{t('selectEvent')}</option>
+          {linkableEvents.map((event) => (
+            <option key={event.id} value={event.id}>
+              {event.title}
+            </option>
+          ))}
+        </select>
+        <Button
+          size="sm"
+          disabled={!selectedEventId || setOverride.isPending}
+          onClick={handlePutOnAir}
+        >
+          {t('putOnAir')}
+        </Button>
+      </div>
     </section>
   );
 }

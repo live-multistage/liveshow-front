@@ -73,6 +73,13 @@ describe('ChannelOnAirPanel', () => {
     expect(screen.queryByText('waiting')).toBeNull();
   });
 
+  it('still shows waiting when an override is set but the carry is from the program window, not the override', () => {
+    const programSource: ChannelSource = { ...EVENT_SOURCE, reason: 'program' };
+    renderPanel(programSource, { eventId: 'evt-1', until: '2026-08-21T22:00:00.000Z' });
+
+    expect(screen.getByText('waiting')).toBeInTheDocument();
+  });
+
   it('only lists linkable events (same org, LIVE format, SCHEDULED/LIVE status)', () => {
     renderPanel(OWN_SOURCE, null);
 
@@ -100,10 +107,11 @@ describe('ChannelOnAirPanel', () => {
     );
   });
 
-  it('hides the selector once an override is active', () => {
+  it('keeps the event selector next to "back to channel" so the operator can swap without clearing', () => {
     renderPanel(EVENT_SOURCE, { eventId: 'evt-1', until: '2026-08-21T22:00:00.000Z' });
 
-    expect(screen.queryByLabelText('selectEvent')).toBeNull();
+    expect(screen.getByLabelText('selectEvent')).toBeInTheDocument();
+    expect(screen.getByText('backToChannel')).toBeInTheDocument();
   });
 
   it('clears the override via DELETE source-override', () => {

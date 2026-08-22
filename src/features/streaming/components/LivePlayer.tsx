@@ -34,7 +34,15 @@ interface LivePlayerProps {
   // NBR 15290 — camera pinned as the mandatory Libras window (null if none).
   librasCameraId?: string | null;
   title: string;
+  // Chat's room and the header/exit target — the channel passes its own
+  // persistent broadcast event here, which doesn't move when a channel's
+  // simulcast source switches.
   eventId: string;
+  // Viewer tracking + viewer count follow what's actually on screen, which
+  // for a channel is the resolved source (own feed or a carried event), not
+  // the channel's own event — defaults to `eventId` for event/replay callers,
+  // where the two are the same thing.
+  trackingEventId?: string;
   chatEnabled: boolean;
   // 'channel': transmissão contínua sem arquivo atrás da janela da origem —
   // não há o que pausar nem para onde rebobinar, então os controles de
@@ -77,7 +85,7 @@ function initialStageId(stages: LiveStage[], primaryCameraId?: string | null): s
   return stages.find((s) => s.cameras.length > 0)?.stageId ?? stages[0]?.stageId ?? '__main__';
 }
 
-export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, chatEnabled, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
+export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, trackingEventId, chatEnabled, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
   const t = useTranslations('player');
   const isChannel = variant === 'channel';
   const router = useRouter();
@@ -151,8 +159,9 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
 
   const { levels, onLevelsReady, currentLevel, onSelectLevel, qualityLabel } = useQualityLevels();
 
-  useViewerTracking(eventId, activeCameraIds, user?.id);
-  const { currentViewers } = useViewerCount(eventId);
+  const effectiveTrackingEventId = trackingEventId ?? eventId;
+  useViewerTracking(effectiveTrackingEventId, activeCameraIds, user?.id);
+  const { currentViewers } = useViewerCount(effectiveTrackingEventId);
   const chat = useChat(eventId);
 
   // Live seek commands are addressed to the camera they were issued for (see

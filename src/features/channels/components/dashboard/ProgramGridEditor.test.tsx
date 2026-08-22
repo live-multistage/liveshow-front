@@ -120,15 +120,17 @@ describe('ProgramGridEditor', () => {
 
     renderGrid();
 
-    expect(screen.queryByLabelText('dashboard.linkedEvent')).toBeNull();
+    expect(screen.queryByText('dashboard.linkedEvent')).toBeNull();
   });
 
-  it('marks a slot carrying a linked event with an icon', () => {
+  it('marks a slot carrying a linked event with a screen-reader label (icon itself is decorative)', () => {
     slotsByDay['2026-08-21'] = [linkedSlot];
 
     renderGrid();
 
-    expect(screen.getByLabelText('dashboard.linkedEvent')).toBeInTheDocument();
+    const label = screen.getByText('dashboard.linkedEvent');
+    expect(label).toBeInTheDocument();
+    expect(label.previousElementSibling).toHaveAttribute('aria-hidden', 'true');
   });
 
   it('warns that a draft channel has no public schedule yet', () => {
