@@ -702,6 +702,7 @@
     "subscriptions": {
       "title": "Minhas assinaturas",
       "loading": "Carregando...",
+      "loadError": "Não foi possível carregar suas assinaturas.",
       "empty": "Você ainda não tem nenhuma assinatura.",
       "unknownChannel": "Canal",
       "status": {
