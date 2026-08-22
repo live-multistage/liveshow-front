@@ -6,14 +6,11 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { LiveGateLoading } from '@/features/streaming/components/LiveGateLoading';
-import {
-  useLiveAccessQuery,
-  useLivePlaybackQuery,
-} from '@/features/streaming/queries/live.queries';
+import { useLiveAccessQuery } from '@/features/streaming/queries/live.queries';
 import Link from 'next/link';
 import { X } from 'lucide-react';
 import { NotFoundContent } from '@/shared/components/NotFoundContent';
-import { useChannelQuery } from '../queries/channel.queries';
+import { useChannelPlaybackQuery, useChannelQuery } from '../queries/channel.queries';
 import { resolveChannelAccess } from '../utils/resolveChannelAccess';
 import { ChannelPaywall } from './ChannelPaywall';
 import { ChannelPlayer } from './ChannelPlayer';
@@ -68,7 +65,10 @@ export function ChannelGate({ slug, chatEnabled }: Props) {
   const access = useLiveAccessQuery(eventId, !!eventId && !isFree && !authLoading);
   const derivedAccess = resolveChannelAccess(channel.data, access.data === true);
 
-  const playback = useLivePlaybackQuery(eventId, !!eventId && derivedAccess.authorized);
+  // Channel route, not the event's — it resolves whatever source the channel
+  // is currently simulcasting (its own feed or a carried event) and applies
+  // the channel's own access rule, ignoring the carried event's tickets.
+  const playback = useChannelPlaybackQuery(slug, derivedAccess.authorized);
 
   const [awaitingSubscription, setAwaitingSubscription] = useState(false);
   const [subscribedPollTries, setSubscribedPollTries] = useState(0);

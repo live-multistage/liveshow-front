@@ -7,6 +7,7 @@ export const channelKeys = {
   all: ['channels'] as const,
   list: ['channels', 'list'] as const,
   detail: (slug: string) => ['channels', 'detail', slug] as const,
+  playback: (slug: string) => ['channels', 'playback', slug] as const,
   schedule: (slug: string, day?: string) => ['channels', 'schedule', slug, day] as const,
   org: (organizationId: string) => ['channels', 'org', organizationId] as const,
   orgDetail: (id: string) => ['channels', 'orgDetail', id] as const,
@@ -31,6 +32,21 @@ export function useChannelQuery(slug: string, options?: { enabled?: boolean }) {
     // O painel ao vivo depende do "current"/"next" ficarem frescos sem o
     // usuário recarregar a página.
     refetchInterval: 60_000,
+  });
+}
+
+// Resolved channel playback — polls every 5s so the player follows the
+// simulcast source (own feed <-> a carried event) the same way the event
+// live-playback query follows an event going live. staleTime sits just under
+// the interval so a remount inside that window reuses the cached response.
+export function useChannelPlaybackQuery(slug: string, enabled: boolean) {
+  return useQuery({
+    queryKey: channelKeys.playback(slug),
+    queryFn: () => channelService.getPlayback(slug),
+    enabled,
+    staleTime: 4_500,
+    refetchInterval: enabled ? 5000 : false,
+    refetchIntervalInBackground: false,
   });
 }
 

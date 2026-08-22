@@ -105,6 +105,11 @@
   white-space: nowrap;
 }
 
+.slotEventIcon {
+  flex-shrink: 0;
+  color: $action;
+}
+
 .slotDelete {
   display: inline-flex;
   align-items: center;

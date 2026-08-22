@@ -35,8 +35,23 @@ const channelState: {
   isError: false,
   refetch: vi.fn(),
 };
+const playbackState = {
+  data: {
+    live: true,
+    stages: [],
+    cameras: [],
+    primaryCameraId: null,
+    librasCameraId: null,
+    latencyMode: 'STANDARD',
+    playbackEventId: 'evt-1',
+    channelEventId: 'evt-1',
+    source: { mode: 'own', reason: 'own', event: null },
+  },
+  isLoading: false,
+};
 vi.mock('../queries/channel.queries', () => ({
   useChannelQuery: () => channelState,
+  useChannelPlaybackQuery: () => playbackState,
 }));
 
 const accessState: { data: boolean; isLoading: boolean; refetch: () => void } = {
@@ -44,21 +59,8 @@ const accessState: { data: boolean; isLoading: boolean; refetch: () => void } = 
   isLoading: false,
   refetch: vi.fn(),
 };
-const playbackState = {
-  data: {
-    eventId: 'evt-1',
-    live: true,
-    stages: [],
-    cameras: [],
-    primaryCameraId: null,
-    librasCameraId: null,
-    latencyMode: 'STANDARD',
-  },
-  isLoading: false,
-};
 vi.mock('@/features/streaming/queries/live.queries', () => ({
   useLiveAccessQuery: () => accessState,
-  useLivePlaybackQuery: () => playbackState,
 }));
 
 vi.mock('./ChannelPlayer', () => ({

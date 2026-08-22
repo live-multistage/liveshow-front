@@ -1158,6 +1158,7 @@
     "offAir": "Fora do ar",
     "backAt": "Volta às",
     "watch": "Assistir",
+    "nowPlaying": "Agora: {title}",
     "errorToast": "Não foi possível concluir a ação",
     "subscription": {
       "restricted": "Conteúdo por assinatura",
@@ -1211,6 +1212,7 @@
       "confirm": "Confirmar",
       "cancel": "Cancelar",
       "draftScheduleNote": "A grade pública aparece após publicar o canal.",
+      "linkedEvent": "Vinculado ao evento: {title}",
       "status": {
         "DRAFT": "Rascunho",
         "ARCHIVED": "Arquivado",

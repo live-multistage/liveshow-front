@@ -32,6 +32,12 @@ const slot: ScheduledSlot = {
   name: 'Jornal da Meia-Noite',
   startsAt: '2026-08-21T11:00:00Z',
   endsAt: '2026-08-21T12:00:00Z',
+  event: null,
+};
+
+const linkedSlot: ScheduledSlot = {
+  ...slot,
+  event: { id: 'evt-1', title: 'Jogo Final' },
 };
 
 const program: Program = {
@@ -96,6 +102,22 @@ describe('ProgramGridEditor', () => {
 
     expect(screen.getByText('20:00')).toBeInTheDocument();
     expect(screen.getByText('Jornal da Meia-Noite')).toBeInTheDocument();
+  });
+
+  it('does not mark a plain slot as linked to an event', () => {
+    slotsByDay['2026-08-21'] = [slot];
+
+    renderGrid();
+
+    expect(screen.queryByLabelText('dashboard.linkedEvent')).toBeNull();
+  });
+
+  it('marks a slot carrying a linked event with an icon', () => {
+    slotsByDay['2026-08-21'] = [linkedSlot];
+
+    renderGrid();
+
+    expect(screen.getByLabelText('dashboard.linkedEvent')).toBeInTheDocument();
   });
 
   it('warns that a draft channel has no public schedule yet', () => {

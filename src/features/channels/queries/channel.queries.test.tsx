@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('../services/channel.service', () => ({
-  channelService: { getBySlug: vi.fn().mockResolvedValue(null) },
+  channelService: { getBySlug: vi.fn().mockResolvedValue(null), getPlayback: vi.fn().mockResolvedValue(null) },
 }));
 
 const useQuerySpy = vi.fn();
@@ -21,7 +21,7 @@ vi.mock('@tanstack/react-query', async () => {
 import { renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { useChannelQuery } from './channel.queries';
+import { useChannelPlaybackQuery, useChannelQuery } from './channel.queries';
 
 function makeWrapper() {
   const queryClient = new QueryClient({
@@ -41,6 +41,28 @@ describe('useChannelQuery', () => {
 
     expect(useQuerySpy).toHaveBeenCalledWith(
       expect.objectContaining({ refetchInterval: 60_000 }),
+    );
+  });
+});
+
+describe('useChannelPlaybackQuery', () => {
+  it('polls every 5 seconds while enabled, calling the channel playback route', () => {
+    const { wrapper } = makeWrapper();
+
+    renderHook(() => useChannelPlaybackQuery('my-channel', true), { wrapper });
+
+    expect(useQuerySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ refetchInterval: 5000, enabled: true }),
+    );
+  });
+
+  it('does not poll when disabled', () => {
+    const { wrapper } = makeWrapper();
+
+    renderHook(() => useChannelPlaybackQuery('my-channel', false), { wrapper });
+
+    expect(useQuerySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ refetchInterval: false, enabled: false }),
     );
   });
 });

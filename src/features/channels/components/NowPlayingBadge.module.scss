@@ -1,0 +1,30 @@
+@use '../../../styles/_variables' as *;
+
+// Sits inside the player's overlay slot (see LivePlayer's `overlay` prop) —
+// same layer the off-air overlay uses, but a small pill instead of a
+// full-screen takeover, so it never blocks the video or the header controls.
+.badge {
+  position: absolute;
+  top: 4.5rem;
+  left: 1rem;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  max-width: calc(100% - 2rem);
+  padding: 0.375rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(8, 8, 10, 0.72);
+  backdrop-filter: blur(6px);
+  color: $text-primary;
+  font-family: 'Archivo', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    color: $action;
+  }
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, Cast } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Button,
@@ -163,6 +163,7 @@ function DayColumn({
   onEdit,
   onDelete,
 }: DayColumnProps) {
+  const t = useTranslations('channels');
   // A âncora é meio-dia UTC representando uma data civil: o rótulo lê essa data
   // em UTC de propósito, senão o fuso do canal a puxaria para o dia vizinho.
   const day = anchor.toISOString().slice(0, 10);
@@ -194,6 +195,13 @@ function DayColumn({
           <button type="button" className={styles.slotOpen} onClick={() => onEdit(slot)}>
             <span className={styles.slotTime}>{time.format(new Date(slot.startsAt))}</span>
             <span className={styles.slotName}>{slot.name}</span>
+            {slot.event && (
+              <Cast
+                size={12}
+                className={styles.slotEventIcon}
+                aria-label={t('dashboard.linkedEvent', { title: slot.event.title })}
+              />
+            )}
           </button>
           <button
             type="button"

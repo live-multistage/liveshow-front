@@ -2,6 +2,7 @@ import { httpClient } from '@/lib/http/client';
 import type {
   Channel,
   ChannelListItem,
+  ChannelPlaybackResponse,
   ChannelSubscriptionSummary,
   CreateChannelInput,
   OrgChannel,
@@ -28,6 +29,13 @@ export const channelService = {
     const { data } = await httpClient.get<ScheduledSlot[]>(`/channels/${slug}/schedule`, {
       params: dayISO ? { day: dayISO } : undefined,
     });
+    return data;
+  },
+
+  // Resolved playback for what the channel is currently showing — its own
+  // feed or a carried event. Replaces the event playback route for channels.
+  getPlayback: async (slug: string): Promise<ChannelPlaybackResponse> => {
+    const { data } = await httpClient.get<ChannelPlaybackResponse>(`/channels/${slug}/playback`);
     return data;
   },
 
