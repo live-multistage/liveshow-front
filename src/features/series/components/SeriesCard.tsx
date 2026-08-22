@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import type { SeriesListItem } from '../types/series.types';
-import { describeRecurrence, formatStartTime } from '../utils/recurrence';
+import { getRecurrenceParts, formatStartTime } from '../utils/recurrence';
 import styles from './SeriesCard.module.scss';
 
 interface Props {
@@ -17,11 +17,15 @@ interface Props {
 export function SeriesCard({ series }: Props) {
   const t = useTranslations('series');
   const locale = useLocale();
-  const recurrence = describeRecurrence(
+  const recurrenceParts = getRecurrenceParts(
     series.rrule,
     formatStartTime(series.dtstart, series.timezone),
     locale,
   );
+  const recurrence =
+    recurrenceParts.type === 'daily'
+      ? t('recurrence.daily', { time: recurrenceParts.time })
+      : t('recurrence.weekly', { day: recurrenceParts.day, time: recurrenceParts.time });
   const cover = series.nextEpisode?.thumbnailUrl ?? null;
 
   return (

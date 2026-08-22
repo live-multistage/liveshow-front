@@ -11,25 +11,25 @@ function weekdayName(day: Weekday, locale: string): string {
   return new Intl.DateTimeFormat(locale, { weekday: 'long', timeZone: 'UTC' }).format(date);
 }
 
-function joinWeekdayNames(names: string[]): string {
-  if (names.length === 1) return names[0];
-  return `${names.slice(0, -1).join(', ')} e ${names[names.length - 1]}`;
-}
+export type RecurrenceParts = { type: 'daily'; time: string } | { type: 'weekly'; day: string; time: string };
 
-// RRULE + horário de início viram uma frase curta ("Toda quinta-feira ·
-// 20:00") pro badge de recorrência da série. Só pt-BR por enquanto — i18n
-// completo é tarefa 14 (o `locale` já entra aqui só pro nome do dia da
-// semana, via Intl).
-export function describeRecurrence(rrule: string, startTime: string, locale = 'pt-BR'): string {
+// RRULE + horário de início viram as partes (dia/horário) usadas pelas chaves
+// `series.recurrence.weekly` / `series.recurrence.daily` (t('recurrence.weekly',
+// { day, time })). Fica puro pra não depender de useTranslations — o
+// componente monta a frase final.
+export function getRecurrenceParts(rrule: string, startTime: string, locale = 'pt-BR'): RecurrenceParts {
   const days = parseRRule(rrule);
   const time = startTime.slice(0, 5);
 
-  if (days.length === 0 || days.length === 7) return `Todo dia · ${time}`;
-
-  if (days.length === 1) return `Toda ${weekdayName(days[0], locale)} · ${time}`;
+  if (days.length === 0 || days.length === 7) return { type: 'daily', time };
 
   const names = days.map((day) => weekdayName(day, locale));
-  return `${joinWeekdayNames(names)} · ${time}`;
+  const day =
+    names.length === 1
+      ? names[0]
+      : new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }).format(names);
+
+  return { type: 'weekly', day, time };
 }
 
 // `series.dtstart` is a UTC instant; the recurrence phrase needs the local

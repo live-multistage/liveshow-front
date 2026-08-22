@@ -9,7 +9,7 @@ import { ShowCard } from '@/features/events/components/public/ShowCard';
 import { useAuth } from '@/features/account';
 import { useAddToCartMutation, useCartQuery } from '@/features/cart';
 import { useSeriesQuery } from '../queries/series.queries';
-import { describeRecurrence, formatStartTime } from '../utils/recurrence';
+import { getRecurrenceParts, formatStartTime } from '../utils/recurrence';
 import { episodeToShow } from '../utils/episode-adapter';
 import styles from './SeriesPageContent.module.scss';
 
@@ -45,11 +45,15 @@ export function SeriesPageContent({ slug }: Props) {
     );
   }
 
-  const recurrence = describeRecurrence(
+  const recurrenceParts = getRecurrenceParts(
     series.rrule,
     formatStartTime(series.dtstart, series.timezone),
     locale,
   );
+  const recurrence =
+    recurrenceParts.type === 'daily'
+      ? t('recurrence.daily', { time: recurrenceParts.time })
+      : t('recurrence.weekly', { day: recurrenceParts.day, time: recurrenceParts.time });
   const { nextEpisode, upcoming, replays, seasonPasses } = series;
 
   const isPassInCart = (passId: string) =>

@@ -1,14 +1,26 @@
 import { describe, it, expect } from 'vitest';
-import { describeRecurrence, formatStartTime } from './recurrence';
+import { getRecurrenceParts, formatStartTime } from './recurrence';
 
-describe('describeRecurrence', () => {
+describe('getRecurrenceParts', () => {
   it.each([
-    ['FREQ=WEEKLY;BYDAY=TH', '20:00', 'Toda quinta-feira · 20:00'],
-    ['FREQ=WEEKLY;BYDAY=MO', '19:30', 'Toda segunda-feira · 19:30'],
-    ['FREQ=DAILY', '21:00', 'Todo dia · 21:00'],
-    ['FREQ=WEEKLY;BYDAY=TU,TH', '20:00', 'terça-feira e quinta-feira · 20:00'],
-  ])('describes %s at %s as %s', (rrule, startTime, expected) => {
-    expect(describeRecurrence(rrule, startTime, 'pt-BR')).toBe(expected);
+    ['FREQ=WEEKLY;BYDAY=TH', '20:00', 'pt-BR', { type: 'weekly', day: 'quinta-feira', time: '20:00' }],
+    ['FREQ=WEEKLY;BYDAY=MO', '19:30', 'pt-BR', { type: 'weekly', day: 'segunda-feira', time: '19:30' }],
+    ['FREQ=DAILY', '21:00', 'pt-BR', { type: 'daily', time: '21:00' }],
+    [
+      'FREQ=WEEKLY;BYDAY=TU,TH',
+      '20:00',
+      'pt-BR',
+      { type: 'weekly', day: 'terça-feira e quinta-feira', time: '20:00' },
+    ],
+    ['FREQ=WEEKLY;BYDAY=TH', '20:00', 'en', { type: 'weekly', day: 'Thursday', time: '20:00' }],
+    [
+      'FREQ=WEEKLY;BYDAY=TU,TH',
+      '20:00',
+      'en',
+      { type: 'weekly', day: 'Tuesday and Thursday', time: '20:00' },
+    ],
+  ] as const)('describes %s at %s (%s) as %j', (rrule, startTime, locale, expected) => {
+    expect(getRecurrenceParts(rrule, startTime, locale)).toEqual(expected);
   });
 });
 

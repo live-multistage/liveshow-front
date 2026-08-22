@@ -330,7 +330,8 @@
       "platformCoupons": "Cupones",
       "platformSettings": "Configuración",
       "platformAudit": "Registro de auditoría",
-      "channels": "Canales"
+      "channels": "Canales",
+      "series": "Programas"
     },
     "navMobile": {
       "overview": "Panel",
@@ -1160,6 +1161,82 @@
         "PUBLISHED": "Publicado",
         "ARCHIVED": "Archivado"
       }
+    }
+  },
+  "series": {
+    "title": "Programas",
+    "railTitle": "Programas",
+    "badge": "Serie",
+    "badgeLinkLabel": "Ver serie",
+    "eyebrow": "Programa recurrente",
+    "nextEpisode": "Próximo episodio",
+    "upcoming": "Próximos",
+    "seasonPasses": "Pase de temporada",
+    "replays": "Repeticiones",
+    "buyEpisode": "Comprar episodio",
+    "buySeasonPass": "Comprar pase de temporada",
+    "alreadyInCart": "Ya en el carrito",
+    "notFound": "No se pudo cargar esta serie.",
+    "retry": "Intentar de nuevo",
+    "empty": "No hay series activas en este momento.",
+    "recurrence": {
+      "weekly": "Todos los {day} · {time}",
+      "daily": "Todos los días · {time}"
+    },
+    "dashboard": {
+      "title": "Series",
+      "new": "Nueva serie",
+      "name": "Nombre",
+      "slug": "Slug",
+      "description": "Descripción",
+      "weekdays": "Días de la semana",
+      "weekdayMO": "Lunes",
+      "weekdayTU": "Martes",
+      "weekdayWE": "Miércoles",
+      "weekdayTH": "Jueves",
+      "weekdayFR": "Viernes",
+      "weekdaySA": "Sábado",
+      "weekdaySU": "Domingo",
+      "firstDate": "Primera fecha",
+      "startTime": "Hora",
+      "duration": "Duración (min)",
+      "horizon": "Generar hasta (semanas)",
+      "timezone": "Zona horaria",
+      "save": "Guardar",
+      "edit": "Editar",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "end": "Finalizar serie",
+      "materialize": "Generar episodios ahora",
+      "configureCameras": "Configurar cámaras del modelo",
+      "templateTickets": "Entradas del modelo",
+      "episodes": "Episodios",
+      "episodeStatus": {
+        "DRAFT": "Borrador",
+        "PUBLISHED": "Publicado",
+        "SCHEDULED": "Programado",
+        "LIVE": "En vivo",
+        "FINISHED": "Finalizado",
+        "CANCELLED": "Cancelado"
+      },
+      "detached": "Editado manualmente",
+      "reattach": "Volver a vincular",
+      "seasonPasses": "Pases de temporada",
+      "errorToast": "No se pudo completar la acción",
+      "empty": "Aún no hay series.",
+      "status": {
+        "ACTIVE": "Activa",
+        "PAUSED": "Pausada",
+        "ENDED": "Finalizada"
+      },
+      "episodeStatusLabel": "Estado",
+      "episodeDate": "Fecha",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "endTitle": "¿Finalizar la serie?",
+      "endBody": "La serie finaliza de forma definitiva: no se generan nuevos episodios.",
+      "episodeSales": "Ventas",
+      "hasSales": "Con ventas"
     }
   }
 }

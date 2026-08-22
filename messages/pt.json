@@ -331,7 +331,7 @@
       "platformSettings": "Configurações",
       "platformAudit": "Audit log",
       "channels": "Canais",
-      "series": "Séries"
+      "series": "Programas"
     },
     "navMobile": {
       "overview": "Painel",
@@ -1167,14 +1167,14 @@
     }
   },
   "series": {
-    "title": "Séries",
+    "title": "Programas",
     "railTitle": "Programas",
     "badge": "Série",
     "badgeLinkLabel": "Ver série",
     "eyebrow": "Programa recorrente",
     "nextEpisode": "Próximo episódio",
-    "upcoming": "Próximos episódios",
-    "seasonPasses": "Passe da temporada",
+    "upcoming": "Próximos",
+    "seasonPasses": "Passe de temporada",
     "replays": "Reprises",
     "buyEpisode": "Comprar episódio",
     "buySeasonPass": "Comprar passe da temporada",
@@ -1182,6 +1182,10 @@
     "notFound": "Não foi possível carregar esta série.",
     "retry": "Tentar novamente",
     "empty": "Nenhuma série ativa no momento.",
+    "recurrence": {
+      "weekly": "Toda {day} · {time}",
+      "daily": "Todo dia · {time}"
+    },
     "dashboard": {
       "title": "Séries",
       "new": "Nova série",
@@ -1197,16 +1201,16 @@
       "weekdaySA": "Sábado",
       "weekdaySU": "Domingo",
       "firstDate": "Primeira data",
-      "startTime": "Início",
+      "startTime": "Horário",
       "duration": "Duração (min)",
-      "horizon": "Horizonte (semanas)",
+      "horizon": "Gerar até (semanas)",
       "timezone": "Fuso horário",
       "save": "Salvar",
       "edit": "Editar",
       "pause": "Pausar",
       "resume": "Retomar",
-      "end": "Encerrar",
-      "materialize": "Materializar agora",
+      "end": "Encerrar série",
+      "materialize": "Gerar episódios agora",
       "configureCameras": "Configurar câmeras do modelo",
       "templateTickets": "Ingressos do modelo",
       "episodes": "Episódios",
@@ -1218,13 +1222,11 @@
         "FINISHED": "Encerrado",
         "CANCELLED": "Cancelado"
       },
-      "detached": "Editado manualmente — não acompanha mais a série",
+      "detached": "Editado manualmente",
       "reattach": "Reanexar",
-      "openEvent": "Abrir evento",
-      "seasonPasses": "Passe da temporada",
+      "seasonPasses": "Passes de temporada",
       "errorToast": "Não foi possível concluir a ação",
       "empty": "Nenhuma série cadastrada.",
-      "notFound": "Série não encontrada.",
       "status": {
         "ACTIVE": "Ativa",
         "PAUSED": "Pausada",
