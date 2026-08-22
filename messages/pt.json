@@ -687,7 +687,8 @@
     "exportError": "Não foi possível exportar agora. Tente novamente.",
     "deleteConfirm": "Excluir seus dados de analytics e o perfil de recomendações? Compras e ingressos não são afetados.",
     "deleteDone": "Removidos {count} eventos de uso.",
-    "deleteError": "Não foi possível excluir agora. Tente novamente."
+    "deleteError": "Não foi possível excluir agora. Tente novamente.",
+    "subscriptionsNav": "Minhas assinaturas"
   },
   "account": {
     "nav": {
@@ -697,7 +698,34 @@
       "settings": "Configurações"
     },
     "logout": "Sair da conta",
-    "loggingOut": "Saindo..."
+    "loggingOut": "Saindo...",
+    "subscriptions": {
+      "title": "Minhas assinaturas",
+      "loading": "Carregando...",
+      "empty": "Você ainda não tem nenhuma assinatura.",
+      "unknownChannel": "Canal",
+      "status": {
+        "ACTIVE": "Ativa",
+        "PAST_DUE": "Pagamento pendente",
+        "CANCELED": "Cancelada",
+        "INCOMPLETE": "Incompleta"
+      },
+      "interval": {
+        "MONTHLY": "Mensal",
+        "YEARLY": "Anual"
+      },
+      "periodEnd": "Renova em {date}",
+      "cancelScheduledNotice": "Cancelamento agendado para o fim do período.",
+      "managePayment": "Gerenciar pagamento",
+      "resume": "Reativar",
+      "cancel": "Cancelar",
+      "cancelTitle": "Cancelar assinatura?",
+      "cancelBody": "Você continuará com acesso a {name} até o fim do período pago. Depois disso, o acesso é encerrado.",
+      "cancelDismiss": "Voltar",
+      "cancelConfirm": "Cancelar assinatura",
+      "cancelling": "Cancelando...",
+      "error": "Não foi possível concluir a ação"
+    }
   },
   "consent": {
     "title": "Privacidade",
@@ -1173,7 +1201,7 @@
       "coverHint": "JPEG, PNG ou WebP até 10 MB",
       "accessMode": "Acesso",
       "accessFree": "Gratuito",
-      "accessSubscription": "Assinatura (em breve)",
+      "accessSubscription": "Assinatura",
       "deleteProgramTitle": "Excluir programa «{name}»?",
       "deleteProgramBody": "Remove todas as ocorrências.",
       "confirm": "Confirmar",
@@ -1182,6 +1210,21 @@
       "status": {
         "DRAFT": "Rascunho",
         "ARCHIVED": "Arquivado"
+      },
+      "pricing": {
+        "currency": "Moeda",
+        "monthlyPrice": "Preço mensal",
+        "yearlyPrice": "Preço anual",
+        "priceChangeHint": "Assinantes atuais mantêm o preço antigo até cancelarem. Alterar o preço aqui vale para novas assinaturas.",
+        "syncStatusSynced": "Sincronizado com Stripe",
+        "syncStatusPending": "Pendente",
+        "syncButton": "Sincronizar",
+        "syncing": "Sincronizando...",
+        "summaryTitle": "Assinaturas",
+        "summaryActive": "Ativas",
+        "summaryPastDue": "Pagamento pendente",
+        "summaryCanceledThisMonth": "Canceladas este mês",
+        "summaryMrr": "Receita mensal recorrente"
       }
     }
   },

@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import {
   User as UserIcon, Ticket, ShoppingBag, Bell, Lock, ShieldCheck, Monitor,
-  Camera, Check, LogOut, ChevronRight, Trash2, Download,
+  Camera, Check, LogOut, ChevronRight, Trash2, Download, Tv,
 } from 'lucide-react';
 import { getMe } from '../queries/get-me';
 import { useAuth } from '../hooks/use-auth';
@@ -237,6 +237,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
             <button className={styles.navItem} onClick={() => scrollTo('perfil')}><UserIcon size={18} />Perfil</button>
             <Link href="/tickets" className={styles.navItem}><Ticket size={18} />Meus Ingressos</Link>
             <Link href="/purchases" className={styles.navItem}><ShoppingBag size={18} />Compras</Link>
+            <Link href="/account/subscriptions" className={styles.navItem}><Tv size={18} />{t('subscriptionsNav')}</Link>
             <button className={styles.navItem} onClick={() => scrollTo('notificacoes')}><Bell size={18} />Notificações</button>
             <button className={styles.navItem} onClick={() => scrollTo('seguranca')}><Lock size={18} />Segurança</button>
             <button className={styles.navItem} onClick={() => scrollTo('dispositivos')}><Monitor size={18} />Dispositivos</button>
