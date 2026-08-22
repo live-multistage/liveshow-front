@@ -1,0 +1,70 @@
+@use '../../../../styles/_variables' as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.heading {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.state {
+  color: $text-secondary;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: $text-secondary;
+    border-bottom: 1px solid $border;
+  }
+
+  td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid $border;
+    vertical-align: middle;
+  }
+}
+
+.titleLink {
+  display: block;
+  color: $text-primary;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.date {
+  display: block;
+  font-size: 0.75rem;
+  color: $text-muted;
+}
+
+.detached {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.detachedLabel {
+  font-size: 0.75rem;
+  color: $text-muted;
+}

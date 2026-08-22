@@ -1,0 +1,123 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { Video, Ticket } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import {
+  Badge,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@live-show/design-system';
+import { SeriesForm } from './SeriesForm';
+import { EpisodesTable } from './EpisodesTable';
+import { SeasonPassProducts } from './SeasonPassProducts';
+import { useSeriesQuery } from '../../queries/series.queries';
+import {
+  usePauseSeriesMutation,
+  useResumeSeriesMutation,
+  useEndSeriesMutation,
+  useMaterializeSeriesMutation,
+} from '../../mutations/series.mutations';
+import styles from './SeriesDetailContent.module.scss';
+
+interface Props {
+  slug: string;
+}
+
+export function SeriesDetailContent({ slug }: Props) {
+  const t = useTranslations('series');
+  const tCommon = useTranslations('common');
+  const { data: series, isLoading } = useSeriesQuery(slug);
+  const pause = usePauseSeriesMutation();
+  const resume = useResumeSeriesMutation();
+  const end = useEndSeriesMutation();
+  const materialize = useMaterializeSeriesMutation();
+  const [editing, setEditing] = useState(false);
+
+  if (!series)
+    return <p className={styles.state}>{tCommon(isLoading ? 'loading' : 'notFound')}</p>;
+
+  // The three lifecycle mutations invalidate by organizationId + slug, same
+  // as the channels dashboard's target object.
+  const target = { id: series.id, organizationId: series.organizationId, slug: series.slug };
+
+  return (
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <div className={styles.identity}>
+          <h1 className={styles.name}>{series.name}</h1>
+          <Badge variant="outline">{t(`dashboard.status.${series.status}`)}</Badge>
+        </div>
+
+        <div className={styles.actions}>
+          <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
+            {t('dashboard.edit')}
+          </Button>
+          {series.status === 'ACTIVE' && (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={pause.isPending}
+              onClick={() => pause.mutate(target)}
+            >
+              {t('dashboard.pause')}
+            </Button>
+          )}
+          {series.status === 'PAUSED' && (
+            <Button size="sm" disabled={resume.isPending} onClick={() => resume.mutate(target)}>
+              {t('dashboard.resume')}
+            </Button>
+          )}
+          {series.status !== 'ENDED' && (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={end.isPending}
+              onClick={() => end.mutate(target)}
+            >
+              {t('dashboard.end')}
+            </Button>
+          )}
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={materialize.isPending}
+            onClick={() => materialize.mutate(target)}
+          >
+            {t('dashboard.materialize')}
+          </Button>
+          {/* O modelo (template Event) fica fora de qualquer listagem — quem
+              administra a série chega nele só por aqui, com o nome da série
+              junto na URL igual ao canal faz com o broadcastEventId. */}
+          <Link
+            className={styles.link}
+            href={`/dashboard/streams?eventId=${series.templateEventId}&title=${encodeURIComponent(series.name)}`}
+          >
+            <Video size={14} />
+            {t('dashboard.configureCameras')}
+          </Link>
+          <Link className={styles.link} href={`/dashboard/events/${series.templateEventId}`}>
+            <Ticket size={14} />
+            {t('dashboard.templateTickets')}
+          </Link>
+        </div>
+      </header>
+
+      <EpisodesTable seriesId={series.id} />
+      <SeasonPassProducts seriesId={series.id} templateEventId={series.templateEventId} />
+
+      <Dialog open={editing} onOpenChange={setEditing}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('dashboard.edit')}</DialogTitle>
+          </DialogHeader>
+          <SeriesForm mode="edit" initial={series} onDone={() => setEditing(false)} />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
