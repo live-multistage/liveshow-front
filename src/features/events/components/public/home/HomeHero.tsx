@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Info } from 'lucide-react';
+import { eventHref } from '../../../utils/slug';
 import type { Show } from '../../../types/show';
 import styles from './HomeHero.module.scss';
 
@@ -74,7 +75,7 @@ export function HomeHero({ show }: HomeHeroProps) {
               Assistir agora
             </Link>
           ) : (
-            <Link href={`/events/${show.id}`} className={styles.btnPrimary}>
+            <Link href={eventHref(show)} className={styles.btnPrimary}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M8 5v14l11-7z" />
               </svg>
@@ -82,7 +83,7 @@ export function HomeHero({ show }: HomeHeroProps) {
             </Link>
           )}
           {show.isLive && (
-            <Link href={`/events/${show.id}`} className={styles.btnSecondary}>
+            <Link href={eventHref(show)} className={styles.btnSecondary}>
               <Info size={18} aria-hidden="true" />
               Detalhes
             </Link>
