@@ -77,6 +77,25 @@ describe('SubscriptionList', () => {
     expect(screen.getByText('cancelScheduledNotice')).toBeInTheDocument();
   });
 
+  it('shows "access until" instead of "renews on" when cancelAtPeriodEnd is true', () => {
+    listState.data = [subscription({ cancelAtPeriodEnd: true })];
+    render(<SubscriptionList />);
+
+    expect(screen.getByText(/accessUntil:/)).toBeInTheDocument();
+    expect(screen.queryByText(/^periodEnd:/)).toBeNull();
+  });
+
+  it('treats a CANCELED row as a terminal state with no actions, even if cancelAtPeriodEnd is stale-true', () => {
+    listState.data = [subscription({ status: 'CANCELED', cancelAtPeriodEnd: true })];
+    render(<SubscriptionList />);
+
+    expect(screen.getByText('ended')).toBeInTheDocument();
+    expect(screen.queryByText('cancel')).toBeNull();
+    expect(screen.queryByText('resume')).toBeNull();
+    expect(screen.queryByText('managePayment')).toBeNull();
+    expect(screen.queryByText('cancelScheduledNotice')).toBeNull();
+  });
+
   it('opens the cancel modal and confirms cancellation', () => {
     listState.data = [subscription()];
     render(<SubscriptionList />);

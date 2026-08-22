@@ -53,42 +53,43 @@ export function SubscriptionList() {
                 {formatPrice(subscription.priceCents / 100, subscription.currency)}
               </span>
               <span>
-                {t('periodEnd', { date: formatDateShort(subscription.currentPeriodEnd) })}
+                {t(subscription.cancelAtPeriodEnd ? 'accessUntil' : 'periodEnd', {
+                  date: formatDateShort(subscription.currentPeriodEnd),
+                })}
               </span>
             </div>
-            {subscription.cancelAtPeriodEnd && (
+            {subscription.cancelAtPeriodEnd && subscription.status !== 'CANCELED' && (
               <p className={styles.cancelNotice}>{t('cancelScheduledNotice')}</p>
             )}
           </div>
 
-          <div className={styles.actions}>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => portal.mutate(subscription.id)}
-              disabled={portal.isPending}
-            >
-              {t('managePayment')}
-            </Button>
-            {subscription.cancelAtPeriodEnd ? (
-              <Button
-                size="sm"
-                onClick={() => resume.mutate(subscription.id)}
-                disabled={resume.isPending}
-              >
-                {t('resume')}
-              </Button>
-            ) : (
+          {subscription.status === 'CANCELED' ? (
+            <p className={styles.ended}>{t('ended')}</p>
+          ) : (
+            <div className={styles.actions}>
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => setCancelTarget(subscription)}
-                disabled={subscription.status === 'CANCELED'}
+                onClick={() => portal.mutate(subscription.id)}
+                disabled={portal.isPending}
               >
-                {t('cancel')}
+                {t('managePayment')}
               </Button>
-            )}
-          </div>
+              {subscription.cancelAtPeriodEnd ? (
+                <Button
+                  size="sm"
+                  onClick={() => resume.mutate(subscription.id)}
+                  disabled={resume.isPending}
+                >
+                  {t('resume')}
+                </Button>
+              ) : (
+                <Button size="sm" variant="outline" onClick={() => setCancelTarget(subscription)}>
+                  {t('cancel')}
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       ))}
 

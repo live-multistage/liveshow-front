@@ -116,4 +116,26 @@ describe('usePortalMutation', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(window.location.assign).toHaveBeenCalledWith('https://billing.stripe.com/session/abc');
   });
+
+  it('shows a distinct toast on a 404 (no subscription to manage)', async () => {
+    mockedPortal.mockRejectedValue({ isAxiosError: true, response: { status: 404, data: {} } });
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(() => usePortalMutation(), { wrapper });
+
+    result.current.mutate('sub-1');
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(toast.error).toHaveBeenCalledWith('noSubscriptionToManage');
+  });
+
+  it('shows the generic toast on any other error', async () => {
+    mockedPortal.mockRejectedValue(new Error('boom'));
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(() => usePortalMutation(), { wrapper });
+
+    result.current.mutate('sub-1');
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(toast.error).toHaveBeenCalledWith('error');
+  });
 });

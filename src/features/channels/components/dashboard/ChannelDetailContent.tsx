@@ -14,7 +14,7 @@ import {
 } from '@live-show/design-system';
 import { ChannelForm } from './ChannelForm';
 import { SubscriptionSummaryCard } from './SubscriptionSummaryCard';
-import { useChannelQuery, useOrgChannelsQuery } from '../../queries/channel.queries';
+import { useChannelQuery, useOrgChannelQuery } from '../../queries/channel.queries';
 import {
   useArchiveChannelMutation,
   usePublishChannelMutation,
@@ -38,12 +38,11 @@ export function ChannelDetailContent({ slug }: Props) {
   const [editing, setEditing] = useState(false);
 
   // A resposta pública (getBySlug) não traz preço/estado de sincronização —
-  // só a listagem da org tem esses campos, então o card e o formulário de
-  // edição pegam de lá quando o canal cobra assinatura.
-  const { data: orgChannels } = useOrgChannelsQuery(channel?.organizationId ?? '', {
+  // só a rota org-only por id tem esses campos, então o card e o formulário
+  // de edição pegam de lá quando o canal cobra assinatura.
+  const { data: orgChannel } = useOrgChannelQuery(channel?.id ?? '', {
     enabled: Boolean(channel) && channel?.accessMode === 'SUBSCRIPTION',
   });
-  const orgChannel = orgChannels?.find((c) => c.id === channel?.id);
 
   if (!channel)
     return <p className={styles.state}>{tCommon(isLoading ? 'loading' : 'notFound')}</p>;

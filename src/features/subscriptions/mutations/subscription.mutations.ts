@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { subscriptionService } from '../services/subscription.service';
 import { subscriptionKeys } from '../queries/subscription.queries';
-import { normalizeError } from '@/lib/http/errors';
+import { normalizeError, type AppError } from '@/lib/http/errors';
 
 function useErrorToast() {
   const t = useTranslations('account.subscriptions');
@@ -47,7 +47,7 @@ export function useResumeSubscriptionMutation() {
 }
 
 export function usePortalMutation() {
-  const toastError = useErrorToast();
+  const t = useTranslations('account.subscriptions');
 
   return useMutation({
     mutationFn: async (id: string) => {
@@ -62,6 +62,10 @@ export function usePortalMutation() {
     onSuccess: ({ url }) => {
       window.location.assign(url);
     },
-    onError: toastError,
+    // 404 = sem assinatura para gerenciar (backend nunca cria customer sem
+    // isso) — mensagem própria em vez do erro genérico.
+    onError: (err: AppError) => {
+      toast.error(err.status === 404 ? t('noSubscriptionToManage') : t('error'));
+    },
   });
 }

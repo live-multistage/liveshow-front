@@ -36,6 +36,11 @@ export const channelService = {
     return data;
   },
 
+  getOrgById: async (id: string): Promise<OrgChannel> => {
+    const { data } = await httpClient.get<OrgChannel>(`/channels/by-id/${id}`);
+    return data;
+  },
+
   create: async (input: CreateChannelInput): Promise<OrgChannel> => {
     const { data } = await httpClient.post<OrgChannel>('/channels', input);
     return data;

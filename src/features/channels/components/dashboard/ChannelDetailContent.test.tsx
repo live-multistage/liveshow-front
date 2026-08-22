@@ -12,10 +12,10 @@ const channelState: { data: PublicChannel | undefined; isLoading: boolean } = {
   data: undefined,
   isLoading: false,
 };
-const orgChannelsState: { data: unknown[] | undefined } = { data: undefined };
+const orgChannelState: { data: unknown } = { data: undefined };
 vi.mock('../../queries/channel.queries', () => ({
   useChannelQuery: () => channelState,
-  useOrgChannelsQuery: () => orgChannelsState,
+  useOrgChannelQuery: () => orgChannelState,
 }));
 
 const publishMutate = vi.fn();
@@ -71,7 +71,7 @@ describe('ChannelDetailContent', () => {
     syncPricingMutate.mockReset();
     channelState.data = channel();
     channelState.isLoading = false;
-    orgChannelsState.data = undefined;
+    orgChannelState.data = undefined;
   });
 
   it('shows the channel name and its status chip', () => {
@@ -166,7 +166,7 @@ describe('ChannelDetailContent', () => {
 
   it('shows a pending sync chip and a sync button for an unsynced SUBSCRIPTION channel', () => {
     channelState.data = channel({ accessMode: 'SUBSCRIPTION' });
-    orgChannelsState.data = [{ id: 'ch-1', pricingSynced: false, currency: 'BRL' }];
+    orgChannelState.data = { id: 'ch-1', pricingSynced: false, currency: 'BRL' };
 
     render(<ChannelDetailContent slug="canal-um" />);
 
@@ -183,7 +183,7 @@ describe('ChannelDetailContent', () => {
 
   it('shows a synced chip and hides the sync button once pricing is synced', () => {
     channelState.data = channel({ accessMode: 'SUBSCRIPTION' });
-    orgChannelsState.data = [{ id: 'ch-1', pricingSynced: true, currency: 'BRL' }];
+    orgChannelState.data = { id: 'ch-1', pricingSynced: true, currency: 'BRL' };
 
     render(<ChannelDetailContent slug="canal-um" />);
 

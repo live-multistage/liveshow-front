@@ -724,7 +724,10 @@
       "cancelDismiss": "Voltar",
       "cancelConfirm": "Cancelar assinatura",
       "cancelling": "Cancelando...",
-      "error": "Não foi possível concluir a ação"
+      "error": "Não foi possível concluir a ação",
+      "accessUntil": "Acesso até {date}",
+      "ended": "Encerrada",
+      "noSubscriptionToManage": "Nenhuma assinatura para gerenciar"
     }
   },
   "consent": {
@@ -1224,7 +1227,8 @@
         "summaryActive": "Ativas",
         "summaryPastDue": "Pagamento pendente",
         "summaryCanceledThisMonth": "Canceladas este mês",
-        "summaryMrr": "Receita mensal recorrente"
+        "summaryMrr": "Receita mensal recorrente",
+        "setPriceAfterCreate": "Defina o preço após criar o canal."
       }
     }
   },

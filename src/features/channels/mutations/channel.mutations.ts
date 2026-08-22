@@ -15,8 +15,9 @@ import type {
 
 function useInvalidateChannel() {
   const qc = useQueryClient();
-  return (slug: string, organizationId: string) => {
+  return (id: string, slug: string, organizationId: string) => {
     qc.invalidateQueries({ queryKey: channelKeys.org(organizationId) });
+    qc.invalidateQueries({ queryKey: channelKeys.orgDetail(id) });
     qc.invalidateQueries({ queryKey: channelKeys.detail(slug) });
   };
 }
@@ -66,7 +67,7 @@ export function useUpdateChannelMutation() {
       }
     },
     onError: toastError,
-    onSettled: (_data, _error, { slug, organizationId }) => invalidate(slug, organizationId),
+    onSettled: (_data, _error, { id, slug, organizationId }) => invalidate(id, slug, organizationId),
   });
 }
 
@@ -89,7 +90,7 @@ export function usePublishChannelMutation() {
       }
     },
     onError: toastError,
-    onSettled: (_data, _error, { slug, organizationId }) => invalidate(slug, organizationId),
+    onSettled: (_data, _error, { id, slug, organizationId }) => invalidate(id, slug, organizationId),
   });
 }
 
@@ -106,7 +107,7 @@ export function useArchiveChannelMutation() {
       }
     },
     onError: toastError,
-    onSettled: (_data, _error, { slug, organizationId }) => invalidate(slug, organizationId),
+    onSettled: (_data, _error, { id, slug, organizationId }) => invalidate(id, slug, organizationId),
   });
 }
 
@@ -123,7 +124,7 @@ export function useSyncChannelPricingMutation() {
       }
     },
     onError: toastError,
-    onSettled: (_data, _error, { slug, organizationId }) => invalidate(slug, organizationId),
+    onSettled: (_data, _error, { id, slug, organizationId }) => invalidate(id, slug, organizationId),
   });
 }
 
@@ -147,7 +148,7 @@ export function useUploadChannelCoverMutation() {
       }
     },
     onError: toastError,
-    onSettled: (_data, _error, { slug, organizationId }) => invalidate(slug, organizationId),
+    onSettled: (_data, _error, { id, slug, organizationId }) => invalidate(id, slug, organizationId),
   });
 }
 

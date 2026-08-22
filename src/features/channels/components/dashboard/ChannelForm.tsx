@@ -174,6 +174,7 @@ export function ChannelForm({ mode = 'create', initial, onDone }: Props) {
         slug: slug.trim(),
         description: description.trim() || undefined,
         timezone: timezone.trim(),
+        accessMode,
       },
       {
         onSuccess: (channel) => {
@@ -265,23 +266,27 @@ export function ChannelForm({ mode = 'create', initial, onDone }: Props) {
         </datalist>
       </div>
 
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="channel-access-mode">
+          {t('dashboard.accessMode')}
+        </label>
+        <select
+          id="channel-access-mode"
+          className={styles.select}
+          value={accessMode}
+          onChange={(e) => setAccessMode(e.target.value as ChannelAccessMode)}
+        >
+          <option value="FREE">{t('dashboard.accessFree')}</option>
+          <option value="SUBSCRIPTION">{t('dashboard.accessSubscription')}</option>
+        </select>
+      </div>
+
+      {!isEdit && accessMode === 'SUBSCRIPTION' && (
+        <span className={styles.hint}>{t('dashboard.pricing.setPriceAfterCreate')}</span>
+      )}
+
       {isEdit && (
         <>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="channel-access-mode">
-              {t('dashboard.accessMode')}
-            </label>
-            <select
-              id="channel-access-mode"
-              className={styles.select}
-              value={accessMode}
-              onChange={(e) => setAccessMode(e.target.value as ChannelAccessMode)}
-            >
-              <option value="FREE">{t('dashboard.accessFree')}</option>
-              <option value="SUBSCRIPTION">{t('dashboard.accessSubscription')}</option>
-            </select>
-          </div>
-
           {accessMode === 'SUBSCRIPTION' && (
             <div className={styles.pricingGroup}>
               <div className={styles.field}>

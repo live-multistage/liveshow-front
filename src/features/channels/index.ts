@@ -6,6 +6,7 @@ export {
   useChannelScheduleQuery,
   useChannelProgramsQuery,
   useOrgChannelsQuery,
+  useOrgChannelQuery,
   useChannelSubscriptionSummaryQuery,
 } from './queries/channel.queries';
 export {

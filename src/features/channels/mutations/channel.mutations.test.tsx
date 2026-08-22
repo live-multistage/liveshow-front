@@ -71,6 +71,9 @@ describe('usePublishChannelMutation', () => {
       queryKey: channelKeys.org('org-1'),
     });
     expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: channelKeys.orgDetail('ch-1'),
+    });
+    expect(invalidateSpy).toHaveBeenCalledWith({
       queryKey: channelKeys.detail('my-channel'),
     });
   });
@@ -93,6 +96,7 @@ describe('useSyncChannelPricingMutation', () => {
 
     expect(mockedSyncPricing).toHaveBeenCalledWith('ch-1');
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.org('org-1') });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.orgDetail('ch-1') });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.detail('my-channel') });
   });
 });

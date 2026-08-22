@@ -77,9 +77,31 @@ describe('ChannelForm — create', () => {
         name: 'Canal Um',
         timezone: 'America/Sao_Paulo',
         organizationId: 'org-1',
+        accessMode: 'FREE',
       }),
       expect.anything(),
     );
+  });
+
+  it('sends the picked accessMode on create', () => {
+    render(<ChannelForm />);
+    fill();
+    type('dashboard.accessMode', 'SUBSCRIPTION');
+
+    fireEvent.click(screen.getByText('dashboard.save'));
+
+    expect(createMutate).toHaveBeenCalledWith(
+      expect.objectContaining({ accessMode: 'SUBSCRIPTION' }),
+      expect.anything(),
+    );
+  });
+
+  it('hints that pricing is set after creation instead of showing price fields', () => {
+    render(<ChannelForm />);
+    type('dashboard.accessMode', 'SUBSCRIPTION');
+
+    expect(screen.getByText('dashboard.pricing.setPriceAfterCreate')).toBeInTheDocument();
+    expect(screen.queryByLabelText('dashboard.pricing.monthlyPrice')).toBeNull();
   });
 
   it('creates the channel under the picked organization', () => {

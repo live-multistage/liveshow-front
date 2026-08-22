@@ -9,6 +9,7 @@ export const channelKeys = {
   detail: (slug: string) => ['channels', 'detail', slug] as const,
   schedule: (slug: string, day?: string) => ['channels', 'schedule', slug, day] as const,
   org: (organizationId: string) => ['channels', 'org', organizationId] as const,
+  orgDetail: (id: string) => ['channels', 'orgDetail', id] as const,
   programs: (channelId: string) => ['channels', 'programs', channelId] as const,
   subscriptionSummary: (channelId: string) =>
     ['channels', 'subscriptionSummary', channelId] as const,
@@ -64,6 +65,16 @@ export function useOrgChannelsQuery(organizationId: string, options?: { enabled?
     queryKey: channelKeys.org(organizationId),
     queryFn: () => channelService.listByOrg(organizationId),
     enabled: options?.enabled !== false,
+  });
+}
+
+// Org-only single-channel read — the only one that carries pricing/
+// pricingSynced outside of the org list.
+export function useOrgChannelQuery(id: string, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: channelKeys.orgDetail(id),
+    queryFn: () => channelService.getOrgById(id),
+    enabled: options?.enabled !== false && Boolean(id),
   });
 }
 
