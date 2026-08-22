@@ -1,5 +1,7 @@
 export interface Show {
   id: string;
+  /** Optional: the hand-written SHOWS fixtures below predate slugs. */
+  slug?: string;
   title: string;
   artist: string;
   category: string;

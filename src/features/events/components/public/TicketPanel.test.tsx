@@ -47,6 +47,7 @@ const claimFreeTicket = vi.mocked(checkoutService.claimFreeTicket);
 function makeEvent(overrides: Partial<EventResponse> = {}): EventResponse {
   return {
     id: 'evt-1',
+    slug: 'evt-1-slug',
     title: 'Show Teste',
     description: 'desc',
     category: 'MUSIC',

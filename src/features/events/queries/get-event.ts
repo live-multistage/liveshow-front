@@ -8,6 +8,7 @@ import type { EventResponse } from '../types/event.types';
 // to avoid importing this 'use client' module in a Server Component.
 export const eventKeys = {
   detail: (id: string) => ['events', 'detail', id] as const,
+  bySlug: (slug: string) => ['events', 'by-slug', slug] as const,
   tickets: (eventId: string) => ['events', 'tickets', eventId] as const,
   photos: (eventId: string) => ['events', 'photos', eventId] as const,
 };
@@ -17,6 +18,17 @@ export function useGetEventQuery(id: string, initialData?: EventResponse) {
     queryKey: eventKeys.detail(id),
     queryFn: () => eventsService.getEvent(id),
     enabled: !!id,
+    initialData,
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+  });
+}
+
+export function useEventBySlugQuery(slug: string, initialData?: EventResponse) {
+  return useQuery({
+    queryKey: eventKeys.bySlug(slug),
+    queryFn: () => eventsService.getEventBySlug(slug),
+    enabled: !!slug,
     initialData,
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,

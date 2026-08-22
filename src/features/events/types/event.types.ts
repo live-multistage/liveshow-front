@@ -48,6 +48,8 @@ export interface EventOrganization {
 
 export interface EventResponse {
   id: string;
+  /** Friendly URL segment — unique platform-wide, derived from the title on create. */
+  slug: string;
   title: string;
   description: string;
   category: EventCategory;
@@ -131,6 +133,8 @@ export interface CreateEventRequest {
 }
 
 export interface UpdateEventRequest {
+  /** 409 CONFLICT if another event already owns it. */
+  slug?: string;
   title?: string;
   description?: string;
   startsAt?: string;

@@ -58,6 +58,7 @@ import type { OrganizationResponse, OrganizationRole } from '@/features/organiza
 
 const EVENT: EventResponse = {
   id: 'evt-1',
+  slug: 'evt-1-slug',
   title: 'Show Alheio',
   description: 'desc',
   category: 'MUSIC',

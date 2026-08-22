@@ -15,6 +15,12 @@ export const fetchEvent = cache(async (id: string): Promise<EventResponse> => {
   return res.json() as Promise<EventResponse>;
 });
 
+export const fetchEventBySlug = cache(async (slug: string): Promise<EventResponse> => {
+  const res = await fetch(`${apiBase()}/events/by-slug/${slug}`, { next: { revalidate: 30 } });
+  if (!res.ok) throw new Error(`fetchEventBySlug ${slug}: ${res.status}`);
+  return res.json() as Promise<EventResponse>;
+});
+
 export const fetchTicketProducts = cache(async (eventId: string): Promise<TicketProductsResponse> => {
   const res = await fetch(`${apiBase()}/shows/${eventId}/tickets`, { next: { revalidate: 30 } });
   if (!res.ok) throw new Error(`fetchTicketProducts ${eventId}: ${res.status}`);
