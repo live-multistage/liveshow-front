@@ -12,9 +12,31 @@ vi.mock('../../mutations/channel.mutations', () => ({
   useUpsertProgramMutation: () => ({ mutate, isPending: false }),
 }));
 
+const myEvents: Array<{
+  id: string;
+  title: string;
+  organizationId: string;
+  format: string;
+  status: string;
+  startsAt: string;
+  endsAt: string;
+}> = [];
+vi.mock('@/features/events', () => ({
+  useMyEventsQuery: () => ({ data: myEvents }),
+}));
+
 const onDone = vi.fn();
 
-const renderForm = () => render(<ProgramForm channelId="ch-1" slug="canal-um" onDone={onDone} />);
+const renderForm = (timezone = 'America/Sao_Paulo') =>
+  render(
+    <ProgramForm
+      channelId="ch-1"
+      slug="canal-um"
+      organizationId="org-1"
+      timezone={timezone}
+      onDone={onDone}
+    />,
+  );
 
 const fillBase = () => {
   fireEvent.change(screen.getByLabelText('dashboard.programName'), {
@@ -34,6 +56,7 @@ describe('ProgramForm', () => {
   beforeEach(() => {
     mutate.mockReset();
     onDone.mockReset();
+    myEvents.length = 0;
   });
 
   it('submits the program with the weekdays composed into an RRULE', () => {
@@ -51,6 +74,7 @@ describe('ProgramForm', () => {
           startTime: '21:30',
           durationMin: 60,
           rrule: 'FREQ=WEEKLY;BYDAY=MO,WE',
+          eventId: null,
         },
         slug: 'canal-um',
       },
@@ -119,5 +143,95 @@ describe('ProgramForm', () => {
     fireEvent.click(screen.getByText('dashboard.save'));
 
     expect(onDone).toHaveBeenCalled();
+  });
+
+  describe('event link', () => {
+    // Segunda 2024-01-01 21:00-22:00 UTC-3 (America/Sao_Paulo) cai dentro da
+    // janela do programa (segunda, 21:30, 60min).
+    const overlappingEvent = {
+      id: 'evt-1',
+      title: 'Jogo Final',
+      organizationId: 'org-1',
+      format: 'LIVE',
+      status: 'SCHEDULED',
+      startsAt: '2024-01-01T23:45:00.000Z',
+      endsAt: '2024-01-02T00:45:00.000Z',
+    };
+    const nonOverlappingEvent = {
+      id: 'evt-2',
+      title: 'Show da Tarde',
+      organizationId: 'org-1',
+      format: 'LIVE',
+      status: 'SCHEDULED',
+      startsAt: '2024-01-01T15:00:00.000Z',
+      endsAt: '2024-01-01T16:00:00.000Z',
+    };
+
+    it('sends the selected eventId in the program payload', () => {
+      myEvents.push(overlappingEvent);
+      renderForm();
+      fillBase();
+      checkDays(0);
+      fireEvent.change(screen.getByLabelText('dashboard.linkToEvent'), {
+        target: { value: 'evt-1' },
+      });
+
+      fireEvent.click(screen.getByText('dashboard.save'));
+
+      expect(mutate.mock.calls[0][0].input.eventId).toBe('evt-1');
+    });
+
+    it('warns when the linked event does not overlap the program window', () => {
+      myEvents.push(nonOverlappingEvent);
+      renderForm();
+      checkDays(0); // Monday
+      fireEvent.change(screen.getByLabelText('dashboard.startTime'), {
+        target: { value: '21:30' },
+      });
+
+      fireEvent.change(screen.getByLabelText('dashboard.linkToEvent'), {
+        target: { value: 'evt-2' },
+      });
+
+      expect(screen.getByText('dashboard.linkToEventOverlapWarning')).toBeInTheDocument();
+    });
+
+    it('does not warn when the linked event overlaps the program window', () => {
+      myEvents.push(overlappingEvent);
+      renderForm();
+      checkDays(0); // Monday
+      fireEvent.change(screen.getByLabelText('dashboard.startTime'), {
+        target: { value: '21:30' },
+      });
+
+      fireEvent.change(screen.getByLabelText('dashboard.linkToEvent'), {
+        target: { value: 'evt-1' },
+      });
+
+      expect(screen.queryByText('dashboard.linkToEventOverlapWarning')).toBeNull();
+    });
+
+    it('does not warn without a linked event', () => {
+      myEvents.push(nonOverlappingEvent);
+      renderForm();
+      checkDays(0);
+
+      expect(screen.queryByText('dashboard.linkToEventOverlapWarning')).toBeNull();
+    });
+
+    it('only lists events from the same org, LIVE format and SCHEDULED/LIVE status', () => {
+      myEvents.push(
+        overlappingEvent,
+        { ...nonOverlappingEvent, id: 'evt-3', organizationId: 'org-2' },
+        { ...nonOverlappingEvent, id: 'evt-4', format: 'VOD' },
+        { ...nonOverlappingEvent, id: 'evt-5', status: 'FINISHED' },
+      );
+      renderForm();
+
+      const options = screen
+        .getAllByRole('option')
+        .map((option) => (option as HTMLOptionElement).value);
+      expect(options).toEqual(['', 'evt-1']);
+    });
   });
 });

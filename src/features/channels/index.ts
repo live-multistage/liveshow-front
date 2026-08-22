@@ -18,6 +18,8 @@ export {
   useSyncChannelPricingMutation,
   useUpsertProgramMutation,
   useDeleteProgramMutation,
+  useSetChannelSourceOverrideMutation,
+  useClearChannelSourceOverrideMutation,
 } from './mutations/channel.mutations';
 export type {
   Channel,
@@ -27,6 +29,8 @@ export type {
   ChannelStatus,
   ChannelAccessMode,
   ChannelSubscriptionSummary,
+  ChannelSource,
+  ChannelSourceOverride,
   ScheduledSlot,
   Program,
   CreateChannelInput,

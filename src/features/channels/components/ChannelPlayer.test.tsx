@@ -59,6 +59,7 @@ const channel: PublicChannel = {
   today: [],
   pricing: null,
   viewer: null,
+  source: { mode: 'own', reason: 'own', event: null },
 };
 
 const ownPlayback: ChannelPlaybackResponse = {

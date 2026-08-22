@@ -41,6 +41,7 @@ const channel = (overrides: Partial<PublicChannel> = {}): PublicChannel =>
     today: [],
     pricing: { currency: 'BRL', monthlyPriceCents: 2990, yearlyPriceCents: 29900 },
     viewer: null,
+    source: { mode: 'own', reason: 'own', event: null },
     ...overrides,
   }) as PublicChannel;
 

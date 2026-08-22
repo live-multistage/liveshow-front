@@ -22,6 +22,7 @@ const channel = (overrides: Partial<PublicChannel> = {}): PublicChannel =>
     today: [],
     pricing: null,
     viewer: null,
+    source: { mode: 'own', reason: 'own', event: null },
     ...overrides,
   }) as PublicChannel;
 

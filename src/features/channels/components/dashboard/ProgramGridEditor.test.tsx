@@ -27,6 +27,10 @@ vi.mock('../../mutations/channel.mutations', () => ({
   useUpsertProgramMutation: () => ({ mutate: upsertMutate, isPending: false }),
 }));
 
+vi.mock('@/features/events', () => ({
+  useMyEventsQuery: () => ({ data: [] }),
+}));
+
 const slot: ScheduledSlot = {
   programId: 'prg-1',
   name: 'Jornal da Meia-Noite',
@@ -48,11 +52,18 @@ const program: Program = {
   startTime: '20:00',
   durationMin: 60,
   rrule: 'FREQ=WEEKLY;BYDAY=MO,WE',
+  eventId: null,
 };
 
 const renderGrid = (timezone = 'Asia/Tokyo') =>
   render(
-    <ProgramGridEditor channelId="ch-1" slug="canal-um" timezone={timezone} status="PUBLISHED" />,
+    <ProgramGridEditor
+      channelId="ch-1"
+      slug="canal-um"
+      organizationId="org-1"
+      timezone={timezone}
+      status="PUBLISHED"
+    />,
   );
 
 describe('ProgramGridEditor', () => {
@@ -122,7 +133,13 @@ describe('ProgramGridEditor', () => {
 
   it('warns that a draft channel has no public schedule yet', () => {
     render(
-      <ProgramGridEditor channelId="ch-1" slug="canal-um" timezone="Asia/Tokyo" status="DRAFT" />,
+      <ProgramGridEditor
+        channelId="ch-1"
+        slug="canal-um"
+        organizationId="org-1"
+        timezone="Asia/Tokyo"
+        status="DRAFT"
+      />,
     );
 
     expect(screen.getByText('dashboard.draftScheduleNote')).toBeInTheDocument();

@@ -24,6 +24,13 @@ export interface ChannelSource {
   event: ChannelSourceEvent | null;
 }
 
+// A manual "carry this Event" override set from the dashboard on-air panel.
+// `until` is server-computed (the event's endsAt) — the frontend never sets it.
+export interface ChannelSourceOverride {
+  eventId: string;
+  until: string;
+}
+
 export interface ChannelPricing {
   currency: string | null;
   monthlyPriceCents: number | null;
@@ -71,9 +78,7 @@ export interface PublicChannel extends Channel {
   pricing: ChannelPricing | null;
   /** Null for anonymous readers — there is no viewer to describe. */
   viewer: ChannelViewerState | null;
-  // Optional for the same reason as ScheduledSlot.event — pre-simulcast
-  // fixtures keep compiling. The backend always sends it.
-  source?: ChannelSource;
+  source: ChannelSource;
 }
 
 // GET /channels/:slug/playback — the existing live playback payload plus the
@@ -105,6 +110,7 @@ export interface Program {
   startTime: string;
   durationMin: number;
   rrule: string;
+  eventId: string | null;
 }
 
 // Org-only shape: create/update/publish/archive/pricing-sync and the org
@@ -115,6 +121,7 @@ export interface OrgChannel extends Channel {
   monthlyPriceCents: number | null;
   yearlyPriceCents: number | null;
   pricingSynced: boolean;
+  sourceOverride: ChannelSourceOverride | null;
 }
 
 export interface ChannelSubscriptionSummary {
@@ -150,4 +157,7 @@ export interface UpsertProgramInput {
   startTime: string;
   durationMin: number;
   rrule: string;
+  // Links this occurrence to an Event (simulcast). `null` unlinks; `undefined`
+  // omits the field so an edit that doesn't touch the link leaves it as-is.
+  eventId?: string | null;
 }

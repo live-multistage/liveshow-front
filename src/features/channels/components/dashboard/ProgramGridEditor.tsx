@@ -18,12 +18,14 @@ import {
 } from '../../queries/channel.queries';
 import { useDeleteProgramMutation } from '../../mutations/channel.mutations';
 import type { ChannelStatus, Program, ScheduledSlot } from '../../types/channel.types';
+import { dayKeyInTimezone } from '../../utils/rrule';
 import { ProgramForm } from './ProgramForm';
 import styles from './ProgramGridEditor.module.scss';
 
 interface Props {
   channelId: string;
   slug: string;
+  organizationId: string;
   // Fuso DO CANAL, não do navegador: quem administra um canal de Tóquio de
   // São Paulo precisa ver a grade como ela vai ao ar.
   timezone: string;
@@ -32,21 +34,7 @@ interface Props {
 
 const DAYS_AHEAD = 7;
 
-// Data civil (YYYY-MM-DD) de um instante no fuso pedido. Nada de toISOString:
-// ele responde sempre em UTC e erra o dia por até 14 horas.
-function dayKeyInTimezone(instant: Date, timeZone: string): string {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(instant);
-  const part = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((p) => p.type === type)?.value ?? '';
-  return `${part('year')}-${part('month')}-${part('day')}`;
-}
-
-export function ProgramGridEditor({ channelId, slug, timezone, status }: Props) {
+export function ProgramGridEditor({ channelId, slug, organizationId, timezone, status }: Props) {
   const t = useTranslations('channels');
   const locale = useLocale();
   const [editing, setEditing] = useState<Program | 'new' | null>(null);
@@ -115,6 +103,8 @@ export function ProgramGridEditor({ channelId, slug, timezone, status }: Props) 
             <ProgramForm
               channelId={channelId}
               slug={slug}
+              organizationId={organizationId}
+              timezone={timezone}
               program={editing === 'new' ? undefined : editing}
               onDone={() => setEditing(null)}
             />

@@ -39,6 +39,14 @@ vi.mock('./ProgramGridEditor', () => ({
   },
 }));
 
+const onAirProps: Record<string, unknown> = {};
+vi.mock('./ChannelOnAirPanel', () => ({
+  ChannelOnAirPanel: (props: Record<string, unknown>) => {
+    Object.assign(onAirProps, props);
+    return <div>on-air-panel-stub</div>;
+  },
+}));
+
 vi.mock('./ChannelForm', () => ({
   ChannelForm: ({ mode }: { mode?: string }) => <div>channel-form-stub:{mode}</div>,
 }));
@@ -61,6 +69,7 @@ const channel = (overrides: Partial<PublicChannel> = {}): PublicChannel =>
     current: null,
     next: null,
     today: [],
+    source: { mode: 'own', reason: 'own', event: null },
     ...overrides,
   }) as PublicChannel;
 
@@ -142,8 +151,25 @@ describe('ChannelDetailContent', () => {
     expect(gridProps).toMatchObject({
       channelId: 'ch-1',
       slug: 'canal-um',
+      organizationId: 'org-1',
       timezone: 'America/Sao_Paulo',
       status: 'DRAFT',
+    });
+  });
+
+  it('renders the on-air panel with the channel source and org override', () => {
+    channelState.data = channel({ source: { mode: 'own', reason: 'own', event: null } });
+    orgChannelState.data = { id: 'ch-1', sourceOverride: { eventId: 'evt-9', until: '2026-08-25T00:00:00.000Z' } };
+
+    render(<ChannelDetailContent slug="canal-um" />);
+
+    expect(screen.getByText('on-air-panel-stub')).toBeInTheDocument();
+    expect(onAirProps).toMatchObject({
+      channelId: 'ch-1',
+      slug: 'canal-um',
+      organizationId: 'org-1',
+      source: { mode: 'own', reason: 'own', event: null },
+      sourceOverride: { eventId: 'evt-9', until: '2026-08-25T00:00:00.000Z' },
     });
   });
 

@@ -27,6 +27,7 @@ const PUBLIC_CHANNEL: PublicChannel = {
   today: [],
   pricing: null,
   viewer: null,
+  source: { mode: 'own', reason: 'own', event: null },
 };
 
 const LIST_ITEM: ChannelListItem = {
@@ -50,6 +51,7 @@ const PROGRAM: Program = {
   startTime: '10:00',
   durationMin: 60,
   rrule: 'FREQ=DAILY',
+  eventId: null,
 };
 
 describe('channelService', () => {
@@ -228,6 +230,29 @@ describe('channelService', () => {
       await channelService.deleteProgram('ch-1', 'prog-1');
 
       expect(seen[0].url).toBe('/channels/ch-1/programs/prog-1');
+      expect(seen[0].method?.toLowerCase()).toBe('delete');
+    });
+  });
+
+  describe('setSourceOverride', () => {
+    it('puts the eventId to /channels/:id/source-override', async () => {
+      const seen = capture(CHANNEL);
+
+      await channelService.setSourceOverride('ch-1', 'evt-2');
+
+      expect(seen[0].url).toBe('/channels/ch-1/source-override');
+      expect(seen[0].method?.toLowerCase()).toBe('put');
+      expect(JSON.parse(seen[0].data as string)).toEqual({ eventId: 'evt-2' });
+    });
+  });
+
+  describe('clearSourceOverride', () => {
+    it('deletes /channels/:id/source-override', async () => {
+      const seen = capture(CHANNEL);
+
+      await channelService.clearSourceOverride('ch-1');
+
+      expect(seen[0].url).toBe('/channels/ch-1/source-override');
       expect(seen[0].method?.toLowerCase()).toBe('delete');
     });
   });

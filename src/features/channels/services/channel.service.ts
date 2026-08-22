@@ -117,6 +117,18 @@ export const channelService = {
     await httpClient.delete(`/channels/${channelId}/programs/${programId}`);
   },
 
+  setSourceOverride: async (id: string, eventId: string): Promise<OrgChannel> => {
+    const { data } = await httpClient.put<OrgChannel>(`/channels/${id}/source-override`, {
+      eventId,
+    });
+    return data;
+  },
+
+  clearSourceOverride: async (id: string): Promise<OrgChannel> => {
+    const { data } = await httpClient.delete<OrgChannel>(`/channels/${id}/source-override`);
+    return data;
+  },
+
   subscribe: async (
     id: string,
     interval: SubscriptionInterval,

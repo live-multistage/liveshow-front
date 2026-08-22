@@ -1213,6 +1213,18 @@
       "cancel": "Cancelar",
       "draftScheduleNote": "A grade pública aparece após publicar o canal.",
       "linkedEvent": "Vinculado ao evento: {title}",
+      "linkToEvent": "Vincular a evento",
+      "linkToEventNone": "Nenhum",
+      "linkToEventOverlapWarning": "O horário do evento não coincide com a janela deste programa.",
+      "onAir": {
+        "title": "No ar agora",
+        "currentOwn": "Feed próprio do canal",
+        "currentEvent": "Evento: {title}",
+        "waiting": "Aguardando evento entrar no ar",
+        "selectEvent": "Selecionar evento",
+        "putOnAir": "Colocar evento no ar",
+        "backToChannel": "Voltar ao feed do canal"
+      },
       "status": {
         "DRAFT": "Rascunho",
         "ARCHIVED": "Arquivado",

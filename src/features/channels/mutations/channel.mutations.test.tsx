@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('../services/channel.service', () => ({
-  channelService: { publish: vi.fn(), subscribe: vi.fn(), syncPricing: vi.fn() },
+  channelService: {
+    publish: vi.fn(),
+    subscribe: vi.fn(),
+    syncPricing: vi.fn(),
+    setSourceOverride: vi.fn(),
+    clearSourceOverride: vi.fn(),
+  },
 }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
@@ -14,6 +20,8 @@ import {
   usePublishChannelMutation,
   useSubscribeChannelMutation,
   useSyncChannelPricingMutation,
+  useSetChannelSourceOverrideMutation,
+  useClearChannelSourceOverrideMutation,
 } from './channel.mutations';
 import { channelService } from '../services/channel.service';
 import { channelKeys } from '../queries/channel.queries';
@@ -22,6 +30,8 @@ import type { OrgChannel } from '../types/channel.types';
 const mockedPublish = vi.mocked(channelService.publish);
 const mockedSubscribe = vi.mocked(channelService.subscribe);
 const mockedSyncPricing = vi.mocked(channelService.syncPricing);
+const mockedSetSourceOverride = vi.mocked(channelService.setSourceOverride);
+const mockedClearSourceOverride = vi.mocked(channelService.clearSourceOverride);
 
 const CHANNEL: OrgChannel = {
   id: 'ch-1',
@@ -37,6 +47,7 @@ const CHANNEL: OrgChannel = {
   monthlyPriceCents: null,
   yearlyPriceCents: null,
   pricingSynced: false,
+  sourceOverride: null,
   timezone: 'America/Sao_Paulo',
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
@@ -98,6 +109,49 @@ describe('useSyncChannelPricingMutation', () => {
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.org('org-1') });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.orgDetail('ch-1') });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.detail('my-channel') });
+  });
+});
+
+describe('useSetChannelSourceOverrideMutation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('calls the override endpoint and invalidates channel queries', async () => {
+    mockedSetSourceOverride.mockResolvedValue({ ...CHANNEL, sourceOverride: { eventId: 'evt-9', until: '2026-08-25T00:00:00.000Z' } });
+    const { queryClient, wrapper } = makeWrapper();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useSetChannelSourceOverrideMutation(), { wrapper });
+
+    result.current.mutate({ id: 'ch-1', slug: 'my-channel', organizationId: 'org-1', eventId: 'evt-9' });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(mockedSetSourceOverride).toHaveBeenCalledWith('ch-1', 'evt-9');
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.orgDetail('ch-1') });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.detail('my-channel') });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.playback('my-channel') });
+  });
+});
+
+describe('useClearChannelSourceOverrideMutation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('calls the clear endpoint and invalidates channel queries', async () => {
+    mockedClearSourceOverride.mockResolvedValue(CHANNEL);
+    const { queryClient, wrapper } = makeWrapper();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useClearChannelSourceOverrideMutation(), { wrapper });
+
+    result.current.mutate({ id: 'ch-1', slug: 'my-channel', organizationId: 'org-1' });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(mockedClearSourceOverride).toHaveBeenCalledWith('ch-1');
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.detail('my-channel') });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: channelKeys.playback('my-channel') });
   });
 });
 

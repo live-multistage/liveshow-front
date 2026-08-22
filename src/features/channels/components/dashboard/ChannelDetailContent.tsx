@@ -21,6 +21,7 @@ import {
   useSyncChannelPricingMutation,
 } from '../../mutations/channel.mutations';
 import { ProgramGridEditor } from './ProgramGridEditor';
+import { ChannelOnAirPanel } from './ChannelOnAirPanel';
 import styles from './ChannelDetailContent.module.scss';
 
 interface Props {
@@ -37,11 +38,11 @@ export function ChannelDetailContent({ slug }: Props) {
   const syncPricing = useSyncChannelPricingMutation();
   const [editing, setEditing] = useState(false);
 
-  // A resposta pública (getBySlug) não traz preço/estado de sincronização —
-  // só a rota org-only por id tem esses campos, então o card e o formulário
-  // de edição pegam de lá quando o canal cobra assinatura.
+  // A resposta pública (getBySlug) não traz preço/estado de sincronização nem
+  // o override manual de fonte — só a rota org-only por id tem esses campos,
+  // então o card de assinatura e o painel "No ar agora" pegam de lá.
   const { data: orgChannel } = useOrgChannelQuery(channel?.id ?? '', {
-    enabled: Boolean(channel) && channel?.accessMode === 'SUBSCRIPTION',
+    enabled: Boolean(channel),
   });
 
   if (!channel)
@@ -118,9 +119,18 @@ export function ChannelDetailContent({ slug }: Props) {
         <SubscriptionSummaryCard channelId={channel.id} currency={orgChannel?.currency ?? null} />
       )}
 
+      <ChannelOnAirPanel
+        channelId={channel.id}
+        slug={channel.slug}
+        organizationId={channel.organizationId}
+        source={channel.source}
+        sourceOverride={orgChannel?.sourceOverride ?? null}
+      />
+
       <ProgramGridEditor
         channelId={channel.id}
         slug={channel.slug}
+        organizationId={channel.organizationId}
         timezone={channel.timezone}
         status={channel.status}
       />

@@ -3,7 +3,14 @@
 import { useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Button, Input } from '@live-show/design-system';
-import { WEEKDAYS, buildRRule, parseRRule, type Weekday } from '../../utils/rrule';
+import { useMyEventsQuery } from '@/features/events';
+import {
+  WEEKDAYS,
+  buildRRule,
+  parseRRule,
+  programOverlapsEvent,
+  type Weekday,
+} from '../../utils/rrule';
 import { useUpsertProgramMutation } from '../../mutations/channel.mutations';
 import type { Program } from '../../types/channel.types';
 import styles from './ProgramForm.module.scss';
@@ -11,6 +18,10 @@ import styles from './ProgramForm.module.scss';
 interface Props {
   channelId: string;
   slug: string;
+  organizationId: string;
+  // Fuso do canal — usado para conferir se o evento vinculado cai dentro da
+  // janela do programa.
+  timezone: string;
   onDone: () => void;
   // Presente = edição: os campos vêm do programa e o upsert leva o programId.
   program?: Program;
@@ -21,10 +32,11 @@ interface Props {
 // nova para cada dia.
 const REFERENCE_MONDAY = Date.UTC(2024, 0, 1);
 
-export function ProgramForm({ channelId, slug, onDone, program }: Props) {
+export function ProgramForm({ channelId, slug, organizationId, timezone, onDone, program }: Props) {
   const t = useTranslations('channels');
   const locale = useLocale();
   const mutation = useUpsertProgramMutation(channelId);
+  const { data: myEvents = [] } = useMyEventsQuery();
 
   const [name, setName] = useState(program?.name ?? '');
   // O backend guarda HH:mm:ss em alguns casos; o input type="time" só aceita HH:mm.
@@ -32,6 +44,27 @@ export function ProgramForm({ channelId, slug, onDone, program }: Props) {
   const [durationMin, setDurationMin] = useState(String(program?.durationMin ?? 60));
   const [days, setDays] = useState<Weekday[]>(() =>
     program ? parseRRule(program.rrule) : [],
+  );
+  const [eventId, setEventId] = useState(program?.eventId ?? '');
+
+  // Vinculável = do mesmo org, formato ao vivo, ainda não encerrado. O backend
+  // valida as mesmas invariantes de novo no upsert; isto é só o filtro da lista.
+  const linkableEvents = useMemo(
+    () =>
+      myEvents.filter(
+        (event) =>
+          event.organizationId === organizationId &&
+          event.format === 'LIVE' &&
+          (event.status === 'SCHEDULED' || event.status === 'LIVE'),
+      ),
+    [myEvents, organizationId],
+  );
+
+  const linkedEvent = linkableEvents.find((event) => event.id === eventId);
+  const showsOverlapWarning = Boolean(
+    linkedEvent &&
+      days.length > 0 &&
+      !programOverlapsEvent(days, startTime, Number(durationMin) || 0, timezone, linkedEvent),
   );
 
   const dayLabels = useMemo(() => {
@@ -63,6 +96,7 @@ export function ProgramForm({ channelId, slug, onDone, program }: Props) {
           startTime,
           durationMin: duration,
           rrule: buildRRule(days),
+          eventId: eventId || null,
         },
         programId: program?.id,
         slug,
@@ -121,6 +155,28 @@ export function ProgramForm({ channelId, slug, onDone, program }: Props) {
           </label>
         ))}
       </fieldset>
+
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="program-event">
+          {t('dashboard.linkToEvent')}
+        </label>
+        <select
+          id="program-event"
+          className={styles.select}
+          value={eventId}
+          onChange={(e) => setEventId(e.target.value)}
+        >
+          <option value="">{t('dashboard.linkToEventNone')}</option>
+          {linkableEvents.map((event) => (
+            <option key={event.id} value={event.id}>
+              {event.title}
+            </option>
+          ))}
+        </select>
+        {showsOverlapWarning && (
+          <span className={styles.warning}>{t('dashboard.linkToEventOverlapWarning')}</span>
+        )}
+      </div>
 
       <Button type="submit" disabled={mutation.isPending}>
         {t('dashboard.save')}

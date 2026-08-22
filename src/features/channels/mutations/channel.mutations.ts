@@ -19,6 +19,7 @@ function useInvalidateChannel() {
     qc.invalidateQueries({ queryKey: channelKeys.org(organizationId) });
     qc.invalidateQueries({ queryKey: channelKeys.orgDetail(id) });
     qc.invalidateQueries({ queryKey: channelKeys.detail(slug) });
+    qc.invalidateQueries({ queryKey: channelKeys.playback(slug) });
   };
 }
 
@@ -202,6 +203,47 @@ export function useDeleteProgramMutation(channelId: string) {
       qc.invalidateQueries({ queryKey: channelKeys.programs(channelId) });
       qc.invalidateQueries({ queryKey: ['channels', 'schedule', slug] });
     },
+  });
+}
+
+interface SetSourceOverrideArgs {
+  id: string;
+  slug: string;
+  organizationId: string;
+  eventId: string;
+}
+
+export function useSetChannelSourceOverrideMutation() {
+  const invalidate = useInvalidateChannel();
+  const toastError = useErrorToast();
+
+  return useMutation({
+    mutationFn: async ({ id, eventId }: SetSourceOverrideArgs) => {
+      try {
+        return await channelService.setSourceOverride(id, eventId);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    onError: toastError,
+    onSettled: (_data, _error, { id, slug, organizationId }) => invalidate(id, slug, organizationId),
+  });
+}
+
+export function useClearChannelSourceOverrideMutation() {
+  const invalidate = useInvalidateChannel();
+  const toastError = useErrorToast();
+
+  return useMutation({
+    mutationFn: async ({ id }: ChannelActionArgs) => {
+      try {
+        return await channelService.clearSourceOverride(id);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    onError: toastError,
+    onSettled: (_data, _error, { id, slug, organizationId }) => invalidate(id, slug, organizationId),
   });
 }
 
