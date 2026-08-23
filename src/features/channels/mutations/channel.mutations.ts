@@ -40,7 +40,11 @@ export function useCreateChannelMutation() {
         throw normalizeError(e);
       }
     },
-    onError: toastError,
+    // 409 é "slug já em uso" — o formulário mostra isso no campo, e um toast
+    // genérico por cima só confundiria.
+    onError: (error: AppError) => {
+      if (error.status !== 409) toastError();
+    },
     onSettled: (_data, _error, input) => {
       qc.invalidateQueries({ queryKey: channelKeys.list });
       qc.invalidateQueries({ queryKey: channelKeys.org(input.organizationId) });
