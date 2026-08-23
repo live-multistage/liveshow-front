@@ -1,16 +1,4 @@
-@use '../../../../styles/_variables' as *;
-
-$mono: 'Space Mono', monospace;
-
-// Tons da tela de criação que não existem em _variables.scss.
-$accent-bright: #ff7ec2; // magenta claro dos eyebrows/breadcrumb
-$accent-tint: rgba(255, 46, 158, 0.07); // fundo dos cards e avisos selecionados
-$accent-tint-border: rgba(255, 46, 158, 0.2);
-$accent-selected-border: rgba(255, 46, 158, 0.45);
-$notice-text: #e6b6d2;
-$hairline: rgba(255, 255, 255, 0.07);
-$dropzone-border: #3a3a40;
-$live-dot: #7fe0a0;
+@use './channel-dashboard' as *;
 
 .page {
   max-width: 1080px;
@@ -582,16 +570,6 @@ $live-dot: #7fe0a0;
   border-radius: 50%;
   background: $live-dot;
   animation: lsPulse 1.6s ease-in-out infinite;
-}
-
-@keyframes lsPulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.35;
-  }
 }
 
 @media (max-width: $lg) {
