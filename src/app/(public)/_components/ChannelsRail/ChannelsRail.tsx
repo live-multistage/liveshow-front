@@ -1,3 +1,5 @@
+'use client';
+
 import { useTranslations } from 'next-intl';
 import { Carousel } from '../Carousel/Carousel';
 import { ChannelCard } from '@/features/channels/components/ChannelCard';
