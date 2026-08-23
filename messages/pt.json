@@ -331,7 +331,8 @@
       "platformSettings": "Configurações",
       "platformAudit": "Audit log",
       "channels": "Canais",
-      "series": "Programas"
+      "series": "Programas",
+      "platformFeatureFlags": "Feature Flags"
     },
     "navMobile": {
       "overview": "Painel",
@@ -993,6 +994,32 @@
     "reporterKind": {
       "user": "Usuário",
       "anonymous": "Anônimo"
+    },
+    "featureFlags": {
+      "title": "Feature Flags",
+      "subtitle": "Flags globais da plataforma. Cada alteração é registrada no audit log.",
+      "loading": "Carregando feature flags...",
+      "error": "Erro ao carregar feature flags.",
+      "toggleSuccess": "{key} {state} globalmente.",
+      "toggleError": "Não foi possível atualizar a flag. Tente novamente.",
+      "on": "ativado",
+      "off": "desativado",
+      "chat": {
+        "name": "Chat ao vivo",
+        "description": "Habilita o chat durante transmissões ao vivo."
+      },
+      "two_factor": {
+        "name": "Autenticação em duas etapas",
+        "description": "Permite exigir 2FA no login de usuários."
+      },
+      "vod_upload": {
+        "name": "Upload de VOD",
+        "description": "Libera a criação de eventos em formato VOD e seu upload."
+      },
+      "linear_channels": {
+        "name": "Canais e programas",
+        "description": "Habilita canais lineares e programas (séries) em toda a plataforma."
+      }
     }
   },
   "reports": {

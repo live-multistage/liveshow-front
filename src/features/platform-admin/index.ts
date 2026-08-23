@@ -12,6 +12,7 @@ export { UserRoleSearchPage } from './components/UserRoleSearchPage';
 export { PlatformPageShell } from './components/PlatformPageShell';
 export { PlatformPayoutsPage } from './components/PlatformPayoutsPage';
 export { PlatformSettingsPage } from './components/PlatformSettingsPage';
+export { PlatformFeatureFlagsPage } from './components/PlatformFeatureFlagsPage';
 export { PlatformAuditPage } from './components/PlatformAuditPage';
 export { PlatformRevenuePage } from './components/PlatformRevenuePage';
 export { PlatformStreamsPage } from './components/PlatformStreamsPage';

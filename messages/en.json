@@ -331,7 +331,8 @@
       "platformSettings": "Settings",
       "platformAudit": "Audit log",
       "channels": "Channels",
-      "series": "Programs"
+      "series": "Programs",
+      "platformFeatureFlags": "Feature Flags"
     },
     "navMobile": {
       "overview": "Home",
@@ -990,6 +991,32 @@
     "reporterKind": {
       "user": "User",
       "anonymous": "Anonymous"
+    },
+    "featureFlags": {
+      "title": "Feature Flags",
+      "subtitle": "Global platform flags. Every change is recorded in the audit log.",
+      "loading": "Loading feature flags...",
+      "error": "Failed to load feature flags.",
+      "toggleSuccess": "{key} {state} globally.",
+      "toggleError": "Could not update the flag. Please try again.",
+      "on": "enabled",
+      "off": "disabled",
+      "chat": {
+        "name": "Live chat",
+        "description": "Enables chat during live broadcasts."
+      },
+      "two_factor": {
+        "name": "Two-factor authentication",
+        "description": "Allows enforcing 2FA on user login."
+      },
+      "vod_upload": {
+        "name": "VOD upload",
+        "description": "Unlocks creating VOD-format events and uploading them."
+      },
+      "linear_channels": {
+        "name": "Channels & series",
+        "description": "Enables linear channels and series across the platform."
+      }
     }
   },
   "reports": {
