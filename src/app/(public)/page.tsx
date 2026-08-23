@@ -7,18 +7,23 @@ import { fetchReplayCatalog } from '@/features/events/queries/get-replay-catalog
 import { getInitialIsLoggedIn } from '@/features/account/queries/get-auth-state.server';
 import { fetchChannels } from '@/features/channels/queries/get-channels.server';
 import { fetchSeries } from '@/features/series/queries/get-series.server';
+import { fetchFeatureFlags } from '@/features/feature-flags';
 
 export default async function Home() {
-  const [initialEvents, initialRecommended, initialReplayCatalog, initialChannels, initialSeries, locale, isLoggedIn] =
+  const [flags, initialEvents, initialRecommended, initialReplayCatalog, locale, isLoggedIn] =
     await Promise.all([
+      fetchFeatureFlags(),
       fetchFeed(),
       fetchRecommendedEvents(),
       fetchReplayCatalog(),
-      fetchChannels(),
-      fetchSeries(),
       getLocale(),
       getInitialIsLoggedIn(),
     ]);
+  // Channels + series rails skip their fetch entirely when the flag is off —
+  // they render nothing anyway (EditorialHome hides empty rails).
+  const [initialChannels, initialSeries] = flags.linear_channels
+    ? await Promise.all([fetchChannels(), fetchSeries()])
+    : [[], []];
   return (
     <EditorialHome
       initialEvents={initialEvents}
