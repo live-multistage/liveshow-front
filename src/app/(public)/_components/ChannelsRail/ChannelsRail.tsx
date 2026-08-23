@@ -19,7 +19,7 @@ export function ChannelsRail({ channels }: Props) {
   return (
     <Carousel title={t('title')} seeAllHref="/channels">
       {channels.map((channel) => (
-        <Carousel.Item key={channel.id}>
+        <Carousel.Item fit="content" key={channel.id}>
           <div className={styles.item}>
             <ChannelCard channel={channel} />
           </div>

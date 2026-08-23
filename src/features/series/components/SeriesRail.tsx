@@ -19,7 +19,7 @@ export function SeriesRail({ series }: Props) {
   return (
     <Carousel title={t('railTitle')} seeAllHref="/series">
       {series.map((item) => (
-        <Carousel.Item key={item.id}>
+        <Carousel.Item fit="content" key={item.id}>
           <div className={styles.item}>
             <SeriesCard series={item} />
           </div>
