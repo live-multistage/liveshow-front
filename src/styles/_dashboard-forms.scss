@@ -1,7 +1,7 @@
 // Tokens e padrões compartilhados pelas telas de canal no dashboard
 // (criação + detalhe). Só o que não existe em styles/_variables.scss.
-@forward '../../../../styles/variables';
-@use '../../../../styles/variables' as *;
+@forward './variables';
+@use './variables' as *;
 
 $mono: 'Space Mono', monospace;
 

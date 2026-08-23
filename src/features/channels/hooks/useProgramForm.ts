@@ -9,6 +9,7 @@ import {
   buildRRule,
   parseRRule,
   programOverlapsEvent,
+  weekdayLabels,
   type Weekday,
 } from '../utils/rrule';
 import { filterLinkableEvents } from '../utils/filterLinkableEvents';
@@ -17,11 +18,6 @@ import type { Program } from '../types/channel.types';
 
 export const DURATION_PRESETS = [30, 60, 90, 120] as const;
 const WEEKDAYS_MO_FR: Weekday[] = ['MO', 'TU', 'WE', 'TH', 'FR'];
-
-// 2024-01-01 caiu numa segunda-feira: a semana começando nele dá os nomes
-// localizados dos dias na mesma ordem do RRULE (MO..SU), sem chave de tradução
-// nova para cada dia.
-const REFERENCE_MONDAY = Date.UTC(2024, 0, 1);
 
 interface UseProgramFormArgs {
   channelId: string;
@@ -90,10 +86,7 @@ export function useProgramForm({
       !programOverlapsEvent(days, startTime, duration || 0, timezone, linkedEvent),
   );
 
-  const dayLabels = useMemo(() => {
-    const format = new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' });
-    return WEEKDAYS.map((_, index) => format.format(new Date(REFERENCE_MONDAY + index * 86_400_000)));
-  }, [locale]);
+  const dayLabels = useMemo(() => weekdayLabels(locale), [locale]);
 
   const toggleDay = (day: Weekday) => {
     setDaysTouched(true);

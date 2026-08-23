@@ -46,15 +46,24 @@ const series = (overrides: Partial<SeriesResponse> = {}): SeriesResponse => ({
   ...overrides,
 });
 
-const type = (label: string, value: string) =>
-  fireEvent.change(screen.getByLabelText(label), { target: { value } });
+// Os labels obrigatórios carregam um "*" colado ao texto (mesmo padrão do
+// CreateChannelForm) — casa só o prefixo em vez do texto inteiro.
+const label = (key: string) => new RegExp(`^${key}`);
+
+const type = (labelKey: string, value: string) =>
+  fireEvent.change(screen.getByLabelText(label(labelKey)), { target: { value } });
+
+// A ordem dos botões (todos com aria-pressed) é MO..SU, a mesma do RRULE —
+// filtra por esse atributo em vez do texto (que é um nome de dia localizado).
+const dayButtons = () =>
+  screen.getAllByRole('button').filter((button) => button.hasAttribute('aria-pressed'));
 
 const fill = () => {
-  type('dashboard.name', 'Quinta do Rock');
-  type('dashboard.firstDate', '2026-09-03');
-  type('dashboard.startTime', '20:00');
-  type('dashboard.timezone', 'America/Sao_Paulo');
-  fireEvent.click(screen.getByLabelText('dashboard.weekdayTH'));
+  type('nameLabel', 'Quinta do Rock');
+  type('firstDateLabel', '2026-09-03');
+  type('startLabel', '20:00');
+  type('timezoneLabel', 'America/Sao_Paulo');
+  fireEvent.click(dayButtons()[3]); // TH
 };
 
 describe('SeriesForm — create', () => {
@@ -68,7 +77,7 @@ describe('SeriesForm — create', () => {
     render(<SeriesForm />);
     fill();
 
-    fireEvent.click(screen.getByText('dashboard.save'));
+    fireEvent.click(screen.getByText('submit'));
 
     expect(createMutate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -85,40 +94,73 @@ describe('SeriesForm — create', () => {
   it('derives the slug from the name until the slug is edited by hand', () => {
     render(<SeriesForm />);
 
-    type('dashboard.name', 'Quinta do Rock!');
-    expect(screen.getByLabelText('dashboard.slug')).toHaveValue('quinta-do-rock');
+    type('nameLabel', 'Quinta do Rock!');
+    expect(screen.getByLabelText(label('slugLabel'))).toHaveValue('quinta-do-rock');
+
+    type('slugLabel', 'meu-programa');
+    type('nameLabel', 'Outro nome');
+    expect(screen.getByLabelText(label('slugLabel'))).toHaveValue('meu-programa');
   });
 
   it('does not submit an incomplete form', () => {
     render(<SeriesForm />);
 
-    fireEvent.click(screen.getByText('dashboard.save'));
-
+    expect(screen.getByText('submit')).toBeDisabled();
     expect(createMutate).not.toHaveBeenCalled();
   });
 
   it('does not submit without at least one weekday picked', () => {
     render(<SeriesForm />);
-    type('dashboard.name', 'Quinta do Rock');
-    type('dashboard.firstDate', '2026-09-03');
-    type('dashboard.startTime', '20:00');
-    type('dashboard.timezone', 'America/Sao_Paulo');
+    type('nameLabel', 'Quinta do Rock');
+    type('firstDateLabel', '2026-09-03');
+    type('startLabel', '20:00');
+    type('timezoneLabel', 'America/Sao_Paulo');
 
-    fireEvent.click(screen.getByText('dashboard.save'));
+    expect(screen.getByText('submit')).toBeDisabled();
+  });
 
-    expect(createMutate).not.toHaveBeenCalled();
+  it('picks Seg-Sex and Todos from the weekday quick picks', () => {
+    render(<SeriesForm />);
+
+    fireEvent.click(screen.getByText('presetWeekdays'));
+    expect(dayButtons().filter((b) => b.getAttribute('aria-pressed') === 'true')).toHaveLength(5);
+
+    fireEvent.click(screen.getByText('presetAllDays'));
+    expect(dayButtons().filter((b) => b.getAttribute('aria-pressed') === 'true')).toHaveLength(7);
+  });
+
+  it('sets the duration from a preset pill', () => {
+    render(<SeriesForm />);
+
+    fireEvent.click(screen.getByText('durationPreset90'));
+
+    expect(screen.getByLabelText(label('durationLabel'))).toHaveValue(90);
   });
 
   it('constrains the episode duration natively and refuses a duration over 1440 minutes', () => {
     render(<SeriesForm />);
     fill();
 
-    expect(screen.getByLabelText('dashboard.duration')).toHaveAttribute('max', '1440');
+    expect(screen.getByLabelText(label('durationLabel'))).toHaveAttribute('max', '1440');
 
-    fireEvent.change(screen.getByLabelText('dashboard.duration'), { target: { value: '1500' } });
-    fireEvent.click(screen.getByText('dashboard.save'));
+    fireEvent.change(screen.getByLabelText(label('durationLabel')), { target: { value: '1500' } });
 
-    expect(createMutate).not.toHaveBeenCalled();
+    expect(screen.getByText('submit')).toBeDisabled();
+  });
+
+  it('builds the summary from time, weekdays, first date and horizon', () => {
+    render(<SeriesForm />);
+    fill();
+
+    expect(
+      screen.getByText('20:00–21:00 · qui. · summaryFrom · summaryHorizon'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the summary placeholder until the window is valid', () => {
+    render(<SeriesForm />);
+
+    expect(screen.getByText('summaryPlaceholder')).toBeInTheDocument();
   });
 
   it('goes to the new series once it is created', () => {
@@ -128,21 +170,23 @@ describe('SeriesForm — create', () => {
 
     render(<SeriesForm />);
     fill();
-    fireEvent.click(screen.getByText('dashboard.save'));
+    fireEvent.click(screen.getByText('submit'));
 
     expect(push).toHaveBeenCalledWith('/dashboard/series/quinta-do-rock');
   });
 
   it('does not submit with a timezone that is not a real IANA zone', () => {
     render(<SeriesForm />);
-    type('dashboard.name', 'Quinta do Rock');
-    type('dashboard.firstDate', '2026-09-03');
-    type('dashboard.startTime', '20:00');
-    type('dashboard.timezone', 'Not/AZone');
-    fireEvent.click(screen.getByLabelText('dashboard.weekdayTH'));
+    type('nameLabel', 'Quinta do Rock');
+    type('firstDateLabel', '2026-09-03');
+    type('startLabel', '20:00');
+    fireEvent.change(screen.getByLabelText(label('timezoneLabel')), {
+      target: { value: 'Not/AZone' },
+    });
+    fireEvent.click(dayButtons()[3]);
 
-    fireEvent.click(screen.getByText('dashboard.save'));
-
+    expect(screen.getByText('submit')).toBeDisabled();
+    fireEvent.click(screen.getByText('submit'));
     expect(createMutate).not.toHaveBeenCalled();
   });
 
@@ -150,12 +194,32 @@ describe('SeriesForm — create', () => {
     render(<SeriesForm />);
     fill();
 
-    fireEvent.click(screen.getByText('dashboard.save'));
+    fireEvent.click(screen.getByText('submit'));
 
     expect(createMutate).toHaveBeenCalledWith(
       expect.objectContaining({ horizonWeeks: 4, durationMin: 60 }),
       expect.anything(),
     );
+  });
+
+  it('creates under the picked organization when there is more than one', () => {
+    render(<SeriesForm />);
+    fill();
+    fireEvent.change(screen.getByLabelText(label('organizationLabel')), { target: { value: 'org-2' } });
+
+    fireEvent.click(screen.getByText('submit'));
+
+    expect(createMutate).toHaveBeenCalledWith(
+      expect.objectContaining({ organizationId: 'org-2' }),
+      expect.anything(),
+    );
+  });
+
+  it('lists the next steps so the template is not mistaken for a ready series', () => {
+    render(<SeriesForm />);
+
+    expect(screen.getByText('camerasTitle')).toBeInTheDocument();
+    expect(screen.getByText('lifecycle')).toBeInTheDocument();
   });
 });
 
@@ -165,24 +229,30 @@ describe('SeriesForm — edit', () => {
     updateMutate.mockReset();
   });
 
-  it('prefills the form from the series, in its own timezone, and freezes the slug', () => {
+  it('prefills the form from the series, in its own timezone, and hides the slug', () => {
     render(<SeriesForm mode="edit" initial={series()} />);
 
-    expect(screen.getByLabelText('dashboard.name')).toHaveValue('Quinta do Rock');
-    expect(screen.getByLabelText('dashboard.slug')).toHaveValue('quinta-do-rock');
-    expect(screen.getByLabelText('dashboard.slug')).toHaveAttribute('readonly');
-    expect(screen.getByLabelText('dashboard.firstDate')).toHaveValue('2026-01-01');
-    expect(screen.getByLabelText('dashboard.startTime')).toHaveValue('20:00');
-    expect(screen.getByLabelText('dashboard.weekdayTH')).toBeChecked();
+    expect(screen.getByLabelText(label('nameLabel'))).toHaveValue('Quinta do Rock');
+    expect(screen.queryByLabelText(label('slugLabel'))).toBeNull();
+    expect(screen.getByLabelText(label('firstDateLabel'))).toHaveValue('2026-01-01');
+    expect(screen.getByLabelText(label('startLabel'))).toHaveValue('20:00');
+    expect(dayButtons()[3]).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('does not render the page shell (breadcrumb/aside) inside the edit dialog', () => {
+    render(<SeriesForm mode="edit" initial={series()} />);
+
+    expect(screen.queryByText('breadcrumbCurrent')).toBeNull();
+    expect(screen.queryByText('camerasTitle')).toBeNull();
   });
 
   it('updates the series with the changed fields', () => {
     render(<SeriesForm mode="edit" initial={series()} />);
 
-    type('dashboard.name', 'Sexta do Rock');
-    fireEvent.click(screen.getByLabelText('dashboard.weekdayFR'));
+    type('nameLabel', 'Sexta do Rock');
+    fireEvent.click(dayButtons()[4]); // FR
 
-    fireEvent.click(screen.getByText('dashboard.save'));
+    fireEvent.click(screen.getByText('save'));
 
     expect(updateMutate).toHaveBeenCalledWith(
       {

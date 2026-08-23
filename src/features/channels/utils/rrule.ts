@@ -13,6 +13,16 @@ export function buildRRule(days: Weekday[]): string {
   return `FREQ=WEEKLY;BYDAY=${picked.join(',')}`;
 }
 
+// Localized short weekday names (MO..SU order) with no translation key per
+// day: 2024-01-01 was a Monday, so the week starting there gives the names
+// in the same order as WEEKDAYS via Intl alone.
+const REFERENCE_MONDAY = Date.UTC(2024, 0, 1);
+
+export function weekdayLabels(locale: string): string[] {
+  const format = new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' });
+  return WEEKDAYS.map((_, index) => format.format(new Date(REFERENCE_MONDAY + index * 86_400_000)));
+}
+
 export function parseRRule(rrule: string): Weekday[] {
   if (/FREQ=DAILY/i.test(rrule)) return [...WEEKDAYS];
 

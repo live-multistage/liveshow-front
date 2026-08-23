@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock3, TriangleAlert } from 'lucide-react';
+import { TriangleAlert } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
   Button,
@@ -9,8 +9,10 @@ import {
   DialogTitle,
 } from '@live-show/design-system';
 import { DURATION_PRESETS, useProgramForm } from '../../hooks/useProgramForm';
-import { WEEKDAYS } from '../../utils/rrule';
 import type { Program } from '../../types/channel.types';
+import { DurationField } from './DurationField';
+import { SummaryBox } from './SummaryBox';
+import { WeekdayToggles } from './WeekdayToggles';
 import styles from './ProgramModal.module.scss';
 
 interface Props {
@@ -86,71 +88,32 @@ export function ProgramModal({
               <span className={styles.hint}>{t('timezoneHint', { timezone: timezone.toUpperCase() })}</span>
             </div>
 
-            <div className={styles.field}>
-              <span className={styles.label}>
-                <label htmlFor="program-duration">{t('duration')}</label>
-                <span className={styles.required} aria-hidden="true">*</span>
-              </span>
-              <div
-                className={`${styles.durationBox} ${form.durationError ? styles.durationBoxError : ''}`}
-              >
-                <input
-                  id="program-duration"
-                  type="number"
-                  min={5}
-                  max={1440}
-                  className={styles.durationInput}
-                  value={form.durationMin}
-                  onChange={(e) => form.setDurationMin(e.target.value)}
-                />
-                <span className={styles.durationSuffix}>{t('durationSuffix')}</span>
-              </div>
-              <div className={styles.presets}>
-                {DURATION_PRESETS.map((minutes) => (
-                  <button
-                    key={minutes}
-                    type="button"
-                    className={`${styles.preset} ${Number(form.durationMin) === minutes ? styles.presetActive : ''}`}
-                    onClick={() => form.applyDurationPreset(minutes)}
-                  >
-                    {t(`durationPreset${minutes}`)}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <DurationField
+              id="program-duration"
+              label={t('duration')}
+              suffix={t('durationSuffix')}
+              value={form.durationMin}
+              onChange={form.setDurationMin}
+              presets={DURATION_PRESETS.map((minutes) => ({
+                minutes,
+                label: t(`durationPreset${minutes}`),
+              }))}
+              onPreset={form.applyDurationPreset}
+              error={form.durationError}
+            />
           </div>
-          {form.durationError && <span className={styles.error}>{form.durationError}</span>}
 
-          <fieldset className={styles.field}>
-            <div className={styles.labelRow}>
-              <legend className={styles.label}>
-                {t('weekdays')}
-                <span className={styles.required} aria-hidden="true">*</span>
-              </legend>
-              <div className={styles.quickPicks}>
-                <button type="button" className={styles.quickPick} onClick={form.pickWeekdays}>
-                  {t('presetWeekdays')}
-                </button>
-                <button type="button" className={styles.quickPick} onClick={form.pickAllDays}>
-                  {t('presetAllDays')}
-                </button>
-              </div>
-            </div>
-            <div className={styles.days}>
-              {WEEKDAYS.map((day, index) => (
-                <button
-                  key={day}
-                  type="button"
-                  className={`${styles.day} ${form.days.includes(day) ? styles.dayActive : ''}`}
-                  aria-pressed={form.days.includes(day)}
-                  onClick={() => form.toggleDay(day)}
-                >
-                  {form.dayLabels[index]}
-                </button>
-              ))}
-            </div>
-            {form.daysError && <span className={styles.error}>{form.daysError}</span>}
-          </fieldset>
+          <WeekdayToggles
+            legend={t('weekdays')}
+            dayLabels={form.dayLabels}
+            days={form.days}
+            onToggleDay={form.toggleDay}
+            quickPicks={[
+              { label: t('presetWeekdays'), onClick: form.pickWeekdays },
+              { label: t('presetAllDays'), onClick: form.pickAllDays },
+            ]}
+            error={form.daysError}
+          />
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor="program-event">
@@ -180,15 +143,11 @@ export function ProgramModal({
             )}
           </div>
 
-          <div className={styles.summary}>
-            <Clock3 size={14} className={form.summary ? styles.summaryIconActive : styles.summaryIcon} aria-hidden="true" />
-            <div>
-              <span className={styles.summaryLabel}>{t('summaryLabel')}</span>
-              <p className={form.summary ? styles.summaryText : styles.summaryPlaceholder}>
-                {form.summary ?? t('summaryPlaceholder')}
-              </p>
-            </div>
-          </div>
+          <SummaryBox
+            label={t('summaryLabel')}
+            summary={form.summary}
+            placeholder={t('summaryPlaceholder')}
+          />
 
           <div className={styles.footer}>
             {form.isEdit ? (

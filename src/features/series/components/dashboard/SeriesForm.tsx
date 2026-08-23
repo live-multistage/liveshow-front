@@ -1,15 +1,18 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { Button, Input } from '@live-show/design-system';
-import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
-import { WEEKDAYS, buildRRule, parseRRule, type Weekday } from '@/features/channels/utils/rrule';
-import { wallClockToUtcISOString, utcInstantToWallClock } from '../../utils/wall-clock';
-import { useCreateSeriesMutation, useUpdateSeriesMutation } from '../../mutations/series.mutations';
+import Link from 'next/link';
+import { DurationField, SummaryBox, WeekdayToggles } from '@/features/channels/components/dashboard';
+import {
+  useSeriesForm,
+  DURATION_PRESETS,
+  DESCRIPTION_MAX,
+  NAME_MAX,
+  SLUG_MAX,
+  SLUG_MIN,
+  SLUG_PATTERN,
+} from '../../hooks/useSeriesForm';
 import type { SeriesResponse } from '../../types/series.types';
-import { slugify } from '@/features/events/utils/slug';
+import { SeriesNextStepsAside } from './SeriesNextStepsAside';
 import styles from './SeriesForm.module.scss';
 
 interface Props {
@@ -18,151 +21,28 @@ interface Props {
   onDone?: () => void;
 }
 
-const SLUG_PATTERN = '[a-z0-9]+(-[a-z0-9]+)*';
-const SLUG_REGEX = new RegExp(`^${SLUG_PATTERN}$`);
-const SLUG_MIN = 3;
-const SLUG_MAX = 80;
-
-const browserTimezone = () => {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Sao_Paulo';
-  } catch {
-    return 'America/Sao_Paulo';
-  }
-};
-
-const supportedTimezones = (): string[] => {
-  try {
-    return Intl.supportedValuesOf?.('timeZone') ?? [];
-  } catch {
-    return [];
-  }
-};
+const SERIES_HREF = '/dashboard/series';
+const DESCRIPTION_COUNTER_WARN = 450;
 
 export function SeriesForm({ mode = 'create', initial, onDone }: Props) {
-  const t = useTranslations('series');
-  const tDashboard = useTranslations('dashboard');
-  const router = useRouter();
-  const { data: organizations = [] } = useMyOrganizationsQuery();
+  const form = useSeriesForm({ mode, initial, onDone });
+  const t = form.t;
 
-  const create = useCreateSeriesMutation();
-  const update = useUpdateSeriesMutation();
-
-  const isEdit = mode === 'edit' && Boolean(initial);
-
-  const initialWallClock = initial ? utcInstantToWallClock(initial.dtstart, initial.timezone) : null;
-
-  const [organizationId, setOrganizationId] = useState('');
-  const [name, setName] = useState(initial?.name ?? '');
-  const [slug, setSlug] = useState(initial?.slug ?? '');
-  const [slugTouched, setSlugTouched] = useState(isEdit);
-  const [description, setDescription] = useState(initial?.description ?? '');
-  const [timezone, setTimezone] = useState(initial?.timezone ?? browserTimezone);
-  const [days, setDays] = useState<Weekday[]>(() => (initial ? parseRRule(initial.rrule) : []));
-  const [firstDate, setFirstDate] = useState(initialWallClock?.date ?? '');
-  const [startTime, setStartTime] = useState(initialWallClock?.time ?? '20:00');
-  const [durationMin, setDurationMin] = useState(String(initial?.durationMin ?? 60));
-  const [horizonWeeks, setHorizonWeeks] = useState(String(initial?.horizonWeeks ?? 4));
-
-  const timezones = useMemo(supportedTimezones, []);
-
-  const activeOrganizationId =
-    initial?.organizationId || organizationId || organizations[0]?.id || '';
-
-  const slugIsValid = slug.length >= SLUG_MIN && slug.length <= SLUG_MAX && SLUG_REGEX.test(slug);
-  const duration = Number(durationMin);
-  const horizon = Number(horizonWeeks);
-  const timezoneIsValid = timezones.length === 0 || timezones.includes(timezone);
-  const canSubmit = Boolean(
-    name.trim() &&
-      timezone.trim() &&
-      timezoneIsValid &&
-      firstDate &&
-      startTime &&
-      days.length > 0 &&
-      duration >= 5 &&
-      duration <= 1440 &&
-      horizon >= 1 &&
-      horizon <= 12 &&
-      (isEdit || (activeOrganizationId && slugIsValid)),
-  );
-  const isPending = create.isPending || update.isPending;
-
-  const handleNameChange = (value: string) => {
-    setName(value);
-    if (!slugTouched) setSlug(slugify(value, SLUG_MAX));
-  };
-
-  const toggleDay = (day: Weekday) =>
-    setDays((current) =>
-      current.includes(day) ? current.filter((d) => d !== day) : [...current, day],
-    );
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!canSubmit || isPending) return;
-
-    const rrule = buildRRule(days);
-    const dtstart = wallClockToUtcISOString(firstDate, startTime, timezone);
-
-    if (isEdit && initial) {
-      update.mutate(
-        {
-          id: initial.id,
-          organizationId: initial.organizationId,
-          slug: initial.slug,
-          input: {
-            name: name.trim(),
-            description: description.trim() || undefined,
-            rrule,
-            dtstart,
-            timezone: timezone.trim(),
-            durationMin: duration,
-            horizonWeeks: horizon,
-          },
-        },
-        { onSuccess: () => onDone?.() },
-      );
-      return;
-    }
-
-    create.mutate(
-      {
-        organizationId: activeOrganizationId,
-        slug: slug.trim(),
-        name: name.trim(),
-        description: description.trim() || undefined,
-        rrule,
-        dtstart,
-        timezone: timezone.trim(),
-        durationMin: duration,
-        horizonWeeks: horizon,
-      },
-      {
-        onSuccess: (created) => {
-          onDone?.();
-          router.push(`/dashboard/series/${created.slug}`);
-        },
-      },
-    );
-  };
-
-  return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      {!isEdit && <h1 className={styles.heading}>{t('dashboard.new')}</h1>}
-
-      {!isEdit && (
+  const fields = (
+    <>
+      {!form.isEdit && form.organizations.length > 1 && (
         <div className={styles.field}>
           <label className={styles.label} htmlFor="series-organization">
-            {tDashboard('nav.organizations')}
+            {t('organizationLabel')}
+            <span className={styles.required}>*</span>
           </label>
           <select
             id="series-organization"
-            className={styles.select}
-            value={activeOrganizationId}
-            onChange={(event) => setOrganizationId(event.target.value)}
+            className={styles.control}
+            value={form.activeOrganizationId}
+            onChange={(event) => form.setOrganizationId(event.target.value)}
           >
-            {organizations.map((organization) => (
+            {form.organizations.map((organization) => (
               <option key={organization.id} value={organization.id}>
                 {organization.name}
               </option>
@@ -173,132 +53,213 @@ export function SeriesForm({ mode = 'create', initial, onDone }: Props) {
 
       <div className={styles.field}>
         <label className={styles.label} htmlFor="series-name">
-          {t('dashboard.name')}
+          {t('nameLabel')}
+          <span className={styles.required}>*</span>
         </label>
-        <Input id="series-name" value={name} onChange={(e) => handleNameChange(e.target.value)} />
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="series-slug">
-          {t('dashboard.slug')}
-        </label>
-        <Input
-          id="series-slug"
-          value={slug}
-          readOnly={isEdit}
-          pattern={SLUG_PATTERN}
-          minLength={SLUG_MIN}
-          maxLength={SLUG_MAX}
-          onChange={(e) => {
-            setSlugTouched(true);
-            setSlug(e.target.value);
-          }}
+        <input
+          id="series-name"
+          className={styles.control}
+          value={form.name}
+          maxLength={NAME_MAX}
+          placeholder={t('namePlaceholder')}
+          onChange={(event) => form.changeName(event.target.value)}
         />
       </div>
 
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="series-description">
-          {t('dashboard.description')}
-        </label>
-        <Input
-          id="series-description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </div>
-
-      <fieldset className={styles.days}>
-        <legend className={styles.label}>{t('dashboard.weekdays')}</legend>
-        {WEEKDAYS.map((day) => (
-          <label key={day} className={styles.day} htmlFor={`series-weekday-${day}`}>
-            <input
-              id={`series-weekday-${day}`}
-              type="checkbox"
-              aria-label={t(`dashboard.weekday${day}`)}
-              checked={days.includes(day)}
-              onChange={() => toggleDay(day)}
-            />
-            {t(`dashboard.weekday${day}`)}
+      {!form.isEdit && (
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="series-slug">
+            {t('slugLabel')}
+            <span className={styles.required}>*</span>
           </label>
-        ))}
-      </fieldset>
+          <input
+            id="series-slug"
+            className={`${styles.control} ${styles.controlMono}`}
+            value={form.slug}
+            pattern={SLUG_PATTERN}
+            minLength={SLUG_MIN}
+            maxLength={SLUG_MAX}
+            onChange={(event) => form.changeSlug(event.target.value)}
+          />
+          <span className={styles.slugPreview}>
+            {form.slugPreviewOrigin}/series/
+            <span className={styles.slugPreviewValue}>{form.slug || t('slugPlaceholder')}</span>
+          </span>
+        </div>
+      )}
+
+      <div className={styles.field}>
+        <div className={styles.labelRow}>
+          <label className={styles.label} htmlFor="series-description">
+            {t('descriptionLabel')}{' '}
+            <span className={styles.optional}>({t('descriptionOptional')})</span>
+          </label>
+          <span
+            className={`${styles.counter} ${
+              form.description.length > DESCRIPTION_COUNTER_WARN ? styles.counterNear : ''
+            }`}
+          >
+            {form.description.length}/{DESCRIPTION_MAX}
+          </span>
+        </div>
+        <textarea
+          id="series-description"
+          className={`${styles.control} ${styles.textarea}`}
+          rows={3}
+          maxLength={DESCRIPTION_MAX}
+          placeholder={t('descriptionPlaceholder')}
+          value={form.description}
+          onChange={(event) => form.setDescription(event.target.value)}
+        />
+      </div>
+
+      <WeekdayToggles
+        legend={t('weekdaysLabel')}
+        dayLabels={form.dayLabels}
+        days={form.days}
+        onToggleDay={form.toggleDay}
+        quickPicks={[
+          { label: t('presetWeekdays'), onClick: form.pickWeekdays },
+          { label: t('presetAllDays'), onClick: form.pickAllDays },
+        ]}
+        error={form.daysError}
+      />
 
       <div className={styles.row}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="series-first-date">
-            {t('dashboard.firstDate')}
+            {t('firstDateLabel')}
+            <span className={styles.required}>*</span>
           </label>
-          <Input
+          <input
             id="series-first-date"
             type="date"
-            value={firstDate}
-            onChange={(e) => setFirstDate(e.target.value)}
+            className={styles.control}
+            value={form.firstDate}
+            onChange={(event) => form.setFirstDate(event.target.value)}
           />
         </div>
 
         <div className={styles.field}>
           <label className={styles.label} htmlFor="series-start-time">
-            {t('dashboard.startTime')}
+            {t('startLabel')}
+            <span className={styles.required}>*</span>
           </label>
-          <Input
+          <input
             id="series-start-time"
             type="time"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
+            className={`${styles.control} ${styles.controlMono}`}
+            value={form.startTime}
+            onChange={(event) => form.setStartTime(event.target.value)}
           />
+          <span className={styles.hint}>
+            {t('timezoneHint', { timezone: form.timezone.toUpperCase() })}
+          </span>
         </div>
       </div>
 
-      <div className={styles.row}>
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="series-duration">
-            {t('dashboard.duration')}
-          </label>
-          <Input
-            id="series-duration"
-            type="number"
-            min={5}
-            max={1440}
-            value={durationMin}
-            onChange={(e) => setDurationMin(e.target.value)}
-          />
-        </div>
-
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="series-horizon">
-            {t('dashboard.horizon')}
-          </label>
-          <Input
-            id="series-horizon"
-            type="number"
-            min={1}
-            max={12}
-            value={horizonWeeks}
-            onChange={(e) => setHorizonWeeks(e.target.value)}
-          />
-        </div>
-      </div>
+      <DurationField
+        id="series-duration"
+        label={t('durationLabel')}
+        suffix={t('durationSuffix')}
+        value={form.durationMin}
+        onChange={form.setDurationMin}
+        presets={DURATION_PRESETS.map((minutes) => ({
+          minutes,
+          label: t(`durationPreset${minutes}`),
+        }))}
+        onPreset={form.applyDurationPreset}
+        error={form.durationError}
+      />
 
       <div className={styles.field}>
         <label className={styles.label} htmlFor="series-timezone">
-          {t('dashboard.timezone')}
+          {t('timezoneLabel')}
+          <span className={styles.required}>*</span>
         </label>
-        <Input
+        <select
           id="series-timezone"
-          list="series-timezone-options"
-          value={timezone}
-          onChange={(e) => setTimezone(e.target.value)}
-        />
-        <datalist id="series-timezone-options">
-          {timezones.map((zone) => (
-            <option key={zone} value={zone} />
+          className={styles.control}
+          value={form.timezone}
+          onChange={(event) => form.setTimezone(event.target.value)}
+        >
+          {form.timezones.map((zone) => (
+            <option key={zone} value={zone}>
+              {zone}
+            </option>
           ))}
-        </datalist>
+        </select>
+        <span className={styles.help}>{t('timezoneHelp')}</span>
       </div>
 
-      <Button type="submit" disabled={isPending || !canSubmit}>
-        {t('dashboard.save')}
-      </Button>
-    </form>
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="series-horizon">
+          {t('horizonLabel')}
+          <span className={styles.required}>*</span>
+        </label>
+        <input
+          id="series-horizon"
+          type="number"
+          min={1}
+          max={12}
+          className={`${styles.control} ${styles.controlNarrow}`}
+          value={form.horizonWeeks}
+          onChange={(event) => form.setHorizonWeeks(event.target.value)}
+        />
+        <span className={styles.help}>{t('horizonHint')}</span>
+      </div>
+
+      <SummaryBox label={t('summaryLabel')} summary={form.summary} placeholder={t('summaryPlaceholder')} />
+    </>
+  );
+
+  if (form.isEdit) {
+    return (
+      <form className={styles.editForm} onSubmit={form.handleSubmit} noValidate>
+        {fields}
+        <div className={styles.editActions}>
+          <button type="submit" className={styles.submit} disabled={!form.canSubmit || form.isPending}>
+            {form.isPending && <span className={styles.spinner} aria-hidden="true" />}
+            {form.isPending ? t('submitting') : t('save')}
+          </button>
+        </div>
+      </form>
+    );
+  }
+
+  return (
+    <div className={styles.page}>
+      <nav className={styles.breadcrumb} aria-label={t('breadcrumbSeries')}>
+        <Link className={styles.breadcrumbLink} href={SERIES_HREF}>
+          {t('breadcrumbSeries')}
+        </Link>
+        <span aria-hidden="true">/</span>
+        <span className={styles.breadcrumbCurrent} aria-current="page">
+          {t('breadcrumbCurrent')}
+        </span>
+      </nav>
+
+      <span className={styles.eyebrow}>{t('eyebrow')}</span>
+      <h1 className={styles.title}>{t('title')}</h1>
+      <p className={styles.lead}>{t('lead')}</p>
+
+      <div className={styles.layout}>
+        <form className={styles.form} onSubmit={form.handleSubmit} noValidate>
+          {fields}
+
+          <div className={styles.actions}>
+            <button type="submit" className={styles.submit} disabled={!form.canSubmit || form.isPending}>
+              {form.isPending && <span className={styles.spinner} aria-hidden="true" />}
+              {form.isPending ? t('submitting') : t('submit')}
+            </button>
+            <Link className={styles.cancel} href={SERIES_HREF}>
+              {t('cancel')}
+            </Link>
+          </div>
+        </form>
+
+        <SeriesNextStepsAside />
+      </div>
+    </div>
   );
 }
