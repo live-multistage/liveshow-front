@@ -1,0 +1,223 @@
+'use client';
+
+import { Clock3, TriangleAlert } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from '@live-show/design-system';
+import { DURATION_PRESETS, useProgramForm } from '../../hooks/useProgramForm';
+import { WEEKDAYS } from '../../utils/rrule';
+import type { Program } from '../../types/channel.types';
+import styles from './ProgramModal.module.scss';
+
+interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  channelId: string;
+  slug: string;
+  organizationId: string;
+  channelName: string;
+  // Fuso do canal — usado tanto no hint de horário quanto para conferir se o
+  // evento vinculado cai dentro da janela do programa.
+  timezone: string;
+  // Presente = edição: os campos vêm do programa e o upsert leva o programId.
+  program?: Program;
+  onDone: () => void;
+}
+
+export function ProgramModal({
+  open,
+  onOpenChange,
+  channelId,
+  slug,
+  organizationId,
+  channelName,
+  timezone,
+  program,
+  onDone,
+}: Props) {
+  const t = useTranslations('channels.program');
+  const form = useProgramForm({ channelId, slug, organizationId, timezone, program, onDone });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={styles.content}>
+        <div className={styles.header}>
+          <span className={styles.eyebrow}>
+            {t('eyebrow')} · {channelName.toUpperCase()}
+          </span>
+          <DialogTitle className={styles.title}>
+            {t(form.isEdit ? 'editTitle' : 'newTitle')}
+          </DialogTitle>
+        </div>
+
+        <form className={styles.form} onSubmit={form.handleSubmit}>
+          <div className={styles.field}>
+            <span className={styles.label}>
+              <label htmlFor="program-name">{t('name')}</label>
+              <span className={styles.required} aria-hidden="true">*</span>
+            </span>
+            <input
+              id="program-name"
+              className={styles.control}
+              value={form.name}
+              maxLength={80}
+              placeholder={t('namePlaceholder')}
+              onChange={(e) => form.setName(e.target.value)}
+            />
+          </div>
+
+          <div className={styles.row}>
+            <div className={styles.field}>
+              <span className={styles.label}>
+                <label htmlFor="program-start">{t('start')}</label>
+                <span className={styles.required} aria-hidden="true">*</span>
+              </span>
+              <input
+                id="program-start"
+                type="time"
+                className={`${styles.control} ${styles.controlMono}`}
+                value={form.startTime}
+                onChange={(e) => form.setStartTime(e.target.value)}
+              />
+              <span className={styles.hint}>{t('timezoneHint', { timezone: timezone.toUpperCase() })}</span>
+            </div>
+
+            <div className={styles.field}>
+              <span className={styles.label}>
+                <label htmlFor="program-duration">{t('duration')}</label>
+                <span className={styles.required} aria-hidden="true">*</span>
+              </span>
+              <div
+                className={`${styles.durationBox} ${form.durationError ? styles.durationBoxError : ''}`}
+              >
+                <input
+                  id="program-duration"
+                  type="number"
+                  min={5}
+                  max={1440}
+                  className={styles.durationInput}
+                  value={form.durationMin}
+                  onChange={(e) => form.setDurationMin(e.target.value)}
+                />
+                <span className={styles.durationSuffix}>{t('durationSuffix')}</span>
+              </div>
+              <div className={styles.presets}>
+                {DURATION_PRESETS.map((minutes) => (
+                  <button
+                    key={minutes}
+                    type="button"
+                    className={`${styles.preset} ${Number(form.durationMin) === minutes ? styles.presetActive : ''}`}
+                    onClick={() => form.applyDurationPreset(minutes)}
+                  >
+                    {t(`durationPreset${minutes}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {form.durationError && <span className={styles.error}>{form.durationError}</span>}
+
+          <fieldset className={styles.field}>
+            <div className={styles.labelRow}>
+              <legend className={styles.label}>
+                {t('weekdays')}
+                <span className={styles.required} aria-hidden="true">*</span>
+              </legend>
+              <div className={styles.quickPicks}>
+                <button type="button" className={styles.quickPick} onClick={form.pickWeekdays}>
+                  {t('presetWeekdays')}
+                </button>
+                <button type="button" className={styles.quickPick} onClick={form.pickAllDays}>
+                  {t('presetAllDays')}
+                </button>
+              </div>
+            </div>
+            <div className={styles.days}>
+              {WEEKDAYS.map((day, index) => (
+                <button
+                  key={day}
+                  type="button"
+                  className={`${styles.day} ${form.days.includes(day) ? styles.dayActive : ''}`}
+                  aria-pressed={form.days.includes(day)}
+                  onClick={() => form.toggleDay(day)}
+                >
+                  {form.dayLabels[index]}
+                </button>
+              ))}
+            </div>
+            {form.daysError && <span className={styles.error}>{form.daysError}</span>}
+          </fieldset>
+
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="program-event">
+              {t('linkToEvent')}
+            </label>
+            <select
+              id="program-event"
+              className={styles.control}
+              value={form.eventId}
+              onChange={(e) => form.setEventId(e.target.value)}
+            >
+              <option value="">{t('linkToEventNone')}</option>
+              {form.linkableEvents.map((event) => (
+                <option key={event.id} value={event.id}>
+                  {form.eventOptionLabel(event)}
+                </option>
+              ))}
+            </select>
+            {form.eventId && !form.showsOverlapWarning && (
+              <span className={styles.help}>{t('linkToEventHelp')}</span>
+            )}
+            {form.showsOverlapWarning && (
+              <div className={styles.warning}>
+                <TriangleAlert size={14} aria-hidden="true" />
+                <span>{t('linkToEventOverlapWarning')}</span>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.summary}>
+            <Clock3 size={14} className={form.summary ? styles.summaryIconActive : styles.summaryIcon} aria-hidden="true" />
+            <div>
+              <span className={styles.summaryLabel}>{t('summaryLabel')}</span>
+              <p className={form.summary ? styles.summaryText : styles.summaryPlaceholder}>
+                {form.summary ?? t('summaryPlaceholder')}
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.footer}>
+            {form.isEdit ? (
+              <button
+                type="button"
+                className={styles.deleteLink}
+                onClick={form.requestDelete}
+                disabled={form.isDeleting}
+              >
+                {form.isDeleting
+                  ? t('deleting')
+                  : form.confirmingDelete
+                    ? t('deleteConfirm')
+                    : t('delete')}
+              </button>
+            ) : (
+              <span />
+            )}
+            <div className={styles.footerActions}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                {t('cancel')}
+              </Button>
+              <Button type="submit" disabled={!form.canSubmit || form.isPending}>
+                {form.isPending ? t('saving') : t('save')}
+              </Button>
+            </div>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

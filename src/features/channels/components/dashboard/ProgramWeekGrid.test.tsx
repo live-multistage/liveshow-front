@@ -44,6 +44,7 @@ const renderGrid = (status: 'DRAFT' | 'PUBLISHED' = 'PUBLISHED') =>
       channelId="ch-1"
       slug="canal-um"
       organizationId="org-1"
+      channelName="Canal Um"
       timezone="America/Sao_Paulo"
       status={status}
     />,
@@ -102,7 +103,7 @@ describe('ProgramWeekGrid', () => {
     renderGrid();
     fireEvent.click(screen.getByText('Jornal'));
 
-    expect(screen.getByText('editProgram')).toBeInTheDocument();
+    expect(screen.getByText('editTitle')).toBeInTheDocument();
   });
 
   it('opens an empty program form from the new-program action', () => {
@@ -111,7 +112,7 @@ describe('ProgramWeekGrid', () => {
     fireEvent.click(screen.getByText('newProgram'));
 
     // O form aparece sem programa carregado — só os campos vazios.
-    expect(screen.getByText('dashboard.programName')).toBeInTheDocument();
+    expect(screen.getByText('newTitle')).toBeInTheDocument();
   });
 
   it('deletes a program only after the confirmation dialog', () => {

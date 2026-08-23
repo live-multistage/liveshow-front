@@ -16,13 +16,14 @@ import { useChannelProgramsQuery } from '../../queries/channel.queries';
 import { useDeleteProgramMutation } from '../../mutations/channel.mutations';
 import { ROW_HEIGHT, useWeekGrid, type WeekGridBlock } from '../../hooks/useWeekGrid';
 import type { ChannelStatus, Program } from '../../types/channel.types';
-import { ProgramForm } from './ProgramForm';
+import { ProgramModal } from './ProgramModal';
 import styles from './ChannelDetail.module.scss';
 
 interface Props {
   channelId: string;
   slug: string;
   organizationId: string;
+  channelName: string;
   // Fuso DO CANAL, não do navegador: quem administra um canal de Tóquio de
   // São Paulo precisa ver a grade como ela vai ao ar.
   timezone: string;
@@ -34,7 +35,14 @@ const formatHour = (minutes: number) => `${String(Math.floor(minutes / 60) % 24)
 const formatBlockRange = (block: WeekGridBlock) =>
   `${formatHour(block.startMinutes)} — ${formatHour(block.startMinutes + block.durationMin)}`;
 
-export function ProgramWeekGrid({ channelId, slug, organizationId, timezone, status }: Props) {
+export function ProgramWeekGrid({
+  channelId,
+  slug,
+  organizationId,
+  channelName,
+  timezone,
+  status,
+}: Props) {
   const t = useTranslations('channels.detail.schedule');
   const locale = useLocale();
   const [weekOffset, setWeekOffset] = useState(0);
@@ -203,23 +211,17 @@ export function ProgramWeekGrid({ channelId, slug, organizationId, timezone, sta
         </li>
       </ul>
 
-      <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t(editing === 'new' ? 'newProgram' : 'editProgram')}</DialogTitle>
-          </DialogHeader>
-          {editing !== null && (
-            <ProgramForm
-              channelId={channelId}
-              slug={slug}
-              organizationId={organizationId}
-              timezone={timezone}
-              program={editing === 'new' ? undefined : editing}
-              onDone={() => setEditing(null)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      <ProgramModal
+        open={editing !== null}
+        onOpenChange={(open) => !open && setEditing(null)}
+        channelId={channelId}
+        slug={slug}
+        organizationId={organizationId}
+        channelName={channelName}
+        timezone={timezone}
+        program={editing === 'new' || editing === null ? undefined : editing}
+        onDone={() => setEditing(null)}
+      />
 
       <Dialog open={deleting !== null} onOpenChange={(open) => !open && setDeleting(null)}>
         <DialogContent>

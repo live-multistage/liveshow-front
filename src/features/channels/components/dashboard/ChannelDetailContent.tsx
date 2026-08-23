@@ -114,6 +114,7 @@ export function ChannelDetailContent({ slug }: Props) {
             channelId={channel.id}
             slug={channel.slug}
             organizationId={channel.organizationId}
+            channelName={channel.name}
             timezone={channel.timezone}
             status={channel.status}
           />
