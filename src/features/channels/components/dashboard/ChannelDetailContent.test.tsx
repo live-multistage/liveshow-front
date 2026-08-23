@@ -48,7 +48,7 @@ vi.mock('./ChannelOnAirPanel', () => ({
 }));
 
 vi.mock('./ChannelForm', () => ({
-  ChannelForm: ({ mode }: { mode?: string }) => <div>channel-form-stub:{mode}</div>,
+  ChannelForm: ({ initial }: { initial: { slug: string } }) => <div>channel-form-stub:{initial.slug}</div>,
 }));
 
 const channel = (overrides: Partial<PublicChannel> = {}): PublicChannel =>
@@ -179,7 +179,7 @@ describe('ChannelDetailContent', () => {
 
     fireEvent.click(screen.getByText('dashboard.edit'));
 
-    expect(screen.getByText(/channel-form-stub:edit/)).toBeInTheDocument();
+    expect(screen.getByText(/channel-form-stub:canal-um/)).toBeInTheDocument();
   });
 
   it('hides sync status and the summary card for a FREE channel', () => {

@@ -1,32 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import type { Channel } from '../../types/channel.types';
-import { ChannelForm, slugify } from './ChannelForm';
+import { ChannelForm } from './ChannelForm';
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
   useLocale: () => 'pt-BR',
 }));
 
-const push = vi.fn();
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push }),
-}));
-
-vi.mock('@/features/organizations/queries/get-my-organizations', () => ({
-  useMyOrganizationsQuery: () => ({
-    data: [
-      { id: 'org-1', name: 'Org Um', slug: 'org-um' },
-      { id: 'org-2', name: 'Org Dois', slug: 'org-dois' },
-    ],
-  }),
-}));
-
-const createMutate = vi.fn();
 const updateMutate = vi.fn();
 const uploadMutate = vi.fn();
 vi.mock('../../mutations/channel.mutations', () => ({
-  useCreateChannelMutation: () => ({ mutate: createMutate, isPending: false }),
   useUpdateChannelMutation: () => ({ mutate: updateMutate, isPending: false }),
   useUploadChannelCoverMutation: () => ({ mutate: uploadMutate, isPending: false }),
 }));
@@ -51,136 +35,14 @@ const channel = (overrides: Partial<Channel> = {}): Channel =>
 const type = (label: string, value: string) =>
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 
-const fill = () => {
-  type('dashboard.name', 'Canal Um');
-  type('dashboard.slug', 'canal-um');
-  type('dashboard.timezone', 'America/Sao_Paulo');
-};
-
-describe('ChannelForm — create', () => {
-  beforeEach(() => {
-    createMutate.mockReset();
-    updateMutate.mockReset();
-    uploadMutate.mockReset();
-    push.mockReset();
-  });
-
-  it('creates the channel with the typed slug, name and timezone', () => {
-    render(<ChannelForm />);
-    fill();
-
-    fireEvent.click(screen.getByText('dashboard.save'));
-
-    expect(createMutate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        slug: 'canal-um',
-        name: 'Canal Um',
-        timezone: 'America/Sao_Paulo',
-        organizationId: 'org-1',
-        accessMode: 'FREE',
-      }),
-      expect.anything(),
-    );
-  });
-
-  it('sends the picked accessMode on create', () => {
-    render(<ChannelForm />);
-    fill();
-    type('dashboard.accessMode', 'SUBSCRIPTION');
-
-    fireEvent.click(screen.getByText('dashboard.save'));
-
-    expect(createMutate).toHaveBeenCalledWith(
-      expect.objectContaining({ accessMode: 'SUBSCRIPTION' }),
-      expect.anything(),
-    );
-  });
-
-  it('hints that pricing is set after creation instead of showing price fields', () => {
-    render(<ChannelForm />);
-    type('dashboard.accessMode', 'SUBSCRIPTION');
-
-    expect(screen.getByText('dashboard.pricing.setPriceAfterCreate')).toBeInTheDocument();
-    expect(screen.queryByLabelText('dashboard.pricing.monthlyPrice')).toBeNull();
-  });
-
-  it('creates the channel under the picked organization', () => {
-    render(<ChannelForm />);
-    fill();
-    type('nav.organizations', 'org-2');
-
-    fireEvent.click(screen.getByText('dashboard.save'));
-
-    expect(createMutate).toHaveBeenCalledWith(
-      expect.objectContaining({ organizationId: 'org-2' }),
-      expect.anything(),
-    );
-  });
-
-  it('does not submit an incomplete form', () => {
-    render(<ChannelForm />);
-
-    fireEvent.click(screen.getByText('dashboard.save'));
-
-    expect(createMutate).not.toHaveBeenCalled();
-  });
-
-  it('goes to the new channel once it is created', () => {
-    createMutate.mockImplementation((_input, options) =>
-      options.onSuccess({ id: 'ch-1', slug: 'canal-um' }),
-    );
-
-    render(<ChannelForm />);
-    fill();
-    fireEvent.click(screen.getByText('dashboard.save'));
-
-    expect(push).toHaveBeenCalledWith('/dashboard/channels/canal-um');
-  });
-
-  it('derives the slug from the name until the slug is edited by hand', () => {
-    render(<ChannelForm />);
-
-    type('dashboard.name', 'Canal do Sertão!');
-    expect(screen.getByLabelText('dashboard.slug')).toHaveValue('canal-do-sertao');
-
-    type('dashboard.slug', 'meu-canal');
-    type('dashboard.name', 'Outro Nome');
-    expect(screen.getByLabelText('dashboard.slug')).toHaveValue('meu-canal');
-  });
-
-  it('refuses to submit a slug the backend would reject', () => {
-    render(<ChannelForm />);
-    fill();
-
-    type('dashboard.slug', 'Canal Inválido!');
-    fireEvent.click(screen.getByText('dashboard.save'));
-    expect(createMutate).not.toHaveBeenCalled();
-
-    // Curto demais também não passa.
-    type('dashboard.slug', 'ab');
-    fireEvent.click(screen.getByText('dashboard.save'));
-    expect(createMutate).not.toHaveBeenCalled();
-  });
-
-  it('constrains the slug natively too', () => {
-    render(<ChannelForm />);
-
-    const slugInput = screen.getByLabelText('dashboard.slug');
-    expect(slugInput).toHaveAttribute('pattern', '[a-z0-9]+(-[a-z0-9]+)*');
-    expect(slugInput).toHaveAttribute('minLength', '3');
-    expect(slugInput).toHaveAttribute('maxLength', '80');
-  });
-});
-
 describe('ChannelForm — edit', () => {
   beforeEach(() => {
-    createMutate.mockReset();
     updateMutate.mockReset();
     uploadMutate.mockReset();
   });
 
   it('prefills the form from the channel and freezes the slug', () => {
-    render(<ChannelForm mode="edit" initial={channel()} />);
+    render(<ChannelForm initial={channel()} />);
 
     expect(screen.getByLabelText('dashboard.name')).toHaveValue('Canal Um');
     expect(screen.getByLabelText('dashboard.slug')).toHaveValue('canal-um');
@@ -188,7 +50,7 @@ describe('ChannelForm — edit', () => {
   });
 
   it('updates the channel with the changed fields', () => {
-    render(<ChannelForm mode="edit" initial={channel()} />);
+    render(<ChannelForm initial={channel()} />);
 
     type('dashboard.name', 'Canal Dois');
     type('dashboard.description', 'Só música');
@@ -210,11 +72,10 @@ describe('ChannelForm — edit', () => {
       },
       expect.anything(),
     );
-    expect(createMutate).not.toHaveBeenCalled();
   });
 
   it('uploads the picked cover file', () => {
-    render(<ChannelForm mode="edit" initial={channel()} />);
+    render(<ChannelForm initial={channel()} />);
 
     const file = new File(['x'], 'capa.png', { type: 'image/png' });
     fireEvent.change(screen.getByLabelText('dashboard.cover'), { target: { files: [file] } });
@@ -228,7 +89,7 @@ describe('ChannelForm — edit', () => {
   });
 
   it('only accepts the image types the backend allows', () => {
-    render(<ChannelForm mode="edit" initial={channel()} />);
+    render(<ChannelForm initial={channel()} />);
 
     expect(screen.getByLabelText('dashboard.cover')).toHaveAttribute(
       'accept',
@@ -237,7 +98,7 @@ describe('ChannelForm — edit', () => {
   });
 
   it('offers subscription access', () => {
-    render(<ChannelForm mode="edit" initial={channel()} />);
+    render(<ChannelForm initial={channel()} />);
 
     expect(screen.getByText('dashboard.accessSubscription')).not.toBeDisabled();
   });
@@ -245,7 +106,6 @@ describe('ChannelForm — edit', () => {
 
 describe('ChannelForm — subscription pricing', () => {
   beforeEach(() => {
-    createMutate.mockReset();
     updateMutate.mockReset();
     uploadMutate.mockReset();
   });
@@ -253,13 +113,13 @@ describe('ChannelForm — subscription pricing', () => {
   const enableSubscription = () => type('dashboard.accessMode', 'SUBSCRIPTION');
 
   it('hides pricing fields for a FREE channel', () => {
-    render(<ChannelForm mode="edit" initial={channel()} />);
+    render(<ChannelForm initial={channel()} />);
 
     expect(screen.queryByLabelText('dashboard.pricing.monthlyPrice')).toBeNull();
   });
 
   it('shows currency and price fields once SUBSCRIPTION is picked', () => {
-    render(<ChannelForm mode="edit" initial={channel()} />);
+    render(<ChannelForm initial={channel()} />);
 
     enableSubscription();
 
@@ -276,7 +136,7 @@ describe('ChannelForm — subscription pricing', () => {
       yearlyPriceCents: 19900,
     };
 
-    render(<ChannelForm mode="edit" initial={withPricing} />);
+    render(<ChannelForm initial={withPricing} />);
 
     expect(screen.getByLabelText('dashboard.pricing.currency')).toHaveValue('USD');
     expect(screen.getByLabelText('dashboard.pricing.monthlyPrice')).toHaveValue(19.9);
@@ -284,7 +144,7 @@ describe('ChannelForm — subscription pricing', () => {
   });
 
   it('refuses to submit a SUBSCRIPTION channel with no price set', () => {
-    render(<ChannelForm mode="edit" initial={channel()} />);
+    render(<ChannelForm initial={channel()} />);
     enableSubscription();
 
     fireEvent.click(screen.getByText('dashboard.save'));
@@ -293,7 +153,7 @@ describe('ChannelForm — subscription pricing', () => {
   });
 
   it('refuses a price below the 1,00 minimum', () => {
-    render(<ChannelForm mode="edit" initial={channel()} />);
+    render(<ChannelForm initial={channel()} />);
     enableSubscription();
     type('dashboard.pricing.monthlyPrice', '0.50');
 
@@ -303,7 +163,7 @@ describe('ChannelForm — subscription pricing', () => {
   });
 
   it('submits with at least one valid price, converted to cents, and the blank interval as null', () => {
-    render(<ChannelForm mode="edit" initial={channel()} />);
+    render(<ChannelForm initial={channel()} />);
     enableSubscription();
     type('dashboard.pricing.monthlyPrice', '19.90');
 
@@ -330,7 +190,7 @@ describe('ChannelForm — subscription pricing', () => {
       monthlyPriceCents: 1990,
       yearlyPriceCents: 19900,
     };
-    render(<ChannelForm mode="edit" initial={withPricing} />);
+    render(<ChannelForm initial={withPricing} />);
 
     type('dashboard.pricing.yearlyPrice', '');
     fireEvent.click(screen.getByText('dashboard.save'));
@@ -344,15 +204,5 @@ describe('ChannelForm — subscription pricing', () => {
       }),
       expect.anything(),
     );
-  });
-});
-
-describe('slugify', () => {
-  it('strips accents, case and punctuation', () => {
-    expect(slugify('Canal do Sertão!')).toBe('canal-do-sertao');
-  });
-
-  it('does not leave dangling separators', () => {
-    expect(slugify('  --Canal--  ')).toBe('canal');
   });
 });

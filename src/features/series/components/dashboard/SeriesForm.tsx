@@ -9,7 +9,7 @@ import { WEEKDAYS, buildRRule, parseRRule, type Weekday } from '@/features/chann
 import { wallClockToUtcISOString, utcInstantToWallClock } from '../../utils/wall-clock';
 import { useCreateSeriesMutation, useUpdateSeriesMutation } from '../../mutations/series.mutations';
 import type { SeriesResponse } from '../../types/series.types';
-import { slugify } from '@/features/channels/components/dashboard/ChannelForm';
+import { slugify } from '@/features/events/utils/slug';
 import styles from './SeriesForm.module.scss';
 
 interface Props {
@@ -90,7 +90,7 @@ export function SeriesForm({ mode = 'create', initial, onDone }: Props) {
 
   const handleNameChange = (value: string) => {
     setName(value);
-    if (!slugTouched) setSlug(slugify(value));
+    if (!slugTouched) setSlug(slugify(value, SLUG_MAX));
   };
 
   const toggleDay = (day: Weekday) =>

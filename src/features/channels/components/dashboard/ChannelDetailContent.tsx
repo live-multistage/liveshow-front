@@ -140,7 +140,7 @@ export function ChannelDetailContent({ slug }: Props) {
           <DialogHeader>
             <DialogTitle>{t('dashboard.edit')}</DialogTitle>
           </DialogHeader>
-          <ChannelForm mode="edit" initial={orgChannel ?? channel} onDone={() => setEditing(false)} />
+          <ChannelForm initial={orgChannel ?? channel} onDone={() => setEditing(false)} />
         </DialogContent>
       </Dialog>
     </div>
