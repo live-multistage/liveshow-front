@@ -9,10 +9,11 @@ import { NotificationsDropdown } from '@/features/notifications';
 import { NAV_BY_ROLE, DASHBOARD_ROLES } from '../types/dashboard.types';
 import { DashboardUserMenu } from './DashboardUserMenu';
 import type { UserRole } from '@/types';
+import { DEFAULT_FEATURE_FLAGS, type FeatureFlags } from '@/features/feature-flags';
 import styles from './DashboardSidebar.module.scss';
 import { ArrowUpRight } from 'lucide-react';
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ flags = DEFAULT_FEATURE_FLAGS }: { flags?: FeatureFlags }) {
   const t = useTranslations('dashboard.nav');
   const { user } = useAuth();
   const pathname = usePathname();
@@ -20,7 +21,7 @@ export function DashboardSidebar() {
   if (!user || !DASHBOARD_ROLES.includes(user.role)) return null;
 
   const role = user.role as Exclude<UserRole, 'USER'>;
-  const navItems = NAV_BY_ROLE[role];
+  const navItems = NAV_BY_ROLE[role].filter((item) => !item.flag || flags[item.flag]);
 
   return (
     <aside className={styles.sidebar}>

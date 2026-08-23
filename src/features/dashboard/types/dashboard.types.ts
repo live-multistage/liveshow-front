@@ -18,8 +18,10 @@ import {
   Wallet,
   Tag,
   Settings,
+  Flag,
 } from 'lucide-react';
 import type { UserRole } from '@/types';
+import type { FeatureFlagKey } from '@/features/feature-flags';
 import { PendingOrgsBadge } from '@/features/platform-admin/components/PendingOrgsBadge';
 import { config } from '@/config';
 
@@ -32,6 +34,8 @@ export interface NavItem {
   // Section header shown above the item when it differs from the previous
   // item's group. Used by the grouped super-admin sidebar; omit for flat navs.
   group?: string;
+  // Item is hidden (sidebar + mobile nav) when this flag resolves to false.
+  flag?: FeatureFlagKey;
 }
 
 export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
@@ -42,8 +46,8 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'sales',          href: '/dashboard/sales',          icon: ShoppingCart },
     { navKey: 'coupons',        href: '/dashboard/coupons',        icon: Ticket },
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
-    { navKey: 'channels',       href: '/dashboard/channels',       icon: Tv },
-    { navKey: 'series',         href: '/dashboard/series',         icon: Repeat },
+    { navKey: 'channels',       href: '/dashboard/channels',       icon: Tv,   flag: 'linear_channels' },
+    { navKey: 'series',         href: '/dashboard/series',         icon: Repeat, flag: 'linear_channels' },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
     { navKey: 'advertisement',  href: config.adsManagerUrl,        icon: Megaphone, external: true },
   ],
@@ -54,8 +58,8 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'sales',          href: '/dashboard/sales',          icon: ShoppingCart },
     { navKey: 'coupons',        href: '/dashboard/coupons',        icon: Ticket },
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
-    { navKey: 'channels',       href: '/dashboard/channels',       icon: Tv },
-    { navKey: 'series',         href: '/dashboard/series',         icon: Repeat },
+    { navKey: 'channels',       href: '/dashboard/channels',       icon: Tv,   flag: 'linear_channels' },
+    { navKey: 'series',         href: '/dashboard/series',         icon: Repeat, flag: 'linear_channels' },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
     { navKey: 'advertisement',  href: config.adsManagerUrl,        icon: Megaphone, external: true },
   ],
@@ -78,6 +82,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'platformAds',           href: '/dashboard/platform/ads',           icon: Megaphone,    group: 'OPERACIONAL' },
     { navKey: 'platformCoupons',       href: '/dashboard/platform/coupons',       icon: Tag,          group: 'OPERACIONAL' },
     { navKey: 'platformSettings',      href: '/dashboard/platform/settings',      icon: Settings,     group: 'CONFIG & GOVERNANÇA' },
+    { navKey: 'platformFeatureFlags',  href: '/dashboard/platform/feature-flags', icon: Flag,         group: 'CONFIG & GOVERNANÇA' },
     { navKey: 'platformAudit',         href: '/dashboard/platform/audit',         icon: ShieldCheck,  group: 'CONFIG & GOVERNANÇA' },
   ],
 };
