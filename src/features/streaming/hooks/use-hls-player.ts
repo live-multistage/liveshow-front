@@ -21,36 +21,111 @@ export interface QualityLevel {
 // real hls.js instance. JWT chars (base64url + '.') are never percent-encoded
 // by URLSearchParams, so round-tripping the value is lossless.
 
-// The current `pt` value from a manifest path/URL, or null when absent.
+// A media path is either relative to the API (proxied through config.apiUrl,
+// today's behavior) or, when MEDIA_CDN_BASE_URL is configured on the backend,
+// an ABSOLUTE URL on the CDN host — already fully qualified, so it must be
+// used as-is.
+const ABSOLUTE_URL_RE = /^https?:\/\//;
+function isAbsoluteMediaUrl(url: string): boolean {
+  return ABSOLUTE_URL_RE.test(url);
+}
+
+export function resolveMediaUrl(path: string): string {
+  return isAbsoluteMediaUrl(path) ? path : `${config.apiUrl}${path}`;
+}
+
+// Bunny Token Authentication always stamps `token_path` alongside its own
+// `token`/`expires` (see the backend's MediaUrlBuilder) — it never appears on
+// a legacy (non-CDN) URL, so its presence is what actually marks a URL as
+// CDN-signed. Scheme alone (`https://`) is NOT a safe signal here: config.apiUrl
+// itself can be an absolute origin in production with no CDN involved.
+function hasCdnSignature(url: string): boolean {
+  const q = url.indexOf('?');
+  if (q === -1) return false;
+  return new URLSearchParams(url.slice(q + 1)).has('token_path');
+}
+
+// The current viewer-JWT value from a manifest path/URL, or null when absent.
+// `pt` is the name in both the CDN (Bunny reserves `token` for its own
+// signature) and non-CDN cases going forward; `token` is read only as a
+// legacy fallback when the URL carries no CDN signature — never on a
+// CDN-signed URL, where `token`/`expires`/`token_path` belong to Bunny.
 export function extractPt(url: string): string | null {
   const q = url.indexOf('?');
   if (q === -1) return null;
-  return new URLSearchParams(url.slice(q + 1)).get('pt');
+  const params = new URLSearchParams(url.slice(q + 1));
+  const pt = params.get('pt');
+  if (pt !== null) return pt;
+  if (hasCdnSignature(url)) return null;
+  return params.get('token');
 }
 
-// A stable key that ignores the token: two URLs differing ONLY in `pt` produce
-// the same base, so the build effect keys on real source changes (packageId /
-// job rotation) and not 5s token refreshes.
+// A stable key that ignores the viewer token: two URLs differing ONLY in that
+// token produce the same base, so the build effect keys on real source
+// changes (packageId / job rotation) and not 5s token refreshes. Only ever
+// strips `pt`/legacy `token` — never Bunny's `token`/`expires`/`token_path`
+// on a CDN-signed URL.
 export function stripPt(url: string): string {
   const q = url.indexOf('?');
   if (q === -1) return url;
   const params = new URLSearchParams(url.slice(q + 1));
+  const legacyToken = !params.has('pt') && !hasCdnSignature(url);
   params.delete('pt');
+  if (legacyToken) params.delete('token');
   const rest = params.toString();
   return rest ? `${url.slice(0, q)}?${rest}` : url.slice(0, q);
 }
 
-// Rewrite an outgoing request URL's `pt` to `token`. Falls through unchanged
-// when there is no token or the URL carries no `pt` (e.g. backend rolled the
-// signed-URL scheme back) so playback degrades gracefully rather than breaking.
+// Rewrite an outgoing request URL's viewer token (`pt`, or legacy `token` when
+// the URL carries no CDN signature) to the freshest one. Falls through
+// unchanged when there is no token, the URL carries neither param, or the
+// URL is CDN-signed with no `pt` — Bunny's own `token`/`expires`/`token_path`
+// must never be touched here.
 export function replacePtParam(url: string, token: string | null): string {
   if (!token) return url;
   const q = url.indexOf('?');
   if (q === -1) return url;
   const params = new URLSearchParams(url.slice(q + 1));
-  if (!params.has('pt')) return url;
-  params.set('pt', token);
-  return `${url.slice(0, q)}?${params.toString()}`;
+  if (params.has('pt')) {
+    params.set('pt', token);
+    return `${url.slice(0, q)}?${params.toString()}`;
+  }
+  if (!hasCdnSignature(url) && params.has('token')) {
+    params.set('token', token);
+    return `${url.slice(0, q)}?${params.toString()}`;
+  }
+  return url;
+}
+
+// Bunny Token Authentication params on a CDN-signed manifest URL that its
+// children (parts/segments/child playlists) must inherit — hls.js does not
+// propagate query strings to the requests it derives from a playlist, and
+// Bunny scopes the signature to `token_path`'s directory rather than to each
+// file individually.
+const CDN_SIGNING_PARAMS = ['token', 'expires', 'token_path'] as const;
+
+function cdnSigningParams(manifestUrl: string): [string, string][] {
+  const q = manifestUrl.indexOf('?');
+  if (q === -1) return [];
+  const params = new URLSearchParams(manifestUrl.slice(q + 1));
+  return CDN_SIGNING_PARAMS.filter((k) => params.has(k)).map((k) => [k, params.get(k)!]);
+}
+
+// Append any CDN signing params missing from a child request URL. No-op when
+// there is nothing to propagate (non-CDN) or the URL already carries them.
+function withCdnSigningParams(url: string, params: [string, string][]): string {
+  if (params.length === 0) return url;
+  const q = url.indexOf('?');
+  const search = new URLSearchParams(q === -1 ? '' : url.slice(q + 1));
+  let changed = false;
+  for (const [k, v] of params) {
+    if (!search.has(k)) {
+      search.set(k, v);
+      changed = true;
+    }
+  }
+  if (!changed) return url;
+  return `${q === -1 ? url : url.slice(0, q)}?${search.toString()}`;
 }
 
 // How far behind the live edge hls.js tolerates before it force-seeks the
@@ -193,7 +268,7 @@ export function useHlsPlayer({
 
   const [error, setError] = useState(false);
   const connecting = camera.manifestPath === null;
-  const src = connecting ? null : `${config.apiUrl}${camera.manifestPath}`;
+  const src = camera.manifestPath === null ? null : resolveMediaUrl(camera.manifestPath);
   // The live STANDARD src now carries a `?pt` token refreshed every 5s poll,
   // so `src` changes every 5s. Keying the build effect on the token-STRIPPED
   // src rebuilds only on a REAL source change (packageId / job rotation), not
@@ -276,7 +351,7 @@ export function useHlsPlayer({
     // ladder, so bad bandwidth must degrade to it rather than freeze.
     // STANDARD events (llPath null) and replay always use the STANDARD
     // tuning below, unchanged from before this fallback existed.
-    const activeSrc = hasLl ? `${config.apiUrl}${llPathRef.current}` : srcRef.current!;
+    const activeSrc = hasLl ? resolveMediaUrl(llPathRef.current!) : srcRef.current!;
 
     // ~3 segments (~6s) behind the live edge on the STANDARD tuning.
     // lowLatencyMode/tighter sync only makes sense against the LL-HLS
@@ -310,12 +385,18 @@ export function useHlsPlayer({
       // xhrSetup BEFORE opening and only opens itself when `!xhr.readyState`,
       // so opening here with the rewritten URL wins. LL path is left untouched
       // (its token lifetime rides the existing LL→STANDARD fallback latch).
-      ...(mode === 'live' && !hasLl && {
-        xhrSetup: (xhr: XMLHttpRequest, url: string) => {
-          const next = replacePtParam(url, ptRef.current);
-          if (next !== url) xhr.open('GET', next, true);
-        },
-      }),
+      ...(mode === 'live' &&
+        !hasLl && {
+          xhrSetup: (xhr: XMLHttpRequest, url: string) => {
+            // hls.js resolves child requests (parts/segments/child playlists)
+            // against the manifest URL but does not carry its query string —
+            // a CDN manifest's Bunny signature (token/expires/token_path) must
+            // be copied onto them explicitly or they 403 at the edge.
+            const withCdn = withCdnSigningParams(url, cdnSigningParams(srcRef.current ?? ''));
+            const next = replacePtParam(withCdn, ptRef.current);
+            if (next !== url) xhr.open('GET', next, true);
+          },
+        }),
     });
     hls.loadSource(activeSrc);
     hls.attachMedia(video);
