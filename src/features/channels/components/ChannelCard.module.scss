@@ -1,13 +1,38 @@
 @use '../../../styles/_variables' as *;
 
+@keyframes channel-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes channel-bar {
+  0%,
+  100% {
+    transform: scaleY(0.5);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
 .card {
   display: block;
   width: 100%;
   text-decoration: none;
   color: inherit;
+  border-radius: 0.875rem;
+  background: #0e0e11;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
 
-  &:hover .coverImage {
-    transform: scale(1.04);
+  &:hover {
+    border-color: rgba(255, 46, 158, 0.45);
   }
 }
 
@@ -15,76 +40,273 @@
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: 0.5rem;
-  border: 1px solid $border;
   background: $surface;
+}
+
+.coverOffline {
+  .coverImage,
+  .coverFallback {
+    opacity: 0.7;
+  }
 }
 
 .coverImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.25s ease;
 }
 
+// Sem arte: gradiente magenta, nunca a inicial cinza em caixa vazia.
 .coverFallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 100%;
   height: 100%;
-  font-size: 2rem;
-  font-weight: 700;
-  color: $text-muted;
-  background: $surface-dark;
+  background: linear-gradient(150deg, #2a0c1c, #131318 58%, #0c0c0f);
 }
 
 .onAir {
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
+  top: 0.6875rem;
+  left: 0.6875rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.2rem 0.45rem;
-  border-radius: 0.25rem;
-  background: $danger;
-  color: $text-primary;
-  font-size: 0.625rem;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.5rem;
+  border-radius: 0.3125rem;
+  background: rgba(255, 46, 158, 0.92);
+  color: #0a0a0b;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
 }
 
 .onAirDot {
-  width: 0.375rem;
-  height: 0.375rem;
+  width: 0.28125rem;
+  height: 0.28125rem;
   border-radius: 50%;
-  background: $text-primary;
+  background: #0a0a0b;
+  animation: channel-pulse 1.3s infinite;
+}
+
+.offAir {
+  position: absolute;
+  top: 0.6875rem;
+  left: 0.6875rem;
+  padding: 0.3125rem 0.5rem;
+  border-radius: 0.3125rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: $text-secondary;
+  background: rgba(8, 8, 10, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.badge24h {
+  position: absolute;
+  top: 0.6875rem;
+  right: 0.6875rem;
+  padding: 0.3125rem 0.5rem;
+  border-radius: 0.3125rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: $text-primary;
+  background: rgba(8, 8, 10, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+// Bug do canal sobre a imagem, como TV.
+.bug {
+  position: absolute;
+  left: 0.6875rem;
+  bottom: 0.6875rem;
+  max-width: calc(100% - 1.375rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.5625rem 0.3125rem 0.4375rem;
+  border-radius: 0.4375rem;
+  background: rgba(8, 8, 10, 0.66);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bugWave {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 0.6875rem;
+  flex: none;
+}
+
+.bugBar {
+  width: 2.5px;
+  border-radius: 2px;
+  background: #52525b;
+  transform-origin: bottom;
+
+  &:nth-child(1) {
+    height: 60%;
+  }
+  &:nth-child(2) {
+    height: 100%;
+  }
+  &:nth-child(3) {
+    height: 72%;
+  }
+}
+
+.bugBarLive {
+  background: $action;
+  animation: channel-bar 1.1s ease-in-out infinite;
+
+  &:nth-child(2) {
+    animation-delay: 0.18s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.36s;
+  }
+}
+
+.bugLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: $text-primary;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .body {
-  padding-top: 0.5rem;
+  padding: 0.8125rem 0.9375rem 0.9375rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6875rem;
+}
+
+.nameRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5625rem;
 }
 
 .name {
   margin: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
   color: $text-primary;
 }
 
-.current {
-  margin: 0.15rem 0 0;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.75rem;
-  color: $text-secondary;
+.accessPill {
+  flex: none;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: 999px;
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
 }
 
-.currentLabel {
-  font-size: 0.625rem;
+.accessFree {
+  color: #7fe0a0;
+  background: rgba(127, 224, 160, 0.1);
+  border: 1px solid rgba(127, 224, 160, 0.3);
+}
+
+.accessSub {
+  color: #ff8ec9;
+  background: rgba(255, 46, 158, 0.1);
+  border: 1px solid rgba(255, 46, 158, 0.32);
+}
+
+.schedule {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.slotRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.slotLabel {
+  flex: none;
+  width: 3.375rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  color: $action;
+  letter-spacing: 0.12em;
+  color: #5c5c66;
+  white-space: nowrap;
+}
+
+.slotLabelNow {
+  color: #ff8ec9;
+}
+
+.slotNameNow {
+  font-size: 0.78125rem;
+  font-weight: 600;
+  color: #e4e4e8;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slotNameNext {
+  font-size: 0.75rem;
+  color: $text-muted;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.progressTrack {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 2px;
+  background: #52525b;
+}
+
+.progressFillLive {
+  background: $action;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4375rem;
+  padding: 0.5625rem 0;
+  border-radius: 0.5rem;
+  background: $action-bg;
+  border: 1px solid rgba(255, 46, 158, 0.35);
+  color: #ff8ec9;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  transition: background 0.2s ease;
+
+  .card:hover & {
+    background: rgba(255, 46, 158, 0.2);
+  }
 }

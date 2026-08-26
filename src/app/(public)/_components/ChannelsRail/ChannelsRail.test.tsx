@@ -23,6 +23,7 @@ const channel = (overrides: Partial<ChannelListItem> = {}): ChannelListItem => (
   updatedAt: '2026-08-01T00:00:00.000Z',
   isOnAir: false,
   current: null,
+  next: null,
   ...overrides,
 });
 
@@ -40,8 +41,12 @@ describe('ChannelsRail', () => {
       />,
     );
 
-    expect(screen.getByText('Canal Um').closest('a')).toHaveAttribute('href', '/channels/canal-um');
-    expect(screen.getByText('Canal Dois').closest('a')).toHaveAttribute(
+    // O nome aparece duas vezes por card (bug sobre a arte + título do corpo).
+    expect(screen.getAllByText('Canal Um')[0].closest('a')).toHaveAttribute(
+      'href',
+      '/channels/canal-um',
+    );
+    expect(screen.getAllByText('Canal Dois')[0].closest('a')).toHaveAttribute(
       'href',
       '/channels/canal-dois',
     );

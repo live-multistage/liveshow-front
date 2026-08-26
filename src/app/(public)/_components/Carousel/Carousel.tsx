@@ -8,12 +8,13 @@ import styles from './Carousel.module.scss';
 
 interface CarouselProps {
   title?: string;
+  eyebrow?: React.ReactNode;
   showLiveDot?: boolean;
   seeAllHref?: string;
   children: React.ReactNode;
 }
 
-export function Carousel({ title, showLiveDot = false, seeAllHref, children }: CarouselProps) {
+export function Carousel({ title, eyebrow, showLiveDot = false, seeAllHref, children }: CarouselProps) {
   const t = useTranslations('carousel');
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -27,9 +28,12 @@ export function Carousel({ title, showLiveDot = false, seeAllHref, children }: C
     <div className={styles.section}>
       {(title || seeAllHref) && (
         <div className={styles.header}>
-          <div className={styles.titleRow}>
-            {showLiveDot && <span className={styles.liveDot} />}
-            {title && <h2 className={styles.title}>{title}</h2>}
+          <div className={styles.titleColumn}>
+            {eyebrow && <div className={styles.eyebrow}>{eyebrow}</div>}
+            <div className={styles.titleRow}>
+              {showLiveDot && <span className={styles.liveDot} />}
+              {title && <h2 className={styles.title}>{title}</h2>}
+            </div>
           </div>
           {seeAllHref && (
             <Link href={seeAllHref} className={styles.seeAll}>

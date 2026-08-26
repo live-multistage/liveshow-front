@@ -28,6 +28,7 @@ const series = (overrides: Partial<SeriesListItem> = {}): SeriesListItem => ({
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
   nextEpisode: null,
+  episodeCount: 0,
   ...overrides,
 });
 

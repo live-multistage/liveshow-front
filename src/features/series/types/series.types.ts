@@ -41,6 +41,7 @@ export interface SeriesOrgResponse extends SeriesResponse {
 
 export interface SeriesListItem extends SeriesResponse {
   nextEpisode: SeriesEpisode | null;
+  episodeCount: number;
 }
 
 // Public shape of a season-pass ticket product (GET /series/:slug) — no

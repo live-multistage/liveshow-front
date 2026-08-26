@@ -1470,7 +1470,15 @@
       "delete": "Delete program",
       "deleteConfirm": "Confirm delete?",
       "deleting": "Deleting…"
-    }
+    },
+    "railEyebrow": "Linear TV · 24h",
+    "onAirCount": "{count} on air",
+    "offAirBadge": "OFF AIR",
+    "badge24h": "24H",
+    "free": "FREE",
+    "subscriptionBadge": "SUBSCRIPTION",
+    "enterLive": "Watch live",
+    "atTime": "AT {time}"
   },
   "series": {
     "title": "Programs",
@@ -1489,7 +1497,9 @@
     "empty": "No active series right now.",
     "recurrence": {
       "weekly": "Every {day} · {time}",
-      "daily": "Every day · {time}"
+      "daily": "Every day · {time}",
+      "badgeWeekly": "Every {day}",
+      "badgeDaily": "Every day"
     },
     "dashboard": {
       "title": "Series",
@@ -1582,6 +1592,16 @@
         "episodesDescription": "Automatic, once a day — or use \"Generate now\" on the series page.",
         "lifecycle": "ACTIVE → PAUSED → ENDED"
       }
-    }
+    },
+    "railEyebrow": "Recurring series",
+    "episodesShort": "{count, plural, one {# EP.} other {# EPS.}}",
+    "nextEpisodeLabel": "Next episode",
+    "seasonEnded": "Season ended",
+    "replayBadge": "REPLAY",
+    "inCountdown": "IN {value}",
+    "follow": "Follow program",
+    "viewEpisodes": "View episodes",
+    "endedHint": "Episodes available as replay",
+    "noUpcoming": "No date scheduled"
   }
 }

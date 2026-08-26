@@ -1,22 +1,60 @@
 @use '../../../styles/_variables' as *;
 
+$violet: #c07bff;
+$violet-soft: #d3a6ff;
+
 .card {
+  position: relative;
   display: block;
   width: 100%;
+  padding-top: 0.625rem;
   text-decoration: none;
   color: inherit;
 
-  &:hover .coverImage {
-    transform: scale(1.04);
+  &:hover .inner {
+    border-color: rgba(192, 123, 255, 0.5);
   }
+}
+
+// Pilha de cards atrás da capa: é um conjunto de episódios, não sessão única.
+.deckLayer {
+  position: absolute;
+  height: 0.75rem;
+  border-radius: 0.75rem 0.75rem 0 0;
+  border-bottom: none;
+}
+
+.deckLayerBack {
+  top: 0;
+  left: 0.8125rem;
+  right: 0.8125rem;
+  background: #141419;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: none;
+}
+
+.deckLayerFront {
+  top: 0.3125rem;
+  left: 0.40625rem;
+  right: 0.40625rem;
+  background: #191920;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
+}
+
+.inner {
+  position: relative;
+  border-radius: 0.875rem;
+  background: #0e0e11;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
 }
 
 .cover {
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: 0.5rem;
-  border: 1px solid $border;
   background: $surface;
 }
 
@@ -24,54 +62,150 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.25s ease;
 }
 
+// Sem arte: gradiente violeta com a recorrência em destaque.
 .coverFallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 100%;
   height: 100%;
-  font-size: 2rem;
+  background: linear-gradient(150deg, #1d1030, #141420 58%, #0c0c0f);
+}
+
+.recurrenceBadge {
+  position: absolute;
+  top: 0.6875rem;
+  left: 0.6875rem;
+  max-width: calc(70% - 0.6875rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.3125rem 0.5rem;
+  border-radius: 0.3125rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
   font-weight: 700;
-  color: $text-muted;
-  background: $surface-dark;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $violet-soft;
+  background: rgba(8, 8, 10, 0.75);
+  border: 1px solid rgba(192, 123, 255, 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  svg {
+    flex: none;
+  }
+}
+
+.episodesBadge {
+  position: absolute;
+  top: 0.6875rem;
+  right: 0.6875rem;
+  padding: 0.3125rem 0.5rem;
+  border-radius: 0.3125rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #d4d4da;
+  background: rgba(8, 8, 10, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  white-space: nowrap;
 }
 
 .body {
-  padding-top: 0.5rem;
+  padding: 0.8125rem 0.9375rem 0.9375rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6875rem;
 }
 
 .name {
   margin: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
   color: $text-primary;
 }
 
-.recurrence {
-  margin: 0.15rem 0 0;
-  font-size: 0.75rem;
-  color: $action;
+.nextBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4375rem;
+  padding: 0.625rem 0.6875rem;
+  border-radius: 0.5625rem;
+  background: #141419;
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.nextEpisode {
-  margin: 0.25rem 0 0;
+.nextHeader {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.75rem;
-  color: $text-secondary;
+  justify-content: space-between;
+  gap: 0.5625rem;
+}
+
+.nextLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: $text-muted;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.countdown {
+  flex: none;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  color: $violet-soft;
+  white-space: nowrap;
+}
+
+.countdownMuted {
+  color: $text-muted;
+}
+
+.nextTitle {
+  font-size: 0.78125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: $text-primary;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.nextLabel {
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+.nextTitleMuted {
+  font-weight: 400;
+  color: $text-secondary;
+}
+
+.nextWhen {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.59375rem;
   color: $text-muted;
-  flex-shrink: 0;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5625rem 0;
+  border-radius: 0.5rem;
+  background: rgba(192, 123, 255, 0.12);
+  border: 1px solid rgba(192, 123, 255, 0.35);
+  color: $violet-soft;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  transition: background 0.2s ease;
+
+  .card:hover & {
+    background: rgba(192, 123, 255, 0.2);
+  }
 }

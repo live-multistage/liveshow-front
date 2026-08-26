@@ -34,6 +34,7 @@ const LIST_ITEM: ChannelListItem = {
   ...CHANNEL,
   isOnAir: false,
   current: null,
+  next: null,
 };
 
 const SLOT: ScheduledSlot = {

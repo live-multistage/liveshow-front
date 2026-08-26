@@ -1473,7 +1473,15 @@
       "delete": "Excluir programa",
       "deleteConfirm": "Confirmar exclusão?",
       "deleting": "Excluindo…"
-    }
+    },
+    "railEyebrow": "TV Linear · 24h",
+    "onAirCount": "{count} no ar",
+    "offAirBadge": "FORA DO AR",
+    "badge24h": "24H",
+    "free": "GRÁTIS",
+    "subscriptionBadge": "ASSINATURA",
+    "enterLive": "Entrar no ar",
+    "atTime": "ÀS {time}"
   },
   "series": {
     "title": "Programas",
@@ -1492,7 +1500,9 @@
     "empty": "Nenhuma série ativa no momento.",
     "recurrence": {
       "weekly": "Toda {day} · {time}",
-      "daily": "Todo dia · {time}"
+      "daily": "Todo dia · {time}",
+      "badgeWeekly": "Toda {day}",
+      "badgeDaily": "Todo dia"
     },
     "dashboard": {
       "title": "Séries",
@@ -1585,6 +1595,16 @@
         "episodesDescription": "Automático, todo dia — ou use \"Gerar agora\" na página do programa.",
         "lifecycle": "ATIVA → PAUSADA → ENCERRADA"
       }
-    }
+    },
+    "railEyebrow": "Séries recorrentes",
+    "episodesShort": "{count, plural, one {# EP.} other {# EPS.}}",
+    "nextEpisodeLabel": "Próximo episódio",
+    "seasonEnded": "Temporada encerrada",
+    "replayBadge": "REPLAY",
+    "inCountdown": "EM {value}",
+    "follow": "Acompanhar programa",
+    "viewEpisodes": "Ver episódios",
+    "endedHint": "Episódios disponíveis como replay",
+    "noUpcoming": "Sem data marcada"
   }
 }

@@ -105,6 +105,7 @@ export interface ChannelPlaybackResponse {
 export interface ChannelListItem extends Channel {
   isOnAir: boolean;
   current: ScheduledSlot | null;
+  next: ScheduledSlot | null;
 }
 
 export interface Program {
