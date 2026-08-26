@@ -509,6 +509,13 @@
   flex-shrink: 0;
   scroll-snap-align: start;
   width: 300px;
+  // Estica até o item mais alto do trilho; o card preenche e o rodapé de
+  // ações encosta embaixo (ver .eventCard/.eventCardLink flex:1).
+  display: flex;
+
+  > * {
+    width: 100%;
+  }
 
   @media (max-width: 540px) {
     width: 260px;
@@ -561,6 +568,7 @@
 .eventCard {
   display: flex;
   flex-direction: column;
+  height: 100%;
   background: #111114;
   border: 1px solid rgba(255, 255, 255, .07);
   border-radius: 16px;
@@ -586,6 +594,7 @@
 .eventCardLink {
   display: flex;
   flex-direction: column;
+  flex: 1;
   text-decoration: none;
   color: inherit;
 }
