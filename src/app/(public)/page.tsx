@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getLocale } from 'next-intl/server';
 import { EditorialHome } from '@/features/events/components/public/EditorialHome';
 import { LOCALE_CODE } from '@/features/events/components/public/editorial/editorial-parts';
@@ -8,6 +9,8 @@ import { getInitialIsLoggedIn } from '@/features/account/queries/get-auth-state.
 import { fetchChannels } from '@/features/channels/queries/get-channels.server';
 import { fetchSeries } from '@/features/series/queries/get-series.server';
 import { fetchFeatureFlags } from '@/features/feature-flags';
+
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 export default async function Home() {
   const [flags, initialEvents, initialRecommended, initialReplayCatalog, locale, isLoggedIn] =

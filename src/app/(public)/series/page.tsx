@@ -4,7 +4,11 @@ import { fetchSeries } from '@/features/series/queries/get-series.server';
 import { SeriesCard } from '@/features/series/components/SeriesCard';
 import styles from './page.module.scss';
 
-export const metadata: Metadata = { title: 'Séries' };
+export const metadata: Metadata = {
+  title: 'Séries',
+  description: 'Programas recorrentes e séries de transmissões ao vivo no showon.io.',
+  alternates: { canonical: '/series' },
+};
 
 // Listagem pública de séries ativas. É o destino do "ver todos" do trilho
 // da home e da saída da página de uma série.

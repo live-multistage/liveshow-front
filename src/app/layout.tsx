@@ -6,14 +6,44 @@ import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { Providers } from '@/providers';
 import { getInitialIsLoggedIn, getUserServer, checkAuthServer } from '@/features/account/queries/get-auth-state.server';
 import { ConsentBanner } from '@/features/consent';
+import { JsonLd } from '@/shared/components/JsonLd';
 import '@/styles/globals.scss';
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
+const SITE_DESCRIPTION = 'Shows ao vivo de todo o mundo, na palma da sua mão.';
+
 export const metadata: Metadata = {
+  // Anchors every relative URL in OG/canonical/twitter metadata to the real
+  // host — without it Next resolves them against localhost.
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'showon.io',
     template: '%s · showon.io',
   },
-  description: 'Shows ao vivo de todo o mundo, na palma da sua mão.',
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: 'website',
+    siteName: 'showon.io',
+    url: SITE_URL,
+    title: 'showon.io',
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'showon.io',
+    description: SITE_DESCRIPTION,
+  },
+};
+
+// Organization + WebSite schema for the whole site — shows the brand card and
+// enables a sitelinks search box eligibility in Google.
+const ORG_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'showon.io',
+  url: SITE_URL,
+  logo: `${SITE_URL}/showon-icon.svg`,
+  description: SITE_DESCRIPTION,
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -47,6 +77,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body>
+        <JsonLd data={ORG_JSON_LD} />
         <NextIntlClientProvider messages={messages}>
           <Providers
             initialIsLoggedIn={initialIsLoggedIn}

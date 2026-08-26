@@ -5,6 +5,8 @@ import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query
 import { EventDetailPageContent } from '@/features/events';
 import { fetchEvent, fetchEventByParam, fetchTicketProducts } from '@/features/events/queries/get-event.server';
 import { fetchLiveAccess, fetchReplayAccess, isTokenExpired } from '@/features/streaming/queries/streaming.server';
+import { JsonLd } from '@/shared/components/JsonLd';
+import { buildEventJsonLd } from '@/features/events/utils/event-json-ld';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 
@@ -92,6 +94,7 @@ export default async function ShowDetail({ params }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(qc)}>
+      {event && <JsonLd data={buildEventJsonLd(event, `${SITE_URL}/events/${event.slug || event.id}`)} />}
       <EventDetailPageContent id={id} />
     </HydrationBoundary>
   );

@@ -4,7 +4,11 @@ import { fetchChannels } from '@/features/channels/queries/get-channels.server';
 import { ChannelCard } from '@/features/channels/components/ChannelCard';
 import styles from './page.module.scss';
 
-export const metadata: Metadata = { title: 'Canais' };
+export const metadata: Metadata = {
+  title: 'Canais',
+  description: 'Canais 24h ao vivo — programação contínua de shows e eventos no showon.io.',
+  alternates: { canonical: '/channels' },
+};
 
 // Listagem pública de canais publicados. É o destino do "ver todos" do trilho
 // da home e da saída do player de canal.
