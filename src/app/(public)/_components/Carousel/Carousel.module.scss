@@ -116,20 +116,3 @@
 
 .arrowLeft  { left: 0.25rem; }
 .arrowRight { right: 0.25rem; }
-
-.titleColumn {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4375rem;
-}
-
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.65625rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
