@@ -106,13 +106,13 @@
 
 .adBannerWrapper {
   padding: 0 40px;
-  // The banner sits between two 40px-padded .gridSections; pull it up/down so
+  // The banner sits between two 16px-padded .gridSections; pull it up/down so
   // it reads as part of the flow instead of floating in a large gap.
-  margin: -20px 0;
+  margin: -8px 0;
 
   // Match the content gutter at each breakpoint — 40px here on a 390px screen
   // insets the ad past the cards it sits between.
-  @media (max-width: 767px) { padding: 0 20px; margin: -12px 0; }
+  @media (max-width: 767px) { padding: 0 20px; margin: -6px 0; }
 }
 
 // ── Inner layout ──────────────────────────────────────────────────
@@ -390,10 +390,10 @@
 // ── Genre + Grid section ──────────────────────────────────────────
 
 .gridSection {
-  padding: 40px;
+  padding: 16px 40px;
 
   @media (max-width: 767px) {
-    padding: 20px 20px 48px;
+    padding: 12px 20px 24px;
   }
 }
 
