@@ -1,4 +1,5 @@
-<svg width="272" height="220" viewBox="0 0 272 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="showon.io">
+<svg width="900" height="220" viewBox="0 0 900 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="showon.io">
+  <title>showon.io</title>
   <path d="M40 40 L40 180 L98 146" stroke="#FF2E9E" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"></path>
   <path d="M40 40 L98 74" stroke="#FF2E9E" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"></path>
   <circle cx="110" cy="110" r="7" fill="#FF2E9E"></circle>
@@ -7,4 +8,8 @@
   <rect x="176" y="48" width="14" height="124" rx="7" fill="#FF2E9E"></rect>
   <rect x="200" y="76" width="14" height="68" rx="7" fill="#FF2E9E"></rect>
   <circle cx="232" cy="110" r="7" fill="#FF2E9E"></circle>
+  <g font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="118" letter-spacing="-3.5">
+    <text x="300" y="150" fill="#FF2E9E">show<tspan fill="#FF2E9E">on</tspan></text>
+  </g>
+  <text x="740" y="150" font-family="'Space Mono', 'SFMono-Regular', Menlo, monospace" font-weight="700" font-size="68" fill="#FF2E9E">.io</text>
 </svg>

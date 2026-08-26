@@ -44,5 +44,5 @@ export function eventHref(event: { id: string; slug?: string | null }): string {
  */
 export function publicOrigin(): string {
   if (typeof window !== 'undefined') return window.location.origin;
-  return process.env.NEXT_PUBLIC_SITE_URL ?? 'https://liveshow.app';
+  return process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 }

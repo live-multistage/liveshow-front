@@ -53,7 +53,7 @@ export function GenreGrid({ shows, localeCode }: { shows: Show[]; localeCode: st
       <div className={styles.sectionHeader}>
         <div>
           <div className={styles.sectionEyebrow}>PRÓXIMOS SHOWS</div>
-          <div className={styles.sectionTitle}>Em alta na LIVESHOW</div>
+          <div className={styles.sectionTitle}>Em alta no showon.io</div>
         </div>
         <Link href="/events" className={styles.sectionMore}>
           VER TODOS →

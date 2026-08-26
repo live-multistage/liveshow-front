@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import type { PaginatedEventsResponse } from '@/features/events/types/event.types';
 import { eventHref } from '@/features/events/utils/slug';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://liveshow.app';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 
 const apiBase = () =>
   (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api').replace(/\/$/, '');

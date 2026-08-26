@@ -10,8 +10,8 @@ import '@/styles/globals.scss';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Liveshow',
-    template: '%s · Liveshow',
+    default: 'showon.io',
+    template: '%s · showon.io',
   },
   description: 'Shows ao vivo de todo o mundo, na palma da sua mão.',
 };
@@ -43,6 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"
           rel="stylesheet"
         />
+        <link rel="icon" href="/showon-icon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body>

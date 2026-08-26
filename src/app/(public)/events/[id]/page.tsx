@@ -6,7 +6,7 @@ import { EventDetailPageContent } from '@/features/events';
 import { fetchEvent, fetchEventByParam, fetchTicketProducts } from '@/features/events/queries/get-event.server';
 import { fetchLiveAccess, fetchReplayAccess, isTokenExpired } from '@/features/streaming/queries/streaming.server';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://liveshow.app';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 
 interface Props {
   params: Promise<{ id: string }>;

@@ -1,10 +1,10 @@
-# Liveshow
+# showon.io
 
 > Plataforma brasileira de transmissão ao vivo de shows e eventos. Eventos com
 > múltiplas câmeras, ingressos digitais ilimitados, replays sob demanda e
 > perfis públicos de organizações produtoras.
 
-Liveshow transmite shows, festivais e eventos culturais ao vivo pela internet.
+showon.io transmite shows, festivais e eventos culturais ao vivo pela internet.
 Cada evento pode oferecer vários ângulos de câmera simultâneos, e o espectador
 escolhe o ângulo ou assiste a todos no modo galeria. Ingressos são digitais e
 sem limite de estoque; alguns eventos oferecem replay após o encerramento.

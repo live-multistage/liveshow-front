@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { fetchEventByParam } from '@/features/events/queries/get-event.server';
 
-export const alt = 'Evento no Liveshow';
+export const alt = 'Evento no showon.io';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -84,8 +84,7 @@ export default async function OpengraphImage({ params }: Props) {
               }}
             />
             <div style={{ fontSize: 34, fontWeight: 800, letterSpacing: -1 }}>
-              Liveshow
-            </div>
+              showon.io            </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

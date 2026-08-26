@@ -112,7 +112,7 @@ export function PurchasesPageContent() {
           <div>
             <div className={styles.eyebrow}>HISTÓRICO DE PEDIDOS</div>
             <h1 className={styles.title}>Compras</h1>
-            <p className={styles.subtitle}>Todos os ingressos que você já adquiriu na Liveshow</p>
+            <p className={styles.subtitle}>Todos os ingressos que você já adquiriu no showon.io</p>
           </div>
           <div className={styles.stats}>
             <div className={styles.statCard}>

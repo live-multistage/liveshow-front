@@ -8,7 +8,7 @@ vi.mock('next/link', () => ({
 }));
 vi.mock('@live-show/design-system', () => ({
   Logo: ({ wordmarkClassName }: { wordmarkClassName?: string }) => (
-    <span className={wordmarkClassName}>LIVESHOW</span>
+    <span className={wordmarkClassName}>showon.io</span>
   ),
 }));
 

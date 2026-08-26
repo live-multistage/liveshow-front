@@ -32,7 +32,7 @@ export function DashboardMobileNav({ flags = DEFAULT_FEATURE_FLAGS }: { flags?: 
   return (
     <>
       <header className={styles.topBar}>
-        <Link href="/" className={styles.logoWrapper} aria-label="Liveshow">
+        <Link href="/" className={styles.logoWrapper} aria-label="showon.io">
           <Logo size={22} wordmarkClassName={styles.logoText} />
         </Link>
         <div className={styles.topActions}>

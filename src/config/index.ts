@@ -37,6 +37,6 @@ const mustProxy =
 
 export const config = {
   apiUrl: mustProxy ? '/api' : rawApiUrl,
-  appName: 'Liveshow',
+  appName: 'showon.io',
   adsManagerUrl: process.env.NEXT_PUBLIC_ADS_MANAGER_URL ?? 'http://localhost:3002',
 } as const;

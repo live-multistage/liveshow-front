@@ -40,7 +40,7 @@ export function EntryPassPageContent() {
 
       <div className={styles.pass}>
         <div className={styles.passHeader}>
-          <span className={styles.brand}>LIVESHOW</span>
+          <span className={styles.brand}>showon.io</span>
           <span className={styles.passLabel}>INGRESSO PRESENCIAL</span>
         </div>
 

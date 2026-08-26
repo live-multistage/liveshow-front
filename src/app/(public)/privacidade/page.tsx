@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'Política de Privacidade' };
 
 // ponytail: DPO contact is a placeholder — swap for the real encarregado/e-mail
 // before launch. Everything else reflects what the platform actually collects.
-const DPO_EMAIL = 'privacidade@liveshow.com';
+const DPO_EMAIL = 'privacidade@showon.io';
 
 export default function PrivacyPolicyPage() {
   return (

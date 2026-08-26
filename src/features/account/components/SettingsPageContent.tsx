@@ -110,7 +110,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
       const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
       const a = document.createElement('a');
       a.href = url;
-      a.download = `liveshow-meus-dados-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `showon-meus-dados-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {

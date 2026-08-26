@@ -62,7 +62,7 @@
     },
     "register": {
       "title": "Crear cuenta",
-      "subtitle": "Únete a Liveshow y mira shows en vivo de todo el mundo.",
+      "subtitle": "Únete a showon.io y mira shows en vivo de todo el mundo.",
       "email": "Correo electrónico",
       "emailPlaceholder": "tu@correo.com",
       "displayName": "Nombre de usuario",
@@ -916,7 +916,7 @@
     "ledgerSALE": "Venta",
     "ledgerREFUND": "Reembolso",
     "ledgerPAYOUT": "Transferencia",
-    "ledgerStripeOk": "Tu cuenta de Stripe está conectada. Este monto será transferido por el equipo LiveShow.",
+    "ledgerStripeOk": "Tu cuenta de Stripe está conectada. Este monto será transferido por el equipo showon.io.",
     "ledgerStripePending": "Las ventas hechas antes de conectar Stripe quedan retenidas. Conecta tu cuenta de Stripe arriba para recibir este monto.",
     "roleSTAFFCheckin": "Staff (puerta/check-in)",
     "removing": "Eliminando...",
@@ -1114,7 +1114,7 @@
     "terms": "Términos y privacidad",
     "contact": "Contáctanos",
     "help": "Ayuda",
-    "copyright": "© {year} LIVESHOW. Todos los derechos reservados."
+    "copyright": "© {year} showon.io. Todos los derechos reservados."
   },
   "help": {
     "metaTitle": "Ayuda",
