@@ -1,0 +1,135 @@
+@use '../../../styles/_variables' as *;
+
+.card {
+  position: relative;
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 16px;
+  padding: 20px 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Archivo', sans-serif;
+  color: #f4f4f5;
+  margin: 0;
+}
+
+.badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: #b9b9c0;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .08);
+
+  &[data-status='APPROVED'] { color: #7dffb0; background: rgba(46, 255, 158, .12); border-color: rgba(46, 255, 158, .25); }
+  &[data-status='ELIGIBLE'] { color: #7ec2ff; background: rgba(46, 158, 255, .12); border-color: rgba(46, 158, 255, .25); }
+  &[data-status='APPLIED'] { color: #ffd27e; background: rgba(255, 191, 46, .12); border-color: rgba(255, 191, 46, .25); }
+  &[data-status='REJECTED'],
+  &[data-status='SUSPENDED'] { color: #ff7ec2; background: rgba(255, 46, 158, .12); border-color: rgba(255, 46, 158, .25); }
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #7d7d85;
+  margin: 0;
+}
+
+.metric {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.metricLabel {
+  font-size: 12px;
+  color: #b9b9c0;
+}
+
+.track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .07);
+  overflow: hidden;
+}
+
+.bar {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff2e9e, #7ec2ff);
+  transition: width .2s ease;
+}
+
+.metricValue {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #f4f4f5;
+  white-space: nowrap;
+}
+
+.warning {
+  font-size: 12px;
+  color: #ffd27e;
+  margin: 0;
+}
+
+.rate {
+  font-size: 14px;
+  font-weight: 700;
+  color: #7dffb0;
+  margin: 0;
+}
+
+.earnings {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.earningRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #f4f4f5;
+  font-family: 'Space Mono', monospace;
+}
+
+.apply {
+  margin-top: 4px;
+  align-self: flex-start;
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: none;
+  background: #ff2e9e;
+  color: #101013;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity .15s;
+
+  &:disabled {
+    background: rgba(255, 255, 255, .08);
+    color: #7d7d85;
+    cursor: default;
+  }
+}

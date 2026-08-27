@@ -1,15 +1,19 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { PlusIcon } from 'lucide-react';
 import { Skeleton } from '@live-show/design-system';
 import { Button } from '@/shared/components/Button';
 import { useNavigate } from '@/shared/hooks/use-navigate';
 import { EventDashboardCard } from '@/features/events';
+import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
+import { canManageOrg } from '@/features/organizations/types/organization.types';
 import { useDashboardStats } from '../hooks/use-dashboard-stats';
 import { DashboardCharts } from './DashboardCharts';
 import { UpdatedIndicator } from './UpdatedIndicator';
+import { MonetizationCard } from './MonetizationCard';
 import styles from './RoleDashboard.module.scss';
 
 export function OrganizerDashboard() {
@@ -17,6 +21,14 @@ export function OrganizerDashboard() {
   const navigate = useNavigate();
   const { totalEvents, liveNow, upcoming, drafts, finished, events, recentEvents, isLoading, dataUpdatedAt, isFetching, refetch } =
     useDashboardStats();
+
+  // Ad partnerships are requested per-org — same "first org I can manage"
+  // pick CouponsDashboard uses, since this overview isn't scoped to one org.
+  const { data: allOrgs = [] } = useMyOrganizationsQuery();
+  const manageableOrgId = useMemo(
+    () => allOrgs.find((o) => canManageOrg(o.role))?.id,
+    [allOrgs],
+  );
 
   return (
     <div className={styles.wrapper}>
@@ -83,6 +95,12 @@ export function OrganizerDashboard() {
         </div>
         <DashboardCharts events={events} />
       </div>
+
+      {manageableOrgId && (
+        <div className={styles.section}>
+          <MonetizationCard organizationId={manageableOrgId} />
+        </div>
+      )}
 
       <div className={styles.section}>
         <div className={styles.sectionHeader}>

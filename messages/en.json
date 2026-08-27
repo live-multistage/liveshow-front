@@ -332,7 +332,8 @@
       "platformAudit": "Audit log",
       "channels": "Channels",
       "series": "Programs",
-      "platformFeatureFlags": "Feature Flags"
+      "platformFeatureFlags": "Feature Flags",
+      "platformAdPartnerships": "Ad partnerships"
     },
     "navMobile": {
       "overview": "Home",
@@ -922,7 +923,30 @@
     "removing": "Removing...",
     "removeBtn": "Remove",
     "noDescription": "No description.",
-    "descPlaceholder": "Describe your organization..."
+    "descPlaceholder": "Describe your organization...",
+    "monetization": {
+      "title": "Monetization",
+      "loading": "Loading monetization...",
+      "window": "{days}-day window",
+      "liveViews": "Live views",
+      "payingBuyers": "Paying buyers",
+      "connectNotReady": "Connect your Stripe account to be able to apply for the ad partnership.",
+      "rate": "Your revenue share rate:",
+      "noEarningsYet": "No earnings recorded yet.",
+      "apply": "Apply for partnership",
+      "applyError": "Could not submit the application. Please try again.",
+      "applyErrorConnectNotReady": "Connect your Stripe account before applying for the partnership.",
+      "applyErrorNotEligible": "Your organization hasn't reached the eligibility requirements yet.",
+      "applyErrorAlreadyApplied": "There's already a pending application for this organization.",
+      "status": {
+        "NOT_ELIGIBLE": "Not eligible",
+        "ELIGIBLE": "Eligible",
+        "APPLIED": "Under review",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "SUSPENDED": "Suspended"
+      }
+    }
   },
   "platformAdmin": {
     "tabPending": "Pending",
@@ -1017,6 +1041,30 @@
         "name": "Channels & series",
         "description": "Enables linear channels and series across the platform."
       }
+    },
+    "adPartnerships": {
+      "title": "Ad partnerships",
+      "subtitle": "Review organization requests to become ad partners.",
+      "loading": "Loading partnerships...",
+      "empty": "No partnerships found for this filter.",
+      "filters": {
+        "ALL": "All",
+        "APPLIED": "Under review",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "SUSPENDED": "Suspended"
+      },
+      "snapshot": "{views} views / {buyers} buyers",
+      "rateFor": "Revenue share rate for {org}",
+      "globalRate": "Global rate",
+      "rateInvalid": "Enter a rate between 0 and 1.",
+      "notePrompt": "Describe the reason (required):",
+      "actionSuccess": "Partnership updated successfully.",
+      "actionError": "Could not update the partnership.",
+      "approve": "Approve",
+      "reject": "Reject",
+      "suspend": "Suspend",
+      "reinstate": "Reinstate"
     }
   },
   "reports": {
