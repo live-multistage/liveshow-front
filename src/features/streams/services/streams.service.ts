@@ -24,6 +24,17 @@ export const streamsService = {
     return data;
   },
 
+  // ── Program-owned streams (channel topology — never transitions LIVE) ────
+  listByProgram: async (programId: string): Promise<StreamResponse[]> => {
+    const { data } = await httpClient.get<StreamResponse[]>(`/programs/${programId}/streams`);
+    return data;
+  },
+
+  createForProgram: async (programId: string, payload: CreateStreamRequest): Promise<StreamResponse> => {
+    const { data } = await httpClient.post<StreamResponse>(`/programs/${programId}/streams`, payload);
+    return data;
+  },
+
   update: async (streamId: string, payload: Partial<CreateStreamRequest>): Promise<StreamResponse> => {
     const { data } = await httpClient.put<StreamResponse>(`/streams/${streamId}`, payload);
     return data;

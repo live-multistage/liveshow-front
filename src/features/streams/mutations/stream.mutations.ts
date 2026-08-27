@@ -23,7 +23,7 @@ export function useCreateStreamMutation(eventId: string, onSuccess?: (s: StreamR
   });
 }
 
-export function useDeleteStreamMutation(eventId: string, onSuccess?: (id: string) => void) {
+export function useDeleteStreamMutation(eventId: string | null, onSuccess?: (id: string) => void) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (streamId: string) => {
@@ -35,7 +35,7 @@ export function useDeleteStreamMutation(eventId: string, onSuccess?: (id: string
       }
     },
     onSuccess: (streamId) => {
-      qc.invalidateQueries({ queryKey: STREAM_KEYS.byEvent(eventId) });
+      qc.invalidateQueries({ queryKey: STREAM_KEYS.byEvent(eventId ?? '') });
       onSuccess?.(streamId);
     },
   });
@@ -44,7 +44,7 @@ export function useDeleteStreamMutation(eventId: string, onSuccess?: (id: string
 function useLifecycleMutation(
   streamId: string,
   fn: (id: string) => Promise<StreamResponse>,
-  eventId: string,
+  eventId: string | null,
 ) {
   const qc = useQueryClient();
   return useMutation({
@@ -56,34 +56,52 @@ function useLifecycleMutation(
       }
     },
     onSuccess: (data) => {
-      qc.setQueryData(STREAM_KEYS.byEvent(eventId), (prev: StreamResponse[] | undefined) =>
+      qc.setQueryData(STREAM_KEYS.byEvent(eventId ?? ''), (prev: StreamResponse[] | undefined) =>
         prev?.map((s) => (s.id === data.id ? data : s)),
       );
     },
   });
 }
 
-export function usePrepareStreamMutation(streamId: string, eventId: string) {
+export function usePrepareStreamMutation(streamId: string, eventId: string | null) {
   return useLifecycleMutation(streamId, streamsService.prepare, eventId);
 }
 
-export function useStartStreamMutation(streamId: string, eventId: string) {
+export function useStartStreamMutation(streamId: string, eventId: string | null) {
   return useLifecycleMutation(streamId, streamsService.start, eventId);
 }
 
-export function useEndStreamMutation(streamId: string, eventId: string) {
+export function useEndStreamMutation(streamId: string, eventId: string | null) {
   return useLifecycleMutation(streamId, streamsService.end, eventId);
 }
 
-export function useCancelStreamMutation(streamId: string, eventId: string) {
+export function useCancelStreamMutation(streamId: string, eventId: string | null) {
   return useLifecycleMutation(streamId, streamsService.cancel, eventId);
 }
 
-export function useRollbackStreamMutation(streamId: string, eventId: string) {
+export function useRollbackStreamMutation(streamId: string, eventId: string | null) {
   return useLifecycleMutation(streamId, streamsService.rollback, eventId);
 }
 
-export function useUpdateStreamMutation(eventId: string, onSuccess?: (s: StreamResponse) => void) {
+// ── Program-owned stream creation (channel topology tab) ──────────────────
+export function useCreateProgramStreamMutation(programId: string, onSuccess?: (s: StreamResponse) => void) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { title: string; description?: string }) => {
+      try {
+        return await streamsService.createForProgram(programId, payload);
+      } catch (err) {
+        throw normalizeError(err);
+      }
+    },
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: STREAM_KEYS.byProgram(programId) });
+      onSuccess?.(data);
+    },
+  });
+}
+
+export function useUpdateStreamMutation(eventId: string | null, onSuccess?: (s: StreamResponse) => void) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ streamId, payload }: { streamId: string; payload: UpdateStreamRequest }) => {
@@ -94,7 +112,7 @@ export function useUpdateStreamMutation(eventId: string, onSuccess?: (s: StreamR
       }
     },
     onSuccess: (data: StreamResponse) => {
-      qc.setQueryData(STREAM_KEYS.byEvent(eventId), (prev: StreamResponse[] | undefined) =>
+      qc.setQueryData(STREAM_KEYS.byEvent(eventId ?? ''), (prev: StreamResponse[] | undefined) =>
         prev?.map((s) => (s.id === data.id ? data : s)),
       );
       onSuccess?.(data);

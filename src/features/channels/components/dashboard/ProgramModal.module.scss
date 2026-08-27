@@ -37,6 +37,34 @@
   padding: 22px 24px 24px;
 }
 
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 24px 0;
+  border-bottom: 1px solid $hairline;
+}
+
+.tab {
+  border: 0;
+  background: transparent;
+  padding: 10px 4px;
+  margin-right: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-muted;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.tabActive {
+  color: $text-primary;
+  border-bottom-color: $action;
+}
+
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;

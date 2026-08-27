@@ -16,7 +16,9 @@ import styles from './StreamBuilder.module.scss';
 interface Props {
   feed: FeedResponse;
   streamStatus: string;
-  eventId: string;
+  // null for a program-owned stream: no event to scope Libras to, so the
+  // toggle and its query are skipped entirely.
+  eventId: string | null;
 }
 
 // One camera row: name + priority + signal/transcode badges + live preview +
@@ -26,7 +28,7 @@ function CameraRow({
 }: {
   cam: CameraResponse;
   feedId: string;
-  eventId: string;
+  eventId: string | null;
   isLiveStream: boolean;
   // READY or LIVE — the states where MediaMTX will serve the ingest.
   canMonitor: boolean;
@@ -35,7 +37,7 @@ function CameraRow({
   onPreview: (packageId: string) => void;
 }) {
   const toggleCamera = useToggleCameraMutation(feedId);
-  const setLibras = useSetLibrasCameraMutation(eventId);
+  const setLibras = useSetLibrasCameraMutation(eventId ?? '');
   const { data: ingest } = useFeedIngestQuery(feedId, canMonitor);
   const { data: job } = useActiveTranscodeJobQuery(cam.id, isLiveStream);
 
@@ -59,8 +61,9 @@ function CameraRow({
           </button>
         )}
         {/* NBR 15290 — mark this camera as the mandatory Janela de Libras.
-            Only relevant on publicly-funded events. */}
-        {publiclyFunded && (
+            Only relevant on publicly-funded events; not applicable to a
+            program-owned stream (no event to scope it to). */}
+        {eventId && publiclyFunded && (
           <button
             className={`${styles.iconBtn} ${isLibras ? styles.success : ''}`}
             onClick={() => !isLibras && setLibras.mutate(cam.id)}
@@ -86,7 +89,7 @@ function CameraRow({
 
 export function FeedBody({ feed, streamStatus, eventId }: Props) {
   const { data: cameras = [], isLoading } = useFeedCamerasQuery(feed.id);
-  const { data: accessibility } = useAccessibilityQuery(eventId);
+  const { data: accessibility } = useAccessibilityQuery(eventId ?? '', Boolean(eventId));
   const createCamera = useCreateCameraMutation(feed.id);
   const isLive = streamStatus === 'LIVE';
   // READY or LIVE: MediaMTX accepts the OBS push and serves the ingest, so the

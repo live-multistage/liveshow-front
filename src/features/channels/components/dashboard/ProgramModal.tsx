@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Button,
@@ -12,6 +13,7 @@ import type { Program } from '../../types/channel.types';
 import { DurationField } from './DurationField';
 import { SummaryBox } from './SummaryBox';
 import { WeekdayToggles } from './WeekdayToggles';
+import { ProgramTopologyTab } from './ProgramTopologyTab';
 import styles from './ProgramModal.module.scss';
 
 interface Props {
@@ -42,6 +44,7 @@ export function ProgramModal({
 }: Props) {
   const t = useTranslations('channels.program');
   const form = useProgramForm({ channelId, slug, organizationId, timezone, program, onDone });
+  const [activeTab, setActiveTab] = useState<'details' | 'topology'>('details');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -55,6 +58,30 @@ export function ProgramModal({
           </DialogTitle>
         </div>
 
+        {program && (
+          <div className={styles.tabs}>
+            <button
+              type="button"
+              className={`${styles.tab} ${activeTab === 'details' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('details')}
+            >
+              Detalhes
+            </button>
+            <button
+              type="button"
+              className={`${styles.tab} ${activeTab === 'topology' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('topology')}
+            >
+              Topologia
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'topology' && program ? (
+          <div className={styles.form}>
+            <ProgramTopologyTab programId={program.id} programName={program.name} />
+          </div>
+        ) : (
         <form className={styles.form} onSubmit={form.handleSubmit}>
           <div className={styles.field}>
             <span className={styles.label}>
@@ -147,6 +174,7 @@ export function ProgramModal({
             </div>
           </div>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );

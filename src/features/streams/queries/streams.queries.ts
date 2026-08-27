@@ -12,6 +12,7 @@ export interface CameraWithContext extends CameraResponse {
 
 export const STREAM_KEYS = {
   byEvent: (eventId: string) => ['streams', 'by-event', eventId] as const,
+  byProgram: (programId: string) => ['streams', 'by-program', programId] as const,
   stages: (streamId: string) => ['streams', streamId, 'stages'] as const,
   feeds: (stageId: string) => ['stages', stageId, 'feeds'] as const,
   cameras: (feedId: string) => ['feeds', feedId, 'cameras'] as const,
@@ -32,6 +33,14 @@ export function useEventStreamsQuery(eventId: string | null) {
     queryKey: STREAM_KEYS.byEvent(eventId ?? ''),
     queryFn: () => streamsService.listByEvent(eventId!),
     enabled: !!eventId,
+  });
+}
+
+export function useProgramStreamsQuery(programId: string | null) {
+  return useQuery({
+    queryKey: STREAM_KEYS.byProgram(programId ?? ''),
+    queryFn: () => streamsService.listByProgram(programId!),
+    enabled: !!programId,
   });
 }
 
