@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import styles from './PauseAdTakeover.module.scss';
 import { advertisementsService } from '../services/advertisements.service';
+import { SERVE_QUERY_CACHE } from '../queries/use-serve-ads';
 import { gradientFor } from '../utils/ad-gradient';
 
 // Mostrar o anúncio só depois de uma pausa "de verdade": uma pausa de um
@@ -67,7 +68,7 @@ function TakeoverAd({ eventId, onResume }: { eventId: string; onResume: () => vo
   const { data: ads } = useQuery({
     queryKey: ['ads', 'serve', PLACEMENT, eventId],
     queryFn: () => advertisementsService.serve(PLACEMENT, 1, eventId),
-    staleTime: 5 * 60 * 1000,
+    ...SERVE_QUERY_CACHE,
     retry: 0,
   });
 

@@ -118,6 +118,17 @@ describe('PauseAdTakeover content', () => {
     expect(mockedService.recordImpression).toHaveBeenCalledWith('srv-1');
   }, 4000);
 
+  // A served record is billable once — the beacon consumes it server-side — so
+  // a second pause reusing a cached servedId would show the ad for free.
+  it('serves a fresh record on every takeover mount', async () => {
+    const { rerenderWith } = await pauseAndWaitForAd();
+    expect(mockedService.serve).toHaveBeenCalledTimes(1);
+
+    rerenderWith(false);
+    rerenderWith(true);
+    await waitFor(() => expect(mockedService.serve).toHaveBeenCalledTimes(2), { timeout: 3000 });
+  }, 8000);
+
   it('renders an internal Link CTA for an EVENT destination', async () => {
     await pauseAndWaitForAd();
     const link = screen.getByRole('link', { name: /Saiba mais/i });
