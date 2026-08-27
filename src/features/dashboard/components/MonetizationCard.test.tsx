@@ -52,4 +52,19 @@ describe('MonetizationCard', () => {
     expect(screen.getByText(/60%/)).toBeInTheDocument();
     expect(screen.getByText(/R\$\s?67,90/)).toBeInTheDocument();
   });
+
+  it('keeps earnings visible after a suspension and offers no Apply button', () => {
+    state.data = { ...state.data, status: 'SUSPENDED', reviewNote: 'repeated policy breaches' };
+    render(<MonetizationCard organizationId="org-1" />);
+
+    expect(screen.getByText(/R\$\s?67,90/)).toBeInTheDocument();
+    expect(screen.getByText('repeated policy breaches')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /apply/i })).not.toBeInTheDocument();
+  });
+
+  it('shows earnings for a rejected org that earned before', () => {
+    state.data = { ...state.data, status: 'REJECTED', reviewNote: null };
+    render(<MonetizationCard organizationId="org-1" />);
+    expect(screen.getByText(/R\$\s?67,90/)).toBeInTheDocument();
+  });
 });

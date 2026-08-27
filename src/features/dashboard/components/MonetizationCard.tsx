@@ -63,21 +63,27 @@ export function MonetizationCard({ organizationId }: { organizationId: string })
       {data.reviewNote && <p className={styles.warning}>{data.reviewNote}</p>}
 
       {data.status === 'APPROVED' && (
-        <>
-          <p className={styles.rate}>{t('rate')} {Math.round(data.revenueShareRate * 100)}%</p>
-          <ul className={styles.earnings}>
-            {data.earnings.map((e) => (
-              <li key={e.day} className={styles.earningRow}>
-                <time dateTime={e.day}>{new Date(`${e.day}T00:00:00Z`).toLocaleDateString('pt-BR')}</time>
-                <span>{brl(e.amount)}</span>
-              </li>
-            ))}
-          </ul>
-          {data.earnings.length === 0 && <p className={styles.subtitle}>{t('noEarningsYet')}</p>}
-        </>
+        <p className={styles.rate}>{t('rate')} {Math.round(data.revenueShareRate * 100)}%</p>
       )}
 
-      {data.status !== 'APPROVED' && data.status !== 'APPLIED' && (
+      {/* Money already earned stays visible after a suspension — it is still owed. */}
+      {data.earnings.length > 0 && (
+        <ul className={styles.earnings}>
+          {data.earnings.map((e) => (
+            <li key={e.day} className={styles.earningRow}>
+              <time dateTime={e.day}>{new Date(`${e.day}T00:00:00Z`).toLocaleDateString('pt-BR')}</time>
+              <span>{brl(e.amount)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {data.status === 'APPROVED' && data.earnings.length === 0 && (
+        <p className={styles.subtitle}>{t('noEarningsYet')}</p>
+      )}
+
+      {/* SUSPENDED has no route back through Apply — only the review note explains
+          what happened, so a permanently disabled button would just be noise. */}
+      {data.status !== 'APPROVED' && data.status !== 'APPLIED' && data.status !== 'SUSPENDED' && (
         <>
           <button
             type="button"
