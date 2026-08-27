@@ -12,6 +12,11 @@
   gap: 0;
 }
 
+// Topology tab (preview + stream card + stages) needs room; details form does not.
+.contentWide {
+  max-width: 960px;
+}
+
 .header {
   padding: 22px 24px 18px;
   border-bottom: 1px solid $hairline;

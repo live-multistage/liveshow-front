@@ -54,7 +54,9 @@ export function ProgramModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={styles.content}>
+      <DialogContent
+        className={`${styles.content} ${activeTab === 'topology' ? styles.contentWide : ''}`}
+      >
         <div className={styles.header}>
           <span className={styles.eyebrow}>
             {t('eyebrow')} · {channelName.toUpperCase()}
