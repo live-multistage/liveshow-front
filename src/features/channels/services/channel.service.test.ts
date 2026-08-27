@@ -52,7 +52,6 @@ const PROGRAM: Program = {
   startTime: '10:00',
   durationMin: 60,
   rrule: 'FREQ=DAILY',
-  eventId: null,
 };
 
 describe('channelService', () => {

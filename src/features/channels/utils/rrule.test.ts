@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { WEEKDAYS, buildRRule, dayKeyInTimezone, parseRRule, programOverlapsEvent } from './rrule';
+import { WEEKDAYS, buildRRule, dayKeyInTimezone, parseRRule } from './rrule';
 
 describe('buildRRule', () => {
   it('builds a weekly rule with the picked days', () => {
@@ -44,24 +44,5 @@ describe('dayKeyInTimezone', () => {
     // 23:00 UTC on 2026-08-21 is already 2026-08-22 in Tokyo (+9).
     expect(dayKeyInTimezone(new Date('2026-08-21T23:00:00Z'), 'Asia/Tokyo')).toBe('2026-08-22');
     expect(dayKeyInTimezone(new Date('2026-08-21T23:00:00Z'), 'UTC')).toBe('2026-08-21');
-  });
-});
-
-describe('programOverlapsEvent', () => {
-  const timezone = 'America/Sao_Paulo'; // UTC-3, no DST since 2019
-
-  it('overlaps when the event window intersects the weekly occurrence', () => {
-    const event = { startsAt: '2024-01-01T23:45:00.000Z', endsAt: '2024-01-02T00:45:00.000Z' };
-    expect(programOverlapsEvent(['MO'], '21:30', 60, timezone, event)).toBe(true);
-  });
-
-  it('does not overlap when the event window falls outside the occurrence', () => {
-    const event = { startsAt: '2024-01-01T15:00:00.000Z', endsAt: '2024-01-01T16:00:00.000Z' };
-    expect(programOverlapsEvent(['MO'], '21:30', 60, timezone, event)).toBe(false);
-  });
-
-  it('does not overlap when the program never runs on the event weekday', () => {
-    const event = { startsAt: '2024-01-01T23:45:00.000Z', endsAt: '2024-01-02T00:45:00.000Z' };
-    expect(programOverlapsEvent(['TU'], '21:30', 60, timezone, event)).toBe(false);
   });
 });

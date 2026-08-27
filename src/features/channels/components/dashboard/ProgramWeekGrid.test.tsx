@@ -22,10 +22,6 @@ vi.mock('../../mutations/channel.mutations', () => ({
   useUpsertProgramMutation: () => ({ mutate: upsertMutate, isPending: false }),
 }));
 
-vi.mock('@/features/events', () => ({
-  useMyEventsQuery: () => ({ data: [] }),
-}));
-
 const program = (overrides: Partial<Program> = {}): Program => ({
   id: 'prg-1',
   channelId: 'ch-1',
@@ -34,7 +30,6 @@ const program = (overrides: Partial<Program> = {}): Program => ({
   startTime: '20:00',
   durationMin: 120,
   rrule: 'FREQ=WEEKLY;BYDAY=MO',
-  eventId: null,
   ...overrides,
 });
 
@@ -68,7 +63,7 @@ describe('ProgramWeekGrid', () => {
     programs.push(program());
 
     const { container } = renderGrid();
-    const block = container.querySelector('[data-simulcast]') as HTMLElement;
+    const block = container.querySelector('[data-testid="program-block"]') as HTMLElement;
 
     // Janela abre 19h (uma hora antes do programa) -> 20h fica a uma linha.
     expect(block.style.top).toBe(`${ROW_HEIGHT}px`);
@@ -77,24 +72,12 @@ describe('ProgramWeekGrid', () => {
     expect(screen.getByText('20h — 22h')).toBeInTheDocument();
   });
 
-  it('marks a program linked to an event as simulcast', () => {
-    programs.push(program(), program({ id: 'prg-2', name: 'Jogo', eventId: 'evt-1' }));
-
-    const { container } = renderGrid();
-
-    expect(
-      [...container.querySelectorAll('[data-simulcast]')].map((el) =>
-        el.getAttribute('data-simulcast'),
-      ),
-    ).toEqual(['false', 'true']);
-  });
-
   it('renders one block per weekday of the recurrence', () => {
     programs.push(program({ rrule: 'FREQ=WEEKLY;BYDAY=MO,WE,FR' }));
 
     const { container } = renderGrid();
 
-    expect(container.querySelectorAll('[data-simulcast]')).toHaveLength(3);
+    expect(container.querySelectorAll('[data-testid="program-block"]')).toHaveLength(3);
   });
 
   it('opens the program form for editing when a block is clicked', () => {

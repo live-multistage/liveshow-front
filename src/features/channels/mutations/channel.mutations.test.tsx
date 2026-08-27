@@ -47,7 +47,6 @@ const PROGRAM: Program = {
   startTime: '20:00:00',
   durationMin: 60,
   rrule: 'FREQ=WEEKLY;BYDAY=MO',
-  eventId: null,
 };
 
 const CHANNEL: OrgChannel = {

@@ -41,8 +41,6 @@ export interface WeekGridBlock {
   /** Minutos desde 00:00 do dia da coluna. */
   startMinutes: number;
   durationMin: number;
-  /** Programa vinculado a um evento — simulcast, pintado de violeta. */
-  isSimulcast: boolean;
   /** Posição absoluta dentro do corpo da grade, em px. */
   top: number;
   height: number;
@@ -99,7 +97,6 @@ export function buildWeekGrid(
         column: COLUMN_BY_WEEKDAY[day],
         startMinutes,
         durationMin: program.durationMin,
-        isSimulcast: Boolean(program.eventId),
       }));
   });
 

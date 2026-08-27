@@ -1,6 +1,5 @@
 'use client';
 
-import { TriangleAlert } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
   Button,
@@ -114,34 +113,6 @@ export function ProgramModal({
             ]}
             error={form.daysError}
           />
-
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="program-event">
-              {t('linkToEvent')}
-            </label>
-            <select
-              id="program-event"
-              className={styles.control}
-              value={form.eventId}
-              onChange={(e) => form.setEventId(e.target.value)}
-            >
-              <option value="">{t('linkToEventNone')}</option>
-              {form.linkableEvents.map((event) => (
-                <option key={event.id} value={event.id}>
-                  {form.eventOptionLabel(event)}
-                </option>
-              ))}
-            </select>
-            {form.eventId && !form.showsOverlapWarning && (
-              <span className={styles.help}>{t('linkToEventHelp')}</span>
-            )}
-            {form.showsOverlapWarning && (
-              <div className={styles.warning}>
-                <TriangleAlert size={14} aria-hidden="true" />
-                <span>{t('linkToEventOverlapWarning')}</span>
-              </div>
-            )}
-          </div>
 
           <SummaryBox
             label={t('summaryLabel')}

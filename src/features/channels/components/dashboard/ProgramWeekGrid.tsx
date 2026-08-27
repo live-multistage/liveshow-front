@@ -165,9 +165,9 @@ export function ProgramWeekGrid({
                   .map((block) => (
                     <div
                       key={`${block.programId}-${block.column}`}
-                      className={`${styles.block} ${block.isSimulcast ? styles.blockSimulcast : ''}`}
+                      className={styles.block}
                       style={{ top: block.top, height: block.height }}
-                      data-simulcast={block.isSimulcast}
+                      data-testid="program-block"
                     >
                       <button
                         type="button"
@@ -200,10 +200,6 @@ export function ProgramWeekGrid({
         <li className={styles.legendItem}>
           <span className={styles.legendSwatch} />
           {t('legendProgram')}
-        </li>
-        <li className={styles.legendItem}>
-          <span className={`${styles.legendSwatch} ${styles.legendSwatchViolet}`} />
-          {t('legendSimulcast')}
         </li>
         <li className={styles.legendItem}>
           <span className={`${styles.legendSwatch} ${styles.legendSwatchEmpty}`} />

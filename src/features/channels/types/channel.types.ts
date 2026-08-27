@@ -52,10 +52,6 @@ export interface ScheduledSlot {
   name: string;
   startsAt: string;
   endsAt: string;
-  // The Event this program's occurrence carries, if linked (simulcast).
-  // Optional so pre-existing fixtures/callers that predate simulcast keep
-  // compiling — the backend always sends it on `/channels/:slug/schedule`.
-  event?: { id: string; title: string } | null;
 }
 
 export interface Channel {
@@ -116,7 +112,6 @@ export interface Program {
   startTime: string;
   durationMin: number;
   rrule: string;
-  eventId: string | null;
 }
 
 // Org-only shape: create/update/publish/archive/pricing-sync and the org
@@ -168,7 +163,4 @@ export interface UpsertProgramInput {
   startTime: string;
   durationMin: number;
   rrule: string;
-  // Links this occurrence to an Event (simulcast). `null` unlinks; `undefined`
-  // omits the field so an edit that doesn't touch the link leaves it as-is.
-  eventId?: string | null;
 }

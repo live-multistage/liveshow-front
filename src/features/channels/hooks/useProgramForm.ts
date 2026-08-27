@@ -2,17 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useMyEventsQuery } from '@/features/events';
-import type { EventResponse } from '@/features/events/types/event.types';
-import {
-  WEEKDAYS,
-  buildRRule,
-  parseRRule,
-  programOverlapsEvent,
-  weekdayLabels,
-  type Weekday,
-} from '../utils/rrule';
-import { filterLinkableEvents } from '../utils/filterLinkableEvents';
+import { WEEKDAYS, buildRRule, parseRRule, weekdayLabels, type Weekday } from '../utils/rrule';
 import { useDeleteProgramMutation, useUpsertProgramMutation } from '../mutations/channel.mutations';
 import type { Program } from '../types/channel.types';
 
@@ -23,8 +13,7 @@ interface UseProgramFormArgs {
   channelId: string;
   slug: string;
   organizationId: string;
-  // Fuso do canal — usado tanto no hint de horário quanto para conferir se o
-  // evento vinculado cai dentro da janela do programa.
+  // Fuso do canal — usado no hint de horário do input de início.
   timezone: string;
   onDone: () => void;
   // Presente = edição: os campos vêm do programa e o upsert leva o programId.
@@ -41,7 +30,6 @@ const minutesToHHmm = (minutes: number) => {
 export function useProgramForm({
   channelId,
   slug,
-  organizationId,
   timezone,
   onDone,
   program,
@@ -50,7 +38,6 @@ export function useProgramForm({
   const locale = useLocale();
   const mutation = useUpsertProgramMutation(channelId);
   const deleteMutation = useDeleteProgramMutation(channelId);
-  const { data: myEvents = [] } = useMyEventsQuery();
 
   const [name, setName] = useState(program?.name ?? '');
   // O backend guarda HH:mm:ss em alguns casos; o input type="time" só aceita HH:mm.
@@ -58,33 +45,10 @@ export function useProgramForm({
   const [durationMin, setDurationMin] = useState(String(program?.durationMin ?? 60));
   const [days, setDays] = useState<Weekday[]>(() => (program ? parseRRule(program.rrule) : []));
   const [daysTouched, setDaysTouched] = useState(false);
-  const [eventId, setEventId] = useState(program?.eventId ?? '');
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const linkableEvents = useMemo(
-    () => filterLinkableEvents(myEvents, organizationId),
-    [myEvents, organizationId],
-  );
-
-  const eventOptionLabel = useMemo(() => {
-    const format = new Intl.DateTimeFormat(locale, {
-      weekday: 'short',
-      hour: '2-digit',
-      hour12: false,
-      timeZone: timezone,
-    });
-    return (event: EventResponse) => `${event.title} · ${format.format(new Date(event.startsAt))}`;
-  }, [locale, timezone]);
-
-  const linkedEvent = linkableEvents.find((event) => event.id === eventId);
   const duration = Number(durationMin);
   const durationValid = duration >= 5 && duration <= 1440;
-
-  const showsOverlapWarning = Boolean(
-    linkedEvent &&
-      days.length > 0 &&
-      !programOverlapsEvent(days, startTime, duration || 0, timezone, linkedEvent),
-  );
 
   const dayLabels = useMemo(() => weekdayLabels(locale), [locale]);
 
@@ -139,7 +103,6 @@ export function useProgramForm({
           startTime,
           durationMin: duration,
           rrule: buildRRule(days),
-          eventId: eventId || null,
         },
         programId: program?.id,
         slug,
@@ -174,11 +137,6 @@ export function useProgramForm({
     pickWeekdays,
     pickAllDays,
     daysError,
-    linkableEvents,
-    eventOptionLabel,
-    eventId,
-    setEventId,
-    showsOverlapWarning,
     summary,
     canSubmit,
     isPending: mutation.isPending,

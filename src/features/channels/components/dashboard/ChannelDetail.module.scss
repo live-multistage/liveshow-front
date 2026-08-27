@@ -652,11 +652,6 @@
   background: rgba(255, 46, 158, 0.16);
 }
 
-.blockSimulcast {
-  border-left-color: $violet-bright;
-  background: $violet-tint;
-}
-
 .blockOpen {
   flex: 1 1 auto;
   min-width: 0;
@@ -741,11 +736,6 @@
   border-radius: 3px;
   border-left: 2.5px solid $action;
   background: rgba(255, 46, 158, 0.16);
-}
-
-.legendSwatchViolet {
-  border-left-color: $violet-bright;
-  background: $violet-tint;
 }
 
 .legendSwatchEmpty {

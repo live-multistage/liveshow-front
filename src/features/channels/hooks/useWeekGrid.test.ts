@@ -10,7 +10,6 @@ const program = (overrides: Partial<Program> = {}): Program => ({
   startTime: '20:00',
   durationMin: 120,
   rrule: 'FREQ=WEEKLY;BYDAY=MO',
-  eventId: null,
   ...overrides,
 });
 
@@ -66,17 +65,6 @@ describe('buildWeekGrid', () => {
     const grid = buildWeekGrid([program({ rrule: 'FREQ=WEEKLY;BYDAY=SA,SU' })], TZ, 0, NOW);
 
     expect(grid.blocks.map((block) => block.column).sort()).toEqual([0, 6]);
-  });
-
-  it('flags a program linked to an event as simulcast', () => {
-    const grid = buildWeekGrid(
-      [program(), program({ id: 'prg-2', eventId: 'evt-1', rrule: 'FREQ=WEEKLY;BYDAY=TU' })],
-      TZ,
-      0,
-      NOW,
-    );
-
-    expect(grid.blocks.map((block) => block.isSimulcast)).toEqual([false, true]);
   });
 
   it('keeps at least eight rows even for a single short program', () => {

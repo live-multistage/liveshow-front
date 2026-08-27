@@ -15,19 +15,6 @@ vi.mock('../../mutations/channel.mutations', () => ({
   useDeleteProgramMutation: () => ({ mutate: deleteMutate, isPending: false }),
 }));
 
-const myEvents: Array<{
-  id: string;
-  title: string;
-  organizationId: string;
-  format: string;
-  status: string;
-  startsAt: string;
-  endsAt: string;
-}> = [];
-vi.mock('@/features/events', () => ({
-  useMyEventsQuery: () => ({ data: myEvents }),
-}));
-
 const onDone = vi.fn();
 const onOpenChange = vi.fn();
 
@@ -71,7 +58,6 @@ describe('ProgramModal', () => {
     deleteMutate.mockReset();
     onDone.mockReset();
     onOpenChange.mockReset();
-    myEvents.length = 0;
   });
 
   it('submits the program with the weekdays composed into an RRULE', () => {
@@ -89,7 +75,6 @@ describe('ProgramModal', () => {
           startTime: '21:30',
           durationMin: 60,
           rrule: 'FREQ=WEEKLY;BYDAY=MO,WE',
-          eventId: null,
         },
         programId: undefined,
         slug: 'canal-um',
@@ -192,7 +177,6 @@ describe('ProgramModal', () => {
       startTime: '20:00:00',
       durationMin: 90,
       rrule: 'FREQ=WEEKLY;BYDAY=MO,WE',
-      eventId: null,
     };
 
     it('prefills every field from the program', () => {
@@ -230,61 +214,6 @@ describe('ProgramModal', () => {
       renderModal();
 
       expect(screen.queryByText('delete')).toBeNull();
-    });
-  });
-
-  describe('event link', () => {
-    const overlappingEvent = {
-      id: 'evt-1',
-      title: 'Jogo Final',
-      organizationId: 'org-1',
-      format: 'LIVE',
-      status: 'SCHEDULED',
-      startsAt: '2024-01-01T23:45:00.000Z',
-      endsAt: '2024-01-02T00:45:00.000Z',
-    };
-    const nonOverlappingEvent = {
-      id: 'evt-2',
-      title: 'Show da Tarde',
-      organizationId: 'org-1',
-      format: 'LIVE',
-      status: 'SCHEDULED',
-      startsAt: '2024-01-01T15:00:00.000Z',
-      endsAt: '2024-01-01T16:00:00.000Z',
-    };
-
-    it('sends the selected eventId in the program payload', () => {
-      myEvents.push(overlappingEvent);
-      renderModal();
-      fillBase();
-      clickDays(0);
-      fireEvent.change(screen.getByLabelText('linkToEvent'), { target: { value: 'evt-1' } });
-
-      fireEvent.click(screen.getByText('save'));
-
-      expect(upsertMutate.mock.calls[0][0].input.eventId).toBe('evt-1');
-    });
-
-    it('warns when the linked event does not overlap the program window', () => {
-      myEvents.push(nonOverlappingEvent);
-      renderModal();
-      clickDays(0); // Monday
-      fireEvent.change(screen.getByLabelText('start'), { target: { value: '21:30' } });
-
-      fireEvent.change(screen.getByLabelText('linkToEvent'), { target: { value: 'evt-2' } });
-
-      expect(screen.getByText('linkToEventOverlapWarning')).toBeInTheDocument();
-    });
-
-    it('does not warn when the linked event overlaps the program window', () => {
-      myEvents.push(overlappingEvent);
-      renderModal();
-      clickDays(0); // Monday
-      fireEvent.change(screen.getByLabelText('start'), { target: { value: '21:30' } });
-
-      fireEvent.change(screen.getByLabelText('linkToEvent'), { target: { value: 'evt-1' } });
-
-      expect(screen.queryByText('linkToEventOverlapWarning')).toBeNull();
     });
   });
 });
