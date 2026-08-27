@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import pt from '../../../messages/pt.json';
-import en from '../../../messages/en.json';
-import es from '../../../messages/es.json';
+import { messages } from '@live-show/i18n-messages';
+
+const { pt, en, es } = messages;
 
 // The ad-partnership card/queue keys must exist with the same shape in every
 // locale catalog — a missing key silently falls back to raw key names in
