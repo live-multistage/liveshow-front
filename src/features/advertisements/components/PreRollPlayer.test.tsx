@@ -15,6 +15,7 @@ vi.mock('../services/advertisements.service', () => ({
 const mockedService = vi.mocked(advertisementsService);
 
 const videoAd: ServedAd = {
+  servedId: 'srv-1',
   adId: 'ad-1',
   title: 'Great Video Ad',
   format: 'WIDE_16_9',
@@ -45,7 +46,7 @@ describe('PreRollPlayer', () => {
     fireEvent(screen.getByTestId('preroll-video'), new Event('playing'));
     fireEvent(screen.getByTestId('preroll-video'), new Event('playing'));
     expect(mockedService.recordImpression).toHaveBeenCalledTimes(1);
-    expect(mockedService.recordImpression).toHaveBeenCalledWith('ad-1', 'PRE_ROLL');
+    expect(mockedService.recordImpression).toHaveBeenCalledWith('srv-1');
   });
 
   it('hides skip before 5s of playback, shows it after', () => {

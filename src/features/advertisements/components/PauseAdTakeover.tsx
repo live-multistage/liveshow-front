@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import styles from './PauseAdTakeover.module.scss';
 import { advertisementsService } from '../services/advertisements.service';
+import { SERVE_QUERY_CACHE } from '../queries/use-serve-ads';
 import { gradientFor } from '../utils/ad-gradient';
 
 // Mostrar o anúncio só depois de uma pausa "de verdade": uma pausa de um
@@ -14,12 +15,13 @@ const SHOW_DELAY_MS = 2000;
 const PLACEMENT = 'PLAYER_PAUSE';
 
 interface Props {
+  eventId: string;
   paused: boolean;
   onResume: () => void;
   onVisibleChange: (visible: boolean) => void;
 }
 
-export function PauseAdTakeover({ paused, onResume, onVisibleChange }: Props) {
+export function PauseAdTakeover({ eventId, paused, onResume, onVisibleChange }: Props) {
   // Conta transições false→true. Zero = nunca pausou nesta sessão — cobre o
   // ReplayPlayer, que MONTA pausado e não deve mostrar anúncio na carga.
   const pauseCount = useRef(0);
@@ -55,18 +57,18 @@ export function PauseAdTakeover({ paused, onResume, onVisibleChange }: Props) {
 
   return (
     <>
-      {active && <TakeoverAd key={visibleFor} onResume={onResume} />}
+      {active && <TakeoverAd key={visibleFor} eventId={eventId} onResume={onResume} />}
     </>
   );
 }
 
-function TakeoverAd({ onResume }: { onResume: () => void }) {
+function TakeoverAd({ eventId, onResume }: { eventId: string; onResume: () => void }) {
   const impressionFired = useRef(false);
 
   const { data: ads } = useQuery({
-    queryKey: ['ads', 'serve', PLACEMENT],
-    queryFn: () => advertisementsService.serve(PLACEMENT, 1),
-    staleTime: 5 * 60 * 1000,
+    queryKey: ['ads', 'serve', PLACEMENT, eventId],
+    queryFn: () => advertisementsService.serve(PLACEMENT, 1, eventId),
+    ...SERVE_QUERY_CACHE,
     retry: 0,
   });
 
@@ -75,7 +77,7 @@ function TakeoverAd({ onResume }: { onResume: () => void }) {
   useEffect(() => {
     if (ad && !impressionFired.current) {
       impressionFired.current = true;
-      advertisementsService.recordImpression(ad.adId, PLACEMENT);
+      advertisementsService.recordImpression(ad.servedId);
     }
   }, [ad]);
 
@@ -84,7 +86,7 @@ function TakeoverAd({ onResume }: { onResume: () => void }) {
   const bg = ad.bannerUrl ? `url(${ad.bannerUrl}) center/cover no-repeat` : gradientFor(ad.adId);
 
   function handleCtaClick() {
-    advertisementsService.recordClick(ad!.adId, PLACEMENT);
+    advertisementsService.recordClick(ad!.servedId);
   }
 
   let cta: React.ReactNode = null;

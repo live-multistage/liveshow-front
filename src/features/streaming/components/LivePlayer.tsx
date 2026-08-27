@@ -253,6 +253,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
         <div className={styles.gridArea}>
           <PlayerStage
             mode={isChannel ? 'channel' : 'live'}
+            eventId={effectiveTrackingEventId}
             paused={paused}
             onResume={() => setPaused(false)}
             pauseAdVisible={pauseAdVisible}

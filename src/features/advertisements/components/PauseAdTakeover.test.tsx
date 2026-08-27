@@ -16,6 +16,7 @@ vi.mock('../services/advertisements.service', () => ({
 const mockedService = vi.mocked(advertisementsService);
 
 const baseAd: ServedAd = {
+  servedId: 'srv-1',
   adId: 'ad-1',
   title: 'Great Ad',
   format: 'WIDE_16_9',
@@ -33,7 +34,7 @@ function renderTakeover(props: Partial<Parameters<typeof PauseAdTakeover>[0]> & 
   const onVisibleChange = props.onVisibleChange ?? vi.fn();
   const utils = render(
     <QueryClientProvider client={queryClient}>
-      <PauseAdTakeover paused={props.paused ?? false} onResume={onResume} onVisibleChange={onVisibleChange} />
+      <PauseAdTakeover eventId="e1" paused={props.paused ?? false} onResume={onResume} onVisibleChange={onVisibleChange} />
     </QueryClientProvider>,
   );
   return {
@@ -43,7 +44,7 @@ function renderTakeover(props: Partial<Parameters<typeof PauseAdTakeover>[0]> & 
     rerenderWith: (paused: boolean) =>
       utils.rerender(
         <QueryClientProvider client={queryClient}>
-          <PauseAdTakeover paused={paused} onResume={onResume} onVisibleChange={onVisibleChange} />
+          <PauseAdTakeover eventId="e1" paused={paused} onResume={onResume} onVisibleChange={onVisibleChange} />
         </QueryClientProvider>,
       ),
   };
@@ -114,8 +115,19 @@ describe('PauseAdTakeover content', () => {
   it('fires impression exactly once per display', async () => {
     await pauseAndWaitForAd();
     await waitFor(() => expect(mockedService.recordImpression).toHaveBeenCalledTimes(1));
-    expect(mockedService.recordImpression).toHaveBeenCalledWith('ad-1', 'PLAYER_PAUSE');
+    expect(mockedService.recordImpression).toHaveBeenCalledWith('srv-1');
   }, 4000);
+
+  // A served record is billable once — the beacon consumes it server-side — so
+  // a second pause reusing a cached servedId would show the ad for free.
+  it('serves a fresh record on every takeover mount', async () => {
+    const { rerenderWith } = await pauseAndWaitForAd();
+    expect(mockedService.serve).toHaveBeenCalledTimes(1);
+
+    rerenderWith(false);
+    rerenderWith(true);
+    await waitFor(() => expect(mockedService.serve).toHaveBeenCalledTimes(2), { timeout: 3000 });
+  }, 8000);
 
   it('renders an internal Link CTA for an EVENT destination', async () => {
     await pauseAndWaitForAd();

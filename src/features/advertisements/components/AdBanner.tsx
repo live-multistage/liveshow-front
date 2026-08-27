@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { X } from 'lucide-react';
 import styles from './AdBanner.module.scss';
 import { advertisementsService } from '../services/advertisements.service';
+import { SERVE_QUERY_CACHE } from '../queries/use-serve-ads';
 import type { AdPlacement } from '../types/advertisement.types';
 import { gradientFor } from '../utils/ad-gradient';
 
@@ -21,7 +22,7 @@ export function AdBanner({ placement, className }: Props) {
   const { data: ads } = useQuery({
     queryKey: ['ads', 'serve', placement],
     queryFn: () => advertisementsService.serve(placement, 1),
-    staleTime: 5 * 60 * 1000,
+    ...SERVE_QUERY_CACHE,
     retry: 0,
   });
 
@@ -30,7 +31,7 @@ export function AdBanner({ placement, className }: Props) {
   useEffect(() => {
     if (ad && !impressionFired.current) {
       impressionFired.current = true;
-      advertisementsService.recordImpression(ad.adId, placement);
+      advertisementsService.recordImpression(ad.servedId);
     }
   }, [ad, placement]);
 
@@ -43,7 +44,7 @@ export function AdBanner({ placement, className }: Props) {
     : gradientFor(ad.adId);
 
   function handleClick() {
-    advertisementsService.recordClick(ad!.adId, placement);
+    advertisementsService.recordClick(ad!.servedId);
   }
 
   let bannerVariant = styles.bannerH;

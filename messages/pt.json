@@ -332,7 +332,8 @@
       "platformAudit": "Audit log",
       "channels": "Canais",
       "series": "Programas",
-      "platformFeatureFlags": "Feature Flags"
+      "platformFeatureFlags": "Feature Flags",
+      "platformAdPartnerships": "Parcerias de anúncios"
     },
     "navMobile": {
       "overview": "Painel",
@@ -427,7 +428,31 @@
     "lblImpressions30d": "Impressões (30d)",
     "lblReview": "Em revisão",
     "lblRedemptions30d": "Resgates (30d)",
-    "lblExpiring7d": "Expirando em 7d"
+    "lblExpiring7d": "Expirando em 7d",
+    "monetization": {
+      "title": "Monetização",
+      "loading": "Carregando monetização...",
+      "window": "Janela de {days} dias",
+      "liveViews": "Visualizações ao vivo",
+      "payingBuyers": "Compradores pagantes",
+      "connectNotReady": "Conecte sua conta Stripe para poder solicitar a parceria de anúncios.",
+      "rate": "Sua taxa de repasse:",
+      "noEarningsYet": "Nenhum ganho registrado ainda.",
+      "apply": "Solicitar parceria",
+      "applyError": "Não foi possível enviar a solicitação. Tente novamente.",
+      "applyErrorConnectNotReady": "Conecte sua conta Stripe antes de solicitar a parceria.",
+      "applyErrorNotEligible": "Sua organização ainda não atingiu os requisitos de elegibilidade.",
+      "applyErrorAlreadyApplied": "Já existe uma solicitação em andamento para esta organização.",
+      "applyHint": "Atinja os dois critérios acima para se candidatar.",
+      "status": {
+        "NOT_ELIGIBLE": "Não elegível",
+        "ELIGIBLE": "Elegível",
+        "APPLIED": "Em análise",
+        "APPROVED": "Aprovada",
+        "REJECTED": "Rejeitada",
+        "SUSPENDED": "Suspensa"
+      }
+    }
   },
   "eventsPage": {
     "heading": "Eventos",
@@ -1020,6 +1045,38 @@
         "name": "Canais e programas",
         "description": "Habilita canais lineares e programas (séries) em toda a plataforma."
       }
+    },
+    "adPartnerships": {
+      "title": "Parcerias de anúncios",
+      "subtitle": "Analise solicitações de organizações para se tornarem parceiras de anúncios.",
+      "loading": "Carregando parcerias...",
+      "empty": "Nenhuma parceria encontrada para este filtro.",
+      "filters": {
+        "ALL": "Todas",
+        "APPLIED": "Em análise",
+        "APPROVED": "Aprovadas",
+        "REJECTED": "Rejeitadas",
+        "SUSPENDED": "Suspensas"
+      },
+      "status": {
+        "APPLIED": "Em análise",
+        "APPROVED": "Aprovada",
+        "REJECTED": "Rejeitada",
+        "SUSPENDED": "Suspensa"
+      },
+      "snapshot": "{views} views / {buyers} compradores",
+      "rateFor": "Taxa de repasse para {org}",
+      "globalRate": "Taxa global",
+      "rateInvalid": "Informe uma taxa entre 0 e 1.",
+      "noteDialogTitle": "Motivo obrigatório",
+      "noteDialogDescription": "Descreva o motivo desta ação antes de continuar.",
+      "notePlaceholder": "Escreva o motivo...",
+      "actionSuccess": "Parceria atualizada com sucesso.",
+      "actionError": "Não foi possível atualizar a parceria.",
+      "approve": "Aprovar",
+      "reject": "Rejeitar",
+      "suspend": "Suspender",
+      "reinstate": "Reativar"
     }
   },
   "reports": {

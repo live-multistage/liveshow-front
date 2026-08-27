@@ -19,6 +19,7 @@ function wrapper({ children }: { children: ReactNode }) {
 }
 
 const videoAd: ServedAd = {
+  servedId: 'srv-1',
   adId: 'ad-1',
   title: 'Video Ad',
   format: 'VIDEO',
@@ -46,7 +47,7 @@ describe('usePrerollGate', () => {
     const { result } = renderHook(() => usePrerollGate('ev1'), { wrapper });
     await waitFor(() => expect(result.current.pending).toBe(false));
     expect(result.current.ad).toEqual(videoAd);
-    expect(serveMock).toHaveBeenCalledWith('PRE_ROLL', 1);
+    expect(serveMock).toHaveBeenCalledWith('PRE_ROLL', 1, 'ev1');
   });
 
   it('returns null without fetching when already seen this session', () => {

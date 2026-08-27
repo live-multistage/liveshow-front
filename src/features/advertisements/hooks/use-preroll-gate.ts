@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { advertisementsService } from '../services/advertisements.service';
+import { SERVE_QUERY_CACHE } from '../queries/use-serve-ads';
 import type { ServedAd } from '../types/advertisement.types';
 
 const seenKey = (eventId: string) => `preroll:${eventId}`;
@@ -20,9 +21,9 @@ export function usePrerollGate(eventId: string) {
 
   const query = useQuery({
     queryKey: ['ads', 'serve', 'PRE_ROLL', eventId],
-    queryFn: () => advertisementsService.serve('PRE_ROLL', 1),
+    queryFn: () => advertisementsService.serve('PRE_ROLL', 1, eventId),
     enabled: !seen,
-    staleTime: Infinity,
+    ...SERVE_QUERY_CACHE,
     retry: false,
   });
 

@@ -18,6 +18,7 @@ import {
   Tag,
   Settings,
   Flag,
+  Handshake,
 } from 'lucide-react';
 import type { UserRole } from '@/types';
 import type { FeatureFlagKey } from '@/features/feature-flags';
@@ -77,6 +78,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'platformPayouts',       href: '/dashboard/platform/payouts',       icon: Wallet,       group: 'FINANCEIRO' },
     { navKey: 'platformStreams',       href: '/dashboard/platform/streams',       icon: Radio,        group: 'OPERACIONAL' },
     { navKey: 'platformAds',           href: '/dashboard/platform/ads',           icon: Megaphone,    group: 'OPERACIONAL' },
+    { navKey: 'platformAdPartnerships', href: '/dashboard/platform/ad-partnerships', icon: Handshake,  group: 'OPERACIONAL' },
     { navKey: 'platformCoupons',       href: '/dashboard/platform/coupons',       icon: Tag,          group: 'OPERACIONAL' },
     { navKey: 'platformSettings',      href: '/dashboard/platform/settings',      icon: Settings,     group: 'CONFIG & GOVERNANÇA' },
     { navKey: 'platformFeatureFlags',  href: '/dashboard/platform/feature-flags', icon: Flag,         group: 'CONFIG & GOVERNANÇA' },

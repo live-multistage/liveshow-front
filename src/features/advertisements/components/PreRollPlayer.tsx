@@ -7,7 +7,6 @@ import type { ServedAd } from '../types/advertisement.types';
 
 const SKIP_AFTER_MS = 5000;
 const PLAYING_WATCHDOG_MS = 8000;
-const PLACEMENT = 'PRE_ROLL';
 
 interface Props {
   ad: ServedAd;
@@ -38,7 +37,7 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
     }
     if (impressionFired.current) return;
     impressionFired.current = true;
-    advertisementsService.recordImpression(ad.adId, PLACEMENT);
+    advertisementsService.recordImpression(ad.servedId);
     skipTimer.current = setTimeout(() => setSkippable(true), SKIP_AFTER_MS);
   };
 
@@ -128,7 +127,7 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
             href={href}
             target={ad.destination?.type === 'EXTERNAL_URL' ? '_blank' : undefined}
             rel="noreferrer"
-            onClick={() => advertisementsService.recordClick(ad.adId, PLACEMENT)}
+            onClick={() => advertisementsService.recordClick(ad.servedId)}
           >
             {ad.title}
           </a>

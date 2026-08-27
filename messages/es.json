@@ -332,7 +332,8 @@
       "platformAudit": "Registro de auditoría",
       "channels": "Canales",
       "series": "Programas",
-      "platformFeatureFlags": "Feature Flags"
+      "platformFeatureFlags": "Feature Flags",
+      "platformAdPartnerships": "Alianzas de anuncios"
     },
     "navMobile": {
       "overview": "Panel",
@@ -427,7 +428,31 @@
     "lblImpressions30d": "Impresiones (30d)",
     "lblReview": "En revisión",
     "lblRedemptions30d": "Canjes (30d)",
-    "lblExpiring7d": "Vencen en 7d"
+    "lblExpiring7d": "Vencen en 7d",
+    "monetization": {
+      "title": "Monetización",
+      "loading": "Cargando monetización...",
+      "window": "Ventana de {days} días",
+      "liveViews": "Visualizaciones en vivo",
+      "payingBuyers": "Compradores pagantes",
+      "connectNotReady": "Conecta tu cuenta de Stripe para poder solicitar la alianza de anuncios.",
+      "rate": "Tu tasa de reparto:",
+      "noEarningsYet": "Aún no hay ganancias registradas.",
+      "apply": "Solicitar alianza",
+      "applyError": "No se pudo enviar la solicitud. Intenta de nuevo.",
+      "applyErrorConnectNotReady": "Conecta tu cuenta de Stripe antes de solicitar la alianza.",
+      "applyErrorNotEligible": "Tu organización aún no alcanzó los requisitos de elegibilidad.",
+      "applyErrorAlreadyApplied": "Ya existe una solicitud en curso para esta organización.",
+      "applyHint": "Alcanza ambos criterios anteriores para poder solicitar.",
+      "status": {
+        "NOT_ELIGIBLE": "No elegible",
+        "ELIGIBLE": "Elegible",
+        "APPLIED": "En análisis",
+        "APPROVED": "Aprobada",
+        "REJECTED": "Rechazada",
+        "SUSPENDED": "Suspendida"
+      }
+    }
   },
   "eventsPage": {
     "heading": "Eventos",
@@ -1017,6 +1042,38 @@
         "name": "Canales y programas",
         "description": "Habilita canales lineales y programas (series) en toda la plataforma."
       }
+    },
+    "adPartnerships": {
+      "title": "Alianzas de anuncios",
+      "subtitle": "Revisa las solicitudes de las organizaciones para convertirse en socias de anuncios.",
+      "loading": "Cargando alianzas...",
+      "empty": "No se encontraron alianzas para este filtro.",
+      "filters": {
+        "ALL": "Todas",
+        "APPLIED": "En análisis",
+        "APPROVED": "Aprobadas",
+        "REJECTED": "Rechazadas",
+        "SUSPENDED": "Suspendidas"
+      },
+      "status": {
+        "APPLIED": "En análisis",
+        "APPROVED": "Aprobada",
+        "REJECTED": "Rechazada",
+        "SUSPENDED": "Suspendida"
+      },
+      "snapshot": "{views} vistas / {buyers} compradores",
+      "rateFor": "Tasa de reparto para {org}",
+      "globalRate": "Tasa global",
+      "rateInvalid": "Ingresa una tasa entre 0 y 1.",
+      "noteDialogTitle": "Motivo requerido",
+      "noteDialogDescription": "Describe el motivo de esta acción antes de continuar.",
+      "notePlaceholder": "Escribe el motivo...",
+      "actionSuccess": "Alianza actualizada con éxito.",
+      "actionError": "No se pudo actualizar la alianza.",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "suspend": "Suspender",
+      "reinstate": "Reactivar"
     }
   },
   "reports": {

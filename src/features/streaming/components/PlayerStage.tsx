@@ -9,6 +9,9 @@ import styles from './PlayerStage.module.scss';
 
 interface PlayerStageProps {
   mode: 'live' | 'replay' | 'channel';
+  // The event actually playing — attributes in-player ad revenue share to
+  // its organizer. Server-resolved from this id, never trusted from elsewhere.
+  eventId: string;
   paused: boolean;
   onResume: () => void;
   // Owned by the player (its header also hides on it); fed by
@@ -26,7 +29,7 @@ interface PlayerStageProps {
 //
 // Sem o overlay central, uma live pausada é indistinguível de uma transmissão
 // travada: a imagem congela e nada na tela explica por quê.
-export function PlayerStage({ mode, paused, onResume, pauseAdVisible, onPauseAdVisibleChange, children }: PlayerStageProps) {
+export function PlayerStage({ mode, eventId, paused, onResume, pauseAdVisible, onPauseAdVisibleChange, children }: PlayerStageProps) {
   const t = useTranslations('player');
   // Um canal não tem arquivo atrás da janela de ~12 s da origem: não há para
   // onde pausar. Sem pausa, o takeover de anúncio, o play central e o chip de
@@ -37,6 +40,7 @@ export function PlayerStage({ mode, paused, onResume, pauseAdVisible, onPauseAdV
     <>
       {pausable && (
         <PauseAdTakeover
+          eventId={eventId}
           paused={paused}
           onResume={onResume}
           onVisibleChange={onPauseAdVisibleChange}

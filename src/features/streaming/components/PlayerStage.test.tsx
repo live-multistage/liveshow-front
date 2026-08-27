@@ -18,6 +18,7 @@ vi.mock('./SessionWatermark', () => ({
 }));
 
 const baseProps = {
+  eventId: 'e1',
   paused: true,
   onResume: vi.fn(),
   pauseAdVisible: true,
