@@ -428,7 +428,31 @@
     "lblImpressions30d": "Impressions (30d)",
     "lblReview": "In review",
     "lblRedemptions30d": "Redemptions (30d)",
-    "lblExpiring7d": "Expiring in 7d"
+    "lblExpiring7d": "Expiring in 7d",
+    "monetization": {
+      "title": "Monetization",
+      "loading": "Loading monetization...",
+      "window": "{days}-day window",
+      "liveViews": "Live views",
+      "payingBuyers": "Paying buyers",
+      "connectNotReady": "Connect your Stripe account to be able to apply for the ad partnership.",
+      "rate": "Your revenue share rate:",
+      "noEarningsYet": "No earnings recorded yet.",
+      "apply": "Apply for partnership",
+      "applyError": "Could not submit the application. Please try again.",
+      "applyErrorConnectNotReady": "Connect your Stripe account before applying for the partnership.",
+      "applyErrorNotEligible": "Your organization hasn't reached the eligibility requirements yet.",
+      "applyErrorAlreadyApplied": "There's already a pending application for this organization.",
+      "applyHint": "Meet both criteria above to apply.",
+      "status": {
+        "NOT_ELIGIBLE": "Not eligible",
+        "ELIGIBLE": "Eligible",
+        "APPLIED": "Under review",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "SUSPENDED": "Suspended"
+      }
+    }
   },
   "eventsPage": {
     "heading": "Events",
@@ -923,30 +947,7 @@
     "removing": "Removing...",
     "removeBtn": "Remove",
     "noDescription": "No description.",
-    "descPlaceholder": "Describe your organization...",
-    "monetization": {
-      "title": "Monetization",
-      "loading": "Loading monetization...",
-      "window": "{days}-day window",
-      "liveViews": "Live views",
-      "payingBuyers": "Paying buyers",
-      "connectNotReady": "Connect your Stripe account to be able to apply for the ad partnership.",
-      "rate": "Your revenue share rate:",
-      "noEarningsYet": "No earnings recorded yet.",
-      "apply": "Apply for partnership",
-      "applyError": "Could not submit the application. Please try again.",
-      "applyErrorConnectNotReady": "Connect your Stripe account before applying for the partnership.",
-      "applyErrorNotEligible": "Your organization hasn't reached the eligibility requirements yet.",
-      "applyErrorAlreadyApplied": "There's already a pending application for this organization.",
-      "status": {
-        "NOT_ELIGIBLE": "Not eligible",
-        "ELIGIBLE": "Eligible",
-        "APPLIED": "Under review",
-        "APPROVED": "Approved",
-        "REJECTED": "Rejected",
-        "SUSPENDED": "Suspended"
-      }
-    }
+    "descPlaceholder": "Describe your organization..."
   },
   "platformAdmin": {
     "tabPending": "Pending",
@@ -1054,11 +1055,19 @@
         "REJECTED": "Rejected",
         "SUSPENDED": "Suspended"
       },
+      "status": {
+        "APPLIED": "Under review",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "SUSPENDED": "Suspended"
+      },
       "snapshot": "{views} views / {buyers} buyers",
       "rateFor": "Revenue share rate for {org}",
       "globalRate": "Global rate",
       "rateInvalid": "Enter a rate between 0 and 1.",
-      "notePrompt": "Describe the reason (required):",
+      "noteDialogTitle": "Reason required",
+      "noteDialogDescription": "Describe the reason for this action before continuing.",
+      "notePlaceholder": "Write the reason...",
       "actionSuccess": "Partnership updated successfully.",
       "actionError": "Could not update the partnership.",
       "approve": "Approve",

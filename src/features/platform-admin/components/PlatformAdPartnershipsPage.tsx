@@ -4,6 +4,15 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@live-show/design-system';
+import {
   useAdPartnershipsQuery,
   useReviewPartnershipMutation,
   useSetPartnershipRateMutation,
@@ -16,27 +25,45 @@ const FILTERS: (AdPartnershipStatus | undefined)[] = [
   undefined, 'APPLIED', 'APPROVED', 'REJECTED', 'SUSPENDED',
 ];
 
+// Reject/suspend need a note (backend 400s without one) — approve/reinstate don't.
+type NoteAction = 'reject' | 'suspend';
+type NotePendingReview = { id: string; action: NoteAction };
+
 export function PlatformAdPartnershipsPage() {
   const t = useTranslations('platformAdmin.adPartnerships');
+  const tCommon = useTranslations('common');
   const [status, setStatus] = useState<AdPartnershipStatus | undefined>('APPLIED');
+  const [notePending, setNotePending] = useState<NotePendingReview | null>(null);
+  const [noteText, setNoteText] = useState('');
   const { data, isLoading } = useAdPartnershipsQuery(status);
   const review = useReviewPartnershipMutation();
   const setRate = useSetPartnershipRateMutation();
 
   const act = (id: string, action: 'approve' | 'reject' | 'suspend' | 'reinstate') => {
-    // reject/suspend require a note server-side (400 otherwise).
-    const note =
-      action === 'reject' || action === 'suspend'
-        ? window.prompt(t('notePrompt'))?.trim()
-        : undefined;
-    if ((action === 'reject' || action === 'suspend') && !note) return;
+    if (action === 'reject' || action === 'suspend') {
+      setNotePending({ id, action });
+      setNoteText('');
+      return;
+    }
     review.mutate(
-      { id, action, note },
+      { id, action },
       {
         onSuccess: () => toast.success(t('actionSuccess')),
         onError: () => toast.error(t('actionError')),
       },
     );
+  };
+
+  const confirmNote = () => {
+    if (!notePending || noteText.trim().length === 0) return;
+    review.mutate(
+      { id: notePending.id, action: notePending.action, note: noteText.trim() },
+      {
+        onSuccess: () => toast.success(t('actionSuccess')),
+        onError: () => toast.error(t('actionError')),
+      },
+    );
+    setNotePending(null);
   };
 
   return (
@@ -62,7 +89,7 @@ export function PlatformAdPartnershipsPage() {
           {data?.map((p) => (
             <tr key={p.id}>
               <td>{p.organizationId}</td>
-              <td><span className={styles.badge} data-status={p.status}>{p.status}</span></td>
+              <td><span className={styles.badge} data-status={p.status}>{t(`status.${p.status}`)}</span></td>
               <td>
                 {p.metricsSnapshot
                   ? t('snapshot', {
@@ -73,6 +100,10 @@ export function PlatformAdPartnershipsPage() {
               </td>
               <td>
                 <input
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.01"
                   className={styles.rateInput}
                   aria-label={t('rateFor', { org: p.organizationId })}
                   defaultValue={p.revenueShareRate ?? ''}
@@ -106,6 +137,30 @@ export function PlatformAdPartnershipsPage() {
           ))}
         </tbody>
       </table>
+
+      <Dialog open={notePending !== null} onOpenChange={(open) => !open && setNotePending(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('noteDialogTitle')}</DialogTitle>
+            <DialogDescription>{t('noteDialogDescription')}</DialogDescription>
+          </DialogHeader>
+          <textarea
+            className={styles.noteTextarea}
+            value={noteText}
+            onChange={(e) => setNoteText(e.target.value)}
+            placeholder={t('notePlaceholder')}
+            rows={4}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNotePending(null)}>
+              {tCommon('cancel')}
+            </Button>
+            <Button disabled={noteText.trim().length === 0} onClick={confirmNote}>
+              {tCommon('confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PlatformPageShell>
   );
 }

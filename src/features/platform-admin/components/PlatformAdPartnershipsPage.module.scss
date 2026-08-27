@@ -80,3 +80,15 @@
 .empty {
   color: var(--muted-foreground);
 }
+
+.noteTextarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: #101013;
+  color: #f4f4f5;
+  font-size: 13px;
+  resize: vertical;
+}

@@ -32,6 +32,11 @@ describe('MonetizationCard', () => {
     expect(screen.getByRole('button', { name: /apply/i })).toBeDisabled();
   });
 
+  it('shows a hint explaining why Apply is disabled when not eligible but Connect is ready', () => {
+    render(<MonetizationCard organizationId="org-1" />);
+    expect(screen.getByText('applyHint')).toBeInTheDocument();
+  });
+
   it('enables Apply once eligible with Connect ready', () => {
     state.data = { ...state.data, eligible: true, liveViews: 1200, payingBuyers: 60, status: 'ELIGIBLE' };
     render(<MonetizationCard organizationId="org-1" />);

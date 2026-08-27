@@ -78,16 +78,19 @@ export function MonetizationCard({ organizationId }: { organizationId: string })
       )}
 
       {data.status !== 'APPROVED' && data.status !== 'APPLIED' && (
-        <button
-          type="button"
-          className={styles.apply}
-          disabled={!canApply || apply.isPending}
-          onClick={() =>
-            apply.mutate(undefined, { onError: (error) => toast.error(t(applyErrorKey(error))) })
-          }
-        >
-          {t('apply')}
-        </button>
+        <>
+          <button
+            type="button"
+            className={styles.apply}
+            disabled={!canApply || apply.isPending}
+            onClick={() =>
+              apply.mutate(undefined, { onError: (error) => toast.error(t(applyErrorKey(error))) })
+            }
+          >
+            {t('apply')}
+          </button>
+          {!data.eligible && data.connectReady && <p className={styles.warning}>{t('applyHint')}</p>}
+        </>
       )}
     </section>
   );
