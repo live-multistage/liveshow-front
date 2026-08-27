@@ -11,11 +11,6 @@ import {
   useDeleteTicketProductMutation,
   useUpdateTicketProductMutation,
 } from '../../mutations/ticket-product.mutation';
-import {
-  useCreateSeriesTicketProductMutation,
-  useDeleteSeriesTicketProductMutation,
-  useUpdateSeriesTicketProductMutation,
-} from '../../../series/mutations/series.mutations';
 import type { AccessCapability } from '../../types/event.types';
 import { useEventStagesQuery } from '../../../streams/queries/streams.queries';
 import { ISO_CURRENCIES, DEFAULT_CURRENCY } from '@/shared/constants/currencies';
@@ -28,9 +23,6 @@ import {
 } from '@live-show/design-system';
 import styles from './TicketSection.module.scss';
 
-// Common shape both an event's TicketProductResponse and a series'
-// SeriesTicketProduct satisfy — the form only ever reads/writes these fields,
-// so it stays agnostic of which backend resource it's editing.
 interface TicketProductLike {
   id: string;
   name: string;
@@ -47,13 +39,7 @@ interface TicketProductLike {
 }
 
 interface Props {
-  // Exactly one of eventId/seriesId is set — mirrors the backend's
-  // TicketProduct invariant (either eventId or seriesId, never both).
   eventId?: string;
-  seriesId?: string;
-  // Stage checkboxes always come from an Event's streams. For a series
-  // that's the template event, which differs from seriesId — defaults to
-  // eventId when omitted.
   stagesEventId?: string;
   tickets: TicketProductLike[];
 }
@@ -85,20 +71,12 @@ const EMPTY_FORM: Partial<TicketFormInput> = {
   allowedStageIds: [],
 };
 
-export function EditTicketSection({ eventId, seriesId, stagesEventId, tickets }: Props) {
+export function EditTicketSection({ eventId, stagesEventId, tickets }: Props) {
   const t = useTranslations('editTicket');
-  const isSeries = Boolean(seriesId);
 
-  const createEventMutation = useCreateTicketProductMutation(eventId ?? '');
-  const updateEventMutation = useUpdateTicketProductMutation(eventId ?? '');
-  const deleteEventMutation = useDeleteTicketProductMutation(eventId ?? '');
-  const createSeriesMutation = useCreateSeriesTicketProductMutation();
-  const updateSeriesMutation = useUpdateSeriesTicketProductMutation();
-  const deleteSeriesMutation = useDeleteSeriesTicketProductMutation();
-
-  const createMutation = isSeries ? createSeriesMutation : createEventMutation;
-  const updateMutation = isSeries ? updateSeriesMutation : updateEventMutation;
-  const deleteMutation = isSeries ? deleteSeriesMutation : deleteEventMutation;
+  const createMutation = useCreateTicketProductMutation(eventId ?? '');
+  const updateMutation = useUpdateTicketProductMutation(eventId ?? '');
+  const deleteMutation = useDeleteTicketProductMutation(eventId ?? '');
 
   const { stages } = useEventStagesQuery(stagesEventId ?? eventId ?? null);
 
@@ -120,9 +98,7 @@ export function EditTicketSection({ eventId, seriesId, stagesEventId, tickets }:
   const liveView = useWatch({ control, name: 'liveView' });
   const replayView = useWatch({ control, name: 'replayView' });
   const physicalEntry = useWatch({ control, name: 'physicalEntry' });
-  // Season passes have no stage-restriction concept — the series
-  // ticket-product endpoint 400s if allowedStageIds is present at all.
-  const showStageSelector = !isSeries && (liveView || cameraView) && stages.length > 0;
+  const showStageSelector = (liveView || cameraView) && stages.length > 0;
 
   // Presencial nunca sozinho: sem Ao vivo/Reprise o checkbox trava, e se o
   // usuário desmarcar o stream com presencial já ligado, desliga junto.
@@ -173,30 +149,18 @@ export function EditTicketSection({ eventId, seriesId, stagesEventId, tickets }:
     };
 
     if (editingId) {
-      if (isSeries) {
-        updateSeriesMutation.mutate(
-          { seriesId: seriesId!, productId: editingId, input: basePayload },
-          { onSuccess: () => cancelEdit() },
-        );
-      } else {
-        updateEventMutation.mutate(
-          {
-            ticketId: editingId,
-            payload: {
-              ...basePayload,
-              allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
-            },
+      updateMutation.mutate(
+        {
+          ticketId: editingId,
+          payload: {
+            ...basePayload,
+            allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
           },
-          { onSuccess: () => cancelEdit() },
-        );
-      }
-    } else if (isSeries) {
-      createSeriesMutation.mutate(
-        { seriesId: seriesId!, input: basePayload },
-        { onSuccess: () => reset(EMPTY_FORM) },
+        },
+        { onSuccess: () => cancelEdit() },
       );
     } else {
-      createEventMutation.mutate(
+      createMutation.mutate(
         {
           ...basePayload,
           allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
@@ -423,11 +387,7 @@ export function EditTicketSection({ eventId, seriesId, stagesEventId, tickets }:
                 <button
                   type="button"
                   className={styles.removeBtn}
-                  onClick={() =>
-                    isSeries
-                      ? deleteSeriesMutation.mutate({ seriesId: seriesId!, productId: ticket.id })
-                      : deleteEventMutation.mutate(ticket.id)
-                  }
+                  onClick={() => deleteMutation.mutate(ticket.id)}
                   disabled={deleteMutation.isPending || editingId === ticket.id}
                   aria-label="remove"
                 >

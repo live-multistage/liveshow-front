@@ -55,7 +55,7 @@ export function Carousel({ title, showLiveDot = false, seeAllHref, children }: C
 }
 
 // `fit="content"` drops the fixed ShowCard-sized slot so shorter cards
-// (channels, series) don't leave an empty band under the rail.
+// (channels) don't leave an empty band under the rail.
 Carousel.Item = function CarouselItem({
   children,
   fit = 'card',

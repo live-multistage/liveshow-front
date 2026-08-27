@@ -10,7 +10,7 @@ interface Props {
 }
 
 // Caixa "RESUMO" com o horário/dias já compostos — extraída do ProgramModal
-// para ser reusada pelo SeriesForm sem duplicar a marcação.
+// para evitar duplicar a marcação.
 export function SummaryBox({ label, summary, placeholder }: Props) {
   return (
     <div className={styles.summary}>

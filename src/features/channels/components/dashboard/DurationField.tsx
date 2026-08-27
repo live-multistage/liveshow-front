@@ -19,7 +19,7 @@ interface Props {
 }
 
 // Number input com sufixo "MIN" + presets 30M/1H/1.5H/2H — extraído do
-// ProgramModal para ser reusado pelo SeriesForm sem duplicar a marcação.
+// ProgramModal para evitar duplicar a marcação.
 export function DurationField({ id, label, suffix, value, onChange, presets, onPreset, error }: Props) {
   return (
     <div className={styles.field}>

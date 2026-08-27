@@ -1,7 +1,6 @@
 import type { MetadataRoute } from 'next';
 import type { PaginatedEventsResponse } from '@/features/events/types/event.types';
 import type { ChannelListItem } from '@/features/channels/types/channel.types';
-import type { SeriesListItem } from '@/features/series/types/series.types';
 import { eventHref } from '@/features/events/utils/slug';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
@@ -33,7 +32,7 @@ async function fetchAllEvents() {
   return items;
 }
 
-// Channels and series are small public catalogs — one fetch each, fail-soft.
+// Channels are a small public catalog — one fetch, fail-soft.
 async function fetchList<T>(path: string): Promise<T[]> {
   try {
     const res = await fetch(`${apiBase()}${path}`, { next: { revalidate: 3600 } });
@@ -47,17 +46,15 @@ async function fetchList<T>(path: string): Promise<T[]> {
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [events, channels, series] = await Promise.all([
+  const [events, channels] = await Promise.all([
     fetchAllEvents(),
     fetchList<ChannelListItem>('/channels'),
-    fetchList<SeriesListItem>('/series'),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: 'hourly', priority: 1 },
     { url: `${SITE_URL}/events`, changeFrequency: 'hourly', priority: 0.9 },
     ...(channels.length ? [{ url: `${SITE_URL}/channels`, changeFrequency: 'daily' as const, priority: 0.8 }] : []),
-    ...(series.length ? [{ url: `${SITE_URL}/series`, changeFrequency: 'daily' as const, priority: 0.8 }] : []),
     { url: `${SITE_URL}/about`, changeFrequency: 'monthly', priority: 0.4 },
     { url: `${SITE_URL}/help`, changeFrequency: 'monthly', priority: 0.4 },
     { url: `${SITE_URL}/privacidade`, changeFrequency: 'yearly', priority: 0.2 },
@@ -82,11 +79,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const seriesEntries: MetadataRoute.Sitemap = series.map((s) => ({
-    url: `${SITE_URL}/series/${s.slug}`,
-    changeFrequency: 'weekly',
-    priority: 0.6,
-  }));
-
-  return [...staticEntries, ...eventEntries, ...orgEntries, ...channelEntries, ...seriesEntries];
+  return [...staticEntries, ...eventEntries, ...orgEntries, ...channelEntries];
 }

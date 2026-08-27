@@ -23,8 +23,7 @@ export interface Show {
   rating?: number;
   priceRange?: { min: number; max: number };
   teaserVideoUrl?: string | null;
-  seriesId?: string | null;
-  seriesSlug?: string | null;
+  programId?: string | null;
 }
 
 export interface Camera {

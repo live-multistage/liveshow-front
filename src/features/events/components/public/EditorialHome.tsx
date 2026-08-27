@@ -10,8 +10,6 @@ import { AdBanner } from '@/features/advertisements/components/AdBanner';
 import { Carousel } from '@/app/(public)/_components/Carousel/Carousel';
 import { ChannelsRail } from '@/app/(public)/_components/ChannelsRail/ChannelsRail';
 import type { ChannelListItem } from '@/features/channels';
-import { SeriesRail } from '@/features/series/components/SeriesRail';
-import type { SeriesListItem } from '@/features/series';
 import { GenreGrid } from './editorial/GenreGrid';
 import { EditorialHero } from './editorial/EditorialHero';
 import { LiveTicker, EditorialCard } from './editorial/editorial-parts';
@@ -22,14 +20,13 @@ interface Props {
   initialRecommended?: RecommendedEventsResponse;
   initialReplayCatalog?: RecommendedEventsResponse;
   initialChannels?: ChannelListItem[];
-  initialSeries?: SeriesListItem[];
   localeCode: string;
   isLoggedIn: boolean;
 }
 
 export function EditorialHome({
   initialEvents = [], initialRecommended, initialReplayCatalog, initialChannels = [],
-  initialSeries = [], localeCode, isLoggedIn,
+  localeCode, isLoggedIn,
 }: Props) {
   const t = useTranslations('home');
   const shows = initialEvents.map(eventToShow);
@@ -75,12 +72,6 @@ export function EditorialHome({
         {initialChannels.length > 0 && (
           <div className={styles.gridSection}>
             <ChannelsRail channels={initialChannels} />
-          </div>
-        )}
-
-        {initialSeries.length > 0 && (
-          <div className={styles.gridSection}>
-            <SeriesRail series={initialSeries} />
           </div>
         )}
 

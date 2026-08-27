@@ -41,24 +41,9 @@ function makeShow(overrides: Partial<Show> = {}): Show {
 }
 
 describe('ShowCard', () => {
-  it('does not render a series badge when the show has no seriesId', () => {
+  it('renders the show title', () => {
     render(<ShowCard show={makeShow()} />);
 
-    expect(screen.queryByText('badge')).not.toBeInTheDocument();
-  });
-
-  it('renders a series badge when the show belongs to a series', () => {
-    render(<ShowCard show={makeShow({ seriesId: 'series-1' })} />);
-
-    expect(screen.getByText('badge')).toBeInTheDocument();
-  });
-
-  it('links the series badge to the series page when a seriesSlug is present', () => {
-    render(<ShowCard show={makeShow({ seriesId: 'series-1', seriesSlug: 'quinta-do-rock' })} />);
-
-    expect(screen.getByText('badge').closest('a')).toHaveAttribute(
-      'href',
-      '/series/quinta-do-rock',
-    );
+    expect(screen.getByText('Episódio 3')).toBeInTheDocument();
   });
 });

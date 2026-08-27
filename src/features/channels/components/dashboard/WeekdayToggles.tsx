@@ -18,7 +18,7 @@ interface Props {
 }
 
 // Grade MO..SU com aria-pressed + atalhos "SEG-SEX"/"TODOS" — extraído do
-// ProgramModal para ser reusado pelo SeriesForm sem duplicar a marcação.
+// ProgramModal para evitar duplicar a marcação.
 export function WeekdayToggles({ legend, dayLabels, days, onToggleDay, quickPicks, error }: Props) {
   return (
     <fieldset className={styles.field}>

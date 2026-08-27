@@ -13,20 +13,18 @@ import { DEFAULT_FEATURE_FLAGS } from '@/features/feature-flags';
 const mockedUseAuth = vi.mocked(useAuth);
 
 describe('DashboardSidebar — feature flag gating', () => {
-  it('shows channels and series when linear_channels is on', () => {
+  it('shows channels when linear_channels is on', () => {
     mockedUseAuth.mockReturnValue({ user: { role: 'ADMIN' } } as ReturnType<typeof useAuth>);
     render(<DashboardSidebar flags={{ ...DEFAULT_FEATURE_FLAGS, linear_channels: true }} />);
 
     expect(screen.getByText('channels')).toBeInTheDocument();
-    expect(screen.getByText('series')).toBeInTheDocument();
   });
 
-  it('hides channels and series when linear_channels is off', () => {
+  it('hides channels when linear_channels is off', () => {
     mockedUseAuth.mockReturnValue({ user: { role: 'ADMIN' } } as ReturnType<typeof useAuth>);
     render(<DashboardSidebar flags={{ ...DEFAULT_FEATURE_FLAGS, linear_channels: false }} />);
 
     expect(screen.queryByText('channels')).not.toBeInTheDocument();
-    expect(screen.queryByText('series')).not.toBeInTheDocument();
     expect(screen.getByText('events')).toBeInTheDocument();
   });
 });

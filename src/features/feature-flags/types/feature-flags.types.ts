@@ -6,6 +6,6 @@ export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
   chat: false,
   two_factor: false,
   vod_upload: false,
-  // Ships on — gates channels + series, not a beta toggle.
+  // Ships on — gates channels, not a beta toggle.
   linear_channels: true,
 };

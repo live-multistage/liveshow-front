@@ -15,7 +15,6 @@ import { AdBanner } from '@/features/advertisements';
 import { ReportButton } from '@/features/reports';
 import { WishlistButton } from '@/features/wishlist';
 import { MediaWithTeaserVideo } from '@/shared/components/MediaWithTeaserVideo';
-import { SeriesBadge } from '@/features/series/components/SeriesBadge';
 import styles from './EventDetailPageContent.module.scss';
 
 interface Props {
@@ -110,7 +109,6 @@ export function EventDetailPageContent({ id }: Props) {
                   {cameraCount} CÂMERAS
                 </span>
               )}
-              {event.seriesId && <SeriesBadge seriesSlug={event.seriesSlug} />}
             </div>
             <h1 className={styles.heroFullTitle}>{event.title}</h1>
             {event.venue && <p className={styles.heroPlace}>{event.venue}</p>}

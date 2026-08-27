@@ -69,7 +69,6 @@ export function eventToShow(event: EventResponse): Show {
     tags: [],
     viewers: undefined,
     rating: undefined,
-    seriesId: event.seriesId,
-    seriesSlug: event.seriesSlug,
+    programId: event.programId,
   };
 }

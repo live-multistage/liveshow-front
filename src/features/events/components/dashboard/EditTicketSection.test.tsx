@@ -51,35 +51,18 @@ vi.mock('../../mutations/ticket-product.mutation', () => ({
   useDeleteTicketProductMutation: () => ({ mutate: deleteEventMutate, isPending: false }),
 }));
 
-const createSeriesMutate = vi.fn();
-const updateSeriesMutate = vi.fn();
-const deleteSeriesMutate = vi.fn();
-vi.mock('../../../series/mutations/series.mutations', () => ({
-  useCreateSeriesTicketProductMutation: () => ({
-    mutate: createSeriesMutate,
-    isPending: false,
-    isError: false,
-  }),
-  useUpdateSeriesTicketProductMutation: () => ({
-    mutate: updateSeriesMutate,
-    isPending: false,
-    isError: false,
-  }),
-  useDeleteSeriesTicketProductMutation: () => ({ mutate: deleteSeriesMutate, isPending: false }),
-}));
-
 const fillRequiredFields = () => {
   fireEvent.change(screen.getByPlaceholderText('namePlaceholder'), {
-    target: { value: 'Passe da temporada' },
+    target: { value: 'Pista' },
   });
   fireEvent.change(screen.getByPlaceholderText('descPlaceholder'), {
-    target: { value: 'Acesso a todos os episódios' },
+    target: { value: 'Acesso ao show' },
   });
   fireEvent.change(screen.getByPlaceholderText('0,00'), { target: { value: '150' } });
   fireEvent.click(screen.getByText('liveView'));
 };
 
-describe('EditTicketSection — eventId target (unchanged behavior)', () => {
+describe('EditTicketSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useEventStagesQueryMock.mockReturnValue({ stages: [], isLoading: false });
@@ -92,10 +75,9 @@ describe('EditTicketSection — eventId target (unchanged behavior)', () => {
     fireEvent.click(screen.getByText('add'));
 
     await waitFor(() => expect(createEventMutate).toHaveBeenCalled());
-    expect(createSeriesMutate).not.toHaveBeenCalled();
   });
 
-  it('still shows the stage selector and sends allowedStageIds for an event ticket', async () => {
+  it('shows the stage selector and sends allowedStageIds for an event ticket', async () => {
     useEventStagesQueryMock.mockReturnValue({ stages: STAGES, isLoading: false });
     render(<EditTicketSection eventId="evt-1" tickets={[]} />);
     fillRequiredFields();
@@ -111,61 +93,16 @@ describe('EditTicketSection — eventId target (unchanged behavior)', () => {
       ),
     );
   });
-});
 
-describe('EditTicketSection — seriesId target', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    useEventStagesQueryMock.mockReturnValue({ stages: [], isLoading: false });
-  });
-
-  it('creates through the series ticket-product mutation with the seriesId', async () => {
-    render(<EditTicketSection seriesId="series-1" stagesEventId="evt-template" tickets={[]} />);
-    fillRequiredFields();
-
-    fireEvent.click(screen.getByText('add'));
-
-    await waitFor(() =>
-      expect(createSeriesMutate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          seriesId: 'series-1',
-          input: expect.objectContaining({ name: 'Passe da temporada' }),
-        }),
-        expect.anything(),
-      ),
-    );
-    expect(createEventMutate).not.toHaveBeenCalled();
-  });
-
-  it('never renders the stage selector, even with stages available', () => {
-    useEventStagesQueryMock.mockReturnValue({ stages: STAGES, isLoading: false });
-    render(<EditTicketSection seriesId="series-1" stagesEventId="evt-template" tickets={[]} />);
-    fillRequiredFields();
-
-    expect(screen.queryByText('Palco A')).not.toBeInTheDocument();
-  });
-
-  it('submits without an allowedStageIds key in the body (backend 400s if present)', async () => {
-    useEventStagesQueryMock.mockReturnValue({ stages: STAGES, isLoading: false });
-    render(<EditTicketSection seriesId="series-1" stagesEventId="evt-template" tickets={[]} />);
-    fillRequiredFields();
-
-    fireEvent.click(screen.getByText('add'));
-
-    await waitFor(() => expect(createSeriesMutate).toHaveBeenCalled());
-    const call = createSeriesMutate.mock.calls[0][0];
-    expect(call.input).not.toHaveProperty('allowedStageIds');
-  });
-
-  it('deletes through the series ticket-product mutation with the seriesId and productId', () => {
+  it('deletes through the event ticket-product mutation', () => {
     render(
       <EditTicketSection
-        seriesId="series-1"
+        eventId="evt-1"
         tickets={[
           {
             id: 'prod-1',
-            name: 'Passe',
-            description: 'Passe da temporada',
+            name: 'Pista',
+            description: 'Acesso ao show',
             price: 100,
             currency: 'BRL',
             capabilities: ['LIVE_VIEW'],
@@ -180,19 +117,18 @@ describe('EditTicketSection — seriesId target', () => {
 
     fireEvent.click(screen.getByLabelText('remove'));
 
-    expect(deleteSeriesMutate).toHaveBeenCalledWith({ seriesId: 'series-1', productId: 'prod-1' });
-    expect(deleteEventMutate).not.toHaveBeenCalled();
+    expect(deleteEventMutate).toHaveBeenCalledWith('prod-1');
   });
 
-  it('updates through the series ticket-product mutation when editing an existing product', async () => {
+  it('updates through the event ticket-product mutation when editing an existing product', async () => {
     render(
       <EditTicketSection
-        seriesId="series-1"
+        eventId="evt-1"
         tickets={[
           {
             id: 'prod-1',
-            name: 'Passe',
-            description: 'Passe da temporada',
+            name: 'Pista',
+            description: 'Acesso ao show',
             price: 100,
             currency: 'BRL',
             capabilities: ['LIVE_VIEW'],
@@ -209,11 +145,10 @@ describe('EditTicketSection — seriesId target', () => {
     fireEvent.click(screen.getByText('save'));
 
     await waitFor(() =>
-      expect(updateSeriesMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ seriesId: 'series-1', productId: 'prod-1' }),
+      expect(updateEventMutate).toHaveBeenCalledWith(
+        expect.objectContaining({ ticketId: 'prod-1' }),
         expect.anything(),
       ),
     );
-    expect(updateEventMutate).not.toHaveBeenCalled();
   });
 });

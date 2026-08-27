@@ -6,7 +6,6 @@ import type { Show } from '../../types/show';
 import { formatPriceRange } from '../../utils/event-formatters';
 import { eventHref } from '../../utils/slug';
 import { WishlistButton } from '@/features/wishlist/components/WishlistButton';
-import { SeriesBadge } from '@/features/series/components/SeriesBadge';
 import styles from './ShowCard.module.scss';
 
 const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
@@ -101,7 +100,6 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
 
       <div className={styles.cardFooter}>
         <div className={styles.footerChips}>
-          {show.seriesId && <SeriesBadge seriesSlug={show.seriesSlug} />}
           {show.tags.length > 0
             ? show.tags.slice(0, 2).map((tag) => (
                 <span key={tag} className={styles.chipTag}>{tag}</span>

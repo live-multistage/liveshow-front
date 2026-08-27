@@ -81,9 +81,8 @@ export interface EventResponse {
   // How long after the last camera drops the backend auto-finishes a LIVE event.
   // Optional: a response cached before this field shipped won't carry it.
   lifecycle?: { idleFinishMinutes: number };
-  // Set when this event is an episode of an EventSeries.
-  seriesId?: string | null;
-  seriesSlug?: string | null;
+  // Set when this event is an occurrence of a channel Program.
+  programId?: string | null;
 }
 
 // NBR 15290 — Libras window accessibility state for an event.
