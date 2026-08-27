@@ -19,6 +19,8 @@ const useOrgSeriesQuery = vi.fn();
 vi.mock('../../queries/series.queries', () => ({
   useSeriesQuery: (...args: unknown[]) => useSeriesQuery(...args),
   useOrgSeriesQuery: (...args: unknown[]) => useOrgSeriesQuery(...args),
+  useSeriesEpisodesQuery: () => ({ data: [] }),
+  useSeriesTicketProductsQuery: () => ({ data: [] }),
 }));
 
 const pauseMutate = vi.fn();
@@ -54,6 +56,8 @@ const series = (overrides: Partial<SeriesResponse> = {}): SeriesResponse => ({
 const orgSeries = (overrides: Partial<SeriesOrgResponse> = {}): SeriesOrgResponse => ({
   ...series(),
   templateEventId: 'evt-template-1',
+  nextEpisode: null,
+  episodeCount: 0,
   ...overrides,
 });
 
@@ -71,7 +75,8 @@ describe('SeriesDetailContent', () => {
 
     render(<SeriesDetailContent slug="quinta-do-rock" />);
 
-    expect(screen.getByText('Quinta do Rock')).toBeInTheDocument();
+    // Name appears in both the breadcrumb and the H1 title.
+    expect(screen.getAllByText('Quinta do Rock').length).toBeGreaterThan(0);
     expect(screen.getByText('dashboard.status.ACTIVE')).toBeInTheDocument();
     expect(screen.getByTestId('episodes-table')).toBeInTheDocument();
     expect(screen.getByTestId('season-pass-products')).toBeInTheDocument();

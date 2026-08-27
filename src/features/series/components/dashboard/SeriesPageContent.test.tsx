@@ -31,6 +31,8 @@ const series = (overrides: Partial<SeriesOrgResponse> = {}): SeriesOrgResponse =
   horizonWeeks: 4,
   templateEventId: 'evt-template-1',
   status: 'ACTIVE',
+  nextEpisode: null,
+  episodeCount: 0,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
   ...overrides,

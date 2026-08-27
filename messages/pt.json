@@ -1558,7 +1558,32 @@
       "endTitle": "Encerrar a série?",
       "endBody": "A série é encerrada em definitivo: nenhum episódio novo é materializado.",
       "episodeSales": "Vendas",
-      "hasSales": "Com vendas"
+      "hasSales": "Com vendas",
+      "new": "Novo programa",
+      "subtitle": "Séries recorrentes que vivem dentro dos seus canais — cada uma com sua grade de episódios.",
+      "searchPlaceholder": "Buscar programa…",
+      "noMatches": "Nenhum programa corresponde ao filtro.",
+      "filters": {
+        "all": "Todos",
+        "active": "Ativos",
+        "ended": "Encerrados"
+      },
+      "stats": {
+        "total": "Total",
+        "active": "Ativos",
+        "episodes": "Episódios",
+        "nextEpisode": "Próximo episódio"
+      },
+      "nextStatNone": "—",
+      "summaryScheduled": "Agendados",
+      "summarySold": "Ingressos vendidos",
+      "summaryRevenue": "Receita",
+      "templateModel": "Modelo do episódio",
+      "templatePricing": "{count} produto(s) · a partir de {from}",
+      "templateApplied": "Aplicado a cada novo episódio",
+      "episodesTotal": "{count} no total",
+      "episodeColumn": "Episódio",
+      "noSales": "Sem vendas"
     },
     "create": {
       "breadcrumbSeries": "PROGRAMAS",

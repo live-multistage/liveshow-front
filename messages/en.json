@@ -1555,7 +1555,32 @@
       "endTitle": "End the series?",
       "endBody": "The series ends permanently: no new episodes are generated.",
       "episodeSales": "Sales",
-      "hasSales": "Has sales"
+      "hasSales": "Has sales",
+      "new": "New program",
+      "subtitle": "Recurring series that live inside your channels — each with its own episode schedule.",
+      "searchPlaceholder": "Search program…",
+      "noMatches": "No program matches the filter.",
+      "filters": {
+        "all": "All",
+        "active": "Active",
+        "ended": "Ended"
+      },
+      "stats": {
+        "total": "Total",
+        "active": "Active",
+        "episodes": "Episodes",
+        "nextEpisode": "Next episode"
+      },
+      "nextStatNone": "—",
+      "summaryScheduled": "Scheduled",
+      "summarySold": "Tickets sold",
+      "summaryRevenue": "Revenue",
+      "templateModel": "Episode model",
+      "templatePricing": "{count} product(s) · from {from}",
+      "templateApplied": "Applied to every new episode",
+      "episodesTotal": "{count} total",
+      "episodeColumn": "Episode",
+      "noSales": "No sales"
     },
     "create": {
       "breadcrumbSeries": "SERIES",

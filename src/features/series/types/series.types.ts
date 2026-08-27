@@ -37,6 +37,10 @@ export interface SeriesResponse {
 // /series/:id), never on the public GET /series or GET /series/:slug.
 export interface SeriesOrgResponse extends SeriesResponse {
   templateEventId: string;
+  // Same next-episode + count projection the public list carries — drives the
+  // dashboard list's next-episode block, countdown and episode count.
+  nextEpisode: SeriesEpisode | null;
+  episodeCount: number;
 }
 
 export interface SeriesListItem extends SeriesResponse {
