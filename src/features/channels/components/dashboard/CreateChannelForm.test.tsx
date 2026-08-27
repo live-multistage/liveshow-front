@@ -22,9 +22,11 @@ vi.mock('@/features/organizations/queries/get-my-organizations', () => ({
 
 const createMutate = vi.fn();
 const uploadMutate = vi.fn();
+const updateMutate = vi.fn();
 vi.mock('../../mutations/channel.mutations', () => ({
   useCreateChannelMutation: () => ({ mutate: createMutate, isPending: false }),
   useUploadChannelCoverMutation: () => ({ mutate: uploadMutate, isPending: false }),
+  useUpdateChannelMutation: () => ({ mutate: updateMutate, isPending: false }),
 }));
 
 const CREATE = 'channels.create';
@@ -58,6 +60,7 @@ describe('CreateChannelForm', () => {
     organizations = [{ id: 'org-1', name: 'Org Um', slug: 'org-um' }];
     createMutate.mockReset();
     uploadMutate.mockReset();
+    updateMutate.mockReset();
     push.mockReset();
     vi.mocked(toast.success).mockReset();
   });
@@ -152,7 +155,6 @@ describe('CreateChannelForm', () => {
     render(<CreateChannelForm />);
     fillValid();
     type(screen.getByLabelText(label('descriptionLabel')), 'Só clássicos');
-    fireEvent.click(screen.getByLabelText(label('accessSubscriptionTitle')));
 
     fireEvent.click(submitButton());
 
@@ -162,13 +164,48 @@ describe('CreateChannelForm', () => {
         name: 'Canal Clássico 24h',
         slug: 'canal-classico-24h',
         description: 'Só clássicos',
-        accessMode: 'SUBSCRIPTION',
+        accessMode: 'FREE',
         timezone: expect.any(String),
       }),
       expect.anything(),
     );
     expect(toast.success).toHaveBeenCalledWith(`${CREATE}.successToast`);
     expect(push).toHaveBeenCalledWith('/dashboard/channels/canal-classico-24h');
+  });
+
+  it('prices a SUBSCRIPTION channel right after creation, since POST /channels does not accept prices', () => {
+    createMutate.mockImplementation((_input, options) => options.onSuccess(createdChannel));
+
+    render(<CreateChannelForm />);
+    fillValid();
+    fireEvent.click(screen.getByLabelText(label('accessSubscriptionTitle')));
+    type(screen.getByLabelText('channels.dashboard.pricing.monthlyPrice'), '19.90');
+
+    fireEvent.click(submitButton());
+
+    expect(createMutate).toHaveBeenCalledWith(
+      expect.objectContaining({ accessMode: 'SUBSCRIPTION' }),
+      expect.anything(),
+    );
+    expect(updateMutate).toHaveBeenCalledWith({
+      id: 'ch-1',
+      slug: 'canal-classico-24h',
+      organizationId: 'org-1',
+      input: {
+        accessMode: 'SUBSCRIPTION',
+        currency: 'BRL',
+        monthlyPriceCents: 1990,
+        yearlyPriceCents: null,
+      },
+    });
+  });
+
+  it('keeps submit disabled for a SUBSCRIPTION channel with no price set', () => {
+    render(<CreateChannelForm />);
+    fillValid();
+    fireEvent.click(screen.getByLabelText(label('accessSubscriptionTitle')));
+
+    expect(submitButton()).toBeDisabled();
   });
 
   it('uploads the picked cover only after the channel exists', () => {

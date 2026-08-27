@@ -14,7 +14,7 @@ import { ChannelHeader } from './ChannelHeader';
 import { ChannelReadinessCard } from './ChannelReadinessCard';
 import { ChannelOnAirPanel } from './ChannelOnAirPanel';
 import { ProgramWeekGrid } from './ProgramWeekGrid';
-import { ChannelSubscriptionCard } from './ChannelSubscriptionCard';
+import { ChannelAccessCard } from './ChannelAccessCard';
 import { ChannelCamerasCard } from './ChannelCamerasCard';
 import { ChannelDetailsCard } from './ChannelDetailsCard';
 import {
@@ -122,14 +122,7 @@ export function ChannelDetailContent({ slug }: Props) {
         </div>
 
         <aside className={styles.rail}>
-          {isSubscription && (
-            <ChannelSubscriptionCard
-              channelId={channel.id}
-              slug={channel.slug}
-              organizationId={channel.organizationId}
-              orgChannel={orgChannel}
-            />
-          )}
+          <ChannelAccessCard channel={channel} orgChannel={orgChannel} />
           <ChannelCamerasCard cameras={cameras} manageHref={camerasHref} />
           <ChannelDetailsCard channel={channel} />
         </aside>

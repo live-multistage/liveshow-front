@@ -1281,7 +1281,7 @@
     "subscription": {
       "restricted": "Contenido por suscripción",
       "headline": "Suscríbete a {name} para ver",
-      "subtitle": "Elige un plan para tener acceso completo a este canal.",
+      "subtitle": "Elige un plan para tener acceso completo a este canal — y a toda la parrilla de 24 horas.",
       "monthly": "Mensual",
       "yearly": "Anual",
       "planNameMonthly": "mensual",
@@ -1298,7 +1298,25 @@
       "subscribed": "¡Suscripción confirmada!",
       "pastDueBanner": "Pago pendiente — actualiza tu tarjeta para mantener el acceso.",
       "pastDueAction": "Actualizar pago",
-      "dismiss": "Descartar"
+      "dismiss": "Descartar",
+      "cta": "Suscribirse al plan {plan}",
+      "backToChannels": "Volver a los canales",
+      "onAir": "Al aire",
+      "offAir": "Fuera del aire",
+      "badge24h": "24H",
+      "liveNow": "en vivo ahora",
+      "unlocksTitle": "Lo que desbloqueas",
+      "perkSchedule": "Parrilla de 24 horas al aire, sin cortes",
+      "perkCameras": "Cambia entre varias cámaras en vivo",
+      "perkReplay": "Replay de los programas por 30 días",
+      "perkQuality": "Calidad Full HD en cualquier pantalla",
+      "monthlyNote": "Cobrado mensualmente",
+      "yearlyEquivalent": "Equivale a {price}/mes",
+      "reassureCancel": "Cancela cuando quieras",
+      "reassureInstant": "Acceso inmediato",
+      "reassureSecure": "Pago seguro",
+      "alreadyMember": "¿Ya eres suscriptor?",
+      "login": "Entrar a la cuenta"
     },
     "nowPlaying": "Ahora: {title}",
     "create": {
@@ -1426,6 +1444,12 @@
         "confirm": "Eliminar",
         "draftNote": "La grilla pública aparece después de publicar el canal."
       },
+      "access": {
+        "eyebrow": "Acceso",
+        "configure": "Configurar",
+        "dialogTitle": "Configurar acceso",
+        "freeDescription": "Cualquier persona puede ver, sin iniciar sesión."
+      },
       "subscription": {
         "eyebrow": "Suscripción",
         "synced": "Sincronizado",
@@ -1512,6 +1536,17 @@
     "free": "GRATIS",
     "subscriptionBadge": "SUSCRIPCIÓN",
     "enterLive": "Ver en vivo",
-    "atTime": "A LAS {time}"
+    "atTime": "A LAS {time}",
+    "browse": {
+      "eyebrow": "Transmisión continua",
+      "subtitle": "Parrillas de 24 horas al aire — entra en cualquier momento y sigue lo que suena ahora, con múltiples cámaras.",
+      "searchPlaceholder": "Buscar canal…",
+      "noMatches": "Ningún canal coincide con el filtro.",
+      "countLabel": "{count} canales",
+      "filterAll": "Todos",
+      "filterLive": "Al aire",
+      "filterFree": "Gratis",
+      "filterSub": "Suscripción"
+    }
   }
 }

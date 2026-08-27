@@ -1202,7 +1202,7 @@
     "subscription": {
       "restricted": "Conteúdo por assinatura",
       "headline": "Assine {name} para assistir",
-      "subtitle": "Escolha um plano para ter acesso completo a este canal.",
+      "subtitle": "Escolha um plano para ter acesso completo a este canal — e a toda a grade 24 horas no ar.",
       "monthly": "Mensal",
       "yearly": "Anual",
       "planNameMonthly": "mensal",
@@ -1219,7 +1219,25 @@
       "subscribed": "Assinatura confirmada!",
       "pastDueBanner": "Pagamento pendente — atualize seu cartão para manter o acesso.",
       "pastDueAction": "Atualizar pagamento",
-      "dismiss": "Dispensar"
+      "dismiss": "Dispensar",
+      "cta": "Assinar plano {plan}",
+      "backToChannels": "Voltar aos canais",
+      "onAir": "No ar",
+      "offAir": "Fora do ar",
+      "badge24h": "24H",
+      "liveNow": "ao vivo agora",
+      "unlocksTitle": "O que você desbloqueia",
+      "perkSchedule": "Grade 24 horas no ar, sem intervalos",
+      "perkCameras": "Troque entre múltiplas câmeras ao vivo",
+      "perkReplay": "Replay dos programas por 30 dias",
+      "perkQuality": "Qualidade Full HD em qualquer tela",
+      "monthlyNote": "Cobrado mensalmente",
+      "yearlyEquivalent": "Equivale a {price}/mês",
+      "reassureCancel": "Cancele quando quiser",
+      "reassureInstant": "Acesso imediato",
+      "reassureSecure": "Pagamento seguro",
+      "alreadyMember": "Já é assinante?",
+      "login": "Entrar na conta"
     },
     "dashboard": {
       "title": "Canais",
@@ -1429,6 +1447,12 @@
         "confirm": "Excluir",
         "draftNote": "A grade pública aparece após publicar o canal."
       },
+      "access": {
+        "eyebrow": "Acesso",
+        "configure": "Configurar",
+        "dialogTitle": "Configurar acesso",
+        "freeDescription": "Qualquer pessoa assiste, sem login."
+      },
       "subscription": {
         "eyebrow": "Assinatura",
         "synced": "Sincronizado",
@@ -1515,6 +1539,17 @@
     "free": "GRÁTIS",
     "subscriptionBadge": "ASSINATURA",
     "enterLive": "Entrar no ar",
-    "atTime": "ÀS {time}"
+    "atTime": "ÀS {time}",
+    "browse": {
+      "eyebrow": "Transmissão contínua",
+      "subtitle": "Grades 24 horas no ar — entre a qualquer momento e acompanhe o que está tocando agora, com múltiplas câmeras.",
+      "searchPlaceholder": "Buscar canal…",
+      "noMatches": "Nenhum canal corresponde ao filtro.",
+      "countLabel": "{count} canais",
+      "filterAll": "Todos",
+      "filterLive": "No ar",
+      "filterFree": "Grátis",
+      "filterSub": "Assinatura"
+    }
   }
 }

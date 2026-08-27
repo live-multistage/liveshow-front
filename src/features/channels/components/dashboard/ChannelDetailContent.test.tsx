@@ -42,8 +42,10 @@ vi.mock('./ProgramWeekGrid', () => ({
     <div data-testid="week-grid" data-props={JSON.stringify(props)} />
   ),
 }));
-vi.mock('./ChannelSubscriptionCard', () => ({
-  ChannelSubscriptionCard: () => <div>subscription-card-stub</div>,
+vi.mock('./ChannelAccessCard', () => ({
+  ChannelAccessCard: ({ channel }: { channel: { accessMode: string } }) => (
+    <div>access-card-stub:{channel.accessMode}</div>
+  ),
 }));
 vi.mock('./ChannelCamerasCard', () => ({
   ChannelCamerasCard: ({ manageHref }: { manageHref: string }) => (
@@ -230,12 +232,12 @@ describe('ChannelDetailContent', () => {
     expect(screen.getByText(/channel-form-stub:canal-um/)).toBeInTheDocument();
   });
 
-  it('shows the subscription card only for a SUBSCRIPTION channel', () => {
+  it('renders the access card for both FREE and SUBSCRIPTION channels', () => {
     render(<ChannelDetailContent slug="canal-um" />);
-    expect(screen.queryByText('subscription-card-stub')).toBeNull();
+    expect(screen.getByText('access-card-stub:FREE')).toBeInTheDocument();
 
     channelState.data = channel({ accessMode: 'SUBSCRIPTION' });
     render(<ChannelDetailContent slug="canal-um" />);
-    expect(screen.getByText('subscription-card-stub')).toBeInTheDocument();
+    expect(screen.getByText('access-card-stub:SUBSCRIPTION')).toBeInTheDocument();
   });
 });

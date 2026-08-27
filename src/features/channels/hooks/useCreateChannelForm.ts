@@ -9,9 +9,15 @@ import type { AppError } from '@/lib/http/errors';
 import { useMyOrganizationsQuery } from '@/features/organizations/queries/get-my-organizations';
 import {
   useCreateChannelMutation,
+  useUpdateChannelMutation,
   useUploadChannelCoverMutation,
 } from '../mutations/channel.mutations';
-import type { ChannelAccessMode } from '../types/channel.types';
+import {
+  emptyPricingValue,
+  isPricingValid,
+  toCents,
+  type PricingValue,
+} from '../components/dashboard/ChannelPricingForm';
 import { browserTimezone, supportedTimezones } from '../utils/timezone';
 
 export const NAME_MIN = 2;
@@ -37,6 +43,7 @@ export function useCreateChannelForm() {
   const router = useRouter();
   const { data: organizations = [] } = useMyOrganizationsQuery();
   const create = useCreateChannelMutation();
+  const updateChannel = useUpdateChannelMutation();
   const uploadCover = useUploadChannelCoverMutation();
 
   const [name, setName] = useState('');
@@ -44,7 +51,7 @@ export function useCreateChannelForm() {
   const [slugTouched, setSlugTouched] = useState(false);
   const [description, setDescription] = useState('');
   const [timezone, setTimezone] = useState(browserTimezone);
-  const [accessMode, setAccessMode] = useState<ChannelAccessMode>('FREE');
+  const [pricing, setPricing] = useState<PricingValue>(emptyPricingValue);
   const [organizationId, setOrganizationId] = useState('');
   const [cover, setCover] = useState<File | null>(null);
 
@@ -102,6 +109,7 @@ export function useCreateChannelForm() {
       isNameValid(name) &&
       isSlugValid(slug) &&
       timezone.trim() &&
+      isPricingValid(pricing) &&
       !create.isPending,
   );
 
@@ -116,7 +124,7 @@ export function useCreateChannelForm() {
         slug: slug.trim(),
         description: description.trim() || undefined,
         timezone: timezone.trim(),
-        accessMode,
+        accessMode: pricing.accessMode,
       },
       {
         onSuccess: (channel) => {
@@ -129,6 +137,21 @@ export function useCreateChannelForm() {
               slug: channel.slug,
               organizationId: channel.organizationId,
               file: cover,
+            });
+          }
+          // POST /channels não aceita preço (ver create-channel.dto.ts) — uma
+          // assinatura paga é criada e depois precificada num segundo request.
+          if (pricing.accessMode === 'SUBSCRIPTION') {
+            updateChannel.mutate({
+              id: channel.id,
+              slug: channel.slug,
+              organizationId: channel.organizationId,
+              input: {
+                accessMode: 'SUBSCRIPTION',
+                currency: pricing.currency,
+                monthlyPriceCents: toCents(pricing.monthlyPrice),
+                yearlyPriceCents: toCents(pricing.yearlyPrice),
+              },
             });
           }
           toast.success(t('successToast'));
@@ -158,8 +181,8 @@ export function useCreateChannelForm() {
     timezone,
     setTimezone,
     timezones,
-    accessMode,
-    setAccessMode,
+    pricing,
+    setPricing,
     cover,
     changeCover,
     coverError,

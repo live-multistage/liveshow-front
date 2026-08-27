@@ -11,7 +11,7 @@ import {
   SLUG_PATTERN,
   useCreateChannelForm,
 } from '../../hooks/useCreateChannelForm';
-import { ChannelAccessModeCards } from './ChannelAccessModeCards';
+import { ChannelPricingForm } from './ChannelPricingForm';
 import { CoverDropzone } from './CoverDropzone';
 import { NextStepsAside } from './NextStepsAside';
 import styles from './CreateChannelForm.module.scss';
@@ -163,7 +163,7 @@ export function CreateChannelForm() {
             <span className={styles.help}>{t('timezoneHelp')}</span>
           </div>
 
-          <ChannelAccessModeCards value={form.accessMode} onChange={form.setAccessMode} />
+          <ChannelPricingForm value={form.pricing} onChange={form.setPricing} />
 
           <div className={styles.actions}>
             <button type="submit" className={styles.submit} disabled={!form.canSubmit}>

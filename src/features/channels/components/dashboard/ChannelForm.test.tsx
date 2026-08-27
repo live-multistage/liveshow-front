@@ -67,7 +67,6 @@ describe('ChannelForm — edit', () => {
           name: 'Canal Dois',
           description: 'Só música',
           timezone: 'Asia/Tokyo',
-          accessMode: 'FREE',
         },
       },
       expect.anything(),
@@ -97,112 +96,12 @@ describe('ChannelForm — edit', () => {
     );
   });
 
-  it('offers subscription access', () => {
+  it('does not submit without a name', () => {
     render(<ChannelForm initial={channel()} />);
 
-    expect(screen.getByText('dashboard.accessSubscription')).not.toBeDisabled();
-  });
-});
-
-describe('ChannelForm — subscription pricing', () => {
-  beforeEach(() => {
-    updateMutate.mockReset();
-    uploadMutate.mockReset();
-  });
-
-  const enableSubscription = () => type('dashboard.accessMode', 'SUBSCRIPTION');
-
-  it('hides pricing fields for a FREE channel', () => {
-    render(<ChannelForm initial={channel()} />);
-
-    expect(screen.queryByLabelText('dashboard.pricing.monthlyPrice')).toBeNull();
-  });
-
-  it('shows currency and price fields once SUBSCRIPTION is picked', () => {
-    render(<ChannelForm initial={channel()} />);
-
-    enableSubscription();
-
-    expect(screen.getByLabelText('dashboard.pricing.currency')).toBeInTheDocument();
-    expect(screen.getByLabelText('dashboard.pricing.monthlyPrice')).toBeInTheDocument();
-    expect(screen.getByLabelText('dashboard.pricing.yearlyPrice')).toBeInTheDocument();
-  });
-
-  it('prefills the price fields in major units from cents', () => {
-    const withPricing = {
-      ...channel({ accessMode: 'SUBSCRIPTION' }),
-      currency: 'USD',
-      monthlyPriceCents: 1990,
-      yearlyPriceCents: 19900,
-    };
-
-    render(<ChannelForm initial={withPricing} />);
-
-    expect(screen.getByLabelText('dashboard.pricing.currency')).toHaveValue('USD');
-    expect(screen.getByLabelText('dashboard.pricing.monthlyPrice')).toHaveValue(19.9);
-    expect(screen.getByLabelText('dashboard.pricing.yearlyPrice')).toHaveValue(199);
-  });
-
-  it('refuses to submit a SUBSCRIPTION channel with no price set', () => {
-    render(<ChannelForm initial={channel()} />);
-    enableSubscription();
-
+    type('dashboard.name', '   ');
     fireEvent.click(screen.getByText('dashboard.save'));
 
     expect(updateMutate).not.toHaveBeenCalled();
-  });
-
-  it('refuses a price below the 1,00 minimum', () => {
-    render(<ChannelForm initial={channel()} />);
-    enableSubscription();
-    type('dashboard.pricing.monthlyPrice', '0.50');
-
-    fireEvent.click(screen.getByText('dashboard.save'));
-
-    expect(updateMutate).not.toHaveBeenCalled();
-  });
-
-  it('submits with at least one valid price, converted to cents, and the blank interval as null', () => {
-    render(<ChannelForm initial={channel()} />);
-    enableSubscription();
-    type('dashboard.pricing.monthlyPrice', '19.90');
-
-    fireEvent.click(screen.getByText('dashboard.save'));
-
-    expect(updateMutate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        input: expect.objectContaining({
-          accessMode: 'SUBSCRIPTION',
-          currency: 'BRL',
-          monthlyPriceCents: 1990,
-          // Blank, not just unset — a value the backend must clear, not leave alone.
-          yearlyPriceCents: null,
-        }),
-      }),
-      expect.anything(),
-    );
-  });
-
-  it('clears an existing price by blanking its field, sending null instead of dropping the key', () => {
-    const withPricing = {
-      ...channel({ accessMode: 'SUBSCRIPTION' }),
-      currency: 'USD',
-      monthlyPriceCents: 1990,
-      yearlyPriceCents: 19900,
-    };
-    render(<ChannelForm initial={withPricing} />);
-
-    type('dashboard.pricing.yearlyPrice', '');
-    fireEvent.click(screen.getByText('dashboard.save'));
-
-    expect(updateMutate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        input: expect.objectContaining({
-          monthlyPriceCents: 1990,
-          yearlyPriceCents: null,
-        }),
-      }),
-      expect.anything(),
-    );
   });
 });

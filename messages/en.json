@@ -1281,7 +1281,7 @@
     "subscription": {
       "restricted": "Subscriber-only content",
       "headline": "Subscribe to {name} to watch",
-      "subtitle": "Choose a plan to get full access to this channel.",
+      "subtitle": "Pick a plan for full access to this channel — and the entire 24-hour lineup.",
       "monthly": "Monthly",
       "yearly": "Yearly",
       "planNameMonthly": "monthly",
@@ -1298,7 +1298,25 @@
       "subscribed": "Subscription confirmed!",
       "pastDueBanner": "Payment past due — update your card to keep access.",
       "pastDueAction": "Update payment",
-      "dismiss": "Dismiss"
+      "dismiss": "Dismiss",
+      "cta": "Subscribe to the {plan} plan",
+      "backToChannels": "Back to channels",
+      "onAir": "On air",
+      "offAir": "Off air",
+      "badge24h": "24H",
+      "liveNow": "live now",
+      "unlocksTitle": "What you unlock",
+      "perkSchedule": "24-hour lineup on air, no breaks",
+      "perkCameras": "Switch between multiple live cameras",
+      "perkReplay": "30-day program replays",
+      "perkQuality": "Full HD on any screen",
+      "monthlyNote": "Billed monthly",
+      "yearlyEquivalent": "Equals {price}/month",
+      "reassureCancel": "Cancel anytime",
+      "reassureInstant": "Instant access",
+      "reassureSecure": "Secure payment",
+      "alreadyMember": "Already a subscriber?",
+      "login": "Sign in"
     },
     "nowPlaying": "Now: {title}",
     "create": {
@@ -1426,6 +1444,12 @@
         "confirm": "Delete",
         "draftNote": "The public schedule shows up after the channel is published."
       },
+      "access": {
+        "eyebrow": "Access",
+        "configure": "Configure",
+        "dialogTitle": "Configure access",
+        "freeDescription": "Anyone can watch, no login required."
+      },
       "subscription": {
         "eyebrow": "Subscription",
         "synced": "Synced",
@@ -1512,6 +1536,17 @@
     "free": "FREE",
     "subscriptionBadge": "SUBSCRIPTION",
     "enterLive": "Watch live",
-    "atTime": "AT {time}"
+    "atTime": "AT {time}",
+    "browse": {
+      "eyebrow": "Always-on streaming",
+      "subtitle": "24-hour lineups on air — jump in anytime and follow what’s playing now, with multiple cameras.",
+      "searchPlaceholder": "Search channel…",
+      "noMatches": "No channel matches the filter.",
+      "countLabel": "{count} channels",
+      "filterAll": "All",
+      "filterLive": "On air",
+      "filterFree": "Free",
+      "filterSub": "Subscription"
+    }
   }
 }
