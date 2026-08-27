@@ -4,9 +4,15 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogContent,
   DialogTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@live-show/design-system';
 import { DURATION_PRESETS, useProgramForm } from '../../hooks/useProgramForm';
 import type { Program } from '../../types/channel.types';
@@ -79,7 +85,12 @@ export function ProgramModal({
 
         {activeTab === 'topology' && program ? (
           <div className={styles.form}>
-            <ProgramTopologyTab programId={program.id} programName={program.name} />
+            <ProgramTopologyTab
+              channelId={channelId}
+              slug={slug}
+              programId={program.id}
+              programName={program.name}
+            />
           </div>
         ) : (
         <form className={styles.form} onSubmit={form.handleSubmit}>
@@ -140,6 +151,38 @@ export function ProgramModal({
             ]}
             error={form.daysError}
           />
+
+          <div className={styles.row}>
+            <div className={styles.field}>
+              <span className={styles.label}>
+                <label htmlFor="program-latency">{t('latencyMode')}</label>
+              </span>
+              <Select
+                value={form.latencyMode}
+                onValueChange={(value) => form.setLatencyMode(value as 'STANDARD' | 'LOW')}
+              >
+                <SelectTrigger id="program-latency" aria-label={t('latencyMode')}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="STANDARD">{t('latencyStandard')}</SelectItem>
+                  <SelectItem value="LOW">{t('latencyLow')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className={styles.field}>
+              <span className={styles.label}>{t('recording')}</span>
+              <label className={styles.checkboxRow} htmlFor="program-recording">
+                <Checkbox
+                  id="program-recording"
+                  checked={form.recordingEnabled}
+                  onCheckedChange={(checked) => form.setRecordingEnabled(checked === true)}
+                />
+                {t('recordingEnabled')}
+              </label>
+            </div>
+          </div>
 
           <SummaryBox
             label={t('summaryLabel')}

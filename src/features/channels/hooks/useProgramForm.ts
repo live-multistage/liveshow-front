@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { WEEKDAYS, buildRRule, parseRRule, weekdayLabels, type Weekday } from '../utils/rrule';
 import { useDeleteProgramMutation, useUpsertProgramMutation } from '../mutations/channel.mutations';
-import type { Program } from '../types/channel.types';
+import type { Program, ProgramLatencyMode } from '../types/channel.types';
 
 export const DURATION_PRESETS = [30, 60, 90, 120] as const;
 const WEEKDAYS_MO_FR: Weekday[] = ['MO', 'TU', 'WE', 'TH', 'FR'];
@@ -46,6 +46,10 @@ export function useProgramForm({
   const [days, setDays] = useState<Weekday[]>(() => (program ? parseRRule(program.rrule) : []));
   const [daysTouched, setDaysTouched] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [latencyMode, setLatencyMode] = useState<ProgramLatencyMode>(
+    program?.latencyMode ?? 'STANDARD',
+  );
+  const [recordingEnabled, setRecordingEnabled] = useState(program?.recordingEnabled ?? true);
 
   const duration = Number(durationMin);
   const durationValid = duration >= 5 && duration <= 1440;
@@ -103,6 +107,8 @@ export function useProgramForm({
           startTime,
           durationMin: duration,
           rrule: buildRRule(days),
+          latencyMode,
+          recordingEnabled,
         },
         programId: program?.id,
         slug,
@@ -129,6 +135,10 @@ export function useProgramForm({
     setStartTime,
     durationMin,
     setDurationMin,
+    latencyMode,
+    setLatencyMode,
+    recordingEnabled,
+    setRecordingEnabled,
     applyDurationPreset: (minutes: number) => setDurationMin(String(minutes)),
     durationError,
     days,

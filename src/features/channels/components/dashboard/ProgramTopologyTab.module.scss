@@ -1,5 +1,16 @@
 @use '../../../../styles/dashboard-forms' as *;
 
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.goLiveRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .skeleton {
   height: 120px;
   border-radius: 10px;

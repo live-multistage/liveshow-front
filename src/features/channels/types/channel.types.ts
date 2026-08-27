@@ -54,6 +54,29 @@ export interface ScheduledSlot {
   endsAt: string;
 }
 
+// The current slot only: carries the LIVE occurrence Event id when one is on
+// the air for this exact window, so the viewer/dashboard can deep-link to it
+// (chat, viewer count) without a second lookup. Null while the slot hasn't
+// gone live yet, or when there is no scheduled slot at all.
+export interface CurrentSlot extends ScheduledSlot {
+  eventId: string | null;
+}
+
+export type ProgramEpisodeStatus =
+  | 'DRAFT'
+  | 'SCHEDULED'
+  | 'LIVE'
+  | 'FINISHED'
+  | 'CANCELLED';
+
+export interface ProgramEpisode {
+  id: string;
+  title: string;
+  startsAt: string;
+  endsAt: string;
+  status: ProgramEpisodeStatus;
+}
+
 export interface Channel {
   id: string;
   organizationId: string;
@@ -71,7 +94,7 @@ export interface Channel {
 
 export interface PublicChannel extends Channel {
   isOnAir: boolean;
-  current: ScheduledSlot | null;
+  current: CurrentSlot | null;
   next: ScheduledSlot | null;
   today: ScheduledSlot[];
   pricing: ChannelPricing | null;
@@ -104,6 +127,8 @@ export interface ChannelListItem extends Channel {
   next: ScheduledSlot | null;
 }
 
+export type ProgramLatencyMode = 'STANDARD' | 'LOW';
+
 export interface Program {
   id: string;
   channelId: string;
@@ -112,6 +137,8 @@ export interface Program {
   startTime: string;
   durationMin: number;
   rrule: string;
+  latencyMode: ProgramLatencyMode;
+  recordingEnabled: boolean;
 }
 
 // Org-only shape: create/update/publish/archive/pricing-sync and the org
@@ -128,6 +155,9 @@ export interface OrgChannel extends Channel {
   isOnAir: boolean;
   current: ScheduledSlot | null;
   next: ScheduledSlot | null;
+  // Enabled cameras across every one of the channel's Programs' streams —
+  // added to the channel's own broadcast cameras for the readiness checklist.
+  programCameraCount: number;
 }
 
 export interface ChannelSubscriptionSummary {
@@ -163,4 +193,6 @@ export interface UpsertProgramInput {
   startTime: string;
   durationMin: number;
   rrule: string;
+  latencyMode?: ProgramLatencyMode;
+  recordingEnabled?: boolean;
 }

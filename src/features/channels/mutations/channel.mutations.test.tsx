@@ -47,6 +47,8 @@ const PROGRAM: Program = {
   startTime: '20:00:00',
   durationMin: 60,
   rrule: 'FREQ=WEEKLY;BYDAY=MO',
+  latencyMode: 'STANDARD',
+  recordingEnabled: true,
 };
 
 const CHANNEL: OrgChannel = {
@@ -67,6 +69,7 @@ const CHANNEL: OrgChannel = {
   isOnAir: false,
   current: null,
   next: null,
+  programCameraCount: 0,
   timezone: 'America/Sao_Paulo',
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',

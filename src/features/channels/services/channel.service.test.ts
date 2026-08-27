@@ -52,6 +52,8 @@ const PROGRAM: Program = {
   startTime: '10:00',
   durationMin: 60,
   rrule: 'FREQ=DAILY',
+  latencyMode: 'STANDARD',
+  recordingEnabled: true,
 };
 
 describe('channelService', () => {
@@ -254,6 +256,39 @@ describe('channelService', () => {
 
       expect(seen[0].url).toBe('/channels/ch-1/source-override');
       expect(seen[0].method?.toLowerCase()).toBe('delete');
+    });
+  });
+
+  describe('goLiveNow', () => {
+    it('posts to /channels/:id/programs/:programId/go-live-now', async () => {
+      const seen = capture({ eventId: 'evt-1' });
+
+      await expect(channelService.goLiveNow('ch-1', 'prog-1')).resolves.toEqual({
+        eventId: 'evt-1',
+      });
+
+      expect(seen[0].url).toBe('/channels/ch-1/programs/prog-1/go-live-now');
+      expect(seen[0].method?.toLowerCase()).toBe('post');
+    });
+  });
+
+  describe('listProgramEpisodes', () => {
+    it('reads from /channels/:id/programs/:programId/episodes', async () => {
+      const episode = {
+        id: 'ev-1',
+        title: 'Morning show',
+        startsAt: '2026-01-01T10:00:00.000Z',
+        endsAt: '2026-01-01T11:00:00.000Z',
+        status: 'FINISHED' as const,
+      };
+      const seen = capture([episode]);
+
+      await expect(channelService.listProgramEpisodes('ch-1', 'prog-1')).resolves.toEqual([
+        episode,
+      ]);
+
+      expect(seen[0].url).toBe('/channels/ch-1/programs/prog-1/episodes');
+      expect(seen[0].method?.toLowerCase()).toBe('get');
     });
   });
 

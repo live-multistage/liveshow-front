@@ -53,6 +53,7 @@ export function ChannelDetailContent({ slug }: Props) {
     accessMode: channel?.accessMode ?? 'FREE',
     pricingSynced: Boolean(orgChannel?.pricingSynced),
     cameraCount: cameras.length,
+    programCameraCount: orgChannel?.programCameraCount ?? 0,
     programCount: programs.length,
   });
 

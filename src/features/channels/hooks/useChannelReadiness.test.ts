@@ -57,4 +57,14 @@ describe('useChannelReadiness', () => {
 
     expect(result.ready).toBe(false);
   });
+
+  it('counts program cameras toward readiness', () => {
+    const r = useChannelReadiness({
+      accessMode: 'FREE',
+      pricingSynced: true,
+      cameraCount: 0,
+      programCameraCount: 2,
+    });
+    expect(r.items.find((i) => i.id === 'cameras')?.done).toBe(true);
+  });
 });

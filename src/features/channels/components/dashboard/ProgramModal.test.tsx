@@ -75,6 +75,8 @@ describe('ProgramModal', () => {
           startTime: '21:30',
           durationMin: 60,
           rrule: 'FREQ=WEEKLY;BYDAY=MO,WE',
+          latencyMode: 'STANDARD',
+          recordingEnabled: true,
         },
         programId: undefined,
         slug: 'canal-um',
@@ -177,6 +179,8 @@ describe('ProgramModal', () => {
       startTime: '20:00:00',
       durationMin: 90,
       rrule: 'FREQ=WEEKLY;BYDAY=MO,WE',
+      latencyMode: 'STANDARD',
+      recordingEnabled: true,
     };
 
     it('prefills every field from the program', () => {

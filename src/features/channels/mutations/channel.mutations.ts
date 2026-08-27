@@ -216,6 +216,32 @@ export function useDeleteProgramMutation(channelId: string) {
   });
 }
 
+interface GoLiveNowArgs {
+  programId: string;
+  slug: string;
+}
+
+export function useGoLiveNowMutation(channelId: string) {
+  const qc = useQueryClient();
+  const toastError = useErrorToast();
+
+  return useMutation({
+    mutationFn: async ({ programId }: GoLiveNowArgs) => {
+      try {
+        return await channelService.goLiveNow(channelId, programId);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    onError: toastError,
+    onSettled: (_data, _error, { programId, slug }) => {
+      qc.invalidateQueries({ queryKey: channelKeys.detail(slug) });
+      qc.invalidateQueries({ queryKey: channelKeys.playback(slug) });
+      qc.invalidateQueries({ queryKey: channelKeys.episodes(programId) });
+    },
+  });
+}
+
 interface SetSourceOverrideArgs {
   id: string;
   slug: string;

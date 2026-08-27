@@ -12,6 +12,7 @@ export const channelKeys = {
   org: (organizationId: string) => ['channels', 'org', organizationId] as const,
   orgDetail: (id: string) => ['channels', 'orgDetail', id] as const,
   programs: (channelId: string) => ['channels', 'programs', channelId] as const,
+  episodes: (programId: string) => ['channels', 'episodes', programId] as const,
   subscriptionSummary: (channelId: string) =>
     ['channels', 'subscriptionSummary', channelId] as const,
 };
@@ -75,6 +76,20 @@ export function useChannelProgramsQuery(channelId: string, options?: { enabled?:
     queryKey: channelKeys.programs(channelId),
     queryFn: () => channelService.listPrograms(channelId),
     enabled: options?.enabled !== false && Boolean(channelId),
+  });
+}
+
+// Occurrence Events a program has ever opened, newest first — powers the
+// episodes table and the "live now" gate on the go-live button.
+export function useProgramEpisodesQuery(
+  channelId: string,
+  programId: string,
+  options?: { enabled?: boolean },
+) {
+  return useQuery({
+    queryKey: channelKeys.episodes(programId),
+    queryFn: () => channelService.listProgramEpisodes(channelId, programId),
+    enabled: options?.enabled !== false && Boolean(channelId) && Boolean(programId),
   });
 }
 

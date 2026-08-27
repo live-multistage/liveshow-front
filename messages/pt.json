@@ -1485,7 +1485,24 @@
       "saving": "Salvando…",
       "delete": "Excluir programa",
       "deleteConfirm": "Confirmar exclusão?",
-      "deleting": "Excluindo…"
+      "deleting": "Excluindo…",
+      "latencyMode": "Latência",
+      "latencyStandard": "Padrão",
+      "latencyLow": "Baixa latência",
+      "recording": "Gravação",
+      "recordingEnabled": "Gravar automaticamente",
+      "goLiveNow": "Ir ao ar agora",
+      "goLiveNowPending": "Indo ao ar…",
+      "episodes": {
+        "title": "Título",
+        "date": "Data",
+        "status": "Status",
+        "statusDRAFT": "Rascunho",
+        "statusSCHEDULED": "Agendado",
+        "statusLIVE": "Ao vivo",
+        "statusFINISHED": "Encerrado",
+        "statusCANCELLED": "Cancelado"
+      }
     },
     "railEyebrow": "TV Linear · 24h",
     "onAirCount": "{count} no ar",

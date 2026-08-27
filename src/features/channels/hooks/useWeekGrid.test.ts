@@ -10,6 +10,8 @@ const program = (overrides: Partial<Program> = {}): Program => ({
   startTime: '20:00',
   durationMin: 120,
   rrule: 'FREQ=WEEKLY;BYDAY=MO',
+  latencyMode: 'STANDARD',
+  recordingEnabled: true,
   ...overrides,
 });
 

@@ -7,6 +7,7 @@ import type {
   CreateChannelInput,
   OrgChannel,
   Program,
+  ProgramEpisode,
   PublicChannel,
   ScheduledSlot,
   SubscriptionInterval,
@@ -115,6 +116,23 @@ export const channelService = {
 
   deleteProgram: async (channelId: string, programId: string): Promise<void> => {
     await httpClient.delete(`/channels/${channelId}/programs/${programId}`);
+  },
+
+  goLiveNow: async (channelId: string, programId: string): Promise<{ eventId: string }> => {
+    const { data } = await httpClient.post<{ eventId: string }>(
+      `/channels/${channelId}/programs/${programId}/go-live-now`,
+    );
+    return data;
+  },
+
+  listProgramEpisodes: async (
+    channelId: string,
+    programId: string,
+  ): Promise<ProgramEpisode[]> => {
+    const { data } = await httpClient.get<ProgramEpisode[]>(
+      `/channels/${channelId}/programs/${programId}/episodes`,
+    );
+    return data;
   },
 
   setSourceOverride: async (id: string, eventId: string): Promise<OrgChannel> => {

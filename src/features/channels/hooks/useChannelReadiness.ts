@@ -23,7 +23,11 @@ interface Input {
   accessMode: ChannelAccessMode;
   pricingSynced: boolean;
   cameraCount: number;
-  programCount: number;
+  // Cameras from the channel's own broadcast event and from its Programs'
+  // streams both count toward "has at least one camera" — either can carry
+  // the channel on air.
+  programCameraCount?: number;
+  programCount?: number;
 }
 
 /**
@@ -35,12 +39,13 @@ export function useChannelReadiness({
   accessMode,
   pricingSynced,
   cameraCount,
-  programCount,
+  programCameraCount = 0,
+  programCount = 0,
 }: Input): ChannelReadiness {
   const isSubscription = accessMode === 'SUBSCRIPTION';
 
   const items: ReadinessItem[] = [
-    { id: 'cameras', done: cameraCount > 0, required: true },
+    { id: 'cameras', done: cameraCount + programCameraCount > 0, required: true },
     { id: 'programs', done: programCount > 0, required: false },
     // Canal gratuito não tem o que sincronizar: o item nasce concluído.
     { id: 'pricing', done: isSubscription ? pricingSynced : true, required: isSubscription },

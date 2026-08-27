@@ -1482,7 +1482,24 @@
       "saving": "Saving…",
       "delete": "Delete program",
       "deleteConfirm": "Confirm delete?",
-      "deleting": "Deleting…"
+      "deleting": "Deleting…",
+      "latencyMode": "Latency",
+      "latencyStandard": "Standard",
+      "latencyLow": "Low latency",
+      "recording": "Recording",
+      "recordingEnabled": "Record automatically",
+      "goLiveNow": "Go live now",
+      "goLiveNowPending": "Going live…",
+      "episodes": {
+        "title": "Title",
+        "date": "Date",
+        "status": "Status",
+        "statusDRAFT": "Draft",
+        "statusSCHEDULED": "Scheduled",
+        "statusLIVE": "Live",
+        "statusFINISHED": "Finished",
+        "statusCANCELLED": "Cancelled"
+      }
     },
     "railEyebrow": "Linear TV · 24h",
     "onAirCount": "{count} on air",
