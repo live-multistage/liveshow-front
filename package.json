@@ -14,6 +14,7 @@
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@hookform/resolvers": "^5.4.0",
+    "@live-show/api-contracts": "workspace:*",
     "@live-show/design-system": "workspace:*",
     "@live-show/i18n-messages": "workspace:*",
     "@mui/icons-material": "7.3.5",
