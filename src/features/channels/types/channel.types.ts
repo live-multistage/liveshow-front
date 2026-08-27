@@ -64,6 +64,7 @@ export interface CurrentSlot extends ScheduledSlot {
 
 export type ProgramEpisodeStatus =
   | 'DRAFT'
+  | 'PUBLISHED'
   | 'SCHEDULED'
   | 'LIVE'
   | 'FINISHED'

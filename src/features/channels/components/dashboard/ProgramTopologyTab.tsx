@@ -31,13 +31,13 @@ export function ProgramTopologyTab({ channelId, slug, programId, programName }: 
     <Skeleton className={styles.skeleton} />
   ) : streams.length === 0 ? (
     <div className={styles.empty}>
-      <p className={styles.emptyHint}>Nenhum estúdio configurado para este programa ainda.</p>
+      <p className={styles.emptyHint}>{t('studioEmpty')}</p>
       <Button
         type="button"
         onClick={() => create.mutate({ title: programName })}
         disabled={create.isPending}
       >
-        {create.isPending ? 'Criando...' : 'Criar estúdio'}
+        {create.isPending ? t('studioCreatePending') : t('studioCreate')}
       </Button>
     </div>
   ) : (

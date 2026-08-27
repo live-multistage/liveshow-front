@@ -54,7 +54,7 @@ describe('ProgramTopologyTab', () => {
 
     render(<ProgramTopologyTab channelId="ch-1" slug="canal-um" programId="p1" programName="Programa X" />);
 
-    const button = screen.getByRole('button', { name: /criar estúdio/i });
+    const button = screen.getByRole('button', { name: 'studioCreate' });
     fireEvent.click(button);
 
     expect(mutate).toHaveBeenCalledWith({ title: 'Programa X' });
