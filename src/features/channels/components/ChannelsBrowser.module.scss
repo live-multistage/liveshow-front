@@ -1,0 +1,200 @@
+@use '../../../styles/_variables' as *;
+
+@keyframes cb-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* ── page head ── */
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #ff8ec9;
+}
+
+.title {
+  margin: 0;
+  font-size: 3.25rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: $text-primary;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: $text-secondary;
+  max-width: 32rem;
+  line-height: 1.5;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 300px;
+  max-width: 100%;
+  padding: 0 0.9375rem;
+  background: #0e0e11;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 0.625rem;
+
+  &:focus-within {
+    border-color: rgba(255, 46, 158, 0.4);
+  }
+}
+
+.searchIcon {
+  color: $text-secondary;
+  flex: none;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  height: 2.875rem;
+  border: none;
+  background: transparent;
+  color: $text-primary;
+  font-size: 0.875rem;
+
+  &::placeholder {
+    color: #6f6f77;
+  }
+  &:focus {
+    outline: none;
+  }
+}
+
+/* ── filter row ── */
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  cursor: pointer;
+  padding: 0.5625rem 0.9375rem;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #b9b9c0;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    color: $text-primary;
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+}
+
+.filterActive {
+  background: $action;
+  border-color: $action;
+  color: #0a0a0b;
+
+  &:hover {
+    color: #0a0a0b;
+  }
+}
+
+.filterDot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: $action;
+  animation: cb-pulse 1.3s infinite;
+
+  .filterActive & {
+    background: #0a0a0b;
+  }
+}
+
+.filterCount {
+  opacity: 0.65;
+}
+
+.total {
+  margin-left: auto;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5c5c66;
+}
+
+/* ── grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.empty {
+  color: $text-secondary;
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

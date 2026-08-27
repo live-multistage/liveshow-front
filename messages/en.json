@@ -1213,7 +1213,23 @@
       "weekdays": "Weekdays",
       "save": "Save",
       "delete": "Delete",
-      "edit": "Edit",
+      "edit": {
+        "identity": "Identity",
+        "accessSection": "Access & subscription",
+        "slugFixed": "Fixed",
+        "slugHint": "The public address can’t change after creation.",
+        "descriptionPlaceholder": "Tell people what this channel airs…",
+        "timezoneHint": "The schedule grid uses this timezone.",
+        "coverChange": "Change image",
+        "perMonth": "/month",
+        "perYearShort": "/year",
+        "yearlyEquiv": "≈ {price}/month",
+        "status": {
+          "free": "Free channel · no billing",
+          "ready": "Ready to sync with Stripe",
+          "needsPrice": "Set at least one price to publish"
+        }
+      },
       "editProgram": "Edit program",
       "cover": "Cover",
       "coverHint": "JPEG, PNG or WebP up to 10 MB",

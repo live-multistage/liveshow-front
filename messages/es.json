@@ -1213,7 +1213,23 @@
       "weekdays": "Días de la semana",
       "save": "Guardar",
       "delete": "Eliminar",
-      "edit": "Editar",
+      "edit": {
+        "identity": "Identidad",
+        "accessSection": "Acceso y suscripción",
+        "slugFixed": "Fijo",
+        "slugHint": "La dirección pública no cambia después de crearse.",
+        "descriptionPlaceholder": "Cuenta qué se transmite en este canal…",
+        "timezoneHint": "La parrilla usa esta zona horaria.",
+        "coverChange": "Cambiar imagen",
+        "perMonth": "/mes",
+        "perYearShort": "/año",
+        "yearlyEquiv": "≈ {price}/mes",
+        "status": {
+          "free": "Canal gratuito · sin cobro",
+          "ready": "Listo para sincronizar con Stripe",
+          "needsPrice": "Define al menos un precio para publicar"
+        }
+      },
       "editProgram": "Editar programa",
       "cover": "Portada",
       "coverHint": "JPEG, PNG o WebP hasta 10 MB",

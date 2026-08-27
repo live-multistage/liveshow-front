@@ -1257,7 +1257,23 @@
       "weekdays": "Dias da semana",
       "save": "Salvar",
       "delete": "Excluir",
-      "edit": "Editar",
+      "edit": {
+        "identity": "Identidade",
+        "accessSection": "Acesso e assinatura",
+        "slugFixed": "Fixo",
+        "slugHint": "O endereço público não muda depois de criado.",
+        "descriptionPlaceholder": "Conte o que passa neste canal…",
+        "timezoneHint": "A grade de programação usa este fuso.",
+        "coverChange": "Trocar imagem",
+        "perMonth": "/mês",
+        "perYearShort": "/ano",
+        "yearlyEquiv": "≈ {price}/mês",
+        "status": {
+          "free": "Canal gratuito · sem cobrança",
+          "ready": "Pronto para sincronizar com o Stripe",
+          "needsPrice": "Defina ao menos um preço para publicar"
+        }
+      },
       "editProgram": "Editar programa",
       "cover": "Capa",
       "coverHint": "JPEG, PNG ou WebP até 10 MB",
