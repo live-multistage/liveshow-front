@@ -1284,6 +1284,24 @@
         "summaryCanceledThisMonth": "Canceladas este mês",
         "summaryMrr": "Receita mensal recorrente",
         "setPriceAfterCreate": "Defina o preço após criar o canal."
+      },
+      "subtitle": "Grades 24 h da sua produtora — cada canal transmite programas e eventos em fluxo contínuo.",
+      "searchPlaceholder": "Buscar canal…",
+      "emptyHint": "Nenhum canal ainda. Crie o primeiro para começar a transmitir.",
+      "noMatches": "Nenhum canal corresponde ao filtro.",
+      "draftRowNote": "Ainda não publicado — configure a grade e coloque no ar.",
+      "upNextAt": "A seguir {time}",
+      "filters": {
+        "all": "Todos",
+        "live": "No ar",
+        "draft": "Rascunhos",
+        "offline": "Fora do ar"
+      },
+      "stats": {
+        "total": "Total",
+        "live": "No ar",
+        "draft": "Rascunhos",
+        "offline": "Fora do ar"
       }
     },
     "create": {

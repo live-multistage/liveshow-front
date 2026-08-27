@@ -1258,6 +1258,24 @@
         "selectEvent": "Seleccionar evento",
         "putOnAir": "Poner evento en vivo",
         "backToChannel": "Volver al feed del canal"
+      },
+      "subtitle": "Parrillas 24 h de tu productora — cada canal transmite programas y eventos en flujo continuo.",
+      "searchPlaceholder": "Buscar canal…",
+      "emptyHint": "Aún no hay canales. Crea el primero para empezar a transmitir.",
+      "noMatches": "Ningún canal coincide con el filtro.",
+      "draftRowNote": "Aún sin publicar — configura la parrilla y ponlo al aire.",
+      "upNextAt": "A continuación {time}",
+      "filters": {
+        "all": "Todos",
+        "live": "Al aire",
+        "draft": "Borradores",
+        "offline": "Fuera del aire"
+      },
+      "stats": {
+        "total": "Total",
+        "live": "Al aire",
+        "draft": "Borradores",
+        "offline": "Fuera del aire"
       }
     },
     "subscription": {

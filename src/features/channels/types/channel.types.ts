@@ -128,6 +128,11 @@ export interface OrgChannel extends Channel {
   yearlyPriceCents: number | null;
   pricingSynced: boolean;
   sourceOverride: ChannelSourceOverride | null;
+  // Same live/now-next projection the public list carries — drives the
+  // dashboard list's on-air status and current/next program.
+  isOnAir: boolean;
+  current: ScheduledSlot | null;
+  next: ScheduledSlot | null;
 }
 
 export interface ChannelSubscriptionSummary {

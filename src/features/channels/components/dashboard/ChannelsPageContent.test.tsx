@@ -45,10 +45,14 @@ describe('ChannelsPageContent', () => {
     render(<ChannelsPageContent />);
 
     expect(useOrgChannelsQuery).toHaveBeenCalledWith('org-1', { enabled: true });
-    expect(screen.getByText('Canal Um').closest('a')).toHaveAttribute(
+    // The name appears both as the on-screen title and the channel bug label,
+    // so the first match is enough to reach the row link.
+    expect(screen.getAllByText('Canal Um')[0].closest('a')).toHaveAttribute(
       'href',
       '/dashboard/channels/canal-um',
     );
+    // Status pill uses the status.* key; the thumbnail badge uses filters.*,
+    // so this stays unique to the pill.
     expect(screen.getByText('dashboard.status.DRAFT')).toBeInTheDocument();
   });
 
