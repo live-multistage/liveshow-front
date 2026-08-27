@@ -129,11 +129,18 @@ export function ChannelDetailContent({ slug }: Props) {
       </div>
 
       <Dialog open={editing} onOpenChange={setEditing}>
+        {/* The form renders its own Showon Editar Canal header/footer; the
+            DialogContent is just the panel + built-in close. A hidden title
+            keeps the Radix dialog accessible. */}
         <DialogContent>
-          <DialogHeader>
+          <DialogHeader className={styles.srOnly}>
             <DialogTitle>{t('editTitle')}</DialogTitle>
           </DialogHeader>
-          <ChannelForm initial={orgChannel ?? channel} onDone={() => setEditing(false)} />
+          <ChannelForm
+            initial={orgChannel ?? channel}
+            onDone={() => setEditing(false)}
+            onCancel={() => setEditing(false)}
+          />
         </DialogContent>
       </Dialog>
     </div>

@@ -67,8 +67,35 @@ describe('ChannelForm — edit', () => {
           name: 'Canal Dois',
           description: 'Só música',
           timezone: 'Asia/Tokyo',
+          accessMode: 'FREE',
         },
       },
+      expect.anything(),
+    );
+  });
+
+  it('submits subscription pricing when the channel is set to subscription', () => {
+    render(
+      <ChannelForm
+        initial={channel({
+          accessMode: 'SUBSCRIPTION',
+          // OrgChannel pricing fields the edit modal reads.
+          ...({ currency: 'BRL', monthlyPriceCents: 1990, yearlyPriceCents: 19900 } as Partial<Channel>),
+        })}
+      />,
+    );
+
+    fireEvent.click(screen.getByText('dashboard.save'));
+
+    expect(updateMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          accessMode: 'SUBSCRIPTION',
+          currency: 'BRL',
+          monthlyPriceCents: 1990,
+          yearlyPriceCents: 19900,
+        }),
+      }),
       expect.anything(),
     );
   });
