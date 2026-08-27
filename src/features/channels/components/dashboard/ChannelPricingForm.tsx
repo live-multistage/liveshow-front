@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Button, Input } from '@live-show/design-system';
+import { Button } from '@live-show/design-system';
 import { useUpdateChannelMutation } from '../../mutations/channel.mutations';
 import type { Channel, ChannelAccessMode, OrgChannel } from '../../types/channel.types';
 import { ChannelAccessModeCards } from './ChannelAccessModeCards';
 import styles from './ChannelForm.module.scss';
+
+const CURRENCY_SYMBOL: Record<string, string> = { BRL: 'R$', USD: '$', EUR: '€' };
 
 // Edit mode receives whatever the dashboard has loaded for the channel — the
 // org list (with pricing) once it resolves, the public payload before that.
@@ -79,6 +81,14 @@ interface FieldsProps {
 
 function PricingFields({ value, onChange }: FieldsProps) {
   const t = useTranslations('channels');
+  const tEdit = useTranslations('channels.dashboard.edit');
+  const symbol = CURRENCY_SYMBOL[value.currency] ?? 'R$';
+
+  const yearlyEquiv = useMemo(() => {
+    const cents = toCents(value.yearlyPrice);
+    if (typeof cents !== 'number' || cents <= 0) return null;
+    return `${symbol} ${(cents / 12 / 100).toFixed(2).replace('.', ',')}`;
+  }, [value.yearlyPrice, symbol]);
 
   return (
     <>
@@ -93,9 +103,12 @@ function PricingFields({ value, onChange }: FieldsProps) {
             <label className={styles.label} htmlFor="channel-currency">
               {t('dashboard.pricing.currency')}
             </label>
+            {/* ponytail: a real <select> stays the accessible/tested control —
+                keeping the visual a segmented toggle would need a second,
+                unlabeled control just for looks. */}
             <select
               id="channel-currency"
-              className={styles.select}
+              className={`${styles.select} ${styles.currencySelect}`}
               value={value.currency}
               onChange={(e) => onChange({ ...value, currency: e.target.value })}
             >
@@ -107,34 +120,50 @@ function PricingFields({ value, onChange }: FieldsProps) {
             </select>
           </div>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="channel-monthly-price">
-              {t('dashboard.pricing.monthlyPrice')}
-            </label>
-            <Input
-              id="channel-monthly-price"
-              type="number"
-              min="1"
-              step="0.01"
-              inputMode="decimal"
-              value={value.monthlyPrice}
-              onChange={(e) => onChange({ ...value, monthlyPrice: e.target.value })}
-            />
-          </div>
+          <div className={styles.priceGrid}>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="channel-monthly-price">
+                {t('dashboard.pricing.monthlyPrice')}
+              </label>
+              <div className={styles.priceInputWrap}>
+                <span className={styles.priceSymbol}>{symbol}</span>
+                <input
+                  id="channel-monthly-price"
+                  className={styles.priceInput}
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  inputMode="decimal"
+                  placeholder="0,00"
+                  value={value.monthlyPrice}
+                  onChange={(e) => onChange({ ...value, monthlyPrice: e.target.value })}
+                />
+              </div>
+              <span className={styles.priceUnit}>{tEdit('perMonth')}</span>
+            </div>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="channel-yearly-price">
-              {t('dashboard.pricing.yearlyPrice')}
-            </label>
-            <Input
-              id="channel-yearly-price"
-              type="number"
-              min="1"
-              step="0.01"
-              inputMode="decimal"
-              value={value.yearlyPrice}
-              onChange={(e) => onChange({ ...value, yearlyPrice: e.target.value })}
-            />
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="channel-yearly-price">
+                {t('dashboard.pricing.yearlyPrice')}
+              </label>
+              <div className={styles.priceInputWrap}>
+                <span className={styles.priceSymbol}>{symbol}</span>
+                <input
+                  id="channel-yearly-price"
+                  className={styles.priceInput}
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  inputMode="decimal"
+                  placeholder="0,00"
+                  value={value.yearlyPrice}
+                  onChange={(e) => onChange({ ...value, yearlyPrice: e.target.value })}
+                />
+              </div>
+              <span className={styles.priceUnit}>
+                {yearlyEquiv ? tEdit('yearlyEquiv', { price: yearlyEquiv }) : tEdit('perYearShort')}
+              </span>
+            </div>
           </div>
 
           <span className={styles.hint}>{t('dashboard.pricing.priceChangeHint')}</span>

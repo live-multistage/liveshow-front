@@ -1,7 +1,9 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { ChevronDown, Clock } from 'lucide-react';
 import { publicOrigin } from '@/features/events/utils/slug';
 import {
   DESCRIPTION_MAX,
@@ -11,7 +13,7 @@ import {
   SLUG_PATTERN,
   useCreateChannelForm,
 } from '../../hooks/useCreateChannelForm';
-import { ChannelPricingForm } from './ChannelPricingForm';
+import { ChannelPricingForm, toCents } from './ChannelPricingForm';
 import { CoverDropzone } from './CoverDropzone';
 import { NextStepsAside } from './NextStepsAside';
 import styles from './CreateChannelForm.module.scss';
@@ -21,7 +23,19 @@ const DESCRIPTION_COUNTER_WARN = 450;
 
 export function CreateChannelForm() {
   const t = useTranslations('channels.create');
+  const tStatus = useTranslations('channels.dashboard.edit');
   const form = useCreateChannelForm();
+
+  const isSub = form.pricing.accessMode === 'SUBSCRIPTION';
+  const status: { key: 'free' | 'ready' | 'needsPrice'; tone: string } = useMemo(() => {
+    if (!isSub) return { key: 'free', tone: styles.statusMuted };
+    const hasPrice =
+      typeof toCents(form.pricing.monthlyPrice) === 'number' ||
+      typeof toCents(form.pricing.yearlyPrice) === 'number';
+    return hasPrice
+      ? { key: 'ready', tone: styles.statusReady }
+      : { key: 'needsPrice', tone: styles.statusWarn };
+  }, [isSub, form.pricing.monthlyPrice, form.pricing.yearlyPrice]);
 
   return (
     <div className={styles.page}>
@@ -47,18 +61,21 @@ export function CreateChannelForm() {
                 {t('organizationLabel')}
                 <span className={styles.required}>*</span>
               </label>
-              <select
-                id="channel-organization"
-                className={styles.control}
-                value={form.activeOrganizationId}
-                onChange={(event) => form.setOrganizationId(event.target.value)}
-              >
-                {form.organizations.map((organization) => (
-                  <option key={organization.id} value={organization.id}>
-                    {organization.name}
-                  </option>
-                ))}
-              </select>
+              <div className={styles.selectWrap}>
+                <select
+                  id="channel-organization"
+                  className={`${styles.control} ${styles.controlSelect}`}
+                  value={form.activeOrganizationId}
+                  onChange={(event) => form.setOrganizationId(event.target.value)}
+                >
+                  {form.organizations.map((organization) => (
+                    <option key={organization.id} value={organization.id}>
+                      {organization.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={16} className={styles.selectChevron} aria-hidden="true" />
+              </div>
             </div>
           )}
 
@@ -148,18 +165,22 @@ export function CreateChannelForm() {
               {t('timezoneLabel')}
               <span className={styles.required}>*</span>
             </label>
-            <select
-              id="channel-timezone"
-              className={styles.control}
-              value={form.timezone}
-              onChange={(event) => form.setTimezone(event.target.value)}
-            >
-              {form.timezones.map((zone) => (
-                <option key={zone} value={zone}>
-                  {zone}
-                </option>
-              ))}
-            </select>
+            <div className={styles.selectWrap}>
+              <Clock size={16} className={styles.selectIconLeft} aria-hidden="true" />
+              <select
+                id="channel-timezone"
+                className={`${styles.control} ${styles.controlSelect} ${styles.controlSelectIndent}`}
+                value={form.timezone}
+                onChange={(event) => form.setTimezone(event.target.value)}
+              >
+                {form.timezones.map((zone) => (
+                  <option key={zone} value={zone}>
+                    {zone}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={16} className={styles.selectChevron} aria-hidden="true" />
+            </div>
             <span className={styles.help}>{t('timezoneHelp')}</span>
           </div>
 
@@ -173,6 +194,10 @@ export function CreateChannelForm() {
             <Link className={styles.cancel} href={CHANNELS_HREF}>
               {t('cancel')}
             </Link>
+            <span className={styles.actionsSpacer} />
+            <span className={`${styles.statusLine} ${status.tone}`}>
+              {tStatus(`status.${status.key}`)}
+            </span>
           </div>
         </form>
 
