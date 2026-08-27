@@ -1,4 +1,2 @@
-export const LOCALES = ['pt', 'en', 'es'] as const;
-export type Locale = (typeof LOCALES)[number];
-export const DEFAULT_LOCALE: Locale = 'pt';
+export { LOCALES, DEFAULT_LOCALE, type Locale } from '@live-show/i18n-messages';
 export const LOCALE_COOKIE = 'locale';
