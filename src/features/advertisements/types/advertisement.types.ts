@@ -13,6 +13,7 @@ export type AdDestination =
   | { type: 'EXTERNAL_URL'; url: string };
 
 export interface ServedAd {
+  servedId: string;
   adId: string;
   title: string;
   format: string;

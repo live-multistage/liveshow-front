@@ -224,6 +224,7 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
         <div className={styles.gridArea}>
           <PlayerStage
             mode="replay"
+            eventId={eventId}
             paused={paused}
             onResume={() => setPaused(false)}
             pauseAdVisible={pauseAdVisible}

@@ -20,7 +20,7 @@ export function usePrerollGate(eventId: string) {
 
   const query = useQuery({
     queryKey: ['ads', 'serve', 'PRE_ROLL', eventId],
-    queryFn: () => advertisementsService.serve('PRE_ROLL', 1),
+    queryFn: () => advertisementsService.serve('PRE_ROLL', 1, eventId),
     enabled: !seen,
     staleTime: Infinity,
     retry: false,

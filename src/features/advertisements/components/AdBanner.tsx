@@ -30,7 +30,7 @@ export function AdBanner({ placement, className }: Props) {
   useEffect(() => {
     if (ad && !impressionFired.current) {
       impressionFired.current = true;
-      advertisementsService.recordImpression(ad.adId, placement);
+      advertisementsService.recordImpression(ad.servedId);
     }
   }, [ad, placement]);
 
@@ -43,7 +43,7 @@ export function AdBanner({ placement, className }: Props) {
     : gradientFor(ad.adId);
 
   function handleClick() {
-    advertisementsService.recordClick(ad!.adId, placement);
+    advertisementsService.recordClick(ad!.servedId);
   }
 
   let bannerVariant = styles.bannerH;
