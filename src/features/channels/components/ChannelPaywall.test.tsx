@@ -59,11 +59,12 @@ describe('ChannelPaywall', () => {
     expect(screen.getByText(/299,00/)).toBeInTheDocument();
   });
 
-  it('shows the yearly discount percentage when both prices exist', () => {
+  it('shows the yearly discount badge with its aria-label when both prices exist', () => {
     // 29.90 * 12 = 358.80; 1 - 299/358.8 = ~0.1667 -> 17%
     render(<ChannelPaywall channel={channel()} isLoggedIn />);
 
     expect(screen.getByText('savePercent:{"percent":17}')).toBeInTheDocument();
+    expect(screen.getByLabelText('savePercentAria:{"percent":17}')).toBeInTheDocument();
   });
 
   it('omits the discount badge when only one plan is priced', () => {
@@ -77,45 +78,52 @@ describe('ChannelPaywall', () => {
     expect(screen.queryByText(/savePercent/)).toBeNull();
   });
 
-  it('calls the subscribe mutation with the chosen interval when logged in', () => {
+  it('defaults to the yearly plan and subscribes yearly on the single CTA', () => {
     render(<ChannelPaywall channel={channel()} isLoggedIn />);
 
-    fireEvent.click(screen.getAllByText('subscribe')[0]);
+    // Yearly is pre-selected, so the CTA names the yearly plan.
+    fireEvent.click(screen.getByText(/^cta:/));
+
+    expect(mutate).toHaveBeenCalledWith({ channelId: 'ch-1', interval: 'YEARLY' });
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it('subscribes with the interval of the selected plan card', () => {
+    render(<ChannelPaywall channel={channel()} isLoggedIn />);
+
+    // Select the monthly card (radio), then hit the CTA.
+    fireEvent.click(screen.getByRole('radio', { name: 'monthly' }));
+    fireEvent.click(screen.getByText(/^cta:/));
 
     expect(mutate).toHaveBeenCalledWith({ channelId: 'ch-1', interval: 'MONTHLY' });
-    expect(push).not.toHaveBeenCalled();
   });
 
   it('redirects to login with a return path instead of subscribing when logged out', () => {
     render(<ChannelPaywall channel={channel()} isLoggedIn={false} />);
 
-    fireEvent.click(screen.getAllByText('subscribe')[0]);
+    fireEvent.click(screen.getByText(/^cta:/));
 
     expect(push).toHaveBeenCalledWith('/login?redirect=%2Fchannels%2Fcanal');
     expect(mutate).not.toHaveBeenCalled();
   });
 
-  it('gives the subscribe buttons a plan-specific aria-label', () => {
-    render(<ChannelPaywall channel={channel()} isLoggedIn />);
+  it('defaults to monthly when the channel only prices a monthly plan', () => {
+    render(
+      <ChannelPaywall
+        channel={channel({ pricing: { currency: 'BRL', monthlyPriceCents: 2990, yearlyPriceCents: null } })}
+        isLoggedIn
+      />,
+    );
 
-    expect(
-      screen.getByLabelText('subscribeAria:{"plan":"planNameMonthly"}'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText('subscribeAria:{"plan":"planNameYearly"}'),
-    ).toBeInTheDocument();
+    fireEvent.click(screen.getByText(/^cta:/));
+
+    expect(mutate).toHaveBeenCalledWith({ channelId: 'ch-1', interval: 'MONTHLY' });
   });
 
-  it('gives the discount badge an aria-label', () => {
-    render(<ChannelPaywall channel={channel()} isLoggedIn />);
-
-    expect(screen.getByLabelText('savePercentAria:{"percent":17}')).toBeInTheDocument();
-  });
-
-  it('shows the unavailable message when pricing is not configured', () => {
+  it('shows the unavailable message and no CTA when pricing is not configured', () => {
     render(<ChannelPaywall channel={channel({ pricing: null })} isLoggedIn />);
 
     expect(screen.getByText('unavailable')).toBeInTheDocument();
-    expect(screen.queryByText('subscribe')).toBeNull();
+    expect(screen.queryByText(/^cta:/)).toBeNull();
   });
 });
