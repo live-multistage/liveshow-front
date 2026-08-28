@@ -5,6 +5,12 @@ import type { RefObject } from 'react';
 import Hls from 'hls.js';
 import { config } from '@/config';
 import { tokenStore } from '@/lib/auth/token-store';
+import {
+  extractPt,
+  replacePtParam,
+  resolveMediaUrl as resolveSharedMediaUrl,
+  stripPt,
+} from '@live-show/api-contracts';
 import type { LiveCamera } from '../types/live.types';
 import { audioTrackIndexForCamera } from '../components/audio-track';
 
@@ -13,88 +19,11 @@ export interface QualityLevel {
   height: number;
 }
 
-// ── signed-URL (?pt) helpers ────────────────────────────────────────────────
-// The live STANDARD manifests carry a short-lived signed token `?pt={JWT}`
-// (90s TTL). The playback query refreshes it every 5s, so we must (a) NOT
-// rebuild the player on every refresh and (b) inject the freshest token into
-// every hls.js request. These are pure string ops so they unit-test without a
-// real hls.js instance. JWT chars (base64url + '.') are never percent-encoded
-// by URLSearchParams, so round-tripping the value is lossless.
-
-// A media path is either relative to the API (proxied through config.apiUrl,
-// today's behavior) or, when MEDIA_CDN_BASE_URL is configured on the backend,
-// an ABSOLUTE URL on the CDN host — already fully qualified, so it must be
-// used as-is.
-const ABSOLUTE_URL_RE = /^https?:\/\//;
-function isAbsoluteMediaUrl(url: string): boolean {
-  return ABSOLUTE_URL_RE.test(url);
-}
+// Re-exported: existing callers import these from this module.
+export { extractPt, replacePtParam, stripPt };
 
 export function resolveMediaUrl(path: string): string {
-  return isAbsoluteMediaUrl(path) ? path : `${config.apiUrl}${path}`;
-}
-
-// Bunny Token Authentication always stamps `token_path` alongside its own
-// `token`/`expires` (see the backend's MediaUrlBuilder) — it never appears on
-// a legacy (non-CDN) URL, so its presence is what actually marks a URL as
-// CDN-signed. Scheme alone (`https://`) is NOT a safe signal here: config.apiUrl
-// itself can be an absolute origin in production with no CDN involved.
-function hasCdnSignature(url: string): boolean {
-  const q = url.indexOf('?');
-  if (q === -1) return false;
-  return new URLSearchParams(url.slice(q + 1)).has('token_path');
-}
-
-// The current viewer-JWT value from a manifest path/URL, or null when absent.
-// `pt` is the name in both the CDN (Bunny reserves `token` for its own
-// signature) and non-CDN cases going forward; `token` is read only as a
-// legacy fallback when the URL carries no CDN signature — never on a
-// CDN-signed URL, where `token`/`expires`/`token_path` belong to Bunny.
-export function extractPt(url: string): string | null {
-  const q = url.indexOf('?');
-  if (q === -1) return null;
-  const params = new URLSearchParams(url.slice(q + 1));
-  const pt = params.get('pt');
-  if (pt !== null) return pt;
-  if (hasCdnSignature(url)) return null;
-  return params.get('token');
-}
-
-// A stable key that ignores the viewer token: two URLs differing ONLY in that
-// token produce the same base, so the build effect keys on real source
-// changes (packageId / job rotation) and not 5s token refreshes. Only ever
-// strips `pt`/legacy `token` — never Bunny's `token`/`expires`/`token_path`
-// on a CDN-signed URL.
-export function stripPt(url: string): string {
-  const q = url.indexOf('?');
-  if (q === -1) return url;
-  const params = new URLSearchParams(url.slice(q + 1));
-  const legacyToken = !params.has('pt') && !hasCdnSignature(url);
-  params.delete('pt');
-  if (legacyToken) params.delete('token');
-  const rest = params.toString();
-  return rest ? `${url.slice(0, q)}?${rest}` : url.slice(0, q);
-}
-
-// Rewrite an outgoing request URL's viewer token (`pt`, or legacy `token` when
-// the URL carries no CDN signature) to the freshest one. Falls through
-// unchanged when there is no token, the URL carries neither param, or the
-// URL is CDN-signed with no `pt` — Bunny's own `token`/`expires`/`token_path`
-// must never be touched here.
-export function replacePtParam(url: string, token: string | null): string {
-  if (!token) return url;
-  const q = url.indexOf('?');
-  if (q === -1) return url;
-  const params = new URLSearchParams(url.slice(q + 1));
-  if (params.has('pt')) {
-    params.set('pt', token);
-    return `${url.slice(0, q)}?${params.toString()}`;
-  }
-  if (!hasCdnSignature(url) && params.has('token')) {
-    params.set('token', token);
-    return `${url.slice(0, q)}?${params.toString()}`;
-  }
-  return url;
+  return resolveSharedMediaUrl(config.apiUrl, path);
 }
 
 // Bunny Token Authentication params on a CDN-signed manifest URL that its
@@ -136,6 +65,27 @@ function withCdnSigningParams(url: string, params: [string, string][]): string {
 export function maxLatencyDurationCount(hasLl: boolean, dvrActive: boolean): number {
   if (dvrActive) return Infinity;
   return hasLl ? 5 : 8;
+}
+
+// Replay agora chega de dois jeitos: `Bearer` (web, token de 900s renovado pelo
+// httpClient) ou `?pt` na própria URL (token de 1h, o único caminho possível
+// para um player nativo). Quando o manifest veio com `pt`, o header não só é
+// desnecessário como seria a prova ERRADA a rotacionar: o `pt` é que expira
+// junto da sessão, e é ele que os filhos do manifest carregam.
+export function replayXhrSetup(opts: {
+  manifestUrl: string;
+  latestPt: string | null;
+  bearer: string | null;
+}): (xhr: XMLHttpRequest, url: string) => void {
+  const manifestPt = extractPt(opts.manifestUrl);
+  return (xhr, url) => {
+    if (manifestPt) {
+      const next = replacePtParam(url, opts.latestPt ?? manifestPt);
+      if (next !== url) xhr.open('GET', next, true);
+      return;
+    }
+    if (opts.bearer) xhr.setRequestHeader('Authorization', `Bearer ${opts.bearer}`);
+  };
 }
 
 // Index of the smallest-height rendition in a parsed hls instance (-1 if none).
@@ -372,10 +322,12 @@ export function useHlsPlayer({
       // request hls.js makes. No-op for live (mode default), so live's
       // network behavior is unchanged.
       ...(mode === 'replay' && {
-        xhrSetup: (xhr: XMLHttpRequest) => {
-          const token = tokenStore.get();
-          if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-        },
+        xhrSetup: (xhr: XMLHttpRequest, url: string) =>
+          replayXhrSetup({
+            manifestUrl: srcRef.current ?? '',
+            latestPt: ptRef.current,
+            bearer: tokenStore.get(),
+          })(xhr, url),
       }),
       // Live STANDARD: every request (master, rendition manifest, segment,
       // EXT-X-KEY) carries a `?pt` token baked in when its manifest was loaded;

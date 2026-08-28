@@ -14,6 +14,7 @@ import {
   replacePtParam,
   resolveMediaUrl,
   maxLatencyDurationCount,
+  replayXhrSetup,
   useHlsPlayer,
 } from './use-hls-player';
 import type { LiveCamera } from '../types/live.types';
@@ -99,6 +100,44 @@ describe('pt helpers', () => {
   it('replacePtParam never touches token/expires/token_path on a CDN URL', () => {
     const url = 'https://cdn.example/api/o/master.m3u8?token=BUNNY&expires=1&token_path=/o/';
     expect(replacePtParam(url, 'fresh-jwt')).toBe(url);
+  });
+});
+
+describe('shared playback contracts', () => {
+  it('the moved helpers are the shared ones', () => {
+    expect(extractPt('/a.m3u8?pt=A')).toBe('A');
+    expect(stripPt('/a.m3u8?pt=A')).toBe('/a.m3u8');
+    expect(replacePtParam('/a.m3u8?pt=A', 'B')).toBe('/a.m3u8?pt=B');
+  });
+});
+
+describe('replayXhrSetup', () => {
+  it('a pt-carrying source is refreshed, not bearer-authenticated', () => {
+    const setup = replayXhrSetup({
+      manifestUrl: '/packages/p/replay/master.m3u8?pt=OLD',
+      latestPt: 'NEW',
+      bearer: 'JWT',
+    });
+    const xhr = { open: vi.fn(), setRequestHeader: vi.fn() } as unknown as XMLHttpRequest;
+    setup(xhr, '/api/recordings/e/p/720p/segment_00001.ts?pt=OLD');
+    expect(xhr.open).toHaveBeenCalledWith(
+      'GET',
+      '/api/recordings/e/p/720p/segment_00001.ts?pt=NEW',
+      true,
+    );
+    expect(xhr.setRequestHeader).not.toHaveBeenCalled();
+  });
+
+  it('a legacy source with no pt still gets the bearer header', () => {
+    const setup = replayXhrSetup({
+      manifestUrl: '/packages/p/replay/master.m3u8',
+      latestPt: null,
+      bearer: 'JWT',
+    });
+    const xhr = { open: vi.fn(), setRequestHeader: vi.fn() } as unknown as XMLHttpRequest;
+    setup(xhr, '/api/recordings/e/p/720p/segment_00001.ts');
+    expect(xhr.setRequestHeader).toHaveBeenCalledWith('Authorization', 'Bearer JWT');
+    expect(xhr.open).not.toHaveBeenCalled();
   });
 });
 
