@@ -139,6 +139,19 @@ describe('replayXhrSetup', () => {
     expect(xhr.setRequestHeader).toHaveBeenCalledWith('Authorization', 'Bearer JWT');
     expect(xhr.open).not.toHaveBeenCalled();
   });
+
+  it('a pt-carrying manifest whose child URL has no pt/token to rewrite falls back to the bearer', () => {
+    const setup = replayXhrSetup({
+      manifestUrl: '/packages/p/replay/master.m3u8?pt=OLD',
+      latestPt: 'NEW',
+      bearer: 'JWT',
+    });
+    const xhr = { open: vi.fn(), setRequestHeader: vi.fn() } as unknown as XMLHttpRequest;
+    // No pt/token query param for replacePtParam to rewrite — it returns the URL unchanged.
+    setup(xhr, '/api/recordings/e/p/720p/segment_00001.ts');
+    expect(xhr.open).not.toHaveBeenCalled();
+    expect(xhr.setRequestHeader).toHaveBeenCalledWith('Authorization', 'Bearer JWT');
+  });
 });
 
 // ── media URL resolution ─────────────────────────────────────────────────────

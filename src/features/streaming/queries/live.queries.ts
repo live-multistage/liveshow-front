@@ -46,13 +46,17 @@ export function useLivePlaybackQuery(eventId: string, enabled: boolean) {
   });
 }
 
-// Replay playback resolution. One-shot, no polling — an archived broadcast's
-// camera list doesn't change while a viewer is watching it.
+// Replay playback resolution. The camera list doesn't change, but the minted
+// `pt` token has a 1h TTL — refetch every 45min (in the background too, since
+// a backgrounded/minimized tab must not let the token expire mid-playback)
+// so segment requests keep a fresh token instead of 401ing past the hour mark.
 export function useReplayPlaybackQuery(eventId: string, enabled: boolean) {
   return useQuery({
     queryKey: LIVE_KEYS.replayPlayback(eventId),
     queryFn: () => streamingService.getReplayPlayback(eventId),
     enabled,
     staleTime: 60_000,
+    refetchInterval: 45 * 60_000,
+    refetchIntervalInBackground: true,
   });
 }

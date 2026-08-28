@@ -81,8 +81,13 @@ export function replayXhrSetup(opts: {
   return (xhr, url) => {
     if (manifestPt) {
       const next = replacePtParam(url, opts.latestPt ?? manifestPt);
-      if (next !== url) xhr.open('GET', next, true);
-      return;
+      if (next !== url) {
+        xhr.open('GET', next, true);
+        return;
+      }
+      // Child URL had no `pt`/`token` param for replacePtParam to rewrite
+      // (e.g. a relative segment URL hls.js resolved without one) — fall back
+      // to the bearer so the request isn't sent with no credential at all.
     }
     if (opts.bearer) xhr.setRequestHeader('Authorization', `Bearer ${opts.bearer}`);
   };
