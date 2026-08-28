@@ -1,3 +1,5 @@
+import type { AccessCapability } from '@live-show/api-contracts';
+
 export type EventStatus = 'DRAFT' | 'PUBLISHED' | 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'CANCELLED';
 
 export type EventFormat = 'LIVE' | 'VOD';
@@ -142,7 +144,7 @@ export interface UpdateEventRequest {
   publiclyFunded?: boolean;
 }
 
-export type AccessCapability = 'LIVE_VIEW' | 'REPLAY_VIEW' | 'CAMERA_VIEW' | 'PHYSICAL_ENTRY';
+export type { AccessCapability } from '@live-show/api-contracts';
 
 export interface CreateTicketRequest {
   name: string;

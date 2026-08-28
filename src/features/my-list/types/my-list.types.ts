@@ -1,10 +1,7 @@
 import type { EventStatus } from '@/features/events/types/event.types';
+import type { AccessCapability } from '@live-show/api-contracts';
 
-/**
- * Capabilities de um ingresso. `PHYSICAL_ENTRY` é entrada no LOCAL do evento,
- * não playback — um ingresso presencial não dá direito de assistir.
- */
-export type AccessCapability = 'LIVE_VIEW' | 'REPLAY_VIEW' | 'CAMERA_VIEW' | 'PHYSICAL_ENTRY';
+export type { AccessCapability };
 
 /** Um item de `GET /me/accessible-events`. */
 export interface AccessibleEvent {

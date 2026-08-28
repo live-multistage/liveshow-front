@@ -1,4 +1,6 @@
-import type { AccessCapability } from '@/features/events';
+import type { AccessCapability } from '@live-show/api-contracts';
+
+export type { AccessCapability };
 
 // Embedded by the backend (GET /orders/mine) so the buyer's library never
 // depends on the public catalog — finished/unpublished/private events still
