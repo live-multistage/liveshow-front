@@ -3,38 +3,36 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Clock, QrCode } from 'lucide-react';
-import { usePaymentStatusQuery } from '../mutations/checkout.mutations';
+import { Clock } from 'lucide-react';
+import { useOrderQuery } from '../mutations/checkout.mutations';
 import styles from './CheckoutResultContent.module.scss';
 
 interface Props {
-  eventId?: string;
-  paymentId?: string;
+  orderId?: string;
 }
 
-export function CheckoutPendingContent({ eventId, paymentId }: Props) {
+export function CheckoutPendingContent({ orderId }: Props) {
   const router = useRouter();
 
-  const statusQuery = usePaymentStatusQuery(paymentId ?? null, !!paymentId);
+  const orderQuery = useOrderQuery(orderId ?? null);
 
   useEffect(() => {
-    const status = statusQuery.data?.status;
-    const orderId = statusQuery.data?.orderId;
-    if (status === 'COMPLETED') {
-      router.replace(
-        eventId ? `/events/${eventId}/checkout/success` : `/checkout/success?orderId=${orderId ?? ''}`,
-      );
+    const status = orderQuery.data?.status;
+    if (status === 'PAID') {
+      router.replace(`/checkout/success?orderId=${orderId ?? ''}`);
+      return;
     }
-    if (status === 'FAILED') {
-      router.replace(eventId ? `/events/${eventId}/checkout/failed` : '/checkout');
+    // CANCELLED and EXPIRED are both dead ends — the cart is still there.
+    if (status === 'CANCELLED' || status === 'EXPIRED') {
+      router.replace('/checkout');
     }
-  }, [statusQuery.data, eventId, router]);
+  }, [orderQuery.data, orderId, router]);
 
   return (
     <div className={styles.page}>
       <div className={styles.card}>
         <div className={`${styles.icon} ${styles.iconPending}`}>
-          {paymentId ? <QrCode size={40} /> : <Clock size={40} />}
+          <Clock size={40} />
         </div>
         <h1 className={styles.title}>Aguardando confirmação</h1>
         <p className={styles.desc}>
@@ -47,8 +45,8 @@ export function CheckoutPendingContent({ eventId, paymentId }: Props) {
         </div>
 
         <div className={styles.actions}>
-          <Link href={eventId ? `/events/${eventId}` : '/checkout'} className={styles.secondary}>
-            {eventId ? 'Voltar ao evento' : 'Voltar ao checkout'}
+          <Link href="/checkout" className={styles.secondary}>
+            Voltar ao checkout
           </Link>
         </div>
       </div>

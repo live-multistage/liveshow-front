@@ -16,15 +16,14 @@ export function usePlaceOrderMutation() {
   });
 }
 
-export function usePaymentStatusQuery(paymentId: string | null, enabled = false) {
+// The order, not the payment, is what the buyer is waiting on — the webhook
+// writes the order first, so polling it never reports success too early.
+export function useOrderQuery(orderId: string | null) {
   return useQuery({
-    queryKey: ['checkout', 'payment-status', paymentId],
-    queryFn: () => checkoutService.getPaymentStatus(paymentId!),
-    enabled: !!paymentId && enabled,
-    refetchInterval: (query) => {
-      const status = query.state.data?.status;
-      if (status === 'COMPLETED' || status === 'FAILED' || status === 'REFUNDED') return false;
-      return 3000;
-    },
+    queryKey: ['orders', orderId],
+    queryFn: () => checkoutService.getOrder(orderId!),
+    enabled: !!orderId,
+    refetchInterval: (query) =>
+      query.state.data && query.state.data.status !== 'PENDING' ? false : 3000,
   });
 }

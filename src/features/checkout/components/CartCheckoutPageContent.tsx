@@ -83,7 +83,7 @@ export function CartCheckoutPageContent() {
           } else if (payment.action.type === 'COMPLETED') {
             router.push(`/checkout/success?orderId=${order.id}`);
           } else {
-            router.push(`/checkout/pending?paymentId=${payment.id}`);
+            router.push(`/checkout/pending?orderId=${order.id}`);
           }
         },
         onError: (e) => setPayErrorMsg(payErrorMessage(normalizeError(e), t)),

@@ -1,7 +1,7 @@
 import { httpClient } from '@/lib/http/client';
 import type {
   PaymentMethod,
-  PaymentStatusResponse,
+  OrderView,
   PlaceOrderRequest,
   PlaceOrderResponse,
   ClaimFreeTicketResponse,
@@ -20,8 +20,8 @@ export const checkoutService = {
     return data;
   },
 
-  getPaymentStatus: async (paymentId: string): Promise<PaymentStatusResponse> => {
-    const { data } = await httpClient.get<PaymentStatusResponse>(`/payments/${paymentId}/status`);
+  getOrder: async (orderId: string): Promise<OrderView> => {
+    const { data } = await httpClient.get<OrderView>(`/orders/${orderId}`);
     return data;
   },
 
