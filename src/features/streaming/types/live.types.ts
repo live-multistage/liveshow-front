@@ -44,9 +44,7 @@ export interface LivePlaybackResponse {
   latencyMode: 'STANDARD' | 'LOW';
 }
 
-export interface LiveAccessResponse {
-  authorized: boolean;
-}
+export type { LiveAccessResponse } from '@live-show/api-contracts';
 
 export interface ReplayCameraPlayback {
   cameraId: string;
