@@ -23,8 +23,8 @@ vi.mock('@/features/events/queries/get-event.server', async () => {
 });
 
 vi.mock('@/features/checkout', () => ({
-  CheckoutPageContent: ({ eventId, quantity }: { eventId: string; quantity: number }) => (
-    <div data-testid="checkout" data-qty={quantity}>{eventId}</div>
+  CheckoutPageContent: ({ ticketProductId }: { ticketProductId: string }) => (
+    <div data-testid="checkout">{ticketProductId}</div>
   ),
   CheckoutSuccessContent: ({ eventId }: { eventId: string }) => <div data-testid="checkout">{eventId}</div>,
   CheckoutPendingContent: ({ eventId }: { eventId: string }) => <div data-testid="checkout">{eventId}</div>,
@@ -39,36 +39,27 @@ import CheckoutFailedPage from './failed/page';
 
 const params = (id: string) => Promise.resolve({ id });
 
-// Checkout keys off the event's UUID, but the parent segment now serves slugs —
-// so /events/<slug>/checkout must resolve before handing the id downstream.
 describe('/events/[id]/checkout', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     fetchEventBySlug.mockResolvedValue(EVENT);
   });
 
-  it('resolves a slug param to the event id', async () => {
-    render(await CheckoutPage({
-      params: params('rock-in-rio-2026'),
-      searchParams: Promise.resolve({ ticketId: 'tp-1', qty: '2' }),
-    }));
+  // The checkout page itself is now a shim into the cart flow — it no
+  // longer resolves the event id, it just forwards ticketId.
+  it('forwards the ticketId search param to CheckoutPageContent', async () => {
+    render(
+      await CheckoutPage({
+        searchParams: Promise.resolve({ ticketId: 'tp-1' }),
+      }),
+    );
 
-    expect(fetchEventBySlug).toHaveBeenCalledWith('rock-in-rio-2026');
-    expect(screen.getByTestId('checkout')).toHaveTextContent(EVENT.id);
-    expect(screen.getByTestId('checkout')).toHaveAttribute('data-qty', '2');
+    expect(screen.getByTestId('checkout')).toHaveTextContent('tp-1');
   });
 
-  it('passes a UUID param straight through without a lookup', async () => {
-    render(await CheckoutPage({
-      params: params(EVENT.id),
-      searchParams: Promise.resolve({}),
-    }));
-
-    expect(fetchEventBySlug).not.toHaveBeenCalled();
-    expect(screen.getByTestId('checkout')).toHaveTextContent(EVENT.id);
-  });
-
-  // The outcome pages take different searchParams shapes; only `params` matters here.
+  // The outcome pages still key off the event's UUID, and the parent
+  // segment still serves slugs — so they must keep resolving before
+  // handing the id downstream.
   it.each([
     ['success', () => CheckoutSuccessPage({ params: params('rock-in-rio-2026') })],
     ['pending', () => CheckoutPendingPage({ params: params('rock-in-rio-2026'), searchParams: Promise.resolve({}) })],

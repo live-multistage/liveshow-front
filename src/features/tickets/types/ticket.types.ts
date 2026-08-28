@@ -1,39 +1,12 @@
-import type { AccessCapability } from '@live-show/api-contracts';
+import type { AccessCapability, OrderLineEventView } from '@live-show/api-contracts';
 
-export type { AccessCapability };
+export type { AccessCapability, OrderLineEventView };
 
-// Embedded by the backend (GET /orders/mine) so the buyer's library never
-// depends on the public catalog — finished/unpublished/private events still
-// render. Null only when the event row itself no longer exists.
-export interface OrderEvent {
-  id: string;
-  slug?: string | null;
-  title: string;
-  status: string;
-  startsAt: string;
-  endsAt: string;
-  thumbnailUrl: string | null;
-  bannerUrl: string | null;
-  venue: string | null;
-  city: string | null;
-}
-
-export interface OrderResponse {
-  orderId: string;
-  eventId: string;
-  ticketProductId: string;
-  ticketProductName: string;
-  status: string;
-  totalAmount: number;
-  capabilities: AccessCapability[];
-  camerasLimit: number | null;
-  createdAt: string;
-  event: OrderEvent | null;
-}
-
+// Amounts are integer cents (see @live-show/api-contracts OrderView).
 export interface PurchasedTicket {
   orderId: string;
-  event: OrderEvent;
+  orderLineId: string;
+  event: OrderLineEventView;
   ticketProductName: string;
   capabilities: AccessCapability[];
   camerasLimit: number | null;

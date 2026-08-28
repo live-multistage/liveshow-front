@@ -8,7 +8,7 @@ import { usePaymentStatusQuery } from '../mutations/checkout.mutations';
 import styles from './CheckoutResultContent.module.scss';
 
 interface Props {
-  eventId: string;
+  eventId?: string;
   paymentId?: string;
 }
 
@@ -19,9 +19,16 @@ export function CheckoutPendingContent({ eventId, paymentId }: Props) {
 
   useEffect(() => {
     const status = statusQuery.data?.status;
-    if (status === 'COMPLETED') router.replace(`/events/${eventId}/checkout/success`);
-    if (status === 'FAILED') router.replace(`/events/${eventId}/checkout/failed`);
-  }, [statusQuery.data?.status, eventId, router]);
+    const orderId = statusQuery.data?.orderId;
+    if (status === 'COMPLETED') {
+      router.replace(
+        eventId ? `/events/${eventId}/checkout/success` : `/checkout/success?orderId=${orderId ?? ''}`,
+      );
+    }
+    if (status === 'FAILED') {
+      router.replace(eventId ? `/events/${eventId}/checkout/failed` : '/checkout');
+    }
+  }, [statusQuery.data, eventId, router]);
 
   return (
     <div className={styles.page}>
@@ -40,8 +47,8 @@ export function CheckoutPendingContent({ eventId, paymentId }: Props) {
         </div>
 
         <div className={styles.actions}>
-          <Link href={`/events/${eventId}`} className={styles.secondary}>
-            Voltar ao evento
+          <Link href={eventId ? `/events/${eventId}` : '/checkout'} className={styles.secondary}>
+            {eventId ? 'Voltar ao evento' : 'Voltar ao checkout'}
           </Link>
         </div>
       </div>

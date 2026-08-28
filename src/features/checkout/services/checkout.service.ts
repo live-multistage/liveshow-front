@@ -1,18 +1,12 @@
 import { httpClient } from '@/lib/http/client';
 import type {
-  CheckoutSession,
-  CreateCheckoutSessionRequest,
-  CartCheckoutResult,
-  CouponPreviewRequest,
-  CouponPreviewResult,
-  CartCouponPreviewRequest,
-  CartCouponPreviewResult,
-  ProcessPaymentRequest,
-  ProcessPaymentResult,
   PaymentMethod,
   PaymentStatusResponse,
-  PaymentProvider,
-  ClaimFreeTicketResult,
+  PlaceOrderRequest,
+  PlaceOrderResponse,
+  ClaimFreeTicketResponse,
+  CartCouponPreviewRequest,
+  CartCouponPreviewResult,
 } from '../types/checkout.types';
 
 export const checkoutService = {
@@ -21,16 +15,8 @@ export const checkoutService = {
     return data;
   },
 
-  createSession: async (payload: CreateCheckoutSessionRequest): Promise<CheckoutSession> => {
-    const { data } = await httpClient.post<CheckoutSession>('/payments/sessions', payload);
-    return data;
-  },
-
-  processPayment: async (payload: ProcessPaymentRequest): Promise<ProcessPaymentResult> => {
-    const { data } = await httpClient.post<ProcessPaymentResult>(
-      `/payments/sessions/${payload.sessionId}/process`,
-      { provider: payload.provider },
-    );
+  placeOrder: async (payload: PlaceOrderRequest): Promise<PlaceOrderResponse> => {
+    const { data } = await httpClient.post<PlaceOrderResponse>('/orders', payload);
     return data;
   },
 
@@ -39,28 +25,13 @@ export const checkoutService = {
     return data;
   },
 
-  previewCoupon: async (payload: CouponPreviewRequest): Promise<CouponPreviewResult> => {
-    const { data } = await httpClient.post<CouponPreviewResult>('/coupons/preview', payload);
-    return data;
-  },
-
   previewCartCoupon: async (payload: CartCouponPreviewRequest): Promise<CartCouponPreviewResult> => {
     const { data } = await httpClient.post<CartCouponPreviewResult>('/coupons/preview-cart', payload);
     return data;
   },
 
-  createCartSession: async (payload: {
-    items: { ticketProductId: string; eventId: string }[];
-    provider: PaymentProvider;
-    currency?: string;
-    couponCode?: string;
-  }): Promise<CartCheckoutResult> => {
-    const { data } = await httpClient.post<CartCheckoutResult>('/payments/cart-session', payload);
-    return data;
-  },
-
-  claimFreeTicket: async (ticketProductId: string): Promise<ClaimFreeTicketResult> => {
-    const { data } = await httpClient.post<ClaimFreeTicketResult>('/orders/free-ticket', { ticketProductId });
+  claimFreeTicket: async (ticketProductId: string): Promise<ClaimFreeTicketResponse> => {
+    const { data } = await httpClient.post<ClaimFreeTicketResponse>('/orders/free-ticket', { ticketProductId });
     return data;
   },
 };

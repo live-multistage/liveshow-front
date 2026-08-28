@@ -1,10 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { checkoutService } from '../services/checkout.service';
-import type {
-  CreateCheckoutSessionRequest,
-  CouponPreviewRequest,
-  ProcessPaymentRequest,
-} from '../types/checkout.types';
+import type { PlaceOrderRequest } from '../types/checkout.types';
 
 export function usePaymentMethodsQuery() {
   return useQuery({
@@ -14,22 +10,9 @@ export function usePaymentMethodsQuery() {
   });
 }
 
-export function useCreateCheckoutSessionMutation() {
+export function usePlaceOrderMutation() {
   return useMutation({
-    mutationFn: (payload: CreateCheckoutSessionRequest) =>
-      checkoutService.createSession(payload),
-  });
-}
-
-export function useProcessPaymentMutation() {
-  return useMutation({
-    mutationFn: (payload: ProcessPaymentRequest) => checkoutService.processPayment(payload),
-  });
-}
-
-export function useCouponPreviewMutation() {
-  return useMutation({
-    mutationFn: (payload: CouponPreviewRequest) => checkoutService.previewCoupon(payload),
+    mutationFn: (payload: PlaceOrderRequest) => checkoutService.placeOrder(payload),
   });
 }
 

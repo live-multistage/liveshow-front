@@ -1,6 +1,6 @@
 import { httpClient } from '@/lib/http/client';
+import type { OrderView } from '@live-show/api-contracts';
 import type {
-  OrderResponse,
   EntryPassResponse,
   CheckInResponse,
   CheckInSummaryResponse,
@@ -8,8 +8,8 @@ import type {
 } from '../types/ticket.types';
 
 export const ticketingService = {
-  getMyOrders: async (): Promise<OrderResponse[]> => {
-    const { data } = await httpClient.get<OrderResponse[]>('/orders/mine');
+  getMyOrders: async (): Promise<OrderView[]> => {
+    const { data } = await httpClient.get<OrderView[]>('/orders/mine');
     return data;
   },
 

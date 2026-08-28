@@ -2,12 +2,12 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { httpClient } from '@/lib/http/client';
-import type { OrderHistoryItem } from '../types/order-history.types';
+import type { OrderView } from '@live-show/api-contracts';
 
 export const orderHistoryKey = ['purchases', 'history'] as const;
 
-async function getOrderHistory(): Promise<OrderHistoryItem[]> {
-  const { data } = await httpClient.get<OrderHistoryItem[]>('/orders/history');
+async function getOrderHistory(): Promise<OrderView[]> {
+  const { data } = await httpClient.get<OrderView[]>('/orders/history');
   return data;
 }
 
