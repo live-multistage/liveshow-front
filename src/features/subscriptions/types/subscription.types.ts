@@ -1,25 +1,7 @@
-import type { ChannelSubscriptionStatus, SubscriptionInterval } from '@/features/channels/types/channel.types';
-
-export type { SubscriptionInterval };
-// Same enum as the channel side (`ChannelSubscriptionStatus`) — aliased here
-// under the name this feature's components/tests already use.
-export type SubscriptionStatus = ChannelSubscriptionStatus;
-
-export interface SubscriptionChannel {
-  slug: string;
-  name: string;
-  coverUrl: string | null;
-}
-
-export interface MySubscription {
-  id: string;
-  // Null only if the channel itself was hard-deleted — the backend never
-  // does that today, but the contract allows it (§4.5).
-  channel: SubscriptionChannel | null;
-  interval: SubscriptionInterval;
-  status: SubscriptionStatus;
-  currentPeriodEnd: string;
-  cancelAtPeriodEnd: boolean;
-  priceCents: number;
-  currency: string;
-}
+// Promoted to @live-show/api-contracts in M4a so mobile shares the shapes.
+export type {
+  SubscriptionInterval,
+  SubscriptionStatus,
+  SubscriptionChannel,
+  MySubscription,
+} from '@live-show/api-contracts';
