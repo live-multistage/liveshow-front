@@ -5,6 +5,7 @@ import { Bell, Calendar, CreditCard, Ticket, Megaphone, Users } from 'lucide-rea
 import type { LucideIcon } from 'lucide-react';
 import type { NotificationResponse, NotificationType } from '../types/notification.types';
 import { formatRelativeTime } from '../utils/notification-formatters';
+import { isSafeNotificationLink } from '../utils/safe-link';
 import styles from './NotificationsDropdown.module.scss';
 
 const ICON_BY_TYPE: Record<NotificationType, LucideIcon> = {
@@ -39,7 +40,9 @@ export function NotificationItem({ notification, onSelect }: NotificationItemPro
     </>
   );
 
-  if (notification.link) {
+  // Only render as a link when the href is a same-origin path or https URL —
+  // an active scheme (javascript:/data:) here would be stored XSS.
+  if (isSafeNotificationLink(notification.link)) {
     return (
       <Link href={notification.link} className={className} onClick={() => onSelect(notification)}>
         {body}
