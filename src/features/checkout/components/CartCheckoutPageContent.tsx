@@ -72,8 +72,11 @@ export function CartCheckoutPageContent() {
     if (!selectedMethod || items.length === 0) return;
     setPayErrorMsg(null);
     placeOrder.mutate(
-      // POST /orders only accepts the STRIPE provider today — the selected
-      // payment method still decides how Stripe collects payment (card, PIX…).
+      // PlaceOrderRequest.provider is now 'STRIPE' | 'GOOGLE_PLAY'. The web
+      // stays on STRIPE unconditionally: a browser cannot complete a
+      // PLAY_BILLING action, and the backend's Play gate refuses anything that
+      // is not the Android app anyway. The selected payment method still
+      // decides how Stripe collects (card, PIX…).
       { provider: 'STRIPE', couponCode: coupon?.code },
       {
         onSuccess: ({ order, payment }) => {
