@@ -4,7 +4,10 @@ import type {
   PaymentAction,
   PaymentMethod,
   PaymentMethodType,
+  PaymentMethodsResponse,
   PaymentStatus,
+  PaymentChannel,
+  PaymentFlow,
   OrderView,
   OrderLineView,
   OrderLineEventView,
@@ -13,6 +16,8 @@ import type {
   PlaceOrderResponse,
   ClaimFreeTicketRequest,
   ClaimFreeTicketResponse,
+  CartCouponPreviewRequest,
+  CartCouponPreviewResult,
 } from '@live-show/api-contracts';
 
 export type {
@@ -21,7 +26,10 @@ export type {
   PaymentAction,
   PaymentMethod,
   PaymentMethodType,
+  PaymentMethodsResponse,
   PaymentStatus,
+  PaymentChannel,
+  PaymentFlow,
   OrderView,
   OrderLineView,
   OrderLineEventView,
@@ -30,19 +38,6 @@ export type {
   PlaceOrderResponse,
   ClaimFreeTicketRequest,
   ClaimFreeTicketResponse,
+  CartCouponPreviewRequest,
+  CartCouponPreviewResult,
 };
-
-export interface CartCouponPreviewRequest {
-  code: string;
-  items: { eventId: string; amount: number }[];
-}
-
-export interface CartCouponPreviewResult {
-  couponId: string;
-  discountType: string;
-  discountValue: number;
-  discountAmount: number;
-  orgIds: string[];
-  eventId: string | null;
-  eligibleEventIds: string[];
-}

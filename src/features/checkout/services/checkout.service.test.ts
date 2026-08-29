@@ -95,3 +95,25 @@ describe('checkoutService.placeOrder', () => {
     expect(sent?.headers.get('x-attribution-referrer')).toBe('facebook.com');
   });
 });
+
+describe('checkoutService.listPaymentMethods', () => {
+  const originalAdapter = httpClient.defaults.adapter;
+  afterEach(() => {
+    httpClient.defaults.adapter = originalAdapter;
+  });
+
+  // The endpoint now answers { methods, mobileCheckout } so one request can
+  // serve the app's gate too. The web only ever wanted the catalog.
+  it('unwraps the methods array out of the response envelope', async () => {
+    const methods = [{ id: 'CREDIT_CARD', displayName: 'Cartão de crédito', type: 'CREDIT_CARD', provider: 'STRIPE' }];
+    httpClient.defaults.adapter = (async (config) => ({
+      data: { methods, mobileCheckout: { enabled: false, reason: 'PLATFORM' } },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config,
+    })) as AxiosAdapter;
+
+    await expect(checkoutService.listPaymentMethods()).resolves.toEqual(methods);
+  });
+});

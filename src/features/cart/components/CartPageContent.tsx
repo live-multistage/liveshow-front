@@ -69,10 +69,7 @@ export function CartPageContent({ initialCart }: Props) {
     setPromoError('');
     try {
       // Server-side scoped validation: discount computed only on eligible items
-      const result = await checkoutService.previewCartCoupon({
-        code,
-        items: items.map((i) => ({ eventId: i.eventId, amount: i.price })),
-      });
+      const result = await checkoutService.previewCartCoupon({ code });
       setAppliedCoupon({
         code,
         discountAmount: result.discountAmount,

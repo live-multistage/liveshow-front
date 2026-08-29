@@ -1,6 +1,7 @@
 import { httpClient } from '@/lib/http/client';
 import type {
   PaymentMethod,
+  PaymentMethodsResponse,
   OrderView,
   PlaceOrderRequest,
   PlaceOrderResponse,
@@ -11,8 +12,8 @@ import type {
 
 export const checkoutService = {
   listPaymentMethods: async (): Promise<PaymentMethod[]> => {
-    const { data } = await httpClient.get<PaymentMethod[]>('/payments/methods');
-    return data;
+    const { data } = await httpClient.get<PaymentMethodsResponse>('/payments/methods');
+    return data.methods;
   },
 
   placeOrder: async (payload: PlaceOrderRequest): Promise<PlaceOrderResponse> => {

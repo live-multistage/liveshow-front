@@ -57,7 +57,7 @@ export function CartCheckoutPageContent() {
     if (!raw || items.length === 0) return;
     const { code } = JSON.parse(raw) as { code: string };
     checkoutService
-      .previewCartCoupon({ code, items: items.map((i) => ({ eventId: i.eventId, amount: i.price })) })
+      .previewCartCoupon({ code })
       .then((r) => setCoupon({ code, discountAmount: r.discountAmount }))
       .catch(() => {
         sessionStorage.removeItem('cart:coupon');
@@ -83,6 +83,9 @@ export function CartCheckoutPageContent() {
           } else if (payment.action.type === 'COMPLETED') {
             router.push(`/checkout/success?orderId=${order.id}`);
           } else {
+            // PAYMENT_INTENT is the in-app sheet: the web never asks for it
+            // (it sends no `flow`), and a browser cannot present it. Falling
+            // through to pending is correct — the order exists, unpaid.
             router.push(`/checkout/pending?orderId=${order.id}`);
           }
         },
