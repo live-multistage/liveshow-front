@@ -21,9 +21,11 @@ export function LanguageSwitcher() {
   const [isPending, startTransition] = useTransition();
 
   function handleChange(next: string) {
-    startTransition(async () => {
-      await setLocale(next as Locale);
-      window.location.reload();
+    startTransition(() => {
+      void (async () => {
+        await setLocale(next as Locale);
+        window.location.reload();
+      })();
     });
   }
 
