@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
-import { config } from '@/config';
+import { config, mediaUrl } from '@/config';
 import styles from './HlsVideo.module.scss';
 
 interface Props {
@@ -22,7 +22,7 @@ export function HlsVideo({ packageId, src: srcOverride, className, controls = fa
   const videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState<string | null>(null);
   const src = srcOverride
-    ? `${config.apiUrl}${srcOverride}`
+    ? mediaUrl(srcOverride)
     : `${config.apiUrl}/origin/${packageId}/master.m3u8`;
 
   useEffect(() => {

@@ -40,3 +40,14 @@ export const config = {
   appName: 'showon.io',
   adsManagerUrl: process.env.NEXT_PUBLIC_ADS_MANAGER_URL ?? 'http://localhost:3002',
 } as const;
+
+/**
+ * Prefixa um caminho de mídia com a apiUrl — MENOS quando já é absoluto. Com o
+ * CDN ligado (MEDIA_CDN_BASE_URL) o backend devolve URLs absolutas
+ * (`https://.../api/packages/...`); prefixar `/api` nelas gera
+ * `/apihttps://...` e o player 404a. Absoluto é sempre same-origin HTTPS aqui,
+ * então buscar direto não é mixed content.
+ */
+export function mediaUrl(path: string): string {
+  return /^https?:\/\//i.test(path) ? path : `${config.apiUrl}${path}`;
+}
