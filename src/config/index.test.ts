@@ -1,5 +1,18 @@
 import { describe, it, expect } from 'vitest';
-import { shouldProxyApi } from './index';
+import { shouldProxyApi, mediaUrl, config } from './index';
+
+describe('mediaUrl', () => {
+  it('returns an absolute CDN URL untouched (no double /api prefix)', () => {
+    const abs = 'https://liveshow-dev.local:3000/api/packages/x/live/master.m3u8?token=a';
+    expect(mediaUrl(abs)).toBe(abs);
+  });
+
+  it('prefixes a relative path with apiUrl', () => {
+    expect(mediaUrl('/packages/x/live/master.m3u8')).toBe(
+      `${config.apiUrl}/packages/x/live/master.m3u8`,
+    );
+  });
+});
 
 const at = (apiUrl: string, page: string) => {
   const url = new URL(page);

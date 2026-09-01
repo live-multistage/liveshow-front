@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import Hls from 'hls.js';
-import { config } from '@/config';
+import { config, mediaUrl } from '@/config';
 import { tokenStore } from '@/lib/auth/token-store';
 import type { LiveCamera } from '../types/live.types';
 import { audioTrackIndexForCamera } from '../components/audio-track';
@@ -193,7 +193,7 @@ export function useHlsPlayer({
 
   const [error, setError] = useState(false);
   const connecting = camera.manifestPath === null;
-  const src = connecting ? null : `${config.apiUrl}${camera.manifestPath}`;
+  const src = connecting ? null : mediaUrl(camera.manifestPath!);
   // The live STANDARD src now carries a `?pt` token refreshed every 5s poll,
   // so `src` changes every 5s. Keying the build effect on the token-STRIPPED
   // src rebuilds only on a REAL source change (packageId / job rotation), not
@@ -276,7 +276,7 @@ export function useHlsPlayer({
     // ladder, so bad bandwidth must degrade to it rather than freeze.
     // STANDARD events (llPath null) and replay always use the STANDARD
     // tuning below, unchanged from before this fallback existed.
-    const activeSrc = hasLl ? `${config.apiUrl}${llPathRef.current}` : srcRef.current!;
+    const activeSrc = hasLl ? mediaUrl(llPathRef.current!) : srcRef.current!;
 
     // ~3 segments (~6s) behind the live edge on the STANDARD tuning.
     // lowLatencyMode/tighter sync only makes sense against the LL-HLS
