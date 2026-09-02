@@ -9,4 +9,9 @@ describe('formatPrice', () => {
   it('defaults to BRL', () => {
     expect(formatPrice(100)).toContain('R$');
   });
+
+  it('accepts a locale override, defaulting to pt-BR', () => {
+    expect(formatPrice(100, 'USD', 'en-US')).toContain('$');
+    expect(formatPrice(100, 'BRL')).toContain('R$');
+  });
 });

@@ -1,0 +1,31 @@
+@use '../../../../styles/dashboard-forms' as *;
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.goLiveRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.skeleton {
+  height: 120px;
+  border-radius: 10px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px;
+}
+
+.emptyHint {
+  margin: 0;
+  font-size: 13px;
+  color: $text-muted;
+}

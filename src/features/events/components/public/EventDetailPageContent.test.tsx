@@ -39,6 +39,7 @@ const TEASER = 'https://example.com/teaser.mp4';
 function makeEvent(overrides: Partial<EventResponse> = {}): EventResponse {
   return {
     id: 'evt-1',
+    slug: 'evt-1-slug',
     title: 'Show Teste',
     description: 'desc',
     category: 'MUSIC',
@@ -63,6 +64,7 @@ function makeEvent(overrides: Partial<EventResponse> = {}): EventResponse {
     camerasCount: 3,
     isFree: false,
     publiclyFunded: false,
+    lifecycle: { idleFinishMinutes: 10 },
     ...overrides,
   };
 }

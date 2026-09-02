@@ -1,0 +1,65 @@
+// Tokens e padrões compartilhados pelas telas de canal no dashboard
+// (criação + detalhe). Só o que não existe em styles/_variables.scss.
+@forward './variables';
+@use './variables' as *;
+
+$mono: 'Space Mono', monospace;
+
+$accent-bright: #ff7ec2; // magenta claro dos eyebrows/breadcrumb
+$accent-tint: rgba(255, 46, 158, 0.07); // fundo dos cards e avisos selecionados
+$accent-tint-border: rgba(255, 46, 158, 0.2);
+$accent-selected-border: rgba(255, 46, 158, 0.45);
+$notice-text: #e6b6d2;
+$hairline: rgba(255, 255, 255, 0.07);
+$dropzone-border: #3a3a40;
+$live-dot: #7fe0a0;
+$violet-bright: #c07bff; // simulcast (evento carregado pelo canal)
+$violet-tint: rgba(152, 16, 250, 0.14);
+$violet-tint-border: rgba(152, 16, 250, 0.32);
+
+@mixin card {
+  padding: 20px 22px;
+  border-radius: 12px;
+  border: 1px solid $hairline;
+  background: $surface;
+}
+
+@mixin eyebrow {
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $accent-bright;
+}
+
+@mixin mono-meta {
+  font-family: $mono;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+@mixin pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: $mono;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+@keyframes lsPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}

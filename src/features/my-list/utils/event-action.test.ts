@@ -39,6 +39,12 @@ describe('eventAction', () => {
     expect(action.href).toBe('/events/ev-1');
   });
 
+  it('links details through the slug when the payload carries one', () => {
+    const action = eventAction(ev({ slug: 'show-do-ano', status: 'CANCELLED' }));
+
+    expect(action.href).toBe('/events/show-do-ano');
+  });
+
   it('sends a finished event with replay access to the replay player', () => {
     const action = eventAction(
       ev({ status: 'FINISHED', canWatchReplay: true, capabilities: caps('REPLAY_VIEW') }),

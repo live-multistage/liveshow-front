@@ -58,6 +58,7 @@ import type { OrganizationResponse, OrganizationRole } from '@/features/organiza
 
 const EVENT: EventResponse = {
   id: 'evt-1',
+  slug: 'evt-1-slug',
   title: 'Show Alheio',
   description: 'desc',
   category: 'MUSIC',
@@ -82,6 +83,7 @@ const EVENT: EventResponse = {
   camerasCount: 0,
   isFree: true,
   publiclyFunded: false,
+  lifecycle: { idleFinishMinutes: 10 },
 };
 
 function makeOrg(id: string, role: OrganizationRole): OrganizationResponse {
@@ -309,5 +311,97 @@ describe('EventDashboardDetailContent finished-event editing', () => {
     expect(payload.startsAt).toBeDefined();
     expect(payload.endsAt).toBeDefined();
     expect(payload.latencyMode).toBe('STANDARD');
+  });
+});
+
+// ── Friendly URL (slug) ────────────────────────────────────────────
+describe('EventDashboardDetailContent friendly URL', () => {
+  beforeEach(() => {
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: EVENT,
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+    mockOrgs([makeOrg('org-owner', 'OWNER')]);
+  });
+
+  it('shows the public URL with a copy button outside edit mode', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+
+    renderPage();
+
+    const expected = `${window.location.origin}/events/${EVENT.slug}`;
+    expect(screen.getByText(expected)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'copyUrl' }));
+    expect(writeText).toHaveBeenCalledWith(expected);
+    await waitFor(() => expect(screen.getByText('copied')).toBeInTheDocument());
+  });
+
+  it('previews the URL live as the slug is edited', async () => {
+    renderPage();
+    await userEvent.click(screen.getByText('mock-edit'));
+
+    const input = screen.getByLabelText('editSlug');
+    expect(input).toHaveValue(EVENT.slug);
+
+    await userEvent.clear(input);
+    await userEvent.type(input, 'novo-slug');
+
+    expect(screen.getByTestId('slug-preview')).toHaveTextContent(
+      `${window.location.origin}/events/novo-slug`,
+    );
+  });
+
+  it('blocks the save and explains when the slug is not kebab-case', async () => {
+    const mutateAsync = vi.fn();
+    vi.mocked(useUpdateEventMutation).mockReturnValue({
+      isPending: false, error: null, mutateAsync,
+    } as unknown as ReturnType<typeof useUpdateEventMutation>);
+
+    renderPage();
+    await userEvent.click(screen.getByText('mock-edit'));
+
+    const input = screen.getByLabelText('editSlug');
+    await userEvent.clear(input);
+    await userEvent.type(input, 'Slug Invalido!');
+    await userEvent.click(screen.getByText('mock-save'));
+
+    await waitFor(() => expect(screen.getByText('slugInvalid')).toBeInTheDocument());
+    expect(mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('omits an unchanged slug from the update payload', async () => {
+    const mutateAsync = vi.fn().mockResolvedValue(EVENT);
+    vi.mocked(useUpdateEventMutation).mockReturnValue({
+      isPending: false, error: null, mutateAsync,
+    } as unknown as ReturnType<typeof useUpdateEventMutation>);
+
+    const { container } = renderPage();
+    await userEvent.click(screen.getByText('mock-edit'));
+    // The fixture's description is shorter than the schema minimum; top it up so
+    // the save under test fails for the slug rule alone, or not at all.
+    await userEvent.type(container.querySelector('textarea')!, ' bem completa');
+    await userEvent.click(screen.getByText('mock-save'));
+
+    await waitFor(() => expect(mutateAsync).toHaveBeenCalled());
+    expect(mutateAsync.mock.calls[0][0]).not.toHaveProperty('slug');
+  });
+
+  it('surfaces a 409 as an inline slug error, not the generic banner', async () => {
+    const conflict = Object.assign(new Error('Request failed'), {
+      isAxiosError: true,
+      response: { status: 409 },
+    });
+    vi.mocked(useUpdateEventMutation).mockReturnValue({
+      isPending: false, error: conflict, mutateAsync: vi.fn(),
+    } as unknown as ReturnType<typeof useUpdateEventMutation>);
+
+    renderPage();
+    await userEvent.click(screen.getByText('mock-edit'));
+
+    expect(screen.getByText('slugTaken')).toBeInTheDocument();
+    expect(screen.queryByText('Request failed')).toBeNull();
   });
 });

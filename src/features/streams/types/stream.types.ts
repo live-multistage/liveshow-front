@@ -2,7 +2,9 @@ export type StreamStatus = 'DRAFT' | 'READY' | 'LIVE' | 'ENDED' | 'CANCELLED';
 
 export interface StreamResponse {
   id: string;
-  eventId: string;
+  eventId: string | null;
+  // Set instead of eventId on a program-owned stream (channel programming).
+  programId: string | null;
   title: string;
   description?: string;
   status: StreamStatus;

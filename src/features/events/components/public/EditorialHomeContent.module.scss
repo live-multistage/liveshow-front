@@ -106,13 +106,13 @@
 
 .adBannerWrapper {
   padding: 0 40px;
-  // The banner sits between two 40px-padded .gridSections; pull it up/down so
+  // The banner sits between two 16px-padded .gridSections; pull it up/down so
   // it reads as part of the flow instead of floating in a large gap.
-  margin: -20px 0;
+  margin: -8px 0;
 
   // Match the content gutter at each breakpoint — 40px here on a 390px screen
   // insets the ad past the cards it sits between.
-  @media (max-width: 767px) { padding: 0 20px; margin: -12px 0; }
+  @media (max-width: 767px) { padding: 0 20px; margin: -6px 0; }
 }
 
 // ── Inner layout ──────────────────────────────────────────────────
@@ -193,9 +193,7 @@
 .heroV2Glow {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(65% 90% at 70% 40%, rgba(255, 90, 160, .28), transparent 60%),
-    radial-gradient(50% 70% at 40% 20%, rgba(155, 123, 255, .22), transparent 60%);
+  background: rgba(0, 0, 0, .2);
 }
 
 .heroV2Scrim {
@@ -392,10 +390,10 @@
 // ── Genre + Grid section ──────────────────────────────────────────
 
 .gridSection {
-  padding: 40px;
+  padding: 16px 40px;
 
   @media (max-width: 767px) {
-    padding: 20px 20px 48px;
+    padding: 12px 20px 24px;
   }
 }
 
@@ -511,6 +509,13 @@
   flex-shrink: 0;
   scroll-snap-align: start;
   width: 300px;
+  // Estica até o item mais alto do trilho; o card preenche e o rodapé de
+  // ações encosta embaixo (ver .eventCard/.eventCardLink flex:1).
+  display: flex;
+
+  > * {
+    width: 100%;
+  }
 
   @media (max-width: 540px) {
     width: 260px;
@@ -563,6 +568,7 @@
 .eventCard {
   display: flex;
   flex-direction: column;
+  height: 100%;
   background: #111114;
   border: 1px solid rgba(255, 255, 255, .07);
   border-radius: 16px;
@@ -588,6 +594,7 @@
 .eventCardLink {
   display: flex;
   flex-direction: column;
+  flex: 1;
   text-decoration: none;
   color: inherit;
 }

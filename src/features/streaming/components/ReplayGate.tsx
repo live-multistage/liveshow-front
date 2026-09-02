@@ -1,8 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
+import { usePrerollGate } from '@/features/advertisements/hooks/use-preroll-gate';
+import { PreRollPlayer } from '@/features/advertisements/components/PreRollPlayer';
 import { useReplayAccessQuery, useReplayPlaybackQuery } from '../queries/live.queries';
 import { LiveGateLoading } from './LiveGateLoading';
 import { ReplayComingSoon } from './ReplayComingSoon';
@@ -19,6 +22,8 @@ export function ReplayGate({ eventId, eventTitle, coverUrl }: Props) {
   const { isLoading: authLoading } = useAuth();
   const access = useReplayAccessQuery(eventId, !authLoading);
   const playback = useReplayPlaybackQuery(eventId, access.data === true);
+  const preroll = usePrerollGate(eventId);
+  const [prerollDone, setPrerollDone] = useState(false);
 
   if (authLoading || access.isLoading) {
     return <LiveGateLoading message={t('checkingAccess')} />;
@@ -40,6 +45,22 @@ export function ReplayGate({ eventId, eventTitle, coverUrl }: Props) {
 
   if (!playback.data?.available) {
     return <ReplayComingSoon eventId={eventId} eventTitle={eventTitle} coverUrl={coverUrl} />;
+  }
+
+  if (!prerollDone && preroll.pending) {
+    return <LiveGateLoading message={t('checkingAccess')} />;
+  }
+
+  if (!prerollDone && preroll.ad) {
+    return (
+      <PreRollPlayer
+        ad={preroll.ad}
+        onFinished={() => {
+          preroll.markSeen();
+          setPrerollDone(true);
+        }}
+      />
+    );
   }
 
   return (

@@ -47,6 +47,7 @@ export function eventToShow(event: EventResponse): Show {
 
   return {
     id: event.id,
+    slug: event.slug,
     title: event.title,
     artist: '',
     category: EVENT_CATEGORY_LABELS[event.category] ?? event.category,
@@ -68,5 +69,6 @@ export function eventToShow(event: EventResponse): Show {
     tags: [],
     viewers: undefined,
     rating: undefined,
+    programId: event.programId,
   };
 }

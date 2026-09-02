@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { eventHref } from '@/features/events/utils/slug';
 import { useLocale, useTranslations } from 'next-intl';
 import { Button, Skeleton } from '@live-show/design-system';
 import { coverGradient, coverUrl, placeLabel } from '@/shared/utils/event-cover';
@@ -58,7 +59,7 @@ export function WishlistPageContent() {
             const place = placeLabel(item);
 
             return (
-              <Link key={item.id} href={`/events/${item.id}`} className={styles.card}>
+              <Link key={item.id} href={eventHref(item)} className={styles.card}>
                 <div className={styles.cover} style={{ background: coverGradient(item.id) }}>
                   {cover && <img src={cover} alt="" className={styles.image} />}
                   <div className={styles.scrim} aria-hidden="true" />

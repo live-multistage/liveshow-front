@@ -4,7 +4,8 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['@live-show/design-system'],
+  output: 'standalone',
+  transpilePackages: ['@live-show/api-contracts', '@live-show/design-system', '@live-show/i18n-messages'],
   // Same-origin proxy for LAN clients (phone on https://192.168.x.x:3000):
   // their browser calls /api/* here and the dev server forwards to the local
   // backend — sidesteps both "localhost is the phone" and mixed-content
@@ -18,6 +19,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
       },
       {
         protocol: 'http',

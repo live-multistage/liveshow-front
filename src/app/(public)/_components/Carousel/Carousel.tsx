@@ -54,6 +54,14 @@ export function Carousel({ title, showLiveDot = false, seeAllHref, children }: C
   );
 }
 
-Carousel.Item = function CarouselItem({ children }: { children: React.ReactNode }) {
-  return <div className={styles.item}>{children}</div>;
+// `fit="content"` drops the fixed ShowCard-sized slot so shorter cards
+// (channels) don't leave an empty band under the rail.
+Carousel.Item = function CarouselItem({
+  children,
+  fit = 'card',
+}: {
+  children: React.ReactNode;
+  fit?: 'card' | 'content';
+}) {
+  return <div className={fit === 'content' ? styles.itemContent : styles.item}>{children}</div>;
 };

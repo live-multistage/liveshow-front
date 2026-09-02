@@ -11,7 +11,7 @@ import styles from './StreamBuilder.module.scss';
 interface Props {
   streamId: string;
   streamStatus: string;
-  eventId: string;
+  eventId: string | null;
 }
 
 export function StageList({ streamId, streamStatus, eventId }: Props) {

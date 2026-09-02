@@ -1,0 +1,93 @@
+@use '../../../styles/_variables' as *;
+
+// Container do gate: o player ocupa a viewport inteira e o overlay se ancora
+// nele. Importado também pelo ChannelGate — é a mesma peça visual.
+.stage {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  background-color: $bg;
+}
+
+// Acima de toda a grade de câmeras (stageArea 2, slots até ~24 com a janela
+// de Libras) e abaixo do header (35) e da bottomStack (30): fora do ar não há
+// imagem para ver, mas sair do canal, abrir o chat e mexer no volume têm de
+// continuar clicáveis.
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+  background: rgba(8, 8, 10, 0.88);
+  backdrop-filter: blur(10px);
+  color: $text-primary;
+}
+
+.title {
+  font-family: 'Archivo', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.backAt {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $text-muted;
+  margin: 0;
+}
+
+.time {
+  font-family: 'Archivo', sans-serif;
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: $action;
+  margin: 0;
+}
+
+.nextName {
+  font-family: 'Archivo', sans-serif;
+  font-size: 0.9375rem;
+  color: $text-secondary;
+  margin: 0;
+}
+
+// Banner de pagamento pendente: sobrepõe o topo do player sem bloquear o
+// acesso (a assinatura ainda entitles dentro da janela de graça).
+.pastDueBanner {
+  position: relative;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: $danger-bg;
+  color: $text-primary;
+  font-size: 0.8125rem;
+
+  a {
+    color: $action;
+    font-weight: 600;
+  }
+
+  button {
+    display: inline-flex;
+    background: none;
+    border: none;
+    color: $text-secondary;
+    cursor: pointer;
+    padding: 0.15rem;
+  }
+}

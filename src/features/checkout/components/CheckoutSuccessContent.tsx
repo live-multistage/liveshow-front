@@ -16,23 +16,7 @@ interface Props {
 export function CheckoutSuccessContent(_: Props) {
   const params = useSearchParams();
 
-  // Sequential per-currency checkout: if other currency groups still owe
-  // payment, redirect to the next one instead of showing success.
-  const [nextCurrency, setNextCurrency] = useState<string | null>(null);
-
-  useEffect(() => {
-    const raw = sessionStorage.getItem('checkout:pendingSessions');
-    const pending: CartCheckoutSession[] = raw ? JSON.parse(raw) : [];
-    const [next, ...rest] = pending;
-    if (!next) {
-      sessionStorage.removeItem('checkout:pendingSessions');
-      return;
-    }
-    sessionStorage.setItem('checkout:pendingSessions', JSON.stringify(rest));
-    setNextCurrency(next.currency);
-    window.location.href = next.url;
-  }, []);
-
+  const orderId = params.get('orderId');
   const name = params.get('name');
   const ticket = params.get('ticket');
   const totalRaw = params.get('total');
@@ -68,6 +52,7 @@ export function CheckoutSuccessContent(_: Props) {
           </span>
           <h1 className={styles.title}>Seu ingresso foi gerado!</h1>
           <p className={styles.desc}>Acesse seus ingressos a qualquer momento pela sua conta.</p>
+          {orderId && <p className={styles.desc}>Pedido {orderId}</p>}
         </div>
 
         {/* Order Summary */}

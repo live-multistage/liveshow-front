@@ -9,7 +9,7 @@ import { filterFaqs, type SearchableFaq } from '../utils/filter-faqs';
 import type { FaqFilter } from '../types/faq.types';
 import styles from './HelpPageContent.module.scss';
 
-const SUPPORT_EMAIL = 'privacidade@liveshow.com';
+const SUPPORT_EMAIL = 'privacidade@showon.io';
 
 export function HelpPageContent() {
   const t = useTranslations('help');

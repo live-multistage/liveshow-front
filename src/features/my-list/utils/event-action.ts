@@ -1,3 +1,4 @@
+import { eventHref } from '@/features/events/utils/slug';
 import type { AccessibleEvent } from '../types/my-list.types';
 
 export type EventActionKind = 'watch-live' | 'watch-replay' | 'details' | 'cancelled';
@@ -21,7 +22,7 @@ export interface EventAction {
  */
 export function eventAction(event: AccessibleEvent): EventAction {
   if (event.status === 'CANCELLED') {
-    return { kind: 'cancelled', labelKey: 'cancelled', href: `/events/${event.id}`, primary: false };
+    return { kind: 'cancelled', labelKey: 'cancelled', href: eventHref(event), primary: false };
   }
   if (event.canWatchLive) {
     return { kind: 'watch-live', labelKey: 'watchLive', href: `/live/${event.id}`, primary: true };
@@ -31,7 +32,7 @@ export function eventAction(event: AccessibleEvent): EventAction {
   }
   // Cobre tudo o mais: evento futuro, ingresso que não cobre este momento, e
   // ingresso presencial (que dá entrada no local, não playback).
-  return { kind: 'details', labelKey: 'details', href: `/events/${event.id}`, primary: false };
+  return { kind: 'details', labelKey: 'details', href: eventHref(event), primary: false };
 }
 
 /** Ingresso presencial, sem nenhum direito de playback — merece dizer isso. */

@@ -33,6 +33,11 @@ export const eventsService = {
     return data;
   },
 
+  getEventBySlug: async (slug: string): Promise<EventResponse> => {
+    const { data } = await httpClient.get<EventResponse>(`/events/by-slug/${slug}`);
+    return data;
+  },
+
   listTicketProducts: async (eventId: string): Promise<TicketProductsResponse> => {
     const { data } = await httpClient.get<TicketProductsResponse>(`/shows/${eventId}/tickets`);
     return data;

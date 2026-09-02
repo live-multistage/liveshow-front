@@ -1,5 +1,7 @@
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-vi.mock('next/navigation', () => ({ useRouter: () => ({ replace: vi.fn() }) }));
+
+const mockRouter = { replace: vi.fn(), push: vi.fn() };
+vi.mock('next/navigation', () => ({ useRouter: () => mockRouter }));
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -7,21 +9,25 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CartCheckoutPageContent } from './CartCheckoutPageContent';
 import { checkoutService } from '../services/checkout.service';
-import { usePaymentMethodsQuery } from '../mutations/checkout.mutations';
+import { usePaymentMethodsQuery, usePlaceOrderMutation } from '../mutations/checkout.mutations';
 import { useAuth } from '@/features/account';
 import { useCartQuery } from '@/features/cart';
-import type { CartCheckoutSession } from '../types/checkout.types';
 import type { PaymentMethod } from '../types/checkout.types';
+import type { PlaceOrderResponse } from '@live-show/api-contracts';
 import type { CartView } from '@/features/cart';
+import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { placeOrderSchema } from '@live-show/api-contracts';
 
 vi.mock('../services/checkout.service', () => ({
   checkoutService: {
-    createCartSession: vi.fn(),
+    placeOrder: vi.fn(),
     previewCartCoupon: vi.fn(),
   },
 }));
 vi.mock('../mutations/checkout.mutations', () => ({
   usePaymentMethodsQuery: vi.fn(),
+  usePlaceOrderMutation: vi.fn(),
 }));
 vi.mock('@/features/account', () => ({ useAuth: vi.fn() }));
 vi.mock('@/features/cart', () => ({
@@ -32,6 +38,7 @@ vi.mock('@/features/advertisements', () => ({ AdBanner: () => null }));
 
 const mockedService = vi.mocked(checkoutService);
 const mockedPaymentMethods = vi.mocked(usePaymentMethodsQuery);
+const mockedPlaceOrder = vi.mocked(usePlaceOrderMutation);
 const mockedAuth = vi.mocked(useAuth);
 const mockedCart = vi.mocked(useCartQuery);
 
@@ -51,6 +58,7 @@ const cart: CartView = {
       ticketProductId: 'tp-1',
       ticketName: 'Pista',
       price: 100,
+      currency: 'BRL',
       capabilities: [],
       camerasLimit: null,
       organizationId: 'org-1',
@@ -69,7 +77,15 @@ function renderPage() {
   );
 }
 
-describe('CartCheckoutPageContent - sequential per-currency redirect', () => {
+// Wraps react-query's real useMutation so `.mutate` actually resolves/rejects
+// against a stubbed mutationFn, letting the component's onSuccess/onError run.
+function stubPlaceOrder(mutationFn: (payload: unknown) => Promise<PlaceOrderResponse>) {
+  mockedPlaceOrder.mockImplementation(
+    () => useMutation({ mutationFn }) as unknown as ReturnType<typeof usePlaceOrderMutation>,
+  );
+}
+
+describe('CartCheckoutPageContent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     sessionStorage.clear();
@@ -79,108 +95,81 @@ describe('CartCheckoutPageContent - sequential per-currency redirect', () => {
       data: [method],
       isLoading: false,
     } as ReturnType<typeof usePaymentMethodsQuery>);
-    // jsdom doesn't implement navigation; stub it so we can assert the redirect target.
-    Object.defineProperty(window, 'location', {
-      value: { href: '' },
-      writable: true,
+    Object.defineProperty(window, 'location', { value: { href: '' }, writable: true });
+  });
+
+  it('redirects to the Stripe URL when the payment action is REDIRECT', async () => {
+    stubPlaceOrder(async () => ({
+      order: { id: 'order-1' } as PlaceOrderResponse['order'],
+      payment: { id: 'pay-1', action: { type: 'REDIRECT', url: 'https://stripe.test/session' } },
+    }));
+
+    renderPage();
+
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
+
+    await vi.waitFor(() => expect(window.location.href).toBe('https://stripe.test/session'));
+  });
+
+  it('routes to the success page with the order id when the payment action is COMPLETED', async () => {
+    stubPlaceOrder(async () => ({
+      order: { id: 'order-42' } as PlaceOrderResponse['order'],
+      payment: { id: 'pay-1', action: { type: 'COMPLETED', externalReference: 'ref' } },
+    }));
+
+    renderPage();
+
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
+
+    await vi.waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/checkout/success?orderId=order-42'));
+  });
+
+  it('shows the coupon-invalid message on a 422 error', async () => {
+    stubPlaceOrder(async () => {
+      throw new AxiosError('coupon invalid', undefined, undefined, undefined, {
+        status: 422,
+        data: { message: 'coupon invalid' },
+      } as never);
     });
-  });
-
-  it('redirects to the first session and stashes the rest as pending', async () => {
-    const sessions: CartCheckoutSession[] = [
-      { url: 'https://stripe.test/session-brl', currency: 'BRL', amount: 100, orderIds: ['order-1'] },
-      { url: 'https://stripe.test/session-usd', currency: 'USD', amount: 20, orderIds: ['order-2'] },
-    ];
-    mockedService.createCartSession.mockResolvedValue({ sessions });
 
     renderPage();
 
     await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
     await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
 
-    await vi.waitFor(() => expect(window.location.href).toBe('https://stripe.test/session-brl'));
-
-    const pending = JSON.parse(sessionStorage.getItem('checkout:pendingSessions') ?? '[]');
-    expect(pending).toEqual([sessions[1]]);
+    expect(await screen.findByText('couponInvalid')).toBeInTheDocument();
   });
 
-  it('sets an empty pending queue when only one session is returned', async () => {
-    const sessions: CartCheckoutSession[] = [
-      { url: 'https://stripe.test/session-brl', currency: 'BRL', amount: 100, orderIds: ['order-1'] },
-    ];
-    mockedService.createCartSession.mockResolvedValue({ sessions });
+  it('sends the STRIPE provider unconditionally', async () => {
+    let capturedPayload: unknown;
+    stubPlaceOrder(async (payload) => {
+      capturedPayload = payload;
+      return {
+        order: { id: 'order-1' } as PlaceOrderResponse['order'],
+        payment: { id: 'pay-1', action: { type: 'COMPLETED', externalReference: 'ref' } },
+      };
+    });
 
     renderPage();
 
     await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
     await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
 
-    await vi.waitFor(() => expect(window.location.href).toBe('https://stripe.test/session-brl'));
-
-    const pending = JSON.parse(sessionStorage.getItem('checkout:pendingSessions') ?? 'null');
-    expect(pending).toEqual([]);
+    await vi.waitFor(() => {
+      expect(capturedPayload).toEqual(expect.objectContaining({ provider: 'STRIPE' }));
+    });
   });
 });
 
-describe('CartCheckoutPageContent - mixed-currency cart', () => {
-  const mixedCart: CartView = {
-    items: [
-      {
-        eventId: 'evt-1',
-        eventTitle: 'Show BRL',
-        eventImage: null,
-        ticketProductId: 'tp-1',
-        ticketName: 'Pista',
-        price: 100,
-        currency: 'BRL',
-        capabilities: [],
-        camerasLimit: null,
-        organizationId: 'org-1',
-        organizationName: 'Org',
-      },
-      {
-        eventId: 'evt-2',
-        eventTitle: 'Show USD',
-        eventImage: null,
-        ticketProductId: 'tp-2',
-        ticketName: 'VIP',
-        price: 20,
-        currency: 'USD',
-        capabilities: [],
-        camerasLimit: null,
-        organizationId: 'org-2',
-        organizationName: 'Org 2',
-      },
-    ],
-    // A mixed-currency total is nonsensical (100 BRL + 20 USD summed as if the
-    // same currency) — the component must not render this raw total directly.
-    totals: { subtotal: 120, lines: [], total: 120 },
-  };
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    sessionStorage.clear();
-    mockedAuth.mockReturnValue({ isLoggedIn: true, isLoading: false } as ReturnType<typeof useAuth>);
-    mockedCart.mockReturnValue({ data: mixedCart, isLoading: false } as ReturnType<typeof useCartQuery>);
-    mockedPaymentMethods.mockReturnValue({
-      data: [method],
-      isLoading: false,
-    } as ReturnType<typeof usePaymentMethodsQuery>);
-  });
-
-  it('renders one subtotal per currency instead of a single combined total', () => {
-    renderPage();
-
-    expect(screen.getAllByText(/US\$/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/R\$/).length).toBeGreaterThan(0);
-    // The nonsensical combined total (120, ignoring mixed currencies) must not appear.
-    expect(screen.queryByText('120')).not.toBeInTheDocument();
-  });
-
-  it('uses a currency-neutral pay button label instead of one combined amount', () => {
-    renderPage();
-
-    const payBtn = screen.getByRole('button', { name: /payButtonNeutral/i });
-    expect(payBtn).toBeInTheDocument();
+describe('web order provider schema', () => {
+  // The browser has no Play Billing and no way to complete a PLAY_BILLING
+  // action. Widening the contract for the app must not make it POSSIBLE for
+  // the web to ask for one.
+  it('rejects everything outside the two-member choice', () => {
+    expect(placeOrderSchema.safeParse({ provider: 'STRIPE' }).success).toBe(true);
+    expect(placeOrderSchema.safeParse({ provider: 'PIX' }).success).toBe(false);
+    expect(placeOrderSchema.safeParse({ provider: 'PAYPAL' }).success).toBe(false);
   });
 });

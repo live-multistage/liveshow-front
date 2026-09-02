@@ -1,18 +1,22 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { CSSProperties, KeyboardEvent } from 'react';
-import { X, Square, PanelRight, LayoutGrid, Minus, HandMetal } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import type { KeyboardEvent } from 'react';
+import { HandMetal } from 'lucide-react';
 import type { LiveCamera } from '../types/live.types';
 import { VideoPanel } from './VideoPanel';
 import type { QualityLevel } from './VideoPanel';
 import type { ClockSample } from '../hooks/use-clock-sync';
 import type { LiveSeekCommand, LiveWindow } from '../hooks/use-transport-controls';
-import { computeJustifiedRows, pickColumnCount } from './justified-grid';
+import { computeSlotLayout, HIDDEN_STYLE, DRAWER_W } from './camera-layout';
+import type { Role, ViewMode } from './camera-layout';
+import { CameraDrawer } from './CameraDrawer';
 import styles from './CameraGrid.module.scss';
 
 export type { QualityLevel };
-export type ViewMode = 'solo' | 'main-rail' | 'grid';
+export type { ViewMode } from './camera-layout';
+export { DRAWER_W } from './camera-layout';
 
 // Layout constants (previously split across MainRailView/CameraRail/PipOverlay).
 const RAIL_W = 240;
@@ -120,6 +124,7 @@ export function CameraGrid({
   onToggleCamera = () => {},
   onClosePicker = () => {},
 }: CameraGridProps) {
+  const t = useTranslations('player');
   const stageRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [aspectRatios, setAspectRatios] = useState<Record<string, number>>({});
@@ -130,7 +135,7 @@ export function CameraGrid({
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
-    
+
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
       setSize((p) => (p.width === width && p.height === height ? p : { width, height }));
@@ -166,126 +171,22 @@ export function CameraGrid({
     ? compositionCameras.filter((c) => c.cameraId !== mainCamera.cameraId)
     : [];
 
-  const layouts = useMemo<Map<string, Slot>>(() => {
-    const map = new Map<string, Slot>();
-    const { width: W, height: H } = size;
-
-    // Picker open: the active-camera composition is inset to the LEFT of the
-    // drawer (so mode changes preview live in the stage); INACTIVE cameras are
-    // shown as add-tiles inside the drawer on the right.
-    const drawerInset = pickerOpen ? DRAWER_W : 0;
-    const stageW = W - drawerInset;
-
-    if (effectiveMode === 'grid') {
-      const cols = pickColumnCount(compositionCameras.length);
-      const rows = Math.max(1, Math.ceil(compositionCameras.length / cols));
-      const jrows = computeJustifiedRows(
-        compositionCameras.map((c) => c.cameraId), aspectRatios, cols, rows, stageW, H, GAP,
-      );
-      const totalH = jrows.reduce((a, r) => a + r.height, 0) + Math.max(0, jrows.length - 1) * GAP;
-      let y = Math.max(0, (H - totalH) / 2);
-      for (const row of jrows) {
-        let x = Math.max(0, (stageW - row.width) / 2);
-        for (const cell of row.cells) {
-          if (cell.cameraId) {
-            map.set(cell.cameraId, {
-              role: 'grid',
-              style: { left: x, top: y, width: cell.width, height: cell.height, zIndex: 0 },
-            });
-          }
-          x += cell.width + GAP;
-        }
-        y += row.height + GAP;
-      }
-      for (const c of compositionCameras) {
-        if (!map.has(c.cameraId)) {
-          map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
-        }
-      }
-    } else {
-      // solo / main-rail
-      const railPresent = effectiveMode !== 'solo' && otherCameras.length >= 2;
-      const pipPresent = effectiveMode !== 'solo' && otherCameras.length === 1;
-
-      if (mainCamera) {
-        map.set(mainCamera.cameraId, {
-          role: 'main',
-          style: { left: 0, top: 0, right: drawerInset + (railPresent ? RAIL_W : 0), bottom: 0, zIndex: 0 },
-        });
-      }
-
-      if (effectiveMode === 'solo') {
-        for (const c of otherCameras) {
-          map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
-        }
-      } else if (pipPresent) {
-        // If a Libras window owns the bottom-right, stack this PiP above it.
-        const pipBottom = librasCamera ? PIP_BOTTOM + PIP_H + GAP : PIP_BOTTOM;
-        map.set(otherCameras[0].cameraId, {
-          role: 'pip',
-          style: { right: PIP_RIGHT + drawerInset, bottom: pipBottom, width: PIP_W, height: PIP_H, zIndex: 21 },
-        });
-      } else if (railPresent) {
-        const n = otherCameras.length;
-        const tileH = H > 0 ? (H - (n - 1) * GAP) / n : 0;
-        otherCameras.forEach((c, i) => {
-          map.set(c.cameraId, {
-            role: 'rail',
-            style: {
-              right: drawerInset, top: i * (tileH + GAP), width: RAIL_W, height: tileH,
-              zIndex: 1, visibility: H > 0 ? 'visible' : 'hidden',
-            },
-          });
-        });
-      }
-    }
-
-    // NBR 15290: the Libras window is ALWAYS pinned bottom-right, above every
-    // other layer, in every mode (solo / main-rail / grid). Set last so it wins
-    // over any composition slot.
-    if (librasCamera) {
-      map.set(librasCamera.cameraId, {
-        role: 'libras',
-        style: {
-          right: PIP_RIGHT + drawerInset,
-          bottom: PIP_BOTTOM,
-          width: PIP_W,
-          height: PIP_H,
-          zIndex: 24,
-        },
-      });
-    }
-
-    // Inactive cameras → drawer add-tiles (video thumbnails), stacked BELOW the
-    // active-camera placeholder rows (which are chrome, rendered in the drawer).
-    if (pickerOpen) {
-      const inactive = cameras.filter((c) => !activeCameraIds.includes(c.cameraId));
-      const tileW = DRAWER_W - DRAWER_PAD * 2;
-      const tileH = Math.round((tileW * 9) / 16);
-      const rowsBottom = DRAWER_HEADER_H + activeCameraIds.length * DRAWER_ROW_H;
-      const avail = H - rowsBottom - DRAWER_BOTTOM;
-      const maxTiles = H > 0 ? Math.max(1, Math.floor((avail + GAP) / (tileH + GAP))) : inactive.length;
-      inactive.forEach((c, i) => {
-        if (i >= maxTiles) {
-          map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
-          return;
-        }
-        map.set(c.cameraId, {
-          role: 'strip',
-          style: {
-            right: DRAWER_PAD,
-            top: rowsBottom + i * (tileH + GAP),
-            width: tileW,
-            height: tileH,
-            zIndex: 22,
-            visibility: H > 0 ? 'visible' : 'hidden',
-          },
-        });
-      });
-    }
-
-    return map;
-  }, [effectiveMode, activeCameras, compositionCameras, librasCamera, otherCameras, mainCamera, size, aspectRatios, pickerOpen, cameras, activeCameraIds]);
+  const layouts = useMemo(
+    () =>
+      computeSlotLayout({
+        size,
+        aspectRatios,
+        effectiveMode,
+        cameras,
+        activeCameraIds,
+        compositionCameras,
+        otherCameras,
+        mainCamera,
+        librasCamera,
+        pickerOpen,
+      }),
+    [effectiveMode, compositionCameras, librasCamera, otherCameras, mainCamera, size, aspectRatios, pickerOpen, cameras, activeCameraIds],
+  );
 
   const roleClass: Record<Role, string> = {
     main: styles.mainSlot,
@@ -315,69 +216,17 @@ export function CameraGrid({
   // bandwidth/CPU.
   return (
     <div ref={stageRef} className={styles.stage} data-mode={effectiveMode}>
-      {!mainCamera && <div className={styles.emptyState}>Nenhuma câmera ativa</div>}
+      {!mainCamera && <div className={styles.emptyState}>{t('noActiveCamera')}</div>}
       {pickerOpen && mainCamera && (
-        <div className={styles.drawer} style={{ width: DRAWER_W, bottom: DRAWER_BOTTOM }}>
-          <div className={styles.drawerHeader}>
-            <div className={styles.drawerTitle}>
-              <span className={styles.drawerLabel}>MULTICAM</span>
-              <span className={styles.drawerCount}>{cameras.length}</span>
-            </div>
-            <div className={styles.drawerActions}>
-              {activeCameraIds.length > 1 && (
-                <div className={styles.drawerModes}>
-                  {MODES.map(({ id, label, icon: Icon }) => (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => onViewModeChange(id)}
-                      title={label}
-                      aria-label={label}
-                      className={`${styles.modeBtn} ${effectiveMode === id ? styles.modeBtnActive : ''}`}
-                    >
-                      <Icon size={14} />
-                    </button>
-                  ))}
-                </div>
-              )}
-              <button
-                type="button"
-                className={styles.drawerClose}
-                onClick={onClosePicker}
-                aria-label="Fechar câmeras"
-              >
-                <X size={13} />
-              </button>
-            </div>
-          </div>
-          <div className={styles.drawerRows}>
-            {cameras
-              .filter((c) => activeCameraIds.includes(c.cameraId))
-              .map((c) => {
-                // NBR 15290: the Libras window is mandatory — never removable.
-                const isLibras = c.cameraId === librasCameraId;
-                return (
-                  <button
-                    key={c.cameraId}
-                    type="button"
-                    className={styles.activeRow}
-                    disabled={isLibras || activeCameraIds.length <= 1}
-                    onClick={() => {
-                      if (!isLibras && activeCameraIds.length > 1) onToggleCamera(c.cameraId);
-                    }}
-                    title={isLibras ? 'Janela de Libras (obrigatória)' : 'Remover da composição'}
-                  >
-                    <span className={styles.activeRowName}>{c.name}</span>
-                    {isLibras ? (
-                      <span className={styles.activeRowLibras}>LIBRAS</span>
-                    ) : (
-                      <Minus size={14} className={styles.activeRowMinus} />
-                    )}
-                  </button>
-                );
-              })}
-          </div>
-        </div>
+        <CameraDrawer
+          cameras={cameras}
+          activeCameraIds={activeCameraIds}
+          librasCameraId={librasCameraId}
+          effectiveMode={effectiveMode}
+          onViewModeChange={onViewModeChange}
+          onToggleCamera={onToggleCamera}
+          onClose={onClosePicker}
+        />
       )}
       {cameras.map((cam) => {
         const slot = layouts.get(cam.cameraId) ?? { role: 'hidden' as Role, style: HIDDEN_STYLE };
@@ -478,7 +327,7 @@ export function CameraGrid({
             />
             {role === 'strip' && (
               <>
-                <span className={styles.stripAdd}>+ ADICIONAR</span>
+                <span className={styles.stripAdd}>{t('addCamera')}</span>
                 <div className={styles.stripInfo}>
                   <p className={styles.stripName}>{cam.name}</p>
                   <p className={styles.stripAngle}>{cam.slug}</p>

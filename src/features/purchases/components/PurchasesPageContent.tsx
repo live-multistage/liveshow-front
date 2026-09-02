@@ -3,8 +3,9 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Search, Calendar, Ticket, Check, Download } from 'lucide-react';
+import type { OrderView } from '@live-show/api-contracts';
 import { useOrderHistoryQuery } from '../queries/get-order-history';
-import type { OrderHistoryItem } from '../types/order-history.types';
+import { formatCents } from '@/shared/utils/money';
 import styles from './PurchasesPageContent.module.scss';
 
 type FilterId = 'todos' | 'ativos' | 'passados' | 'reembolsados';
@@ -18,8 +19,6 @@ const GRADIENTS = [
   'linear-gradient(135deg,#ffb347,#7a3f10)',
   'linear-gradient(135deg,#ff6a52,#5e1a12)',
 ];
-
-const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
 const PAGE_SIZE = 5;
 
@@ -39,12 +38,18 @@ function isUpcoming(iso: string | null): boolean {
   return iso ? new Date(iso).getTime() >= Date.now() : false;
 }
 
-function matchesFilter(o: OrderHistoryItem, f: FilterId): boolean {
+// Multi-line orders can span several events — an order counts as "upcoming"
+// if any of its lines still points at a future event.
+function hasUpcomingLine(o: OrderView): boolean {
+  return o.lines.some((l) => isUpcoming(l.event?.startsAt ?? null));
+}
+
+function matchesFilter(o: OrderView, f: FilterId): boolean {
   switch (f) {
     case 'ativos':
-      return o.status === 'PAID' && isUpcoming(o.eventStartsAt);
+      return o.status === 'PAID' && hasUpcomingLine(o);
     case 'passados':
-      return o.status === 'PAID' && !isUpcoming(o.eventStartsAt);
+      return o.status === 'PAID' && !hasUpcomingLine(o);
     case 'reembolsados':
       return o.status === 'REFUNDED';
     default:
@@ -53,7 +58,7 @@ function matchesFilter(o: OrderHistoryItem, f: FilterId): boolean {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  PAID: 'Pago', PENDING: 'Pendente', CANCELLED: 'Cancelado', REFUNDED: 'Reembolsado',
+  PAID: 'Pago', PENDING: 'Pendente', CANCELLED: 'Cancelado', REFUNDED: 'Reembolsado', EXPIRED: 'Expirado',
 };
 
 export function PurchasesPageContent() {
@@ -68,7 +73,7 @@ export function PurchasesPageContent() {
     const paid = all.filter((o) => o.status === 'PAID');
     return {
       pedidos: all.length,
-      ingressos: paid.length,
+      ingressos: paid.reduce((sum, o) => sum + o.lines.length, 0),
       gasto: paid.reduce((sum, o) => sum + o.totalAmount, 0),
     };
   }, [all]);
@@ -88,11 +93,13 @@ export function PurchasesPageContent() {
     return all.filter((o) => {
       if (!matchesFilter(o, filter)) return false;
       if (!q) return true;
-      return o.eventTitle.toLowerCase().includes(q) || o.code.toLowerCase().includes(q);
+      if (o.code.toLowerCase().includes(q)) return true;
+      return o.lines.some((l) => l.event?.title.toLowerCase().includes(q));
     });
   }, [all, filter, search]);
 
   const shown = filtered.slice(0, visible);
+  const currency = (o: OrderView) => o.currency;
 
   function pickFilter(id: FilterId) {
     setFilter(id);
@@ -112,7 +119,7 @@ export function PurchasesPageContent() {
           <div>
             <div className={styles.eyebrow}>HISTÓRICO DE PEDIDOS</div>
             <h1 className={styles.title}>Compras</h1>
-            <p className={styles.subtitle}>Todos os ingressos que você já adquiriu na Liveshow</p>
+            <p className={styles.subtitle}>Todos os ingressos que você já adquiriu no showon.io</p>
           </div>
           <div className={styles.stats}>
             <div className={styles.statCard}>
@@ -133,7 +140,7 @@ export function PurchasesPageContent() {
               <div className={styles.statGlow} />
               <div className={`${styles.statLabel} ${styles.statLabelAccent}`}>GASTO TOTAL</div>
               <div className={styles.statValue}>
-                <span className={styles.statNumber}>{brl.format(stats.gasto)}</span>
+                <span className={styles.statNumber}>{formatCents(stats.gasto)}</span>
               </div>
             </div>
           </div>
@@ -167,14 +174,6 @@ export function PurchasesPageContent() {
           </div>
         </div>
 
-        <div className={styles.columns}>
-          <span>Evento</span>
-          <span>Pedido / Data</span>
-          <span>Itens</span>
-          <span>Total</span>
-          <span className={styles.colSpacer} />
-        </div>
-
         {isLoading ? (
           <div className={styles.state}>Carregando suas compras…</div>
         ) : isError ? (
@@ -186,52 +185,61 @@ export function PurchasesPageContent() {
         ) : (
           <div className={styles.list}>
             {shown.map((o) => (
-              <div key={o.orderId} className={styles.row}>
-                <div className={styles.event}>
-                  <div className={styles.art} style={{ background: gradientFor(o.orderId) }}>
-                    <div className={styles.artShade} />
+              <div key={o.id} className={styles.card} data-testid={`order-${o.id}`}>
+                <div className={styles.cardTop}>
+                  <div className={styles.orderCell}>
+                    <div className={styles.orderCode}>{o.code}</div>
+                    <div className={styles.orderDate}>
+                      <Calendar size={13} className={styles.calIcon} />
+                      {fmtDate(o.createdAt)}
+                    </div>
                   </div>
-                  <div className={styles.eventText}>
-                    <div className={styles.eventName}>{o.eventTitle}</div>
-                    <div className={styles.eventVenue}>{o.eventVenue ?? '—'}</div>
+                  <div className={styles.actions}>
+                    {o.status === 'PAID' ? (
+                      <span className={`${styles.badge} ${styles.badgePaid}`}>
+                        <Check size={11} strokeWidth={3} />
+                        PAGO
+                      </span>
+                    ) : (
+                      <span className={`${styles.badge} ${styles.badgeMuted}`}>
+                        {(STATUS_LABEL[o.status] ?? o.status).toUpperCase()}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      className={styles.download}
+                      disabled
+                      title="Recibo em breve"
+                      aria-label="Baixar recibo"
+                    >
+                      <Download size={15} />
+                    </button>
                   </div>
                 </div>
 
-                <div className={styles.orderCell}>
-                  <div className={styles.orderCode}>{o.code}</div>
-                  <div className={styles.orderDate}>
-                    <Calendar size={13} className={styles.calIcon} />
-                    {fmtDate(o.createdAt)}
-                  </div>
+                <div className={styles.lines}>
+                  {o.lines.map((line) => (
+                    <div key={line.id} className={styles.lineRow}>
+                      <div className={styles.event}>
+                        <div className={styles.art} style={{ background: gradientFor(line.id) }}>
+                          <div className={styles.artShade} />
+                        </div>
+                        <div className={styles.eventText}>
+                          <div className={styles.eventName}>{line.event?.title ?? '—'}</div>
+                          <div className={styles.eventVenue}>
+                            <Ticket size={13} className={styles.itemIcon} />
+                            {line.productName}
+                          </div>
+                        </div>
+                      </div>
+                      <div className={styles.total}>{formatCents(line.lineTotal, currency(o))}</div>
+                    </div>
+                  ))}
                 </div>
 
-                <div className={styles.items}>
-                  <Ticket size={15} className={styles.itemIcon} />
-                  <span>{o.ticketProductName}</span>
-                </div>
-
-                <div className={styles.total}>{brl.format(o.totalAmount)}</div>
-
-                <div className={styles.actions}>
-                  {o.status === 'PAID' ? (
-                    <span className={`${styles.badge} ${styles.badgePaid}`}>
-                      <Check size={11} strokeWidth={3} />
-                      PAGO
-                    </span>
-                  ) : (
-                    <span className={`${styles.badge} ${styles.badgeMuted}`}>
-                      {(STATUS_LABEL[o.status] ?? o.status).toUpperCase()}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    className={styles.download}
-                    disabled
-                    title="Recibo em breve"
-                    aria-label="Baixar recibo"
-                  >
-                    <Download size={15} />
-                  </button>
+                <div className={styles.cardFooter}>
+                  <span>Total</span>
+                  <span className={styles.total}>{formatCents(o.totalAmount, currency(o))}</span>
                 </div>
               </div>
             ))}

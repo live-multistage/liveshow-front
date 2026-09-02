@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { eventHref } from '@/features/events/utils/slug';
 import { useLocale, useTranslations } from 'next-intl';
 import { isVenueOnly } from '../utils/event-action';
 import { placeLabel } from '@/shared/utils/event-cover';
@@ -45,7 +46,7 @@ export function UpcomingEventRow({ event }: { event: AccessibleEvent }) {
         {!cancelled && (
           <span className={styles.countdown}>{countdownLabel(event.startsAt, locale)}</span>
         )}
-        <Link href={`/events/${event.id}`} className={styles.details}>
+        <Link href={eventHref(event)} className={styles.details}>
           {t('details')}
         </Link>
       </div>

@@ -5,7 +5,7 @@
  * the picker deselects the camera that is currently main.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import { CameraGrid } from './CameraGrid';
 import type { LiveCamera } from '../types/live.types';
 
@@ -134,5 +134,36 @@ describe('CameraGrid — live seek command routing', () => {
       />,
     );
     expect(videos(container).map((v) => v.currentTime)).toEqual([42, 42]);
+  });
+});
+
+// Regression guard: the drawer's chrome (z-index 21) and the inactive-camera
+// tiles it hosts (z-index 22) live in the SAME stacking context inside
+// `.stage` on purpose — a fix that moves the chrome to a different context
+// (e.g. portaling it elsewhere) reorders it above the tiles and swallows
+// their clicks, even though nothing here visually changes. This click must
+// keep reaching the tile.
+describe('CameraGrid — camera drawer selection', () => {
+  it('selecting an inactive camera from the drawer still activates and promotes it', () => {
+    const onToggleCamera = vi.fn();
+    const onMainCameraChange = vi.fn();
+    const { container } = render(
+      <CameraGrid
+        {...baseProps}
+        cameras={[cam('cam-a'), cam('cam-b'), cam('cam-c')]}
+        activeCameraIds={['cam-a']}
+        mainCameraId="cam-a"
+        pickerOpen
+        onToggleCamera={onToggleCamera}
+        onMainCameraChange={onMainCameraChange}
+      />,
+    );
+
+    const tile = container.querySelector('[role="button"]') as HTMLElement;
+    expect(tile).toBeTruthy();
+    fireEvent.click(tile);
+
+    expect(onToggleCamera).toHaveBeenCalledWith('cam-b');
+    expect(onMainCameraChange).toHaveBeenCalledWith('cam-b');
   });
 });

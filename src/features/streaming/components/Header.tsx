@@ -1,11 +1,21 @@
 'use client';
 
 import { ChevronLeft, Users, Video, MessageSquare, Share2 } from 'lucide-react';
+import type { CSSProperties } from 'react';
+import { useTranslations } from 'next-intl';
 import { ReportButton } from '@/features/reports';
 import type { LiveStage } from '../types/live.types';
 import styles from './Header.module.scss';
 
 interface Props {
+  className?: string;
+  // Set by LivePlayer to `right: DRAWER_W` while the camera drawer is open,
+  // constraining the header bar's own box so it stops before the drawer's
+  // strip instead of just padding its (still full-width) contents — a
+  // padding-only fix left the bar's transparent right edge sitting over the
+  // drawer's close/mode buttons and swallowing their clicks (see
+  // CameraGrid's DRAWER_W — the single source for that width).
+  style?: CSSProperties;
   eventId: string;
   eventTitle?: string;
   metaLine: string;
@@ -32,6 +42,8 @@ function fmtCompact(v: number): string {
 }
 
 export function Header({
+  className,
+  style,
   eventId,
   eventTitle,
   metaLine,
@@ -49,9 +61,10 @@ export function Header({
   chatMessageCount,
   onShare,
 }: Props) {
+  const t = useTranslations('player');
   return (
-    <header className={styles.header}>
-      <button onClick={onExit} className={styles.backBtn} aria-label="Voltar">
+    <header className={`${styles.header} ${className ?? ''}`} style={style}>
+      <button onClick={onExit} className={styles.backBtn} aria-label={t('back')}>
         <ChevronLeft size={16} />
       </button>
 
@@ -67,7 +80,7 @@ export function Header({
       </div>
 
       {stages.length > 1 && (
-        <div className={styles.tabs} role="tablist" aria-label="Palcos">
+        <div className={styles.tabs} role="tablist" aria-label={t('stages')}>
           <span className={styles.tabsLabel}>PALCOS</span>
           {stages.map((stage) => (
             <button
@@ -95,24 +108,24 @@ export function Header({
         <button
           className={`${styles.drawerBtn} ${cameraStripOpen ? styles.drawerBtnActive : ''}`}
           onClick={onToggleCameraStrip}
-          title="Alternar câmeras"
+          title={t('toggleCameras')}
         >
           <Video size={13} />
-          Câmeras
+          {t('cameras')}
           <span className={styles.badge}>{cameraCount}</span>
         </button>
         {chatEnabled && (
           <button
             className={`${styles.drawerBtn} ${chatOpen ? styles.drawerBtnActive : ''}`}
             onClick={onToggleChat}
-            title="Alternar chat"
+            title={t('toggleChat')}
           >
             <MessageSquare size={13} />
             Chat
             <span className={styles.badge}>{chatMessageCount}</span>
           </button>
         )}
-        <button className={styles.iconBtn} onClick={onShare} title="Compartilhar" aria-label="Compartilhar">
+        <button className={styles.iconBtn} onClick={onShare} title={t('share')} aria-label={t('share')}>
           <Share2 size={14} />
         </button>
         <ReportButton eventId={eventId} className={styles.iconBtn} iconOnly />

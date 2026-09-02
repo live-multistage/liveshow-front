@@ -9,12 +9,13 @@ import { NotificationsDropdown } from '@/features/notifications';
 import { NAV_BY_ROLE, MOBILE_NAV_BY_ROLE, DASHBOARD_ROLES } from '../types/dashboard.types';
 import { DashboardUserMenu } from './DashboardUserMenu';
 import type { UserRole } from '@/types';
+import { DEFAULT_FEATURE_FLAGS, type FeatureFlags } from '@/features/feature-flags';
 import styles from './DashboardMobileNav.module.scss';
 
 // Mobile-only chrome (hidden on desktop via SCSS) — a sticky top bar plus a
 // fixed bottom nav that mirrors the desktop sidebar. The bottom nav shows the
 // curated MOBILE_NAV_BY_ROLE subset; the desktop sidebar stays the full nav.
-export function DashboardMobileNav() {
+export function DashboardMobileNav({ flags = DEFAULT_FEATURE_FLAGS }: { flags?: FeatureFlags }) {
   const tMobile = useTranslations('dashboard.navMobile');
   const { user } = useAuth();
   const pathname = usePathname();
@@ -25,12 +26,13 @@ export function DashboardMobileNav() {
   const navByKey = new Map(NAV_BY_ROLE[role].map((item) => [item.navKey, item]));
   const items = MOBILE_NAV_BY_ROLE[role]
     .map((key) => navByKey.get(key))
-    .filter((item): item is NonNullable<typeof item> => item != null);
+    .filter((item): item is NonNullable<typeof item> => item != null)
+    .filter((item) => !item.flag || flags[item.flag]);
 
   return (
     <>
       <header className={styles.topBar}>
-        <Link href="/" className={styles.logoWrapper} aria-label="Liveshow">
+        <Link href="/" className={styles.logoWrapper} aria-label="showon.io">
           <Logo size={22} wordmarkClassName={styles.logoText} />
         </Link>
         <div className={styles.topActions}>

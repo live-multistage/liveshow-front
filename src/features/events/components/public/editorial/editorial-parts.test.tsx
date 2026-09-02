@@ -41,4 +41,11 @@ describe('EditorialCard', () => {
     const [cardLink] = screen.getAllByRole('link');
     expect(cardLink).toHaveAttribute('href', `/events/${SHOWS[0].id}`);
   });
+
+  it('prefers the slug over the id once the payload carries one', () => {
+    render(<EditorialCard show={{ ...SHOWS[0], slug: 'rock-in-rio-2026' }} localeCode="pt-BR" />);
+
+    const [cardLink] = screen.getAllByRole('link');
+    expect(cardLink).toHaveAttribute('href', '/events/rock-in-rio-2026');
+  });
 });

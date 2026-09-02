@@ -5,7 +5,7 @@ import styles from './Footer.module.scss';
 
 // O e-mail já é público na página de privacidade — não é um canal novo, é o
 // mesmo, alcançável de qualquer página.
-const CONTACT_EMAIL = 'privacidade@liveshow.com';
+const CONTACT_EMAIL = 'privacidade@showon.io';
 
 /** Rodapé de todas as páginas com Navbar. */
 const LINKS = [

@@ -12,7 +12,7 @@ import styles from './StreamBuilder.module.scss';
 interface Props {
   stage: StageResponse;
   streamStatus: string;
-  eventId: string;
+  eventId: string | null;
 }
 
 export function StageBody({ stage, streamStatus, eventId }: Props) {

@@ -1,10 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { checkoutService } from '../services/checkout.service';
-import type {
-  CreateCheckoutSessionRequest,
-  CouponPreviewRequest,
-  ProcessPaymentRequest,
-} from '../types/checkout.types';
+import type { PlaceOrderRequest } from '../types/checkout.types';
 
 export function usePaymentMethodsQuery() {
   return useQuery({
@@ -14,34 +10,20 @@ export function usePaymentMethodsQuery() {
   });
 }
 
-export function useCreateCheckoutSessionMutation() {
+export function usePlaceOrderMutation() {
   return useMutation({
-    mutationFn: (payload: CreateCheckoutSessionRequest) =>
-      checkoutService.createSession(payload),
+    mutationFn: (payload: PlaceOrderRequest) => checkoutService.placeOrder(payload),
   });
 }
 
-export function useProcessPaymentMutation() {
-  return useMutation({
-    mutationFn: (payload: ProcessPaymentRequest) => checkoutService.processPayment(payload),
-  });
-}
-
-export function useCouponPreviewMutation() {
-  return useMutation({
-    mutationFn: (payload: CouponPreviewRequest) => checkoutService.previewCoupon(payload),
-  });
-}
-
-export function usePaymentStatusQuery(paymentId: string | null, enabled = false) {
+// The order, not the payment, is what the buyer is waiting on — the webhook
+// writes the order first, so polling it never reports success too early.
+export function useOrderQuery(orderId: string | null) {
   return useQuery({
-    queryKey: ['checkout', 'payment-status', paymentId],
-    queryFn: () => checkoutService.getPaymentStatus(paymentId!),
-    enabled: !!paymentId && enabled,
-    refetchInterval: (query) => {
-      const status = query.state.data?.status;
-      if (status === 'COMPLETED' || status === 'FAILED' || status === 'REFUNDED') return false;
-      return 3000;
-    },
+    queryKey: ['orders', orderId],
+    queryFn: () => checkoutService.getOrder(orderId!),
+    enabled: !!orderId,
+    refetchInterval: (query) =>
+      query.state.data && query.state.data.status !== 'PENDING' ? false : 3000,
   });
 }

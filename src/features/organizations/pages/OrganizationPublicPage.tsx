@@ -2,9 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { Building2, Users, Calendar, Radio } from 'lucide-react';
+import { Building2, Calendar, Radio } from 'lucide-react';
 import { useOrganizationBySlug, useOrganizationEvents } from '../hooks/use-organizations';
-import { useOrganizationMembers } from '../hooks/use-organization-members';
 import { OrganizationPublicEventCard } from '../components/OrganizationPublicEventCard';
 import styles from './OrganizationPublicPage.module.scss';
 
@@ -19,7 +18,6 @@ export function OrganizationPublicPage({ slug }: Props) {
   const [tab, setTab] = useState<Tab>('upcoming');
 
   const { data: org, isLoading: orgLoading, isError: orgError } = useOrganizationBySlug(slug);
-  const { data: members = [] } = useOrganizationMembers(org?.id ?? '');
   const { data: upcomingEvents = [], isLoading: upcomingLoading } = useOrganizationEvents(
     org?.id ?? '',
     'upcoming',
@@ -139,10 +137,6 @@ export function OrganizationPublicPage({ slug }: Props) {
           <aside className={styles.sidebar}>
             <div className={styles.sideCard}>
               <h3 className={styles.sideCardTitle}>Sobre</h3>
-              <div className={styles.statRow}>
-                <Users size={14} className={styles.statIcon} />
-                <span className={styles.statText}>{members.length} membros</span>
-              </div>
               <div className={styles.statRow}>
                 <Calendar size={14} className={styles.statIcon} />
                 <span className={styles.statText}>

@@ -3,8 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import Hls from 'hls.js';
-import { config, mediaUrl } from '@/config';
+import { config } from '@/config';
 import { tokenStore } from '@/lib/auth/token-store';
+import {
+  extractPt,
+  replacePtParam,
+  resolveMediaUrl as resolveSharedMediaUrl,
+  stripPt,
+} from '@live-show/api-contracts';
 import type { LiveCamera } from '../types/live.types';
 import { audioTrackIndexForCamera } from '../components/audio-track';
 
@@ -13,58 +19,42 @@ export interface QualityLevel {
   height: number;
 }
 
-// ── signed-URL (?pt) helpers ────────────────────────────────────────────────
-// The live STANDARD manifests carry a short-lived signed token `?pt={JWT}`
-// (90s TTL). The playback query refreshes it every 5s, so we must (a) NOT
-// rebuild the player on every refresh and (b) inject the freshest token into
-// every hls.js request. These are pure string ops so they unit-test without a
-// real hls.js instance. JWT chars (base64url + '.') are never percent-encoded
-// by URLSearchParams, so round-tripping the value is lossless.
+// Re-exported: existing callers import these from this module.
+export { extractPt, replacePtParam, stripPt };
 
-// The current `pt` value from a manifest path/URL, or null when absent.
-export function extractPt(url: string): string | null {
-  const q = url.indexOf('?');
-  if (q === -1) return null;
-  return new URLSearchParams(url.slice(q + 1)).get('pt');
+export function resolveMediaUrl(path: string): string {
+  return resolveSharedMediaUrl(config.apiUrl, path);
 }
 
-// A stable key that ignores the volatile signed-URL params, so the build effect
-// keys on real source changes (packageId / job rotation) and not 5s token
-// refreshes. `pt` alone was enough pre-CDN; with the CDN the Bunny `token` signs
-// OVER `pt`, so it too changes every 5s (and `expires` rolls per bucket) — strip
-// the whole signature or the player rebuilds every poll.
-export function stripPt(url: string): string {
-  const q = url.indexOf('?');
-  if (q === -1) return url;
-  const params = new URLSearchParams(url.slice(q + 1));
-  for (const k of ['pt', 'token', 'expires', 'token_path']) params.delete(k);
-  const rest = params.toString();
-  return rest ? `${url.slice(0, q)}?${rest}` : url.slice(0, q);
+// Bunny Token Authentication params on a CDN-signed manifest URL that its
+// children (parts/segments/child playlists) must inherit — hls.js does not
+// propagate query strings to the requests it derives from a playlist, and
+// Bunny scopes the signature to `token_path`'s directory rather than to each
+// file individually.
+const CDN_SIGNING_PARAMS = ['token', 'expires', 'token_path'] as const;
+
+function cdnSigningParams(manifestUrl: string): [string, string][] {
+  const q = manifestUrl.indexOf('?');
+  if (q === -1) return [];
+  const params = new URLSearchParams(manifestUrl.slice(q + 1));
+  return CDN_SIGNING_PARAMS.filter((k) => params.has(k)).map((k) => [k, params.get(k)!]);
 }
 
-// Rewrite an outgoing request URL's `pt` to `token`. Falls through unchanged
-// when there is no token or the URL carries no `pt` (e.g. backend rolled the
-// signed-URL scheme back) so playback degrades gracefully rather than breaking.
-export function replacePtParam(url: string, token: string | null): string {
-  if (!token) return url;
+// Append any CDN signing params missing from a child request URL. No-op when
+// there is nothing to propagate (non-CDN) or the URL already carries them.
+function withCdnSigningParams(url: string, params: [string, string][]): string {
+  if (params.length === 0) return url;
   const q = url.indexOf('?');
-  if (q === -1) return url;
-  const params = new URLSearchParams(url.slice(q + 1));
-  if (!params.has('pt')) return url;
-  params.set('pt', token);
-  return `${url.slice(0, q)}?${params.toString()}`;
-}
-
-// CDN signed-URL: the Bunny token is computed OVER the query (incl. `pt`) and is
-// directory-scoped to the whole package, so every child (rendition playlist,
-// segment, key) must carry the master's EXACT signed query — a bare child request
-// 403s at the edge, and refreshing `pt` would invalidate the token. Swaps the
-// master's query onto the url; no-op (null) on the non-CDN path, which keeps the
-// per-request `pt` refresh instead.
-export function applySignedQuery(url: string, signedQuery: string | null): string {
-  if (!signedQuery) return url;
-  const q = url.indexOf('?');
-  return `${q === -1 ? url : url.slice(0, q)}?${signedQuery}`;
+  const search = new URLSearchParams(q === -1 ? '' : url.slice(q + 1));
+  let changed = false;
+  for (const [k, v] of params) {
+    if (!search.has(k)) {
+      search.set(k, v);
+      changed = true;
+    }
+  }
+  if (!changed) return url;
+  return `${q === -1 ? url : url.slice(0, q)}?${search.toString()}`;
 }
 
 // How far behind the live edge hls.js tolerates before it force-seeks the
@@ -75,6 +65,32 @@ export function applySignedQuery(url: string, signedQuery: string | null): strin
 export function maxLatencyDurationCount(hasLl: boolean, dvrActive: boolean): number {
   if (dvrActive) return Infinity;
   return hasLl ? 5 : 8;
+}
+
+// Replay agora chega de dois jeitos: `Bearer` (web, token de 900s renovado pelo
+// httpClient) ou `?pt` na própria URL (token de 1h, o único caminho possível
+// para um player nativo). Quando o manifest veio com `pt`, o header não só é
+// desnecessário como seria a prova ERRADA a rotacionar: o `pt` é que expira
+// junto da sessão, e é ele que os filhos do manifest carregam.
+export function replayXhrSetup(opts: {
+  manifestUrl: string;
+  latestPt: string | null;
+  bearer: string | null;
+}): (xhr: XMLHttpRequest, url: string) => void {
+  const manifestPt = extractPt(opts.manifestUrl);
+  return (xhr, url) => {
+    if (manifestPt) {
+      const next = replacePtParam(url, opts.latestPt ?? manifestPt);
+      if (next !== url) {
+        xhr.open('GET', next, true);
+        return;
+      }
+      // Child URL had no `pt`/`token` param for replacePtParam to rewrite
+      // (e.g. a relative segment URL hls.js resolved without one) — fall back
+      // to the bearer so the request isn't sent with no credential at all.
+    }
+    if (opts.bearer) xhr.setRequestHeader('Authorization', `Bearer ${opts.bearer}`);
+  };
 }
 
 // Index of the smallest-height rendition in a parsed hls instance (-1 if none).
@@ -207,7 +223,7 @@ export function useHlsPlayer({
 
   const [error, setError] = useState(false);
   const connecting = camera.manifestPath === null;
-  const src = connecting ? null : mediaUrl(camera.manifestPath!);
+  const src = camera.manifestPath === null ? null : resolveMediaUrl(camera.manifestPath);
   // The live STANDARD src now carries a `?pt` token refreshed every 5s poll,
   // so `src` changes every 5s. Keying the build effect on the token-STRIPPED
   // src rebuilds only on a REAL source change (packageId / job rotation), not
@@ -290,14 +306,7 @@ export function useHlsPlayer({
     // ladder, so bad bandwidth must degrade to it rather than freeze.
     // STANDARD events (llPath null) and replay always use the STANDARD
     // tuning below, unchanged from before this fallback existed.
-    const activeSrc = hasLl ? mediaUrl(llPathRef.current!) : srcRef.current!;
-    // CDN on → the master carries a Bunny `token`; its directory-scoped query
-    // must ride every child request (see applySignedQuery). Null when the
-    // backend returns relative paths (no CDN), leaving the `pt` refresh below.
-    const signedQuery =
-      !hasLl && activeSrc.includes('token=')
-        ? activeSrc.slice(activeSrc.indexOf('?') + 1)
-        : null;
+    const activeSrc = hasLl ? resolveMediaUrl(llPathRef.current!) : srcRef.current!;
 
     // ~3 segments (~6s) behind the live edge on the STANDARD tuning.
     // lowLatencyMode/tighter sync only makes sense against the LL-HLS
@@ -318,10 +327,12 @@ export function useHlsPlayer({
       // request hls.js makes. No-op for live (mode default), so live's
       // network behavior is unchanged.
       ...(mode === 'replay' && {
-        xhrSetup: (xhr: XMLHttpRequest) => {
-          const token = tokenStore.get();
-          if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-        },
+        xhrSetup: (xhr: XMLHttpRequest, url: string) =>
+          replayXhrSetup({
+            manifestUrl: srcRef.current ?? '',
+            latestPt: ptRef.current,
+            bearer: tokenStore.get(),
+          })(xhr, url),
       }),
       // Live STANDARD: every request (master, rendition manifest, segment,
       // EXT-X-KEY) carries a `?pt` token baked in when its manifest was loaded;
@@ -331,16 +342,18 @@ export function useHlsPlayer({
       // xhrSetup BEFORE opening and only opens itself when `!xhr.readyState`,
       // so opening here with the rewritten URL wins. LL path is left untouched
       // (its token lifetime rides the existing LL→STANDARD fallback latch).
-      ...(mode === 'live' && !hasLl && {
-        xhrSetup: (xhr: XMLHttpRequest, url: string) => {
-          // CDN: carry the master's signed query verbatim (token binds pt, no
-          // refresh). Non-CDN: refresh the bearer pt per request as before.
-          const next = signedQuery
-            ? applySignedQuery(url, signedQuery)
-            : replacePtParam(url, ptRef.current);
-          if (next !== url) xhr.open('GET', next, true);
-        },
-      }),
+      ...(mode === 'live' &&
+        !hasLl && {
+          xhrSetup: (xhr: XMLHttpRequest, url: string) => {
+            // hls.js resolves child requests (parts/segments/child playlists)
+            // against the manifest URL but does not carry its query string —
+            // a CDN manifest's Bunny signature (token/expires/token_path) must
+            // be copied onto them explicitly or they 403 at the edge.
+            const withCdn = withCdnSigningParams(url, cdnSigningParams(srcRef.current ?? ''));
+            const next = replacePtParam(withCdn, ptRef.current);
+            if (next !== url) xhr.open('GET', next, true);
+          },
+        }),
     });
     hls.loadSource(activeSrc);
     hls.attachMedia(video);

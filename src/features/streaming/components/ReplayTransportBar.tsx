@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { Play, Pause, Volume2, VolumeX, Settings, PictureInPicture, Maximize, Minimize } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { LiveCamera } from '../types/live.types';
 import type { QualityLevel } from './VideoPanel';
 import { SeekSlider } from './SeekSlider';
+import { PlayPauseButton } from './transport/PlayPauseButton';
+import { VolumeControl } from './transport/VolumeControl';
+import { TransportRightControls } from './transport/TransportRightControls';
 import transportStyles from './TransportBar.module.scss';
 import styles from './ReplayTransportBar.module.scss';
 
@@ -42,11 +44,11 @@ function formatTime(seconds: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-// Mirrors TransportBar's exact visual language (same module reused for the
-// shared bits: iconBtn, volumeGroup, menu, qualityBtn) with play/pause + a
-// seek scrubber added, and the AO VIVO badge swapped for a static REPLAY one
-// — this is the app's own chrome for VOD playback, not the browser's native
-// <video controls>.
+// Mirrors TransportBar's exact visual language by composing the same shared
+// pieces (PlayPauseButton, VolumeControl, TransportRightControls) with
+// play/pause + a seek scrubber added, and the AO VIVO badge swapped for a
+// static REPLAY one — this is the app's own chrome for VOD playback, not the
+// browser's native <video controls>.
 export function ReplayTransportBar({
   paused,
   onTogglePlay,
@@ -69,18 +71,11 @@ export function ReplayTransportBar({
   isFullscreen,
   onToggleFullscreen,
 }: Props) {
-  const [showAudioMenu, setShowAudioMenu] = useState(false);
-  const [showQuality, setShowQuality] = useState(false);
+  const t = useTranslations('player');
 
   return (
     <div className={transportStyles.bar}>
-      <button
-        onClick={onTogglePlay}
-        className={transportStyles.iconBtn}
-        aria-label={paused ? 'Reproduzir' : 'Pausar'}
-      >
-        {paused ? <Play size={16} /> : <Pause size={16} />}
-      </button>
+      <PlayPauseButton paused={paused} onTogglePlay={onTogglePlay} />
 
       <span className={styles.replayBadge}>REPLAY</span>
 
@@ -93,110 +88,30 @@ export function ReplayTransportBar({
           max={timelineEndMs}
           value={positionMs}
           onSeek={onSeek}
-          ariaLabel="Posição de reprodução"
+          ariaLabel={t('seekPosition')}
         />
         <span className={styles.timeLabel}>{formatTime((timelineEndMs - timelineStartMs) / 1000)}</span>
       </div>
 
-      <div className={transportStyles.volumeGroup}>
-        <button
-          onClick={onToggleMute}
-          className={transportStyles.iconBtn}
-          aria-label={globalMuted ? 'Ativar som' : 'Silenciar'}
-        >
-          {globalMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-        </button>
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.05}
-          value={globalMuted ? 0 : volume}
-          onChange={(e) => {
-            onVolumeChange(Number(e.target.value));
-            if (globalMuted) onToggleMute();
-          }}
-          className={transportStyles.volumeSlider}
-          style={{
-            background: `linear-gradient(to right, #ff2e9e ${(globalMuted ? 0 : volume) * 100}%, rgba(255, 255, 255, 0.15) ${(globalMuted ? 0 : volume) * 100}%)`,
-          }}
-          aria-label="Volume"
-        />
-      </div>
+      <VolumeControl
+        muted={globalMuted}
+        onToggleMute={onToggleMute}
+        volume={volume}
+        onVolumeChange={onVolumeChange}
+      />
 
-      {audioCameras.length > 1 && (
-        <div className={transportStyles.menuWrapper}>
-          {showAudioMenu && (
-            <div className={transportStyles.menu}>
-              {audioCameras.map((cam) => (
-                <button
-                  key={cam.cameraId}
-                  className={cam.cameraId === effectiveAudioCameraId ? transportStyles.menuItemActive : transportStyles.menuItem}
-                  onClick={() => {
-                    onAudioCameraChange(cam.cameraId);
-                    setShowAudioMenu(false);
-                  }}
-                >
-                  {cam.name}
-                </button>
-              ))}
-            </div>
-          )}
-          <button
-            className={transportStyles.iconBtn}
-            onClick={() => setShowAudioMenu((s) => !s)}
-            aria-label="Escolher câmera com áudio"
-            title="Escolher câmera com áudio"
-          >
-            <Settings size={16} />
-          </button>
-        </div>
-      )}
-
-      {levels.length > 0 && (
-        <div className={transportStyles.menuWrapper}>
-          {showQuality && (
-            <div className={transportStyles.menu}>
-              <button
-                className={currentLevel === -1 ? transportStyles.menuItemActive : transportStyles.menuItem}
-                onClick={() => {
-                  onSelectLevel(-1);
-                  setShowQuality(false);
-                }}
-              >
-                Auto
-              </button>
-              {levels.map(({ index, height }) => (
-                <button
-                  key={index}
-                  className={index === currentLevel ? transportStyles.menuItemActive : transportStyles.menuItem}
-                  onClick={() => {
-                    onSelectLevel(index);
-                    setShowQuality(false);
-                  }}
-                >
-                  {height}p
-                </button>
-              ))}
-            </div>
-          )}
-          <button className={transportStyles.qualityBtn} onClick={() => setShowQuality((s) => !s)}>
-            {qualityLabel}
-          </button>
-        </div>
-      )}
-
-      <button className={transportStyles.iconBtn} onClick={onTogglePip} aria-label="Picture-in-Picture" title="Picture-in-Picture">
-        <PictureInPicture size={16} />
-      </button>
-
-      <button
-        className={transportStyles.iconBtn}
-        onClick={onToggleFullscreen}
-        aria-label={isFullscreen ? 'Sair da tela cheia' : 'Tela cheia'}
-      >
-        {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
-      </button>
+      <TransportRightControls
+        audioCameras={audioCameras}
+        effectiveAudioCameraId={effectiveAudioCameraId}
+        onAudioCameraChange={onAudioCameraChange}
+        levels={levels}
+        currentLevel={currentLevel}
+        qualityLabel={qualityLabel}
+        onSelectLevel={onSelectLevel}
+        onTogglePip={onTogglePip}
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={onToggleFullscreen}
+      />
     </div>
   );
 }

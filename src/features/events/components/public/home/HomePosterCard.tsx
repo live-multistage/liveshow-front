@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Camera } from 'lucide-react';
 import type { Show } from '../../../types/show';
+import { eventHref } from '../../../utils/slug';
 import { WishlistButton } from '@/features/wishlist/components/WishlistButton';
 import styles from './HomePosterCard.module.scss';
 
@@ -25,7 +26,7 @@ export function HomePosterCard({ show, span }: HomePosterCardProps) {
 
   return (
     <Link
-      href={`/events/${show.id}`}
+      href={eventHref(show)}
       className={styles.card}
       style={{ gridColumn: span.gridColumn, gridRow: span.gridRow }}
     >

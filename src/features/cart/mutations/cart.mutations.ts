@@ -1,12 +1,14 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { cartService, type CartView } from '../services/cart.service';
 import { CART_KEY } from '../queries/cart.queries';
 import { normalizeError, type AppError } from '@/lib/http/errors';
 
-function cartErrorMessage(err: AppError): string {
+function cartErrorMessage(err: AppError, t: ReturnType<typeof useTranslations>): string {
+  if (err.code === 'CART_CURRENCY_MISMATCH') return t('errors.CURRENCY_MISMATCH');
   if (err.status === 409) return 'Este ingresso já está no carrinho.';
   if (err.status === 404) return 'Ingresso não encontrado.';
   if (err.status === 0) return 'Sem conexão. Verifique sua internet.';
@@ -18,6 +20,7 @@ function useCartMutation<T>(
   onSuccessToast?: (data: CartView) => void,
 ) {
   const qc = useQueryClient();
+  const t = useTranslations('cart');
   return useMutation({
     mutationFn: async (arg: T) => {
       try {
@@ -31,7 +34,7 @@ function useCartMutation<T>(
       onSuccessToast?.(data);
     },
     onError: (err: AppError) => {
-      toast.error(cartErrorMessage(err));
+      toast.error(cartErrorMessage(err, t));
     },
   });
 }

@@ -6,9 +6,6 @@ import Link from 'next/link';
 import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutGrid, ShoppingCart, LibraryBig, Heart } from 'lucide-react';
 import { Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Logo } from '@live-show/design-system';
 import { useTranslations } from 'next-intl';
-// Direct paths, NOT feature barrels: importing from '@/features/account' etc.
-// drags every re-export (LoginForm/RegisterForm → react-hook-form) into the
-// Navbar's chunk, which the root layout loads on every page (perf: TBT).
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { useAuthCheck } from '@/features/account/hooks/use-auth-check';
 import { NotificationsDropdown } from '@/features/notifications/components/NotificationsDropdown';
@@ -51,7 +48,7 @@ export function Navbar() {
 
   const cartCount = useCartCount();
   const t = useTranslations('nav');
-  
+
   // Immersive routes only: the nav floats transparent over the hero and never
   // reserves flow space (position: fixed for the page's whole lifetime —
   // switching fixed↔sticky exactly at the scroll threshold would jump the
@@ -75,12 +72,7 @@ export function Navbar() {
           <div className={styles.desktopNav}>
             <Link href="/" className={styles.navLink}>{t('home')}</Link>
             <Link href="/events" className={styles.navLink}>{t('schedule')}</Link>
-            {/* Fora da guarda de isLoggedIn de propósito: quem mais precisa da
-                central de ajuda é justamente quem ainda não tem conta. */}
-            <Link href="/help" className={styles.navLink}>{t('help')}</Link>
-            {/* Só faz sentido para quem tem acesso a algo, e a razão de existir
-                da página é ser ACHÁVEL -- escondê-la no dropdown repetiria o
-                problema que ela resolve. */}
+
             {isLoggedIn && (
               <>
                 <Link href="/my-list" className={styles.navLink}>{t('myList')}</Link>
@@ -90,7 +82,6 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Actions */}
         <div className={styles.actions}>
           {isLoggedIn ? (
             <>
@@ -100,8 +91,6 @@ export function Navbar() {
                 </Link>
               )}
 
-              {/* Hidden on phones — the navbar's min-content otherwise
-                  overflows the viewport and pushes cart+menu off-screen. */}
               <span className={styles.hideMobile}>
                 <NotificationsDropdown />
               </span>

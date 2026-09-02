@@ -4,6 +4,7 @@ import { Calendar, Clock, MapPin, Radio } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import type { EventResponse } from '@/features/events/types/event.types';
+import { eventHref } from '@/features/events/utils/slug';
 import { WishlistButton } from '@/features/wishlist/components/WishlistButton';
 import styles from './OrganizationPublicEventCard.module.scss';
 
@@ -28,7 +29,7 @@ export function OrganizationPublicEventCard({ event }: Props) {
 
   return (
     <Link
-      href={`/events/${event.id}`}
+      href={eventHref(event)}
       className={`${styles.card} ${isFinished ? styles.cardFinished : ''}`}
     >
       <div className={styles.thumb}>

@@ -1,0 +1,94 @@
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.filter,
+.filterActive {
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.filterActive {
+  background: #ff2e9e;
+  border-color: #ff2e9e;
+  color: #101013;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
+    font-size: 13.5px;
+    vertical-align: middle;
+  }
+}
+
+.badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: #b9b9c0;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .08);
+
+  &[data-status='APPROVED'] { color: #7dffb0; background: rgba(46, 255, 158, .12); border-color: rgba(46, 255, 158, .25); }
+  &[data-status='APPLIED'] { color: #ffd27e; background: rgba(255, 191, 46, .12); border-color: rgba(255, 191, 46, .25); }
+  &[data-status='REJECTED'],
+  &[data-status='SUSPENDED'] { color: #ff7ec2; background: rgba(255, 46, 158, .12); border-color: rgba(255, 46, 158, .25); }
+}
+
+.rateInput {
+  width: 80px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: #101013;
+  color: #f4f4f5;
+  font-size: 12.5px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+
+  button {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, .1);
+    background: transparent;
+    color: #f4f4f5;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+}
+
+.empty {
+  color: var(--muted-foreground);
+}
+
+.noteTextarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: #101013;
+  color: #f4f4f5;
+  font-size: 13px;
+  resize: vertical;
+}

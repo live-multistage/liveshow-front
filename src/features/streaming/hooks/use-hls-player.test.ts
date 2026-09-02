@@ -12,11 +12,13 @@ import {
   extractPt,
   stripPt,
   replacePtParam,
-  applySignedQuery,
+  resolveMediaUrl,
   maxLatencyDurationCount,
+  replayXhrSetup,
   useHlsPlayer,
 } from './use-hls-player';
 import type { LiveCamera } from '../types/live.types';
+import { config } from '@/config';
 
 // ── hls.js mock ──────────────────────────────────────────────────────────────
 const h = vi.hoisted(() => {
@@ -52,26 +54,34 @@ describe('pt helpers', () => {
     expect(extractPt('/o/master.m3u8?foo=1')).toBeNull();
   });
 
-  it('stripPt drops the whole signature so the build key is stable per bucket', () => {
-    // Two 5s polls differ only in pt+token → same key, no rebuild.
-    const a = '/p/x/live/master.m3u8?token_path=%2Fp%2Fx%2F&token=AAA&expires=100&pt=t1';
-    const b = '/p/x/live/master.m3u8?token_path=%2Fp%2Fx%2F&token=BBB&expires=100&pt=t2';
-    expect(stripPt(a)).toBe(stripPt(b));
-    expect(stripPt(a)).toBe('/p/x/live/master.m3u8');
+  it('extractPt falls back to legacy `token` on a relative (non-CDN) URL', () => {
+    expect(extractPt('/o/master.m3u8?token=legacy')).toBe('legacy');
+    expect(extractPt('/o/master.m3u8?pt=abc&token=legacy')).toBe('abc'); // pt wins
   });
 
-  it('applySignedQuery swaps the master query onto a bare child, no-op when null', () => {
-    const q = 'token_path=%2Fp%2Fx%2F&token=AAA&expires=100&pt=t1';
-    expect(applySignedQuery('/p/x/dvr/480p.m3u8', q)).toBe(`/p/x/dvr/480p.m3u8?${q}`);
-    // child that arrived with a stale query gets it replaced
-    expect(applySignedQuery('/p/x/dvr/480p.m3u8?pt=old', q)).toBe(`/p/x/dvr/480p.m3u8?${q}`);
-    expect(applySignedQuery('/p/x/dvr/480p.m3u8', null)).toBe('/p/x/dvr/480p.m3u8');
+  it('extractPt never falls back to `token` on a CDN-signed URL', () => {
+    expect(
+      extractPt(
+        'https://cdn.example/api/packages/1/live/master.m3u8?token=BUNNY&expires=1&token_path=%2Fapi%2Fpackages%2F1%2Flive%2F',
+      ),
+    ).toBeNull();
   });
 
   it('stripPt drops only pt (stable build key)', () => {
     expect(stripPt('/o/master.m3u8?pt=abc')).toBe('/o/master.m3u8');
     expect(stripPt('/o/master.m3u8?a=1&pt=abc')).toBe('/o/master.m3u8?a=1');
     expect(stripPt('/o/master.m3u8')).toBe('/o/master.m3u8');
+  });
+
+  it('stripPt drops legacy `token` too on a relative URL (same volatility as pt)', () => {
+    expect(stripPt('/o/master.m3u8?token=legacy')).toBe('/o/master.m3u8');
+  });
+
+  it('stripPt never drops token/expires/token_path on an absolute CDN URL', () => {
+    const url = 'https://cdn.example/api/o/master.m3u8?pt=abc&token=BUNNY&expires=1&token_path=/o/';
+    expect(stripPt(url)).toBe(
+      'https://cdn.example/api/o/master.m3u8?token=BUNNY&expires=1&token_path=%2Fo%2F',
+    );
   });
 
   it('replacePtParam swaps the token, falls through gracefully', () => {
@@ -81,6 +91,81 @@ describe('pt helpers', () => {
     expect(replacePtParam('/s?pt=old', null)).toBe('/s?pt=old'); // no token → unchanged
     // JWT dots survive the round-trip (not percent-encoded).
     expect(replacePtParam('/s?pt=x', 'aaa.bbb.ccc')).toBe('/s?pt=aaa.bbb.ccc');
+  });
+
+  it('replacePtParam swaps legacy `token` on a relative (non-CDN) URL', () => {
+    expect(replacePtParam('/s?token=old', 'new')).toBe('/s?token=new');
+  });
+
+  it('replacePtParam never touches token/expires/token_path on a CDN URL', () => {
+    const url = 'https://cdn.example/api/o/master.m3u8?token=BUNNY&expires=1&token_path=/o/';
+    expect(replacePtParam(url, 'fresh-jwt')).toBe(url);
+  });
+});
+
+describe('shared playback contracts', () => {
+  it('the moved helpers are the shared ones', () => {
+    expect(extractPt('/a.m3u8?pt=A')).toBe('A');
+    expect(stripPt('/a.m3u8?pt=A')).toBe('/a.m3u8');
+    expect(replacePtParam('/a.m3u8?pt=A', 'B')).toBe('/a.m3u8?pt=B');
+  });
+});
+
+describe('replayXhrSetup', () => {
+  it('a pt-carrying source is refreshed, not bearer-authenticated', () => {
+    const setup = replayXhrSetup({
+      manifestUrl: '/packages/p/replay/master.m3u8?pt=OLD',
+      latestPt: 'NEW',
+      bearer: 'JWT',
+    });
+    const xhr = { open: vi.fn(), setRequestHeader: vi.fn() } as unknown as XMLHttpRequest;
+    setup(xhr, '/api/recordings/e/p/720p/segment_00001.ts?pt=OLD');
+    expect(xhr.open).toHaveBeenCalledWith(
+      'GET',
+      '/api/recordings/e/p/720p/segment_00001.ts?pt=NEW',
+      true,
+    );
+    expect(xhr.setRequestHeader).not.toHaveBeenCalled();
+  });
+
+  it('a legacy source with no pt still gets the bearer header', () => {
+    const setup = replayXhrSetup({
+      manifestUrl: '/packages/p/replay/master.m3u8',
+      latestPt: null,
+      bearer: 'JWT',
+    });
+    const xhr = { open: vi.fn(), setRequestHeader: vi.fn() } as unknown as XMLHttpRequest;
+    setup(xhr, '/api/recordings/e/p/720p/segment_00001.ts');
+    expect(xhr.setRequestHeader).toHaveBeenCalledWith('Authorization', 'Bearer JWT');
+    expect(xhr.open).not.toHaveBeenCalled();
+  });
+
+  it('a pt-carrying manifest whose child URL has no pt/token to rewrite falls back to the bearer', () => {
+    const setup = replayXhrSetup({
+      manifestUrl: '/packages/p/replay/master.m3u8?pt=OLD',
+      latestPt: 'NEW',
+      bearer: 'JWT',
+    });
+    const xhr = { open: vi.fn(), setRequestHeader: vi.fn() } as unknown as XMLHttpRequest;
+    // No pt/token query param for replacePtParam to rewrite — it returns the URL unchanged.
+    setup(xhr, '/api/recordings/e/p/720p/segment_00001.ts');
+    expect(xhr.open).not.toHaveBeenCalled();
+    expect(xhr.setRequestHeader).toHaveBeenCalledWith('Authorization', 'Bearer JWT');
+  });
+});
+
+// ── media URL resolution ─────────────────────────────────────────────────────
+describe('resolveMediaUrl', () => {
+  it('prefixes a relative path with config.apiUrl', () => {
+    expect(resolveMediaUrl('/origin/pkg-1/master.m3u8')).toBe(
+      `${config.apiUrl}/origin/pkg-1/master.m3u8`,
+    );
+  });
+
+  it('uses an absolute (CDN) URL as-is', () => {
+    const url = 'https://cdn.example/api/origin/pkg-1/master.m3u8?pt=abc';
+    expect(resolveMediaUrl(url)).toBe(url);
+    expect(resolveMediaUrl('http://cdn.example/x')).toBe('http://cdn.example/x');
   });
 });
 
@@ -199,6 +284,44 @@ describe('useHlsPlayer — signed-URL token refresh (live standard)', () => {
     // hasLl true → LL tuning, no live-standard pt rewrite
     expect(h.instances[0].config.lowLatencyMode).toBe(true);
     expect(h.instances[0].config.xhrSetup).toBeUndefined();
+  });
+
+  it('xhrSetup propagates a CDN manifest URL\'s Bunny params onto a child URL missing them', () => {
+    renderPlayer(
+      cam({
+        manifestPath:
+          'https://cdn.example/api/o/pkg-1/master.m3u8?pt=CURRENT&token=BUNNY&expires=99&token_path=%2Fo%2Fpkg-1%2F',
+      }),
+    );
+    const xhrSetup = h.instances[0].config.xhrSetup as (
+      xhr: XMLHttpRequest,
+      url: string,
+    ) => void;
+    // Segment references carry their own stale `pt` baked in by the manifest
+    // (same mechanism as the non-CDN case) but never Bunny's signature — the
+    // CDN edge enforces that separately, and hls.js doesn't know to add it.
+    const xhr = { open: vi.fn() } as unknown as XMLHttpRequest;
+    xhrSetup(xhr, 'https://cdn.example/api/o/pkg-1/seg_0.ts?pt=STALE');
+    expect(xhr.open).toHaveBeenCalledWith(
+      'GET',
+      'https://cdn.example/api/o/pkg-1/seg_0.ts?pt=CURRENT&token=BUNNY&expires=99&token_path=%2Fo%2Fpkg-1%2F',
+      true,
+    );
+  });
+
+  it('xhrSetup does not add CDN params on a non-CDN (relative) manifest', () => {
+    renderPlayer(cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=CURRENT' }));
+    const xhrSetup = h.instances[0].config.xhrSetup as (
+      xhr: XMLHttpRequest,
+      url: string,
+    ) => void;
+    const xhr = { open: vi.fn() } as unknown as XMLHttpRequest;
+    xhrSetup(xhr, 'https://cdn.example/seg_0.ts?pt=STALE');
+    expect(xhr.open).toHaveBeenCalledWith(
+      'GET',
+      'https://cdn.example/seg_0.ts?pt=CURRENT',
+      true,
+    );
   });
 });
 

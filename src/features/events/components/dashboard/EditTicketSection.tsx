@@ -11,7 +11,7 @@ import {
   useDeleteTicketProductMutation,
   useUpdateTicketProductMutation,
 } from '../../mutations/ticket-product.mutation';
-import type { AccessCapability, TicketProductResponse } from '../../types/event.types';
+import type { AccessCapability } from '../../types/event.types';
 import { useEventStagesQuery } from '../../../streams/queries/streams.queries';
 import { ISO_CURRENCIES, DEFAULT_CURRENCY } from '@/shared/constants/currencies';
 import {
@@ -23,12 +23,28 @@ import {
 } from '@live-show/design-system';
 import styles from './TicketSection.module.scss';
 
-interface Props {
-  eventId: string;
-  tickets: TicketProductResponse[];
+interface TicketProductLike {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  capabilities: AccessCapability[];
+  camerasLimit: number | null;
+  allowedStageIds: string[];
+  capacity: number | null;
+  immutable: boolean;
+  remaining?: number | null;
+  soldOut?: boolean;
 }
 
-function ticketToForm(ticket: TicketProductResponse): TicketFormValues {
+interface Props {
+  eventId?: string;
+  stagesEventId?: string;
+  tickets: TicketProductLike[];
+}
+
+function ticketToForm(ticket: TicketProductLike): TicketFormValues {
   return {
     name: ticket.name,
     description: ticket.description,
@@ -55,12 +71,14 @@ const EMPTY_FORM: Partial<TicketFormInput> = {
   allowedStageIds: [],
 };
 
-export function EditTicketSection({ eventId, tickets }: Props) {
+export function EditTicketSection({ eventId, stagesEventId, tickets }: Props) {
   const t = useTranslations('editTicket');
-  const createMutation = useCreateTicketProductMutation(eventId);
-  const updateMutation = useUpdateTicketProductMutation(eventId);
-  const deleteMutation = useDeleteTicketProductMutation(eventId);
-  const { stages } = useEventStagesQuery(eventId);
+
+  const createMutation = useCreateTicketProductMutation(eventId ?? '');
+  const updateMutation = useUpdateTicketProductMutation(eventId ?? '');
+  const deleteMutation = useDeleteTicketProductMutation(eventId ?? '');
+
+  const { stages } = useEventStagesQuery(stagesEventId ?? eventId ?? null);
 
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -103,7 +121,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
     return parts.join(' + ');
   }
 
-  const startEdit = (ticket: TicketProductResponse) => {
+  const startEdit = (ticket: TicketProductLike) => {
     setEditingId(ticket.id);
     reset(ticketToForm(ticket));
   };
@@ -120,7 +138,7 @@ export function EditTicketSection({ eventId, tickets }: Props) {
     if (values.cameraView) capabilities.push('CAMERA_VIEW');
     if (values.physicalEntry) capabilities.push('PHYSICAL_ENTRY');
 
-    const payload = {
+    const basePayload = {
       name: values.name,
       description: values.description,
       price: values.price,
@@ -128,16 +146,27 @@ export function EditTicketSection({ eventId, tickets }: Props) {
       capabilities,
       camerasLimit: values.cameraView ? (values.camerasLimit ?? null) : null,
       capacity: values.physicalEntry ? (values.capacity ?? null) : null,
-      allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
     };
 
     if (editingId) {
       updateMutation.mutate(
-        { ticketId: editingId, payload },
+        {
+          ticketId: editingId,
+          payload: {
+            ...basePayload,
+            allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
+          },
+        },
         { onSuccess: () => cancelEdit() },
       );
     } else {
-      createMutation.mutate(payload, { onSuccess: () => reset(EMPTY_FORM) });
+      createMutation.mutate(
+        {
+          ...basePayload,
+          allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
+        },
+        { onSuccess: () => reset(EMPTY_FORM) },
+      );
     }
   };
 

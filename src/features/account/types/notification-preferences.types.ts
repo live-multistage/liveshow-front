@@ -1,7 +1,5 @@
-export type NotificationPreferenceKey =
-  | 'LIVE_EVENTS'
-  | 'TICKET_REMINDERS'
-  | 'NEWS_PROMOS'
-  | 'EMAIL_DIGEST';
-
-export type NotificationPreferences = Record<NotificationPreferenceKey, boolean>;
+// Promoted to @live-show/api-contracts in M4a so mobile shares the shapes.
+export type {
+  NotificationPreferenceKey,
+  NotificationPreferences,
+} from '@live-show/api-contracts';

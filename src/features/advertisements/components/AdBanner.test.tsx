@@ -26,11 +26,14 @@ function renderWithAd(ad: ServedAd | null) {
 }
 
 const baseAd: Omit<ServedAd, 'destination'> = {
+  servedId: 'srv-1',
   adId: 'ad-1',
   title: 'Great Ad',
   format: 'HORIZONTAL_728x90',
   advertiserAccountId: 'acc-1',
   bannerUrl: null,
+  videoUrl: null,
+  videoDurationSec: null,
 };
 
 describe('AdBanner', () => {
@@ -71,7 +74,7 @@ describe('AdBanner', () => {
 
     await screen.findByRole('link', { name: /Great Ad/i });
     await waitFor(() => expect(mockedService.recordImpression).toHaveBeenCalledTimes(1));
-    expect(mockedService.recordImpression).toHaveBeenCalledWith('ad-1', 'FEED');
+    expect(mockedService.recordImpression).toHaveBeenCalledWith('srv-1');
   });
 
   it('fires click handler for an EVENT link', async () => {
@@ -79,7 +82,7 @@ describe('AdBanner', () => {
 
     const link = await screen.findByRole('link', { name: /Great Ad/i });
     fireEvent.click(link);
-    expect(mockedService.recordClick).toHaveBeenCalledWith('ad-1', 'FEED');
+    expect(mockedService.recordClick).toHaveBeenCalledWith('srv-1');
   });
 
   it('fires click handler for an EXTERNAL_URL link', async () => {
@@ -87,6 +90,6 @@ describe('AdBanner', () => {
 
     const link = await screen.findByRole('link', { name: /Great Ad/i });
     fireEvent.click(link);
-    expect(mockedService.recordClick).toHaveBeenCalledWith('ad-1', 'FEED');
+    expect(mockedService.recordClick).toHaveBeenCalledWith('srv-1');
   });
 });

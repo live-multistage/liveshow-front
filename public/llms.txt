@@ -1,0 +1,28 @@
+# showon.io
+
+> Plataforma brasileira de transmissão ao vivo de shows e eventos. Eventos com
+> múltiplas câmeras, ingressos digitais ilimitados, replays sob demanda e
+> perfis públicos de organizações produtoras.
+
+showon.io transmite shows, festivais e eventos culturais ao vivo pela internet.
+Cada evento pode oferecer vários ângulos de câmera simultâneos, e o espectador
+escolhe o ângulo ou assiste a todos no modo galeria. Ingressos são digitais e
+sem limite de estoque; alguns eventos oferecem replay após o encerramento.
+
+## Páginas principais
+
+- [Início](/): destaques e eventos ao vivo agora
+- [Programação](/events): catálogo completo de shows com busca e filtros
+- [Evento](/events/{id}): detalhes de um show — datas, câmeras, ingressos e organização
+- [Organizações](/o/{slug}): perfil público de cada produtora com sua agenda
+- [Ajuda](/help): perguntas frequentes e suporte
+- [Privacidade](/privacidade): política de privacidade
+
+## Restrições
+
+- Áreas autenticadas (dashboard, ingressos, conta) não são indexáveis.
+- As transmissões de vídeo exigem ingresso válido; não há acesso público ao stream.
+
+## Contato
+
+- Suporte: página /help

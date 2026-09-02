@@ -11,11 +11,12 @@ export { EventDashboardCard } from './components/dashboard/EventDashboardCard';
 export { TicketSection } from './components/dashboard/TicketSection';
 
 export { useCreateEventMutation } from './mutations/create-event.mutation';
-export { useGetEventQuery, useListTicketProductsQuery, useServiceFeeRateQuery, useListEventPhotosQuery, eventKeys } from './queries/get-event';
+export { useGetEventQuery, useEventBySlugQuery, useListTicketProductsQuery, useServiceFeeRateQuery, useListEventPhotosQuery, eventKeys } from './queries/get-event';
 export { useMyEventsQuery, MY_EVENTS_KEY } from './queries/get-my-events';
 export { useListEventsQuery, useInfiniteEventsQuery, LIST_EVENTS_KEY, INFINITE_EVENTS_KEY } from './queries/use-list-events';
 export { useRecommendedEventsQuery, RECOMMENDED_EVENTS_KEY } from './queries/use-recommended-events';
 export { eventToShow } from './utils/event-adapter';
+export { eventHref, slugify, isEventId, SLUG_PATTERN, SLUG_MIN_LENGTH, SLUG_MAX_LENGTH } from './utils/slug';
 export { formatDate, formatTime, formatDuration, formatPrice, formatPriceRange } from './utils/event-formatters';
 export type { EventResponse, EventOrganization, CreateEventRequest, CreateTicketRequest, TicketProductResponse, TicketProductsResponse, AccessCapability, EventStatus, EventFormat, ListEventsFilter, RecommendedEventsResponse, PaginatedEventsResponse } from './types/event.types';
 export type { CreateEventFormValues, TicketFormValues } from './schemas/create-event.schema';

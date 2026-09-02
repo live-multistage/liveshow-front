@@ -1,0 +1,183 @@
+@use '../../../../styles/dashboard-forms' as *;
+
+.content {
+  max-width: 540px;
+  padding: 0;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background:
+    radial-gradient(70% 60% at 50% 0%, rgba(255, 46, 158, 0.06), transparent 70%),
+    rgba(4, 4, 5, 0.86);
+  box-shadow: 0 28px 70px -12px rgba(0, 0, 0, 0.7);
+  gap: 0;
+}
+
+// Topology tab (preview + stream card + stages) needs room; details form does not.
+.contentWide {
+  max-width: 960px;
+}
+
+.header {
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid $hairline;
+}
+
+.eyebrow {
+  @include eyebrow;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 22px 24px 24px;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 24px 0;
+  border-bottom: 1px solid $hairline;
+}
+
+.tab {
+  border: 0;
+  background: transparent;
+  padding: 10px 4px;
+  margin-right: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-muted;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.tabActive {
+  color: $text-primary;
+  border-bottom-color: $action;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $text-secondary;
+}
+
+.required {
+  color: $action;
+  margin-left: 2px;
+}
+
+.control {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid #27272a;
+  background: #0b0b0d;
+  color: $text-primary;
+  font-family: inherit;
+  font-size: 14px;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $action;
+    box-shadow: 0 0 0 3px rgba(255, 46, 158, 0.15);
+  }
+}
+
+.controlMono {
+  font-family: $mono;
+}
+
+.hint {
+  @include mono-meta;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  font-size: 13px;
+  color: $text-primary;
+  cursor: pointer;
+}
+
+.help {
+  font-size: 12px;
+  color: $text-muted;
+}
+
+// ── Rodapé ───────────────────────────────────────────────────────────
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid $hairline;
+}
+
+.footerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.deleteLink {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: $error;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

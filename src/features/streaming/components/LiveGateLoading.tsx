@@ -29,7 +29,7 @@ export function LiveGateLoading({ message, eventTitle, onCancel }: Props) {
               <rect x="18" y="9" width="2.4" height="6" rx="1.2" />
             </g>
           </svg>
-          <span className={styles.logoText}>LIVESHOW</span>
+          <span className={styles.logoText}>showon.io</span>
         </div>
         {onCancel && (
           <button className={styles.cancelBtn} onClick={onCancel} type="button">

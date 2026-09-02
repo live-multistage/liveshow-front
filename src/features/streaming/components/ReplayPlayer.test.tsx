@@ -4,9 +4,12 @@
  * for the same pattern), next-intl echoes keys, media play/pause stubbed on
  * HTMLMediaElement.prototype.
  */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, act, fireEvent } from '@testing-library/react';
 import { ReplayPlayer } from './ReplayPlayer';
+import { DRAWER_W } from './CameraGrid';
 import type { ReplayCameraPlayback } from '../types/live.types';
 
 // ── hls.js mock ──────────────────────────────────────────────────────────────
@@ -49,6 +52,8 @@ const h = vi.hoisted(() => {
 vi.mock('hls.js', () => ({ default: h.MockHls }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock('@/lib/analytics/analytics-client', () => ({ track: vi.fn() }));
+// Needs a React Query provider; not what these tests exercise.
+vi.mock('./RecommendedOverlay', () => ({ RecommendedOverlay: () => null }));
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
 
@@ -106,6 +111,15 @@ const camA: ReplayCameraPlayback = {
   coverage: [{ startsAtMs: CAM_A_START_MS, endsAtMs: CAM_A_START_MS + 600_000, localStartSec: 0 }],
 };
 
+const camB: ReplayCameraPlayback = {
+  cameraId: 'cam-b',
+  name: 'Câmera B',
+  slug: 'camera-b',
+  priority: 2,
+  replayPath: '/packages/pkg-b/replay/master.m3u8',
+  coverage: [{ startsAtMs: CAM_B_START_MS, endsAtMs: CAM_B_START_MS + 300_000, localStartSec: 0 }],
+};
+
 const timeline = { startsAtMs: CAM_A_START_MS, endsAtMs: CAM_A_START_MS + 600_000 };
 
 describe('ReplayPlayer — absolute timeline', () => {
@@ -113,7 +127,7 @@ describe('ReplayPlayer — absolute timeline', () => {
     const { getByText, queryByRole } = render(
       <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={null} />,
     );
-    expect(getByText('Replay ainda não disponível para este evento.')).toBeTruthy();
+    expect(getByText('replayNotAvailable')).toBeTruthy();
     expect(queryByRole('slider')).toBeNull();
   });
 
@@ -121,7 +135,7 @@ describe('ReplayPlayer — absolute timeline', () => {
     const { container } = render(
       <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} />,
     );
-    const slider = container.querySelector('input[type="range"][aria-label="Posição de reprodução"]') as HTMLInputElement;
+    const slider = container.querySelector('input[type="range"][aria-label="seekPosition"]') as HTMLInputElement;
     expect(slider.min).toBe(String(timeline.startsAtMs));
     expect(slider.max).toBe(String(timeline.endsAtMs));
   });
@@ -130,7 +144,7 @@ describe('ReplayPlayer — absolute timeline', () => {
     const { container } = render(
       <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} />,
     );
-    const slider = container.querySelector('input[type="range"][aria-label="Posição de reprodução"]') as HTMLInputElement;
+    const slider = container.querySelector('input[type="range"][aria-label="seekPosition"]') as HTMLInputElement;
     const seekTarget = CAM_A_START_MS + 120_000; // 2 minutes in, absolute ms
     fireEvent.change(slider, { target: { value: String(seekTarget) } });
 
@@ -169,5 +183,50 @@ describe('ReplayPlayer — absolute timeline', () => {
     // currentTime é sempre em segundos; comparar com milissegundos aqui pediria
     // 150 mil segundos de vídeo.
     expect(video.currentTime).toBe(150);
+  });
+});
+
+// The header's round buttons used to overlap the camera drawer's top-right
+// corner and eat its clicks (the drawer sits at a fixed DRAWER_W strip on
+// the right). A padding-only fix (tried and reverted) padded the header's
+// CONTENTS but left its own (transparent) box full-width, still sitting
+// over the drawer's close/mode buttons. Fix: while the picker is open, the
+// header's own box is constrained with `right: DRAWER_W` (sourced from
+// CameraGrid, not a duplicated pixel value) so it stops before the drawer's
+// strip, AND the bar gets `pointer-events: none` with `auto` restored on its
+// own buttons/links (see Header.module.scss's `.header`) so its transparent
+// area can never swallow a click meant for whatever's underneath.
+describe('ReplayPlayer — header stays clear of the camera drawer', () => {
+  it('constrains the header box by DRAWER_W once the camera drawer opens, and clears it on close', () => {
+    const { container, getByTitle } = render(
+      <ReplayPlayer cameras={[camA, camB]} title="Show" eventId="evt-1" timeline={timeline} />,
+    );
+    const header = container.querySelector('header')!;
+    expect(header.style.right).toBe('');
+
+    fireEvent.click(getByTitle('toggleCameras'));
+    expect(header.style.right).toBe(`${DRAWER_W}px`);
+
+    fireEvent.click(getByTitle('toggleCameras'));
+    expect(header.style.right).toBe('');
+  });
+
+  it('keeps the drawer close button reachable through the (offset) header bar', () => {
+    const { container, getByTitle, getByLabelText, queryByLabelText } = render(
+      <ReplayPlayer cameras={[camA, camB]} title="Show" eventId="evt-1" timeline={timeline} />,
+    );
+
+    fireEvent.click(getByTitle('toggleCameras'));
+    expect(container.querySelector('[class*="drawer"]')).not.toBeNull();
+
+    fireEvent.click(getByLabelText('closeCameras'));
+    expect(queryByLabelText('closeCameras')).toBeNull();
+  });
+
+  it('declares pointer-events: none on the bar and auto on its buttons/links in the stylesheet', () => {
+    const scss = readFileSync(join(__dirname, 'ReplayPlayer.module.scss'), 'utf-8');
+    const headerRule = scss.slice(scss.indexOf('.header {'), scss.indexOf('.headerHidden'));
+    expect(headerRule).toMatch(/pointer-events:\s*none/);
+    expect(headerRule).toMatch(/button,\s*\n\s*a\s*\{\s*\n\s*pointer-events:\s*auto/);
   });
 });

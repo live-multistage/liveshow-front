@@ -80,6 +80,12 @@
   height: 386px;
 }
 
+// Content-sized slot (channels, series): width comes from the child.
+.itemContent {
+  flex-shrink: 0;
+  scroll-snap-align: start;
+}
+
 // Arrow buttons
 .arrowLeft,
 .arrowRight {

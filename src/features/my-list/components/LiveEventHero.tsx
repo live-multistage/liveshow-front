@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { eventHref } from '@/features/events/utils/slug';
 import { useLocale, useTranslations } from 'next-intl';
 import { Play } from 'lucide-react';
 import { coverGradient, coverUrl, placeLabel } from '@/shared/utils/event-cover';
@@ -35,7 +36,7 @@ export function LiveEventHero({ event }: { event: AccessibleEvent }) {
             <Play size={13} fill="currentColor" strokeWidth={0} />
             {t('watchLive')}
           </Link>
-          <Link href={`/events/${event.id}`} className={styles.secondary}>
+          <Link href={eventHref(event)} className={styles.secondary}>
             {t('details')}
           </Link>
         </div>

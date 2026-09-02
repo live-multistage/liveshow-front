@@ -1,0 +1,48 @@
+@use '../../../../styles/dashboard-forms' as *;
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th,
+  td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid $hairline;
+  }
+
+  th {
+    @include mono-meta;
+  }
+
+  a {
+    color: $accent-bright;
+  }
+}
+
+.badge {
+  @include pill;
+}
+
+.badgeLIVE {
+  color: $live-dot;
+  border-color: rgba(127, 224, 160, 0.32);
+}
+
+.badgeFINISHED {
+  color: $text-muted;
+  border-color: $hairline;
+}
+
+.badgePUBLISHED,
+.badgeSCHEDULED {
+  color: $violet-bright;
+  border-color: $violet-tint-border;
+}
+
+.badgeDRAFT,
+.badgeCANCELLED {
+  color: $text-muted;
+  border-color: $hairline;
+}

@@ -1,0 +1,916 @@
+@use '../../../../styles/dashboard-forms' as *;
+
+// Folha única da tela de detalhe do canal: header, checklist, painel no ar,
+// grade semanal e os cards do rail compartilham os mesmos padrões.
+
+.page {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 26px 36px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  font-family: 'Archivo', sans-serif;
+}
+
+.state {
+  padding: 40px 36px;
+  color: $text-secondary;
+}
+
+// ── Breadcrumb ──────────────────────────────────────────────────────
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: -6px;
+  font-family: $mono;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.breadcrumbLink {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
+
+.breadcrumbCurrent {
+  color: $accent-bright;
+}
+
+// ── Header ──────────────────────────────────────────────────────────
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.headerIdentity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cover {
+  flex: 0 0 auto;
+  width: 132px;
+  height: 74px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid $hairline;
+}
+
+.coverPlaceholder {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(255, 46, 158, 0.22), rgba(152, 16, 250, 0.18));
+  font-family: $mono;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.title {
+  margin: 0;
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: $text-primary;
+}
+
+.headerMeta {
+  margin: 0;
+  @include mono-meta;
+}
+
+.headerMetaSlug {
+  color: $price;
+}
+
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+// ── Pills ───────────────────────────────────────────────────────────
+
+.pill {
+  @include pill;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: $text-secondary;
+}
+
+.pillNeutral {
+  color: $text-secondary;
+}
+
+.statusPublished {
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.28);
+  color: $success-light;
+}
+
+.statusDraft {
+  background: rgba(255, 255, 255, 0.05);
+  color: $text-secondary;
+}
+
+.statusArchived {
+  background: rgba(255, 255, 255, 0.04);
+  color: $text-muted;
+}
+
+.pillOnAir {
+  background: $action-bg;
+  border-color: $accent-tint-border;
+  color: $accent-bright;
+}
+
+.pillOffAir {
+  color: $text-muted;
+}
+
+.pillViolet {
+  background: $violet-tint;
+  border-color: $violet-tint-border;
+  color: $violet-bright;
+}
+
+.pillSynced {
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.28);
+  color: $success-light;
+}
+
+.pillPending {
+  background: rgba(248, 113, 113, 0.12);
+  border-color: rgba(248, 113, 113, 0.28);
+  color: $error;
+}
+
+.dotPulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $live-dot;
+  animation: lsPulse 1.6s ease-in-out infinite;
+}
+
+.dotIdle {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $text-muted;
+}
+
+// ── Ações ───────────────────────────────────────────────────────────
+
+.ghostAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #b9b9c0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    color: $text-primary;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.primaryAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: $action;
+  color: $bg;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:disabled {
+    background: rgba(255, 255, 255, 0.08);
+    color: $text-muted;
+    cursor: not-allowed;
+  }
+}
+
+.dangerLink {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: $error;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.help {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: $text-muted;
+}
+
+.eyebrow {
+  display: block;
+  @include eyebrow;
+}
+
+.monoLabel {
+  @include mono-meta;
+  font-size: 10px;
+}
+
+// ── Checklist de prontidão ──────────────────────────────────────────
+
+.readiness {
+  @include card;
+  border-color: rgba(255, 46, 158, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.readinessTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.readinessHeadline {
+  margin: 8px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.readinessProgress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progressTrack {
+  display: block;
+  width: 150px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.progressBar {
+  display: block;
+  height: 100%;
+  background: $action;
+  transition: width 0.25s;
+}
+
+.progressCount {
+  font-family: $mono;
+  font-size: 11px;
+  color: $text-secondary;
+}
+
+.readinessList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.readinessItem {
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid $hairline;
+}
+
+.readinessItemDone {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.readinessItemPending {
+  background: $accent-tint;
+  border-color: $accent-tint-border;
+}
+
+.readinessMark {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: $bg;
+
+  .readinessItemDone & {
+    background: $success-light;
+    border-color: $success-light;
+  }
+}
+
+.readinessItemTitle {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 3px;
+
+  .readinessItemDone & {
+    color: $text-secondary;
+  }
+}
+
+.readinessItemBody {
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+  color: $text-muted;
+}
+
+// ── Layout principal ────────────────────────────────────────────────
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  align-items: start;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.cardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.cardSubtitle {
+  margin: 4px 0 0;
+  @include mono-meta;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+// ── Painel "No ar agora" ────────────────────────────────────────────
+
+.health {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: $mono;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.healthLive {
+  color: $success-light;
+}
+
+.onAirBody {
+  display: grid;
+  grid-template-columns: 264px minmax(0, 1fr);
+  gap: 20px;
+}
+
+.preview {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  border: 1px solid $hairline;
+  background: linear-gradient(140deg, #17171c, #0c0c0f);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.previewLive {
+  border-color: $accent-tint-border;
+  background: linear-gradient(140deg, rgba(255, 46, 158, 0.16), #0c0c0f);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.previewLabel {
+  font-family: $mono;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.previewBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: $action;
+  color: $bg;
+  font-family: $mono;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.onAirControls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.onAirDescription {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: $text-secondary;
+}
+
+.onAirWaiting {
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: $accent-tint;
+  border: 1px solid $accent-tint-border;
+  color: $notice-text;
+  font-size: 12px;
+}
+
+.onAirRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.select {
+  flex: 1 1 200px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: $surface-dark;
+  color: $text-primary;
+  font-family: inherit;
+  font-size: 13px;
+
+  &:focus {
+    outline: none;
+    border-color: $action;
+  }
+}
+
+// ── Grade semanal ───────────────────────────────────────────────────
+
+.weekNav {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.weekNavButton,
+.weekNavLabel {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: $text-secondary;
+  font-family: $mono;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.gridScroll {
+  overflow-x: auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 52px repeat(7, minmax(84px, 1fr));
+  min-width: 640px;
+}
+
+.gridCorner {
+  border-bottom: 1px solid $hairline;
+}
+
+.gridDay {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 6px 8px;
+  border-bottom: 1px solid $hairline;
+  font-family: $mono;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $text-secondary;
+}
+
+.gridDayToday {
+  color: $accent-bright;
+}
+
+.gridDayDate {
+  color: $text-muted;
+}
+
+.gridHours {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.gridHour {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-right: 8px;
+  transform: translateY(-6px);
+  font-family: $mono;
+  font-size: 10px;
+  color: $text-muted;
+}
+
+.gridColumn {
+  position: relative;
+  border-left: 1px solid $hairline;
+}
+
+.gridColumnToday {
+  background: rgba(255, 46, 158, 0.03);
+}
+
+.gridLine {
+  display: block;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.block {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  overflow: hidden;
+  border-radius: 7px;
+  border-left: 2.5px solid $action;
+  background: rgba(255, 46, 158, 0.16);
+}
+
+.blockOpen {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 5px 7px;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: $text-primary;
+}
+
+.blockTime {
+  font-family: $mono;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.blockName {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.blockDelete {
+  flex: 0 0 auto;
+  padding: 5px 5px 0 0;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+
+  &:hover {
+    color: $error;
+  }
+}
+
+.gridEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 34px 20px;
+  border-radius: 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  color: $text-muted;
+  text-align: center;
+}
+
+.gridEmptyTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  @include mono-meta;
+  font-size: 10px;
+}
+
+.legendSwatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  border-left: 2.5px solid $action;
+  background: rgba(255, 46, 158, 0.16);
+}
+
+.legendSwatchEmpty {
+  border-left-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+// ── Cards do rail ───────────────────────────────────────────────────
+
+.railCard {
+  @include card;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.railCardGlow::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, 0.16), transparent 70%);
+  pointer-events: none;
+}
+
+.railHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.railLink {
+  @include mono-meta;
+  font-size: 10px;
+  text-decoration: none;
+
+  &:hover {
+    color: $accent-bright;
+  }
+}
+
+.statRow {
+  display: flex;
+  gap: 22px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: $text-primary;
+}
+
+.statLabel {
+  @include mono-meta;
+  font-size: 9px;
+}
+
+.railRows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid $hairline;
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+.railRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.railRowValue {
+  font-family: $mono;
+  font-size: 11px;
+  color: $text-primary;
+  text-align: right;
+}
+
+.railAction {
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid $accent-tint-border;
+  background: $accent-tint;
+  color: $accent-bright;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.cameraList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cameraItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid $hairline;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.cameraItemOffline {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.12);
+  background: none;
+}
+
+.cameraName {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.cameraMeta {
+  display: block;
+  @include mono-meta;
+  font-size: 9px;
+}
+
+// ── Responsivo ──────────────────────────────────────────────────────
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .onAirBody {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: $md) {
+  .page {
+    padding: 20px 16px 48px;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

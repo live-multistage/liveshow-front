@@ -16,6 +16,7 @@ import type { EventResponse } from '../types/event.types';
 function makeEvent(overrides: Partial<EventResponse> = {}): EventResponse {
   return {
     id: 'evt-1',
+    slug: 'evt-1-slug',
     title: 'Show',
     description: 'desc',
     category: 'MUSIC',
@@ -40,6 +41,7 @@ function makeEvent(overrides: Partial<EventResponse> = {}): EventResponse {
     camerasCount: 0,
     isFree: true,
     publiclyFunded: false,
+    lifecycle: { idleFinishMinutes: 10 },
     ...overrides,
   };
 }

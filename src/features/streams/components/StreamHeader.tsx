@@ -31,10 +31,13 @@ interface Props {
   onRename: (title: string, description?: string) => Promise<unknown>;
   isRenaming: boolean;
   onDeleted?: (id: string) => void;
+  // false for a program-owned stream: it never transitions LIVE, so
+  // prepare/start/end/cancel/rollback have nothing to do.
+  showLifecycle: boolean;
 }
 
 export function StreamHeader({
-  stream, prepare, start, end, cancel, rollback, onRename, isRenaming, onDeleted,
+  stream, prepare, start, end, cancel, rollback, onRename, isRenaming, onDeleted, showLifecycle,
 }: Props) {
   const { status } = stream;
   const isTerminal = status === 'ENDED' || status === 'CANCELLED';
@@ -118,7 +121,7 @@ export function StreamHeader({
         </div>
       </div>
 
-      {!isTerminal && (
+      {showLifecycle && !isTerminal && (
         <div className={styles.lifecycle}>
           {status === 'DRAFT' && (
             <Button variant="info" size="sm" uppercase isLoading={prepare.isPending} onClick={prepare.onClick}>

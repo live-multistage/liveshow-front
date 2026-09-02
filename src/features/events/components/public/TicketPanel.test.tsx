@@ -47,6 +47,7 @@ const claimFreeTicket = vi.mocked(checkoutService.claimFreeTicket);
 function makeEvent(overrides: Partial<EventResponse> = {}): EventResponse {
   return {
     id: 'evt-1',
+    slug: 'evt-1-slug',
     title: 'Show Teste',
     description: 'desc',
     category: 'MUSIC',
@@ -71,6 +72,7 @@ function makeEvent(overrides: Partial<EventResponse> = {}): EventResponse {
     camerasCount: 3,
     isFree: false,
     publiclyFunded: false,
+    lifecycle: { idleFinishMinutes: 10 },
     ...overrides,
   };
 }
@@ -180,7 +182,7 @@ describe('TicketPanel direct watch', () => {
 
     await userEvent.click(watchButton());
 
-    expect(state.push).toHaveBeenCalledWith('/login?redirect=%2Fevents%2Fevt-1');
+    expect(state.push).toHaveBeenCalledWith('/login?redirect=%2Fevents%2Fevt-1-slug');
     expect(claimFreeTicket).not.toHaveBeenCalled();
   });
 

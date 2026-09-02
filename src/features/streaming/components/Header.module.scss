@@ -10,13 +10,37 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 20;
+  // Acima do overlay de fora do ar do canal (25) e da bottomStack (30): a
+  // barra é um gradiente transparente com pointer-events: none fora dos
+  // botões, então subi-la não rouba clique de nada embaixo.
+  z-index: 35;
   display: flex;
   align-items: center;
   gap: 0.875rem;
   padding: 0.875rem 1.25rem;
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.35) 60%, transparent);
   flex-wrap: wrap;
+  // `right` animates the inline style LivePlayer sets while the camera
+  // drawer is open (right: DRAWER_W), constraining the bar's own box so it
+  // stops before the drawer's strip instead of just padding its contents.
+  transition: opacity 0.3s ease, right 0.2s ease;
+  // This bar is a transparent gradient overlay spanning the full player
+  // width — most of it isn't visually "there". Only its controls should be
+  // hit targets, or the transparent regions eat clicks meant for whatever
+  // sits underneath (e.g. the camera drawer's close/mode buttons).
+  pointer-events: none;
+
+  button,
+  a {
+    pointer-events: auto;
+  }
+}
+
+// While the pause-ad takeover is up: hide the chrome so the creative breathes.
+// The transport bar stays visible — only this header gates.
+.headerHidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .backBtn {

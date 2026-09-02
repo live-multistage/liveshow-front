@@ -9,6 +9,7 @@ import type { EventResponse } from '../../types/event.types';
 function makeEvent(overrides: Partial<EventResponse> = {}): EventResponse {
   return {
     id: 'evt-1',
+    slug: 'evt-1-slug',
     title: 'Show',
     description: 'desc',
     category: 'MUSIC',
@@ -33,6 +34,7 @@ function makeEvent(overrides: Partial<EventResponse> = {}): EventResponse {
     camerasCount: 0,
     isFree: true,
     publiclyFunded: false,
+    lifecycle: { idleFinishMinutes: 10 },
     ...overrides,
   };
 }
@@ -171,6 +173,41 @@ describe('EventHeaderActions resume live', () => {
 
     await waitFor(() => expect(onResumeLive).toHaveBeenCalledTimes(1));
     expect(screen.getByText('resumeDialogTitle')).toBeInTheDocument();
+  });
+});
+
+describe('EventHeaderActions auto-finish hint', () => {
+  it('explains the automatic finish next to the Finish button for a LIVE event', () => {
+    render(
+      <EventHeaderActions
+        {...baseProps}
+        event={makeEvent({ status: 'LIVE', lifecycle: { idleFinishMinutes: 10 } })}
+        onResumeLive={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('autoFinishHint')).toBeInTheDocument();
+  });
+
+  // A response cached before `lifecycle` shipped used to throw here.
+  it('still renders the hint when a cached event carries no lifecycle', () => {
+    render(
+      <EventHeaderActions
+        {...baseProps}
+        event={makeEvent({ status: 'LIVE', lifecycle: undefined })}
+        onResumeLive={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('autoFinishHint')).toBeInTheDocument();
+  });
+
+  it('hides the hint when the event is not LIVE', () => {
+    render(
+      <EventHeaderActions {...baseProps} event={makeEvent({ status: 'DRAFT' })} onResumeLive={vi.fn()} />,
+    );
+
+    expect(screen.queryByText('autoFinishHint')).not.toBeInTheDocument();
   });
 });
 

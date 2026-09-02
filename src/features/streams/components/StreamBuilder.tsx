@@ -16,7 +16,9 @@ import styles from './StreamBuilder.module.scss';
 
 interface Props {
   stream: StreamResponse;
-  eventId: string;
+  // null for a program-owned stream (channel topology): no event to scope
+  // Libras/viewer-count hooks to, and lifecycle transitions are hidden.
+  eventId: string | null;
   eventTitle?: string;
   onStreamUpdated?: (s: StreamResponse) => void;
   onStreamDeleted?: (id: string) => void;
@@ -51,6 +53,7 @@ export function StreamBuilder({ stream, eventId, eventTitle, onStreamUpdated, on
         }
         isRenaming={update.isPending}
         onDeleted={onStreamDeleted}
+        showLifecycle={eventId !== null}
       />
       <StreamPreviewPanel stream={stream} eventId={eventId} eventTitle={eventTitle} />
       <StageList streamId={stream.id} streamStatus={stream.status} eventId={eventId} />

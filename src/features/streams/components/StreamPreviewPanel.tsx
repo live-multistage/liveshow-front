@@ -11,7 +11,7 @@ import styles from './StreamPreviewPanel.module.scss';
 
 interface Props {
   stream: StreamResponse;
-  eventId: string;
+  eventId: string | null;
   eventTitle?: string;
 }
 
@@ -24,7 +24,7 @@ export function StreamPreviewPanel({ stream, eventId, eventTitle }: Props) {
   const isReady = stream.status === 'READY';
 
   const { onAir } = useOnAirCamera(stream.id, isLive);
-  const { currentViewers } = useViewerCount(isLive ? eventId : undefined);
+  const { currentViewers } = useViewerCount(isLive && eventId ? eventId : undefined);
 
   const previewCams = useIngestPreviewCameras(stream.id, isReady);
   const [selectedId, setSelectedId] = useState<string | null>(null);

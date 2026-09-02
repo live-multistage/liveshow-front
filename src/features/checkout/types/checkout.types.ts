@@ -1,119 +1,43 @@
-export interface CheckoutSession {
-  sessionId: string;
-  orderId: string;
-  expiresAt: string;
-  totalAmount: number;
-  discountAmount: number;
-  currency: string;
-  ticketProductName: string;
-}
+import type {
+  PaymentProvider,
+  PaymentActionType,
+  PaymentAction,
+  PaymentMethod,
+  PaymentMethodType,
+  PaymentMethodsResponse,
+  PaymentStatus,
+  PaymentChannel,
+  PaymentFlow,
+  OrderView,
+  OrderLineView,
+  OrderLineEventView,
+  OrderStatus,
+  PlaceOrderRequest,
+  PlaceOrderResponse,
+  ClaimFreeTicketRequest,
+  ClaimFreeTicketResponse,
+  CartCouponPreviewRequest,
+  CartCouponPreviewResult,
+} from '@live-show/api-contracts';
 
-export type PaymentProvider =
-  | 'STRIPE'
-  | 'PAYPAL'
-  | 'MERCADO_PAGO'
-  | 'PIX'
-  | 'INTERNAL';
-
-export type PaymentActionType =
-  | 'REDIRECT'
-  | 'EMBEDDED_FORM'
-  | 'QR_CODE'
-  | 'COMPLETED';
-
-export type PaymentAction =
-  | { type: 'REDIRECT'; url: string }
-  | { type: 'EMBEDDED_FORM'; clientSecret: string }
-  | { type: 'QR_CODE'; qrCode: string }
-  | { type: 'COMPLETED'; externalReference: string };
-
-export interface ProcessPaymentResult {
-  paymentId: string;
-  action: PaymentAction;
-}
-
-export type PaymentMethodType =
-  | 'PIX'
-  | 'CREDIT_CARD'
-  | 'DEBIT_CARD'
-  | 'GOOGLE_PAY'
-  | 'APPLE_PAY'
-  | 'STRIPE';
-
-export interface PaymentMethod {
-  id: string;
-  displayName: string;
-  type: PaymentMethodType;
-  provider: PaymentProvider;
-}
-
-export interface CreateCheckoutSessionRequest {
-  ticketProductId: string;
-  couponCode?: string;
-}
-
-export interface CouponPreviewRequest {
-  code: string;
-  eventId: string;
-  orderAmount: number;
-}
-
-// One Stripe session per currency group in the cart. Named `CartCheckoutSession`
-// (not `CheckoutSession`) because that name is already taken by the single
-// ticket-product checkout session above — different shape, different endpoint.
-export interface CartCheckoutSession {
-  url: string;
-  currency: string;
-  amount: number;
-  orderIds: string[];
-}
-
-export interface CartCheckoutResult {
-  sessions: CartCheckoutSession[];
-}
-
-export interface CouponPreviewResult {
-  couponId: string;
-  discountType: string;
-  discountValue: number;
-  discountAmount: number;
-  orgIds: string[];
-  eventId: string | null;
-}
-
-export interface CartCouponPreviewRequest {
-  code: string;
-  items: { eventId: string; amount: number }[];
-}
-
-export interface CartCouponPreviewResult {
-  couponId: string;
-  discountType: string;
-  discountValue: number;
-  discountAmount: number;
-  orgIds: string[];
-  eventId: string | null;
-  eligibleEventIds: string[];
-}
-
-export interface ProcessPaymentRequest {
-  sessionId: string;
-  provider: PaymentProvider;
-}
-
-export type PaymentStatus =
-  | 'PENDING'
-  | 'PROCESSING'
-  | 'AUTHORIZED'
-  | 'COMPLETED'
-  | 'FAILED'
-  | 'REFUNDED';
-
-export interface PaymentStatusResponse {
-  paymentId: string;
-  status: PaymentStatus;
-}
-
-export interface ClaimFreeTicketResult {
-  granted: boolean;
-}
+export type {
+  PaymentProvider,
+  PaymentActionType,
+  PaymentAction,
+  PaymentMethod,
+  PaymentMethodType,
+  PaymentMethodsResponse,
+  PaymentStatus,
+  PaymentChannel,
+  PaymentFlow,
+  OrderView,
+  OrderLineView,
+  OrderLineEventView,
+  OrderStatus,
+  PlaceOrderRequest,
+  PlaceOrderResponse,
+  ClaimFreeTicketRequest,
+  ClaimFreeTicketResponse,
+  CartCouponPreviewRequest,
+  CartCouponPreviewResult,
+};

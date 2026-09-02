@@ -789,7 +789,7 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
           </div>
           <h1 className={styles.title}>{displayTitle}</h1>
           <div className={styles.titleMeta}>
-            <span>Liveshow</span>
+            <span>showon.io</span>
           </div>
         </div>
         <div className={styles.headerActions}>

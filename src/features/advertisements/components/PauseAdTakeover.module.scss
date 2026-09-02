@@ -1,0 +1,100 @@
+@keyframes adBgIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes adTextIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// Full-bleed creative behind the shrunken video card. Sits at the bottom of
+// the gridArea stack (z-index 1) — the video card and header/transport chrome
+// all render above it.
+.takeover {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  animation: adBgIn 0.6s ease both;
+  background-size: cover;
+  background-position: center;
+}
+
+// Legibility scrim so the copy column reads over any real creative, not just
+// the deterministic gradient fallback.
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 40%, rgba(5, 4, 6, 0.72) 75%);
+}
+
+.sponsored {
+  position: absolute;
+  top: 84px;
+  right: 64px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.65);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 5px;
+  padding: 5px 10px;
+}
+
+.copy {
+  position: absolute;
+  right: 64px;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 44%;
+  text-align: left;
+  animation: adTextIn 0.55s ease 0.15s both;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(40px, 6vw, 96px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #fff;
+  color: #0a0a0b;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 14px 30px;
+  font-size: 14.5px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+}
+
+.closeBtn {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  border-radius: 999px;
+  padding: 14px 24px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}

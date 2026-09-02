@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { Volume2, VolumeX, Settings, PictureInPicture, Maximize, Minimize, Play, Pause } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { LiveCamera } from '../types/live.types';
 import type { QualityLevel } from './VideoPanel';
 import { SeekSlider } from './SeekSlider';
+import { PlayPauseButton } from './transport/PlayPauseButton';
+import { VolumeControl } from './transport/VolumeControl';
+import { TransportRightControls } from './transport/TransportRightControls';
 import styles from './TransportBar.module.scss';
 
 // Below this the seekable window is just the player's own buffer, not real
@@ -42,6 +44,10 @@ interface Props {
   // becomes the way back to the edge.
   paused: boolean;
   onTogglePlay: () => void;
+  // False no player de canal: sem arquivo atrás da janela da origem, não há
+  // como pausar nem para onde voltar — os dois controles somem juntos. O
+  // badge AO VIVO fica: um canal está sempre ao vivo.
+  showPlayback?: boolean;
   globalMuted: boolean;
   onToggleMute: () => void;
   volume: number;
@@ -64,6 +70,7 @@ export function TransportBar({
   onSeek,
   paused,
   onTogglePlay,
+  showPlayback = true,
   globalMuted,
   onToggleMute,
   volume,
@@ -79,20 +86,13 @@ export function TransportBar({
   isFullscreen,
   onToggleFullscreen,
 }: Props) {
-  const [showAudioMenu, setShowAudioMenu] = useState(false);
-  const [showQuality, setShowQuality] = useState(false);
-  const showScrubber = !!dvr && !!onSeek && dvr.end - dvr.start >= MIN_DVR_WINDOW_SEC;
+  const t = useTranslations('player');
+  const showScrubber =
+    showPlayback && !!dvr && !!onSeek && dvr.end - dvr.start >= MIN_DVR_WINDOW_SEC;
 
   return (
     <div className={styles.bar}>
-      <button
-        type="button"
-        onClick={onTogglePlay}
-        className={styles.iconBtn}
-        aria-label={paused ? 'Reproduzir' : 'Pausar'}
-      >
-        {paused ? <Play size={16} /> : <Pause size={16} />}
-      </button>
+      {showPlayback && <PlayPauseButton paused={paused} onTogglePlay={onTogglePlay} />}
 
       {atLive ? (
         <span className={styles.liveBadge}>
@@ -106,15 +106,15 @@ export function TransportBar({
           type="button"
           className={styles.liveBadgeBehind}
           onClick={() => dvr && onSeek?.(dvr.edge)}
-          title="Voltar ao ao vivo"
-          aria-label="Voltar ao ao vivo"
+          title={t('backToLive')}
+          aria-label={t('backToLive')}
         >
           <span className={styles.liveDotBehind} />
           AO VIVO
         </button>
       )}
 
-      {dvr && onSeek && showScrubber && (
+      {showScrubber && dvr && onSeek && (
         <div className={styles.seekGroup}>
           <span className={styles.timeLabel}>{formatBehind(dvr.edge - dvr.position)}</span>
           <SeekSlider
@@ -122,113 +122,33 @@ export function TransportBar({
             max={dvr.end}
             value={dvr.position}
             onSeek={onSeek}
-            ariaLabel="Posição de reprodução"
+            ariaLabel={t('seekPosition')}
           />
         </div>
       )}
 
-      <div className={styles.volumeGroup}>
-        <button
-          onClick={onToggleMute}
-          className={styles.iconBtn}
-          aria-label={globalMuted ? 'Ativar som' : 'Silenciar'}
-        >
-          {globalMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-        </button>
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.05}
-          value={globalMuted ? 0 : volume}
-          onChange={(e) => {
-            onVolumeChange(Number(e.target.value));
-            if (globalMuted) onToggleMute();
-          }}
-          className={styles.volumeSlider}
-          style={{
-            background: `linear-gradient(to right, #ff2e9e ${(globalMuted ? 0 : volume) * 100}%, rgba(255, 255, 255, 0.15) ${(globalMuted ? 0 : volume) * 100}%)`,
-          }}
-          aria-label="Volume"
-        />
-      </div>
+      <VolumeControl
+        muted={globalMuted}
+        onToggleMute={onToggleMute}
+        volume={volume}
+        onVolumeChange={onVolumeChange}
+      />
 
       {/* The scrubber already stretches; a second flexible gap would halve it. */}
       {!showScrubber && <div className={styles.spacer} />}
 
-      {audioCameras.length > 1 && (
-        <div className={styles.menuWrapper}>
-          {showAudioMenu && (
-            <div className={styles.menu}>
-              {audioCameras.map((cam) => (
-                <button
-                  key={cam.cameraId}
-                  className={cam.cameraId === effectiveAudioCameraId ? styles.menuItemActive : styles.menuItem}
-                  onClick={() => {
-                    onAudioCameraChange(cam.cameraId);
-                    setShowAudioMenu(false);
-                  }}
-                >
-                  {cam.name}
-                </button>
-              ))}
-            </div>
-          )}
-          <button
-            className={styles.iconBtn}
-            onClick={() => setShowAudioMenu((s) => !s)}
-            aria-label="Escolher câmera com áudio"
-            title="Escolher câmera com áudio"
-          >
-            <Settings size={16} />
-          </button>
-        </div>
-      )}
-
-      {levels.length > 0 && (
-        <div className={styles.menuWrapper}>
-          {showQuality && (
-            <div className={styles.menu}>
-              <button
-                className={currentLevel === -1 ? styles.menuItemActive : styles.menuItem}
-                onClick={() => {
-                  onSelectLevel(-1);
-                  setShowQuality(false);
-                }}
-              >
-                Auto
-              </button>
-              {levels.map(({ index, height }) => (
-                <button
-                  key={index}
-                  className={index === currentLevel ? styles.menuItemActive : styles.menuItem}
-                  onClick={() => {
-                    onSelectLevel(index);
-                    setShowQuality(false);
-                  }}
-                >
-                  {height}p
-                </button>
-              ))}
-            </div>
-          )}
-          <button className={styles.qualityBtn} onClick={() => setShowQuality((s) => !s)}>
-            {qualityLabel}
-          </button>
-        </div>
-      )}
-
-      <button className={styles.iconBtn} onClick={onTogglePip} aria-label="Picture-in-Picture" title="Picture-in-Picture">
-        <PictureInPicture size={16} />
-      </button>
-
-      <button
-        className={styles.iconBtn}
-        onClick={onToggleFullscreen}
-        aria-label={isFullscreen ? 'Sair da tela cheia' : 'Tela cheia'}
-      >
-        {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
-      </button>
+      <TransportRightControls
+        audioCameras={audioCameras}
+        effectiveAudioCameraId={effectiveAudioCameraId}
+        onAudioCameraChange={onAudioCameraChange}
+        levels={levels}
+        currentLevel={currentLevel}
+        qualityLabel={qualityLabel}
+        onSelectLevel={onSelectLevel}
+        onTogglePip={onTogglePip}
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={onToggleFullscreen}
+      />
     </div>
   );
 }

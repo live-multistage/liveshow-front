@@ -13,24 +13,28 @@ export function useTickets() {
 
   // Event data comes embedded in /orders/mine — no join against the public
   // catalog (which is paginated and status-filtered; tickets used to vanish
-  // silently for events outside its first page).
+  // silently for events outside its first page). One order can carry
+  // several lines (several ticket products bought in the same checkout);
+  // each line with an event becomes its own ticket card.
   const tickets = useMemo<PurchasedTicket[]>(
     () =>
-      orders
-        .map((order) =>
-          order.event
-            ? ({
-                orderId: order.orderId,
-                event: order.event,
-                ticketProductName: order.ticketProductName,
-                capabilities: order.capabilities,
-                camerasLimit: order.camerasLimit,
-                totalAmount: order.totalAmount,
+      orders.flatMap((order) =>
+        order.lines
+          .filter((line) => line.event !== null)
+          .map(
+            (line) =>
+              ({
+                orderId: order.id,
+                orderLineId: line.id,
+                event: line.event!,
+                ticketProductName: line.productName,
+                capabilities: line.capabilities,
+                camerasLimit: line.camerasLimit,
+                totalAmount: line.lineTotal,
                 purchasedAt: order.createdAt,
-              } satisfies PurchasedTicket)
-            : null,
-        )
-        .filter((t): t is PurchasedTicket => t !== null),
+              }) satisfies PurchasedTicket,
+          ),
+      ),
     [orders],
   );
 

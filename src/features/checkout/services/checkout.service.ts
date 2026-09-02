@@ -1,46 +1,28 @@
 import { httpClient } from '@/lib/http/client';
 import type {
-  CheckoutSession,
-  CreateCheckoutSessionRequest,
-  CartCheckoutResult,
-  CouponPreviewRequest,
-  CouponPreviewResult,
+  PaymentMethod,
+  PaymentMethodsResponse,
+  OrderView,
+  PlaceOrderRequest,
+  PlaceOrderResponse,
+  ClaimFreeTicketResponse,
   CartCouponPreviewRequest,
   CartCouponPreviewResult,
-  ProcessPaymentRequest,
-  ProcessPaymentResult,
-  PaymentMethod,
-  PaymentStatusResponse,
-  PaymentProvider,
-  ClaimFreeTicketResult,
 } from '../types/checkout.types';
 
 export const checkoutService = {
   listPaymentMethods: async (): Promise<PaymentMethod[]> => {
-    const { data } = await httpClient.get<PaymentMethod[]>('/payments/methods');
+    const { data } = await httpClient.get<PaymentMethodsResponse>('/payments/methods');
+    return data.methods;
+  },
+
+  placeOrder: async (payload: PlaceOrderRequest): Promise<PlaceOrderResponse> => {
+    const { data } = await httpClient.post<PlaceOrderResponse>('/orders', payload);
     return data;
   },
 
-  createSession: async (payload: CreateCheckoutSessionRequest): Promise<CheckoutSession> => {
-    const { data } = await httpClient.post<CheckoutSession>('/payments/sessions', payload);
-    return data;
-  },
-
-  processPayment: async (payload: ProcessPaymentRequest): Promise<ProcessPaymentResult> => {
-    const { data } = await httpClient.post<ProcessPaymentResult>(
-      `/payments/sessions/${payload.sessionId}/process`,
-      { provider: payload.provider },
-    );
-    return data;
-  },
-
-  getPaymentStatus: async (paymentId: string): Promise<PaymentStatusResponse> => {
-    const { data } = await httpClient.get<PaymentStatusResponse>(`/payments/${paymentId}/status`);
-    return data;
-  },
-
-  previewCoupon: async (payload: CouponPreviewRequest): Promise<CouponPreviewResult> => {
-    const { data } = await httpClient.post<CouponPreviewResult>('/coupons/preview', payload);
+  getOrder: async (orderId: string): Promise<OrderView> => {
+    const { data } = await httpClient.get<OrderView>(`/orders/${orderId}`);
     return data;
   },
 
@@ -49,13 +31,8 @@ export const checkoutService = {
     return data;
   },
 
-  createCartSession: async (payload: {
-    items: { ticketProductId: string; eventId: string }[];
-    provider: PaymentProvider;
-    currency?: string;
-    couponCode?: string;
-  }): Promise<CartCheckoutResult> => {
-    const { data } = await httpClient.post<CartCheckoutResult>('/payments/cart-session', payload);
+  claimFreeTicket: async (ticketProductId: string): Promise<ClaimFreeTicketResponse> => {
+    const { data } = await httpClient.post<ClaimFreeTicketResponse>('/orders/free-ticket', { ticketProductId });
     return data;
   },
 

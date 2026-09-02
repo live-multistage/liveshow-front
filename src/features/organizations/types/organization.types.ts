@@ -1,4 +1,5 @@
-export type OrganizationRole = 'OWNER' | 'ADMIN' | 'EVENT_MANAGER' | 'CONTENT_MANAGER' | 'OPERATOR' | 'STAFF' | 'VIEWER';
+export type { OrganizationRole, OrganizationResponse, OrganizationEventsFilter } from '@live-show/api-contracts';
+import type { OrganizationRole } from '@live-show/api-contracts';
 
 // Roles allowed to create events/coupons — mirrors the backend's
 // member.isAdmin() (OWNER/ADMIN). Used to filter org selectors in the
@@ -7,24 +8,6 @@ export const ORG_MANAGE_ROLES: OrganizationRole[] = ['OWNER', 'ADMIN'];
 
 export function canManageOrg(role: OrganizationRole | undefined): boolean {
   return role !== undefined && ORG_MANAGE_ROLES.includes(role);
-}
-
-export interface OrganizationResponse {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  logoUrl?: string;
-  bannerUrl?: string;
-  ownerId: string;
-  createdAt: string;
-  updatedAt: string;
-  // Present only on /organizations/mine — the caller's role in this org.
-  role?: OrganizationRole;
-  // Present only on /organizations/mine — dashboard aggregates.
-  activeEventsCount?: number;
-  memberCount?: number;
-  salesThisMonth?: { currency: string; amount: number }[];
 }
 
 export interface OrganizationSettings {
