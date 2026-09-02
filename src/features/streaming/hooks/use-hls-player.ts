@@ -28,14 +28,16 @@ export function extractPt(url: string): string | null {
   return new URLSearchParams(url.slice(q + 1)).get('pt');
 }
 
-// A stable key that ignores the token: two URLs differing ONLY in `pt` produce
-// the same base, so the build effect keys on real source changes (packageId /
-// job rotation) and not 5s token refreshes.
+// A stable key that ignores the volatile signed-URL params, so the build effect
+// keys on real source changes (packageId / job rotation) and not 5s token
+// refreshes. `pt` alone was enough pre-CDN; with the CDN the Bunny `token` signs
+// OVER `pt`, so it too changes every 5s (and `expires` rolls per bucket) — strip
+// the whole signature or the player rebuilds every poll.
 export function stripPt(url: string): string {
   const q = url.indexOf('?');
   if (q === -1) return url;
   const params = new URLSearchParams(url.slice(q + 1));
-  params.delete('pt');
+  for (const k of ['pt', 'token', 'expires', 'token_path']) params.delete(k);
   const rest = params.toString();
   return rest ? `${url.slice(0, q)}?${rest}` : url.slice(0, q);
 }
@@ -51,6 +53,18 @@ export function replacePtParam(url: string, token: string | null): string {
   if (!params.has('pt')) return url;
   params.set('pt', token);
   return `${url.slice(0, q)}?${params.toString()}`;
+}
+
+// CDN signed-URL: the Bunny token is computed OVER the query (incl. `pt`) and is
+// directory-scoped to the whole package, so every child (rendition playlist,
+// segment, key) must carry the master's EXACT signed query — a bare child request
+// 403s at the edge, and refreshing `pt` would invalidate the token. Swaps the
+// master's query onto the url; no-op (null) on the non-CDN path, which keeps the
+// per-request `pt` refresh instead.
+export function applySignedQuery(url: string, signedQuery: string | null): string {
+  if (!signedQuery) return url;
+  const q = url.indexOf('?');
+  return `${q === -1 ? url : url.slice(0, q)}?${signedQuery}`;
 }
 
 // How far behind the live edge hls.js tolerates before it force-seeks the
@@ -277,6 +291,13 @@ export function useHlsPlayer({
     // STANDARD events (llPath null) and replay always use the STANDARD
     // tuning below, unchanged from before this fallback existed.
     const activeSrc = hasLl ? mediaUrl(llPathRef.current!) : srcRef.current!;
+    // CDN on → the master carries a Bunny `token`; its directory-scoped query
+    // must ride every child request (see applySignedQuery). Null when the
+    // backend returns relative paths (no CDN), leaving the `pt` refresh below.
+    const signedQuery =
+      !hasLl && activeSrc.includes('token=')
+        ? activeSrc.slice(activeSrc.indexOf('?') + 1)
+        : null;
 
     // ~3 segments (~6s) behind the live edge on the STANDARD tuning.
     // lowLatencyMode/tighter sync only makes sense against the LL-HLS
@@ -312,7 +333,11 @@ export function useHlsPlayer({
       // (its token lifetime rides the existing LL→STANDARD fallback latch).
       ...(mode === 'live' && !hasLl && {
         xhrSetup: (xhr: XMLHttpRequest, url: string) => {
-          const next = replacePtParam(url, ptRef.current);
+          // CDN: carry the master's signed query verbatim (token binds pt, no
+          // refresh). Non-CDN: refresh the bearer pt per request as before.
+          const next = signedQuery
+            ? applySignedQuery(url, signedQuery)
+            : replacePtParam(url, ptRef.current);
           if (next !== url) xhr.open('GET', next, true);
         },
       }),

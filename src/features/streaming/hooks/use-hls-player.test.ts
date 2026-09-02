@@ -12,6 +12,7 @@ import {
   extractPt,
   stripPt,
   replacePtParam,
+  applySignedQuery,
   maxLatencyDurationCount,
   useHlsPlayer,
 } from './use-hls-player';
@@ -49,6 +50,22 @@ describe('pt helpers', () => {
     expect(extractPt('/o/master.m3u8?pt=abc')).toBe('abc');
     expect(extractPt('/o/master.m3u8')).toBeNull();
     expect(extractPt('/o/master.m3u8?foo=1')).toBeNull();
+  });
+
+  it('stripPt drops the whole signature so the build key is stable per bucket', () => {
+    // Two 5s polls differ only in pt+token → same key, no rebuild.
+    const a = '/p/x/live/master.m3u8?token_path=%2Fp%2Fx%2F&token=AAA&expires=100&pt=t1';
+    const b = '/p/x/live/master.m3u8?token_path=%2Fp%2Fx%2F&token=BBB&expires=100&pt=t2';
+    expect(stripPt(a)).toBe(stripPt(b));
+    expect(stripPt(a)).toBe('/p/x/live/master.m3u8');
+  });
+
+  it('applySignedQuery swaps the master query onto a bare child, no-op when null', () => {
+    const q = 'token_path=%2Fp%2Fx%2F&token=AAA&expires=100&pt=t1';
+    expect(applySignedQuery('/p/x/dvr/480p.m3u8', q)).toBe(`/p/x/dvr/480p.m3u8?${q}`);
+    // child that arrived with a stale query gets it replaced
+    expect(applySignedQuery('/p/x/dvr/480p.m3u8?pt=old', q)).toBe(`/p/x/dvr/480p.m3u8?${q}`);
+    expect(applySignedQuery('/p/x/dvr/480p.m3u8', null)).toBe('/p/x/dvr/480p.m3u8');
   });
 
   it('stripPt drops only pt (stable build key)', () => {
