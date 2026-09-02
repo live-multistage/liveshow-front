@@ -2,11 +2,9 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import { CheckCircle2, Ticket, ArrowRight, Compass } from 'lucide-react';
 import { formatPrice } from '@/features/events';
 import { AdBanner } from '@/features/advertisements';
-import type { CartCheckoutSession } from '../types/checkout.types';
 import styles from './CheckoutSuccessContent.module.scss';
 
 interface Props {
@@ -25,18 +23,6 @@ export function CheckoutSuccessContent(_: Props) {
 
   const formattedTotal = totalRaw != null ? formatPrice(Number(totalRaw), currency) : null;
   const hasOrderSummary = name || ticket || formattedTotal;
-
-  if (nextCurrency) {
-    return (
-      <div className={styles.page}>
-        <div className={styles.container}>
-          <div className={styles.confirmSection}>
-            <p className={styles.desc}>Redirecionando para o próximo pagamento ({nextCurrency})…</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.page}>

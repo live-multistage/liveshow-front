@@ -20,8 +20,6 @@ export { EVENT_CATEGORIES, EVENT_CATEGORY_LABELS } from '@live-show/api-contract
 
 export type { AccessCapability } from '@live-show/api-contracts';
 
-export type RecommendedEventsResponse = PaginatedEventsResponse;
-
 export interface CreateEventRequest {
   organizationId: string;
   title: string;

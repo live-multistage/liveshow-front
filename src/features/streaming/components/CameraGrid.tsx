@@ -18,39 +18,6 @@ export type { QualityLevel };
 export type { ViewMode } from './camera-layout';
 export { DRAWER_W } from './camera-layout';
 
-// Layout constants (previously split across MainRailView/CameraRail/PipOverlay).
-const RAIL_W = 240;
-const PIP_W = 220;
-const PIP_H = (PIP_W * 9) / 16;
-const PIP_RIGHT = 16;
-const PIP_BOTTOM = 88; // clears LivePlayer's floating bottom stack (5.5rem)
-const GAP = 2;
-
-// Right picker drawer (MULTICAM). Floats over the right edge of the stage;
-// thumbnails stack vertically inside, reusing the persistent panels.
-const DRAWER_W = 220;        // drawer width (px)
-const DRAWER_HEADER_H = 52;  // header row (title + modes + close)
-const DRAWER_PAD = 12;
-const DRAWER_BOTTOM = 96;    // clear the floating transport bar at the bottom
-const DRAWER_ROW_H = 44;     // active-camera placeholder row height in the drawer
-
-const MODES: { id: ViewMode; label: string; icon: typeof Square }[] = [
-  { id: 'solo', label: 'Solo', icon: Square },
-  { id: 'main-rail', label: 'Principal + trilha', icon: PanelRight },
-  { id: 'grid', label: 'Grade', icon: LayoutGrid },
-];
-
-// Off-screen-but-alive: opacity 0 (not visibility:hidden / display:none, which
-// browsers throttle or pause) so a hidden camera keeps decoding at the live
-// edge and reveals in sync when it becomes a PIP/rail/main — no reload jump.
-const HIDDEN_STYLE = { inset: 0, opacity: 0, pointerEvents: 'none', zIndex: -1 } as const;
-
-type Role = 'main' | 'pip' | 'rail' | 'grid' | 'strip' | 'libras' | 'hidden';
-interface Slot {
-  role: Role;
-  style: CSSProperties;
-}
-
 interface CameraGridProps {
   cameras: LiveCamera[];
   selectedLevel?: number;

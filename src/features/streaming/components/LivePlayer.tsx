@@ -11,9 +11,6 @@ import { CameraGrid, DRAWER_W } from './CameraGrid';
 import type { ViewMode } from './CameraGrid';
 import { Header } from './Header';
 import { TransportBar } from './TransportBar';
-import type { DvrState } from './TransportBar';
-import { isAtLiveEdge } from '../hooks/use-transport-controls';
-import type { LiveSeekCommand, LiveWindow } from '../hooks/use-transport-controls';
 import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
@@ -225,20 +222,6 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     onVolumeDown: () => setVolume((v) => clampVolume(v - VOLUME_STEP)),
   });
 
-  // Once the viewer turns sound on, the autoplay prompt is done for the session.
-  useEffect(() => {
-    if (!globalMuted) setAutoplayBlocked(false);
-  }, [globalMuted]);
-
-  usePlayerHotkeys({
-    onToggleFullscreen: toggleFullscreen,
-    onToggleCameraPanel: () => setCameraStripOpen((o) => !o),
-    onToggleMute: () => setGlobalMuted((m) => !m),
-    onTogglePlay: () => setPaused((p) => !p),
-    onVolumeUp: () => { setVolume((v) => clampVolume(v + VOLUME_STEP)); setGlobalMuted(false); },
-    onVolumeDown: () => setVolume((v) => clampVolume(v - VOLUME_STEP)),
-  });
-
   return (
     <div ref={containerRef} className={styles.player}>
       <Header
@@ -304,34 +287,6 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
               />
             )}
           </PlayerStage>
-
-          {autoplayBlocked && globalMuted && (
-            <button
-              type="button"
-              className={styles.unmutePrompt}
-              onClick={() => setGlobalMuted(false)}
-            >
-              <Volume2 size={16} />
-              {t('unmutePrompt')}
-            </button>
-          )}
-
-          <SessionWatermark />
-
-          {/* Sem isto, uma live pausada é indistinguível de uma transmissão
-              travada: a imagem congela e nada na tela explica por quê. */}
-          {paused && (
-            <button
-              type="button"
-              className={styles.centerPlayOverlay}
-              onClick={() => setPaused(false)}
-              aria-label={t('resume')}
-            >
-              <span className={styles.centerPlayBtn}>
-                <Play size={28} fill="currentColor" />
-              </span>
-            </button>
-          )}
 
           {autoplayBlocked && globalMuted && (
             <button
