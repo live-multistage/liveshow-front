@@ -8,7 +8,6 @@ import { Shield, AlertCircle, Check, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
 import { useAuth } from '@/features/account';
 import { useCartQuery, CAPABILITY_LABELS, type CartLineView } from '@/features/cart';
-import { groupCartByCurrency } from '../utils/group-cart-by-currency';
 import { checkoutService } from '../services/checkout.service';
 import { usePaymentMethodsQuery, usePlaceOrderMutation } from '../mutations/checkout.mutations';
 import { normalizeError, type AppError } from '@/lib/http/errors';
@@ -44,13 +43,6 @@ export function CartCheckoutPageContent() {
   // so a single currency covers every line here.
   const currency = items[0]?.currency ?? 'BRL';
 
-  // A mixed-currency cart has no single valid total — the backend already
-  // charges one Stripe session per currency group (see handlePay below), so
-  // the display groups the same way instead of summing incompatible amounts.
-  const currencyGroups = groupCartByCurrency(items);
-  const isMixedCurrency = currencyGroups.length > 1;
-  const singleCurrency = currencyGroups[0]?.currency ?? 'BRL';
-
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [payErrorMsg, setPayErrorMsg] = useState<string | null>(null);
   const [coupon, setCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
@@ -67,29 +59,6 @@ export function CartCheckoutPageContent() {
     checkoutService
       .previewCartCoupon({ code })
       .then((r) => setCoupon({ code, discountAmount: r.discountAmount }))
-      .catch(() => {
-        sessionStorage.removeItem('cart:coupon');
-        setCoupon(null);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.length]);
-
-  // Which currency group the applied coupon's discount belongs to — the
-  // backend only ever validates a coupon against one currency's events
-  // (eligibleEventIds), so attribute the discount line to that group only.
-  const couponCurrency = coupon
-    ? (items.find((i) => coupon.eligibleEventIds.includes(i.eventId))?.currency ?? singleCurrency)
-    : null;
-
-  // Coupon applied on the cart page travels here via sessionStorage;
-  // re-validate against the server so a stale/expired code is dropped silently.
-  useEffect(() => {
-    const raw = typeof window !== 'undefined' ? sessionStorage.getItem('cart:coupon') : null;
-    if (!raw || items.length === 0) return;
-    const { code } = JSON.parse(raw) as { code: string };
-    checkoutService
-      .previewCartCoupon({ code, items: items.map((i) => ({ eventId: i.eventId, amount: i.price })) })
-      .then((r) => setCoupon({ code, discountAmount: r.discountAmount, eligibleEventIds: r.eligibleEventIds }))
       .catch(() => {
         sessionStorage.removeItem('cart:coupon');
         setCoupon(null);
@@ -221,28 +190,7 @@ export function CartCheckoutPageContent() {
                   {formatPrice(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)), currency)}
                 </span>
               </div>
-            ) : (
-              <div className={cartStyles.totals}>
-                {(cart?.totals.lines ?? []).map((line) => (
-                  <div key={line.key} className={cartStyles.totalRow}>
-                    <span>{line.label}</span>
-                    <span>{formatPrice(line.amount, singleCurrency)}</span>
-                  </div>
-                ))}
-                {coupon && (
-                  <div className={cartStyles.totalRow}>
-                    <span>Cupom {coupon.code}</span>
-                    <span>−{formatPrice(coupon.discountAmount, singleCurrency)}</span>
-                  </div>
-                )}
-                <div className={cartStyles.totalRow}>
-                  <span>Total</span>
-                  <span className={cartStyles.totalValue}>
-                    {formatPrice(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)), singleCurrency)}
-                  </span>
-                </div>
-              </div>
-            )}
+            </div>
           </aside>
         </div>
       </div>
