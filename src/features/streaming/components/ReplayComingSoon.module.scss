@@ -1,0 +1,322 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background: #08080a;
+  color: #f4f4f5;
+}
+
+.glow {
+  position: absolute;
+  top: -320px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 640px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba($action, 0.14), transparent 62%);
+  pointer-events: none;
+  animation: drift 12s ease-in-out infinite;
+}
+
+.breadcrumbRow {
+  position: relative;
+  z-index: 5;
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 26px 32px 0;
+}
+
+.breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #8a8a92;
+  text-transform: uppercase;
+
+  &:hover {
+    color: #f4f4f5;
+  }
+}
+
+.main {
+  position: relative;
+  z-index: 4;
+  flex: 1;
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 30px 32px 72px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+
+  @media (max-width: $md) {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    align-items: start;
+  }
+}
+
+// ── Left: ended-stream frame ──────────────────────────────────────
+
+.frameCard {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: #0c0c0f;
+}
+
+.frame {
+  position: relative;
+  aspect-ratio: 16 / 11;
+  background:
+    linear-gradient(160deg, rgba(8, 8, 12, 0.4), rgba(8, 8, 12, 0.88) 84%),
+    var(--cover, #0c0c0f) center / cover;
+  filter: grayscale(0.35);
+}
+
+.frameOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 6, 9, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.endedBadge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(8, 8, 10, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #d4d4da;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 6px 10px;
+  border-radius: 6px;
+
+  &::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #71717a;
+  }
+}
+
+.processing {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.spinnerWrap {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  animation: float 4s ease-in-out infinite;
+}
+
+.spinnerRing {
+  position: absolute;
+  inset: 0;
+  animation: spin 2.2s linear infinite;
+}
+
+.spinnerIcon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff8ec9;
+}
+
+.processingText {
+  text-align: center;
+}
+
+.processingLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: #ff8ec9;
+  margin-bottom: 6px;
+}
+
+.processingSub {
+  font-size: 14px;
+  color: #c7c7cd;
+}
+
+// ── Left: includes list ───────────────────────────────────────────
+
+.includes {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.includesLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: #8a8a92;
+}
+
+.includeRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14.5px;
+  color: #d4d4da;
+}
+
+.includeIcon {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: rgba($action, 0.1);
+  border: 1px solid rgba($action, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff8ec9;
+}
+
+// ── Right column ──────────────────────────────────────────────────
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  align-self: flex-start;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #ff8ec9;
+  background: rgba($action, 0.08);
+  border: 1px solid rgba($action, 0.3);
+  padding: 8px 14px;
+  border-radius: 999px;
+}
+
+.eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: #8a8a92;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: 46px;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  text-wrap: balance;
+
+  @media (max-width: $md) {
+    font-size: 34px;
+  }
+}
+
+.titleAccent {
+  color: $action;
+}
+
+.body {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #a1a1aa;
+  max-width: 46ch;
+}
+
+.reassurance {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: #8a8a92;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+}
+
+.explore {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 18px;
+  font-size: 13.5px;
+  color: #8a8a92;
+
+  a {
+    color: #ff8ec9;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}
+
+// ── Animations ────────────────────────────────────────────────────
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateX(-50%) translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) translate(40px, -24px) scale(1.1);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}

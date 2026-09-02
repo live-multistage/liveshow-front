@@ -8,14 +8,16 @@ import { usePrerollGate } from '@/features/advertisements/hooks/use-preroll-gate
 import { PreRollPlayer } from '@/features/advertisements/components/PreRollPlayer';
 import { useReplayAccessQuery, useReplayPlaybackQuery } from '../queries/live.queries';
 import { LiveGateLoading } from './LiveGateLoading';
+import { ReplayComingSoon } from './ReplayComingSoon';
 import { ReplayPlayer } from './ReplayPlayer';
 
 interface Props {
   eventId: string;
   eventTitle: string;
+  coverUrl?: string | null;
 }
 
-export function ReplayGate({ eventId, eventTitle }: Props) {
+export function ReplayGate({ eventId, eventTitle, coverUrl }: Props) {
   const t = useTranslations('liveGate');
   const { isLoading: authLoading } = useAuth();
   const access = useReplayAccessQuery(eventId, !authLoading);
@@ -42,12 +44,7 @@ export function ReplayGate({ eventId, eventTitle }: Props) {
   }
 
   if (!playback.data?.available) {
-    return (
-      <div style={{ padding: 40, textAlign: 'center' }}>
-        <h2>{eventTitle}</h2>
-        <p>Replay em breve.</p>
-      </div>
-    );
+    return <ReplayComingSoon eventId={eventId} eventTitle={eventTitle} coverUrl={coverUrl} />;
   }
 
   if (!prerollDone && preroll.pending) {
