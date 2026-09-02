@@ -1079,5 +1079,22 @@
     "withCollaborators": "with collaborators",
     "errorToast": "An error occurred while processing your request.",
     "noCollaborators": "No collaborators yet."
+  },
+  "replaySoon": {
+    "back": "BACK TO EVENT",
+    "badge": "REPLAY IN PREPARATION",
+    "title": "This show's <accent>replay</accent> is coming soon",
+    "body": "The broadcast has ended and we are preparing the recording. Your ticket already covers the replay — it shows up here as soon as it is live.",
+    "ended": "BROADCAST ENDED",
+    "processing": "PROCESSING REPLAY",
+    "processingSub": "Rendering camera angles",
+    "encoding": "ENCODING MULTICAM",
+    "includesLabel": "WHAT THE REPLAY INCLUDES",
+    "include1": "Every camera angle from the live show",
+    "include2": "Pause and rewind to any moment",
+    "include3": "Available on any screen, in Full HD",
+    "ticketIncluded": "TICKET ALREADY INCLUDES THE REPLAY",
+    "meanwhile": "Meanwhile, ",
+    "explore": "explore other events →"
   }
 }

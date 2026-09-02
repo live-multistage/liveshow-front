@@ -1079,5 +1079,22 @@
     "withCollaborators": "con colaboradores",
     "errorToast": "Ocurrió un error al procesar su solicitud.",
     "noCollaborators": "Aún no hay colaboradores."
+  },
+  "replaySoon": {
+    "back": "VOLVER AL EVENTO",
+    "badge": "REPLAY EN PREPARACIÓN",
+    "title": "Muy pronto, el <accent>replay</accent> de este show",
+    "body": "La transmisión terminó y estamos preparando la grabación. Tu entrada ya cubre el replay — aparecerá aquí en cuanto esté disponible.",
+    "ended": "TRANSMISIÓN FINALIZADA",
+    "processing": "PROCESANDO REPLAY",
+    "processingSub": "Renderizando ángulos de cámara",
+    "encoding": "CODIFICANDO MULTICÁMARA",
+    "includesLabel": "QUÉ INCLUYE EL REPLAY",
+    "include1": "Todos los ángulos de cámara del directo",
+    "include2": "Pausa y vuelve a cualquier momento",
+    "include3": "Disponible en cualquier pantalla, en Full HD",
+    "ticketIncluded": "LA ENTRADA YA INCLUYE EL REPLAY",
+    "meanwhile": "Mientras tanto, ",
+    "explore": "explora otros eventos →"
   }
 }

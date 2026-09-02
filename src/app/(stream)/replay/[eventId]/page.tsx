@@ -13,7 +13,13 @@ export default async function ReplayPage({ params }: Props) {
   const { eventId } = await params;
   try {
     const event = await getEventCached(eventId);
-    return <ReplayGate eventId={eventId} eventTitle={event.title} />;
+    return (
+      <ReplayGate
+        eventId={eventId}
+        eventTitle={event.title}
+        coverUrl={event.thumbnailUrl ?? event.bannerUrl}
+      />
+    );
   } catch {
     notFound();
   }

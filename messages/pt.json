@@ -1082,5 +1082,22 @@
     "withCollaborators": "com colaboradores",
     "errorToast": "Ocorreu um erro ao processar sua solicitação.",
     "noCollaborators": "Nenhum colaborador ainda."
+  },
+  "replaySoon": {
+    "back": "VOLTAR AO EVENTO",
+    "badge": "REPLAY EM PREPARAÇÃO",
+    "title": "Em breve, o <accent>replay</accent> deste show",
+    "body": "A transmissão foi encerrada e estamos preparando a gravação. Seu ingresso já cobre o replay — ele aparece aqui assim que estiver no ar.",
+    "ended": "TRANSMISSÃO ENCERRADA",
+    "processing": "PROCESSANDO REPLAY",
+    "processingSub": "Renderizando ângulos de câmera",
+    "encoding": "CODIFICANDO MULTICÂMERA",
+    "includesLabel": "O QUE O REPLAY INCLUI",
+    "include1": "Todos os ângulos de câmera do ao vivo",
+    "include2": "Pause e volte a qualquer trecho quando quiser",
+    "include3": "Disponível em qualquer tela, em Full HD",
+    "ticketIncluded": "INGRESSO JÁ INCLUI O REPLAY",
+    "meanwhile": "Enquanto isso, ",
+    "explore": "explore outros eventos →"
   }
 }
