@@ -6,6 +6,18 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const nextConfig: NextConfig = {
   output: 'standalone',
   transpilePackages: ['@live-show/api-contracts', '@live-show/design-system', '@live-show/i18n-messages'],
+  // Counters the tsconfig `paths.react` shim (added to unify @types/react for
+  // tsc, see docs re: pnpm's phantom `.pnpm/node_modules/@types/react` hoist)
+  // which Next's webpack would otherwise also apply, pointing the real
+  // `react` import at a types-only folder. Keep both changes together.
+  webpack(config) {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      react: require.resolve('react'),
+      'react-dom': require.resolve('react-dom'),
+    };
+    return config;
+  },
   // Same-origin proxy for LAN clients (phone on https://192.168.x.x:3000):
   // their browser calls /api/* here and the dev server forwards to the local
   // backend — sidesteps both "localhost is the phone" and mixed-content
