@@ -31,13 +31,28 @@ export function extractPt(url: string): string | null {
   return params.get('token');
 }
 
+// A identidade estável de uma fonte: a URL sem NENHUM token que rotaciona.
+// Usada como chave de "isto ainda é o mesmo vídeo?" — o que muda de fato
+// (packageId, rotação de job) está no PATH, não na query. Remove o `pt` do
+// viewer, o `token` legado E a assinatura da Bunny (`token`/`expires`/
+// `token_path`): a borda reassina a cada bucket (~150s), e manter isso na
+// chave reconstruiria o player a cada rotação — no ao vivo isso trava no
+// resync do live edge. O token fresco chega aos filhos pela assinatura
+// por-request (web xhrSetup / mobile), lida da URL de manifest ATUAL, não
+// desta chave.
 export function stripPt(url: string): string {
   const q = url.indexOf('?');
   if (q === -1) return url;
   const params = new URLSearchParams(url.slice(q + 1));
-  const legacyToken = !params.has('pt') && !hasCdnSignature(url);
+  const isCdn = hasCdnSignature(url);
+  const legacyToken = !params.has('pt') && !isCdn;
   params.delete('pt');
   if (legacyToken) params.delete('token');
+  if (isCdn) {
+    params.delete('token');
+    params.delete('expires');
+    params.delete('token_path');
+  }
   const rest = params.toString();
   return rest ? `${url.slice(0, q)}?${rest}` : url.slice(0, q);
 }

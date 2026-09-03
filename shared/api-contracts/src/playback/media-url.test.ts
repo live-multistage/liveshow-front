@@ -23,11 +23,14 @@ test('extractPt reads pt, falls back to legacy token only off a CDN URL', () => 
   expect(extractPt('/a.m3u8')).toBeNull();
 });
 
-test('stripPt never touches the Bunny signature', () => {
+test('stripPt yields a stable source identity — drops every rotating token', () => {
   expect(stripPt('/a.m3u8?pt=A')).toBe('/a.m3u8');
   expect(stripPt('/a.m3u8?token=A')).toBe('/a.m3u8');
-  expect(stripPt(CDN)).toBe(CDN);
-  expect(stripPt(`${CDN}&pt=A`)).toBe(CDN);
+  // The Bunny signature rotates every ~150s bucket; it must NOT be part of the
+  // source-identity key, or the player rebuilds every rotation and stalls on
+  // the live resync. Stripped down to the path.
+  expect(stripPt(CDN)).toBe('https://cdn.x/api/packages/p1/live/master.m3u8');
+  expect(stripPt(`${CDN}&pt=A`)).toBe('https://cdn.x/api/packages/p1/live/master.m3u8');
 });
 
 test('replacePtParam rewrites only the viewer token', () => {
