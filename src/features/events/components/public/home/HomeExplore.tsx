@@ -2,6 +2,7 @@
 
 import type { Show } from '../../../types/show';
 import { HomePosterCard } from './HomePosterCard';
+import { HomeExploreEmpty } from './HomeExploreEmpty';
 import styles from './HomeExplore.module.scss';
 
 const SPAN_PLAN = [
@@ -49,7 +50,11 @@ export function HomeExplore({ shows, genres, activeGenre, onGenreChange }: HomeE
           ))}
         </div>
       ) : (
-        <div className={styles.empty}>Nenhum evento nesta categoria ainda — em breve.</div>
+        <HomeExploreEmpty
+          activeGenre={activeGenre}
+          genres={genres}
+          onGenreChange={onGenreChange}
+        />
       )}
     </section>
   );

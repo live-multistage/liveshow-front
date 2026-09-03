@@ -73,13 +73,3 @@
   grid-auto-rows: 200px;
   gap: 16px;
 }
-
-.empty {
-  padding: 3rem;
-  text-align: center;
-  border: 1px dashed rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
-  font-family: 'Space Mono', monospace;
-  font-size: 13px;
-  color: $text-muted;
-}
