@@ -1,0 +1,11 @@
+{
+  "name": "@live-show/api-contracts",
+  "version": "0.0.1",
+  "private": true,
+  "description": "API types, enums and zod schemas shared by live-show web and mobile. TS source, no build step.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": { "typecheck": "tsc --noEmit", "test": "vitest run" },
+  "dependencies": { "zod": "^3.25.51" },
+  "devDependencies": { "typescript": "^5.9.0", "vitest": "^4.1.10" }
+}

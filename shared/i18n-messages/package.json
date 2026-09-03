@@ -1,0 +1,10 @@
+{
+  "name": "@live-show/i18n-messages",
+  "version": "0.0.1",
+  "private": true,
+  "description": "ICU message catalogs (pt/en/es) shared by live-show web and mobile. TS source, no build step.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": { "typecheck": "tsc --noEmit", "test": "vitest run" },
+  "devDependencies": { "typescript": "^5.9.0", "vitest": "^4.1.10" }
+}

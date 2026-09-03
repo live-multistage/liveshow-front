@@ -1,0 +1,6 @@
+# live-show-react deploys standalone (Vercel builds this repo alone), so the
+# shared @live-show/* packages are vendored under shared/ and consumed as a
+# local workspace. Keep them in sync from the monorepo with scripts/sync-shared.sh.
+packages:
+  - .
+  - shared/*
