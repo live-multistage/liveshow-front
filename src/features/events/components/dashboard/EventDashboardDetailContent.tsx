@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { isAxiosError } from 'axios';
-import { MapPin, ArrowLeft, ScanLine, Check, Copy } from 'lucide-react';
+import { ArrowLeft, ScanLine, Check, Copy, Calendar, Clock, Camera, Music, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
@@ -24,9 +24,15 @@ import { PhotosSection } from './PhotosSection';
 import { EventCollaboratorsSection } from './EventCollaboratorsSection';
 import { VodUploadCard } from '../VodUploadCard/VodUploadCard';
 import { EventMetadataSection } from '@/features/metadata';
+import { formatDate, formatTime, formatDuration } from '../../utils/event-formatters';
 import { eventHref, publicOrigin } from '../../utils/slug';
 import type { EventResponse } from '../../types/event.types';
 import styles from './EventDashboardDetailContent.module.scss';
+
+const STATUS_MOD: Record<string, string> = {
+  DRAFT: styles.statusDraft, PUBLISHED: styles.statusPublished, SCHEDULED: styles.statusPublished,
+  LIVE: styles.statusLive, FINISHED: styles.statusFinished, CANCELLED: styles.statusCancelled,
+};
 
 function toDatetimeLocal(iso: string) {
   return new Date(iso).toISOString().slice(0, 16);
@@ -139,30 +145,31 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
     );
   }
 
-  const location = [event.venue, event.city, event.country].filter(Boolean).join(', ');
   // 409 is the one save failure with a field to blame — surface it on the slug
   // input instead of the generic banner, which reads as "something broke".
   const slugTaken = isAxiosError(updateMutation.error) && updateMutation.error.response?.status === 409;
   // Collaborator orgs get read-only access: backend 403s every mutation, so
   // hide the buttons that would trigger them instead of showing dead ones.
   const readOnly = event.collaborationRole === 'COLLABORATOR';
+  const hasPhysicalEntry = tickets.some((tk) => tk.capabilities.includes('PHYSICAL_ENTRY'));
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
+      {/* top bar */}
+      <div className={styles.topbar}>
         <Link href="/dashboard/events" className={styles.back}>
           <ArrowLeft size={16} /> {t('back')}
         </Link>
-
-        {tickets.some((tk) => tk.capabilities.includes('PHYSICAL_ENTRY')) && (
+        {hasPhysicalEntry && (
           <Link href={`/checkin/${id}`} className={styles.back}>
             <ScanLine size={16} /> Check-in
           </Link>
         )}
-
+        <span className={styles.spacer} />
         <EventHeaderActions
           event={event}
           editing={editing}
+          hideStatus
           isSaving={updateMutation.isPending}
           isPublishing={publishMutation.isPending}
           isUnpublishing={unpublishMutation.isPending}
@@ -180,56 +187,103 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
         />
       </div>
 
-      <div className={styles.hero}>
-        {event.bannerUrl
-          ? <img src={event.bannerUrl} alt={event.title} className={styles.banner} />
-          : <div className={styles.bannerPlaceholder} />}
-        <div className={styles.heroOverlay}>
+      {/* header row: poster + eyebrow / status / title / chips */}
+      <div className={styles.headerRow}>
+        <div className={styles.poster}>
+          {event.bannerUrl
+            ? <img src={event.bannerUrl} alt={event.title} className={styles.posterImg} />
+            : <span className={styles.posterGlyph}><Music size={34} strokeWidth={1.6} /></span>}
+        </div>
+        <div className={styles.headerMeta}>
+          <div className={styles.eyebrowRow}>
+            <span className={styles.eyebrow}>{t('eyebrow')}</span>
+            <span className={`${styles.status} ${STATUS_MOD[event.status]}`}>
+              <span className={styles.statusDot} />
+              {t(`status.${event.status}`)}
+            </span>
+          </div>
           <h1 className={styles.title}>{event.title}</h1>
-          {location && <p className={styles.location}><MapPin size={14} /> {location}</p>}
+          <div className={styles.chips}>
+            <span className={styles.chip}><Calendar size={13} /> {formatDate(event.startsAt)}</span>
+            <span className={styles.chip}>
+              <Clock size={13} /> {formatTime(event.startsAt)} · {formatDuration(event.startsAt, event.endsAt)}
+            </span>
+            <span className={styles.chip}><Camera size={13} /> {t('cameras', { count: event.camerasCount })}</span>
+          </div>
         </div>
       </div>
 
-      <div className={styles.body}>
-        {event.publiclyFunded && <LibrasAccessibilityPanel eventId={id} />}
+      {event.publiclyFunded && <LibrasAccessibilityPanel eventId={id} />}
+      {event.format === 'VOD' && vodUploadEnabled && <VodUploadCard eventId={id} />}
 
-        {event.format === 'VOD' && vodUploadEnabled && <VodUploadCard eventId={id} />}
-
-        {editing ? (
-          <>
-            <EventEditForm
-              register={register}
-              control={control}
-              errors={errors}
-              isPending={updateMutation.isPending}
-              slugError={slugTaken ? t('slugTaken') : undefined}
-              // The 409 describes the value that was rejected; the moment it's
-              // edited the message is stale, so drop it.
-              onSlugChange={slugTaken ? () => updateMutation.reset() : undefined}
-              errorMessage={slugTaken ? undefined : updateMutation.error?.message}
-              scheduleLocked={scheduleLocked}
-            />
-            <EditTicketSection eventId={id} tickets={tickets} />
-            <PhotosSection event={event} />
-          </>
-        ) : (
-          <>
+      {editing ? (
+        <div className={styles.editWrap}>
+          <EventEditForm
+            register={register}
+            control={control}
+            errors={errors}
+            isPending={updateMutation.isPending}
+            slugError={slugTaken ? t('slugTaken') : undefined}
+            // The 409 describes the value that was rejected; the moment it's
+            // edited the message is stale, so drop it.
+            onSlugChange={slugTaken ? () => updateMutation.reset() : undefined}
+            errorMessage={slugTaken ? undefined : updateMutation.error?.message}
+            scheduleLocked={scheduleLocked}
+          />
+          <EditTicketSection eventId={id} tickets={tickets} />
+          <PhotosSection event={event} />
+          <EventMetadataSection eventId={id} readOnly={readOnly} />
+          <EventCollaboratorsSection eventId={id} readOnly={readOnly} />
+        </div>
+      ) : (
+        <div className={styles.grid}>
+          <div className={styles.leftCol}>
             <PublicUrlRow event={event} label={t('publicUrl')} copyLabel={t('copyUrl')} copiedLabel={t('copied')} />
-            <EventInfoGrid event={event} ticketCount={tickets.length} />
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>{t('description')}</h2>
-              <p className={styles.description}>{event.description}</p>
+              {event.description
+                ? <p className={styles.description}>{event.description}</p>
+                : (
+                  <div className={styles.emptyState}>
+                    <FileText size={17} strokeWidth={1.8} />
+                    <span>{t('descriptionEmpty')}</span>
+                  </div>
+                )}
             </div>
-          </>
-        )}
+            <EventMetadataSection eventId={id} readOnly={readOnly} />
+            <EventTicketList tickets={tickets} />
+            <EventCollaboratorsSection eventId={id} readOnly={readOnly} />
+          </div>
 
-        {!editing && <EventTicketList tickets={tickets} />}
+          <aside className={styles.rail}>
+            <div className={styles.railCard}>
+              <div className={styles.railHead}>{t('detailsTitle')}</div>
+              <EventInfoGrid event={event} ticketCount={tickets.length} />
+            </div>
 
-        <EventMetadataSection eventId={id} readOnly={readOnly} />
-
-        <EventCollaboratorsSection eventId={id} readOnly={readOnly} />
-      </div>
+            <div className={styles.checklist}>
+              <div className={styles.checklistHead}>{t('checklistTitle')}</div>
+              <ul className={styles.checklistItems}>
+                <ChecklistItem done label={t('checklistDate')} step={1} />
+                <ChecklistItem done={tickets.length > 0} label={t('checklistTicket')} step={2} />
+                <ChecklistItem done={!!event.description} label={t('checklistDescription')} step={3} />
+              </ul>
+            </div>
+          </aside>
+        </div>
+      )}
     </div>
+  );
+}
+
+function ChecklistItem({ done, label, step }: { done: boolean; label: string; step: number }) {
+  return (
+    <li className={styles.checklistItem}>
+      <span className={`${styles.checkMark} ${done ? styles.checkMarkDone : ''}`}>
+        {done ? <Check size={12} strokeWidth={3} /> : step}
+      </span>
+      <span className={done ? styles.checkTextDone : styles.checkText}>{label}</span>
+    </li>
   );
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Video } from 'lucide-react';
+import { Video, Ticket } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { formatPrice } from '../../utils/event-formatters';
 import type { TicketProductResponse } from '../../types/event.types';
@@ -21,7 +21,8 @@ export function EventTicketList({ tickets }: Props) {
       <div className={styles.ticketList}>
         {tickets.map((ticket) => (
           <div key={ticket.id} className={styles.ticketRow}>
-            <div>
+            <span className={styles.ticketIcon}><Ticket size={18} /></span>
+            <div className={styles.ticketBody}>
               <p className={styles.ticketName}>{ticket.name}</p>
               <p className={styles.ticketDesc}>{ticket.description}</p>
               {ticket.capabilities.includes('CAMERA_VIEW') && (

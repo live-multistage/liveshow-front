@@ -29,6 +29,9 @@ interface Props {
   // Event's org is a COLLABORATOR, not the owner: backend 403s every mutation
   // below, so hide the buttons instead of showing dead ones. Status stays visible.
   readOnly?: boolean;
+  // The v2 detail layout renders the status pill up in the header row next to the
+  // title, so the action bar drops its own copy to avoid showing it twice.
+  hideStatus?: boolean;
   onEdit: () => void;
   onCancelEdit: () => void;
   onSave: () => void;
@@ -48,6 +51,7 @@ export function EventHeaderActions({
   isResuming,
   publishBlocked = false,
   readOnly = false,
+  hideStatus = false,
   onEdit,
   onCancelEdit,
   onSave,
@@ -90,10 +94,12 @@ export function EventHeaderActions({
 
   return (
     <div className={styles.headerActions}>
-      <span className={`${styles.status} ${STATUS_MOD[event.status]}`}>
-        {event.status === 'LIVE' && <span className={styles.livePulse} />}
-        {t(`status.${event.status}`)}
-      </span>
+      {!hideStatus && (
+        <span className={`${styles.status} ${STATUS_MOD[event.status]}`}>
+          {event.status === 'LIVE' && <span className={styles.livePulse} />}
+          {t(`status.${event.status}`)}
+        </span>
+      )}
 
       {canEdit && !editing && !readOnly && (
         <Button variant="outline" icon={<Pencil size={14} />} onClick={onEdit}>
