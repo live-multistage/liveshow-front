@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import styles from './PauseAdTakeover.module.scss';
 import { advertisementsService } from '../services/advertisements.service';
+import type { ServedAd } from '../types/advertisement.types';
 import { SERVE_QUERY_CACHE } from '../queries/use-serve-ads';
 import { gradientFor } from '../utils/ad-gradient';
 
@@ -44,7 +45,23 @@ export function PauseAdTakeover({ eventId, paused, onResume, onVisibleChange }: 
     return () => clearTimeout(timer);
   }, [paused]);
 
-  const active = paused && visibleFor > 0;
+  // Janela em que um anúncio de pausa PODE aparecer (pausado + delay decorrido).
+  // Só busca o criativo aqui — nunca antes de a pausa "valer" impressão.
+  const wantAd = paused && visibleFor > 0;
+
+  const { data: ads } = useQuery({
+    queryKey: ['ads', 'serve', PLACEMENT, eventId],
+    queryFn: () => advertisementsService.serve(PLACEMENT, 1, eventId),
+    ...SERVE_QUERY_CACHE,
+    retry: 0,
+    enabled: wantAd,
+  });
+
+  const ad = ads?.[0] ?? null;
+
+  // O takeover (encolher vídeo, chip "pausado") só existe quando há anúncio de
+  // fato. Sem criativo, a pausa continua sendo só uma pausa.
+  const active = wantAd && !!ad;
 
   // Reports upward so the player can shrink the video card / hide its header.
   // Fires on every change (including unmount, via the cleanup) so the layout
@@ -57,36 +74,25 @@ export function PauseAdTakeover({ eventId, paused, onResume, onVisibleChange }: 
 
   return (
     <>
-      {active && <TakeoverAd key={visibleFor} eventId={eventId} onResume={onResume} />}
+      {active && ad && <TakeoverAd key={visibleFor} ad={ad} onResume={onResume} />}
     </>
   );
 }
 
-function TakeoverAd({ eventId, onResume }: { eventId: string; onResume: () => void }) {
+function TakeoverAd({ ad, onResume }: { ad: ServedAd; onResume: () => void }) {
   const impressionFired = useRef(false);
 
-  const { data: ads } = useQuery({
-    queryKey: ['ads', 'serve', PLACEMENT, eventId],
-    queryFn: () => advertisementsService.serve(PLACEMENT, 1, eventId),
-    ...SERVE_QUERY_CACHE,
-    retry: 0,
-  });
-
-  const ad = ads?.[0] ?? null;
-
   useEffect(() => {
-    if (ad && !impressionFired.current) {
+    if (!impressionFired.current) {
       impressionFired.current = true;
       advertisementsService.recordImpression(ad.servedId);
     }
   }, [ad]);
 
-  if (!ad) return null;
-
   const bg = ad.bannerUrl ? `url(${ad.bannerUrl}) center/cover no-repeat` : gradientFor(ad.adId);
 
   function handleCtaClick() {
-    advertisementsService.recordClick(ad!.servedId);
+    advertisementsService.recordClick(ad.servedId);
   }
 
   let cta: React.ReactNode = null;
