@@ -77,11 +77,13 @@ describe('pt helpers', () => {
     expect(stripPt('/o/master.m3u8?token=legacy')).toBe('/o/master.m3u8');
   });
 
-  it('stripPt never drops token/expires/token_path on an absolute CDN URL', () => {
+  it('stripPt drops the Bunny signature too (stable build key across bucket rolls)', () => {
+    // The signed token rotates every ~150s bucket; keeping it in the build key
+    // rebuilt the whole hls instance every rotation and stalled the live
+    // resync (the freeze). Stripped to the path; the fresh token reaches
+    // children via xhrSetup reading the current src, not this key.
     const url = 'https://cdn.example/api/o/master.m3u8?pt=abc&token=BUNNY&expires=1&token_path=/o/';
-    expect(stripPt(url)).toBe(
-      'https://cdn.example/api/o/master.m3u8?token=BUNNY&expires=1&token_path=%2Fo%2F',
-    );
+    expect(stripPt(url)).toBe('https://cdn.example/api/o/master.m3u8');
   });
 
   it('replacePtParam swaps the token, falls through gracefully', () => {

@@ -224,12 +224,16 @@ export function useHlsPlayer({
   const [error, setError] = useState(false);
   const connecting = camera.manifestPath === null;
   const src = camera.manifestPath === null ? null : resolveMediaUrl(camera.manifestPath);
-  // The live STANDARD src now carries a `?pt` token refreshed every 5s poll,
-  // so `src` changes every 5s. Keying the build effect on the token-STRIPPED
-  // src rebuilds only on a REAL source change (packageId / job rotation), not
-  // on a token refresh — same trick as llPathRef for the LL path. The build
-  // reads the latest full src through srcRef, and every hls.js request rewrites
-  // its `pt` to the freshest token via ptRef (see the effect's xhrSetup).
+  // The live src carries a rotating token every 5s poll — a `?pt` for the
+  // origin/LL path, or the Bunny `?token/expires/token_path` for the CDN path.
+  // Keying the build effect on the token-STRIPPED src rebuilds only on a REAL
+  // source change (packageId / job rotation), NOT on a token rotation — same
+  // trick as llPathRef for the LL path. Critically this now covers the CDN
+  // signature too (stripPt drops it): otherwise `expires` in the key rebuilt
+  // the whole hls instance every ~150s bucket, which stalls the live resync
+  // (the freeze). The build reads the latest full src through srcRef, and
+  // every hls.js request re-signs its children from that fresh src via the
+  // effect's xhrSetup (CDN) / ptRef (origin/LL).
   const srcBase = src === null ? null : stripPt(src);
   const srcRef = useRef(src);
   srcRef.current = src;
