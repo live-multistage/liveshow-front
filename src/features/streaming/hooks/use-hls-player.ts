@@ -40,10 +40,28 @@ function cdnSigningParams(manifestUrl: string): [string, string][] {
   return CDN_SIGNING_PARAMS.filter((k) => params.has(k)).map((k) => [k, params.get(k)!]);
 }
 
+// True when the child request path falls under the Bunny `token_path`
+// directory — decoded on both sides so the comparison is exact.
+function childUnderTokenPath(url: string, tokenPath: string): boolean {
+  try {
+    return new URL(url, 'https://x').pathname.startsWith(tokenPath);
+  } catch {
+    return false;
+  }
+}
+
 // Append any CDN signing params missing from a child request URL. No-op when
 // there is nothing to propagate (non-CDN) or the URL already carries them.
 function withCdnSigningParams(url: string, params: [string, string][]): string {
   if (params.length === 0) return url;
+  // Bunny scopes the signature to `token_path`'s directory. Copying it onto a
+  // child OUTSIDE that directory — an /api/origin/* rendition referenced by an
+  // /api/packages/* signed master — makes the edge 403: the request path isn't
+  // under token_path. Only children that actually fall under it inherit the
+  // signature; the unsigned /api/origin family (public by design, see the
+  // backend MediaUrlBuilder) must go through untouched.
+  const tokenPath = params.find(([k]) => k === 'token_path')?.[1];
+  if (tokenPath && !childUnderTokenPath(url, tokenPath)) return url;
   const q = url.indexOf('?');
   const search = new URLSearchParams(q === -1 ? '' : url.slice(q + 1));
   let changed = false;
@@ -222,7 +240,11 @@ export function useHlsPlayer({
   };
 
   const [error, setError] = useState(false);
-  const connecting = camera.manifestPath === null;
+  // While hls.js is retrying a fatal network error (stream still booting, or a
+  // transient blip) the panel stays in "connecting" instead of showing signal
+  // lost — see the ERROR handler in the build effect.
+  const [retrying, setRetrying] = useState(false);
+  const connecting = camera.manifestPath === null || retrying;
   const src = camera.manifestPath === null ? null : resolveMediaUrl(camera.manifestPath);
   // The live src carries a rotating token every 5s poll — a `?pt` for the
   // origin/LL path, or the Bunny `?token/expires/token_path` for the CDN path.
@@ -259,6 +281,7 @@ export function useHlsPlayer({
     const video = videoRef.current;
     if (!video || !src) return;
     setError(false);
+    setRetrying(false);
 
     if (!Hls.isSupported()) {
       if (video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -361,6 +384,14 @@ export function useHlsPlayer({
     });
     hls.loadSource(activeSrc);
     hls.attachMedia(video);
+    // A fatal *network* error on the STANDARD path is usually the stream still
+    // booting (the first viewer hits the manifest before the origin serves it)
+    // or a transient blip — retry with backoff and keep the panel in
+    // "connecting" instead of declaring signal lost and forcing a reload. Auth
+    // failures (401/403) are deterministic and escalate immediately.
+    let networkRetries = 0;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    const MAX_NETWORK_RETRIES = 10;
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       const sorted = hls.levels
         .map((l, i) => ({ index: i, height: l.height }))
@@ -374,6 +405,10 @@ export function useHlsPlayer({
       if (mode !== 'replay' || !pausedRef.current) {
         playBestEffort(video, onAutoplayBlockedRef.current);
       }
+      // A parsed manifest means the stream is up — reset the retry budget so a
+      // later drop gets its own fresh window, and clear the waiting state.
+      networkRetries = 0;
+      setRetrying(false);
     });
     // Apply the selected audio camera once the alternate tracks actually
     // exist — the selection effect below runs against an empty track list at
@@ -409,15 +444,36 @@ export function useHlsPlayer({
       if (data.fatal) {
         if (hasLl) {
           fallBackToStandard('fatal', data.details); // LL path dead (MediaMTX down, token expired)
-        } else {
-          setError(true);
-          onFatalErrorRef.current?.();
+          return;
         }
+        const isAuth = data.response?.code === 401 || data.response?.code === 403;
+        if (
+          data.type === Hls.ErrorTypes.NETWORK_ERROR &&
+          !isAuth &&
+          networkRetries < MAX_NETWORK_RETRIES
+        ) {
+          // Stream booting or a blip — stay in "connecting" and retry, backing
+          // off up to 5s, instead of forcing the viewer to reload.
+          networkRetries += 1;
+          setError(false);
+          setRetrying(true);
+          clearTimeout(retryTimer);
+          retryTimer = setTimeout(() => hls.startLoad(), Math.min(1000 * networkRetries, 5000));
+          return;
+        }
+        if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+          hls.recoverMediaError();
+          return;
+        }
+        setRetrying(false);
+        setError(true);
+        onFatalErrorRef.current?.();
       }
     });
     hlsRef.current = hls;
 
     return () => {
+      clearTimeout(retryTimer);
       hls.destroy();
       hlsRef.current = null;
     };
