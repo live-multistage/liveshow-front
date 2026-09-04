@@ -11,6 +11,7 @@ const CONTACT_EMAIL = 'privacidade@showon.io';
 const LINKS = [
   { key: 'terms', href: '/privacidade' },
   { key: 'contact', href: `mailto:${CONTACT_EMAIL}` },
+  { key: 'organizers', href: '/para-organizadores' },
   { key: 'help', href: '/help' },
 ] as const;
 
