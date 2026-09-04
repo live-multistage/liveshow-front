@@ -1,0 +1,75 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.section {
+  padding: 60px 40px 140px;
+
+  @media (max-width: 640px) {
+    padding: 40px 20px 96px;
+  }
+}
+
+.panel {
+  @include container;
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 46, 158, 0.3);
+  background: #0c0a0f;
+  padding: clamp(70px, 9vw, 120px) 40px;
+  text-align: center;
+}
+
+.glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 80% at 50% 100%, rgba(255, 46, 158, 0.28), transparent 70%),
+    radial-gradient(40% 60% at 15% 0%, rgba(152, 16, 250, 0.22), transparent 70%);
+  pointer-events: none;
+}
+
+.watermark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(80px, 14vw, 200px);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  color: rgba(255, 255, 255, 0.03);
+  white-space: nowrap;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.content {
+  position: relative;
+}
+
+.title {
+  margin: 0 0 34px;
+  font-size: clamp(38px, 5.4vw, 76px);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.helpLink {
+  font-size: 14.5px;
+  color: $text-secondary;
+  text-decoration: none;
+  transition: color 0.15s;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
