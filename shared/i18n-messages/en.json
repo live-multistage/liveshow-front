@@ -37,7 +37,8 @@
     "myList": "My list",
     "wishlist": "Wishlist",
     "help": "Help",
-    "search": "Search"
+    "search": "Search",
+    "organizers": "For organizers"
   },
   "auth": {
     "login": {
@@ -1372,7 +1373,8 @@
     "terms": "Terms and privacy",
     "contact": "Contact us",
     "help": "Help",
-    "copyright": "© {year} showon.io. All rights reserved."
+    "copyright": "© {year} showon.io. All rights reserved.",
+    "organizers": "For organizers"
   },
   "help": {
     "metaTitle": "Help",
@@ -1935,5 +1937,332 @@
     "ticketIncluded": "TICKET ALREADY INCLUDES THE REPLAY",
     "meanwhile": "Meanwhile, ",
     "explore": "explore other events →"
+  },
+  "organizersPage": {
+    "meta": {
+      "title": "For organizers",
+      "description": "Concerts, games, conferences, church services, plays, classes. You produce, showon.io handles streaming, ticketing, and payments."
+    },
+    "hero": {
+      "label": "FOR ORGANIZERS",
+      "title": "Stream your live event and sell tickets",
+      "titleAccent": "in one place.",
+      "subtitle": "Concerts, games, conferences, church services, plays, classes. You produce, showon.io handles streaming, ticketing, and payments.",
+      "cta": "Create my organization",
+      "secondary": "See how it works ↓",
+      "mock": {
+        "live": "LIVE",
+        "event": "State Final · Center Court",
+        "meta": "4 cameras · 2 audio tracks · LL 2.8s",
+        "camsLabel": "CAMERAS · PICK YOURS",
+        "libras": "LIBRAS",
+        "cams": [
+          {
+            "name": "Main camera",
+            "meta": "WIDE · 1080p"
+          },
+          {
+            "name": "Court · side",
+            "meta": "TRIPOD · 1080p"
+          },
+          {
+            "name": "Bench / staff",
+            "meta": "PTZ · 720p"
+          },
+          {
+            "name": "Crowd",
+            "meta": "GIMBAL · 1080p"
+          }
+        ],
+        "audio": {
+          "ambient": "AMBIENT",
+          "narration": "COMMENTARY"
+        }
+      }
+    },
+    "audiences": {
+      "shows": "Concerts and festivals",
+      "sports": "Sports and leagues",
+      "talks": "Conferences and talks",
+      "worship": "Church services",
+      "theater": "Theater and dance",
+      "classes": "Classes and workshops"
+    },
+    "howItWorks": {
+      "label": "HOW IT WORKS",
+      "title": "From sign-up to your first event in four steps.",
+      "steps": [
+        {
+          "title": "Create your account and your organization",
+          "text": "Name, description, and logo. Takes two minutes."
+        },
+        {
+          "title": "Wait for review",
+          "text": "Every organization goes through a quick review before publishing. You'll get an email."
+        },
+        {
+          "title": "Connect your payout account",
+          "text": "Sign up via Stripe. Ticket money lands directly in your account."
+        },
+        {
+          "title": "Publish your event",
+          "text": "Set the date, tickets, and cameras, and stream with the encoder you already use."
+        }
+      ],
+      "visual": {
+        "newOrg": "NEW ORGANIZATION",
+        "logo": "Logo",
+        "logoHint": "PNG or SVG, up to 2 MB",
+        "nameLabel": "Organization name",
+        "nameValue": "Metropolitan Volleyball League",
+        "descLabel": "Description",
+        "descValue": "Official broadcasts of the league's games, with cameras on both courts.",
+        "inReview": "IN REVIEW",
+        "reviewOrg": "Metropolitan Volleyball League",
+        "reviewText": "Your organization has been submitted. You'll get an email as soon as the review is done.",
+        "approved": "Organization approved",
+        "approvedMeta": "noreply@showon.io · just now",
+        "payoutAccount": "PAYOUT ACCOUNT",
+        "stripe": "Stripe Connect",
+        "stripeHint": "Direct payout to your account",
+        "connected": "CONNECTED",
+        "nextPayout": "NEXT PAYOUT",
+        "account": "ACCOUNT",
+        "event": "State Final · Center Court",
+        "ticketDigital": "Digital ticket",
+        "ticketPhysical": "In person · QR",
+        "publish": "Publish event"
+      }
+    },
+    "transmission": {
+      "label": "STREAMING",
+      "title": "Use the equipment you already have.",
+      "text": "Any encoder with an SRT output works: OBS, vMix, capture cards, professional cameras. No proprietary software.",
+      "signals": [
+        {
+          "name": "CAM 1 · OBS"
+        },
+        {
+          "name": "CAM 2 · vMix"
+        },
+        {
+          "name": "CAM 3 · PTZ"
+        },
+        {
+          "name": "LIBRAS · OBS"
+        }
+      ],
+      "features": {
+        "multicam": {
+          "title": "Multi-camera.",
+          "text": "Send multiple cameras. Viewers choose which one to watch, whenever they want."
+        },
+        "latency": {
+          "title": "Adjustable latency.",
+          "text": "Standard mode for concerts or low-latency mode (2 to 4 seconds) for sports and interaction."
+        },
+        "audio": {
+          "title": "Multiple audio tracks.",
+          "text": "Commentary, an alternate language, or ambient sound. Viewers switch right in the player."
+        },
+        "libras": {
+          "title": "Libras (Brazilian Sign Language) window.",
+          "text": "Send an interpreter camera and it shows up as a dedicated window."
+        },
+        "recording": {
+          "title": "Automatic recording.",
+          "text": "Everything that airs is recorded and becomes a replay with no extra work."
+        },
+        "health": {
+          "title": "Signal health.",
+          "text": "Bitrate, drops, and reconnections visible on the dashboard while you stream."
+        }
+      }
+    },
+    "tickets": {
+      "label": "TICKETS",
+      "title": "Sell the way your event needs.",
+      "items": {
+        "digital": {
+          "title": "Digital ticket",
+          "text": "No capacity limit. Each ticket unlocks access to the stream."
+        },
+        "free": {
+          "title": "Free event",
+          "text": "Publish without charging. No cost to you."
+        },
+        "physical": {
+          "title": "In-person ticket",
+          "text": "QR code for people attending in person, with check-in from your team's phone."
+        },
+        "coupons": {
+          "title": "Coupons",
+          "text": "Code-based discounts, with usage limits and expiration."
+        },
+        "replay": {
+          "title": "Replay ticket",
+          "text": "Sell access to the recording after the event ends."
+        },
+        "collab": {
+          "title": "Collaborations",
+          "text": "Share an event with another organization, and each one sells to its own audience."
+        }
+      }
+    },
+    "channels": {
+      "label": "PROGRAMMING",
+      "title": "Stream every week? Get a channel.",
+      "text": "Create recurring programs and build a linear schedule. Your audience finds your programming in one place, and you don't recreate the event every time.",
+      "mock": {
+        "channel": "Metropolitan League Channel",
+        "grade": "SCHEDULE · WEDNESDAY",
+        "onAir": "ON AIR",
+        "slots": {
+          "pre": "Pre-game",
+          "round12a": "Round 12 · Center Court",
+          "roundtable": "Roundtable",
+          "highlights": "Highlights",
+          "backstage": "Behind the scenes",
+          "round12b": "Round 12 · Court 2"
+        },
+        "kinds": {
+          "program": "PROGRAM",
+          "live4": "LIVE · 4 CAMERAS",
+          "replay": "REPLAY",
+          "programWeekly": "PROGRAM · WEEKLY",
+          "live2": "LIVE · 2 CAMERAS"
+        }
+      }
+    },
+    "replay": {
+      "label": "REPLAY",
+      "title": "The event keeps paying off after it ends.",
+      "bullets": [
+        "Replay available right after the stream, with every camera.",
+        "Real timeline: viewers jump straight to the moment things happened.",
+        "On-demand catalog for people who want to watch later."
+      ],
+      "mock": {
+        "badge": "REPLAY",
+        "marker": "8:47:12 PM · 2ND SET"
+      }
+    },
+    "management": {
+      "label": "MANAGEMENT",
+      "title": "Everything that's happening, in real time.",
+      "mock": {
+        "sales": "Sales",
+        "filters": {
+          "today": "TODAY",
+          "week": "7 DAYS",
+          "event": "EVENT"
+        },
+        "stats": {
+          "sold": "TICKETS SOLD",
+          "revenue": "REVENUE",
+          "avg": "AVG. TICKET",
+          "watching": "WATCHING NOW"
+        },
+        "deltas": {
+          "sold": "in the last hour",
+          "revenue": "for the period",
+          "avg": "for the period",
+          "watching": "peak"
+        },
+        "salesPerHour": "SALES PER HOUR",
+        "now": "now",
+        "audiencePerCam": "AUDIENCE PER CAMERA"
+      },
+      "features": {
+        "sales": {
+          "title": "Live sales.",
+          "text": "Quantity, revenue, and average ticket, by event and by period."
+        },
+        "audience": {
+          "title": "Audience per camera.",
+          "text": "See which angles your audience watched the most."
+        },
+        "reports": {
+          "title": "Reports.",
+          "text": "Export sales and audience data as CSV."
+        },
+        "ledger": {
+          "title": "Organization ledger.",
+          "text": "Every sale, fee, and payout recorded."
+        },
+        "team": {
+          "title": "Team.",
+          "text": "Invite people with distinct roles: admin, production, check-in."
+        },
+        "ads": {
+          "title": "Ad revenue.",
+          "text": "Turn on ads for your stream and get a share of the revenue."
+        }
+      }
+    },
+    "payment": {
+      "label": "PAYMENT",
+      "title": "No monthly fee.",
+      "titleAccent": "You only pay when you sell.",
+      "cards": {
+        "percent": {
+          "title": "A percentage per paid ticket",
+          "text": "The platform keeps a percentage of each sale. Free events cost you nothing."
+        },
+        "payout": {
+          "title": "Direct payout",
+          "text": "The money lands in your organization's account via Stripe — it's never held by the platform."
+        },
+        "cards": {
+          "title": "Credit and debit cards",
+          "text": "Your audience pays the way they're already used to."
+        }
+      },
+      "note": "The percentage is shown when you set up your organization."
+    },
+    "faq": {
+      "label": "FAQ",
+      "title": "Frequently asked questions.",
+      "helpLink": "Still have questions? Talk to us",
+      "items": [
+        {
+          "q": "Do I need special equipment?",
+          "a": "No. Any camera or software that sends SRT works. OBS, which is free, already covers it."
+        },
+        {
+          "q": "How long does the organization review take?",
+          "a": "It's a quick review. You'll get an email as soon as you're approved."
+        },
+        {
+          "q": "Can I stream for free?",
+          "a": "Yes. Free events cost the organizer nothing."
+        },
+        {
+          "q": "How do I receive the ticket money?",
+          "a": "Directly into your connected Stripe account, minus the platform's percentage."
+        },
+        {
+          "q": "How many cameras can I use?",
+          "a": "As many as you like. Viewers choose which one to watch during the stream and in the replay."
+        },
+        {
+          "q": "Does the audience need to install anything?",
+          "a": "No. They watch from the browser, on computer or phone."
+        },
+        {
+          "q": "Can I sell after the event?",
+          "a": "Yes. The replay can be sold as a separate ticket."
+        },
+        {
+          "q": "Can I sell tickets for in-person attendance?",
+          "a": "Yes. The in-person ticket comes with a QR code, and your team checks people in from their phone."
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "Ready for your next event?",
+      "cta": "Create my organization",
+      "helpLink": "Still have questions? Talk to us"
+    }
   }
 }

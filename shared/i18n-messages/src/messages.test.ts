@@ -41,3 +41,9 @@ test('M5 social login keys exist', () => {
   expect(messages.pt.auth.social.errors.SOCIAL_LOGIN_DISABLED).toContain('disponível');
   expect(messages.pt.account.connectedWith).toBe('Conectado com {provider}');
 });
+
+test('organizers page keys exist', () => {
+  expect(messages.pt.organizersPage.hero.cta).toBe('Criar minha organização');
+  expect(messages.pt.nav.organizers).toBe('Para organizadores');
+  expect(messages.pt.organizersPage.faq.items.length).toBe(8);
+});

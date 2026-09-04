@@ -37,7 +37,8 @@
     "myList": "Mi lista",
     "wishlist": "Favoritos",
     "help": "Ayuda",
-    "search": "Buscar"
+    "search": "Buscar",
+    "organizers": "Para organizadores"
   },
   "auth": {
     "login": {
@@ -1372,7 +1373,8 @@
     "terms": "Términos y privacidad",
     "contact": "Contáctanos",
     "help": "Ayuda",
-    "copyright": "© {year} showon.io. Todos los derechos reservados."
+    "copyright": "© {year} showon.io. Todos los derechos reservados.",
+    "organizers": "Para organizadores"
   },
   "help": {
     "metaTitle": "Ayuda",
@@ -1935,5 +1937,332 @@
     "ticketIncluded": "LA ENTRADA YA INCLUYE EL REPLAY",
     "meanwhile": "Mientras tanto, ",
     "explore": "explora otros eventos →"
+  },
+  "organizersPage": {
+    "meta": {
+      "title": "Para organizadores",
+      "description": "Conciertos, partidos, conferencias, misas, obras, clases. Tú produces, showon.io se encarga de la transmisión, las entradas y el pago."
+    },
+    "hero": {
+      "label": "PARA ORGANIZADORES",
+      "title": "Transmite tu evento en vivo y vende entradas",
+      "titleAccent": "en un solo lugar.",
+      "subtitle": "Conciertos, partidos, conferencias, misas, obras, clases. Tú produces, showon.io se encarga de la transmisión, las entradas y el pago.",
+      "cta": "Crear mi organización",
+      "secondary": "Ver cómo funciona ↓",
+      "mock": {
+        "live": "EN VIVO",
+        "event": "Final Estatal · Cancha Central",
+        "meta": "4 cámaras · 2 audios · LL 2.8s",
+        "camsLabel": "CÁMARAS · ELIGE LA TUYA",
+        "libras": "LIBRAS",
+        "cams": [
+          {
+            "name": "Cámara principal",
+            "meta": "AMPLIA · 1080p"
+          },
+          {
+            "name": "Cancha · lateral",
+            "meta": "TRÍPODE · 1080p"
+          },
+          {
+            "name": "Banca / técnico",
+            "meta": "PTZ · 720p"
+          },
+          {
+            "name": "Público",
+            "meta": "GIMBAL · 1080p"
+          }
+        ],
+        "audio": {
+          "ambient": "AMBIENTE",
+          "narration": "NARRACIÓN"
+        }
+      }
+    },
+    "audiences": {
+      "shows": "Conciertos y festivales",
+      "sports": "Deportes y ligas",
+      "talks": "Conferencias y charlas",
+      "worship": "Misas y celebraciones",
+      "theater": "Teatro y danza",
+      "classes": "Clases y talleres"
+    },
+    "howItWorks": {
+      "label": "CÓMO FUNCIONA",
+      "title": "Del registro a tu primer evento en cuatro pasos.",
+      "steps": [
+        {
+          "title": "Crea tu cuenta y tu organización",
+          "text": "Nombre, descripción y logo. Toma dos minutos."
+        },
+        {
+          "title": "Espera la revisión",
+          "text": "Toda organización pasa por una revisión rápida antes de publicar. Te avisamos por correo."
+        },
+        {
+          "title": "Conecta tu cuenta de cobro",
+          "text": "Registro vía Stripe. El dinero de las entradas llega directo a tu cuenta."
+        },
+        {
+          "title": "Publica tu evento",
+          "text": "Define fecha, entradas, cámaras y transmite con el encoder que ya usas."
+        }
+      ],
+      "visual": {
+        "newOrg": "NUEVA ORGANIZACIÓN",
+        "logo": "Logo",
+        "logoHint": "PNG o SVG, hasta 2 MB",
+        "nameLabel": "Nombre de la organización",
+        "nameValue": "Liga Metropolitana de Vóley",
+        "descLabel": "Descripción",
+        "descValue": "Transmisiones oficiales de los partidos de la liga, con cámaras en ambas canchas.",
+        "inReview": "EN REVISIÓN",
+        "reviewOrg": "Liga Metropolitana de Vóley",
+        "reviewText": "Tu organización fue enviada. Recibirás un correo en cuanto termine la revisión.",
+        "approved": "Organización aprobada",
+        "approvedMeta": "noreply@showon.io · ahora",
+        "payoutAccount": "CUENTA DE COBRO",
+        "stripe": "Stripe Connect",
+        "stripeHint": "Pago directo a tu cuenta",
+        "connected": "CONECTADA",
+        "nextPayout": "PRÓXIMO PAGO",
+        "account": "CUENTA",
+        "event": "Final Estatal · Cancha Central",
+        "ticketDigital": "Entrada digital",
+        "ticketPhysical": "Presencial · QR",
+        "publish": "Publicar evento"
+      }
+    },
+    "transmission": {
+      "label": "TRANSMISIÓN",
+      "title": "Usa el equipo que ya tienes.",
+      "text": "Cualquier encoder con salida SRT funciona: OBS, vMix, tarjetas de captura, cámaras profesionales. Sin software propietario.",
+      "signals": [
+        {
+          "name": "CÁM 1 · OBS"
+        },
+        {
+          "name": "CÁM 2 · vMix"
+        },
+        {
+          "name": "CÁM 3 · PTZ"
+        },
+        {
+          "name": "LIBRAS · OBS"
+        }
+      ],
+      "features": {
+        "multicam": {
+          "title": "Multicámara.",
+          "text": "Envía varias cámaras. El público elige cuál ver, cuando quiera."
+        },
+        "latency": {
+          "title": "Latencia ajustable.",
+          "text": "Modo estándar para conciertos o modo de baja latencia (2 a 4 segundos) para deportes e interacción."
+        },
+        "audio": {
+          "title": "Múltiples pistas de audio.",
+          "text": "Narración, idioma alternativo o audio ambiente. El espectador cambia desde el reproductor."
+        },
+        "libras": {
+          "title": "Ventana de Libras (lengua de señas brasileña).",
+          "text": "Envía una cámara de intérprete y aparecerá como ventana dedicada."
+        },
+        "recording": {
+          "title": "Grabación automática.",
+          "text": "Todo lo que se transmite queda grabado y se convierte en replay sin trabajo extra."
+        },
+        "health": {
+          "title": "Salud de la señal.",
+          "text": "Bitrate, caídas y reconexiones visibles en el panel mientras transmites."
+        }
+      }
+    },
+    "tickets": {
+      "label": "ENTRADAS",
+      "title": "Vende como tu evento lo necesita.",
+      "items": {
+        "digital": {
+          "title": "Entrada digital",
+          "text": "Sin límite de aforo. Cada entrada da acceso a la transmisión."
+        },
+        "free": {
+          "title": "Evento gratuito",
+          "text": "Publica sin cobrar. Sin costo para ti."
+        },
+        "physical": {
+          "title": "Entrada presencial",
+          "text": "Código QR para quien asiste al lugar, con check-in desde el celular de tu equipo."
+        },
+        "coupons": {
+          "title": "Cupones",
+          "text": "Descuento por código, con límite de uso y vigencia."
+        },
+        "replay": {
+          "title": "Entrada de replay",
+          "text": "Vende el acceso a la grabación después de que termine el evento."
+        },
+        "collab": {
+          "title": "Colaboraciones",
+          "text": "Comparte un evento con otra organización, y cada una vende a su propio público."
+        }
+      }
+    },
+    "channels": {
+      "label": "PROGRAMACIÓN",
+      "title": "¿Transmites cada semana? Ten un canal.",
+      "text": "Crea programas recurrentes y arma una grilla lineal. Tu público encuentra tu programación en un solo lugar y tú no recreas el evento cada vez.",
+      "mock": {
+        "channel": "Canal Liga Metropolitana",
+        "grade": "GRILLA · MIÉRCOLES",
+        "onAir": "AL AIRE",
+        "slots": {
+          "pre": "Previa",
+          "round12a": "Fecha 12 · Cancha Central",
+          "roundtable": "Mesa redonda",
+          "highlights": "Mejores momentos",
+          "backstage": "Detrás de cámaras",
+          "round12b": "Fecha 12 · Cancha 2"
+        },
+        "kinds": {
+          "program": "PROGRAMA",
+          "live4": "EN VIVO · 4 CÁMARAS",
+          "replay": "REPLAY",
+          "programWeekly": "PROGRAMA · SEMANAL",
+          "live2": "EN VIVO · 2 CÁMARAS"
+        }
+      }
+    },
+    "replay": {
+      "label": "REPLAY",
+      "title": "El evento sigue rindiendo después de terminar.",
+      "bullets": [
+        "Replay disponible justo después de la transmisión, con todas las cámaras.",
+        "Línea de tiempo real: el espectador navega hasta el momento exacto en que ocurrieron las cosas.",
+        "Catálogo bajo demanda para quien quiera verlo después."
+      ],
+      "mock": {
+        "badge": "REPLAY",
+        "marker": "20:47:12 · 2.º SET"
+      }
+    },
+    "management": {
+      "label": "GESTIÓN",
+      "title": "Todo lo que está pasando, en tiempo real.",
+      "mock": {
+        "sales": "Ventas",
+        "filters": {
+          "today": "HOY",
+          "week": "7 DÍAS",
+          "event": "EVENTO"
+        },
+        "stats": {
+          "sold": "ENTRADAS VENDIDAS",
+          "revenue": "INGRESOS",
+          "avg": "TICKET PROMEDIO",
+          "watching": "VIENDO AHORA"
+        },
+        "deltas": {
+          "sold": "en la última hora",
+          "revenue": "en el período",
+          "avg": "en el período",
+          "watching": "pico"
+        },
+        "salesPerHour": "VENTAS POR HORA",
+        "now": "ahora",
+        "audiencePerCam": "AUDIENCIA POR CÁMARA"
+      },
+      "features": {
+        "sales": {
+          "title": "Ventas en vivo.",
+          "text": "Cantidad, ingresos y ticket promedio, por evento y por período."
+        },
+        "audience": {
+          "title": "Audiencia por cámara.",
+          "text": "Descubre qué ángulos vio más tu público."
+        },
+        "reports": {
+          "title": "Reportes.",
+          "text": "Exporta ventas y audiencia en CSV."
+        },
+        "ledger": {
+          "title": "Extracto de la organización.",
+          "text": "Cada venta, comisión y pago registrado."
+        },
+        "team": {
+          "title": "Equipo.",
+          "text": "Invita personas con roles distintos: administración, producción, check-in."
+        },
+        "ads": {
+          "title": "Ingresos por publicidad.",
+          "text": "Activa anuncios en tu transmisión y recibe parte de los ingresos."
+        }
+      }
+    },
+    "payment": {
+      "label": "PAGO",
+      "title": "Sin mensualidad.",
+      "titleAccent": "Solo pagas cuando vendes.",
+      "cards": {
+        "percent": {
+          "title": "Porcentaje por entrada pagada",
+          "text": "La plataforma retiene un porcentaje de cada venta. El evento gratuito no tiene costo."
+        },
+        "payout": {
+          "title": "Pago directo",
+          "text": "El dinero llega a la cuenta de tu organización vía Stripe, sin quedar retenido en la plataforma."
+        },
+        "cards": {
+          "title": "Tarjeta de crédito y débito",
+          "text": "Tu público paga como ya está acostumbrado."
+        }
+      },
+      "note": "El porcentaje se informa al registrar la organización."
+    },
+    "faq": {
+      "label": "PREGUNTAS",
+      "title": "Preguntas frecuentes.",
+      "helpLink": "¿Aún tienes dudas? Habla con nosotros",
+      "items": [
+        {
+          "q": "¿Necesito equipo especial?",
+          "a": "No. Cualquier cámara o software que envíe SRT sirve. OBS, que es gratuito, ya resuelve esto."
+        },
+        {
+          "q": "¿Cuánto tarda la revisión de la organización?",
+          "a": "Es una revisión rápida. Recibirás un correo en cuanto sea aprobada."
+        },
+        {
+          "q": "¿Puedo transmitir gratis?",
+          "a": "Sí. Los eventos gratuitos no tienen costo para el organizador."
+        },
+        {
+          "q": "¿Cómo recibo el dinero de las entradas?",
+          "a": "Directo en la cuenta conectada vía Stripe, descontado el porcentaje de la plataforma."
+        },
+        {
+          "q": "¿Cuántas cámaras puedo usar?",
+          "a": "Varias. El público elige cuál ver durante la transmisión y en el replay."
+        },
+        {
+          "q": "¿El público necesita instalar algo?",
+          "a": "No. Ve la transmisión desde el navegador, en computadora o celular."
+        },
+        {
+          "q": "¿Puedo vender después del evento?",
+          "a": "Sí. El replay se puede vender como entrada separada."
+        },
+        {
+          "q": "¿Puedo vender entradas para el público presencial?",
+          "a": "Sí. La entrada presencial incluye código QR y tu equipo hace el check-in desde el celular."
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "¿Listo para tu próximo evento?",
+      "cta": "Crear mi organización",
+      "helpLink": "¿Aún tienes dudas? Habla con nosotros"
+    }
   }
 }
