@@ -1,0 +1,135 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.section {
+  @include section-pad;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.container {
+  @include container;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 64px;
+  align-items: center;
+}
+
+.panel {
+  border-radius: $radius-panel;
+  border: 1px solid $line-strong;
+  background: $panel;
+  overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.panelHeadLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(140deg, $action, $violet);
+}
+
+.channelName {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.grade {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: $text-muted;
+}
+
+.onAir {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: $pink-soft;
+}
+
+.onAirDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $action;
+  animation: poPulse 1.6s infinite;
+
+  @include reduced-motion {
+    animation: none;
+  }
+}
+
+.panelBody {
+  padding: 18px 20px 22px;
+}
+
+.hours {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: $text-muted;
+  margin-bottom: 10px;
+}
+
+.grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 6px;
+  grid-auto-rows: 54px;
+}
+
+.slot {
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: #131316;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.slotHighlight {
+  border: 1px solid rgba(255, 46, 158, 0.5);
+  background: rgba(255, 46, 158, 0.08);
+}
+
+.slotKind {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  color: $text-muted;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+.slotHighlight .slotKind {
+  color: $pink-soft;
+}
+
+.nowLine {
+  position: absolute;
+  top: -8px;
+  bottom: -8px;
+  left: 41%;
+  width: 1.5px;
+  background: $action;
+  box-shadow: 0 0 12px rgba(255, 46, 158, 0.8);
+}

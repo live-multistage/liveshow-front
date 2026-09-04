@@ -1,0 +1,197 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.section {
+  @include section-pad;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.container {
+  @include container;
+}
+
+.panel {
+  border-radius: $radius-panel;
+  border: 1px solid $line-strong;
+  background: $panel;
+  overflow: hidden;
+  margin-bottom: 64px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.panelHeadLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: $text-muted;
+  font-weight: 400;
+}
+
+.filters {
+  display: flex;
+  gap: 6px;
+}
+
+.filterPill {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: $text-muted;
+  border-radius: 999px;
+  padding: 5px 11px;
+}
+
+.filterActive {
+  color: $text-primary;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.statCell {
+  background: $panel;
+  padding: 22px 24px;
+}
+
+.statLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $text-muted;
+  margin-bottom: 10px;
+}
+
+.statValue {
+  font-family: 'Space Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: $text-primary;
+}
+
+.statPrice {
+  color: $price;
+}
+
+.statDelta {
+  font-size: 12px;
+  color: $success-light;
+  margin-top: 6px;
+}
+
+.bottomGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.06);
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chartCol,
+.audienceCol {
+  background: $panel;
+  padding: 24px;
+}
+
+.colLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $text-muted;
+  margin-bottom: 18px;
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 140px;
+}
+
+.bar,
+.barPink {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+}
+
+.bar {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.barPink {
+  background: $action;
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: $text-muted;
+  margin-top: 10px;
+}
+
+.audienceRows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.audienceRowHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.audiencePct {
+  font-family: 'Space Mono', monospace;
+  color: $text-secondary;
+}
+
+.audienceTrack {
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.audienceFill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px 56px;
+}
