@@ -57,7 +57,7 @@ export function OrganizersHero() {
 
   const [reducedMotion] = useState(prefersReducedMotion);
   const [cam, setCam] = useState(0);
-  const [parallax, setParallax] = useState<HeroParallax>(reducedMotion ? STATIC_PARALLAX : STATIC_PARALLAX);
+  const [parallax, setParallax] = useState<HeroParallax>(STATIC_PARALLAX);
   const manualRef = useRef(false);
   const sectionRef = useRef<HTMLElement | null>(null);
   const mockRef = useRef<HTMLDivElement | null>(null);
@@ -124,7 +124,7 @@ export function OrganizersHero() {
   };
 
   const activeCam = CAMS[cam];
-  const activeMock = mockCams[cam];
+  const activeMock = mockCams[cam] ?? { name: '', meta: '' };
   const audioLabel = cam === 2 ? t('hero.mock.audio.narration') : t('hero.mock.audio.ambient');
 
   const textStyle: CSSProperties = {
@@ -206,6 +206,7 @@ export function OrganizersHero() {
                   <div className={styles.camSidebarLabel}>{t('hero.mock.camsLabel')}</div>
                   {CAMS.map((c, i) => {
                     const info = mockCams[i];
+                    if (!info) return null;
                     const isActive = i === cam;
                     return (
                       <button

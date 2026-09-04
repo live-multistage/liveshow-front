@@ -100,6 +100,9 @@ interface VisualCopy {
   nextPayout: string;
   account: string;
   event: string;
+  date: string;
+  cams: string;
+  poster: string;
   ticketDigital: string;
   ticketPhysical: string;
   publish: string;
@@ -186,13 +189,13 @@ function StepScreen({ step, visual }: { step: number; visual: VisualCopy }) {
     <>
       <div className={styles.publishHead}>
         <div className={styles.poster}>
-          <span className={styles.posterLabel}>POSTER</span>
+          <span className={styles.posterLabel}>{visual.poster}</span>
         </div>
         <div className={styles.publishInfo}>
           <div className={styles.eventTitle}>{visual.event}</div>
           <div className={styles.chipRow}>
-            <span className={styles.chip}>SÁB 21 SET · 19:00</span>
-            <span className={styles.chip}>4 CÂMERAS</span>
+            <span className={styles.chip}>{visual.date}</span>
+            <span className={styles.chip}>{visual.cams}</span>
             <span className={styles.chip}>SRT</span>
           </div>
         </div>
@@ -241,6 +244,9 @@ export function HowItWorks() {
     nextPayout: t('howItWorks.visual.nextPayout'),
     account: t('howItWorks.visual.account'),
     event: t('howItWorks.visual.event'),
+    date: t('howItWorks.visual.date'),
+    cams: t('howItWorks.visual.cams'),
+    poster: t('howItWorks.visual.poster'),
     ticketDigital: t('howItWorks.visual.ticketDigital'),
     ticketPhysical: t('howItWorks.visual.ticketPhysical'),
     publish: t('howItWorks.visual.publish'),

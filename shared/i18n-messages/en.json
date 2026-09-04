@@ -2031,7 +2031,10 @@
         "event": "State Final · Center Court",
         "ticketDigital": "Digital ticket",
         "ticketPhysical": "In person · QR",
-        "publish": "Publish event"
+        "publish": "Publish event",
+        "date": "SAT SEP 21 · 7:00 PM",
+        "cams": "4 CAMERAS",
+        "poster": "POSTER"
       }
     },
     "transmission": {
@@ -2243,7 +2246,7 @@
         },
         {
           "q": "How many cameras can I use?",
-          "a": "As many as you like. Viewers choose which one to watch during the stream and in the replay."
+          "a": "Several. Viewers choose which one to watch during the stream and in the replay."
         },
         {
           "q": "Does the audience need to install anything?",
@@ -2262,7 +2265,8 @@
     "finalCta": {
       "title": "Ready for your next event?",
       "cta": "Create my organization",
-      "helpLink": "Still have questions? Talk to us"
+      "helpLink": "Still have questions? Talk to us",
+      "watermark": "LIVE"
     }
   }
 }

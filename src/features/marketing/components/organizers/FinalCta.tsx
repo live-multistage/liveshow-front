@@ -11,7 +11,9 @@ export function FinalCta() {
     <section className={styles.section}>
       <Reveal as="div" variant="scale" className={styles.panel}>
         <div className={styles.glow} />
-        <div className={styles.watermark}>AO VIVO</div>
+        <div className={styles.watermark} aria-hidden="true">
+          {t('finalCta.watermark')}
+        </div>
         <div className={styles.content}>
           <h2 className={styles.title}>{t('finalCta.title')}</h2>
           <div className={styles.actions}>

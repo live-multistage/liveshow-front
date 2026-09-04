@@ -2031,7 +2031,10 @@
         "event": "Final Estadual · Quadra Central",
         "ticketDigital": "Ingresso digital",
         "ticketPhysical": "Presencial · QR",
-        "publish": "Publicar evento"
+        "publish": "Publicar evento",
+        "date": "SÁB 21 SET · 19:00",
+        "cams": "4 CÂMERAS",
+        "poster": "POSTER"
       }
     },
     "transmission": {
@@ -2262,7 +2265,8 @@
     "finalCta": {
       "title": "Pronto para o seu próximo evento?",
       "cta": "Criar minha organização",
-      "helpLink": "Ainda tem dúvidas? Fale com a gente"
+      "helpLink": "Ainda tem dúvidas? Fale com a gente",
+      "watermark": "AO VIVO"
     }
   }
 }

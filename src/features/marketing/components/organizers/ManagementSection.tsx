@@ -59,7 +59,7 @@ export function ManagementSection() {
           <div className={styles.panelHead}>
             <div className={styles.panelHeadLeft}>
               {t('management.mock.sales')}
-              <span className={styles.subtitle}>/ Final Estadual · Quadra Central</span>
+              <span className={styles.subtitle}>/ {t('howItWorks.visual.event')}</span>
             </div>
             <div className={styles.filters}>
               <span className={[styles.filterPill, styles.filterActive].join(' ')}>
@@ -110,20 +110,24 @@ export function ManagementSection() {
             <div className={styles.audienceCol}>
               <div className={styles.colLabel}>{t('management.mock.audiencePerCam')}</div>
               <div className={styles.audienceRows}>
-                {cams.map((cam, i) => (
-                  <div key={cam.name}>
-                    <div className={styles.audienceRowHead}>
-                      <span>{cam.name}</span>
-                      <span className={styles.audiencePct}>{CAM_SHARE[i].pct}%</span>
+                {CAM_SHARE.map((share, i) => {
+                  const cam = cams[i];
+                  if (!cam) return null;
+                  return (
+                    <div key={cam.name}>
+                      <div className={styles.audienceRowHead}>
+                        <span>{cam.name}</span>
+                        <span className={styles.audiencePct}>{share.pct}%</span>
+                      </div>
+                      <div className={styles.audienceTrack}>
+                        <div
+                          className={styles.audienceFill}
+                          style={{ width: `${share.pct}%`, background: share.color }}
+                        />
+                      </div>
                     </div>
-                    <div className={styles.audienceTrack}>
-                      <div
-                        className={styles.audienceFill}
-                        style={{ width: `${CAM_SHARE[i].pct}%`, background: CAM_SHARE[i].color }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

@@ -1,18 +1,31 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
+let mockCams: Array<{ name: string }> = [
+  { name: 'Cam A' },
+  { name: 'Cam B' },
+  { name: 'Cam C' },
+  { name: 'Cam D' },
+];
+let mockSignals: Array<{ name: string }> = [
+  { name: 'CAM 1' },
+  { name: 'CAM 2' },
+  { name: 'CAM 3' },
+  { name: 'CAM 4' },
+];
+
 vi.mock('next-intl', () => ({
   useTranslations: () => {
     const t = (key: string) => key;
     t.raw = (key: string) => {
       if (key === 'transmission.signals') {
-        return [{ name: 'CAM 1' }, { name: 'CAM 2' }, { name: 'CAM 3' }, { name: 'CAM 4' }];
+        return mockSignals;
       }
       if (key === 'replay.bullets') {
         return ['Bullet one', 'Bullet two', 'Bullet three'];
       }
       if (key === 'hero.mock.cams') {
-        return [{ name: 'Cam A' }, { name: 'Cam B' }, { name: 'Cam C' }, { name: 'Cam D' }];
+        return mockCams;
       }
       return [];
     };
@@ -80,5 +93,14 @@ describe('static organizer sections', () => {
       expect(screen.getByText(`payment.cards.${key}.title`)).toBeInTheDocument();
     });
     expect(screen.getByText('payment.note')).toBeInTheDocument();
+  });
+
+  it('does not throw when a locale returns fewer cams/signals than the hardcoded constants', () => {
+    mockCams = [{ name: 'Cam A' }, { name: 'Cam B' }, { name: 'Cam C' }];
+    mockSignals = [{ name: 'CAM 1' }, { name: 'CAM 2' }, { name: 'CAM 3' }];
+
+    expect(() => render(<TransmissionSection />)).not.toThrow();
+    expect(() => render(<ManagementSection />)).not.toThrow();
+    expect(screen.getAllByText('SRT OK')).toHaveLength(3);
   });
 });

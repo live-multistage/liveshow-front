@@ -2031,7 +2031,10 @@
         "event": "Final Estatal · Cancha Central",
         "ticketDigital": "Entrada digital",
         "ticketPhysical": "Presencial · QR",
-        "publish": "Publicar evento"
+        "publish": "Publicar evento",
+        "date": "SÁB 21 SEP · 19:00",
+        "cams": "4 CÁMARAS",
+        "poster": "POSTER"
       }
     },
     "transmission": {
@@ -2262,7 +2265,8 @@
     "finalCta": {
       "title": "¿Listo para tu próximo evento?",
       "cta": "Crear mi organización",
-      "helpLink": "¿Aún tienes dudas? Habla con nosotros"
+      "helpLink": "¿Aún tienes dudas? Habla con nosotros",
+      "watermark": "EN VIVO"
     }
   }
 }

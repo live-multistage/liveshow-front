@@ -47,12 +47,16 @@ const FEATURE_KEYS: Array<{ key: string; icon: OrganizerIconKey }> = [
 export function TransmissionSection() {
   const t = useTranslations('organizersPage');
   const signalNames = t.raw('transmission.signals') as Array<{ name: string }>;
-  const signals: Signal[] = signalNames.map((s, i) => ({
-    name: s.name,
-    bitrate: SIGNAL_META[i].bitrate,
-    src: SIGNAL_META[i].src,
-    bars: makeBars(SIGNAL_META[i].seed),
-  }));
+  const signals: Signal[] = SIGNAL_META.map((meta, i) => {
+    const s = signalNames[i];
+    if (!s) return null;
+    return {
+      name: s.name,
+      bitrate: meta.bitrate,
+      src: meta.src,
+      bars: makeBars(meta.seed),
+    };
+  }).filter((s): s is Signal => s !== null);
 
   return (
     <section className={styles.section}>
