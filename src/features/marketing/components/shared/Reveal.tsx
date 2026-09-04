@@ -18,11 +18,15 @@ function prefersReducedMotion(): boolean {
 
 export function Reveal({ children, delay = 0, as = 'div', className, variant = 'up' }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
-  // No IntersectionObserver (jsdom) or reduced motion → render already visible.
-  const [visible, setVisible] = useState(() => typeof IntersectionObserver === 'undefined' || prefersReducedMotion());
+  // Always start hidden so server and client markup match; the environment
+  // checks (no IntersectionObserver, reduced motion) run in the effect.
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (visible) return;
+    if (typeof IntersectionObserver === 'undefined' || prefersReducedMotion()) {
+      setVisible(true);
+      return;
+    }
     const el = ref.current;
     if (!el) return;
 
