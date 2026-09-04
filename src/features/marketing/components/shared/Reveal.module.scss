@@ -1,0 +1,26 @@
+@use '../../styles/_organizers-tokens' as *;
+
+.reveal {
+  opacity: 0;
+  transition: opacity 0.9s $ease, transform 1s $ease;
+  transition-delay: var(--reveal-delay, 0ms);
+
+  &.up {
+    transform: translateY(32px);
+  }
+
+  &.scale {
+    transform: translateY(40px) scale(0.97);
+  }
+
+  &.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  @include reduced-motion {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

@@ -1,0 +1,55 @@
+// Design tokens for the /para-organizadores landing page.
+// Mirrors the Claude Design mock (`design.html`) 1:1 — do not rename.
+$ink-soft:     #d4d4da;
+$pink-soft:    #ff8ec9;
+$violet-soft:  #c084fc;
+$green:        #4ade80;
+$amber:        #fbbf24;
+$stripe:       #635bff;
+$line:         rgba(255, 255, 255, 0.08);
+$line-strong:  rgba(255, 255, 255, 0.1);
+$panel:        #0d0d10;
+$ease:         cubic-bezier(0.2, 0.7, 0.2, 1);
+$radius-panel: 18px;
+$radius-card:  16px;
+
+@keyframes poPulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+@keyframes poDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -30px) scale(1.1); }
+}
+
+@keyframes poBars {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+
+@keyframes poRise {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: none; }
+}
+
+@mixin section-pad {
+  padding: 140px 40px;
+
+  @media (max-width: 640px) {
+    padding: 96px 20px;
+  }
+}
+
+@mixin container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Wrap continuous/entrance animations so they collapse to a static state
+// under prefers-reduced-motion instead of running forever off-screen.
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}

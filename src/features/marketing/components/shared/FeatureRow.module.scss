@@ -1,0 +1,45 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.row {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  border-top: 1px solid $line;
+  padding: 22px 0;
+}
+
+.chip {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pink {
+  background: rgba(255, 46, 158, 0.08);
+  border: 1px solid rgba(255, 46, 158, 0.25);
+  color: $pink-soft;
+}
+
+.violet {
+  background: rgba(152, 16, 250, 0.1);
+  border: 1px solid rgba(152, 16, 250, 0.3);
+  color: $violet-soft;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: $text-secondary;
+}
