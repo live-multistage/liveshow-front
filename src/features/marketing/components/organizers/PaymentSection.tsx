@@ -19,7 +19,7 @@ export function PaymentSection() {
     <section className={styles.section}>
       <div className={styles.glow} />
       <div className={styles.container}>
-        <SectionHeader label={t('payment.label')} title={title} align="center" maxTitleCh={16} />
+        <SectionHeader label={t('payment.label')} title={title} align="center" maxTitleCh={16} size="lg" />
 
         <div className={styles.grid}>
           {CARD_KEYS.map((key, i) => (

@@ -9,11 +9,15 @@ interface SectionHeaderProps {
   align?: 'left' | 'center';
   maxTitleCh?: number;
   id?: string;
+  /** 'lg' is the oversized display title used by the payment section. */
+  size?: 'md' | 'lg';
 }
 
-export function SectionHeader({ label, title, text, align = 'left', maxTitleCh, id }: SectionHeaderProps) {
+export function SectionHeader({ label, title, text, align = 'left', maxTitleCh, id, size = 'md' }: SectionHeaderProps) {
   const titleStyle = maxTitleCh ? ({ maxWidth: `${maxTitleCh}ch` } as CSSProperties) : undefined;
-  const cls = [styles.header, align === 'center' ? styles.center : ''].join(' ').trim();
+  const cls = [styles.header, align === 'center' ? styles.center : '', size === 'lg' ? styles.lg : '']
+    .join(' ')
+    .trim();
 
   return (
     <Reveal as="div" className={cls}>

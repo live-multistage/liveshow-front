@@ -30,6 +30,12 @@
   text-wrap: balance;
 }
 
+.lg .title {
+  font-size: clamp(36px, 5vw, 72px);
+  letter-spacing: -0.045em;
+  line-height: 0.96;
+}
+
 .text {
   margin: 0;
   font-size: 18px;
