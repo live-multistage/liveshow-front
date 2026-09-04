@@ -22,6 +22,11 @@ const h = vi.hoisted(() => {
       ERROR: 'hlsError',
     };
     static ErrorDetails = { BUFFER_STALLED_ERROR: 'bufferStalledError' };
+    static ErrorTypes = {
+      NETWORK_ERROR: 'networkError',
+      MEDIA_ERROR: 'mediaError',
+      OTHER_ERROR: 'otherError',
+    };
 
     config: Record<string, unknown>;
     handlers = new Map<string, ((evt: string, data?: unknown) => void)[]>();
@@ -32,6 +37,8 @@ const h = vi.hoisted(() => {
     liveSyncPosition: number | undefined = undefined;
     loadSource = vi.fn();
     attachMedia = vi.fn();
+    startLoad = vi.fn();
+    recoverMediaError = vi.fn();
     destroy = vi.fn();
 
     constructor(config: Record<string, unknown>) {
@@ -247,14 +254,49 @@ describe('VideoPanel characterization — LL fallback', () => {
     );
   });
 
-  it('a fatal STANDARD error shows the no-signal state and the lost-signal toast', () => {
+  it('a non-recoverable fatal STANDARD error shows no-signal and the lost-signal toast', () => {
     const { getByText } = render(<VideoPanel camera={cam()} {...baseProps} />);
     act(() => {
-      lastHls().emit(h.MockHls.Events.ERROR, { details: 'levelLoadError', fatal: true });
+      lastHls().emit(h.MockHls.Events.ERROR, {
+        type: h.MockHls.ErrorTypes.OTHER_ERROR,
+        details: 'levelParsingError',
+        fatal: true,
+      });
     });
     expect(h.instances).toHaveLength(1); // no rebuild
     expect(getByText('noSignal')).toBeTruthy();
     expect(toast.error).toHaveBeenCalledWith('signalLostTitle', expect.any(Object));
+  });
+
+  it('a fatal NETWORK error retries (stream booting) instead of showing signal lost', () => {
+    const { queryByText } = render(<VideoPanel camera={cam()} {...baseProps} />);
+    act(() => {
+      lastHls().emit(h.MockHls.Events.ERROR, {
+        type: h.MockHls.ErrorTypes.NETWORK_ERROR,
+        details: 'manifestLoadError',
+        fatal: true,
+      });
+    });
+    // Stays connecting instead of signal lost: no toast, no noSignal, the
+    // "connecting" overlay is shown while it retries.
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(queryByText('noSignal')).toBeNull();
+    expect(queryByText('connecting')).toBeTruthy();
+  });
+
+  it('a fatal 403 (auth) shows signal lost immediately — no retry loop', () => {
+    const { getByText } = render(<VideoPanel camera={cam()} {...baseProps} />);
+    act(() => {
+      lastHls().emit(h.MockHls.Events.ERROR, {
+        type: h.MockHls.ErrorTypes.NETWORK_ERROR,
+        details: 'manifestLoadError',
+        fatal: true,
+        response: { code: 403 },
+      });
+    });
+    expect(getByText('noSignal')).toBeTruthy();
+    expect(toast.error).toHaveBeenCalledWith('signalLostTitle', expect.any(Object));
+    expect(lastHls().startLoad).not.toHaveBeenCalled();
   });
 });
 

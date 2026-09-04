@@ -288,25 +288,48 @@ describe('useHlsPlayer — signed-URL token refresh (live standard)', () => {
     expect(h.instances[0].config.xhrSetup).toBeUndefined();
   });
 
-  it('xhrSetup propagates a CDN manifest URL\'s Bunny params onto a child URL missing them', () => {
+  it('xhrSetup propagates a CDN manifest URL\'s Bunny params onto a child UNDER token_path', () => {
     renderPlayer(
       cam({
         manifestPath:
-          'https://cdn.example/api/o/pkg-1/master.m3u8?pt=CURRENT&token=BUNNY&expires=99&token_path=%2Fo%2Fpkg-1%2F',
+          'https://cdn.example/api/packages/pkg-1/live/master.m3u8?pt=CURRENT&token=BUNNY&expires=99&token_path=%2Fapi%2Fpackages%2Fpkg-1%2F',
       }),
     );
     const xhrSetup = h.instances[0].config.xhrSetup as (
       xhr: XMLHttpRequest,
       url: string,
     ) => void;
-    // Segment references carry their own stale `pt` baked in by the manifest
-    // (same mechanism as the non-CDN case) but never Bunny's signature — the
-    // CDN edge enforces that separately, and hls.js doesn't know to add it.
+    // A DVR child under /api/packages/pkg-1/ falls inside token_path, so it
+    // inherits the master's Bunny signature (plus the refreshed pt).
     const xhr = { open: vi.fn() } as unknown as XMLHttpRequest;
-    xhrSetup(xhr, 'https://cdn.example/api/o/pkg-1/seg_0.ts?pt=STALE');
+    xhrSetup(xhr, 'https://cdn.example/api/packages/pkg-1/dvr/seg_0.ts?pt=STALE');
     expect(xhr.open).toHaveBeenCalledWith(
       'GET',
-      'https://cdn.example/api/o/pkg-1/seg_0.ts?pt=CURRENT&token=BUNNY&expires=99&token_path=%2Fo%2Fpkg-1%2F',
+      'https://cdn.example/api/packages/pkg-1/dvr/seg_0.ts?pt=CURRENT&token=BUNNY&expires=99&token_path=%2Fapi%2Fpackages%2Fpkg-1%2F',
+      true,
+    );
+  });
+
+  it('xhrSetup does NOT sign a child OUTSIDE token_path (the /api/origin 403)', () => {
+    renderPlayer(
+      cam({
+        manifestPath:
+          'https://cdn.example/api/packages/pkg-1/live/master.m3u8?pt=CURRENT&token=BUNNY&expires=99&token_path=%2Fapi%2Fpackages%2Fpkg-1%2F',
+      }),
+    );
+    const xhrSetup = h.instances[0].config.xhrSetup as (
+      xhr: XMLHttpRequest,
+      url: string,
+    ) => void;
+    // The master's rendition children live under /api/origin/* — outside
+    // token_path. Copying the directory-scoped Bunny token onto them makes the
+    // edge 403 (request path not under token_path), so they must go unsigned;
+    // only the stale pt is refreshed.
+    const xhr = { open: vi.fn() } as unknown as XMLHttpRequest;
+    xhrSetup(xhr, 'https://cdn.example/api/origin/pkg-1/480p/index.m3u8?pt=STALE');
+    expect(xhr.open).toHaveBeenCalledWith(
+      'GET',
+      'https://cdn.example/api/origin/pkg-1/480p/index.m3u8?pt=CURRENT',
       true,
     );
   });
