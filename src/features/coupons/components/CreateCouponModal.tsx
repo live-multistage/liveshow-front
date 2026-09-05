@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { X, Ticket, Plus } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
+import { DateTimePicker } from '@/shared/components/DateTimePicker/DateTimePicker';
 import type { CreateCouponRequest, DiscountType } from '../types/coupon.types';
 import styles from './CreateCouponModal.module.scss';
 
@@ -29,7 +30,7 @@ interface Props {
 }
 
 export function CreateCouponModal({ isOpen, orgs, defaultOrgId, events, isPending, error, onClose, onCreate }: Props) {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>();
+  const { register, control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({ defaultValues: { expiresAt: '' } });
   const [discountType, setDiscountType] = useState<DiscountType>('PERCENTAGE');
   const [scope, setScope] = useState<ScopeChoice>('org');
 
@@ -179,9 +180,14 @@ export function CreateCouponModal({ isOpen, orgs, defaultOrgId, events, isPendin
                 <label className={styles.label}>Máx. usos</label>
                 <input {...register('maxUses')} type="number" min="1" placeholder="∞" className={styles.smallInput} />
               </div>
-              <div>
-                <label className={styles.label}>Validade</label>
-                <input {...register('expiresAt')} type="datetime-local" className={styles.smallInput} />
+              <div className={styles.expiresField}>
+                <Controller
+                  control={control}
+                  name="expiresAt"
+                  render={({ field }) => (
+                    <DateTimePicker value={field.value} onChange={field.onChange} label="Validade" />
+                  )}
+                />
               </div>
             </div>
 

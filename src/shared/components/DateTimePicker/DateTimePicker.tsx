@@ -36,6 +36,7 @@ interface DateTimePickerProps {
   defaultTime?: string;
   quickTimes?: string[];
   id?: string;
+  disabled?: boolean;
 }
 
 const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-419' };
@@ -59,6 +60,7 @@ export function DateTimePicker({
   defaultTime = '20:00',
   quickTimes = ['19:00', '20:00', '21:00', '22:00'],
   id,
+  disabled = false,
 }: DateTimePickerProps) {
   const t = useTranslations('dateTimeInput');
   const locale = useLocale();
@@ -199,13 +201,13 @@ export function DateTimePicker({
         </label>
       )}
 
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open && !disabled} onOpenChange={(next) => !disabled && setOpen(next)}>
         <PopoverAnchor asChild>
           <div
-            className={`${styles.field} ${active ? styles.fieldActive : ''} ${displayError ? styles.fieldError : ''}`}
+            className={`${styles.field} ${active ? styles.fieldActive : ''} ${displayError ? styles.fieldError : ''} ${disabled ? styles.fieldDisabled : ''}`}
           >
             <PopoverTrigger asChild>
-              <button type="button" className={styles.calendarButton} aria-label={t('openCalendar')}>
+              <button type="button" className={styles.calendarButton} aria-label={t('openCalendar')} disabled={disabled}>
                 <CalendarIcon size={17} />
               </button>
             </PopoverTrigger>
@@ -215,6 +217,7 @@ export function DateTimePicker({
               value={dateText}
               placeholder={t('datePlaceholder')}
               inputMode="numeric"
+              disabled={disabled}
               onChange={(e) => handleDateChange(e.target.value)}
               onFocus={() => setDateFocused(true)}
               onBlur={handleDateBlur}
@@ -225,6 +228,7 @@ export function DateTimePicker({
               value={timeText}
               placeholder={t('timePlaceholder')}
               inputMode="numeric"
+              disabled={disabled}
               onChange={(e) => handleTimeChange(e.target.value)}
               onFocus={() => setTimeFocused(true)}
               onBlur={handleTimeBlur}

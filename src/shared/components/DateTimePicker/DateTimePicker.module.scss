@@ -55,6 +55,16 @@
   box-shadow: 0 0 0 3px $action-dim;
 }
 
+.fieldDisabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+
+  input,
+  button {
+    cursor: not-allowed;
+  }
+}
+
 .fieldError {
   border-color: $danger;
   box-shadow: none;
@@ -148,7 +158,8 @@
 
 // ── Popover ───────────────────────────────────────────────────────
 .content {
-  z-index: 30 !important;
+  // Above the coupon modal (z 61) — the popover portals to <body>.
+  z-index: 70 !important;
   width: 312px !important;
   border-radius: 12px !important;
   border: 1px solid $border !important;

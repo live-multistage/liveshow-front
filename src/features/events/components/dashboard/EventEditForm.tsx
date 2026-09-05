@@ -5,6 +5,7 @@ import { Controller, useWatch } from 'react-hook-form';
 import type { UseFormRegister, FieldErrors, Control } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { Checkbox, SimpleCustomSelect } from '@live-show/design-system';
+import { DateTimePicker } from '@/shared/components/DateTimePicker/DateTimePicker';
 import { SLUG_PATTERN, SLUG_MIN_LENGTH, SLUG_MAX_LENGTH, publicOrigin } from '../../utils/slug';
 import styles from './EventDashboardDetailContent.module.scss';
 
@@ -49,6 +50,7 @@ interface Props {
 export function EventEditForm({ register, control, errors, errorMessage, slugError, onSlugChange, scheduleLocked = false }: Props) {
   const t = useTranslations('eventDetail');
   const slug = useWatch({ control, name: 'slug' });
+  const startsAt = useWatch({ control, name: 'startsAt' });
 
   return (
     <div className={styles.editForm}>
@@ -91,24 +93,39 @@ export function EventEditForm({ register, control, errors, errorMessage, slugErr
 
       <div className={styles.editRow}>
         <div className={styles.field}>
-          <label className={styles.label}>{t('editStartsAt')}</label>
-          <input
-            type="datetime-local"
-            {...register('startsAt')}
-            disabled={scheduleLocked}
-            className={`${styles.input} ${errors.startsAt ? styles.inputError : ''}`}
+          <Controller
+            control={control}
+            name="startsAt"
+            render={({ field }) => (
+              <DateTimePicker
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.startsAt?.message}
+                label={t('editStartsAt')}
+                required
+                allowPast
+                disabled={scheduleLocked}
+              />
+            )}
           />
-          {errors.startsAt && <p className={styles.error}>{errors.startsAt.message}</p>}
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>{t('editEndsAt')}</label>
-          <input
-            type="datetime-local"
-            {...register('endsAt')}
-            disabled={scheduleLocked}
-            className={`${styles.input} ${errors.endsAt ? styles.inputError : ''}`}
+          <Controller
+            control={control}
+            name="endsAt"
+            render={({ field }) => (
+              <DateTimePicker
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.endsAt?.message}
+                label={t('editEndsAt')}
+                required
+                allowPast
+                min={startsAt}
+                disabled={scheduleLocked}
+              />
+            )}
           />
-          {errors.endsAt && <p className={styles.error}>{errors.endsAt.message}</p>}
         </div>
       </div>
 

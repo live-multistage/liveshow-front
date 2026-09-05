@@ -370,3 +370,8 @@ $pink-chip: #ff7ec2;
   from { opacity: 0; transform: translate(-50%, calc(-50% + 12px)); }
   to { opacity: 1; transform: translate(-50%, -50%); }
 }
+
+// Date + time field needs the whole row; a third of the grid is too narrow.
+.expiresField {
+  grid-column: 1 / -1;
+}
