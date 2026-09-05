@@ -29,6 +29,7 @@ import type {
   EventModerationAction,
   PlatformReportsResult,
   ReportStatus,
+  OrganizerApplicationAdmin,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
@@ -183,6 +184,19 @@ export const platformAdminService = {
   setAdReviewStrategy: async (strategy: string): Promise<{ strategy: string }> => {
     const { data } = await httpClient.patch<{ strategy: string }>('/platform-admin/ad-review/config', { strategy });
     return data;
+  },
+
+  listOrganizerApplications: async (status?: string): Promise<OrganizerApplicationAdmin[]> => {
+    const { data } = await httpClient.get<OrganizerApplicationAdmin[]>('/platform-admin/organizer-applications', {
+      params: { status },
+    });
+    return data;
+  },
+  approveOrganizerApplication: async (id: string): Promise<void> => {
+    await httpClient.post(`/platform-admin/organizer-applications/${id}/approve`);
+  },
+  rejectOrganizerApplication: async (id: string, reason: string): Promise<void> => {
+    await httpClient.post(`/platform-admin/organizer-applications/${id}/reject`, { reason });
   },
 
   getPlatformCoupons: async (params: { status?: string; q?: string; page?: number }): Promise<PlatformCouponsResult> => {

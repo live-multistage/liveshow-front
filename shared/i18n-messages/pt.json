@@ -431,7 +431,8 @@
       "channels": "Canais",
       "series": "Programas",
       "platformFeatureFlags": "Feature Flags",
-      "platformAdPartnerships": "Parcerias de anúncios"
+      "platformAdPartnerships": "Parcerias de anúncios",
+      "platformOrganizerApplications": "Candidaturas"
     },
     "navMobile": {
       "overview": "Painel",

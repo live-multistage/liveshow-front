@@ -306,6 +306,28 @@ export interface AdReviewConfig {
   strategies: string[];
 }
 
+// Organizer applications (GET /platform-admin/organizer-applications).
+export type OrganizerApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type OrganizerApplicationExperience = 'NEVER' | 'SOME' | 'REGULAR';
+
+export interface OrganizerApplicationAdmin {
+  id: string;
+  userId: string;
+  organizationName: string;
+  socialLink: string | null;
+  segments: string[];
+  experience: OrganizerApplicationExperience;
+  about: string;
+  spamScore: number; // 0..100, higher = more suspicious
+  reviewFlags: string[];
+  status: OrganizerApplicationStatus;
+  rejectionReason: string | null;
+  reviewedByUserId: string | null;
+  reviewedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Global coupon directory (GET /platform-admin/coupons).
 export interface PlatformCouponRow {
   id: string;
