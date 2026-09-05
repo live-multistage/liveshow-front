@@ -31,7 +31,7 @@ interface Props {
   physicalTicketsEnabled?: boolean;
 }
 
-export function TicketSection({ tickets, onChange, format, physicalTicketsEnabled = false }: Props) {
+export function TicketSection({ tickets, onChange, format, physicalTicketsEnabled = true }: Props) {
   const t = useTranslations('editTicket');
   // VOD events can only sell replay access — the backend 400s any other
   // capability. Lock the form to REPLAY_VIEW instead of letting the user

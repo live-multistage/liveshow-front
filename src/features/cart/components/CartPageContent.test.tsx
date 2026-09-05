@@ -5,7 +5,10 @@ vi.mock('@/features/checkout/services/checkout.service', () => ({
   checkoutService: { previewCartCoupon: vi.fn() },
 }));
 
-import { describe, it, expect, vi } from 'vitest';
+const toast = { info: vi.fn() };
+vi.mock('sonner', () => ({ toast }));
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CartPageContent } from './CartPageContent';
@@ -40,6 +43,11 @@ function renderPage(couponsEnabled?: boolean) {
 }
 
 describe('CartPageContent — coupon gate', () => {
+  beforeEach(() => {
+    toast.info.mockClear();
+    sessionStorage.clear();
+  });
+
   it('renders the coupon input by default', () => {
     renderPage();
     expect(screen.getByLabelText('promoLabel')).toBeInTheDocument();
@@ -48,5 +56,19 @@ describe('CartPageContent — coupon gate', () => {
   it('hides the coupon block when couponsEnabled is false', () => {
     renderPage(false);
     expect(screen.queryByLabelText('promoLabel')).not.toBeInTheDocument();
+  });
+
+  it('clears a stale coupon and toasts when couponsEnabled is off', () => {
+    sessionStorage.setItem('cart:coupon', JSON.stringify({ code: 'STALE10' }));
+
+    renderPage(false);
+
+    expect(sessionStorage.getItem('cart:coupon')).toBeNull();
+    expect(toast.info).toHaveBeenCalledWith('couponsDisabledCleared');
+  });
+
+  it('does not toast when there was nothing to clear', () => {
+    renderPage(false);
+    expect(toast.info).not.toHaveBeenCalled();
   });
 });

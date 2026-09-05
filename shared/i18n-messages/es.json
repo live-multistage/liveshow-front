@@ -123,6 +123,7 @@
     "total": "Total",
     "promoLabel": "Código promocional",
     "couponInvalid": "Cupón inválido o vencido",
+    "couponsDisabledCleared": "Tu cupón fue eliminado porque los cupones están temporalmente desactivados.",
     "multiOrg": "varias organizaciones",
     "errors": {
       "CURRENCY_MISMATCH": "Tu carrito solo acepta entradas en la misma moneda."

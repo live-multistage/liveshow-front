@@ -21,6 +21,7 @@ import styles from './OffAirOverlay.module.scss';
 interface Props {
   slug: string;
   chatEnabled: boolean;
+  adsEnabled?: boolean;
 }
 
 // Stripe's webhook lands asynchronously — right after `?subscribed=1` the
@@ -51,7 +52,7 @@ function PastDueBanner() {
   );
 }
 
-export function ChannelGate({ slug, chatEnabled }: Props) {
+export function ChannelGate({ slug, chatEnabled, adsEnabled }: Props) {
   const t = useTranslations('liveGate');
   const tSub = useTranslations('channels.subscription');
   const router = useRouter();
@@ -169,6 +170,7 @@ export function ChannelGate({ slug, chatEnabled }: Props) {
         channel={channel.data}
         playback={playback.data}
         chatEnabled={chatEnabled}
+        adsEnabled={adsEnabled}
         overlay={overlay}
         initialAudio={audio}
         onAudioChange={setAudio}

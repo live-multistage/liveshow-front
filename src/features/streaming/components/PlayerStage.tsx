@@ -19,6 +19,9 @@ interface PlayerStageProps {
   // so this can never get stuck shrunk without an ad actually on screen.
   pauseAdVisible: boolean;
   onPauseAdVisibleChange: (visible: boolean) => void;
+  // Gates the pause-ad takeover — false must skip mounting PauseAdTakeover
+  // entirely, not just hide it, so /ads/serve is never called.
+  adsEnabled?: boolean;
   // The CameraGrid (already configured by the player).
   children: ReactNode;
 }
@@ -29,7 +32,7 @@ interface PlayerStageProps {
 //
 // Sem o overlay central, uma live pausada é indistinguível de uma transmissão
 // travada: a imagem congela e nada na tela explica por quê.
-export function PlayerStage({ mode, eventId, paused, onResume, pauseAdVisible, onPauseAdVisibleChange, children }: PlayerStageProps) {
+export function PlayerStage({ mode, eventId, paused, onResume, pauseAdVisible, onPauseAdVisibleChange, adsEnabled = true, children }: PlayerStageProps) {
   const t = useTranslations('player');
   // Um canal não tem arquivo atrás da janela de ~12 s da origem: não há para
   // onde pausar. Sem pausa, o takeover de anúncio, o play central e o chip de
@@ -38,7 +41,7 @@ export function PlayerStage({ mode, eventId, paused, onResume, pauseAdVisible, o
 
   return (
     <>
-      {pausable && (
+      {pausable && adsEnabled && (
         <PauseAdTakeover
           eventId={eventId}
           paused={paused}

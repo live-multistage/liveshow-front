@@ -73,6 +73,7 @@ export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }
       title={eventTitle}
       eventId={eventId}
       chatEnabled={chatEnabled}
+      adsEnabled={adsEnabled}
     />
   );
 }

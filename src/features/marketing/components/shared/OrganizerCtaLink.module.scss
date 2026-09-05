@@ -16,6 +16,10 @@
 }
 
 .disabled {
+  // Rendered as a native <button disabled> — reset UA button chrome so it
+  // still reads as the pill, not a browser-default button.
+  border: none;
+  font: inherit;
   opacity: 0.55;
   cursor: not-allowed;
   pointer-events: none;

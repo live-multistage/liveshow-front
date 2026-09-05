@@ -39,13 +39,20 @@ describe('TicketSection currency selector', () => {
 });
 
 describe('TicketSection — physical_tickets gate', () => {
-  it('hides the physical-entry option when the flag is off', () => {
-    render(<TicketSection tickets={[]} onChange={vi.fn()} />);
+  it('hides the physical-entry option when the flag is explicitly off', () => {
+    render(<TicketSection tickets={[]} onChange={vi.fn()} physicalTicketsEnabled={false} />);
     expect(screen.queryByText('Acesso presencial')).not.toBeInTheDocument();
   });
 
   it('offers the physical-entry option when the flag is on', () => {
     render(<TicketSection tickets={[]} onChange={vi.fn()} physicalTicketsEnabled />);
+    expect(screen.getByText('Acesso presencial')).toBeInTheDocument();
+  });
+
+  // A missing prop must never silently hide the feature — the server prop
+  // is the source of truth, so a forgotten wiring defaults to visible.
+  it('defaults to offering the physical-entry option when the prop is omitted', () => {
+    render(<TicketSection tickets={[]} onChange={vi.fn()} />);
     expect(screen.getByText('Acesso presencial')).toBeInTheDocument();
   });
 });

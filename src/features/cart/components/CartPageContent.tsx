@@ -1,8 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import { useNavigate } from '@/shared/hooks/use-navigate';
 import { useCartQuery } from '../queries/cart.queries';
 import { useRemoveFromCartMutation } from '../mutations/cart.mutations';
@@ -88,6 +89,19 @@ export function CartPageContent({ initialCart, couponsEnabled = true }: Props) {
       setIsApplying(false);
     }
   };
+
+  // couponsEnabled off: clear any stale coupon (state + the sessionStorage
+  // entry checkout reads) instead of just hiding the input — otherwise a
+  // buyer stuck with an already-applied code would have no way to remove it.
+  useEffect(() => {
+    if (couponsEnabled) return;
+    const hadStored = typeof window !== 'undefined' && sessionStorage.getItem('cart:coupon') !== null;
+    if (!hadStored && !appliedCoupon) return;
+    sessionStorage.removeItem('cart:coupon');
+    setAppliedCoupon(null);
+    toast.info(t('couponsDisabledCleared'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [couponsEnabled]);
 
   const removePromo = () => {
     setAppliedCoupon(null);

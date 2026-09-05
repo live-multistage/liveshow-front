@@ -152,13 +152,20 @@ describe('EditTicketSection', () => {
     );
   });
 
-  it('hides the physical-entry option when the flag is off', () => {
-    render(<EditTicketSection eventId="evt-1" tickets={[]} />);
+  it('hides the physical-entry option when the flag is explicitly off', () => {
+    render(<EditTicketSection eventId="evt-1" tickets={[]} physicalTicketsEnabled={false} />);
     expect(screen.queryByText('Acesso presencial')).not.toBeInTheDocument();
   });
 
   it('offers the physical-entry option when the flag is on', () => {
     render(<EditTicketSection eventId="evt-1" tickets={[]} physicalTicketsEnabled />);
+    expect(screen.getByText('Acesso presencial')).toBeInTheDocument();
+  });
+
+  // A missing prop must never silently hide the feature — the server prop
+  // is the source of truth, so a forgotten wiring defaults to visible.
+  it('defaults to offering the physical-entry option when the prop is omitted', () => {
+    render(<EditTicketSection eventId="evt-1" tickets={[]} />);
     expect(screen.getByText('Acesso presencial')).toBeInTheDocument();
   });
 

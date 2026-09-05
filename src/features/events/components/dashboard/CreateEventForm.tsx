@@ -28,7 +28,7 @@ interface Props {
 }
 
 export function CreateEventForm({
-  onSuccess, vodUploadEnabled = false, lowLatencyEnabled = true, physicalTicketsEnabled = false,
+  onSuccess, vodUploadEnabled = false, lowLatencyEnabled = true, physicalTicketsEnabled = true,
 }: Props) {
   const t = useTranslations('createEvent');
   const { data: allOrgs = [] } = useMyOrganizationsQuery();

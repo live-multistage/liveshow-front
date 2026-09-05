@@ -44,6 +44,9 @@ interface LivePlayerProps {
   // where the two are the same thing.
   trackingEventId?: string;
   chatEnabled: boolean;
+  // Gates the pause-ad takeover — off must skip PauseAdTakeover entirely so
+  // /ads/serve is never called, not just hide the result.
+  adsEnabled?: boolean;
   // 'channel': transmissão contínua sem arquivo atrás da janela da origem —
   // não há o que pausar nem para onde rebobinar, então os controles de
   // playback (e o takeover de anúncio que depende deles) saem de cena.
@@ -85,7 +88,7 @@ function initialStageId(stages: LiveStage[], primaryCameraId?: string | null): s
   return stages.find((s) => s.cameras.length > 0)?.stageId ?? stages[0]?.stageId ?? '__main__';
 }
 
-export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, trackingEventId, chatEnabled, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
+export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, trackingEventId, chatEnabled, adsEnabled = true, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
   const t = useTranslations('player');
   const isChannel = variant === 'channel';
   const router = useRouter();
@@ -258,6 +261,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
             onResume={() => setPaused(false)}
             pauseAdVisible={pauseAdVisible}
             onPauseAdVisibleChange={setPauseAdVisible}
+            adsEnabled={adsEnabled}
           >
             {activeStage && (
               <CameraGrid

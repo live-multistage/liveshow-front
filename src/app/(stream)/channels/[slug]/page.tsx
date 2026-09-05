@@ -59,7 +59,7 @@ export default async function ChannelPage({ params }: Props) {
   return (
     <HydrationBoundary state={dehydrate(qc)}>
       {channelJsonLd && <JsonLd data={channelJsonLd} />}
-      <ChannelGate slug={slug} chatEnabled={flags.chat} />
+      <ChannelGate slug={slug} chatEnabled={flags.chat} adsEnabled={flags.ads_delivery} />
     </HydrationBoundary>
   );
 }

@@ -21,7 +21,7 @@ describe('OrganizerCtaLink', () => {
     expect(screen.getByRole('link').getAttribute('href')).toBe('/dashboard/organizations/new');
   });
 
-  it('renders a non-link with the disabled label when disabled', () => {
+  it('renders a disabled button with the disabled label when disabled', () => {
     mockIsLoggedIn = false;
     render(
       <OrganizerCtaLink disabled disabledLabel="Inscrições fechadas no momento">
@@ -29,7 +29,8 @@ describe('OrganizerCtaLink', () => {
       </OrganizerCtaLink>,
     );
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
-    const disabledEl = screen.getByText('Inscrições fechadas no momento');
-    expect(disabledEl.getAttribute('aria-disabled')).toBe('true');
+    const button = screen.getByRole('button', { name: 'Inscrições fechadas no momento' });
+    expect(button).toBeDisabled();
+    expect(button.getAttribute('type')).toBe('button');
   });
 });

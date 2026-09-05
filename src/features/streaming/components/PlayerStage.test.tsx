@@ -62,4 +62,14 @@ describe('PlayerStage — live mode', () => {
     expect(getByLabelText('resume')).toBeInTheDocument();
     expect(getByText('pausedChipLive')).toBeInTheDocument();
   });
+
+  it('never mounts the pause-ad takeover when adsEnabled is false, even while paused', () => {
+    const { queryByTestId } = render(
+      <PlayerStage {...baseProps} mode="live" adsEnabled={false}>
+        <div>grid</div>
+      </PlayerStage>,
+    );
+
+    expect(queryByTestId('pause-ad')).toBeNull();
+  });
 });

@@ -123,6 +123,7 @@
     "total": "Total",
     "promoLabel": "Código promocional",
     "couponInvalid": "Cupom inválido ou expirado",
+    "couponsDisabledCleared": "O cupom foi removido porque cupons estão temporariamente desativados.",
     "multiOrg": "várias organizações",
     "errors": {
       "CURRENCY_MISMATCH": "Seu carrinho só aceita ingressos na mesma moeda."

@@ -12,6 +12,15 @@ const apiBase = () =>
 const memo: <T extends (...args: never[]) => unknown>(fn: T) => T =
   typeof React.cache === 'function' ? React.cache : (fn) => fn;
 
+// TODO(backend): this only ever reads the global flag set. Per-org overrides
+// (e.g. physical_tickets, event_collaborations enabled for one org while
+// globally off) are invisible here because /platform-admin/organizations/:id/flags
+// is SUPER_ADMIN-only (see live-show-orchestrator platform-admin-organizations.controller.ts).
+// Add a member-readable GET /organizations/:id/feature-flags and fetch it
+// alongside this in an org-scoped resolver; until then, org-beta-flag gates
+// fail open in the dashboard/checkin instead of hiding features that may be
+// on for the current org (see CreateEventPage, DashboardEventDetailPage,
+// CheckinLayout).
 export const fetchFeatureFlags = memo(async (): Promise<FeatureFlags> => {
   try {
     const res = await fetch(`${apiBase()}/feature-flags`, { next: { revalidate: 30 } });

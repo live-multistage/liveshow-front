@@ -74,6 +74,7 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
       // domínio do scrubber e o referencial que faz uma câmera que entrou
       // atrasada saber onde ela cai no evento.
       timeline={playback.data.timeline}
+      adsEnabled={adsEnabled}
     />
   );
 }

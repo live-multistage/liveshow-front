@@ -32,6 +32,9 @@ interface ReplayPlayerProps {
   // onto). Null when no camera has any replay — orchestration resolves this
   // from the API; we only render the empty state for it.
   timeline: ReplayEventTimeline | null;
+  // Gates the pause-ad takeover — off must skip PauseAdTakeover entirely so
+  // /ads/serve is never called, not just hide the result.
+  adsEnabled?: boolean;
 }
 
 // Replay's grid/camera-switching UX mirrors LivePlayer's (same
@@ -46,7 +49,7 @@ interface ReplayPlayerProps {
 // camera is still its own independent VOD timeline underneath (no frame-
 // accurate cross-camera sync), a real, harder problem deliberately left for
 // later.
-export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title, eventId, timeline }: ReplayPlayerProps) {
+export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title, eventId, timeline, adsEnabled = true }: ReplayPlayerProps) {
   const t = useTranslations('player');
   const containerRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
@@ -229,6 +232,7 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
             onResume={() => setPaused(false)}
             pauseAdVisible={pauseAdVisible}
             onPauseAdVisibleChange={setPauseAdVisible}
+            adsEnabled={adsEnabled}
           >
             <CameraGrid
               cameras={cameras}

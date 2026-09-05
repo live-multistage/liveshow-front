@@ -32,9 +32,9 @@ export function OrganizerCtaLink({
 
   if (disabled) {
     return (
-      <span className={cls} aria-disabled="true">
+      <button type="button" disabled className={cls}>
         {disabledLabel ?? children}
-      </span>
+      </button>
     );
   }
 

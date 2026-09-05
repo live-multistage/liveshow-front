@@ -74,7 +74,7 @@ const EMPTY_FORM: Partial<TicketFormInput> = {
   allowedStageIds: [],
 };
 
-export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTicketsEnabled = false }: Props) {
+export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTicketsEnabled = true }: Props) {
   const t = useTranslations('editTicket');
 
   const createMutation = useCreateTicketProductMutation(eventId ?? '');

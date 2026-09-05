@@ -11,6 +11,7 @@ interface Props {
   channel: PublicChannel;
   playback: ChannelPlaybackResponse;
   chatEnabled: boolean;
+  adsEnabled?: boolean;
   // Repassado ao container do player para que sobreviva ao fullscreen.
   overlay?: ReactNode;
   // Held by ChannelGate (above this remount boundary) so mute/volume survive
@@ -27,6 +28,7 @@ export function ChannelPlayer({
   channel,
   playback,
   chatEnabled,
+  adsEnabled,
   overlay,
   initialAudio,
   onAudioChange,
@@ -62,6 +64,7 @@ export function ChannelPlayer({
       primaryCameraId={playback.primaryCameraId}
       librasCameraId={playback.librasCameraId}
       chatEnabled={chatEnabled}
+      adsEnabled={adsEnabled}
       initialAudio={initialAudio}
       onAudioChange={onAudioChange}
       overlay={

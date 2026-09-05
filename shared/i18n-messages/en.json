@@ -123,6 +123,7 @@
     "total": "Total",
     "promoLabel": "Promo code",
     "couponInvalid": "Invalid or expired coupon",
+    "couponsDisabledCleared": "Your coupon was removed because coupons are temporarily disabled.",
     "multiOrg": "multiple organizations",
     "errors": {
       "CURRENCY_MISMATCH": "Your cart only accepts tickets in the same currency."
