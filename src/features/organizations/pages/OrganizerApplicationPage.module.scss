@@ -212,7 +212,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 2rem;
 }
 
 .cardTitle {
@@ -242,10 +242,14 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.7rem;
 
-  & + & { margin-top: 1.5rem; }
+  & + & { margin-top: 1.75rem; }
 }
+
+/* The org-name/link row is not a .field, so the field after it (experience)
+   would otherwise butt right up against the inputs. */
+.inputRow + .field { margin-top: 1.75rem; }
 
 .fieldHead {
   display: flex;
@@ -311,7 +315,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 1.75rem;
 
   .field { margin-top: 0; }
 
