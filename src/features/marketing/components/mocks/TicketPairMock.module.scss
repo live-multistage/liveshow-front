@@ -1,0 +1,182 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.digital,
+.physical {
+  border-radius: $radius-card;
+  background: $surface-card;
+  display: flex;
+  flex-direction: column;
+}
+
+.digital {
+  border: 1px solid rgba(255, 46, 158, 0.4);
+}
+
+.physical {
+  border: 1px solid $border;
+}
+
+.digitalTop {
+  padding: 18px 18px 14px;
+  border-bottom: 1px dashed $border;
+}
+
+.physicalTop {
+  padding: 18px 18px 14px;
+}
+
+.digitalHead,
+.physicalHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.digitalLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: $pink-soft;
+}
+
+.physicalLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: $text-secondary;
+}
+
+.livePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #0a0a0b;
+  background: $action;
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+.liveDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #0a0a0b;
+  animation: poPulse 1.6s infinite;
+
+  @include reduced-motion {
+    animation: none;
+  }
+}
+
+.gateChip {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: $text-secondary;
+  border: 1px solid $border;
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.date {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: $text-muted;
+}
+
+.digitalBottom {
+  flex: 1;
+  padding: 14px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.accessRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+.price {
+  font-family: 'Space Mono', monospace;
+  color: $price;
+}
+
+.watchButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  border-radius: 999px;
+  background: $action;
+  color: #0a0a0b;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: default;
+}
+
+.physicalBottom {
+  flex: 1;
+  padding: 4px 18px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.qr {
+  width: 84px;
+  height: 84px;
+  border-radius: 8px;
+  background: #fff;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+  padding: 6px;
+}
+
+.qrCell {
+  background: transparent;
+}
+
+.qrCellDark {
+  background: $bg;
+}
+
+.code {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: $text-muted;
+}

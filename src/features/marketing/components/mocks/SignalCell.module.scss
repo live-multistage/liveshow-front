@@ -1,0 +1,79 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.cell {
+  background: $panel;
+  padding: 22px 24px;
+}
+
+.cellHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.srtOk {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: $green;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $green;
+  animation: poPulse 1.8s infinite;
+
+  @include reduced-motion {
+    animation: none;
+  }
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  margin-bottom: 12px;
+}
+
+.bar,
+.barPink {
+  flex: 1;
+  border-radius: 2px;
+  transform-origin: bottom;
+  animation-name: poBars;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+
+  @include reduced-motion {
+    animation: none;
+    transform: scaleY(1);
+  }
+}
+
+.bar {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.barPink {
+  background: $action;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: $text-muted;
+}

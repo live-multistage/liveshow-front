@@ -1,0 +1,146 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.mock {
+  border-radius: $radius-panel;
+  border: 1px solid $line-strong;
+  background: $panel;
+  overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+}
+
+.stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(160deg, #1c1030 0%, #0b0b14 60%, #08080a);
+  overflow: hidden;
+}
+
+.stageGrid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(80% 80% at 50% 40%, #000, transparent 80%);
+  -webkit-mask-image: radial-gradient(80% 80% at 50% 40%, #000, transparent 80%);
+}
+
+.badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: $text-primary;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.playButton {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+
+.thumbs {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  display: flex;
+  gap: 6px;
+}
+
+.thumb,
+.thumbActive {
+  width: 44px;
+  aspect-ratio: 16 / 9;
+  border-radius: 4px;
+  background: #161422;
+}
+
+.thumb {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.thumbActive {
+  border: 1px solid $action;
+  background: #1a0f22;
+}
+
+.timelineWrap {
+  padding: 16px 20px 20px;
+}
+
+.track {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  margin-bottom: 10px;
+}
+
+.fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 58%;
+  border-radius: 3px;
+  background: $action;
+}
+
+.knob {
+  position: absolute;
+  left: 58%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 4px rgba(255, 46, 158, 0.3);
+}
+
+.tick {
+  position: absolute;
+  top: -6px;
+  width: 2px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.tickA {
+  left: 23%;
+}
+
+.tickB {
+  left: 74%;
+}
+
+.times {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: $text-secondary;
+}
+
+.marker {
+  color: $text-primary;
+}

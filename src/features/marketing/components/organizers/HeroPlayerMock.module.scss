@@ -87,6 +87,14 @@
   }
 }
 
+.compact .grid {
+  grid-template-columns: 1fr 176px;
+
+  @media (max-width: $lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
 .stage {
   position: relative;
   aspect-ratio: 16 / 9;
@@ -250,6 +258,10 @@
   flex: none;
 }
 
+.compact .camThumb {
+  width: 38px;
+}
+
 .camInfo {
   display: flex;
   flex-direction: column;
@@ -264,6 +276,10 @@
   .camButtonActive & {
     color: $text-primary;
   }
+}
+
+.compact .camName {
+  font-size: 11.5px;
 }
 
 .camMeta {

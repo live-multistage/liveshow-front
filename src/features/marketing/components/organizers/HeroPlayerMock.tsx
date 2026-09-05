@@ -41,7 +41,11 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-export function HeroPlayerMock() {
+interface HeroPlayerMockProps {
+  compact?: boolean;
+}
+
+export function HeroPlayerMock({ compact = false }: HeroPlayerMockProps) {
   const t = useTranslations('organizersPage');
   const mockCams = t.raw('hero.mock.cams') as Array<{ name: string; meta: string }>;
 
@@ -65,11 +69,12 @@ export function HeroPlayerMock() {
   const activeCam = CAMS[cam];
   const activeMock = mockCams[cam] ?? { name: '', meta: '' };
   const audioLabel = cam === 2 ? t('hero.mock.audio.narration') : t('hero.mock.audio.ambient');
+  const topMeta = compact ? t('hero.mock.meta').split(' · ')[0] : t('hero.mock.meta');
 
   return (
     <div className={styles.mockInner}>
       <div className={styles.mockGlow} aria-hidden="true" />
-      <div className={styles.panel}>
+      <div className={compact ? `${styles.panel} ${styles.compact}` : styles.panel}>
         <div className={styles.topBar}>
           <span className={styles.livePill}>
             <span className={styles.liveDot} aria-hidden="true" />
@@ -77,7 +82,7 @@ export function HeroPlayerMock() {
           </span>
           <span className={styles.eventTitle}>{t('hero.mock.event')}</span>
           <span className={styles.spacer} />
-          <span className={styles.meta}>{t('hero.mock.meta')}</span>
+          <span className={styles.meta}>{topMeta}</span>
         </div>
 
         <div className={styles.grid}>
@@ -89,9 +94,11 @@ export function HeroPlayerMock() {
               <br />
               <span className={styles.camCode}>{activeCam.code}</span>
             </div>
-            <div className={styles.libras}>
-              <span>{t('hero.mock.libras')}</span>
-            </div>
+            {!compact && (
+              <div className={styles.libras}>
+                <span>{t('hero.mock.libras')}</span>
+              </div>
+            )}
             <div className={styles.transport}>
               <Pause size={18} fill="currentColor" />
               <div className={styles.progress}>
@@ -101,7 +108,7 @@ export function HeroPlayerMock() {
                 <Volume2 size={11} />
                 {audioLabel}
               </span>
-              <Maximize size={16} />
+              {!compact && <Maximize size={16} />}
             </div>
           </div>
 
@@ -122,7 +129,7 @@ export function HeroPlayerMock() {
                   <span className={styles.camThumb} style={{ background: c.thumb }} />
                   <span className={styles.camInfo}>
                     <span className={styles.camName}>{info.name}</span>
-                    <span className={styles.camMeta}>{info.meta}</span>
+                    {!compact && <span className={styles.camMeta}>{info.meta}</span>}
                   </span>
                 </button>
               );

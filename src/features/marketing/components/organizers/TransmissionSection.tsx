@@ -2,19 +2,15 @@ import { useTranslations } from 'next-intl';
 import { Reveal } from '../shared/Reveal';
 import { SectionHeader } from '../shared/SectionHeader';
 import { FeatureRow } from '../shared/FeatureRow';
+import { SignalCell } from '../mocks/SignalCell';
 import { organizerIcon, type OrganizerIconKey } from '../../data/organizers-icons';
 import styles from './TransmissionSection.module.scss';
-
-interface SignalBar {
-  h: number;
-  d: number;
-}
 
 interface Signal {
   name: string;
   bitrate: string;
   src: string;
-  bars: SignalBar[];
+  seed: number;
 }
 
 const SIGNAL_META: Array<{ bitrate: string; src: string; seed: number }> = [
@@ -23,17 +19,6 @@ const SIGNAL_META: Array<{ bitrate: string; src: string; seed: number }> = [
   { bitrate: '4.1 Mbps', src: 'srt://ingest-02', seed: 7 },
   { bitrate: '2.5 Mbps', src: 'srt://ingest-02', seed: 11 },
 ];
-
-const BAR_COUNT = 14;
-
-// ponytail: mirrors the design mock's mk(n, seed) bar generator 1:1 so the
-// signal panel matches the reference exactly — deterministic, not random.
-function makeBars(seed: number): SignalBar[] {
-  return Array.from({ length: BAR_COUNT }, (_, i) => ({
-    h: Math.round((35 + Math.abs(Math.sin(seed + i * 1.7)) * 60) * 1000) / 1000,
-    d: Math.round((1.6 + ((seed + i) % 5) * 0.25) * 1000) / 1000,
-  }));
-}
 
 const FEATURE_KEYS: Array<{ key: string; icon: OrganizerIconKey }> = [
   { key: 'multicam', icon: 'cams' },
@@ -54,7 +39,7 @@ export function TransmissionSection() {
       name: s.name,
       bitrate: meta.bitrate,
       src: meta.src,
-      bars: makeBars(meta.seed),
+      seed: meta.seed,
     };
   }).filter((s): s is Signal => s !== null);
 
@@ -70,28 +55,7 @@ export function TransmissionSection() {
         <Reveal as="div" variant="scale" delay={80} className={styles.panel}>
           <div className={styles.grid}>
             {signals.map((s) => (
-              <div key={s.name} className={styles.cell}>
-                <div className={styles.cellHead}>
-                  <span className={styles.name}>{s.name}</span>
-                  <span className={styles.srtOk}>
-                    <span className={styles.dot} />
-                    SRT OK
-                  </span>
-                </div>
-                <div className={styles.bars}>
-                  {s.bars.map((b, bi) => (
-                    <span
-                      key={bi}
-                      className={bi > BAR_COUNT - 3 ? styles.barPink : styles.bar}
-                      style={{ height: `${b.h}%`, animationDuration: `${b.d}s` }}
-                    />
-                  ))}
-                </div>
-                <div className={styles.meta}>
-                  <span>{s.bitrate}</span>
-                  <span>{s.src}</span>
-                </div>
-              </div>
+              <SignalCell key={s.name} name={s.name} bitrate={s.bitrate} src={s.src} seed={s.seed} />
             ))}
           </div>
         </Reveal>
