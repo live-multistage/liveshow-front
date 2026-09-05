@@ -16,7 +16,11 @@ import { UpdatedIndicator } from './UpdatedIndicator';
 import { MonetizationCard } from './MonetizationCard';
 import styles from './RoleDashboard.module.scss';
 
-export function OrganizerDashboard() {
+interface Props {
+  revenueShareEnabled?: boolean;
+}
+
+export function OrganizerDashboard({ revenueShareEnabled = true }: Props) {
   const t = useTranslations('dashboard.overview');
   const navigate = useNavigate();
   const { totalEvents, liveNow, upcoming, drafts, finished, events, recentEvents, isLoading, dataUpdatedAt, isFetching, refetch } =
@@ -98,7 +102,7 @@ export function OrganizerDashboard() {
 
       {manageableOrgId && (
         <div className={styles.section}>
-          <MonetizationCard organizationId={manageableOrgId} />
+          <MonetizationCard organizationId={manageableOrgId} revenueShareEnabled={revenueShareEnabled} />
         </div>
       )}
 

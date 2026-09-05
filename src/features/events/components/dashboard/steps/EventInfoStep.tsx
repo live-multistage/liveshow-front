@@ -20,9 +20,14 @@ interface Props {
   control: Control<CreateEventFormValues>;
   setValue: UseFormSetValue<CreateEventFormValues>;
   vodUploadEnabled?: boolean;
+  // low_latency_mode flag: off means LOW isn't offered on a new event and the
+  // form default stays STANDARD — see docs/superpowers/specs/2026-09-05-feature-flags-expansion-design.md.
+  lowLatencyEnabled?: boolean;
 }
 
-export function EventInfoStep({ register, errors, orgs, control, setValue, vodUploadEnabled = false }: Props) {
+export function EventInfoStep({
+  register, errors, orgs, control, setValue, vodUploadEnabled = false, lowLatencyEnabled = true,
+}: Props) {
   const t = useTranslations('createEvent.info');
 
   const titleSlug = slugify(useWatch({ control, name: 'title' }) ?? '');
@@ -32,12 +37,13 @@ export function EventInfoStep({ register, errors, orgs, control, setValue, vodUp
 
   // Auto-suggest LOW latency for real-time-interactive categories (sports),
   // but never override a choice the organizer made by hand: once they touch
-  // the latency select, this effect stops steering it.
+  // the latency select, this effect stops steering it. Never auto-suggest LOW
+  // when the flag is off — the form default must stay STANDARD.
   const latencyTouched = useRef(false);
   useEffect(() => {
     if (latencyTouched.current) return;
-    setValue('latencyMode', isSportCategory ? 'LOW' : 'STANDARD');
-  }, [isSportCategory, setValue]);
+    setValue('latencyMode', lowLatencyEnabled && isSportCategory ? 'LOW' : 'STANDARD');
+  }, [isSportCategory, setValue, lowLatencyEnabled]);
 
   return (
     <section className={styles.section}>
@@ -115,29 +121,31 @@ export function EventInfoStep({ register, errors, orgs, control, setValue, vodUp
         />
       </div>
 
-      <div className={styles.field}>
-        <label className={styles.label}>{t('latencyLabel')}</label>
-        <Controller
-          control={control}
-          name="latencyMode"
-          render={({ field }) => (
-            <SimpleCustomSelect
-              value={field.value}
-              onValueChange={(v) => {
-                latencyTouched.current = true;
-                field.onChange(v);
-              }}
-              options={[
-                { value: 'STANDARD', label: t('latencyStandard') },
-                { value: 'LOW', label: t('latencyLow') },
-              ]}
-            />
+      {lowLatencyEnabled && (
+        <div className={styles.field}>
+          <label className={styles.label}>{t('latencyLabel')}</label>
+          <Controller
+            control={control}
+            name="latencyMode"
+            render={({ field }) => (
+              <SimpleCustomSelect
+                value={field.value}
+                onValueChange={(v) => {
+                  latencyTouched.current = true;
+                  field.onChange(v);
+                }}
+                options={[
+                  { value: 'STANDARD', label: t('latencyStandard') },
+                  { value: 'LOW', label: t('latencyLow') },
+                ]}
+              />
+            )}
+          />
+          {isSportCategory && latencyMode === 'LOW' && (
+            <p className={styles.hint}>{t('latencySportHint')}</p>
           )}
-        />
-        {isSportCategory && latencyMode === 'LOW' && (
-          <p className={styles.hint}>{t('latencySportHint')}</p>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className={styles.field}>
         <label className={styles.label}>{t('descLabel')}</label>

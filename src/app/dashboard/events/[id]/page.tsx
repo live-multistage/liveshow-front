@@ -11,5 +11,13 @@ export const metadata: Metadata = { title: 'Evento' };
 export default async function DashboardEventDetailPage({ params }: Props) {
   const { id } = await params;
   const flags = await fetchFeatureFlags();
-  return <EventDashboardDetailContent id={id} vodUploadEnabled={flags.vod_upload} />;
+  return (
+    <EventDashboardDetailContent
+      id={id}
+      vodUploadEnabled={flags.vod_upload}
+      lowLatencyEnabled={flags.low_latency_mode}
+      physicalTicketsEnabled={flags.physical_tickets}
+      collaborationsEnabled={flags.event_collaborations}
+    />
+  );
 }

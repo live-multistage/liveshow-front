@@ -37,7 +37,15 @@ function Progress({ label, value, target }: { label: string; value: number; targ
   );
 }
 
-export function MonetizationCard({ organizationId }: { organizationId: string }) {
+interface Props {
+  organizationId: string;
+  // ad_revenue_share flag: off shows an "unavailable" message instead of the
+  // apply CTA; an org that already applied/was approved/was suspended keeps
+  // seeing its status and earnings regardless of the flag.
+  revenueShareEnabled?: boolean;
+}
+
+export function MonetizationCard({ organizationId, revenueShareEnabled = true }: Props) {
   const t = useTranslations('dashboard.monetization');
   const { data, isLoading } = useAdPartnershipQuery(organizationId);
   const apply = useApplyForPartnershipMutation(organizationId);
@@ -84,19 +92,23 @@ export function MonetizationCard({ organizationId }: { organizationId: string })
       {/* SUSPENDED has no route back through Apply — only the review note explains
           what happened, so a permanently disabled button would just be noise. */}
       {data.status !== 'APPROVED' && data.status !== 'APPLIED' && data.status !== 'SUSPENDED' && (
-        <>
-          <button
-            type="button"
-            className={styles.apply}
-            disabled={!canApply || apply.isPending}
-            onClick={() =>
-              apply.mutate(undefined, { onError: (error) => toast.error(t(applyErrorKey(error))) })
-            }
-          >
-            {t('apply')}
-          </button>
-          {!data.eligible && data.connectReady && <p className={styles.warning}>{t('applyHint')}</p>}
-        </>
+        revenueShareEnabled ? (
+          <>
+            <button
+              type="button"
+              className={styles.apply}
+              disabled={!canApply || apply.isPending}
+              onClick={() =>
+                apply.mutate(undefined, { onError: (error) => toast.error(t(applyErrorKey(error))) })
+              }
+            >
+              {t('apply')}
+            </button>
+            {!data.eligible && data.connectReady && <p className={styles.warning}>{t('applyHint')}</p>}
+          </>
+        ) : (
+          <p className={styles.warning}>{t('unavailable')}</p>
+        )
       )}
     </section>
   );

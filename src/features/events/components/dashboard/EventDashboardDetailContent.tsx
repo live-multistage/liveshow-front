@@ -44,9 +44,16 @@ interface Props {
   // Server-resolved vod_upload feature flag. Off at launch → the upload card is
   // hidden entirely. Resolved on the server (flags never resolve client-side).
   vodUploadEnabled?: boolean;
+  // Server-resolved feature flags — never resolve client-side.
+  lowLatencyEnabled?: boolean;
+  physicalTicketsEnabled?: boolean;
+  collaborationsEnabled?: boolean;
 }
 
-export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled = false }: Props) {
+export function EventDashboardDetailContent({
+  id, initialEvent, vodUploadEnabled = false, lowLatencyEnabled = true,
+  physicalTicketsEnabled = false, collaborationsEnabled = true,
+}: Props) {
   const t = useTranslations('eventDetail');
   const [editing, setEditing] = useState(false);
 
@@ -229,11 +236,12 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
             onSlugChange={slugTaken ? () => updateMutation.reset() : undefined}
             errorMessage={slugTaken ? undefined : updateMutation.error?.message}
             scheduleLocked={scheduleLocked}
+            lowLatencyEnabled={lowLatencyEnabled}
           />
-          <EditTicketSection eventId={id} tickets={tickets} />
+          <EditTicketSection eventId={id} tickets={tickets} physicalTicketsEnabled={physicalTicketsEnabled} />
           <PhotosSection event={event} />
           <EventMetadataSection eventId={id} readOnly={readOnly} />
-          <EventCollaboratorsSection eventId={id} readOnly={readOnly} />
+          <EventCollaboratorsSection eventId={id} readOnly={readOnly} collaborationsEnabled={collaborationsEnabled} />
         </div>
       ) : (
         <div className={styles.grid}>
@@ -252,7 +260,7 @@ export function EventDashboardDetailContent({ id, initialEvent, vodUploadEnabled
             </div>
             <EventMetadataSection eventId={id} readOnly={readOnly} />
             <EventTicketList tickets={tickets} />
-            <EventCollaboratorsSection eventId={id} readOnly={readOnly} />
+            <EventCollaboratorsSection eventId={id} readOnly={readOnly} collaborationsEnabled={collaborationsEnabled} />
           </div>
 
           <aside className={styles.rail}>

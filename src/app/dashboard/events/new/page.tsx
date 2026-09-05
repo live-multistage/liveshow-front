@@ -8,5 +8,11 @@ export default async function CreateEventPage() {
   // vod_upload gates the VOD format option in the wizard — off means VOD events
   // can't be created (the backend enforces the same flag on create + upload).
   const flags = await fetchFeatureFlags();
-  return <CreateEventPageContent vodUploadEnabled={flags.vod_upload} />;
+  return (
+    <CreateEventPageContent
+      vodUploadEnabled={flags.vod_upload}
+      lowLatencyEnabled={flags.low_latency_mode}
+      physicalTicketsEnabled={flags.physical_tickets}
+    />
+  );
 }

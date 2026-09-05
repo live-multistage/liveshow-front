@@ -151,4 +151,38 @@ describe('EditTicketSection', () => {
       ),
     );
   });
+
+  it('hides the physical-entry option when the flag is off', () => {
+    render(<EditTicketSection eventId="evt-1" tickets={[]} />);
+    expect(screen.queryByText('Acesso presencial')).not.toBeInTheDocument();
+  });
+
+  it('offers the physical-entry option when the flag is on', () => {
+    render(<EditTicketSection eventId="evt-1" tickets={[]} physicalTicketsEnabled />);
+    expect(screen.getByText('Acesso presencial')).toBeInTheDocument();
+  });
+
+  it('still displays an existing physical-entry ticket when the flag is off', () => {
+    render(
+      <EditTicketSection
+        eventId="evt-1"
+        tickets={[
+          {
+            id: 'prod-1',
+            name: 'Presencial',
+            description: 'Acesso ao local',
+            price: 100,
+            currency: 'BRL',
+            capabilities: ['LIVE_VIEW', 'PHYSICAL_ENTRY'],
+            camerasLimit: null,
+            allowedStageIds: [],
+            capacity: 500,
+            immutable: false,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('Presencial')).toBeInTheDocument();
+  });
 });

@@ -8,15 +8,21 @@ interface Props {
   ticketsError: string | null;
   mutationError: string | null;
   format?: EventFormat;
+  physicalTicketsEnabled?: boolean;
 }
 
 // Free tiers are just tickets with price R$ 0 — added like any other ticket.
 export function EventTicketsStep({
-  tickets, onTicketsChange, ticketsError, mutationError, format,
+  tickets, onTicketsChange, ticketsError, mutationError, format, physicalTicketsEnabled = false,
 }: Props) {
   return (
     <section className={styles.section}>
-      <TicketSection tickets={tickets} onChange={onTicketsChange} format={format} />
+      <TicketSection
+        tickets={tickets}
+        onChange={onTicketsChange}
+        format={format}
+        physicalTicketsEnabled={physicalTicketsEnabled}
+      />
       {ticketsError && <p className={styles.error}>{ticketsError}</p>}
 
       {mutationError && (

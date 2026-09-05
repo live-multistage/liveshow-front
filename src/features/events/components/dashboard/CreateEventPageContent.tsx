@@ -11,9 +11,13 @@ import styles from './CreateEventPageContent.module.scss';
 
 interface Props {
   vodUploadEnabled?: boolean;
+  lowLatencyEnabled?: boolean;
+  physicalTicketsEnabled?: boolean;
 }
 
-export function CreateEventPageContent({ vodUploadEnabled = false }: Props) {
+export function CreateEventPageContent({
+  vodUploadEnabled = false, lowLatencyEnabled = true, physicalTicketsEnabled = false,
+}: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const t = useTranslations('createEvent');
@@ -36,6 +40,8 @@ export function CreateEventPageContent({ vodUploadEnabled = false }: Props) {
       <div className={styles.body}>
         <CreateEventForm
           vodUploadEnabled={vodUploadEnabled}
+          lowLatencyEnabled={lowLatencyEnabled}
+          physicalTicketsEnabled={physicalTicketsEnabled}
           onSuccess={() => {
             queryClient.invalidateQueries({ queryKey: MY_EVENTS_KEY });
             router.push('/dashboard/events');

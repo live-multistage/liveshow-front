@@ -23,9 +23,13 @@ import styles from './CreateEventForm.module.scss';
 interface Props {
   onSuccess?: (event: EventResponse) => void;
   vodUploadEnabled?: boolean;
+  lowLatencyEnabled?: boolean;
+  physicalTicketsEnabled?: boolean;
 }
 
-export function CreateEventForm({ onSuccess, vodUploadEnabled = false }: Props) {
+export function CreateEventForm({
+  onSuccess, vodUploadEnabled = false, lowLatencyEnabled = true, physicalTicketsEnabled = false,
+}: Props) {
   const t = useTranslations('createEvent');
   const { data: allOrgs = [] } = useMyOrganizationsQuery();
   // Only orgs the user is OWNER/ADMIN of can host an event (backend enforces
@@ -46,7 +50,17 @@ export function CreateEventForm({ onSuccess, vodUploadEnabled = false }: Props) 
   } = wizard;
 
   const stepContent: Record<number, React.ReactNode> = {
-    1: <EventInfoStep register={register} errors={errors} orgs={orgs} control={control} setValue={setValue} vodUploadEnabled={vodUploadEnabled} />,
+    1: (
+      <EventInfoStep
+        register={register}
+        errors={errors}
+        orgs={orgs}
+        control={control}
+        setValue={setValue}
+        vodUploadEnabled={vodUploadEnabled}
+        lowLatencyEnabled={lowLatencyEnabled}
+      />
+    ),
     2: <EventLocationStep register={register} errors={errors} control={control} />,
     3: <EventProductionStep register={register} errors={errors} format={format} />,
     // VOD events skip this step entirely (see useCreateEventWizard advance/back).
@@ -58,6 +72,7 @@ export function CreateEventForm({ onSuccess, vodUploadEnabled = false }: Props) 
         ticketsError={ticketsError}
         mutationError={mutation.error?.message ?? null}
         format={format}
+        physicalTicketsEnabled={physicalTicketsEnabled}
       />
     ),
   };

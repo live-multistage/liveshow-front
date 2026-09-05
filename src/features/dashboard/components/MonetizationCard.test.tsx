@@ -68,3 +68,25 @@ describe('MonetizationCard', () => {
     expect(screen.getByText(/R\$\s?67,90/)).toBeInTheDocument();
   });
 });
+
+describe('MonetizationCard — ad_revenue_share gate', () => {
+  it('shows an unavailable message instead of Apply when the flag is off', () => {
+    state.data = { ...state.data, eligible: true, status: 'ELIGIBLE' };
+    render(<MonetizationCard organizationId="org-1" revenueShareEnabled={false} />);
+
+    expect(screen.getByText('unavailable')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /apply/i })).not.toBeInTheDocument();
+  });
+
+  it('still shows status and earnings for an existing partner when the flag is off', () => {
+    state.data = {
+      ...state.data, status: 'APPROVED', revenueShareRate: 0.6,
+      earnings: [{ day: '2026-08-26', amount: 67.9, currency: 'BRL', grossCents: 12345, rate: 0.6 }],
+    };
+    render(<MonetizationCard organizationId="org-1" revenueShareEnabled={false} />);
+
+    expect(screen.getByText(/60%/)).toBeInTheDocument();
+    expect(screen.getByText(/R\$\s?67,90/)).toBeInTheDocument();
+    expect(screen.queryByText('unavailable')).not.toBeInTheDocument();
+  });
+});

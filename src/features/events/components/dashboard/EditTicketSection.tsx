@@ -42,6 +42,9 @@ interface Props {
   eventId?: string;
   stagesEventId?: string;
   tickets: TicketProductLike[];
+  // physical_tickets flag: off hides the PHYSICAL_ENTRY option on new/edited
+  // tickets — existing PHYSICAL_ENTRY tickets below still display as-is.
+  physicalTicketsEnabled?: boolean;
 }
 
 function ticketToForm(ticket: TicketProductLike): TicketFormValues {
@@ -71,7 +74,7 @@ const EMPTY_FORM: Partial<TicketFormInput> = {
   allowedStageIds: [],
 };
 
-export function EditTicketSection({ eventId, stagesEventId, tickets }: Props) {
+export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTicketsEnabled = false }: Props) {
   const t = useTranslations('editTicket');
 
   const createMutation = useCreateTicketProductMutation(eventId ?? '');
@@ -270,18 +273,20 @@ export function EditTicketSection({ eventId, stagesEventId, tickets }: Props) {
             <input type="checkbox" {...register('cameraView')} className={styles.checkbox} />
             <span>{t('cameraView')}</span>
           </label>
-          <label
-            className={styles.checkboxLabel}
-            title={canPhysical ? undefined : 'Requer Ao vivo ou Reprise'}
-          >
-            <input
-              type="checkbox"
-              {...register('physicalEntry')}
-              className={styles.checkbox}
-              disabled={!canPhysical}
-            />
-            <span>Acesso presencial</span>
-          </label>
+          {physicalTicketsEnabled && (
+            <label
+              className={styles.checkboxLabel}
+              title={canPhysical ? undefined : 'Requer Ao vivo ou Reprise'}
+            >
+              <input
+                type="checkbox"
+                {...register('physicalEntry')}
+                className={styles.checkbox}
+                disabled={!canPhysical}
+              />
+              <span>Acesso presencial</span>
+            </label>
+          )}
         </div>
         {errors.liveView && <p className={styles.error}>{errors.liveView.message}</p>}
         {errors.physicalEntry && <p className={styles.error}>{errors.physicalEntry.message}</p>}

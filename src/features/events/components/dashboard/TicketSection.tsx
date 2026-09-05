@@ -26,9 +26,12 @@ interface Props {
   tickets: AddedTicket[];
   onChange: (tickets: AddedTicket[]) => void;
   format?: EventFormat;
+  // physical_tickets flag: off hides the PHYSICAL_ENTRY option on new tickets —
+  // see docs/superpowers/specs/2026-09-05-feature-flags-expansion-design.md.
+  physicalTicketsEnabled?: boolean;
 }
 
-export function TicketSection({ tickets, onChange, format }: Props) {
+export function TicketSection({ tickets, onChange, format, physicalTicketsEnabled = false }: Props) {
   const t = useTranslations('editTicket');
   // VOD events can only sell replay access — the backend 400s any other
   // capability. Lock the form to REPLAY_VIEW instead of letting the user
@@ -258,18 +261,20 @@ export function TicketSection({ tickets, onChange, format }: Props) {
               <input type="checkbox" {...register('cameraView')} className={styles.checkbox} />
               <span>{t('cameraView')}</span>
             </label>
-            <label
-              className={styles.checkboxLabel}
-              title={canPhysical ? undefined : 'Requer Ao vivo ou Reprise'}
-            >
-              <input
-                type="checkbox"
-                {...register('physicalEntry')}
-                className={styles.checkbox}
-                disabled={!canPhysical}
-              />
-              <span>Acesso presencial</span>
-            </label>
+            {physicalTicketsEnabled && (
+              <label
+                className={styles.checkboxLabel}
+                title={canPhysical ? undefined : 'Requer Ao vivo ou Reprise'}
+              >
+                <input
+                  type="checkbox"
+                  {...register('physicalEntry')}
+                  className={styles.checkbox}
+                  disabled={!canPhysical}
+                />
+                <span>Acesso presencial</span>
+              </label>
+            )}
           </div>
         )}
         {isVod && <p className={styles.inputHint}>{t('vodHint')}</p>}

@@ -142,4 +142,28 @@ describe('EventCollaboratorsSection', () => {
     expect(screen.queryByRole('button', { name: 'cancelInvite' })).not.toBeInTheDocument();
     expect(screen.getByText('Partner Org')).toBeInTheDocument();
   });
+
+  it('renders nothing when event_collaborations is off and there are no collaborators', () => {
+    (useEventCollaboratorsQuery as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      data: [],
+      isLoading: false,
+    });
+
+    const { container } = render(<EventCollaboratorsSection eventId="evt-1" collaborationsEnabled={false} />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders read-only when event_collaborations is off but the event already has collaborators', () => {
+    (useEventCollaboratorsQuery as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      data: [makeCollaborator({ status: 'PENDING' })],
+      isLoading: false,
+    });
+
+    render(<EventCollaboratorsSection eventId="evt-1" collaborationsEnabled={false} />);
+
+    expect(screen.getByText('Partner Org')).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('searchOrgPlaceholder')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'cancelInvite' })).not.toBeInTheDocument();
+  });
 });

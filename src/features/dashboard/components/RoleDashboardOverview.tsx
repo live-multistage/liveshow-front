@@ -7,7 +7,11 @@ import { OrganizerDashboard } from './OrganizerDashboard';
 import { ArtistDashboard } from './ArtistDashboard';
 import { DashboardContentLoading } from './DashboardContentLoading';
 
-export function RoleDashboardOverview() {
+interface Props {
+  revenueShareEnabled?: boolean;
+}
+
+export function RoleDashboardOverview({ revenueShareEnabled = true }: Props) {
   // Super-admins hold ADMIN too, so manage_platform is also true for them —
   // check the super-admin permission FIRST to route them to the global panel.
   const { data: superCheck, isLoading: superLoading } = useAuthCheck('access_platform_admin');
@@ -19,7 +23,7 @@ export function RoleDashboardOverview() {
 
   if (superCheck?.allowed) return <SuperAdminDashboard />;
   if (adminCheck?.allowed) return <AdminDashboard />;
-  if (organizerCheck?.allowed) return <OrganizerDashboard />;
+  if (organizerCheck?.allowed) return <OrganizerDashboard revenueShareEnabled={revenueShareEnabled} />;
   if (artistCheck?.allowed) return <ArtistDashboard />;
 
   return null;

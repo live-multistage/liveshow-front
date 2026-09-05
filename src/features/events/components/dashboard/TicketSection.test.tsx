@@ -37,3 +37,15 @@ describe('TicketSection currency selector', () => {
     });
   });
 });
+
+describe('TicketSection — physical_tickets gate', () => {
+  it('hides the physical-entry option when the flag is off', () => {
+    render(<TicketSection tickets={[]} onChange={vi.fn()} />);
+    expect(screen.queryByText('Acesso presencial')).not.toBeInTheDocument();
+  });
+
+  it('offers the physical-entry option when the flag is on', () => {
+    render(<TicketSection tickets={[]} onChange={vi.fn()} physicalTicketsEnabled />);
+    expect(screen.getByText('Acesso presencial')).toBeInTheDocument();
+  });
+});

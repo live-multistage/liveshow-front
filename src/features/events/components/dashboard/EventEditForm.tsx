@@ -45,12 +45,18 @@ interface Props {
   // FINISHED events: schedule is historical record — fields render disabled
   // and the container omits them from the update payload.
   scheduleLocked?: boolean;
+  // low_latency_mode flag: off hides LOW for events that aren't already LOW —
+  // an event already running LOW keeps the option so it isn't stranded.
+  lowLatencyEnabled?: boolean;
 }
 
-export function EventEditForm({ register, control, errors, errorMessage, slugError, onSlugChange, scheduleLocked = false }: Props) {
+export function EventEditForm({
+  register, control, errors, errorMessage, slugError, onSlugChange, scheduleLocked = false, lowLatencyEnabled = true,
+}: Props) {
   const t = useTranslations('eventDetail');
   const slug = useWatch({ control, name: 'slug' });
   const startsAt = useWatch({ control, name: 'startsAt' });
+  const latencyMode = useWatch({ control, name: 'latencyMode' });
 
   return (
     <div className={styles.editForm}>
@@ -141,7 +147,7 @@ export function EventEditForm({ register, control, errors, errorMessage, slugErr
               disabled={scheduleLocked}
               options={[
                 { value: 'STANDARD', label: t('latencyStandard') },
-                { value: 'LOW', label: t('latencyLow') },
+                ...(lowLatencyEnabled || latencyMode === 'LOW' ? [{ value: 'LOW', label: t('latencyLow') }] : []),
               ]}
             />
           )}

@@ -16,9 +16,14 @@ interface Props {
   // Viewing org is a COLLABORATOR, not the owner: backend 403s invite/cancel,
   // so show the list read-only and hide the write controls.
   readOnly?: boolean;
+  // event_collaborations flag: off hides the section entirely when the event
+  // has no existing collaborators; with existing collaborators it stays
+  // visible but forced read-only (invites/cancels are frozen while the flag
+  // is off) — see docs/superpowers/specs/2026-09-05-feature-flags-expansion-design.md.
+  collaborationsEnabled?: boolean;
 }
 
-export function EventCollaboratorsSection({ eventId, readOnly = false }: Props) {
+export function EventCollaboratorsSection({ eventId, readOnly = false, collaborationsEnabled = true }: Props) {
   const t = useTranslations('collaborations');
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -39,11 +44,14 @@ export function EventCollaboratorsSection({ eventId, readOnly = false }: Props) 
     setDebouncedQuery('');
   }
 
+  if (!collaborationsEnabled && !isLoading && collaborators.length === 0) return null;
+  const effectiveReadOnly = readOnly || (!collaborationsEnabled && collaborators.length > 0);
+
   return (
     <div className={styles.section}>
       <h2 className={styles.title}>{t('collaborators')}</h2>
 
-      {!readOnly && (
+      {!effectiveReadOnly && (
         <div className={styles.searchWrap}>
           <input
             className={styles.searchInput}
@@ -84,7 +92,7 @@ export function EventCollaboratorsSection({ eventId, readOnly = false }: Props) 
             <span className={`${styles.chip} ${collaborator.status === 'PENDING' ? styles.pending : styles.accepted}`}>
               {collaborator.status === 'PENDING' ? t('pending') : t('accepted')}
             </span>
-            {collaborator.status === 'PENDING' && !readOnly && (
+            {collaborator.status === 'PENDING' && !effectiveReadOnly && (
               <Button
                 variant="ghost"
                 size="sm"
