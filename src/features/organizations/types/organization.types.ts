@@ -50,27 +50,32 @@ export interface CreateOrganizationRequest {
 }
 
 export type OrganizerSegment =
-  | 'MUSIC_FESTIVAL'
-  | 'THEATER'
-  | 'COMEDY_STANDUP'
+  | 'SHOWS_FESTIVALS'
   | 'SPORTS'
-  | 'CORPORATE_EVENTS'
-  | 'EDUCATION'
-  | 'RELIGIOUS'
+  | 'CONFERENCES'
+  | 'WORSHIP'
+  | 'THEATER_DANCE'
+  | 'CLASSES'
   | 'OTHER';
 
+export type OrganizerExperience = 'NEVER' | 'SOME' | 'REGULAR';
+
 export interface CreateOrganizerApplicationRequest {
-  description: string;
-  segment: OrganizerSegment;
-  customSegment?: string;
+  organizationName: string;
+  socialLink?: string;
+  segments: string[];
+  experience: OrganizerExperience;
+  about: string;
 }
 
 export interface OrganizerApplicationResponse {
   id: string;
   status: string;
-  description: string;
-  segment: OrganizerSegment;
-  customSegment: string | null;
+  organizationName: string;
+  socialLink: string | null;
+  segments: string[];
+  experience: OrganizerExperience;
+  about: string;
   createdAt: string;
 }
 

@@ -28,6 +28,18 @@ vi.mock('../hooks/use-create-organizer-application', () => ({
 
 import { OrganizerApplicationContent } from './OrganizerApplicationPage';
 
+const ABOUT_40 = 'Liga amadora de vôlei com jogos toda quarta.'; // 44 chars
+
+async function fillValidForm() {
+  await userEvent.click(screen.getByRole('button', { name: /Esportes/ }));
+  await userEvent.type(
+    screen.getByPlaceholderText(/Liga Metropolitana de Vôlei/),
+    'Liga Metropolitana de Vôlei',
+  );
+  await userEvent.click(screen.getByRole('button', { name: 'Algumas vezes' }));
+  await userEvent.type(screen.getByPlaceholderText(/Liga amadora de vôlei/), ABOUT_40);
+}
+
 describe('OrganizerApplicationContent', () => {
   beforeEach(() => {
     mockIsLoggedIn = true;
@@ -36,53 +48,58 @@ describe('OrganizerApplicationContent', () => {
     mutate.mockClear();
   });
 
-  it('reveals the free-text segment input when "Outro" is selected', async () => {
+  it('keeps the submit button disabled until all four requirements are met', async () => {
     render(<OrganizerApplicationContent />);
-    expect(screen.queryByLabelText(/Descreva seu segmento/)).not.toBeInTheDocument();
 
-    await userEvent.selectOptions(screen.getByLabelText(/Segmento/), 'OTHER');
+    const submit = screen.getByRole('button', { name: /Preencha os campos obrigatórios/ });
+    expect(submit).toBeDisabled();
 
-    expect(screen.getByLabelText(/Descreva seu segmento/)).toBeInTheDocument();
+    await fillValidForm();
+
+    expect(
+      screen.getByRole('button', { name: /Enviar candidatura/ }),
+    ).toBeEnabled();
   });
 
-  it('submits with customSegment for the OTHER case', async () => {
+  it('toggles a segment chip and an experience button', async () => {
     render(<OrganizerApplicationContent />);
 
-    await userEvent.selectOptions(screen.getByLabelText(/Segmento/), 'OTHER');
-    await userEvent.type(screen.getByLabelText(/Descreva seu segmento/), 'Podcast');
-    await userEvent.type(
-      screen.getByLabelText(/Conte sobre você/),
-      'Sou criador de conteúdo',
-    );
-    await userEvent.click(screen.getByRole('button', { name: 'Enviar candidatura' }));
+    const chip = screen.getByRole('button', { name: /Esportes/ });
+    expect(chip).toHaveAttribute('aria-pressed', 'false');
+    await userEvent.click(chip);
+    expect(chip).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.click(chip);
+    expect(chip).toHaveAttribute('aria-pressed', 'false');
+
+    const exp = screen.getByRole('button', { name: 'Regularmente' });
+    expect(exp).toHaveAttribute('aria-pressed', 'false');
+    await userEvent.click(exp);
+    expect(exp).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('submits the new body shape once every required field is filled', async () => {
+    render(<OrganizerApplicationContent />);
+
+    await fillValidForm();
+    await userEvent.click(screen.getByRole('button', { name: /Enviar candidatura/ }));
 
     expect(mutate).toHaveBeenCalledWith({
-      description: 'Sou criador de conteúdo',
-      segment: 'OTHER',
-      customSegment: 'Podcast',
+      organizationName: 'Liga Metropolitana de Vôlei',
+      segments: ['SPORTS'],
+      experience: 'SOME',
+      about: ABOUT_40,
     });
   });
 
-  it('submits without customSegment for a normal segment', async () => {
+  it('shows the success card after a successful submit', async () => {
     render(<OrganizerApplicationContent />);
 
-    await userEvent.selectOptions(screen.getByLabelText(/Segmento/), 'THEATER');
-    await userEvent.type(screen.getByLabelText(/Conte sobre você/), 'Grupo de teatro');
-    await userEvent.click(screen.getByRole('button', { name: 'Enviar candidatura' }));
+    await fillValidForm();
+    await userEvent.click(screen.getByRole('button', { name: /Enviar candidatura/ }));
 
-    expect(mutate).toHaveBeenCalledWith({
-      description: 'Grupo de teatro',
-      segment: 'THEATER',
-    });
-  });
-
-  it('shows the pending-review success panel after a successful submit', async () => {
-    render(<OrganizerApplicationContent />);
-
-    await userEvent.selectOptions(screen.getByLabelText(/Segmento/), 'SPORTS');
-    await userEvent.type(screen.getByLabelText(/Conte sobre você/), 'Eventos esportivos');
-    await userEvent.click(screen.getByRole('button', { name: 'Enviar candidatura' }));
-
-    expect(screen.getByText('Recebemos sua candidatura')).toBeInTheDocument();
+    expect(screen.getByText('CANDIDATURA ENVIADA')).toBeInTheDocument();
+    expect(
+      screen.getByText('Recebemos, Liga Metropolitana de Vôlei.'),
+    ).toBeInTheDocument();
   });
 });
