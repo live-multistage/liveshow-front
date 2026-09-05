@@ -14,12 +14,29 @@ interface OrganizerCtaLinkProps {
   size?: OrganizerCtaSize;
   withArrow?: boolean;
   className?: string;
+  disabled?: boolean;
+  disabledLabel?: string;
 }
 
-export function OrganizerCtaLink({ children, size = 'md', withArrow = false, className }: OrganizerCtaLinkProps) {
+export function OrganizerCtaLink({
+  children,
+  size = 'md',
+  withArrow = false,
+  className,
+  disabled = false,
+  disabledLabel,
+}: OrganizerCtaLinkProps) {
   const { isLoggedIn } = useAuth();
   const href = organizerCtaHref(isLoggedIn);
-  const cls = [styles.cta, styles[size], className ?? ''].join(' ').trim();
+  const cls = [styles.cta, styles[size], disabled ? styles.disabled : '', className ?? ''].join(' ').trim();
+
+  if (disabled) {
+    return (
+      <span className={cls} aria-disabled="true">
+        {disabledLabel ?? children}
+      </span>
+    );
+  }
 
   return (
     <Link href={href} className={cls}>

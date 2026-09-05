@@ -16,13 +16,13 @@ function alreadySeen(eventId: string): boolean {
   }
 }
 
-export function usePrerollGate(eventId: string) {
+export function usePrerollGate(eventId: string, adsEnabled = true) {
   const [seen] = useState(() => alreadySeen(eventId));
 
   const query = useQuery({
     queryKey: ['ads', 'serve', 'PRE_ROLL', eventId],
     queryFn: () => advertisementsService.serve('PRE_ROLL', 1, eventId),
-    enabled: !seen,
+    enabled: adsEnabled && !seen,
     ...SERVE_QUERY_CACHE,
     retry: false,
   });
@@ -36,6 +36,6 @@ export function usePrerollGate(eventId: string) {
   }, [eventId]);
 
   const served = query.data?.[0];
-  const ad = !seen && served?.videoUrl ? served : null;
-  return { ad, pending: !seen && query.isLoading, markSeen };
+  const ad = adsEnabled && !seen && served?.videoUrl ? served : null;
+  return { ad, pending: adsEnabled && !seen && query.isLoading, markSeen };
 }

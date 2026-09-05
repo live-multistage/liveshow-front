@@ -14,5 +14,5 @@ export default async function LivePage({ params }: Props) {
   const { eventId } = await params;
   const flags = await fetchFeatureFlags();
 
-  return <LiveGate eventId={eventId} chatEnabled={flags.chat} />;
+  return <LiveGate eventId={eventId} chatEnabled={flags.chat} adsEnabled={flags.ads_delivery} />;
 }

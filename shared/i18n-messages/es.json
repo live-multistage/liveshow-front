@@ -551,7 +551,8 @@
         "APPROVED": "Aprobada",
         "REJECTED": "Rechazada",
         "SUSPENDED": "Suspendida"
-      }
+      },
+      "unavailable": "Programa de socios no disponible por ahora."
     }
   },
   "eventsPage": {
@@ -2242,7 +2243,8 @@
           "narration": "NARRACIÓN"
         }
       },
-      "scrollHint": "DESPLAZA PARA EXPANDIR"
+      "scrollHint": "DESPLAZA PARA EXPANDIR",
+      "ctaClosed": "Inscripciones cerradas por ahora"
     },
     "audiences": {
       "shows": "Conciertos y festivales",

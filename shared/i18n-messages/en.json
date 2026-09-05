@@ -551,7 +551,8 @@
         "APPROVED": "Approved",
         "REJECTED": "Rejected",
         "SUSPENDED": "Suspended"
-      }
+      },
+      "unavailable": "Partner programme unavailable right now."
     }
   },
   "eventsPage": {
@@ -2242,7 +2243,8 @@
           "narration": "COMMENTARY"
         }
       },
-      "scrollHint": "SCROLL TO EXPAND"
+      "scrollHint": "SCROLL TO EXPAND",
+      "ctaClosed": "Applications closed for now"
     },
     "audiences": {
       "shows": "Concerts and festivals",

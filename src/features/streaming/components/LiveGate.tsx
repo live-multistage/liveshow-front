@@ -14,15 +14,16 @@ interface Props {
   eventId: string;
   eventTitle?: string;
   chatEnabled: boolean;
+  adsEnabled?: boolean;
 }
 
-export function LiveGate({ eventId, eventTitle, chatEnabled }: Props) {
+export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }: Props) {
   const t = useTranslations('liveGate');
   const { isLoggedIn, isLoading: authLoading } = useAuth();
   const access = useLiveAccessQuery(eventId, !authLoading);
   const authorized = access.data === true;
   const playback = useLivePlaybackQuery(eventId, authorized);
-  const preroll = usePrerollGate(eventId);
+  const preroll = usePrerollGate(eventId, adsEnabled);
   const [prerollDone, setPrerollDone] = useState(false);
 
   if (authLoading || access.isLoading) {

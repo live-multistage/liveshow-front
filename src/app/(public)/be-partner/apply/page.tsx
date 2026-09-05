@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { requireFeatureFlag } from '@/features/feature-flags';
 import { OrganizerApplicationContent } from '@/features/organizations/pages/OrganizerApplicationPage';
 
 export const metadata: Metadata = {
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-export default function OrganizerApplicationPage() {
+export default async function OrganizerApplicationPage() {
+  await requireFeatureFlag('organizer_applications');
   return <OrganizerApplicationContent />;
 }

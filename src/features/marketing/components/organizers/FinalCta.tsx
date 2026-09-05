@@ -4,7 +4,11 @@ import { Reveal } from '../shared/Reveal';
 import { OrganizerCtaLink } from '../shared/OrganizerCtaLink';
 import styles from './FinalCta.module.scss';
 
-export function FinalCta() {
+interface Props {
+  applicationsOpen?: boolean;
+}
+
+export function FinalCta({ applicationsOpen = true }: Props) {
   const t = useTranslations('organizersPage');
 
   return (
@@ -17,7 +21,12 @@ export function FinalCta() {
         <div className={styles.content}>
           <h2 className={styles.title}>{t('finalCta.title')}</h2>
           <div className={styles.actions}>
-            <OrganizerCtaLink size="xl" withArrow>
+            <OrganizerCtaLink
+              size="xl"
+              withArrow={applicationsOpen}
+              disabled={!applicationsOpen}
+              disabledLabel={t('hero.ctaClosed')}
+            >
               {t('finalCta.cta')}
             </OrganizerCtaLink>
             <Link href="/help" className={styles.helpLink}>

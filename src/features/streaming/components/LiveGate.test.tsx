@@ -30,8 +30,9 @@ const prerollState: { ad: unknown; pending: boolean; markSeen: () => void } = {
   pending: false,
   markSeen: vi.fn(),
 };
+const usePrerollGateMock = vi.fn((_eventId: string, _adsEnabled?: boolean) => prerollState);
 vi.mock('@/features/advertisements/hooks/use-preroll-gate', () => ({
-  usePrerollGate: () => prerollState,
+  usePrerollGate: (eventId: string, adsEnabled?: boolean) => usePrerollGateMock(eventId, adsEnabled),
 }));
 
 vi.mock('@/features/advertisements/components/PreRollPlayer', () => ({
@@ -59,6 +60,7 @@ describe('LiveGate — pre-roll ad gate', () => {
     prerollState.ad = null;
     prerollState.pending = false;
     prerollState.markSeen = vi.fn();
+    usePrerollGateMock.mockClear();
   });
 
   it('renders PreRollPlayer instead of LivePlayer when an ad is served', () => {
@@ -88,6 +90,14 @@ describe('LiveGate — pre-roll ad gate', () => {
 
     render(<LiveGate eventId="evt-1" chatEnabled={false} />);
 
+    expect(screen.getByText('live-player-stub')).toBeInTheDocument();
+    expect(screen.queryByText('preroll-stub-finish')).not.toBeInTheDocument();
+  });
+
+  it('passes adsEnabled=false through to usePrerollGate, so no ad is served', () => {
+    render(<LiveGate eventId="evt-1" chatEnabled={false} adsEnabled={false} />);
+
+    expect(usePrerollGateMock).toHaveBeenCalledWith('evt-1', false);
     expect(screen.getByText('live-player-stub')).toBeInTheDocument();
     expect(screen.queryByText('preroll-stub-finish')).not.toBeInTheDocument();
   });

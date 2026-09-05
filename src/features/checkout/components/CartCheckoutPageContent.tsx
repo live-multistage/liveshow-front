@@ -23,7 +23,11 @@ function payErrorMessage(err: AppError, t: ReturnType<typeof useTranslations>): 
   return t('errors.GENERIC');
 }
 
-export function CartCheckoutPageContent() {
+interface Props {
+  couponsEnabled?: boolean;
+}
+
+export function CartCheckoutPageContent({ couponsEnabled = true }: Props) {
   const t = useTranslations('checkout');
   const { isLoggedIn, isLoading: authLoading } = useAuth();
   const { data: cart, isLoading: cartLoading } = useCartQuery();
@@ -53,6 +57,7 @@ export function CartCheckoutPageContent() {
   // Coupon applied on the cart page travels here via sessionStorage;
   // re-validate against the server so a stale/expired code is dropped silently.
   useEffect(() => {
+    if (!couponsEnabled) return;
     const raw = typeof window !== 'undefined' ? sessionStorage.getItem('cart:coupon') : null;
     if (!raw || items.length === 0) return;
     const { code } = JSON.parse(raw) as { code: string };
@@ -64,7 +69,7 @@ export function CartCheckoutPageContent() {
         setCoupon(null);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.length]);
+  }, [items.length, couponsEnabled]);
 
   const selectedMethod = paymentMethods.data?.find((m) => m.id === selectedMethodId);
 

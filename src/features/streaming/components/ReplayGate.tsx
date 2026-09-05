@@ -15,14 +15,15 @@ interface Props {
   eventId: string;
   eventTitle: string;
   coverUrl?: string | null;
+  adsEnabled?: boolean;
 }
 
-export function ReplayGate({ eventId, eventTitle, coverUrl }: Props) {
+export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }: Props) {
   const t = useTranslations('liveGate');
   const { isLoading: authLoading } = useAuth();
   const access = useReplayAccessQuery(eventId, !authLoading);
   const playback = useReplayPlaybackQuery(eventId, access.data === true);
-  const preroll = usePrerollGate(eventId);
+  const preroll = usePrerollGate(eventId, adsEnabled);
   const [prerollDone, setPrerollDone] = useState(false);
 
   if (authLoading || access.isLoading) {

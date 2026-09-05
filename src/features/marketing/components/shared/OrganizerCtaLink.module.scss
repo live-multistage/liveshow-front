@@ -15,6 +15,17 @@
   }
 }
 
+.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+
+  &:hover {
+    opacity: 0.55;
+    transform: none;
+  }
+}
+
 .md {
   font-size: 14px;
   padding: 10px 18px 14px;

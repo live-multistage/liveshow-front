@@ -14,6 +14,7 @@ import styles from './CartPageContent.module.scss';
 
 interface Props {
   initialCart?: CartView;
+  couponsEnabled?: boolean;
 }
 
 const brl = (n: number) =>
@@ -43,7 +44,7 @@ function groupByOrg(items: CartLineView[]): OrgGroup[] {
   return Array.from(map.values());
 }
 
-export function CartPageContent({ initialCart }: Props) {
+export function CartPageContent({ initialCart, couponsEnabled = true }: Props) {
   const t = useTranslations('cart');
   const { data } = useCartQuery(initialCart);
   const removeItem = useRemoveFromCartMutation();
@@ -256,8 +257,8 @@ export function CartPageContent({ initialCart }: Props) {
             <div className={styles.summaryInner}>
               <p className={styles.summaryTitle}>Resumo do pedido</p>
 
-              {/* Promo — hidden once a coupon is applied */}
-              {appliedCoupon ? (
+              {/* Promo — hidden once a coupon is applied, or entirely when coupons are off */}
+              {couponsEnabled && (appliedCoupon ? (
                 <div className={`${styles.promoFeedback} ${styles.promoSuccess}`}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
                     <path d="M20 6L9 17l-5-5" />
@@ -308,7 +309,7 @@ export function CartPageContent({ initialCart }: Props) {
                   )}
                   {promoState === 'idle' && <div className={styles.promoSpacer} />}
                 </>
-              )}
+              ))}
 
               <div className={styles.summaryLines}>
                 <div className={styles.summaryLine}>

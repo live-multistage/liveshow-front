@@ -20,4 +20,16 @@ describe('OrganizerCtaLink', () => {
     render(<OrganizerCtaLink>Criar minha organização</OrganizerCtaLink>);
     expect(screen.getByRole('link').getAttribute('href')).toBe('/dashboard/organizations/new');
   });
+
+  it('renders a non-link with the disabled label when disabled', () => {
+    mockIsLoggedIn = false;
+    render(
+      <OrganizerCtaLink disabled disabledLabel="Inscrições fechadas no momento">
+        Criar minha organização
+      </OrganizerCtaLink>,
+    );
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    const disabledEl = screen.getByText('Inscrições fechadas no momento');
+    expect(disabledEl.getAttribute('aria-disabled')).toBe('true');
+  });
 });

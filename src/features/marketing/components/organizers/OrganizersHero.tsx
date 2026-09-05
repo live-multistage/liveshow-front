@@ -16,7 +16,11 @@ function goToHowItWorks(expand: () => void) {
   });
 }
 
-export function OrganizersHero() {
+interface Props {
+  applicationsOpen?: boolean;
+}
+
+export function OrganizersHero({ applicationsOpen = true }: Props) {
   const t = useTranslations('organizersPage');
 
   return (
@@ -51,7 +55,12 @@ export function OrganizersHero() {
               {t('hero.subtitle')}
             </p>
             <div className={styles.ctaRow} style={{ opacity: fade, transform: `translateY(${shiftUp}px)` }}>
-              <OrganizerCtaLink size="lg" withArrow>
+              <OrganizerCtaLink
+                size="lg"
+                withArrow={applicationsOpen}
+                disabled={!applicationsOpen}
+                disabledLabel={t('hero.ctaClosed')}
+              >
                 {t('hero.cta')}
               </OrganizerCtaLink>
               <a

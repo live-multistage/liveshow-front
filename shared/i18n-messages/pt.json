@@ -551,7 +551,8 @@
         "APPROVED": "Aprovada",
         "REJECTED": "Rejeitada",
         "SUSPENDED": "Suspensa"
-      }
+      },
+      "unavailable": "Programa de parceiros indisponível no momento."
     }
   },
   "eventsPage": {
@@ -2242,7 +2243,8 @@
           "narration": "NARRAÇÃO"
         }
       },
-      "scrollHint": "ROLE PARA EXPANDIR"
+      "scrollHint": "ROLE PARA EXPANDIR",
+      "ctaClosed": "Inscrições fechadas no momento"
     },
     "audiences": {
       "shows": "Shows e festivais",

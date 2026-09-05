@@ -14,7 +14,9 @@ export default async function WatchPage({ params }: Props) {
   const { id } = await params;
   try {
     const [event, flags] = await Promise.all([getEventCached(id), fetchFeatureFlags()]);
-    return <LiveGate eventId={id} eventTitle={event.title} chatEnabled={flags.chat} />;
+    return (
+      <LiveGate eventId={id} eventTitle={event.title} chatEnabled={flags.chat} adsEnabled={flags.ads_delivery} />
+    );
   } catch {
     notFound();
   }

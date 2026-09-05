@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { fetchFeatureFlags } from '@/features/feature-flags';
 import { OrganizersHero } from '@/features/marketing/components/organizers/OrganizersHero';
 import { AudienceStrip } from '@/features/marketing/components/organizers/AudienceStrip';
 import { HowItWorks } from '@/features/marketing/components/organizers/HowItWorks';
@@ -26,10 +27,13 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function OrganizersLandingPage() {
+export default async function OrganizersLandingPage() {
+  const flags = await fetchFeatureFlags();
+  const applicationsOpen = flags.organizer_applications;
+
   return (
     <main className={styles.page}>
-      <OrganizersHero />
+      <OrganizersHero applicationsOpen={applicationsOpen} />
       <AudienceStrip />
       <HowItWorks />
       <TransmissionSection />
@@ -39,7 +43,7 @@ export default function OrganizersLandingPage() {
       <ManagementSection />
       <PaymentSection />
       <FaqSection />
-      <FinalCta />
+      <FinalCta applicationsOpen={applicationsOpen} />
     </main>
   );
 }
