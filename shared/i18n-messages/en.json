@@ -1373,7 +1373,9 @@
           "save": "Save",
           "cancel": "Cancel",
           "changed": "Changed by {who} · {when}",
-          "never": "Never changed"
+          "never": "Never changed",
+          "invalid": "Enter a percentage between 0 and 100.",
+          "error": "Couldn't save the fee. Try again."
         },
         "buyer": {
           "title": "Buyer fee",
@@ -1384,7 +1386,8 @@
       },
       "flags": {
         "eyebrow": "FEATURE-FLAGS · GLOBAL",
-        "title": "Feature flags"
+        "title": "Feature flags",
+        "countersLabel": "Flags summary"
       },
       "audit": {
         "eyebrow": "AUDIT LOG · RECENT",
@@ -1392,13 +1395,12 @@
         "on": "enabled",
         "off": "disabled",
         "feeChanged": "changed to {to}",
-        "feeChangedFrom": "changed {from} → {to}",
-        "feeOverride": "fee override"
+        "feeOverride": "fee override",
+        "empty": "No recent changes."
       },
       "how": {
         "eyebrow": "HOW IT WORKS",
-        "text": "Global flags apply to all organizations. Changes take effect within 60 seconds and require no deploy. Flags marked as {risky} require confirmation.",
-        "risky": "affects payment",
+        "text": "Global flags apply to all organizations. Changes take effect within 60 seconds and require no deploy. Flags marked as <risky>payment-impacting</risky> require confirmation.",
         "link": "Per-organization overrides"
       }
     }
@@ -1431,14 +1433,13 @@
   },
   "myList": {
     "title": "My list",
-    "subtitle": "The events you have access to.",
+    "subtitle": "The events you have access to, live and on replay.",
     "watchLive": "Watch",
     "watchReplay": "Watch replay",
     "details": "View details",
     "cancelled": "Event cancelled",
     "venueOnly": "Venue ticket — grants entry to the event location.",
-    "empty": "You don't have access to any events yet.",
-    "exploreEvents": "Explore events",
+    "exploreEvents": "Explore the lineup",
     "loadError": "We couldn't load your list.",
     "retry": "Try again",
     "eyebrow": "YOUR ACCESS",
@@ -1469,20 +1470,124 @@
     "noResults": "No events found",
     "noResultsQuery": "Nothing matches \"{query}\". Try another name, venue or city.",
     "noResultsFilter": "No events in this filter.",
-    "remaining": "{time} left · {percent}% watched"
+    "remaining": "{time} left · {percent}% watched",
+    "emptyState": {
+      "all": {
+        "badge": "YOUR LIST IS EMPTY",
+        "title": "No events in your list yet",
+        "text": "Once you buy a ticket or redeem an access code, the event shows up here, ready to watch live and on replay."
+      },
+      "upcoming": {
+        "badge": "NO UPCOMING EVENTS",
+        "title": "Nothing scheduled for now",
+        "text": "Tickets for events that haven't happened yet live here, with a reminder before they start."
+      },
+      "replays": {
+        "badge": "NO REPLAYS",
+        "title": "You don't have any replays yet",
+        "text": "Once one of your events ends, the recording shows up here with the full broadcast timeline and every camera."
+      },
+      "live": {
+        "badge": "NOTHING LIVE",
+        "title": "No access is live right now",
+        "text": "When an event from your list goes live, it shows up here first."
+      },
+      "venue": {
+        "badge": "NO VENUE TICKETS",
+        "title": "No in-person tickets",
+        "text": "Tickets with a QR code to get into the venue live here."
+      }
+    },
+    "kindsLabel": "WHAT SHOWS UP HERE",
+    "kinds": {
+      "purchased": {
+        "title": "Purchased tickets",
+        "text": "Digital or in-person, live and on replay."
+      },
+      "free": {
+        "title": "Free events",
+        "text": "Just RSVP and it's added to your list."
+      },
+      "redeemed": {
+        "title": "Redeemed access",
+        "text": "Invite codes or organizer courtesy passes."
+      }
+    },
+    "teaser": {
+      "eyebrow": "IN THE MEANTIME",
+      "title": "Trending on",
+      "titleAccent": "showon.io",
+      "all": "SEE ALL"
+    }
   },
   "wishlist": {
+    "eyebrow": "SAVED",
     "title": "Wishlist",
-    "subtitle": "The events you want to watch.",
-    "empty": "You haven't saved any events yet.",
-    "emptyCta": "Explore events",
+    "subtitle": "The events you want to watch. We'll let you know when tickets open or it starts.",
+    "emptyCta": "Explore the lineup",
     "loadError": "We couldn't load your wishlist.",
     "retry": "Try again",
     "save": "Save",
     "saved": "Saved",
     "removeAria": "Remove from wishlist",
     "saveAria": "Save to wishlist",
-    "errorToast": "Couldn't update your wishlist."
+    "errorToast": "Couldn't update your wishlist.",
+    "savedToast": "Saved to your wishlist. We'll let you know when tickets open.",
+    "removedToast": "Removed from your wishlist.",
+    "kindsLabel": "HOW IT WORKS",
+    "tabs": {
+      "all": "ALL",
+      "upcoming": "UPCOMING",
+      "live": "LIVE",
+      "finished": "PAST"
+    },
+    "empty": {
+      "all": {
+        "badge": "NO FAVORITES",
+        "title": "You haven't saved any events yet",
+        "text": "Tap the heart on any event to keep it here. We'll let you know when tickets open and when the broadcast starts."
+      },
+      "upcoming": {
+        "badge": "NOTHING COMING UP",
+        "title": "No favorites scheduled",
+        "text": "Saved events that haven't happened yet show up here, with a reminder before they start."
+      },
+      "live": {
+        "badge": "NOTHING LIVE",
+        "title": "No favorites on air right now",
+        "text": "When a saved event goes live, it shows up here first."
+      },
+      "finished": {
+        "badge": "NOTHING PAST",
+        "title": "No favorites have wrapped up yet",
+        "text": "Saved events that already ended land here, with replay access when it's available."
+      }
+    },
+    "notify": {
+      "off": "Notify me about new events",
+      "on": "Notifications on",
+      "toast": "Done. We'll let you know when a new event joins the lineup."
+    },
+    "kinds": {
+      "save": {
+        "title": "Save with one tap",
+        "text": "The heart shows up on every poster and on the event page."
+      },
+      "notify": {
+        "title": "Get notified",
+        "text": "Ticket sales opening, a reminder on the day, and the broadcast starting."
+      },
+      "buy": {
+        "title": "Buy whenever you want",
+        "text": "A favorite becomes a ticket in two clicks, no need to search again."
+      }
+    },
+    "teaser": {
+      "eyebrow": "GET STARTED",
+      "title": "Save your first",
+      "titleAccent": "favorite",
+      "all": "SEE ALL"
+    }
   },
   "notFound": {
     "metaTitle": "Page not found",

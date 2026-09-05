@@ -1373,7 +1373,9 @@
           "save": "Salvar",
           "cancel": "Cancelar",
           "changed": "Alterada por {who} · {when}",
-          "never": "Nunca alterada"
+          "never": "Nunca alterada",
+          "invalid": "Informe um percentual entre 0 e 100.",
+          "error": "Não foi possível salvar a taxa. Tente novamente."
         },
         "buyer": {
           "title": "Taxa do comprador",
@@ -1384,7 +1386,8 @@
       },
       "flags": {
         "eyebrow": "FEATURE-FLAGS · GLOBAL",
-        "title": "Feature flags"
+        "title": "Feature flags",
+        "countersLabel": "Resumo das flags"
       },
       "audit": {
         "eyebrow": "AUDIT LOG · RECENTE",
@@ -1392,13 +1395,12 @@
         "on": "ativada",
         "off": "desligada",
         "feeChanged": "alterada para {to}",
-        "feeChangedFrom": "alterada {from} → {to}",
-        "feeOverride": "override de taxa"
+        "feeOverride": "override de taxa",
+        "empty": "Nenhuma alteração recente."
       },
       "how": {
         "eyebrow": "COMO FUNCIONA",
-        "text": "Flags globais valem para todas as organizações. Alterações entram em vigor em até 60 segundos e não exigem deploy. Flags marcadas como {risky} pedem confirmação.",
-        "risky": "impacta pagamento",
+        "text": "Flags globais valem para todas as organizações. Alterações entram em vigor em até 60 segundos e não exigem deploy. Flags marcadas como <risky>impacta pagamento</risky> pedem confirmação.",
         "link": "Overrides por organização"
       }
     }
@@ -1431,14 +1433,13 @@
   },
   "myList": {
     "title": "Minha lista",
-    "subtitle": "Os eventos a que você tem acesso.",
+    "subtitle": "Os eventos a que você tem acesso, ao vivo e no replay.",
     "watchLive": "Assistir",
     "watchReplay": "Assistir replay",
     "details": "Ver detalhes",
     "cancelled": "Evento cancelado",
     "venueOnly": "Ingresso presencial — acesso ao local do evento.",
-    "empty": "Você ainda não tem acesso a nenhum evento.",
-    "exploreEvents": "Explorar eventos",
+    "exploreEvents": "Explorar programação",
     "loadError": "Não foi possível carregar sua lista.",
     "retry": "Tentar novamente",
     "eyebrow": "SEUS ACESSOS",
@@ -1469,20 +1470,124 @@
     "noResults": "Nenhum evento encontrado",
     "noResultsQuery": "Nada corresponde a \"{query}\". Tente outro nome, local ou cidade.",
     "noResultsFilter": "Nenhum evento neste filtro.",
-    "remaining": "Restam {time} · {percent}% assistido"
+    "remaining": "Restam {time} · {percent}% assistido",
+    "emptyState": {
+      "all": {
+        "badge": "SUA LISTA ESTÁ VAZIA",
+        "title": "Nenhum evento na sua lista ainda",
+        "text": "Quando você comprar um ingresso ou resgatar um acesso, o evento aparece aqui, pronto para assistir ao vivo e no replay."
+      },
+      "upcoming": {
+        "badge": "NENHUM EVENTO PRÓXIMO",
+        "title": "Nada agendado por enquanto",
+        "text": "Ingressos para eventos que ainda vão acontecer ficam aqui, com lembrete antes de começar."
+      },
+      "replays": {
+        "badge": "NENHUM REPLAY",
+        "title": "Você ainda não tem replays",
+        "text": "Depois que um evento seu termina, a gravação aparece aqui com a linha do tempo da transmissão inteira e todas as câmeras."
+      },
+      "live": {
+        "badge": "NADA AO VIVO",
+        "title": "Nenhum acesso no ar agora",
+        "text": "Quando um evento da sua lista entrar ao vivo, ele aparece aqui em primeiro lugar."
+      },
+      "venue": {
+        "badge": "NENHUM PRESENCIAL",
+        "title": "Nenhum ingresso presencial",
+        "text": "Ingressos com QR para entrar no local do evento ficam aqui."
+      }
+    },
+    "kindsLabel": "O QUE APARECE AQUI",
+    "kinds": {
+      "purchased": {
+        "title": "Ingressos comprados",
+        "text": "Digitais ou presenciais, ao vivo e no replay."
+      },
+      "free": {
+        "title": "Eventos gratuitos",
+        "text": "Basta confirmar presença e ele entra na lista."
+      },
+      "redeemed": {
+        "title": "Acessos resgatados",
+        "text": "Códigos de convite ou cortesia do organizador."
+      }
+    },
+    "teaser": {
+      "eyebrow": "ENQUANTO ISSO",
+      "title": "Em alta no",
+      "titleAccent": "showon.io",
+      "all": "VER TODOS"
+    }
   },
   "wishlist": {
+    "eyebrow": "SALVOS",
     "title": "Favoritos",
-    "subtitle": "Os eventos que você quer assistir.",
-    "empty": "Você ainda não salvou nenhum evento.",
-    "emptyCta": "Explorar eventos",
+    "subtitle": "Os eventos que você quer assistir. Avisamos quando abrir venda ou começar.",
+    "emptyCta": "Explorar programação",
     "loadError": "Não foi possível carregar seus favoritos.",
     "retry": "Tentar novamente",
     "save": "Salvar",
     "saved": "Salvo",
     "removeAria": "Remover dos favoritos",
     "saveAria": "Salvar nos favoritos",
-    "errorToast": "Não foi possível atualizar seus favoritos."
+    "errorToast": "Não foi possível atualizar seus favoritos.",
+    "savedToast": "Salvo nos favoritos. Avisamos quando abrir venda.",
+    "removedToast": "Removido dos favoritos.",
+    "kindsLabel": "COMO FUNCIONA",
+    "tabs": {
+      "all": "TODOS",
+      "upcoming": "PRÓXIMOS",
+      "live": "AO VIVO",
+      "finished": "ENCERRADOS"
+    },
+    "empty": {
+      "all": {
+        "badge": "NENHUM FAVORITO",
+        "title": "Você ainda não salvou nenhum evento",
+        "text": "Toque no coração em qualquer evento para guardá-lo aqui. A gente avisa quando os ingressos abrirem e quando a transmissão começar."
+      },
+      "upcoming": {
+        "badge": "NADA POR VIR",
+        "title": "Nenhum favorito agendado",
+        "text": "Eventos salvos que ainda vão acontecer aparecem aqui, com lembrete antes de começar."
+      },
+      "live": {
+        "badge": "NADA AO VIVO",
+        "title": "Nenhum favorito no ar agora",
+        "text": "Quando um evento salvo entrar ao vivo, ele aparece aqui em primeiro lugar."
+      },
+      "finished": {
+        "badge": "NENHUM ENCERRADO",
+        "title": "Nenhum favorito já aconteceu",
+        "text": "Eventos salvos que terminaram ficam aqui, com acesso ao replay quando disponível."
+      }
+    },
+    "notify": {
+      "off": "Avisar sobre novos eventos",
+      "on": "Avisos ativados",
+      "toast": "Pronto. Avisamos quando entrar evento novo na programação."
+    },
+    "kinds": {
+      "save": {
+        "title": "Salve com um toque",
+        "text": "O coração aparece em todo poster e na página do evento."
+      },
+      "notify": {
+        "title": "Receba o aviso",
+        "text": "Abertura de venda, lembrete no dia e início da transmissão."
+      },
+      "buy": {
+        "title": "Compre quando quiser",
+        "text": "O favorito vira ingresso em dois cliques, sem procurar de novo."
+      }
+    },
+    "teaser": {
+      "eyebrow": "PARA COMEÇAR",
+      "title": "Salve o primeiro",
+      "titleAccent": "favorito",
+      "all": "VER TODOS"
+    }
   },
   "notFound": {
     "metaTitle": "Página não encontrada",
