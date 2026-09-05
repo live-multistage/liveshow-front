@@ -38,7 +38,7 @@
     "wishlist": "Favoritos",
     "help": "Ayuda",
     "search": "Buscar",
-    "organizers": "Para organizadores"
+    "organizers": "Sé un socio"
   },
   "auth": {
     "login": {
@@ -1605,7 +1605,7 @@
     "contact": "Contáctanos",
     "help": "Ayuda",
     "copyright": "© {year} showon.io. Todos los derechos reservados.",
-    "organizers": "Para organizadores"
+    "organizers": "Sé un socio"
   },
   "help": {
     "metaTitle": "Ayuda",
@@ -2171,7 +2171,7 @@
   },
   "organizersPage": {
     "meta": {
-      "title": "Para organizadores",
+      "title": "Sé un socio",
       "description": "Conciertos, partidos, conferencias, misas, obras, clases. Tú produces, showon.io se encarga de la transmisión, las entradas y el pago."
     },
     "hero": {
@@ -2644,7 +2644,7 @@
       "organizer": {
         "title": "Quiero organizar.",
         "text": "Transmite, vende y recibe el pago en el mismo lugar.",
-        "button": "Para organizadores"
+        "button": "Sé un socio"
       }
     }
   }

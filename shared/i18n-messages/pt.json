@@ -38,7 +38,7 @@
     "wishlist": "Favoritos",
     "help": "Ajuda",
     "search": "Buscar",
-    "organizers": "Para organizadores"
+    "organizers": "Seja um parceiro"
   },
   "auth": {
     "login": {
@@ -1605,7 +1605,7 @@
     "contact": "Fale conosco",
     "help": "Ajuda",
     "copyright": "© {year} showon.io. Todos os direitos reservados.",
-    "organizers": "Para organizadores"
+    "organizers": "Seja um parceiro"
   },
   "help": {
     "metaTitle": "Ajuda",
@@ -2171,7 +2171,7 @@
   },
   "organizersPage": {
     "meta": {
-      "title": "Para organizadores",
+      "title": "Seja um parceiro",
       "description": "Shows, jogos, conferências, cultos, peças, aulas. Você produz, a showon.io cuida da transmissão, do ingresso e do pagamento."
     },
     "hero": {
@@ -2644,7 +2644,7 @@
       "organizer": {
         "title": "Quero organizar.",
         "text": "Transmita, venda e receba no mesmo lugar.",
-        "button": "Para organizadores"
+        "button": "Seja um parceiro"
       }
     }
   }

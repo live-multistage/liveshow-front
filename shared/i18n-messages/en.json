@@ -38,7 +38,7 @@
     "wishlist": "Wishlist",
     "help": "Help",
     "search": "Search",
-    "organizers": "For organizers"
+    "organizers": "Become a partner"
   },
   "auth": {
     "login": {
@@ -1605,7 +1605,7 @@
     "contact": "Contact us",
     "help": "Help",
     "copyright": "© {year} showon.io. All rights reserved.",
-    "organizers": "For organizers"
+    "organizers": "Become a partner"
   },
   "help": {
     "metaTitle": "Help",
@@ -2171,7 +2171,7 @@
   },
   "organizersPage": {
     "meta": {
-      "title": "For organizers",
+      "title": "Become a partner",
       "description": "Concerts, games, conferences, church services, plays, classes. You produce, showon.io handles streaming, ticketing, and payments."
     },
     "hero": {
@@ -2644,7 +2644,7 @@
       "organizer": {
         "title": "I want to organize.",
         "text": "Stream, sell, and get paid all in one place.",
-        "button": "For organizers"
+        "button": "Become a partner"
       }
     }
   }
