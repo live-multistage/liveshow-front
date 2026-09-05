@@ -1,8 +1,7 @@
-import type { Metadata } from 'next';
-import { PlatformFeatureFlagsPage } from '@/features/platform-admin';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = { title: 'Plataforma — Feature Flags' };
-
+// Feature flags now live inside /dashboard/platform/settings — this route
+// stays only so old links/bookmarks keep working.
 export default function Page() {
-  return <PlatformFeatureFlagsPage />;
+  redirect('/dashboard/platform/settings#feature-flags');
 }

@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import Link from 'next/link';
 import { Building2, Users, Radio, CalendarDays, Ticket, DollarSign, AlertTriangle } from 'lucide-react';
 import { Skeleton } from '@live-show/design-system';
 import {
@@ -13,7 +14,6 @@ import { RevenueCard } from './RevenueCard';
 import { OrgBalancesCard } from './OrgBalancesCard';
 import { StreamHealthCard } from './StreamHealthCard';
 import { ApprovalQueueCard } from './ApprovalQueueCard';
-import { PlatformSettingsCard } from './PlatformSettingsCard';
 import { CatalogCards } from './CatalogCards';
 import { AuditLogCard } from './AuditLogCard';
 import { ImpersonationCard } from './ImpersonationCard';
@@ -129,9 +129,17 @@ export function SuperAdminDashboard() {
         <LiveViewersCard />
       </div>
 
-      {/* Config (idea 1) + saldos das organizações (idea 5). */}
+      {/* Config (idea 1) + saldos das organizações (idea 5). Taxas & flags
+          moved to their own page (D7); this is now just a link out. */}
       <div className={styles.row}>
-        <PlatformSettingsCard />
+        <div className={styles.finCard}>
+          <div className={styles.finEyebrow}>CONFIGURAÇÕES · PLATFORM-SETTINGS</div>
+          <div className={styles.finTitle}>Taxas & flags globais</div>
+          <p className={styles.finSub}>Taxa default, taxa do comprador e feature flags globais, com audit log.</p>
+          <Link href="/dashboard/platform/settings" className={styles.settingsCardLink}>
+            Abrir configurações →
+          </Link>
+        </div>
         <OrgBalancesCard />
       </div>
 

@@ -20,3 +20,17 @@ export function brlCompact(n: number): string {
 export function ratePct(rate: number): string {
   return `${(rate * 100).toFixed(1).replace('.', ',').replace(',0', '')}%`;
 }
+
+// next-intl locale code → Intl locale used for audit-log timestamps.
+const AUDIT_LOCALE_MAP: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-419' };
+
+// "2026-08-12T14:02:00.000Z" + "pt" → "12 ago, 14:02"
+export function formatAuditWhen(iso: string, locale: string): string {
+  const intlLocale = AUDIT_LOCALE_MAP[locale] ?? 'pt-BR';
+  return new Intl.DateTimeFormat(intlLocale, {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(iso));
+}

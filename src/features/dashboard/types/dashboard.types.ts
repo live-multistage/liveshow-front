@@ -83,7 +83,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'platformAdPartnerships', href: '/dashboard/platform/ad-partnerships', icon: Handshake,  group: 'OPERACIONAL' },
     { navKey: 'platformCoupons',       href: '/dashboard/platform/coupons',       icon: Tag,          group: 'OPERACIONAL' },
     { navKey: 'platformSettings',      href: '/dashboard/platform/settings',      icon: Settings,     group: 'CONFIG & GOVERNANÇA' },
-    { navKey: 'platformFeatureFlags',  href: '/dashboard/platform/feature-flags', icon: Flag,         group: 'CONFIG & GOVERNANÇA' },
+    { navKey: 'platformFeatureFlags',  href: '/dashboard/platform/settings#feature-flags', icon: Flag, group: 'CONFIG & GOVERNANÇA' },
     { navKey: 'platformAudit',         href: '/dashboard/platform/audit',         icon: ShieldCheck,  group: 'CONFIG & GOVERNANÇA' },
   ],
 };

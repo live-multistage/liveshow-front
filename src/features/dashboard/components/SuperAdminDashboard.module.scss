@@ -299,6 +299,17 @@
   margin-top: 3px;
 }
 
+.settingsCardLink {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ff2e9e;
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}
+
 .finHeadRight {
   text-align: right;
   flex-shrink: 0;

@@ -36,7 +36,10 @@ export function DashboardSidebar({ flags = DEFAULT_FEATURE_FLAGS }: { flags?: Fe
         {navItems.map((item, i) => {
           const Icon = item.icon;
           const isExternal = item.href.startsWith('http');
-          const isActive = !isExternal && (pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)));
+          // usePathname() never includes a hash, so strip it (e.g. platformFeatureFlags's
+          // "/dashboard/platform/settings#feature-flags") before comparing.
+          const hrefPath = item.href.split('#')[0];
+          const isActive = !isExternal && (pathname === hrefPath || (hrefPath !== '/dashboard' && pathname.startsWith(hrefPath)));
           const showGroup = item.group && item.group !== navItems[i - 1]?.group;
           return (
             <div key={item.href}>
