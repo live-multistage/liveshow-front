@@ -3,10 +3,12 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Search } from 'lucide-react';
+import { Search, Ticket, Gift, BadgeCheck } from 'lucide-react';
 import { Button, Chip, Skeleton } from '@live-show/design-system';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { usePlaybackProgressQuery } from '@/features/playback-progress';
+import { ShowCard, eventToShow, useRecommendedEventsQuery } from '@/features/events';
+import { EmptyStatePanel } from '@/shared/components/EmptyStatePanel/EmptyStatePanel';
 import { useAccessibleEventsQuery } from '../queries/get-accessible-events';
 import {
   MY_LIST_FILTERS,
@@ -18,6 +20,7 @@ import { LiveEventHero } from './LiveEventHero';
 import { ContinueWatchingCard } from './ContinueWatchingCard';
 import { UpcomingEventRow } from './UpcomingEventRow';
 import { ReplayCard } from './ReplayCard';
+import { MyListEmptyIllustration } from './MyListEmptyIllustration';
 import styles from './MyListPageContent.module.scss';
 
 export function MyListPageContent() {
@@ -29,6 +32,8 @@ export function MyListPageContent() {
 
   const { isLoggedIn } = useAuth();
   const { data: progressList } = usePlaybackProgressQuery({ enabled: isLoggedIn });
+  const { data: recommended } = useRecommendedEventsQuery();
+  const recommendedShows = (recommended?.items ?? []).slice(0, 4).map(eventToShow);
 
   // Índice por evento, montado uma vez: o agrupamento consulta por id e
   // refazer o Map a cada tecla digitada na busca seria trabalho puro.
@@ -71,7 +76,7 @@ export function MyListPageContent() {
         )}
       </div>
 
-      {hasEvents && (
+      {!isLoading && !isError && (
         <div className={styles.filters} role="group" aria-label={t('filtersLabel')}>
           {MY_LIST_FILTERS.map((key) => (
             <Chip
@@ -110,12 +115,54 @@ export function MyListPageContent() {
       )}
 
       {!isLoading && !isError && !hasEvents && (
-        <div className={styles.state}>
-          <p>{t('empty')}</p>
-          <Button asChild>
-            <Link href="/events">{t('exploreEvents')}</Link>
-          </Button>
-        </div>
+        <>
+          <EmptyStatePanel
+            illustration={<MyListEmptyIllustration />}
+            badge={t(`emptyState.${filter}.badge`)}
+            title={t(`emptyState.${filter}.title`)}
+            text={t(`emptyState.${filter}.text`)}
+            primaryCta={{ href: '/events', label: t('exploreEvents') }}
+            kindsLabel={t('kindsLabel')}
+            kinds={[
+              {
+                icon: <Ticket size={16} aria-hidden="true" />,
+                title: t('kinds.purchased.title'),
+                text: t('kinds.purchased.text'),
+              },
+              {
+                icon: <Gift size={16} aria-hidden="true" />,
+                title: t('kinds.free.title'),
+                text: t('kinds.free.text'),
+              },
+              {
+                icon: <BadgeCheck size={16} aria-hidden="true" />,
+                title: t('kinds.redeemed.title'),
+                text: t('kinds.redeemed.text'),
+              },
+            ]}
+          />
+
+          {recommendedShows.length > 0 && (
+            <div className={styles.teaser}>
+              <div className={styles.teaserHeader}>
+                <div>
+                  <p className={styles.eyebrow}>{t('teaser.eyebrow')}</p>
+                  <h2 className={styles.teaserTitle}>
+                    {t('teaser.title')} <span className={styles.teaserAccent}>{t('teaser.titleAccent')}</span>
+                  </h2>
+                </div>
+                <Link href="/events" className={styles.teaserLink}>
+                  {t('teaser.all')} →
+                </Link>
+              </div>
+              <div className={styles.teaserGrid}>
+                {recommendedShows.map((show) => (
+                  <ShowCard key={show.id} show={show} />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {!isLoading && !isError && hasEvents && (
