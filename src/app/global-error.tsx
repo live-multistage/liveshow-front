@@ -7,6 +7,10 @@ import { reportError } from '@/lib/error-reporting';
 // renders outside NextIntlClientProvider — no useTranslations here, unlike
 // error.tsx. Only reached when the root layout itself throws (error.tsx
 // covers everything below it).
+//
+// Styles are inline, not SCSS Modules: a root-layout failure can be caused by
+// the CSS pipeline itself, so this boundary can't assume its own stylesheet
+// loaded. Inline styles are the only rendering this component can trust.
 export default function GlobalError({ error, reset }: { error: Error; reset: () => void }) {
   const requestId = (error as Error & { requestId?: string }).requestId;
 

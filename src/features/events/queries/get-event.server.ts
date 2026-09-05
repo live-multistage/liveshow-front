@@ -1,5 +1,4 @@
 import { cache } from 'react';
-import { withRequestId } from '@/lib/http/request-id';
 import type { EventResponse, TicketProductsResponse } from '../types/event.types';
 import { isEventId } from '../utils/slug';
 
@@ -12,13 +11,13 @@ const apiBase = () =>
   (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api').replace(/\/$/, '');
 
 export const fetchEvent = cache(async (id: string): Promise<EventResponse> => {
-  const res = await fetch(`${apiBase()}/events/${id}`, withRequestId({ next: { revalidate: 30 } }));
+  const res = await fetch(`${apiBase()}/events/${id}`, { next: { revalidate: 30 } });
   if (!res.ok) throw new Error(`fetchEvent ${id}: ${res.status}`);
   return res.json() as Promise<EventResponse>;
 });
 
 export const fetchEventBySlug = cache(async (slug: string): Promise<EventResponse> => {
-  const res = await fetch(`${apiBase()}/events/by-slug/${slug}`, withRequestId({ next: { revalidate: 30 } }));
+  const res = await fetch(`${apiBase()}/events/by-slug/${slug}`, { next: { revalidate: 30 } });
   if (!res.ok) throw new Error(`fetchEventBySlug ${slug}: ${res.status}`);
   return res.json() as Promise<EventResponse>;
 });
@@ -50,7 +49,7 @@ export async function resolveEventId(param: string): Promise<string> {
 }
 
 export const fetchTicketProducts = cache(async (eventId: string): Promise<TicketProductsResponse> => {
-  const res = await fetch(`${apiBase()}/shows/${eventId}/tickets`, withRequestId({ next: { revalidate: 30 } }));
+  const res = await fetch(`${apiBase()}/shows/${eventId}/tickets`, { next: { revalidate: 30 } });
   if (!res.ok) throw new Error(`fetchTicketProducts ${eventId}: ${res.status}`);
   return res.json() as Promise<TicketProductsResponse>;
 });

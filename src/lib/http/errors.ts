@@ -22,7 +22,9 @@ export function normalizeError(error: unknown): AppError {
       code: error.response?.data?.code,
       ...(requestId ? { requestId } : {}),
     };
-    console.error('[http error]', appError, error);
+    // Never log the raw axios error: it carries config.headers.Authorization
+    // and config.data, which can hold request bodies with PII/credentials.
+    console.error('[http error]', appError, { url: error.config?.url, message: error.message });
     return appError;
   }
   console.error('[http error] Unexpected error', error);
