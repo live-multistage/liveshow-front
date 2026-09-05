@@ -71,6 +71,15 @@ export function ScrollExpandMedia({ media, overlay, hint, background, className 
     flush();
   };
 
+  // Symmetric with expand(): re-collapsing at the top must also drive progress
+  // back to 0, otherwise the overlay stays at its progress=1 state (the hero
+  // text keeps its faded-out opacity and never comes back).
+  const collapse = () => {
+    progressRef.current = 0;
+    expandedRef.current = false;
+    flush();
+  };
+
   useEffect(() => {
     if (shouldStartExpanded()) {
       expand();
@@ -85,9 +94,8 @@ export function ScrollExpandMedia({ media, overlay, hint, background, className 
 
     const onWheel = (event: WheelEvent) => {
       if (expandedRef.current && event.deltaY < 0 && window.scrollY <= 5) {
-        expandedRef.current = false;
         event.preventDefault();
-        flush();
+        collapse();
         return;
       }
       if (expandedRef.current) return;
@@ -105,9 +113,8 @@ export function ScrollExpandMedia({ media, overlay, hint, background, className 
       const deltaY = touchStartYRef.current - touchY;
 
       if (expandedRef.current && deltaY < -20 && window.scrollY <= 5) {
-        expandedRef.current = false;
         event.preventDefault();
-        flush();
+        collapse();
         return;
       }
       if (expandedRef.current) return;
