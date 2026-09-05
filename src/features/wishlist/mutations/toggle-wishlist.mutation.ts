@@ -51,6 +51,10 @@ export function useToggleWishlistMutation() {
 
       return { previous };
     },
+    onSuccess: (_data, { saved }) => {
+      // `saved` é o estado ANTES do toggle: se estava salvo, a mutation removeu.
+      toast.success(saved ? t('removedToast') : t('savedToast'));
+    },
     onError: (_err, _vars, context) => {
       if (context?.previous !== undefined) {
         qc.setQueryData(wishlistKeys.ids, context.previous);

@@ -1,0 +1,227 @@
+@use '../../../styles/_variables' as *;
+
+.panel {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  background: $surface-dark;
+}
+
+.blob {
+  position: absolute;
+  top: -140px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 640px;
+  height: 420px;
+  max-width: 160%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, 0.13), transparent 62%);
+  pointer-events: none;
+  animation: emptyStateDrift 13s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(120% 90% at 50% 0%, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, black 40%, transparent 100%);
+}
+
+.content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 72px 32px 64px;
+
+  @media (max-width: $md) {
+    padding: 52px 20px 44px;
+  }
+}
+
+.illustration {
+  position: relative;
+  margin-bottom: 30px;
+  animation: emptyStateFloat 5s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #ff8ec9;
+  background: rgba(255, 46, 158, 0.08);
+  border: 1px solid rgba(255, 46, 158, 0.28);
+  border-radius: 999px;
+  padding: 7px 14px;
+  margin-bottom: 20px;
+}
+
+.badgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: emptyStatePulse 1.8s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: 1.875rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  max-width: 18ch;
+}
+
+.text {
+  margin: 0 0 30px;
+  font-size: 0.969rem;
+  line-height: 1.55;
+  color: $text-secondary;
+  max-width: 48ch;
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 34px;
+}
+
+.primaryCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: 11px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  background: $action;
+  color: $bg;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+
+  &:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+    color: $bg;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: opacity 0.18s ease;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+.kinds {
+  width: 100%;
+  max-width: 720px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 24px;
+}
+
+.kindsLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: $text-muted;
+  margin-bottom: 16px;
+}
+
+.kindsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.kindCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.kindIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: #ff8ec9;
+}
+
+.kindTitle {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.kindText {
+  margin: 4px 0 0;
+  font-size: 0.781rem;
+  line-height: 1.4;
+  color: $text-secondary;
+}
+
+@keyframes emptyStateDrift {
+  0%,
+  100% {
+    transform: translate(-50%, 0) scale(1);
+  }
+  50% {
+    transform: translate(calc(-50% + 30px), -20px) scale(1.08);
+  }
+}
+
+@keyframes emptyStatePulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes emptyStateFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}

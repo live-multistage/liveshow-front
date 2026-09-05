@@ -47,6 +47,7 @@ describe('useToggleWishlistMutation', () => {
 
     resolveAdd();
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(toast.success).toHaveBeenCalledWith('savedToast');
   });
 
   it('rolls back the cache and toasts an error when the service rejects', async () => {
@@ -80,5 +81,6 @@ describe('useToggleWishlistMutation', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(mockedRemove).toHaveBeenCalledWith('b');
+    expect(toast.success).toHaveBeenCalledWith('removedToast');
   });
 });

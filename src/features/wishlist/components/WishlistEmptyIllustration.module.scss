@@ -1,0 +1,82 @@
+.illustration {
+  position: relative;
+  width: 170px;
+  height: 124px;
+}
+
+.poster {
+  position: absolute;
+  top: 10px;
+  border-radius: 12px;
+}
+
+.posterLeft {
+  left: 6px;
+  width: 72px;
+  height: 98px;
+  background: linear-gradient(160deg, #161326, #0e0e18);
+  transform: rotate(-11deg);
+}
+
+.posterRight {
+  right: 6px;
+  width: 72px;
+  height: 98px;
+  background: linear-gradient(160deg, #241228, #120a16);
+  transform: rotate(11deg);
+}
+
+.posterCenter {
+  left: 50%;
+  top: 0;
+  width: 78px;
+  height: 106px;
+  transform: translateX(-50%);
+  background: linear-gradient(160deg, #2a0f24, #140a13);
+  border: 1px solid rgba(255, 46, 158, 0.35);
+  box-shadow: 0 0 30px rgba(255, 46, 158, 0.16);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 0 0 12px 10px;
+}
+
+.bar {
+  display: block;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.barLong {
+  width: 40px;
+}
+
+.barShort {
+  width: 26px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.badge {
+  position: absolute;
+  top: -18px;
+  left: calc(50% + 18px);
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ff2e9e;
+  border: 2px solid #0a0a0d;
+  box-shadow: 0 0 24px rgba(255, 46, 158, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badgeIcon {
+  width: 18px;
+  height: 18px;
+  color: #0a0a0d;
+}
