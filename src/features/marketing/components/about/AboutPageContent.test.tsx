@@ -28,11 +28,11 @@ describe('AboutPageContent', () => {
     expect(screen.getByText('pillars.tech.label')).toBeInTheDocument();
   });
 
-  it('links the organizers pillar and footer link to /para-organizadores', () => {
+  it('links the organizers pillar and footer link to /be-partner', () => {
     render(<AboutPageContent />);
     const links = screen.getAllByRole('link', { name: /pillars\.organizers\.link|links\.organizers/ });
     expect(links.length).toBeGreaterThanOrEqual(1);
-    links.forEach((link) => expect(link).toHaveAttribute('href', '/para-organizadores'));
+    links.forEach((link) => expect(link).toHaveAttribute('href', '/be-partner'));
   });
 
   it('links contact via mailto', () => {

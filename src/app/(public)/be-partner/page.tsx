@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t('meta.title'),
     description: t('meta.description'),
-    alternates: { canonical: '/para-organizadores' },
+    alternates: { canonical: '/be-partner' },
   };
 }
 

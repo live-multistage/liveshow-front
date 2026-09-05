@@ -46,7 +46,7 @@ export function AboutPageContent() {
                   <div className={styles.cardLabel}>{t(`pillars.${pillar.key}.label`)}</div>
                   <div className={styles.cardTitle}>{t(`pillars.${pillar.key}.title`)}</div>
                   {pillar.key === 'organizers' && (
-                    <Link href="/para-organizadores" className={styles.cardLink}>
+                    <Link href="/be-partner" className={styles.cardLink}>
                       {t('pillars.organizers.link')} <span aria-hidden="true">→</span>
                     </Link>
                   )}
@@ -56,7 +56,7 @@ export function AboutPageContent() {
           </div>
 
           <Reveal as="div" delay={260} className={styles.links}>
-            <Link href="/para-organizadores" className={styles.link}>
+            <Link href="/be-partner" className={styles.link}>
               {t('links.organizers')} <span aria-hidden="true">→</span>
             </Link>
             <Link href="/help" className={styles.link}>

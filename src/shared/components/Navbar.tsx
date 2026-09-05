@@ -29,7 +29,7 @@ export function Navbar() {
   const pathname = usePathname();
   // Immersive routes render a full-bleed hero the nav floats over: home, the
   // organizers landing page, and the public event detail page (but not its /checkout subroutes).
-  const isImmersive = pathname === '/' || pathname === '/para-organizadores' || /^\/events\/[^/]+$/.test(pathname);
+  const isImmersive = pathname === '/' || pathname === '/be-partner' || /^\/events\/[^/]+$/.test(pathname);
 
   useEffect(() => {
     if (!isImmersive) { setScrolled(false); return; }
@@ -72,7 +72,7 @@ export function Navbar() {
           <div className={styles.desktopNav}>
             <Link href="/" className={styles.navLink}>{t('home')}</Link>
             <Link href="/events" className={styles.navLink}>{t('schedule')}</Link>
-            <Link href="/para-organizadores" className={styles.navLink}>{t('organizers')}</Link>
+            <Link href="/be-partner" className={styles.navLink}>{t('organizers')}</Link>
 
             {isLoggedIn && (
               <>
@@ -184,7 +184,7 @@ export function Navbar() {
         <div className={styles.mobileMenu}>
           <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('home')}</Link>
           <Link href="/events" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('schedule')}</Link>
-          <Link href="/para-organizadores" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('organizers')}</Link>
+          <Link href="/be-partner" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('organizers')}</Link>
           <Link href="/help" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('help')}</Link>
           {/* Language switcher lives here on phones (hidden from the bar). */}
           <div className={styles.mobileLang}>
