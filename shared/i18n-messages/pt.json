@@ -291,7 +291,8 @@
   },
   "error": {
     "title": "Algo deu errado",
-    "retry": "Tentar novamente"
+    "retry": "Tentar novamente",
+    "requestId": "Código: {id}"
   },
   "showCard": {
     "live": "Ao Vivo",

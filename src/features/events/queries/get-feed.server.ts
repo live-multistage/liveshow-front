@@ -1,4 +1,5 @@
 import { cache } from 'react';
+import { withRequestId } from '@/lib/http/request-id';
 import type { EventResponse, PaginatedEventsResponse } from '../types/event.types';
 
 // Server-side fetches use native fetch, not the axios httpClient (which is
@@ -14,7 +15,7 @@ const EMPTY: PaginatedEventsResponse = { items: [], page: 1, pageSize: 50, total
 // feed and the /events listing client queries with the same page they'd fetch.
 export const fetchFeedFirstPage = cache(async (): Promise<PaginatedEventsResponse> => {
   try {
-    const res = await fetch(`${apiBase()}/events?filter=all&pageSize=50`, { next: { revalidate: 30 } });
+    const res = await fetch(`${apiBase()}/events?filter=all&pageSize=50`, withRequestId({ next: { revalidate: 30 } }));
     if (!res.ok) return EMPTY;
     return (await res.json()) as PaginatedEventsResponse;
   } catch {

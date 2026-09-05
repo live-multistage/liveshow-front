@@ -291,7 +291,8 @@
   },
   "error": {
     "title": "Something went wrong",
-    "retry": "Try again"
+    "retry": "Try again",
+    "requestId": "Code: {id}"
   },
   "showCard": {
     "live": "Live",

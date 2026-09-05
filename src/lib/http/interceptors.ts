@@ -2,6 +2,7 @@ import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { tokenStore } from '@/lib/auth/token-store';
 import { getAttribution } from '@/lib/analytics/attribution';
 import { getAnalyticsConsent } from '@/lib/analytics/consent';
+import { generateRequestId } from './request-id';
 
 // Reached when a 401 could not be refreshed — the session died mid-flow, so
 // carry where the user was and let login put them back. Auth pages are
@@ -36,6 +37,12 @@ function processQueue(error: unknown, token: string | null) {
 
 export function applyInterceptors(client: AxiosInstance) {
   client.interceptors.request.use((req: InternalAxiosRequestConfig) => {
+    // Originated here, not read from a response — this is what lets a
+    // request that never got a response (network error, timeout) still be
+    // correlatable in nginx/API logs and reported back to the user as
+    // AppError.requestId (see errors.ts).
+    req.headers.set('X-Request-Id', generateRequestId());
+
     const token = tokenStore.get();
     if (token) req.headers.set('Authorization', `Bearer ${token}`);
 

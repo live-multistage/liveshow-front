@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { isTokenExpired } from '@/lib/auth/jwt.server';
+import { withRequestId } from '@/lib/http/request-id';
 import type { AuthUser } from '../types/account.types';
 
 const apiBase = () =>
@@ -26,10 +27,13 @@ export async function getInitialIsLoggedIn(): Promise<boolean> {
 // as it always has for a user it doesn't have SSR data for.
 export async function getUserServer(accessToken: string): Promise<AuthUser | null> {
   try {
-    const res = await fetch(`${apiBase()}/auth/me`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-      cache: 'no-store',
-    });
+    const res = await fetch(
+      `${apiBase()}/auth/me`,
+      withRequestId({
+        headers: { Authorization: `Bearer ${accessToken}` },
+        cache: 'no-store',
+      }),
+    );
     if (!res.ok) return null;
     return (await res.json()) as AuthUser;
   } catch {
@@ -48,12 +52,15 @@ export async function checkAuthServer(
   accessToken: string,
 ): Promise<{ allowed: boolean; reason?: string }> {
   try {
-    const res = await fetch(`${apiBase()}/auth/check`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, context }),
-      cache: 'no-store',
-    });
+    const res = await fetch(
+      `${apiBase()}/auth/check`,
+      withRequestId({
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, context }),
+        cache: 'no-store',
+      }),
+    );
     if (!res.ok) return { allowed: false };
     return (await res.json()) as { allowed: boolean; reason?: string };
   } catch {
