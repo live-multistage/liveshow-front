@@ -7,6 +7,7 @@ import { Providers } from '@/providers';
 import { getInitialIsLoggedIn, getUserServer, checkAuthServer } from '@/features/account/queries/get-auth-state.server';
 import { ConsentBanner } from '@/features/consent';
 import { JsonLd } from '@/shared/components/JsonLd';
+import { ErrorReportingProvider } from '@/lib/error-reporting/error-reporting-provider';
 import '@/styles/globals.scss';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
@@ -79,14 +80,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <JsonLd data={ORG_JSON_LD} />
         <NextIntlClientProvider messages={messages}>
-          <Providers
-            initialIsLoggedIn={initialIsLoggedIn}
-            initialUser={initialUser}
-            dehydratedState={dehydrate(qc)}
-          >
-            {children}
-            <ConsentBanner />
-          </Providers>
+          <ErrorReportingProvider>
+            <Providers
+              initialIsLoggedIn={initialIsLoggedIn}
+              initialUser={initialUser}
+              dehydratedState={dehydrate(qc)}
+            >
+              {children}
+              <ConsentBanner />
+            </Providers>
+          </ErrorReportingProvider>
         </NextIntlClientProvider>
       </body>
     </html>
