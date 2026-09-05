@@ -5,6 +5,8 @@ import type {
   UpdateOrganizationRequest,
   StripeAccountStatus,
   OrganizationLedgerResponse,
+  CreateOrganizerApplicationRequest,
+  OrganizerApplicationResponse,
 } from '../types/organization.types';
 import type { EventResponse } from '@/features/events/types/event.types';
 import type { OrganizationAnalyticsResponse } from '../types/organization-analytics.types';
@@ -25,6 +27,16 @@ export const organizationService = {
 
   create: async (payload: CreateOrganizationRequest): Promise<OrganizationResponse> => {
     const { data } = await httpClient.post<OrganizationResponse>('/organizations', payload);
+    return data;
+  },
+
+  createOrganizerApplication: async (
+    payload: CreateOrganizerApplicationRequest,
+  ): Promise<OrganizerApplicationResponse> => {
+    const { data } = await httpClient.post<OrganizerApplicationResponse>(
+      '/organizer-applications',
+      payload,
+    );
     return data;
   },
 

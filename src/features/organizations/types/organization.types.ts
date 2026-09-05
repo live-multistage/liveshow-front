@@ -49,6 +49,31 @@ export interface CreateOrganizationRequest {
   description?: string;
 }
 
+export type OrganizerSegment =
+  | 'MUSIC_FESTIVAL'
+  | 'THEATER'
+  | 'COMEDY_STANDUP'
+  | 'SPORTS'
+  | 'CORPORATE_EVENTS'
+  | 'EDUCATION'
+  | 'RELIGIOUS'
+  | 'OTHER';
+
+export interface CreateOrganizerApplicationRequest {
+  description: string;
+  segment: OrganizerSegment;
+  customSegment?: string;
+}
+
+export interface OrganizerApplicationResponse {
+  id: string;
+  status: string;
+  description: string;
+  segment: OrganizerSegment;
+  customSegment: string | null;
+  createdAt: string;
+}
+
 export interface UpdateOrganizationRequest {
   name?: string;
   slug?: string;

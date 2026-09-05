@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
-import { OrganizationApplyContent } from '@/features/organizations/pages/OrganizationApplyPage';
+import { OrganizerApplicationContent } from '@/features/organizations/pages/OrganizerApplicationPage';
 
 export const metadata: Metadata = {
-  title: 'Candidate sua organização',
-  description: 'Envie sua organização para análise e comece a transmitir seus eventos.',
+  title: 'Candidate-se a organizador',
+  description: 'Envie sua candidatura para se tornar um organizador e comece a transmitir seus eventos.',
   alternates: { canonical: '/be-partner/apply' },
   robots: { index: false },
 };
 
-export default function OrganizationApplyPage() {
-  return <OrganizationApplyContent />;
+export default function OrganizerApplicationPage() {
+  return <OrganizerApplicationContent />;
 }
