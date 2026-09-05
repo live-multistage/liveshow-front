@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Reveal } from '../shared/Reveal';
@@ -79,8 +79,9 @@ function DiffBlock({
 // eslint-disable-next-line @typescript-eslint/require-await -- kept async so `<ProofSection />`
 // (an async server component) composes cleanly and callers can `await AboutPageContent()` in tests.
 export async function AboutPageContent() {
-  const t = useTranslations('aboutPage');
-  const tOrganizers = useTranslations('organizersPage');
+  // Async server component: hooks are off-limits, so translations come from
+  // the server API (which also carries `.raw`).
+  const [t, tOrganizers] = await Promise.all([getTranslations('aboutPage'), getTranslations('organizersPage')]);
 
   const manifesto = t.raw('hero.manifesto') as string[];
   const steps = t.raw('how.steps') as Array<{ title: string; text: string }>;

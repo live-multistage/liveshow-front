@@ -22,19 +22,22 @@ const HERO_MOCK_CAMS = [
   { name: 'Cam D', meta: 'GIMBAL · 1080p' },
 ];
 
-vi.mock('next-intl', () => ({
-  useTranslations: () => {
-    const t = (key: string) => key;
-    t.raw = (key: string) => {
-      if (key === 'hero.manifesto') return MANIFESTO;
-      if (key === 'how.steps') return HOW_STEPS;
-      if (key === 'transmission.signals') return SIGNALS;
-      if (key === 'hero.mock.cams') return HERO_MOCK_CAMS;
-      return [];
-    };
-    return t;
-  },
-}));
+function makeT() {
+  const t = (key: string) => key;
+  t.raw = (key: string) => {
+    if (key === 'hero.manifesto') return MANIFESTO;
+    if (key === 'how.steps') return HOW_STEPS;
+    if (key === 'transmission.signals') return SIGNALS;
+    if (key === 'hero.mock.cams') return HERO_MOCK_CAMS;
+    return [];
+  };
+  return t;
+}
+
+// AboutPageContent is async and uses the server API; the mocks it renders
+// (HeroPlayerMock, ReplayMock) are client components on the hook.
+vi.mock('next-intl/server', () => ({ getTranslations: async () => makeT() }));
+vi.mock('next-intl', () => ({ useTranslations: () => makeT() }));
 
 vi.mock('next/link', () => ({
   default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
