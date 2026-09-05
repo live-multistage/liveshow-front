@@ -1,7 +1,39 @@
 import { describe, it, expect, vi } from 'vitest';
 
+const MANIFESTO = ['Parágrafo um.', 'Parágrafo dois.', 'Parágrafo três.'];
+
+const HOW_STEPS = [
+  { title: 'Compre o ingresso.', text: 'Texto 1.' },
+  { title: 'Assista com controle.', text: 'Texto 2.' },
+  { title: 'Reveja quando quiser.', text: 'Texto 3.' },
+];
+
+const SIGNALS = [
+  { name: 'CAM 1 · OBS' },
+  { name: 'CAM 2 · vMix' },
+  { name: 'CAM 3 · PTZ' },
+  { name: 'LIBRAS · OBS' },
+];
+
+const HERO_MOCK_CAMS = [
+  { name: 'Cam A', meta: 'WIDE · 1080p' },
+  { name: 'Cam B', meta: 'TRIPÉ · 1080p' },
+  { name: 'Cam C', meta: 'PTZ · 720p' },
+  { name: 'Cam D', meta: 'GIMBAL · 1080p' },
+];
+
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => {
+    const t = (key: string) => key;
+    t.raw = (key: string) => {
+      if (key === 'hero.manifesto') return MANIFESTO;
+      if (key === 'how.steps') return HOW_STEPS;
+      if (key === 'transmission.signals') return SIGNALS;
+      if (key === 'hero.mock.cams') return HERO_MOCK_CAMS;
+      return [];
+    };
+    return t;
+  },
 }));
 
 vi.mock('next/link', () => ({
@@ -12,37 +44,55 @@ vi.mock('next/link', () => ({
   ),
 }));
 
+vi.mock('./ProofSection', () => ({
+  ProofSection: () => <section data-testid="proof" />,
+}));
+
 import { render, screen } from '@testing-library/react';
 import { AboutPageContent } from './AboutPageContent';
 
 describe('AboutPageContent', () => {
-  it('renders the hero heading', () => {
-    render(<AboutPageContent />);
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
+  it('renders the three manifesto paragraphs', async () => {
+    render(await AboutPageContent());
+    MANIFESTO.forEach((paragraph) => {
+      expect(screen.getByText(paragraph)).toBeInTheDocument();
+    });
   });
 
-  it('renders the three pillar labels', () => {
-    render(<AboutPageContent />);
-    expect(screen.getByText('pillars.viewers.label')).toBeInTheDocument();
-    expect(screen.getByText('pillars.organizers.label')).toBeInTheDocument();
-    expect(screen.getByText('pillars.tech.label')).toBeInTheDocument();
+  it('renders the four diferenciais titles', async () => {
+    render(await AboutPageContent());
+    expect(screen.getByText('diff.items.multicam.title')).toBeInTheDocument();
+    expect(screen.getByText('diff.items.latency.title')).toBeInTheDocument();
+    expect(screen.getByText('diff.items.replay.title')).toBeInTheDocument();
+    expect(screen.getByText('diff.items.tickets.title')).toBeInTheDocument();
   });
 
-  it('links the organizers pillar and footer link to /be-partner', () => {
-    render(<AboutPageContent />);
-    const links = screen.getAllByRole('link', { name: /pillars\.organizers\.link|links\.organizers/ });
-    expect(links.length).toBeGreaterThanOrEqual(1);
-    links.forEach((link) => expect(link).toHaveAttribute('href', '/be-partner'));
+  it('renders the six audience card titles', async () => {
+    render(await AboutPageContent());
+    ['shows', 'sports', 'talks', 'worship', 'theater', 'classes'].forEach((key) => {
+      expect(screen.getByText(`audiences.items.${key}.title`)).toBeInTheDocument();
+    });
   });
 
-  it('links contact via mailto', () => {
-    render(<AboutPageContent />);
-    const contact = screen.getByRole('link', { name: /links\.contact/ });
-    expect(contact.getAttribute('href')).toMatch(/^mailto:/);
+  it('renders the three "como funciona" step cards', async () => {
+    render(await AboutPageContent());
+    HOW_STEPS.forEach((step) => {
+      expect(screen.getByText(step.title)).toBeInTheDocument();
+    });
   });
 
-  it('links help to /help', () => {
-    render(<AboutPageContent />);
-    expect(screen.getByRole('link', { name: /links\.help/ })).toHaveAttribute('href', '/help');
+  it('links to /events, /help, /privacidade, mailto and /be-partner', async () => {
+    render(await AboutPageContent());
+    const links = screen.getAllByRole('link').map((link) => link.getAttribute('href'));
+    expect(links).toContain('/events');
+    expect(links).toContain('/help');
+    expect(links).toContain('/privacidade');
+    expect(links).toContain('/be-partner');
+    expect(links.some((href) => href?.startsWith('mailto:'))).toBe(true);
+  });
+
+  it('renders the ProofSection', async () => {
+    render(await AboutPageContent());
+    expect(screen.getByTestId('proof')).toBeInTheDocument();
   });
 });

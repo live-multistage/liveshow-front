@@ -12,13 +12,14 @@
   position: relative;
 }
 
+// ── S1 — Manifesto ──────────────────────────────────────────────────
 .hero {
   position: relative;
-  padding: clamp(90px, 13vh, 150px) 40px 80px;
+  padding: clamp(90px, 13vh, 150px) 40px 120px;
   overflow: hidden;
 
   @media (max-width: $sm) {
-    padding: 96px 20px 56px;
+    padding: 96px 20px 80px;
   }
 }
 
@@ -58,7 +59,7 @@
 }
 
 .title {
-  margin: 0 0 26px;
+  margin: 0 0 44px;
   font-size: clamp(40px, 5.8vw, 80px);
   font-weight: 900;
   letter-spacing: -0.045em;
@@ -71,39 +72,142 @@
   color: $action;
 }
 
-.text {
-  margin: 0;
-  font-size: clamp(17px, 1.5vw, 21px);
-  line-height: 1.5;
-  color: $text-secondary;
+.manifesto {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
   max-width: 62ch;
-  text-wrap: pretty;
 }
 
-.pillars {
-  padding: 20px 40px 120px;
+.manifestoP,
+.manifestoPEmphasis {
+  margin: 0;
+  font-size: clamp(17px, 1.4vw, 19px);
+  line-height: 1.55;
+}
+
+.manifestoP {
+  color: $text-secondary;
+}
+
+.manifestoPEmphasis {
+  color: $ink-soft;
+}
+
+// ── S2 — Diferenciais ───────────────────────────────────────────────
+.diffSection {
+  padding: 140px 40px 60px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 
   @media (max-width: $sm) {
-    padding: 20px 20px 80px;
+    padding: 96px 20px 40px;
   }
 }
 
-.grid {
+.diff {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(360px, 1fr));
+  gap: 64px;
+  align-items: center;
+  padding: 80px 0;
+
+  @media (max-width: $lg) {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 56px 0;
+  }
+}
+
+.diffBorder {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.diffText {
+  order: 0;
+}
+
+.diffVisual {
+  order: 1;
+}
+
+.diffVisualFirst {
+  order: 2;
+
+  @media (min-width: $lg + 1) {
+    order: -1;
+  }
+}
+
+.diffLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $pink-soft;
+  margin-bottom: 16px;
+}
+
+.diffTitle {
+  margin: 0 0 18px;
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+}
+
+.diffP {
+  margin: 0 0 26px;
+  font-size: 17px;
+  color: $text-secondary;
+  max-width: 48ch;
+}
+
+.diffRow {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+  &:last-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  span:first-child {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: $text-muted;
+  }
+
+  span:last-child {
+    font-size: 15px;
+    line-height: 1.5;
+    color: $ink-soft;
+  }
+}
+
+// ── S3 — Para quem ──────────────────────────────────────────────────
+.audiencesSection {
+  @include section-pad;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.audiencesGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 14px;
 }
 
-.card {
+.audienceCard {
   border-radius: $radius-card;
   border: 1px solid $border;
   background: $surface;
-  padding: 34px 30px;
-  min-height: 280px;
+  padding: 28px 26px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 28px;
+  gap: 20px;
   transition: border-color 0.15s;
 
   &:hover {
@@ -111,73 +215,79 @@
   }
 }
 
-.chipPink,
-.chipViolet {
+.audienceChip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   flex: none;
-}
-
-.chipPink {
   background: rgba(255, 46, 158, 0.08);
   border: 1px solid rgba(255, 46, 158, 0.25);
   color: $pink-soft;
 }
 
-.chipViolet {
-  background: rgba(152, 16, 250, 0.1);
-  border: 1px solid rgba(152, 16, 250, 0.3);
-  color: $violet-soft;
+.audienceTitle {
+  font-size: 19px;
+  font-weight: 800;
+  margin-bottom: 6px;
 }
 
-.cardLabel {
+.audienceText {
+  font-size: 15px;
+  color: $text-secondary;
+}
+
+// ── S4 — Como funciona ──────────────────────────────────────────────
+.howSection {
+  @include section-pad;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.howGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.howCard {
+  border-radius: $radius-card;
+  border: 1px solid $border;
+  background: $surface;
+  padding: 30px 28px;
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.howNum {
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.16em;
-  color: $text-muted;
-  margin-bottom: 12px;
+  letter-spacing: 0.14em;
+  color: $action;
 }
 
-.cardTitle {
+.howCardTitle {
   font-size: 22px;
   font-weight: 800;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
+  margin-bottom: 10px;
 }
 
-.cardLink {
+.howCardText {
+  font-size: 15px;
+  color: $text-secondary;
+}
+
+.howLink {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-top: 18px;
-  font-size: 15px;
-  font-weight: 600;
-  color: $action;
-
-  &:hover {
-    color: $pink-soft;
-  }
-}
-
-.links {
-  margin-top: 48px;
-  border-top: 1px solid $line;
-  padding-top: 28px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 34px;
-}
-
-.link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: #e4e4e7;
 
@@ -188,4 +298,162 @@
   &:hover {
     color: $text-primary;
   }
+}
+
+// ── S6 — Quem faz ───────────────────────────────────────────────────
+.teamSection {
+  @include section-pad;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 64px;
+  align-items: start;
+}
+
+.teamTitle {
+  margin: 0;
+  font-size: clamp(34px, 4.4vw, 56px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+}
+
+.teamText {
+  margin: 0 0 30px;
+  font-size: 18px;
+  line-height: 1.55;
+  color: $text-secondary;
+  max-width: 58ch;
+}
+
+.teamLinks {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 22px;
+}
+
+.teamLink {
+  font-family: 'Space Mono', monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  color: $text-secondary;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.teamLinkSep {
+  color: #3f3f46;
+}
+
+// ── S7 — CTA duplo ──────────────────────────────────────────────────
+.ctaSection {
+  position: relative;
+  padding: 100px 40px 140px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+
+  @media (max-width: $sm) {
+    padding: 64px 20px 96px;
+  }
+}
+
+.ctaGlow {
+  position: absolute;
+  bottom: -200px;
+  right: -100px;
+  width: 700px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, 0.12), transparent 65%);
+  pointer-events: none;
+}
+
+.ctaTitle {
+  margin: 0 auto 44px;
+  max-width: 16ch;
+  text-align: center;
+  font-size: clamp(34px, 4.6vw, 64px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.ctaGrid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+.ctaCard {
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid $border;
+  background: $surface;
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  overflow: hidden;
+}
+
+.ctaCardOrganizer {
+  border-color: rgba(255, 46, 158, 0.55);
+  background: #0c0a0f;
+}
+
+.ctaGlowInner {
+  position: absolute;
+  bottom: -80px;
+  right: -80px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, 0.2), transparent 70%);
+  pointer-events: none;
+}
+
+.ctaCardTitle {
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.ctaCardText {
+  font-size: 16px;
+  color: $text-secondary;
+}
+
+.ctaViewerButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-primary;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover {
+    border-color: $text-primary;
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.ctaOrganizerButton {
+  position: relative;
+  align-self: flex-start;
 }
