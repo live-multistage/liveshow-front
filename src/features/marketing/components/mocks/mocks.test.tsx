@@ -87,6 +87,12 @@ describe('mocks', () => {
     expect(screen.getByText('replay.mock.marker')).toBeInTheDocument();
   });
 
+  it('ReplayMock renders elapsed timestamps, not wall-clock times', () => {
+    render(<ReplayMock />);
+    expect(screen.getByText('00:00:00')).toBeInTheDocument();
+    expect(screen.getByText('03:04:31')).toBeInTheDocument();
+  });
+
   it('HeroPlayerMock compact renders 4 camera buttons and hides Libras', () => {
     render(<HeroPlayerMock compact />);
     expect(screen.getAllByRole('button')).toHaveLength(4);

@@ -2345,7 +2345,6 @@
       "live": "LIVE",
       "event": "State Final · Center Court",
       "cams": "4 cameras",
-      "camsLabel": "CAMERAS",
       "latencyLabel": "CURRENT LATENCY",
       "lowLatency": "LOW LATENCY MODE",
       "digital": "DIGITAL",

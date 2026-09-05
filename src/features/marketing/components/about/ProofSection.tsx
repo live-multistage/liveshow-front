@@ -19,8 +19,10 @@ export async function ProofSection() {
   ]);
 
   // The catalog endpoint already scopes to finished + publicly visible events
-  // (it exists solely to feed replay rails), so no extra client-side filter.
-  if (items.length < MIN_ITEMS) return null;
+  // (it exists solely to feed replay rails). Cards still need an org name to
+  // render, so drop items missing it before checking the minimum.
+  const validItems = items.filter((event) => event.organization?.name);
+  if (validItems.length < MIN_ITEMS) return null;
 
   const dateFormatter = new Intl.DateTimeFormat(DATE_LOCALE[locale] ?? 'pt-BR', {
     day: '2-digit',
@@ -33,14 +35,14 @@ export async function ProofSection() {
       <div className={styles.container}>
         <SectionHeader label={t('proof.label')} title={t('proof.title')} />
         <div className={styles.grid}>
-          {items.slice(0, MAX_CARDS).map((event, i) => {
+          {validItems.slice(0, MAX_CARDS).map((event, i) => {
             const poster = event.thumbnailUrl || event.bannerUrl;
             return (
               <Reveal key={event.id} delay={i * 70}>
                 <Link href={eventHref(event)} className={styles.card}>
                   <div
                     className={styles.poster}
-                    style={poster ? { backgroundImage: `url(${poster})` } : undefined}
+                    style={poster ? { backgroundImage: `url("${encodeURI(poster)}")` } : undefined}
                   >
                     <span className={styles.badge}>{t('proof.badge')}</span>
                     <span className={styles.title}>{event.title}</span>

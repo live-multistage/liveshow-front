@@ -10,7 +10,7 @@ export function ReplayMock() {
         <div className={styles.stageGrid} />
         <span className={styles.badge}>{t('replay.mock.badge')}</span>
         <div className={styles.playButton}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
             <path d="M7 4v16l13-8z" />
           </svg>
         </div>

@@ -15,16 +15,14 @@ import styles from './AboutPageContent.module.scss';
 
 const CONTACT_EMAIL = 'privacidade@showon.io';
 
-const AUDIENCE_ICONS: Record<string, OrganizerIconKey> = {
-  shows: 'music',
-  sports: 'trophy',
-  talks: 'mic',
-  worship: 'church',
-  theater: 'drama',
-  classes: 'book',
-};
-
-const AUDIENCE_KEYS = Object.keys(AUDIENCE_ICONS);
+const AUDIENCES = [
+  { key: 'shows', icon: 'music' },
+  { key: 'sports', icon: 'trophy' },
+  { key: 'talks', icon: 'mic' },
+  { key: 'worship', icon: 'church' },
+  { key: 'theater', icon: 'drama' },
+  { key: 'classes', icon: 'book' },
+] as const satisfies ReadonlyArray<{ key: string; icon: OrganizerIconKey }>;
 
 interface DiffBlockProps {
   label: string;
@@ -130,7 +128,7 @@ export async function AboutPageContent() {
             organizerLabel={organizerLabel}
             viewer={t('diff.items.multicam.viewer')}
             organizer={t('diff.items.multicam.organizer')}
-            visual={<HeroPlayerMock compact />}
+            visual={<HeroPlayerMock compact meta={t('mocks.cams')} />}
           />
 
           <DiffBlock
@@ -189,9 +187,9 @@ export async function AboutPageContent() {
         <div className={styles.container}>
           <SectionHeader label={t('audiences.label')} title={t('audiences.title')} align="center" maxTitleCh={16} />
           <div className={styles.audiencesGrid}>
-            {AUDIENCE_KEYS.map((key, i) => (
+            {AUDIENCES.map(({ key, icon }, i) => (
               <Reveal as="div" key={key} delay={(i % 3) * 90} className={styles.audienceCard}>
-                <span className={styles.audienceChip}>{organizerIcon(AUDIENCE_ICONS[key] as OrganizerIconKey, 18)}</span>
+                <span className={styles.audienceChip}>{organizerIcon(icon, 18)}</span>
                 <div className={styles.audienceTitle}>{t(`audiences.items.${key}.title`)}</div>
                 <div className={styles.audienceText}>{t(`audiences.items.${key}.text`)}</div>
               </Reveal>

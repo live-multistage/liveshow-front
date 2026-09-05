@@ -43,9 +43,10 @@ function prefersReducedMotion(): boolean {
 
 interface HeroPlayerMockProps {
   compact?: boolean;
+  meta?: string;
 }
 
-export function HeroPlayerMock({ compact = false }: HeroPlayerMockProps) {
+export function HeroPlayerMock({ compact = false, meta }: HeroPlayerMockProps) {
   const t = useTranslations('organizersPage');
   const mockCams = t.raw('hero.mock.cams') as Array<{ name: string; meta: string }>;
 
@@ -69,7 +70,7 @@ export function HeroPlayerMock({ compact = false }: HeroPlayerMockProps) {
   const activeCam = CAMS[cam];
   const activeMock = mockCams[cam] ?? { name: '', meta: '' };
   const audioLabel = cam === 2 ? t('hero.mock.audio.narration') : t('hero.mock.audio.ambient');
-  const topMeta = compact ? t('hero.mock.meta').split(' · ')[0] : t('hero.mock.meta');
+  const topMeta = meta ?? (compact ? t('hero.mock.meta').split(' · ')[0] : t('hero.mock.meta'));
 
   return (
     <div className={styles.mockInner}>
