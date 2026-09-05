@@ -1264,7 +1264,66 @@
       "linear_channels": {
         "name": "Canales y programas",
         "description": "Habilita canales lineales y programas (series) en toda la plataforma."
-      }
+      },
+      "mobile_stripe_checkout": {
+        "name": "Checkout Stripe en la app",
+        "description": "Pago con Stripe dentro de las apps iOS y Android (PaymentSheet)."
+      },
+      "push_notifications": {
+        "name": "Notificaciones push",
+        "description": "Avisos de transmisión y repetición enviados a las apps vía Expo Push."
+      },
+      "play_billing": {
+        "name": "Google Play Billing",
+        "description": "Cobro por la tienda en Android, ofrecido junto a Stripe."
+      },
+      "scope": {
+        "all": "Todas las orgs",
+        "admins": "Admins y finanzas",
+        "viewers": "Espectadores",
+        "reserved": "Reservada"
+      },
+      "group": {
+        "player": "PLAYER Y EXPERIENCIA",
+        "account": "CUENTA Y SEGURIDAD",
+        "payments": "PAGOS",
+        "other": "OTRAS"
+      },
+      "badge": {
+        "beta": "BETA",
+        "risky": "AFECTA EL PAGO"
+      },
+      "state": {
+        "on": "ACTIVA",
+        "off": "DESACTIVADA",
+        "pending": "PENDIENTE"
+      },
+      "meta": {
+        "changedOn": "Activada por {who} · {when}",
+        "changedOff": "Desactivada por {who} · {when}",
+        "never": "Nunca modificada"
+      },
+      "confirm": {
+        "title": "Confirmar cambio.",
+        "offText": "Desactivar {name} interrumpe el flujo de pago para quienes estén en medio del checkout.",
+        "onText": "Activar {name} cambia el flujo de pago para todos los espectadores de inmediato.",
+        "off": "Desactivar de todos modos",
+        "on": "Activar de todos modos",
+        "cancel": "Cancelar"
+      },
+      "searchPlaceholder": "Buscar por nombre o clave…",
+      "filters": {
+        "all": "Todas",
+        "on": "Activas",
+        "off": "Desactivadas",
+        "beta": "Beta"
+      },
+      "counters": {
+        "on": "ACTIVAS",
+        "off": "DESACTIVADAS",
+        "beta": "BETA"
+      },
+      "empty": "Ninguna flag coincide con \"{query}\"."
     },
     "adPartnerships": {
       "title": "Alianzas de anuncios",
@@ -1297,6 +1356,51 @@
       "reject": "Rechazar",
       "suspend": "Suspender",
       "reinstate": "Reactivar"
+    },
+    "settings": {
+      "title": "Configuración",
+      "subtitle": "Tarifas y feature flags globales de la plataforma. Cada cambio se registra en el audit log con autor y horario.",
+      "env": "ENV · {env}",
+      "auditLink": "Audit log completo",
+      "fees": {
+        "eyebrow": "PLATFORM-SETTINGS",
+        "title": "Tarifas",
+        "default": {
+          "title": "Tarifa default de la plataforma",
+          "sub": "Comisión sobre ventas · aplica a nuevas organizaciones",
+          "badge": "EDITABLE",
+          "edit": "Editar",
+          "save": "Guardar",
+          "cancel": "Cancelar",
+          "changed": "Modificada por {who} · {when}",
+          "never": "Nunca modificada"
+        },
+        "buyer": {
+          "title": "Tarifa del comprador",
+          "sub": "Sumada en el checkout · definida por entorno",
+          "badge": "SOLO LECTURA",
+          "hint": "Para cambiarla, ajusta la variable en el deploy."
+        }
+      },
+      "flags": {
+        "eyebrow": "FEATURE-FLAGS · GLOBAL",
+        "title": "Feature flags"
+      },
+      "audit": {
+        "eyebrow": "AUDIT LOG · RECIENTE",
+        "all": "Ver todo",
+        "on": "activada",
+        "off": "desactivada",
+        "feeChanged": "cambiada a {to}",
+        "feeChangedFrom": "cambiada {from} → {to}",
+        "feeOverride": "override de tarifa"
+      },
+      "how": {
+        "eyebrow": "CÓMO FUNCIONA",
+        "text": "Las flags globales aplican a todas las organizaciones. Los cambios entran en vigor en hasta 60 segundos y no requieren deploy. Las flags marcadas como {risky} piden confirmación.",
+        "risky": "afecta el pago",
+        "link": "Overrides por organización"
+      }
     }
   },
   "reports": {

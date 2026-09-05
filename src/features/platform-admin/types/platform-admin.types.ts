@@ -172,6 +172,14 @@ export interface ImpersonationSession {
   target: { id: string; email: string; displayName: string; role: PlatformRole };
 }
 
+// GET /platform-settings. cartTaxRate is being added by the backend (T1);
+// until that deploy lands it may be missing at runtime even though the type
+// says number — render "—" wherever it's not Number.isFinite().
+export interface PlatformSettingsView {
+  defaultFeeRate: number;
+  cartTaxRate: number;
+}
+
 // Audit trail entry (GET /platform-admin/audit).
 export interface AuditLogEntry {
   id: string;

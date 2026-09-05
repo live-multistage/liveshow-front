@@ -30,6 +30,7 @@ import type {
   PlatformReportsResult,
   ReportStatus,
   OrganizerApplicationAdmin,
+  PlatformSettingsView,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
@@ -62,13 +63,13 @@ export const platformAdminService = {
     return data;
   },
 
-  getPlatformSettings: async (): Promise<{ defaultFeeRate: number }> => {
-    const { data } = await httpClient.get<{ defaultFeeRate: number }>('/platform-settings');
+  getPlatformSettings: async (): Promise<PlatformSettingsView> => {
+    const { data } = await httpClient.get<PlatformSettingsView>('/platform-settings');
     return data;
   },
 
-  setDefaultFeeRate: async (rate: number): Promise<{ defaultFeeRate: number }> => {
-    const { data } = await httpClient.patch<{ defaultFeeRate: number }>('/platform-settings/default-fee-rate', { rate });
+  setDefaultFeeRate: async (rate: number): Promise<PlatformSettingsView> => {
+    const { data } = await httpClient.patch<PlatformSettingsView>('/platform-settings/default-fee-rate', { rate });
     return data;
   },
 

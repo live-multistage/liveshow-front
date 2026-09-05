@@ -1264,7 +1264,66 @@
       "linear_channels": {
         "name": "Canais e programas",
         "description": "Habilita canais lineares e programas (séries) em toda a plataforma."
-      }
+      },
+      "mobile_stripe_checkout": {
+        "name": "Checkout Stripe no app",
+        "description": "Pagamento com Stripe dentro dos apps iOS e Android (PaymentSheet)."
+      },
+      "push_notifications": {
+        "name": "Notificações push",
+        "description": "Avisos de transmissão e replay enviados aos apps via Expo Push."
+      },
+      "play_billing": {
+        "name": "Google Play Billing",
+        "description": "Cobrança pela loja no Android, oferecida ao lado do Stripe."
+      },
+      "scope": {
+        "all": "Todas as orgs",
+        "admins": "Admins e financeiro",
+        "viewers": "Espectadores",
+        "reserved": "Reservada"
+      },
+      "group": {
+        "player": "PLAYER & EXPERIÊNCIA",
+        "account": "CONTA & SEGURANÇA",
+        "payments": "PAGAMENTOS",
+        "other": "OUTRAS"
+      },
+      "badge": {
+        "beta": "BETA",
+        "risky": "IMPACTA PAGAMENTO"
+      },
+      "state": {
+        "on": "ATIVA",
+        "off": "DESLIGADA",
+        "pending": "PENDENTE"
+      },
+      "meta": {
+        "changedOn": "Ativada por {who} · {when}",
+        "changedOff": "Desligada por {who} · {when}",
+        "never": "Nunca alterada"
+      },
+      "confirm": {
+        "title": "Confirmar alteração.",
+        "offText": "Desligar {name} interrompe o fluxo de pagamento para quem estiver no meio do checkout.",
+        "onText": "Ativar {name} muda o fluxo de pagamento para todos os espectadores imediatamente.",
+        "off": "Desligar mesmo assim",
+        "on": "Ativar mesmo assim",
+        "cancel": "Cancelar"
+      },
+      "searchPlaceholder": "Buscar por nome ou chave…",
+      "filters": {
+        "all": "Todas",
+        "on": "Ativas",
+        "off": "Desligadas",
+        "beta": "Beta"
+      },
+      "counters": {
+        "on": "ATIVAS",
+        "off": "DESLIGADAS",
+        "beta": "BETA"
+      },
+      "empty": "Nenhuma flag corresponde a \"{query}\"."
     },
     "adPartnerships": {
       "title": "Parcerias de anúncios",
@@ -1297,6 +1356,51 @@
       "reject": "Rejeitar",
       "suspend": "Suspender",
       "reinstate": "Reativar"
+    },
+    "settings": {
+      "title": "Configurações",
+      "subtitle": "Taxas e feature flags globais da plataforma. Cada alteração é registrada no audit log com autor e horário.",
+      "env": "ENV · {env}",
+      "auditLink": "Audit log completo",
+      "fees": {
+        "eyebrow": "PLATFORM-SETTINGS",
+        "title": "Taxas",
+        "default": {
+          "title": "Taxa default da plataforma",
+          "sub": "Comissão sobre vendas · aplica a novas organizações",
+          "badge": "EDITÁVEL",
+          "edit": "Alterar",
+          "save": "Salvar",
+          "cancel": "Cancelar",
+          "changed": "Alterada por {who} · {when}",
+          "never": "Nunca alterada"
+        },
+        "buyer": {
+          "title": "Taxa do comprador",
+          "sub": "Acrescida no checkout · definida por ambiente",
+          "badge": "SOMENTE LEITURA",
+          "hint": "Para alterar, ajuste a variável no deploy."
+        }
+      },
+      "flags": {
+        "eyebrow": "FEATURE-FLAGS · GLOBAL",
+        "title": "Feature flags"
+      },
+      "audit": {
+        "eyebrow": "AUDIT LOG · RECENTE",
+        "all": "Ver tudo",
+        "on": "ativada",
+        "off": "desligada",
+        "feeChanged": "alterada para {to}",
+        "feeChangedFrom": "alterada {from} → {to}",
+        "feeOverride": "override de taxa"
+      },
+      "how": {
+        "eyebrow": "COMO FUNCIONA",
+        "text": "Flags globais valem para todas as organizações. Alterações entram em vigor em até 60 segundos e não exigem deploy. Flags marcadas como {risky} pedem confirmação.",
+        "risky": "impacta pagamento",
+        "link": "Overrides por organização"
+      }
     }
   },
   "reports": {

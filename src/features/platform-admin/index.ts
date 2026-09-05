@@ -41,4 +41,16 @@ export { useAddOrgMemberMutation } from './mutations/add-org-member.mutation';
 export { useChangeOrgMemberRoleMutation } from './mutations/change-org-member-role.mutation';
 export { AddOrgMemberDialog } from './components/AddOrgMemberDialog';
 export { RolePill } from './components/RolePill';
+export { FLAG_CATALOG, FLAG_GROUP_ORDER, flagMeta } from './data/flag-catalog';
+export type { FlagGroup, FlagMeta } from './data/flag-catalog';
+export {
+  usePlatformSettingsQuery,
+  useSetDefaultFeeRateMutation,
+  useGlobalFlagsQuery,
+  useSetGlobalFlagMutation,
+  useFlagAuditQuery,
+  useSettingsAuditQuery,
+  lastFlagChange,
+  isSettingsAuditEntry,
+} from './queries/get-settings';
 export type * from './types/platform-admin.types';

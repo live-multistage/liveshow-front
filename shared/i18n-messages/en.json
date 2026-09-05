@@ -1264,7 +1264,66 @@
       "linear_channels": {
         "name": "Channels & series",
         "description": "Enables linear channels and series across the platform."
-      }
+      },
+      "mobile_stripe_checkout": {
+        "name": "In-app Stripe checkout",
+        "description": "Stripe payment inside the iOS and Android apps (PaymentSheet)."
+      },
+      "push_notifications": {
+        "name": "Push notifications",
+        "description": "Broadcast and replay alerts sent to the apps via Expo Push."
+      },
+      "play_billing": {
+        "name": "Google Play Billing",
+        "description": "Store billing on Android, offered alongside Stripe."
+      },
+      "scope": {
+        "all": "All orgs",
+        "admins": "Admins & finance",
+        "viewers": "Viewers",
+        "reserved": "Reserved"
+      },
+      "group": {
+        "player": "PLAYER & EXPERIENCE",
+        "account": "ACCOUNT & SECURITY",
+        "payments": "PAYMENTS",
+        "other": "OTHER"
+      },
+      "badge": {
+        "beta": "BETA",
+        "risky": "AFFECTS PAYMENT"
+      },
+      "state": {
+        "on": "ON",
+        "off": "OFF",
+        "pending": "PENDING"
+      },
+      "meta": {
+        "changedOn": "Enabled by {who} · {when}",
+        "changedOff": "Disabled by {who} · {when}",
+        "never": "Never changed"
+      },
+      "confirm": {
+        "title": "Confirm change.",
+        "offText": "Turning off {name} interrupts the payment flow for anyone mid-checkout.",
+        "onText": "Turning on {name} changes the payment flow for all viewers immediately.",
+        "off": "Turn off anyway",
+        "on": "Turn on anyway",
+        "cancel": "Cancel"
+      },
+      "searchPlaceholder": "Search by name or key…",
+      "filters": {
+        "all": "All",
+        "on": "On",
+        "off": "Off",
+        "beta": "Beta"
+      },
+      "counters": {
+        "on": "ON",
+        "off": "OFF",
+        "beta": "BETA"
+      },
+      "empty": "No flag matches \"{query}\"."
     },
     "adPartnerships": {
       "title": "Ad partnerships",
@@ -1297,6 +1356,51 @@
       "reject": "Reject",
       "suspend": "Suspend",
       "reinstate": "Reinstate"
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Platform-wide fees and feature flags. Every change is recorded in the audit log with author and time.",
+      "env": "ENV · {env}",
+      "auditLink": "Full audit log",
+      "fees": {
+        "eyebrow": "PLATFORM-SETTINGS",
+        "title": "Fees",
+        "default": {
+          "title": "Platform default fee",
+          "sub": "Commission on sales · applies to new organizations",
+          "badge": "EDITABLE",
+          "edit": "Edit",
+          "save": "Save",
+          "cancel": "Cancel",
+          "changed": "Changed by {who} · {when}",
+          "never": "Never changed"
+        },
+        "buyer": {
+          "title": "Buyer fee",
+          "sub": "Added at checkout · set by environment",
+          "badge": "READ ONLY",
+          "hint": "To change it, adjust the environment variable at deploy."
+        }
+      },
+      "flags": {
+        "eyebrow": "FEATURE-FLAGS · GLOBAL",
+        "title": "Feature flags"
+      },
+      "audit": {
+        "eyebrow": "AUDIT LOG · RECENT",
+        "all": "View all",
+        "on": "enabled",
+        "off": "disabled",
+        "feeChanged": "changed to {to}",
+        "feeChangedFrom": "changed {from} → {to}",
+        "feeOverride": "fee override"
+      },
+      "how": {
+        "eyebrow": "HOW IT WORKS",
+        "text": "Global flags apply to all organizations. Changes take effect within 60 seconds and require no deploy. Flags marked as {risky} require confirmation.",
+        "risky": "affects payment",
+        "link": "Per-organization overrides"
+      }
     }
   },
   "reports": {
