@@ -1,0 +1,191 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.page {
+  background: $bg;
+  color: $text-primary;
+  overflow-x: clip;
+}
+
+.container {
+  @include container;
+  position: relative;
+}
+
+.hero {
+  position: relative;
+  padding: clamp(90px, 13vh, 150px) 40px 80px;
+  overflow: hidden;
+
+  @media (max-width: $sm) {
+    padding: 96px 20px 56px;
+  }
+}
+
+.glowTop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 55% at 50% 0%, rgba(255, 46, 158, 0.16), transparent 70%),
+    radial-gradient(45% 40% at 85% 40%, rgba(152, 16, 250, 0.1), transparent 70%);
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  top: -220px;
+  left: 50%;
+  width: 900px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, 0.1), transparent 62%);
+  transform: translateX(-50%);
+  animation: poDrift 16s ease-in-out infinite;
+  pointer-events: none;
+
+  @include reduced-motion {
+    animation: none;
+  }
+}
+
+.label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: $pink-soft;
+  margin-bottom: 26px;
+}
+
+.title {
+  margin: 0 0 26px;
+  font-size: clamp(40px, 5.8vw, 80px);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  max-width: 17ch;
+  text-wrap: balance;
+}
+
+.accent {
+  color: $action;
+}
+
+.text {
+  margin: 0;
+  font-size: clamp(17px, 1.5vw, 21px);
+  line-height: 1.5;
+  color: $text-secondary;
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+
+.pillars {
+  padding: 20px 40px 120px;
+
+  @media (max-width: $sm) {
+    padding: 20px 20px 80px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  border-radius: $radius-card;
+  border: 1px solid $border;
+  background: $surface;
+  padding: 34px 30px;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: $action;
+  }
+}
+
+.chipPink,
+.chipViolet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  flex: none;
+}
+
+.chipPink {
+  background: rgba(255, 46, 158, 0.08);
+  border: 1px solid rgba(255, 46, 158, 0.25);
+  color: $pink-soft;
+}
+
+.chipViolet {
+  background: rgba(152, 16, 250, 0.1);
+  border: 1px solid rgba(152, 16, 250, 0.3);
+  color: $violet-soft;
+}
+
+.cardLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $text-muted;
+  margin-bottom: 12px;
+}
+
+.cardTitle {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.cardLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  font-size: 15px;
+  font-weight: 600;
+  color: $action;
+
+  &:hover {
+    color: $pink-soft;
+  }
+}
+
+.links {
+  margin-top: 48px;
+  border-top: 1px solid $line;
+  padding-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 34px;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #e4e4e7;
+
+  span {
+    color: $action;
+  }
+
+  &:hover {
+    color: $text-primary;
+  }
+}

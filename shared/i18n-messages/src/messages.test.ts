@@ -47,3 +47,7 @@ test('organizers page keys exist', () => {
   expect(messages.pt.nav.organizers).toBe('Para organizadores');
   expect(messages.pt.organizersPage.faq.items.length).toBe(8);
 });
+
+test('about page keys exist', () => {
+  expect(messages.pt.aboutPage.meta.title).toBe('Sobre');
+});

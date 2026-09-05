@@ -23,6 +23,7 @@ import {
   FileText,
   Table,
   Megaphone,
+  Server,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -49,7 +50,8 @@ export type OrganizerIconKey =
   | 'eye'
   | 'file'
   | 'ledger'
-  | 'ads';
+  | 'ads'
+  | 'server';
 
 const ICONS: Record<OrganizerIconKey, LucideIcon> = {
   music: Music,
@@ -75,6 +77,7 @@ const ICONS: Record<OrganizerIconKey, LucideIcon> = {
   file: FileText,
   ledger: Table,
   ads: Megaphone,
+  server: Server,
 };
 
 export function organizerIcon(key: OrganizerIconKey, size = 18): ReactNode {

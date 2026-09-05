@@ -2268,5 +2268,38 @@
       "helpLink": "Ainda tem dúvidas? Fale com a gente",
       "watermark": "AO VIVO"
     }
+  },
+  "aboutPage": {
+    "meta": {
+      "title": "Sobre",
+      "description": "Uma plataforma para quem produz e para quem assiste: transmissão multicâmera, ingressos digitais e presenciais, replay e programação, tudo em um só lugar."
+    },
+    "hero": {
+      "label": "SOBRE",
+      "title": "A showon.io é onde eventos ao vivo",
+      "titleAccent": "acontecem online.",
+      "text": "Uma plataforma para quem produz e para quem assiste: transmissão multicâmera, ingressos digitais e presenciais, replay e programação, tudo em um só lugar."
+    },
+    "pillars": {
+      "viewers": {
+        "label": "PARA QUEM ASSISTE",
+        "title": "Compre o ingresso, escolha a câmera, assista ao vivo ou no replay."
+      },
+      "organizers": {
+        "label": "PARA QUEM ORGANIZA",
+        "title": "Transmita com o equipamento que já tem, venda ingressos e receba direto na sua conta.",
+        "link": "Para organizadores"
+      },
+      "tech": {
+        "label": "TECNOLOGIA PRÓPRIA",
+        "title": "Infraestrutura de transmissão desenvolvida pela própria plataforma, pensada para eventos ao vivo com várias câmeras."
+      }
+    },
+    "links": {
+      "organizers": "Para organizadores",
+      "help": "Central de ajuda",
+      "contact": "Contato",
+      "privacy": "Privacidade"
+    }
   }
 }

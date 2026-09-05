@@ -2268,5 +2268,38 @@
       "helpLink": "¿Aún tienes dudas? Habla con nosotros",
       "watermark": "EN VIVO"
     }
+  },
+  "aboutPage": {
+    "meta": {
+      "title": "Sobre nosotros",
+      "description": "Una plataforma para quien produce y para quien mira: transmisión multicámara, entradas digitales y presenciales, repetición y programación, todo en un solo lugar."
+    },
+    "hero": {
+      "label": "SOBRE NOSOTROS",
+      "title": "showon.io es donde los eventos en vivo",
+      "titleAccent": "suceden en línea.",
+      "text": "Una plataforma para quien produce y para quien mira: transmisión multicámara, entradas digitales y presenciales, repetición y programación, todo en un solo lugar."
+    },
+    "pillars": {
+      "viewers": {
+        "label": "PARA QUIENES MIRAN",
+        "title": "Compra la entrada, elige la cámara, mira en vivo o en repetición."
+      },
+      "organizers": {
+        "label": "PARA QUIENES ORGANIZAN",
+        "title": "Transmite con el equipo que ya tienes, vende entradas y recibe el pago directo en tu cuenta.",
+        "link": "Para organizadores"
+      },
+      "tech": {
+        "label": "TECNOLOGÍA PROPIA",
+        "title": "Infraestructura de transmisión desarrollada por la propia plataforma, pensada para eventos en vivo con varias cámaras."
+      }
+    },
+    "links": {
+      "organizers": "Para organizadores",
+      "help": "Centro de ayuda",
+      "contact": "Contacto",
+      "privacy": "Privacidad"
+    }
   }
 }

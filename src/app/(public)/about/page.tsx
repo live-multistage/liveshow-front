@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
-import styles from './page.module.scss';
+import { getTranslations } from 'next-intl/server';
+import { AboutPageContent } from '@/features/marketing/components/about/AboutPageContent';
 
-export const metadata: Metadata = { title: 'Sobre' };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('aboutPage');
+  return {
+    title: t('meta.title'),
+    description: t('meta.description'),
+    alternates: { canonical: '/about' },
+  };
+}
 
 export default function AboutPage() {
-  return (
-    <div className={styles.page}>
-      <h1 className={styles.title}>About</h1>
-    </div>
-  );
+  return <AboutPageContent />;
 }

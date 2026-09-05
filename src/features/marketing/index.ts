@@ -7,3 +7,4 @@ export type { OrganizerCtaSize } from './components/shared/OrganizerCtaLink';
 export { organizerIcon } from './data/organizers-icons';
 export type { OrganizerIconKey } from './data/organizers-icons';
 export { ORGANIZATION_CREATE_PATH, organizerCtaHref } from './constants';
+export { AboutPageContent } from './components/about/AboutPageContent';

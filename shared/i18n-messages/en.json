@@ -2268,5 +2268,38 @@
       "helpLink": "Still have questions? Talk to us",
       "watermark": "LIVE"
     }
+  },
+  "aboutPage": {
+    "meta": {
+      "title": "About",
+      "description": "A platform for producers and viewers alike: multi-camera streaming, digital and in-person tickets, replay, and scheduling, all in one place."
+    },
+    "hero": {
+      "label": "ABOUT",
+      "title": "showon.io is where live events",
+      "titleAccent": "happen online.",
+      "text": "A platform for producers and viewers alike: multi-camera streaming, digital and in-person tickets, replay, and scheduling, all in one place."
+    },
+    "pillars": {
+      "viewers": {
+        "label": "FOR VIEWERS",
+        "title": "Buy the ticket, pick the camera, watch live or on replay."
+      },
+      "organizers": {
+        "label": "FOR ORGANIZERS",
+        "title": "Stream with the equipment you already have, sell tickets, and get paid straight to your account.",
+        "link": "For organizers"
+      },
+      "tech": {
+        "label": "OUR OWN TECHNOLOGY",
+        "title": "Streaming infrastructure built in-house by the platform, designed for live events with multiple cameras."
+      }
+    },
+    "links": {
+      "organizers": "For organizers",
+      "help": "Help center",
+      "contact": "Contact",
+      "privacy": "Privacy"
+    }
   }
 }
