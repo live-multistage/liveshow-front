@@ -5,7 +5,8 @@ import { AboutPageContent } from '@/features/marketing/components/about/AboutPag
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('aboutPage');
   const title = t('meta.title');
-  const description = t('meta.description');
+  const manifesto = t.raw('hero.manifesto') as string[];
+  const description = manifesto[0];
   return {
     title,
     description,

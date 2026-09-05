@@ -2163,12 +2163,12 @@
       "title": "O evento continua rendendo depois do fim.",
       "bullets": [
         "Replay disponível logo após a transmissão, com todas as câmeras.",
-        "Linha do tempo real: o espectador navega pelo horário em que as coisas aconteceram.",
+        "Linha do tempo da transmissão inteira: o espectador volta pro momento que quiser.",
         "Catálogo sob demanda para quem quer assistir depois."
       ],
       "mock": {
         "badge": "REPLAY",
-        "marker": "20:47:12 · 2º SET"
+        "marker": "01:47:12 · 2º SET"
       }
     },
     "management": {
@@ -2293,34 +2293,144 @@
   "aboutPage": {
     "meta": {
       "title": "Sobre",
-      "description": "Uma plataforma para quem produz e para quem assiste: transmissão multicâmera, ingressos digitais e presenciais, replay e programação, tudo em um só lugar."
+      "description": "Evento ao vivo na internet ainda é uma câmera fixa, um link e torcer pra não travar. Quem assiste não escolhe nada. Quem organiza não sabe quem está assistindo nem quanto vai receber."
     },
     "hero": {
       "label": "SOBRE",
       "title": "A showon.io é onde eventos ao vivo",
       "titleAccent": "acontecem online.",
-      "text": "Uma plataforma para quem produz e para quem assiste: transmissão multicâmera, ingressos digitais e presenciais, replay e programação, tudo em um só lugar."
+      "manifesto": [
+        "Evento ao vivo na internet ainda é uma câmera fixa, um link e torcer pra não travar. Quem assiste não escolhe nada. Quem organiza não sabe quem está assistindo nem quanto vai receber.",
+        "A showon.io devolve o controle. Para o público: escolha de câmera, de áudio, replay com a linha do tempo da transmissão inteira. Para quem organiza: transmissão com o equipamento que já tem, ingresso digital e presencial no mesmo lugar, dinheiro direto na conta.",
+        "Shows, jogos, conferências, cultos, peças, aulas. Se acontece ao vivo, cabe aqui."
+      ]
     },
-    "pillars": {
-      "viewers": {
-        "label": "PARA QUEM ASSISTE",
-        "title": "Compre o ingresso, escolha a câmera, assista ao vivo ou no replay."
-      },
-      "organizers": {
-        "label": "PARA QUEM ORGANIZA",
-        "title": "Transmita com o equipamento que já tem, venda ingressos e receba direto na sua conta.",
-        "link": "Para organizadores"
-      },
-      "tech": {
-        "label": "TECNOLOGIA PRÓPRIA",
-        "title": "Infraestrutura de transmissão desenvolvida pela própria plataforma, pensada para eventos ao vivo com várias câmeras."
+    "diff": {
+      "label": "DIFERENCIAIS",
+      "title": "Não é só uma transmissão. É o evento inteiro.",
+      "viewerLabel": "QUEM ASSISTE",
+      "organizerLabel": "QUEM ORGANIZA",
+      "items": {
+        "multicam": {
+          "label": "MULTICÂMERA",
+          "title": "Multicâmera nas mãos do público.",
+          "text": "O organizador envia quantas câmeras quiser. O espectador troca de ângulo quando quiser, ao vivo e no replay. Nenhum diretor decide por ele.",
+          "viewer": "Palco, plateia, bastidor, o ângulo que você escolher.",
+          "organizer": "Saiba qual câmera o público mais assistiu e planeje a próxima transmissão com dado."
+        },
+        "latency": {
+          "label": "BAIXA LATÊNCIA",
+          "title": "Latência de TV, não de internet.",
+          "text": "Modo baixa latência entrega a transmissão em 2 a 4 segundos. Gol, refrão, aplauso: o público reage junto, não depois.",
+          "viewer": "Chat e transmissão no mesmo tempo.",
+          "organizer": "Escolha por evento: padrão para shows, baixa latência para esportes e interação."
+        },
+        "replay": {
+          "label": "REPLAY",
+          "title": "Replay que respeita o tempo real.",
+          "text": "A gravação nasce junto com a transmissão. A linha do tempo é a da transmissão inteira, do início ao fim: quem perdeu o começo volta pro momento certo.",
+          "viewer": "Assista depois, no seu ritmo, com as mesmas câmeras da transmissão.",
+          "organizer": "Venda o replay como ingresso separado e continue faturando depois do fim."
+        },
+        "tickets": {
+          "label": "INGRESSOS",
+          "title": "Um ingresso, dois mundos.",
+          "text": "Digital para quem assiste de casa, presencial com QR para quem vai ao local. Mesma venda, mesmo relatório, mesma equipe fazendo check-in pelo celular.",
+          "viewer": "Compre no navegador, sem instalar nada, e entre com um toque.",
+          "organizer": "Sem limite de lotação digital. Cupons, evento gratuito, colaboração entre organizações."
+        }
       }
     },
-    "links": {
-      "organizers": "Para organizadores",
-      "help": "Central de ajuda",
-      "contact": "Contato",
-      "privacy": "Privacidade"
+    "mocks": {
+      "live": "LIVE",
+      "event": "Final Estadual · Quadra Central",
+      "cams": "4 câmeras",
+      "camsLabel": "CÂMERAS",
+      "latencyLabel": "LATÊNCIA ATUAL",
+      "lowLatency": "MODO BAIXA LATÊNCIA",
+      "digital": "DIGITAL",
+      "physical": "PRESENCIAL",
+      "gate": "PORTÃO B",
+      "access": "Acesso",
+      "watch": "Assistir",
+      "ticketDate": "SÁB 21 SET · 19:00"
+    },
+    "audiences": {
+      "label": "PARA QUEM",
+      "title": "Se acontece ao vivo, cabe aqui.",
+      "items": {
+        "shows": {
+          "title": "Shows e festivais.",
+          "text": "Várias câmeras no palco e na plateia, replay vendido depois."
+        },
+        "sports": {
+          "title": "Esportes e ligas.",
+          "text": "Baixa latência, canal com a temporada inteira, câmera por quadra."
+        },
+        "talks": {
+          "title": "Conferências e palestras.",
+          "text": "Múltiplos áudios para idioma ou narração, janela de Libras."
+        },
+        "worship": {
+          "title": "Cultos e celebrações.",
+          "text": "Programação recorrente toda semana, gratuito ou com contribuição."
+        },
+        "theater": {
+          "title": "Teatro e dança.",
+          "text": "Ingresso presencial e digital na mesma sessão."
+        },
+        "classes": {
+          "title": "Aulas e workshops.",
+          "text": "Gravação automática vira acervo sob demanda."
+        }
+      }
+    },
+    "how": {
+      "label": "COMO FUNCIONA",
+      "title": "Três passos. Nenhum app.",
+      "link": "Ver programação",
+      "steps": [
+        {
+          "title": "Compre o ingresso.",
+          "text": "Cartão de crédito ou débito, no navegador. O ingresso fica na sua conta."
+        },
+        {
+          "title": "Assista com controle.",
+          "text": "Câmera, áudio e tela cheia são suas escolhas. No computador ou no celular."
+        },
+        {
+          "title": "Reveja quando quiser.",
+          "text": "Replay com a linha do tempo da transmissão inteira, com as mesmas câmeras."
+        }
+      ]
+    },
+    "proof": {
+      "label": "QUEM JÁ TRANSMITE",
+      "title": "Eventos que já aconteceram aqui.",
+      "badge": "REPLAY"
+    },
+    "team": {
+      "label": "QUEM FAZ",
+      "title": "Feita no Brasil para eventos ao vivo.",
+      "text": "A showon.io é desenvolvida por um time pequeno que constrói a própria infraestrutura de transmissão: ingestão, múltiplas câmeras, empacotamento, replay e entrega. Nada de revender player de terceiro. Quando algo precisa melhorar, a gente muda o código.",
+      "links": {
+        "help": "Central de ajuda",
+        "contact": "Contato",
+        "privacy": "Privacidade"
+      }
+    },
+    "cta": {
+      "title": "Do lado de quem assiste ou de quem faz?",
+      "viewer": {
+        "title": "Quero assistir.",
+        "text": "Veja o que está no ar e o que vem por aí.",
+        "button": "Ver programação"
+      },
+      "organizer": {
+        "title": "Quero organizar.",
+        "text": "Transmita, venda e receba no mesmo lugar.",
+        "button": "Para organizadores"
+      }
     }
   }
 }

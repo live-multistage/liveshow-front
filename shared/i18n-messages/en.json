@@ -2163,12 +2163,12 @@
       "title": "The event keeps paying off after it ends.",
       "bullets": [
         "Replay available right after the stream, with every camera.",
-        "Real timeline: viewers jump straight to the moment things happened.",
+        "The full broadcast timeline: viewers jump back to whichever moment they want.",
         "On-demand catalog for people who want to watch later."
       ],
       "mock": {
         "badge": "REPLAY",
-        "marker": "8:47:12 PM · 2ND SET"
+        "marker": "01:47:12 · 2ND SET"
       }
     },
     "management": {
@@ -2293,34 +2293,144 @@
   "aboutPage": {
     "meta": {
       "title": "About",
-      "description": "A platform for producers and viewers alike: multi-camera streaming, digital and in-person tickets, replay, and scheduling, all in one place."
+      "description": "A live event on the internet is still a fixed camera, a link, and hoping it doesn't crash. Viewers don't get to choose anything. Organizers don't know who's watching or how much they'll get paid."
     },
     "hero": {
       "label": "ABOUT",
       "title": "showon.io is where live events",
       "titleAccent": "happen online.",
-      "text": "A platform for producers and viewers alike: multi-camera streaming, digital and in-person tickets, replay, and scheduling, all in one place."
+      "manifesto": [
+        "A live event on the internet is still a fixed camera, a link, and hoping it doesn't crash. Viewers don't get to choose anything. Organizers don't know who's watching or how much they'll get paid.",
+        "showon.io gives control back. For the audience: pick your camera, pick your audio, replay with the full broadcast timeline. For organizers: stream with the equipment you already have, digital and in-person tickets in the same place, money straight to your account.",
+        "Concerts, games, conferences, church services, plays, classes. If it happens live, it fits here."
+      ]
     },
-    "pillars": {
-      "viewers": {
-        "label": "FOR VIEWERS",
-        "title": "Buy the ticket, pick the camera, watch live or on replay."
-      },
-      "organizers": {
-        "label": "FOR ORGANIZERS",
-        "title": "Stream with the equipment you already have, sell tickets, and get paid straight to your account.",
-        "link": "For organizers"
-      },
-      "tech": {
-        "label": "OUR OWN TECHNOLOGY",
-        "title": "Streaming infrastructure built in-house by the platform, designed for live events with multiple cameras."
+    "diff": {
+      "label": "DIFFERENCES",
+      "title": "It's not just a stream. It's the whole event.",
+      "viewerLabel": "FOR VIEWERS",
+      "organizerLabel": "FOR ORGANIZERS",
+      "items": {
+        "multicam": {
+          "label": "MULTI-CAMERA",
+          "title": "Multi-camera, in the audience's hands.",
+          "text": "The organizer sends as many cameras as they want. The viewer switches angles whenever they want, live and on replay. No director decides for them.",
+          "viewer": "Stage, crowd, backstage — whichever angle you pick.",
+          "organizer": "Know which camera the audience watched most and plan your next stream with data."
+        },
+        "latency": {
+          "label": "LOW LATENCY",
+          "title": "TV latency, not internet latency.",
+          "text": "Low-latency mode delivers the stream in 2 to 4 seconds. A goal, a chorus, an applause: the audience reacts together, not later.",
+          "viewer": "Chat and stream in the same moment.",
+          "organizer": "Choose per event: standard for concerts, low latency for sports and interaction."
+        },
+        "replay": {
+          "label": "REPLAY",
+          "title": "Replay that respects real time.",
+          "text": "The recording is born together with the stream. The timeline covers the full broadcast, start to finish: anyone who missed the start can jump back to the right moment.",
+          "viewer": "Watch later, at your own pace, with the same cameras from the broadcast.",
+          "organizer": "Sell the replay as a separate ticket and keep earning after the event ends."
+        },
+        "tickets": {
+          "label": "TICKETS",
+          "title": "One ticket, two worlds.",
+          "text": "Digital for those watching from home, in-person with a QR code for those attending the venue. Same sale, same report, same team checking people in from their phone.",
+          "viewer": "Buy from the browser, no install needed, and get in with a tap.",
+          "organizer": "No cap on digital capacity. Coupons, free events, collaboration between organizations."
+        }
       }
     },
-    "links": {
-      "organizers": "For organizers",
-      "help": "Help center",
-      "contact": "Contact",
-      "privacy": "Privacy"
+    "mocks": {
+      "live": "LIVE",
+      "event": "State Final · Center Court",
+      "cams": "4 cameras",
+      "camsLabel": "CAMERAS",
+      "latencyLabel": "CURRENT LATENCY",
+      "lowLatency": "LOW LATENCY MODE",
+      "digital": "DIGITAL",
+      "physical": "IN PERSON",
+      "gate": "GATE B",
+      "access": "Access",
+      "watch": "Watch",
+      "ticketDate": "SAT SEP 21 · 7:00 PM"
+    },
+    "audiences": {
+      "label": "WHO IT'S FOR",
+      "title": "If it happens live, it fits here.",
+      "items": {
+        "shows": {
+          "title": "Concerts and festivals.",
+          "text": "Multiple cameras on stage and in the crowd, replay sold afterward."
+        },
+        "sports": {
+          "title": "Sports and leagues.",
+          "text": "Low latency, a channel with the whole season, one camera per court."
+        },
+        "talks": {
+          "title": "Conferences and talks.",
+          "text": "Multiple audio tracks for language or narration, a Libras (Brazilian Sign Language) window."
+        },
+        "worship": {
+          "title": "Church services and celebrations.",
+          "text": "Weekly recurring schedule, free or with contributions."
+        },
+        "theater": {
+          "title": "Theater and dance.",
+          "text": "In-person and digital tickets for the same session."
+        },
+        "classes": {
+          "title": "Classes and workshops.",
+          "text": "Automatic recording becomes an on-demand library."
+        }
+      }
+    },
+    "how": {
+      "label": "HOW IT WORKS",
+      "title": "Three steps. No app.",
+      "link": "See the schedule",
+      "steps": [
+        {
+          "title": "Buy the ticket.",
+          "text": "Credit or debit card, right in the browser. The ticket stays in your account."
+        },
+        {
+          "title": "Watch with control.",
+          "text": "Camera, audio, and full screen are your choices. On computer or on phone."
+        },
+        {
+          "title": "Rewatch whenever you want.",
+          "text": "Replay with the full broadcast timeline, with the same cameras."
+        }
+      ]
+    },
+    "proof": {
+      "label": "WHO'S ALREADY STREAMING",
+      "title": "Events that have already happened here.",
+      "badge": "REPLAY"
+    },
+    "team": {
+      "label": "WHO MAKES IT",
+      "title": "Made in Brazil for live events.",
+      "text": "showon.io is built by a small team that builds its own streaming infrastructure: ingest, multiple cameras, packaging, replay, and delivery. No reselling a third-party player. When something needs to get better, we change the code.",
+      "links": {
+        "help": "Help center",
+        "contact": "Contact",
+        "privacy": "Privacy"
+      }
+    },
+    "cta": {
+      "title": "On the side of watching, or of making it happen?",
+      "viewer": {
+        "title": "I want to watch.",
+        "text": "See what's live now and what's coming up.",
+        "button": "See the schedule"
+      },
+      "organizer": {
+        "title": "I want to organize.",
+        "text": "Stream, sell, and get paid all in one place.",
+        "button": "For organizers"
+      }
     }
   }
 }

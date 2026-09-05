@@ -2163,12 +2163,12 @@
       "title": "El evento sigue rindiendo después de terminar.",
       "bullets": [
         "Replay disponible justo después de la transmisión, con todas las cámaras.",
-        "Línea de tiempo real: el espectador navega hasta el momento exacto en que ocurrieron las cosas.",
+        "La línea de tiempo de toda la transmisión: el espectador vuelve al momento que quiera.",
         "Catálogo bajo demanda para quien quiera verlo después."
       ],
       "mock": {
         "badge": "REPLAY",
-        "marker": "20:47:12 · 2.º SET"
+        "marker": "01:47:12 · 2.º SET"
       }
     },
     "management": {
@@ -2293,34 +2293,144 @@
   "aboutPage": {
     "meta": {
       "title": "Sobre nosotros",
-      "description": "Una plataforma para quien produce y para quien mira: transmisión multicámara, entradas digitales y presenciales, repetición y programación, todo en un solo lugar."
+      "description": "Un evento en vivo en internet todavía es una cámara fija, un enlace y cruzar los dedos para que no se corte. Quien mira no elige nada. Quien organiza no sabe quién está mirando ni cuánto va a recibir."
     },
     "hero": {
       "label": "SOBRE NOSOTROS",
       "title": "showon.io es donde los eventos en vivo",
       "titleAccent": "suceden en línea.",
-      "text": "Una plataforma para quien produce y para quien mira: transmisión multicámara, entradas digitales y presenciales, repetición y programación, todo en un solo lugar."
+      "manifesto": [
+        "Un evento en vivo en internet todavía es una cámara fija, un enlace y cruzar los dedos para que no se corte. Quien mira no elige nada. Quien organiza no sabe quién está mirando ni cuánto va a recibir.",
+        "showon.io devuelve el control. Para el público: elegir cámara, elegir audio, repetición con la línea de tiempo de toda la transmisión. Para quien organiza: transmisión con el equipo que ya tiene, entrada digital y presencial en el mismo lugar, dinero directo a la cuenta.",
+        "Conciertos, partidos, conferencias, cultos, obras, clases. Si sucede en vivo, cabe aquí."
+      ]
     },
-    "pillars": {
-      "viewers": {
-        "label": "PARA QUIENES MIRAN",
-        "title": "Compra la entrada, elige la cámara, mira en vivo o en repetición."
-      },
-      "organizers": {
-        "label": "PARA QUIENES ORGANIZAN",
-        "title": "Transmite con el equipo que ya tienes, vende entradas y recibe el pago directo en tu cuenta.",
-        "link": "Para organizadores"
-      },
-      "tech": {
-        "label": "TECNOLOGÍA PROPIA",
-        "title": "Infraestructura de transmisión desarrollada por la propia plataforma, pensada para eventos en vivo con varias cámaras."
+    "diff": {
+      "label": "DIFERENCIALES",
+      "title": "No es solo una transmisión. Es el evento entero.",
+      "viewerLabel": "QUIENES MIRAN",
+      "organizerLabel": "QUIENES ORGANIZAN",
+      "items": {
+        "multicam": {
+          "label": "MULTICÁMARA",
+          "title": "Multicámara en las manos del público.",
+          "text": "El organizador envía tantas cámaras como quiera. El espectador cambia de ángulo cuando quiere, en vivo y en la repetición. Ningún director decide por él.",
+          "viewer": "Escenario, público, bastidores: el ángulo que elijas.",
+          "organizer": "Sabe qué cámara vio más el público y planifica la próxima transmisión con datos."
+        },
+        "latency": {
+          "label": "BAJA LATENCIA",
+          "title": "Latencia de TV, no de internet.",
+          "text": "El modo de baja latencia entrega la transmisión en 2 a 4 segundos. Un gol, un estribillo, un aplauso: el público reacciona junto, no después.",
+          "viewer": "Chat y transmisión al mismo tiempo.",
+          "organizer": "Elige por evento: estándar para conciertos, baja latencia para deportes e interacción."
+        },
+        "replay": {
+          "label": "REPETICIÓN",
+          "title": "Repetición que respeta el tiempo real.",
+          "text": "La grabación nace junto con la transmisión. La línea de tiempo es la de toda la transmisión, de principio a fin: quien se perdió el comienzo vuelve al momento correcto.",
+          "viewer": "Míralo después, a tu ritmo, con las mismas cámaras de la transmisión.",
+          "organizer": "Vende la repetición como entrada aparte y sigue facturando después del final."
+        },
+        "tickets": {
+          "label": "ENTRADAS",
+          "title": "Una entrada, dos mundos.",
+          "text": "Digital para quien mira desde casa, presencial con QR para quien asiste al lugar. Misma venta, mismo reporte, el mismo equipo haciendo el check-in desde el celular.",
+          "viewer": "Compra desde el navegador, sin instalar nada, y entra con un toque.",
+          "organizer": "Sin límite de aforo digital. Cupones, evento gratuito, colaboración entre organizaciones."
+        }
       }
     },
-    "links": {
-      "organizers": "Para organizadores",
-      "help": "Centro de ayuda",
-      "contact": "Contacto",
-      "privacy": "Privacidad"
+    "mocks": {
+      "live": "LIVE",
+      "event": "Final Estatal · Cancha Central",
+      "cams": "4 cámaras",
+      "camsLabel": "CÁMARAS",
+      "latencyLabel": "LATENCIA ACTUAL",
+      "lowLatency": "MODO BAJA LATENCIA",
+      "digital": "DIGITAL",
+      "physical": "PRESENCIAL",
+      "gate": "PUERTA B",
+      "access": "Acceso",
+      "watch": "Mirar",
+      "ticketDate": "SÁB 21 SEP · 19:00"
+    },
+    "audiences": {
+      "label": "PARA QUIÉN",
+      "title": "Si sucede en vivo, cabe aquí.",
+      "items": {
+        "shows": {
+          "title": "Conciertos y festivales.",
+          "text": "Varias cámaras en el escenario y en el público, repetición vendida después."
+        },
+        "sports": {
+          "title": "Deportes y ligas.",
+          "text": "Baja latencia, un canal con toda la temporada, una cámara por cancha."
+        },
+        "talks": {
+          "title": "Conferencias y charlas.",
+          "text": "Múltiples audios para idioma o narración, ventana de Libras (lengua de señas brasileña)."
+        },
+        "worship": {
+          "title": "Cultos y celebraciones.",
+          "text": "Programación recurrente cada semana, gratis o con contribución."
+        },
+        "theater": {
+          "title": "Teatro y danza.",
+          "text": "Entrada presencial y digital en la misma función."
+        },
+        "classes": {
+          "title": "Clases y talleres.",
+          "text": "La grabación automática se convierte en un archivo bajo demanda."
+        }
+      }
+    },
+    "how": {
+      "label": "CÓMO FUNCIONA",
+      "title": "Tres pasos. Ninguna app.",
+      "link": "Ver programación",
+      "steps": [
+        {
+          "title": "Compra la entrada.",
+          "text": "Tarjeta de crédito o débito, desde el navegador. La entrada queda en tu cuenta."
+        },
+        {
+          "title": "Mira con control.",
+          "text": "Cámara, audio y pantalla completa son tus decisiones. En la computadora o en el celular."
+        },
+        {
+          "title": "Vuelve a verlo cuando quieras.",
+          "text": "Repetición con la línea de tiempo de toda la transmisión, con las mismas cámaras."
+        }
+      ]
+    },
+    "proof": {
+      "label": "QUIENES YA TRANSMITEN",
+      "title": "Eventos que ya sucedieron aquí.",
+      "badge": "REPLAY"
+    },
+    "team": {
+      "label": "QUIÉN LO HACE",
+      "title": "Hecha en Brasil para eventos en vivo.",
+      "text": "showon.io está desarrollada por un equipo pequeño que construye su propia infraestructura de transmisión: ingestión, múltiples cámaras, empaquetado, repetición y entrega. Nada de revender el reproductor de un tercero. Cuando algo necesita mejorar, cambiamos el código.",
+      "links": {
+        "help": "Centro de ayuda",
+        "contact": "Contacto",
+        "privacy": "Privacidad"
+      }
+    },
+    "cta": {
+      "title": "¿Del lado de quien mira o de quien organiza?",
+      "viewer": {
+        "title": "Quiero mirar.",
+        "text": "Mira lo que está en vivo ahora y lo que viene.",
+        "button": "Ver programación"
+      },
+      "organizer": {
+        "title": "Quiero organizar.",
+        "text": "Transmite, vende y recibe el pago en el mismo lugar.",
+        "button": "Para organizadores"
+      }
     }
   }
 }

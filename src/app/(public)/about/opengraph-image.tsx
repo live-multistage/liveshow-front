@@ -8,9 +8,10 @@ export const contentType = 'image/png';
 
 export default async function OpengraphImage() {
   const t = await getTranslations('aboutPage');
+  const manifesto = t.raw('hero.manifesto') as string[];
   return renderBrandCard({
     eyebrow: t('hero.label'),
     title: `${t('hero.title')} ${t('hero.titleAccent')}`,
-    subtitle: t('hero.text'),
+    subtitle: manifesto[0],
   });
 }

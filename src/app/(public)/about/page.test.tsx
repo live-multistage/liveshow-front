@@ -2,11 +2,18 @@ import { describe, it, expect, vi } from 'vitest';
 
 const MESSAGES: Record<string, string> = {
   'meta.title': 'Sobre',
-  'meta.description': 'Uma plataforma para quem produz e para quem assiste.',
+};
+
+const RAW_MESSAGES: Record<string, unknown> = {
+  'hero.manifesto': ['Evento ao vivo na internet ainda é uma câmera fixa, um link e torcer pra não travar.'],
 };
 
 vi.mock('next-intl/server', () => ({
-  getTranslations: async () => (key: string) => MESSAGES[key] ?? key,
+  getTranslations: async () => {
+    const t = (key: string) => MESSAGES[key] ?? key;
+    t.raw = (key: string) => RAW_MESSAGES[key];
+    return t;
+  },
 }));
 
 vi.mock('@/features/marketing/components/about/AboutPageContent', () => ({ AboutPageContent: () => null }));

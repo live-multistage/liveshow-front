@@ -50,6 +50,8 @@ test('organizers page keys exist', () => {
 
 test('about page keys exist', () => {
   expect(messages.pt.aboutPage.meta.title).toBe('Sobre');
+  expect(messages.pt.aboutPage.hero.manifesto.length).toBe(3);
+  expect(messages.pt.aboutPage.cta.organizer.button).toBe('Para organizadores');
 });
 
 test('dateTimeInput keys exist', () => {
