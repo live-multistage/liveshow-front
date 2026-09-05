@@ -52,7 +52,7 @@ vi.mock('next-intl', () => ({
   useLocale: () => 'pt',
 }));
 
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -60,6 +60,7 @@ import { PlatformSettingsPage } from './PlatformSettingsPage';
 import {
   usePlatformSettingsQuery,
   useSetDefaultFeeRateMutation,
+  useLastFeeChangeQuery,
   useGlobalFlagsQuery,
   useSetGlobalFlagMutation,
   useFlagAuditQuery,
@@ -74,6 +75,7 @@ vi.mock('../queries/get-settings', async () => {
     ...actual,
     usePlatformSettingsQuery: vi.fn(),
     useSetDefaultFeeRateMutation: vi.fn(),
+    useLastFeeChangeQuery: vi.fn(),
     useGlobalFlagsQuery: vi.fn(),
     useSetGlobalFlagMutation: vi.fn(),
     useFlagAuditQuery: vi.fn(),
@@ -83,13 +85,14 @@ vi.mock('../queries/get-settings', async () => {
 
 const mockedSettings = vi.mocked(usePlatformSettingsQuery);
 const mockedSetFee = vi.mocked(useSetDefaultFeeRateMutation);
+const mockedLastFeeChange = vi.mocked(useLastFeeChangeQuery);
 const mockedFlags = vi.mocked(useGlobalFlagsQuery);
 const mockedSetFlag = vi.mocked(useSetGlobalFlagMutation);
 const mockedFlagAudit = vi.mocked(useFlagAuditQuery);
 const mockedSettingsAudit = vi.mocked(useSettingsAuditQuery);
 
-function stubQuery<T>(data: T): UseQueryResult<T> {
-  return { data, isLoading: false, isError: false } as unknown as UseQueryResult<T>;
+function stubQuery<T>(data: T, extra?: Partial<UseQueryResult<T>>): UseQueryResult<T> {
+  return { data, isLoading: false, isError: false, ...extra } as unknown as UseQueryResult<T>;
 }
 
 function stubMutation<TData = unknown, TVariables = unknown>(
@@ -133,17 +136,28 @@ const AUDIT_ENTRIES: AuditLogEntry[] = [
   },
 ];
 
-function setup(overrides?: { settings?: Partial<PlatformSettingsView>; flags?: Record<string, boolean> }) {
+function setup(overrides?: {
+  settings?: Partial<PlatformSettingsView>;
+  flags?: Record<string, boolean>;
+  flagsQuery?: Partial<UseQueryResult<Record<string, boolean>>>;
+  auditEntries?: AuditLogEntry[];
+}) {
   mockedSettings.mockReturnValue(
     stubQuery<PlatformSettingsView>({ defaultFeeRate: 0.035, cartTaxRate: 0.125, ...overrides?.settings }),
   );
   mockedSetFee.mockReturnValue(stubMutation<PlatformSettingsView, number>());
-  mockedFlags.mockReturnValue(stubQuery<Record<string, boolean>>(overrides?.flags ?? FLAGS));
-  mockedSetFlag.mockReturnValue(stubMutation<void, { key: string; enabled: boolean }>());
-  mockedFlagAudit.mockReturnValue(
-    stubQuery<AuditLogEntry[]>(AUDIT_ENTRIES.filter((e) => e.action === 'FEATURE_FLAG_SET')),
+  mockedLastFeeChange.mockReturnValue(
+    stubQuery<AuditLogEntry | undefined>(AUDIT_ENTRIES.find((e) => e.action === 'FEE_RATE_SET')),
   );
-  mockedSettingsAudit.mockReturnValue(stubQuery<AuditLogEntry[]>(AUDIT_ENTRIES));
+  mockedFlags.mockReturnValue(
+    stubQuery<Record<string, boolean>>(overrides?.flags ?? FLAGS, overrides?.flagsQuery),
+  );
+  mockedSetFlag.mockReturnValue(stubMutation<void, { key: string; enabled: boolean }>());
+  const auditEntries = overrides?.auditEntries ?? AUDIT_ENTRIES;
+  mockedFlagAudit.mockReturnValue(
+    stubQuery<AuditLogEntry[]>(auditEntries.filter((e) => e.action === 'FEATURE_FLAG_SET')),
+  );
+  mockedSettingsAudit.mockReturnValue(stubQuery<AuditLogEntry[]>(auditEntries));
 }
 
 describe('PlatformSettingsPage', () => {
@@ -172,11 +186,19 @@ describe('PlatformSettingsPage', () => {
 
     // on: chat, vod_upload, push_notifications; off: the rest; beta: vod_upload,
     // push_notifications, play_billing.
-    const counters = document.querySelector('[class*="counters"]');
+    const counters = screen.getByRole('group', { name: 'Resumo das flags' });
     expect(counters).toHaveTextContent('3 ATIVAS · 4 DESLIGADAS · 3 BETA');
     expect(screen.getByText('Chat ao vivo')).toBeInTheDocument();
     expect(screen.getByText('PLAYER & EXPERIÊNCIA')).toBeInTheDocument();
     expect(screen.getByText('PAGAMENTOS')).toBeInTheDocument();
+  });
+
+  it('shows the loading state while flags are being fetched', () => {
+    setup({ flagsQuery: { data: undefined, isLoading: true } });
+    render(<PlatformSettingsPage />);
+
+    expect(screen.getByText('Carregando feature flags...')).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'Resumo das flags' })).not.toBeInTheDocument();
   });
 
   it('search filters flags by key', async () => {
@@ -207,11 +229,10 @@ describe('PlatformSettingsPage', () => {
     const user = userEvent.setup();
     render(<PlatformSettingsPage />);
 
-    const chatRow = screen.getByText('Chat ao vivo').closest('div')!.parentElement!.parentElement!;
-    await user.click(within(chatRow).getByRole('button', { name: /Chat ao vivo/ }));
+    await user.click(screen.getByRole('button', { name: /Chat ao vivo/ }));
 
     expect(mutate).toHaveBeenCalledWith({ key: 'chat', enabled: false }, expect.anything());
-    expect(screen.queryByText('Confirmar alteração.')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
   it('toggling a risky flag shows the confirm panel and only mutates after confirming', async () => {
@@ -220,10 +241,9 @@ describe('PlatformSettingsPage', () => {
     const user = userEvent.setup();
     render(<PlatformSettingsPage />);
 
-    const row = screen.getByText('Checkout Stripe no app').closest('div')!.parentElement!.parentElement!;
-    await user.click(within(row).getByRole('button', { name: /Checkout Stripe no app/ }));
+    await user.click(screen.getByRole('button', { name: /Checkout Stripe no app/ }));
 
-    expect(screen.getByText('Confirmar alteração.')).toBeInTheDocument();
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
     expect(mutate).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button', { name: 'Ativar mesmo assim' }));
@@ -237,24 +257,83 @@ describe('PlatformSettingsPage', () => {
     const user = userEvent.setup();
     render(<PlatformSettingsPage />);
 
-    const row = screen.getByText('Checkout Stripe no app').closest('div')!.parentElement!.parentElement!;
-    await user.click(within(row).getByRole('button', { name: /Checkout Stripe no app/ }));
-    expect(screen.getByText('Confirmar alteração.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Checkout Stripe no app/ }));
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Cancelar' }));
 
-    expect(screen.queryByText('Confirmar alteração.')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(mutate).not.toHaveBeenCalled();
+  });
+
+  it('Escape cancels the confirm panel without mutating', async () => {
+    const mutate = vi.fn();
+    mockedSetFlag.mockReturnValue(stubMutation<void, { key: string; enabled: boolean }>(mutate));
+    const user = userEvent.setup();
+    render(<PlatformSettingsPage />);
+
+    await user.click(screen.getByRole('button', { name: /Checkout Stripe no app/ }));
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(mutate).not.toHaveBeenCalled();
   });
 
   it('shows up to 6 audit entries mapped to readable action text', () => {
+    // 6 padding entries older than both real entries (a1: 2026-08-08, a2: 2026-08-12),
+    // so the top-6 slice keeps a1/a2 and drops the 2 oldest padding entries.
+    const padding: AuditLogEntry[] = Array.from({ length: 6 }, (_, i) => ({
+      ...AUDIT_ENTRIES[0],
+      id: `pad-${i}`,
+      targetId: `pad-${i}`,
+      createdAt: new Date(2020, 0, i + 1).toISOString(),
+    }));
+    setup({ auditEntries: [...AUDIT_ENTRIES, ...padding] });
     render(<PlatformSettingsPage />);
 
     expect(screen.getByText((_, el) => el?.textContent === 'chat ativada')).toBeInTheDocument();
     expect(screen.getByText(/alterada para 3,5%/)).toBeInTheDocument();
     // Exact date rendering (month style, hour) is Intl/timezone-dependent in the
     // test runner; only assert the actor name made it into the sub line.
-    expect(screen.getByText((text) => text.startsWith('Rafael M. ·'))).toBeInTheDocument();
+    expect(screen.getAllByText((text) => text.startsWith('Rafael M. ·')).length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('[class*="auditRow"]')).toHaveLength(6);
+    // pad-0 and pad-1 are the 2 oldest of the 8 entries, so they fall outside the top 6.
+    expect(screen.queryByText('pad-0')).not.toBeInTheDocument();
+    expect(screen.queryByText('pad-1')).not.toBeInTheDocument();
+  });
+
+  it('editing the default fee with a comma decimal mutates with the parsed rate', async () => {
+    const mutate = vi.fn();
+    mockedSetFee.mockReturnValue(stubMutation<PlatformSettingsView, number>(mutate));
+    const user = userEvent.setup();
+    render(<PlatformSettingsPage />);
+
+    await user.click(screen.getByRole('button', { name: 'Alterar' }));
+    const input = screen.getByLabelText('Taxa default da plataforma');
+    await user.clear(input);
+    await user.type(input, '3,5');
+    await user.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(mutate).toHaveBeenCalledWith(0.035, expect.anything());
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it('rejects an out-of-range fee without mutating', async () => {
+    const mutate = vi.fn();
+    mockedSetFee.mockReturnValue(stubMutation<PlatformSettingsView, number>(mutate));
+    const user = userEvent.setup();
+    render(<PlatformSettingsPage />);
+
+    await user.click(screen.getByRole('button', { name: 'Alterar' }));
+    const input = screen.getByLabelText('Taxa default da plataforma');
+    await user.clear(input);
+    await user.type(input, '150');
+    await user.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(mutate).not.toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalledWith('Informe um percentual entre 0 e 100.');
   });
 
   it('shows the empty state with the search query when nothing matches', async () => {

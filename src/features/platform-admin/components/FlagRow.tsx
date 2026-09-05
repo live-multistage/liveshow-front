@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { toast } from 'sonner';
 import { useSetGlobalFlagMutation } from '../queries/get-settings';
@@ -24,6 +24,12 @@ export function FlagRow({ flagKey, enabled, meta, lastChange }: Props) {
   const locale = useLocale();
   const setFlag = useSetGlobalFlagMutation();
   const [pending, setPending] = useState(false);
+  const confirmTitleId = useId();
+  const confirmButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (pending) confirmButtonRef.current?.focus();
+  }, [pending]);
 
   const name = t.has(`${flagKey}.name`) ? t(`${flagKey}.name`) : flagKey;
   const description = t.has(`${flagKey}.description`) ? t(`${flagKey}.description`) : null;
@@ -36,7 +42,10 @@ export function FlagRow({ flagKey, enabled, meta, lastChange }: Props) {
           setPending(false);
           toast.success(t('toggleSuccess', { key: flagKey, state: nextEnabled ? t('on') : t('off') }));
         },
-        onError: () => toast.error(t('toggleError')),
+        onError: () => {
+          setPending(false);
+          toast.error(t('toggleError'));
+        },
       },
     );
   };
@@ -92,9 +101,18 @@ export function FlagRow({ flagKey, enabled, meta, lastChange }: Props) {
       </div>
 
       {pending && (
-        <div className={styles.confirmPanel}>
+        <div
+          className={styles.confirmPanel}
+          role="alertdialog"
+          aria-labelledby={confirmTitleId}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setPending(false);
+          }}
+        >
           <div>
-            <strong className={styles.confirmTitle}>{t('confirm.title')}</strong>{' '}
+            <strong id={confirmTitleId} className={styles.confirmTitle}>
+              {t('confirm.title')}
+            </strong>{' '}
             {t(enabled ? 'confirm.offText' : 'confirm.onText', { name })}
           </div>
           <div className={styles.confirmActions}>
@@ -102,6 +120,7 @@ export function FlagRow({ flagKey, enabled, meta, lastChange }: Props) {
               {t('confirm.cancel')}
             </button>
             <button
+              ref={confirmButtonRef}
               type="button"
               className={styles.btnDanger}
               disabled={setFlag.isPending}

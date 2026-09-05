@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Clock } from 'lucide-react';
 import { PlatformPageShell } from './PlatformPageShell';
@@ -24,11 +25,11 @@ export function PlatformSettingsPage() {
         <>
           <span className={styles.envBadge}>
             <span className={styles.envDot} />
-            {t('env', { env: (process.env.NODE_ENV ?? '').toUpperCase() })}
+            {t('env', { env: (process.env.NEXT_PUBLIC_ENV ?? process.env.NODE_ENV ?? '').toUpperCase() })}
           </span>
-          <a href="/dashboard/platform/audit" className={styles.btnOutline}>
+          <Link href="/dashboard/platform/audit" className={styles.btnOutline}>
             <Clock size={13} /> {t('auditLink')}
-          </a>
+          </Link>
         </>
       }
     >

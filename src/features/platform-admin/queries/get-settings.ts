@@ -21,7 +21,10 @@ export function useSetDefaultFeeRateMutation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (rate: number) => platformAdminService.setDefaultFeeRate(rate),
-    onSuccess: () => qc.invalidateQueries({ queryKey: SETTINGS_KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: SETTINGS_KEY });
+      qc.invalidateQueries({ queryKey: ['platform-admin', 'last-fee-change'] });
+    },
   });
 }
 
@@ -54,6 +57,18 @@ export function useFlagAuditQuery() {
   });
 }
 
+// Newest FEE_RATE_SET entry, for the fees card's "changed by/when" line.
+export function useLastFeeChangeQuery() {
+  return useQuery({
+    queryKey: ['platform-admin', 'last-fee-change'] as const,
+    queryFn: async () => {
+      const result = await platformAdminService.searchAuditLog({ action: 'FEE_RATE_SET', limit: 1 });
+      return result.items[0];
+    },
+    staleTime: 30_000,
+  });
+}
+
 // Recent audit entries (any action) for the settings page's "how it works" rail.
 export function useSettingsAuditQuery() {
   return useQuery({
@@ -67,7 +82,7 @@ export function useSettingsAuditQuery() {
 // targetLabel fallback for entries recorded before targetId was populated.
 export function lastFlagChange(entries: AuditLogEntry[], key: string): AuditLogEntry | undefined {
   const matches = entries.filter((entry) => entry.targetId === key || entry.targetLabel === key);
-  return matches.toSorted((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))[0];
+  return [...matches].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))[0];
 }
 
 export function isSettingsAuditEntry(entry: AuditLogEntry): boolean {

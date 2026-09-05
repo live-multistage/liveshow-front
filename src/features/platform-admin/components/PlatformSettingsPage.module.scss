@@ -72,6 +72,7 @@ $red-strong: #ef4444;
   cursor: pointer;
 
   &:hover { border-color: $muted; }
+  &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
 }
 
 .btnDanger {
@@ -85,6 +86,7 @@ $red-strong: #ef4444;
   cursor: pointer;
 
   &:disabled { opacity: .6; cursor: default; }
+  &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
 }
 
 // ── Layout ────────────────────────────────────────────────────────
@@ -209,6 +211,7 @@ $red-strong: #ef4444;
   padding: 4px 8px;
 
   &:focus { outline: none; border-color: $action; }
+  &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
 }
 
 .feePct { font-family: 'Space Mono', monospace; font-size: 14px; color: $muted-2; }
@@ -281,6 +284,7 @@ $red-strong: #ef4444;
     font-size: 13px;
 
     &:focus { outline: none; }
+    &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
     &::placeholder { color: $muted; }
   }
 }
@@ -307,6 +311,8 @@ $red-strong: #ef4444;
 }
 
 .segmentActive { background: $hairline; color: #fff; }
+
+.segmentBtn:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
 
 .empty {
   padding: 40px 22px;
@@ -403,6 +409,7 @@ $red-strong: #ef4444;
   transition: background .15s;
 
   &:disabled { opacity: .6; cursor: default; }
+  &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
 }
 
 .toggleKnob {

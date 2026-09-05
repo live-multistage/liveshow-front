@@ -17,7 +17,8 @@ const FILTERS: FilterValue[] = ['all', 'on', 'off', 'beta'];
 // /dashboard/platform/feature-flags route.
 export function FeatureFlagsSection() {
   const t = useTranslations('platformAdmin.featureFlags');
-  const { data: flags } = useGlobalFlagsQuery();
+  const tSettings = useTranslations('platformAdmin.settings.flags');
+  const { data: flags, isLoading, isError } = useGlobalFlagsQuery();
   const { data: auditEntries } = useFlagAuditQuery();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterValue>('all');
@@ -47,14 +48,16 @@ export function FeatureFlagsSection() {
       <header className={styles.sectionHeader}>
         <div className={styles.flagsHeaderTop}>
           <div>
-            <div className={styles.mono10}>{t('eyebrow') /* falls back to key when missing */}</div>
-            <div className={styles.sectionTitle}>{t('title')}</div>
+            <div className={styles.mono10}>{tSettings('eyebrow')}</div>
+            <div className={styles.sectionTitle}>{tSettings('title')}</div>
           </div>
-          <div className={styles.counters}>
-            <strong className={styles.counterOn}>{onCount}</strong> {t('counters.on')} ·{' '}
-            <strong>{offCount}</strong> {t('counters.off')} ·{' '}
-            <strong className={styles.counterBeta}>{betaCount}</strong> {t('counters.beta')}
-          </div>
+          {flags && (
+            <div className={styles.counters} aria-label={tSettings('countersLabel')} role="group">
+              <strong className={styles.counterOn}>{onCount}</strong> {t('counters.on')} ·{' '}
+              <strong>{offCount}</strong> {t('counters.off')} ·{' '}
+              <strong className={styles.counterBeta}>{betaCount}</strong> {t('counters.beta')}
+            </div>
+          )}
         </div>
         <div className={styles.flagsToolbar}>
           <div className={styles.search}>
@@ -81,23 +84,30 @@ export function FeatureFlagsSection() {
         </div>
       </header>
 
-      {filtered.length === 0 && <div className={styles.empty}>{t('empty', { query: search })}</div>}
+      {isLoading && <div className={styles.empty}>{t('loading')}</div>}
+      {isError && <div className={styles.empty}>{t('error')}</div>}
 
-      {FLAG_GROUP_ORDER.map((group) =>
-        grouped[group].length > 0 ? (
-          <div key={group}>
-            <div className={styles.groupLabel}>{t(`group.${group}`)}</div>
-            {grouped[group].map(([key, enabled]) => (
-              <FlagRow
-                key={key}
-                flagKey={key}
-                enabled={enabled}
-                meta={flagMeta(key)}
-                lastChange={lastFlagChange(auditEntries ?? [], key)}
-              />
-            ))}
-          </div>
-        ) : null,
+      {flags && (
+        <>
+          {filtered.length === 0 && <div className={styles.empty}>{t('empty', { query: search })}</div>}
+
+          {FLAG_GROUP_ORDER.map((group) =>
+            grouped[group].length > 0 ? (
+              <div key={group}>
+                <div className={styles.groupLabel}>{t(`group.${group}`)}</div>
+                {grouped[group].map(([key, enabled]) => (
+                  <FlagRow
+                    key={key}
+                    flagKey={key}
+                    enabled={enabled}
+                    meta={flagMeta(key)}
+                    lastChange={lastFlagChange(auditEntries ?? [], key)}
+                  />
+                ))}
+              </div>
+            ) : null,
+          )}
+        </>
       )}
     </section>
   );

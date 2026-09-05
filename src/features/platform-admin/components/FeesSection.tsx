@@ -7,7 +7,7 @@ import { Pencil, Check, X } from 'lucide-react';
 import {
   usePlatformSettingsQuery,
   useSetDefaultFeeRateMutation,
-  useSettingsAuditQuery,
+  useLastFeeChangeQuery,
 } from '../queries/get-settings';
 import { ratePct, formatAuditWhen } from '../utils/format';
 import styles from './PlatformSettingsPage.module.scss';
@@ -19,7 +19,7 @@ export function FeesSection() {
   const t = useTranslations('platformAdmin.settings.fees');
   const locale = useLocale();
   const { data: settings } = usePlatformSettingsQuery();
-  const { data: auditEntries } = useSettingsAuditQuery();
+  const { data: lastFeeChange } = useLastFeeChangeQuery();
   const setFee = useSetDefaultFeeRateMutation();
 
   const [editing, setEditing] = useState(false);
@@ -32,18 +32,14 @@ export function FeesSection() {
   const save = () => {
     const pct = Number(draft.replace(',', '.'));
     if (!Number.isFinite(pct) || pct < 0 || pct > 100) {
-      toast.error(t('save'));
+      toast.error(t('default.invalid'));
       return;
     }
     setFee.mutate(pct / 100, {
       onSuccess: () => setEditing(false),
-      onError: () => toast.error(t('save')),
+      onError: () => toast.error(t('default.error')),
     });
   };
-
-  const lastFeeChange = (auditEntries ?? [])
-    .filter((entry) => entry.action === 'FEE_RATE_SET')
-    .toSorted((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))[0];
 
   const changedLine = lastFeeChange
     ? t('default.changed', { who: lastFeeChange.actorName ?? '—', when: formatAuditWhen(lastFeeChange.createdAt, locale) })
