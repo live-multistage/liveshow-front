@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og';
+import { loadOgFonts } from './fonts';
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
@@ -28,7 +29,13 @@ export function ogTitleSize(title: string): number {
 // Shared showon.io brand card: gradient bg, pink dot + wordmark, title/subtitle,
 // pill badge. Used as the root site card and as the fallback for any public
 // page that doesn't render its own richer og image.
-export function renderBrandCard({ eyebrow, title, subtitle, badge = 'AO VIVO' }: BrandCardProps): ImageResponse {
+export async function renderBrandCard({
+  eyebrow,
+  title,
+  subtitle,
+  badge = 'AO VIVO',
+}: BrandCardProps): Promise<ImageResponse> {
+  const fonts = await loadOgFonts();
   return new ImageResponse(
     (
       <div
@@ -42,7 +49,7 @@ export function renderBrandCard({ eyebrow, title, subtitle, badge = 'AO VIVO' }:
           background:
             'radial-gradient(1000px 600px at 15% 0%, #1a0a12 0%, #08080a 60%)',
           color: '#f4f4f5',
-          fontFamily: 'sans-serif',
+          fontFamily: 'Archivo',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
@@ -100,6 +107,6 @@ export function renderBrandCard({ eyebrow, title, subtitle, badge = 'AO VIVO' }:
         </div>
       </div>
     ),
-    OG_SIZE,
+    { ...OG_SIZE, fonts },
   );
 }

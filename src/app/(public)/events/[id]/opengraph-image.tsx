@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og';
+import { loadOgFonts } from '@/shared/og/fonts';
 import { fetchEventByParam } from '@/features/events/queries/get-event.server';
 
 export const alt = 'Evento no showon.io';
@@ -39,6 +40,7 @@ export default async function OpengraphImage({ params }: Props) {
     bannerUrl = event.bannerUrl;
   }
 
+  const fonts = await loadOgFonts();
   return new ImageResponse(
     (
       <div
@@ -48,7 +50,7 @@ export default async function OpengraphImage({ params }: Props) {
           display: 'flex',
           background: '#08080a',
           color: '#f4f4f5',
-          fontFamily: 'sans-serif',
+          fontFamily: 'Archivo',
         }}
       >
         {bannerUrl && (
@@ -120,6 +122,6 @@ export default async function OpengraphImage({ params }: Props) {
         </div>
       </div>
     ),
-    size,
+    { ...size, fonts },
   );
 }
