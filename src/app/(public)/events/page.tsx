@@ -2,10 +2,15 @@ import type { Metadata } from 'next';
 import { EventsListPageContent } from '@/features/events';
 import { fetchFeedFirstPage } from '@/features/events/queries/get-feed.server';
 
+const TITLE = 'Shows';
+const DESCRIPTION = 'Todos os shows, eventos e transmissões ao vivo disponíveis no showon.io.';
+
 export const metadata: Metadata = {
-  title: 'Shows',
-  description: 'Todos os shows, eventos e transmissões ao vivo disponíveis no showon.io.',
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: '/events' },
+  openGraph: { type: 'website', url: '/events', title: TITLE, description: DESCRIPTION },
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION },
 };
 
 export default async function Shows() {

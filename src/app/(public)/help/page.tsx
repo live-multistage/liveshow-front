@@ -4,7 +4,15 @@ import { HelpPageContent } from '@/features/help';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('help');
-  return { title: t('metaTitle'), description: t('subtitle') };
+  const title = t('metaTitle');
+  const description = t('subtitle');
+  return {
+    title,
+    description,
+    alternates: { canonical: '/help' },
+    openGraph: { type: 'website', url: '/help', title, description },
+    twitter: { card: 'summary_large_image', title, description },
+  };
 }
 
 export default function HelpPage() {

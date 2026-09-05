@@ -15,10 +15,14 @@ import styles from './page.module.scss';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('organizersPage');
+  const title = t('meta.title');
+  const description = t('meta.description');
   return {
-    title: t('meta.title'),
-    description: t('meta.description'),
+    title,
+    description,
     alternates: { canonical: '/be-partner' },
+    openGraph: { type: 'website', url: '/be-partner', title, description },
+    twitter: { card: 'summary_large_image', title, description },
   };
 }
 

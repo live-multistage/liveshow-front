@@ -4,10 +4,14 @@ import { AboutPageContent } from '@/features/marketing/components/about/AboutPag
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('aboutPage');
+  const title = t('meta.title');
+  const description = t('meta.description');
   return {
-    title: t('meta.title'),
-    description: t('meta.description'),
+    title,
+    description,
     alternates: { canonical: '/about' },
+    openGraph: { type: 'website', url: '/about', title, description },
+    twitter: { card: 'summary_large_image', title, description },
   };
 }
 

@@ -2,7 +2,16 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import styles from './page.module.scss';
 
-export const metadata: Metadata = { title: 'Política de Privacidade' };
+const TITLE = 'Política de Privacidade';
+const DESCRIPTION = 'Como o showon.io coleta, usa e protege seus dados, em conformidade com a LGPD.';
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: '/privacidade' },
+  openGraph: { type: 'website', url: '/privacidade', title: TITLE, description: DESCRIPTION },
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION },
+};
 
 // ponytail: DPO contact is a placeholder — swap for the real encarregado/e-mail
 // before launch. Everything else reflects what the platform actually collects.

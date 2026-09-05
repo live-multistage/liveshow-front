@@ -35,6 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       images: channel.coverUrl ? [{ url: channel.coverUrl }] : undefined,
     },
+    twitter: { card: 'summary_large_image', title: channel.name, description },
   };
 }
 

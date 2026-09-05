@@ -1,13 +1,15 @@
 import { renderBrandCard, OG_SIZE } from '@/shared/og/BrandCard';
 
 export const runtime = 'edge';
-export const alt = 'showon.io — shows ao vivo de todo o mundo, na palma da sua mão.';
+export const alt = 'Política de Privacidade — showon.io';
 export const size = OG_SIZE;
 export const contentType = 'image/png';
 
 export default function OpengraphImage() {
   return renderBrandCard({
-    title: 'Shows ao vivo de todo o mundo',
-    subtitle: 'na palma da sua mão.',
+    eyebrow: 'PRIVACIDADE',
+    title: 'Política de Privacidade',
+    subtitle: 'Como o showon.io coleta, usa e protege seus dados, em conformidade com a LGPD.',
+    badge: 'LEGAL',
   });
 }
