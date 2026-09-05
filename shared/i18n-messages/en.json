@@ -1324,7 +1324,39 @@
         "off": "OFF",
         "beta": "BETA"
       },
-      "empty": "No flag matches \"{query}\"."
+      "empty": "No flag matches \"{query}\".",
+      "ads_delivery": {
+        "name": "Ad delivery",
+        "description": "Pre-roll and placements for the audience. Turning it off stops delivery without a deploy."
+      },
+      "ad_revenue_share": {
+        "name": "Ad revenue share",
+        "description": "Partner program and daily ad revenue rollup."
+      },
+      "organizer_applications": {
+        "name": "Organizer applications",
+        "description": "Public form at /be-partner/apply."
+      },
+      "social_login": {
+        "name": "Social login",
+        "description": "Sign in with Google and Apple. Turning it off hides the buttons and returns 503."
+      },
+      "low_latency_mode": {
+        "name": "Low latency mode",
+        "description": "Events in LL-HLS (2 to 4 s). Per organization: enable only for those who tested it."
+      },
+      "physical_tickets": {
+        "name": "Physical tickets",
+        "description": "QR ticket with staff check-in. Enable per organization."
+      },
+      "coupons": {
+        "name": "Coupons",
+        "description": "Coupon creation, validation, and application at checkout."
+      },
+      "event_collaborations": {
+        "name": "Cross-organization collaborations",
+        "description": "Invitations to share an event with another organization. Enable per organization."
+      }
     },
     "adPartnerships": {
       "title": "Ad partnerships",

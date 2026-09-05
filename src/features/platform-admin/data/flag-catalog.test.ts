@@ -23,7 +23,7 @@ describe('flagMeta', () => {
     });
   });
 
-  it('catalogs exactly the 7 backend keys', () => {
+  it('catalogs exactly the 15 backend keys', () => {
     expect(Object.keys(FLAG_CATALOG).sort()).toEqual(
       [
         'chat',
@@ -33,7 +33,25 @@ describe('flagMeta', () => {
         'push_notifications',
         'two_factor',
         'vod_upload',
+        'ads_delivery',
+        'ad_revenue_share',
+        'organizer_applications',
+        'social_login',
+        'low_latency_mode',
+        'physical_tickets',
+        'coupons',
+        'event_collaborations',
       ].sort(),
+    );
+  });
+
+  it('marks exactly the risky keys from the spec', () => {
+    const riskyKeys = Object.entries(FLAG_CATALOG)
+      .filter(([, meta]) => meta.risky)
+      .map(([key]) => key)
+      .sort();
+    expect(riskyKeys).toEqual(
+      ['mobile_stripe_checkout', 'play_billing', 'ads_delivery', 'ad_revenue_share', 'coupons'].sort(),
     );
   });
 

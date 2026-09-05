@@ -1324,7 +1324,39 @@
         "off": "DESACTIVADAS",
         "beta": "BETA"
       },
-      "empty": "Ninguna flag coincide con \"{query}\"."
+      "empty": "Ninguna flag coincide con \"{query}\".",
+      "ads_delivery": {
+        "name": "Entrega de anuncios",
+        "description": "Pre-roll y placements para la audiencia. Desactivarlo detiene la exhibición sin deploy."
+      },
+      "ad_revenue_share": {
+        "name": "Reparto de ingresos por anuncios",
+        "description": "Programa de socios y consolidado diario de ingresos por anuncios."
+      },
+      "organizer_applications": {
+        "name": "Solicitudes de organizador",
+        "description": "Formulario público en /be-partner/apply."
+      },
+      "social_login": {
+        "name": "Inicio de sesión social",
+        "description": "Iniciar sesión con Google y Apple. Desactivarlo oculta los botones y devuelve 503."
+      },
+      "low_latency_mode": {
+        "name": "Modo baja latencia",
+        "description": "Eventos en LL-HLS (2 a 4 s). Por organización: habilítalo solo para quienes lo probaron."
+      },
+      "physical_tickets": {
+        "name": "Entradas presenciales",
+        "description": "Entrada con QR y check-in por el staff. Actívalo por organización."
+      },
+      "coupons": {
+        "name": "Cupones",
+        "description": "Creación, validación y aplicación de cupones en el checkout."
+      },
+      "event_collaborations": {
+        "name": "Colaboraciones entre organizaciones",
+        "description": "Invitaciones para compartir un evento con otra organización. Actívalo por organización."
+      }
     },
     "adPartnerships": {
       "title": "Alianzas de anuncios",
