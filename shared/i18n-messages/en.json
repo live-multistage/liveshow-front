@@ -724,8 +724,8 @@
       "cityPlaceholder": "e.g. New York",
       "countryLabel": "Country",
       "countryPlaceholder": "e.g. United States",
-      "startsAtLabel": "Start *",
-      "endsAtLabel": "End *"
+      "startsAtLabel": "Start",
+      "endsAtLabel": "End"
     },
     "production": {
       "hint": "Set how many cameras will be available to the audience during the broadcast.",
@@ -757,6 +757,26 @@
     },
     "replayTicketDesc": "Access to the recording after the event",
     "mainStreamTitle": "Main Broadcast"
+  },
+  "dateTimeInput": {
+    "invalidDate": "Invalid date. Use dd/mm/yyyy.",
+    "invalidTime": "Invalid time. Use hh:mm (24h).",
+    "datePlaceholder": "dd/mm/yyyy",
+    "timePlaceholder": "hh:mm",
+    "hint": "DD/MM/YYYY · HH:MM",
+    "openCalendar": "Open calendar",
+    "weekdays": [
+      "S",
+      "M",
+      "T",
+      "W",
+      "T",
+      "F",
+      "S"
+    ],
+    "time": "TIME",
+    "today": "Today",
+    "done": "Done"
   },
   "editTicket": {
     "title": "Tickets",

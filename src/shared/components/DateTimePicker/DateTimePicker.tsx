@@ -1,184 +1,328 @@
 'use client';
 
-import { useState } from 'react';
-import { DayPicker } from 'react-day-picker';
-import { ptBR } from 'date-fns/locale';
-import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Popover, PopoverTrigger, PopoverContent } from '@live-show/design-system';
-import { ScrollWheelPicker } from './ScrollWheelPicker';
+import { useEffect, useRef, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@live-show/design-system';
+import {
+  buildMonthGrid,
+  combine,
+  formatDate,
+  fromDateTimeLocal,
+  maskDate,
+  maskTime,
+  normalizeTime,
+  parseDate,
+  toDateTimeLocal,
+} from './date-time-input.utils';
 import styles from './DateTimePicker.module.scss';
-import 'react-day-picker/dist/style.css';
 
-interface Props {
-  // datetime-local format: YYYY-MM-DDTHH:mm, local time, no timezone
-  // suffix — matches exactly what the native <input type="datetime-local">
-  // this replaces already produced, so the form schema and submit logic
-  // this feeds into need no changes. '' means unset.
+interface DateTimePickerProps {
+  // datetime-local format: YYYY-MM-DDTHH:mm, local time, no timezone suffix —
+  // matches exactly what the native <input type="datetime-local"> this
+  // replaces already produced, so the form schema and submit logic this
+  // feeds into need no changes. '' means unset.
   value: string;
   onChange: (value: string) => void;
   error?: string;
-  placeholder?: string;
   // datetime-local string. Calendar days before this date are disabled (day
   // granularity — the min day itself stays selectable; the same-day earlier
   // time is caught by the form's endsAt > startsAt refine). Used to stop an
   // event's end from landing before its start.
   min?: string;
+  label?: string;
+  required?: boolean;
+  allowPast?: boolean;
+  defaultTime?: string;
+  quickTimes?: string[];
+  id?: string;
 }
 
-interface Draft {
-  date: Date | null;
-  hour: number;
-  minute: number;
+const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-419' };
+
+function startOfDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-function parseValue(value: string): Draft {
-  if (!value) {
-    const now = new Date();
-    return { date: null, hour: now.getHours(), minute: now.getMinutes() };
-  }
-  const date = new Date(value);
-  return { date, hour: date.getHours(), minute: date.getMinutes() };
+function capitalize(text: string): string {
+  return text.length ? text[0].toUpperCase() + text.slice(1) : text;
 }
 
-function toDateTimeLocalString(date: Date, hour: number, minute: number): string {
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  const hh = String(hour).padStart(2, '0');
-  const mi = String(minute).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
-}
+export function DateTimePicker({
+  value,
+  onChange,
+  error,
+  min,
+  label,
+  required,
+  allowPast = false,
+  defaultTime = '20:00',
+  quickTimes = ['19:00', '20:00', '21:00', '22:00'],
+  id,
+}: DateTimePickerProps) {
+  const t = useTranslations('dateTimeInput');
+  const locale = useLocale();
+  const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
+  const weekdays = t.raw('weekdays') as string[];
 
-function formatTrigger(value: string): string | null {
-  if (!value) return null;
-  const date = new Date(value);
-  const dateLabel = date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
-  const timeLabel = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-  return `${dateLabel}, ${timeLabel}`;
-}
-
-export function DateTimePicker({ value, onChange, error, placeholder = 'Selecionar data e horário', min }: Props) {
+  const initial = fromDateTimeLocal(value);
+  const [dateText, setDateText] = useState(initial.date ? formatDate(initial.date) : '');
+  const [timeText, setTimeText] = useState(initial.time);
+  const [date, setDate] = useState<Date | null>(initial.date);
+  const [time, setTime] = useState(initial.time);
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState<Draft>(() => parseValue(value));
-  const [month, setMonth] = useState<Date>(() => parseValue(value).date ?? new Date());
+  const [dateFocused, setDateFocused] = useState(false);
+  const [timeFocused, setTimeFocused] = useState(false);
+  const [view, setView] = useState<Date>(initial.date ?? new Date());
+  const [internalError, setInternalError] = useState('');
 
-  // Disable every day before the min day (start-of-day so the min day itself
-  // stays pickable). undefined when no min → nothing disabled.
-  const disabledDays = min
-    ? (() => {
-        const m = new Date(min);
-        return { before: new Date(m.getFullYear(), m.getMonth(), m.getDate()) };
-      })()
-    : undefined;
+  // Re-sync from an external value change (e.g. form reset) instead of
+  // reacting to our own onChange, which would just echo the same value back.
+  const lastEmitted = useRef(value);
+  useEffect(() => {
+    if (value === lastEmitted.current) return;
+    lastEmitted.current = value;
+    const next = fromDateTimeLocal(value);
+    setDate(next.date);
+    setTime(next.time);
+    setDateText(next.date ? formatDate(next.date) : '');
+    setTimeText(next.time);
+    setView(next.date ?? new Date());
+  }, [value]);
 
-  function handleOpenChange(next: boolean) {
-    if (next) {
-      const fresh = parseValue(value);
-      setDraft(fresh);
-      setMonth(fresh.date ?? new Date());
+  function emit(nextDate: Date | null, nextTime: string) {
+    const combined = combine(nextDate, nextTime);
+    if (combined) {
+      const next = toDateTimeLocal(combined);
+      lastEmitted.current = next;
+      onChange(next);
+      return;
     }
-    setOpen(next);
+    if (!nextDate && !nextTime) {
+      lastEmitted.current = '';
+      onChange('');
+    }
   }
 
-  function handleConfirm() {
-    if (!draft.date) return;
-    onChange(toDateTimeLocalString(draft.date, draft.hour, draft.minute));
-    setOpen(false);
+  function handleDateChange(text: string) {
+    setDateText(maskDate(text));
+    setInternalError('');
   }
 
-  const triggerLabel = formatTrigger(value);
+  function handleDateBlur() {
+    setDateFocused(false);
+    if (!dateText) {
+      setDate(null);
+      setInternalError('');
+      emit(null, time);
+      return;
+    }
+    const parsed = parseDate(dateText);
+    if (!parsed) {
+      setInternalError(t('invalidDate'));
+      return;
+    }
+    setDate(parsed);
+    setDateText(formatDate(parsed));
+    setView(parsed);
+    setInternalError('');
+    emit(parsed, time);
+  }
+
+  function handleTimeChange(text: string) {
+    setTimeText(maskTime(text));
+    setInternalError('');
+  }
+
+  function handleTimeBlur() {
+    setTimeFocused(false);
+    const normalized = normalizeTime(timeText);
+    if (normalized === null) {
+      setInternalError(t('invalidTime'));
+      return;
+    }
+    setTime(normalized);
+    setTimeText(normalized);
+    setInternalError('');
+    emit(date, normalized);
+  }
+
+  function pickDay(day: Date) {
+    const nextTime = time || defaultTime;
+    setDate(day);
+    setDateText(formatDate(day));
+    setView(day);
+    setTime(nextTime);
+    setTimeText(nextTime);
+    setInternalError('');
+    emit(day, nextTime);
+  }
+
+  function pickQuickTime(quick: string) {
+    setTime(quick);
+    setTimeText(quick);
+    setInternalError('');
+    emit(date, quick);
+  }
+
+  function pickToday() {
+    const today = startOfDay(new Date());
+    pickDay(today);
+  }
+
+  const today = startOfDay(new Date());
+  const minFromPast = allowPast ? null : today;
+  const minFromProp = min ? startOfDay(fromDateTimeLocal(min).date ?? today) : null;
+  const minDate =
+    minFromProp && minFromPast ? (minFromProp > minFromPast ? minFromProp : minFromPast) : (minFromProp ?? minFromPast);
+  const grid = buildMonthGrid(view, { selected: date, today, minDate });
+  const monthLabel = capitalize(view.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' }));
+
+  const displayError = error || internalError;
+  const active = open || dateFocused || timeFocused;
+  const combined = combine(date, time);
+  const summary =
+    combined && !displayError
+      ? `${capitalize(
+          combined.toLocaleDateString(localeCode, { weekday: 'long', day: 'numeric', month: 'long' }),
+        )} · ${time}`
+      : '';
 
   return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
-        <button type="button" className={`${styles.trigger} ${error ? styles.triggerError : ''}`}>
-          <CalendarIcon size={15} className={styles.triggerIcon} />
-          <span className={triggerLabel ? styles.triggerValue : styles.triggerPlaceholder}>
-            {triggerLabel ?? placeholder}
+    <div className={styles.root}>
+      {label && (
+        <label className={styles.labelRow} htmlFor={id}>
+          <span>
+            {label} {required && <span className={styles.required}>*</span>}
           </span>
-        </button>
-      </PopoverTrigger>
+          <span className={styles.hint}>{t('hint')}</span>
+        </label>
+      )}
 
-      <PopoverContent className={styles.content} align="start" collisionPadding={16}>
-        <div className={styles.header}>
-          <CalendarIcon size={15} />
-          Selecionar data e horário
-        </div>
-
-        <DayPicker
-          mode="single"
-          locale={ptBR}
-          month={month}
-          onMonthChange={setMonth}
-          selected={draft.date ?? undefined}
-          onSelect={(d) => d && setDraft((prev) => ({ ...prev, date: d }))}
-          disabled={disabledDays}
-          showOutsideDays
-          className={styles.calendar}
-          classNames={{
-            months: styles.months,
-            month: styles.month,
-            caption: styles.caption,
-            caption_label: styles.captionLabel,
-            nav: styles.nav,
-            nav_button: styles.navButton,
-            nav_button_previous: styles.navButtonPrev,
-            nav_button_next: styles.navButtonNext,
-            table: styles.table,
-            head_row: styles.headRow,
-            head_cell: styles.headCell,
-            row: styles.calendarRow,
-            cell: styles.cell,
-            day: styles.day,
-            day_selected: styles.daySelected,
-            day_today: styles.dayToday,
-            day_outside: styles.dayOutside,
-            day_disabled: styles.dayDisabled,
-          }}
-          components={{
-            IconLeft: () => <ChevronLeft size={16} />,
-            IconRight: () => <ChevronRight size={16} />,
-          }}
-        />
-
-        <div className={styles.divider} />
-
-        <div className={styles.timeHeader}>
-          <Clock size={13} />
-          HORÁRIO
-        </div>
-
-        <div className={styles.timeRow}>
-          <div className={styles.wheelGroup}>
-            <span className={styles.wheelLabel}>HH</span>
-            <ScrollWheelPicker
-              value={draft.hour}
-              min={0}
-              max={23}
-              onChange={(hour) => setDraft((prev) => ({ ...prev, hour }))}
-              ariaLabel="Hora"
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverAnchor asChild>
+          <div
+            className={`${styles.field} ${active ? styles.fieldActive : ''} ${displayError ? styles.fieldError : ''}`}
+          >
+            <PopoverTrigger asChild>
+              <button type="button" className={styles.calendarButton} aria-label={t('openCalendar')}>
+                <CalendarIcon size={17} />
+              </button>
+            </PopoverTrigger>
+            <input
+              id={id}
+              className={styles.dateInput}
+              value={dateText}
+              placeholder={t('datePlaceholder')}
+              inputMode="numeric"
+              onChange={(e) => handleDateChange(e.target.value)}
+              onFocus={() => setDateFocused(true)}
+              onBlur={handleDateBlur}
+            />
+            <span className={styles.divider} />
+            <input
+              className={styles.timeInput}
+              value={timeText}
+              placeholder={t('timePlaceholder')}
+              inputMode="numeric"
+              onChange={(e) => handleTimeChange(e.target.value)}
+              onFocus={() => setTimeFocused(true)}
+              onBlur={handleTimeBlur}
             />
           </div>
-          <span className={styles.wheelSep}>:</span>
-          <div className={styles.wheelGroup}>
-            <span className={styles.wheelLabel}>MM</span>
-            <ScrollWheelPicker
-              value={draft.minute}
-              min={0}
-              max={59}
-              onChange={(minute) => setDraft((prev) => ({ ...prev, minute }))}
-              ariaLabel="Minuto"
-            />
-          </div>
-          <div className={styles.liveReadout}>
-            {String(draft.hour).padStart(2, '0')}:{String(draft.minute).padStart(2, '0')}
-          </div>
-        </div>
+        </PopoverAnchor>
 
-        <button type="button" className={styles.confirmBtn} onClick={handleConfirm} disabled={!draft.date}>
-          Confirmar seleção
-        </button>
-      </PopoverContent>
-    </Popover>
+        <PopoverContent className={styles.content} align="start" sideOffset={6} collisionPadding={16}>
+          <div className={styles.monthHeader}>
+            <button
+              type="button"
+              className={styles.navButton}
+              onClick={() => setView(new Date(view.getFullYear(), view.getMonth() - 1, 1))}
+            >
+              <ChevronLeft size={15} />
+            </button>
+            <span className={styles.monthLabel}>{monthLabel}</span>
+            <button
+              type="button"
+              className={styles.navButton}
+              onClick={() => setView(new Date(view.getFullYear(), view.getMonth() + 1, 1))}
+            >
+              <ChevronRight size={15} />
+            </button>
+          </div>
+
+          <div className={styles.weekdayRow}>
+            {weekdays.map((w, i) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <span key={i} className={styles.weekday}>
+                {w}
+              </span>
+            ))}
+          </div>
+
+          <div className={styles.dayGrid}>
+            {grid.map((cell) => (
+              <button
+                key={cell.date.toISOString()}
+                type="button"
+                disabled={cell.disabled}
+                aria-pressed={cell.selected}
+                className={[
+                  styles.day,
+                  cell.selected && styles.daySelected,
+                  cell.isToday && !cell.selected && styles.dayToday,
+                  !cell.inMonth && !cell.disabled && styles.dayOutside,
+                  cell.disabled && styles.dayDisabled,
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                onClick={() => pickDay(cell.date)}
+              >
+                {cell.date.getDate()}
+              </button>
+            ))}
+          </div>
+
+          <div className={styles.popoverDivider} />
+
+          <div className={styles.timeRow}>
+            <span className={styles.timeLabel}>{t('time')}</span>
+            <input
+              className={styles.popoverTimeInput}
+              value={timeText}
+              placeholder={t('timePlaceholder')}
+              inputMode="numeric"
+              onChange={(e) => handleTimeChange(e.target.value)}
+              onFocus={() => setTimeFocused(true)}
+              onBlur={handleTimeBlur}
+            />
+            <div className={styles.quickTimes}>
+              {quickTimes.map((quick) => (
+                <button
+                  key={quick}
+                  type="button"
+                  className={`${styles.quickTime} ${time === quick ? styles.quickTimeActive : ''}`}
+                  onClick={() => pickQuickTime(quick)}
+                >
+                  {quick}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.footer}>
+            <button type="button" className={styles.todayButton} onClick={pickToday}>
+              {t('today')}
+            </button>
+            <button type="button" className={styles.doneButton} onClick={() => setOpen(false)}>
+              {t('done')}
+            </button>
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      {displayError && <p className={styles.error}>{displayError}</p>}
+      {!displayError && summary && <p className={styles.summary}>{summary}</p>}
+    </div>
   );
 }

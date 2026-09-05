@@ -724,8 +724,8 @@
       "cityPlaceholder": "Ej: Buenos Aires",
       "countryLabel": "País",
       "countryPlaceholder": "Ej: Argentina",
-      "startsAtLabel": "Inicio *",
-      "endsAtLabel": "Fin *"
+      "startsAtLabel": "Inicio",
+      "endsAtLabel": "Fin"
     },
     "production": {
       "hint": "Define cuántas cámaras estarán disponibles para el público durante la transmisión.",
@@ -757,6 +757,26 @@
     },
     "replayTicketDesc": "Acceso a la grabación después del evento",
     "mainStreamTitle": "Transmisión Principal"
+  },
+  "dateTimeInput": {
+    "invalidDate": "Fecha inválida. Usa dd/mm/aaaa.",
+    "invalidTime": "Hora inválida. Usa hh:mm (24h).",
+    "datePlaceholder": "dd/mm/aaaa",
+    "timePlaceholder": "hh:mm",
+    "hint": "DD/MM/AAAA · HH:MM",
+    "openCalendar": "Abrir calendario",
+    "weekdays": [
+      "D",
+      "L",
+      "M",
+      "X",
+      "J",
+      "V",
+      "S"
+    ],
+    "time": "HORA",
+    "today": "Hoy",
+    "done": "Listo"
   },
   "editTicket": {
     "title": "Entradas",

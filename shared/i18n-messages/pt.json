@@ -724,8 +724,8 @@
       "cityPlaceholder": "Ex: Rio de Janeiro",
       "countryLabel": "País",
       "countryPlaceholder": "Ex: Brasil",
-      "startsAtLabel": "Início *",
-      "endsAtLabel": "Fim *"
+      "startsAtLabel": "Início",
+      "endsAtLabel": "Fim"
     },
     "production": {
       "hint": "Defina quantas câmeras estarão disponíveis para o público durante a transmissão.",
@@ -757,6 +757,26 @@
     },
     "replayTicketDesc": "Acesso à gravação após o evento",
     "mainStreamTitle": "Transmissão Principal"
+  },
+  "dateTimeInput": {
+    "invalidDate": "Data inválida. Use dd/mm/aaaa.",
+    "invalidTime": "Hora inválida. Use hh:mm (24h).",
+    "datePlaceholder": "dd/mm/aaaa",
+    "timePlaceholder": "hh:mm",
+    "hint": "DD/MM/AAAA · HH:MM",
+    "openCalendar": "Abrir calendário",
+    "weekdays": [
+      "D",
+      "S",
+      "T",
+      "Q",
+      "Q",
+      "S",
+      "S"
+    ],
+    "time": "HORA",
+    "today": "Hoje",
+    "done": "Pronto"
   },
   "editTicket": {
     "title": "Ingressos",

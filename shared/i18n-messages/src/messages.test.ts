@@ -51,3 +51,9 @@ test('organizers page keys exist', () => {
 test('about page keys exist', () => {
   expect(messages.pt.aboutPage.meta.title).toBe('Sobre');
 });
+
+test('dateTimeInput keys exist', () => {
+  expect(messages.pt.dateTimeInput.weekdays).toHaveLength(7);
+  expect(messages.pt.dateTimeInput.invalidDate).toContain('dd/mm/aaaa');
+  expect(messages.pt.createEvent.location.startsAtLabel).toBe('Início');
+});

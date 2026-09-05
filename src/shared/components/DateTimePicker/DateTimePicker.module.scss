@@ -1,279 +1,368 @@
 @use '../../../styles/_variables' as *;
 
-// ── Trigger ───────────────────────────────────────────────────────
-.trigger {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+@keyframes dtIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.root {
+  position: relative;
   width: 100%;
-  background-color: $bg;
-  border: 1px solid $border;
-  border-radius: 6px;
-  color: $text-primary;
-  font-size: 0.9rem;
-  font-family: inherit;
-  padding: 0.625rem 0.75rem;
-  cursor: pointer;
-  text-align: left;
-  transition: border-color 0.15s, box-shadow 0.15s;
-
-  &:hover {
-    border-color: $text-secondary;
-  }
-
-  &:focus-visible {
-    outline: none;
-    border-color: $action;
-    box-shadow: 0 0 0 3px $action-dim;
-  }
 }
 
-.triggerError {
-  border-color: $error;
-}
-
-.triggerIcon {
-  color: $text-muted;
-  flex-shrink: 0;
-}
-
-.triggerValue {
-  color: $text-primary;
-}
-
-.triggerPlaceholder {
-  color: $text-muted;
-}
-
-// ── Popover surface ───────────────────────────────────────────────
-.content {
-  background-color: $surface-dark !important;
-  border: 1px solid $border !important;
-  border-radius: 10px !important;
-  padding: 1rem !important;
-  width: 320px !important;
-  max-height: var(--radix-popover-content-available-height) !important;
-  overflow-y: auto;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
-  color: $text-primary;
-}
-
-.header {
+// ── Label row ─────────────────────────────────────────────────────
+.labelRow {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
+  justify-content: space-between;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   color: $text-secondary;
-  margin-bottom: 0.75rem;
+  margin-bottom: 8px;
 }
 
-// ── Calendar (react-day-picker theming) ────────────────────────────
-.calendar {
-  width: 100%;
-  margin: 0;
+.required {
+  color: $action;
 }
 
-.months {
-  display: block;
+.hint {
+  color: $text-muted;
+  font-weight: 400;
+  letter-spacing: 0.06em;
 }
 
-.month {
-  width: 100%;
+// ── Field ─────────────────────────────────────────────────────────
+.field {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background-color: $bg;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  overflow: hidden;
 }
 
-.caption {
+.fieldActive {
+  border-color: $action;
+  box-shadow: 0 0 0 3px $action-dim;
+}
+
+.fieldError {
+  border-color: $danger;
+  box-shadow: none;
+}
+
+.calendarButton {
+  height: 100%;
+  width: 46px;
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  padding-bottom: 0.75rem;
-}
-
-.captionLabel {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: $text-primary;
-}
-
-.nav {
-  display: flex;
-}
-
-.navButton {
   background: transparent;
   border: none;
-  color: $text-muted;
+  border-right: 1px solid $border;
+  color: $text-secondary;
   cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: color 0.15s, background-color 0.15s;
+  transition: color 0.15s;
+
+  .fieldActive &,
+  .fieldError & {
+    color: $action;
+  }
 
   &:hover {
     color: $text-primary;
-    background-color: $bg-hover;
   }
 }
 
-.navButtonPrev {
-  position: absolute;
-  left: 0;
-}
-
-.navButtonNext {
-  position: absolute;
-  right: 0;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.headRow {
-  display: flex;
-}
-
-.headCell {
+.dateInput {
   flex: 1;
+  min-width: 0;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: $text-primary;
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  padding: 0 14px;
+  letter-spacing: 0.02em;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.divider {
+  width: 1px;
+  height: 22px;
+  background-color: $border;
+  flex: none;
+}
+
+.timeInput {
+  width: 84px;
+  flex: none;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: $text-primary;
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  padding: 0 14px;
   text-align: center;
-  font-size: 0.7rem;
-  font-weight: 500;
+  letter-spacing: 0.02em;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.error {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: $danger;
+}
+
+.summary {
+  margin-top: 6px;
+  font-size: 12.5px;
   color: $text-muted;
-  text-transform: uppercase;
-  padding-bottom: 0.5rem;
 }
 
-.calendarRow {
+// ── Popover ───────────────────────────────────────────────────────
+.content {
+  z-index: 30 !important;
+  width: 312px !important;
+  border-radius: 12px !important;
+  border: 1px solid $border !important;
+  background-color: $surface-dark !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+  padding: 14px !important;
+  animation: dtIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.monthHeader {
   display: flex;
-  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
 
-.cell {
-  flex: 1;
+.navButton {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: $text-secondary;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background-color 0.15s;
+
+  &:hover {
+    background-color: $bg-hover;
+    color: $text-primary;
+  }
+}
+
+.monthLabel {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.weekdayRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.weekday {
   text-align: center;
-  padding: 2px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: $text-muted;
+  padding: 4px 0;
+}
+
+.dayGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
 }
 
 .day {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid transparent;
   background: transparent;
   color: $text-primary;
-  font-size: 0.85rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
+  transition: all 0.12s;
 
-  &:hover:not([disabled]) {
+  &:hover:not(:disabled) {
     background-color: $bg-hover;
   }
 }
 
 .daySelected {
   background-color: $action !important;
-  color: white !important;
+  color: #0a0a0b !important;
   font-weight: 700;
 }
 
 .dayToday {
-  color: $action;
+  border-color: #3f3f46;
   font-weight: 700;
 }
 
 .dayOutside {
   color: $text-muted;
-  opacity: 0.5;
 }
 
 .dayDisabled {
-  color: $text-muted;
-  opacity: 0.3;
-  cursor: not-allowed;
+  color: #3f3f46;
+  cursor: default;
 }
 
-// ── Divider ───────────────────────────────────────────────────────
-.divider {
-  height: 1px;
-  background-color: $border;
-  margin: 1rem 0;
+.popoverDivider {
+  border-top: 1px solid $border;
+  margin: 12px 0 10px;
 }
 
-// ── Time section ──────────────────────────────────────────────────
-.timeHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: $text-muted;
-  margin-bottom: 0.625rem;
-}
-
+// ── Time row ──────────────────────────────────────────────────────
 .timeRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
-.wheelGroup {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.375rem;
-  flex: 1;
-}
-
-.wheelLabel {
-  font-size: 0.65rem;
-  color: $text-muted;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.wheelSep {
-  color: $text-muted;
-  font-weight: 700;
-  padding-top: 1.25rem;
-}
-
-.liveReadout {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: $bg;
-  border: 1px solid $border;
-  border-radius: 8px;
-  padding: 0.75rem;
+.timeLabel {
   font-family: 'Space Mono', monospace;
-  font-size: 1.1rem;
+  font-size: 9.5px;
   font-weight: 700;
-  color: $action;
-  min-width: 72px;
+  letter-spacing: 0.14em;
+  color: $text-muted;
+  flex: none;
 }
 
-// ── Confirm ───────────────────────────────────────────────────────
-.confirmBtn {
-  width: 100%;
-  margin-top: 1rem;
-  background-color: $action;
-  color: white;
-  border: none;
+.popoverTimeInput {
+  width: 78px;
+  height: 36px;
   border-radius: 6px;
-  padding: 0.625rem 1.25rem;
-  font-size: 0.9rem;
+  border: 1px solid $border;
+  background-color: $bg;
+  color: $text-primary;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  text-align: center;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $action;
+  }
+}
+
+// Own row under HORA: Space Mono is wider than the design's JetBrains Mono,
+// so four pills don't fit beside the input in a 312px popover.
+.quickTimes {
+  flex: 0 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.quickTime {
+  height: 30px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid $border;
+  background: transparent;
+  color: $text-secondary;
+  font-family: 'Space Mono', monospace;
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: $action;
+    color: $text-primary;
+  }
+}
+
+.quickTimeActive {
+  border-color: $action;
+  background-color: $action-bg;
+  color: $text-primary;
+}
+
+// ── Footer ────────────────────────────────────────────────────────
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.todayButton {
+  background: transparent;
+  border: none;
+  color: $text-secondary;
+  font-size: 12.5px;
+  padding: 6px 2px;
+  cursor: pointer;
+  transition: color 0.15s;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.doneButton {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: none;
+  background-color: $action;
+  color: #0a0a0b;
   font-weight: 700;
+  font-size: 13px;
   cursor: pointer;
   transition: opacity 0.15s;
 
-  &:hover:not(:disabled) {
+  &:hover {
     opacity: 0.88;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
 }

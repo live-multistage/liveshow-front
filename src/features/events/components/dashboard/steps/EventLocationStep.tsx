@@ -47,26 +47,35 @@ export function EventLocationStep({ register, errors, control }: Props) {
 
       <div className={styles.row}>
         <div className={styles.field}>
-          <label className={styles.label}>{t('startsAtLabel')}</label>
           <Controller
             control={control}
             name="startsAt"
             render={({ field }) => (
-              <DateTimePicker value={field.value} onChange={field.onChange} error={errors.startsAt?.message} />
+              <DateTimePicker
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.startsAt?.message}
+                label={t('startsAtLabel')}
+                required
+              />
             )}
           />
-          {errors.startsAt && <p className={styles.error}>{errors.startsAt.message}</p>}
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>{t('endsAtLabel')}</label>
           <Controller
             control={control}
             name="endsAt"
             render={({ field }) => (
-              <DateTimePicker value={field.value} onChange={field.onChange} error={errors.endsAt?.message} min={startsAt} />
+              <DateTimePicker
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.endsAt?.message}
+                min={startsAt}
+                label={t('endsAtLabel')}
+                required
+              />
             )}
           />
-          {errors.endsAt && <p className={styles.error}>{errors.endsAt.message}</p>}
         </div>
       </div>
     </section>
