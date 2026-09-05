@@ -72,7 +72,6 @@ export function Navbar() {
           <div className={styles.desktopNav}>
             <Link href="/" className={styles.navLink}>{t('home')}</Link>
             <Link href="/events" className={styles.navLink}>{t('schedule')}</Link>
-            <Link href="/be-partner" className={styles.navLink}>{t('organizers')}</Link>
 
             {isLoggedIn && (
               <>
@@ -184,7 +183,6 @@ export function Navbar() {
         <div className={styles.mobileMenu}>
           <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('home')}</Link>
           <Link href="/events" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('schedule')}</Link>
-          <Link href="/be-partner" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('organizers')}</Link>
           <Link href="/help" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>{t('help')}</Link>
           {/* Language switcher lives here on phones (hidden from the bar). */}
           <div className={styles.mobileLang}>
