@@ -6,6 +6,7 @@ import { Reveal } from '../shared/Reveal';
 import { SectionHeader } from '../shared/SectionHeader';
 import { organizerIcon, type OrganizerIconKey } from '../../data/organizers-icons';
 import { HeroPlayerMock } from '../organizers/HeroPlayerMock';
+import { EventPageMock } from '../mocks/EventPageMock';
 import { LatencyPanel } from '../mocks/LatencyPanel';
 import { ReplayMock } from '../mocks/ReplayMock';
 import { TicketPairMock } from '../mocks/TicketPairMock';
@@ -95,22 +96,39 @@ export async function AboutPageContent() {
         <div className={styles.glowTop} aria-hidden="true" />
         <div className={styles.blob} aria-hidden="true" />
         <div className={styles.container}>
-          <Reveal as="div" className={styles.label}>
-            {t('hero.label')}
-          </Reveal>
-          <Reveal as="h1" delay={100} className={styles.title}>
-            {t('hero.title')} <span className={styles.accent}>{t('hero.titleAccent')}</span>
-          </Reveal>
-          <div className={styles.manifesto}>
-            <Reveal as="p" delay={160} className={styles.manifestoP}>
-              {manifesto[0]}
+          <div className={styles.heroText}>
+            <Reveal as="div" className={styles.label}>
+              {t('hero.label')}
             </Reveal>
-            <Reveal as="p" delay={220} className={styles.manifestoPEmphasis}>
-              {manifesto[1]}
+            <Reveal as="h1" delay={100} className={styles.title}>
+              {t('hero.title')} <span className={styles.accent}>{t('hero.titleAccent')}</span>
             </Reveal>
-            <Reveal as="p" delay={280} className={styles.manifestoP}>
-              {manifesto[2]}
-            </Reveal>
+            <div className={styles.manifesto}>
+              <Reveal as="p" delay={160} className={styles.manifestoP}>
+                {manifesto[0]}
+              </Reveal>
+              <Reveal as="p" delay={220} className={styles.manifestoPEmphasis}>
+                {manifesto[1]}
+              </Reveal>
+              <Reveal as="p" delay={280} className={styles.manifestoP}>
+                {manifesto[2]}
+              </Reveal>
+            </div>
+          </div>
+          <div className={styles.heroMock}>
+            <div className={styles.heroMockGlow} aria-hidden="true" />
+            <EventPageMock
+              live={t('mocks.live')}
+              title={t('mocks.event')}
+              date={t('mocks.ticketDate')}
+              venue={t('mocks.venue')}
+              digitalLabel={t('mocks.digital')}
+              physicalLabel={t('mocks.physical')}
+              digitalSub={t('mocks.digitalSub')}
+              physicalSub={t('mocks.physicalSub')}
+              buy={t('mocks.buy')}
+              organizer={t('mocks.organizer')}
+            />
           </div>
         </div>
       </section>

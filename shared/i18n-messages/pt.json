@@ -2352,7 +2352,12 @@
       "gate": "PORTÃO B",
       "access": "Acesso",
       "watch": "Assistir",
-      "ticketDate": "SÁB 21 SET · 19:00"
+      "ticketDate": "SÁB 21 SET · 19:00",
+      "venue": "Ginásio Municipal",
+      "buy": "Comprar ingresso",
+      "organizer": "Liga Metropolitana de Vôlei",
+      "digitalSub": "HD · 4 câmeras",
+      "physicalSub": "QR · check-in"
     },
     "audiences": {
       "label": "PARA QUEM",

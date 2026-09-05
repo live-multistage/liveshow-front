@@ -49,6 +49,17 @@
   }
 }
 
+.hero .container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 56px;
+  align-items: center;
+
+  @media (max-width: $lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
 .label {
   font-family: 'Space Mono', monospace;
   font-size: 11px;
@@ -60,7 +71,7 @@
 
 .title {
   margin: 0 0 44px;
-  font-size: clamp(40px, 5.8vw, 80px);
+  font-size: clamp(38px, 4.8vw, 66px);
   font-weight: 900;
   letter-spacing: -0.045em;
   line-height: 0.95;
@@ -92,6 +103,30 @@
 
 .manifestoPEmphasis {
   color: $ink-soft;
+}
+
+.heroText {
+  // Text content (label + title + manifesto) keeps existing structure
+}
+
+.heroMock {
+  position: relative;
+  max-width: 520px;
+  justify-self: end;
+
+  @media (max-width: $lg) {
+    max-width: 640px;
+    margin: 8px auto 0;
+    justify-self: stretch;
+  }
+}
+
+.heroMockGlow {
+  position: absolute;
+  inset: -40px;
+  background: radial-gradient(60% 60% at 50% 60%, rgba(255, 46, 158, 0.22), transparent 70%);
+  filter: blur(30px);
+  pointer-events: none;
 }
 
 // ── S2 — Diferenciais ───────────────────────────────────────────────

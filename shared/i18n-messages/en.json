@@ -2352,7 +2352,12 @@
       "gate": "GATE B",
       "access": "Access",
       "watch": "Watch",
-      "ticketDate": "SAT SEP 21 · 7:00 PM"
+      "ticketDate": "SAT SEP 21 · 7:00 PM",
+      "venue": "Municipal Arena",
+      "buy": "Buy ticket",
+      "organizer": "Liga Metropolitana de Vôlei",
+      "digitalSub": "HD · 4 cameras",
+      "physicalSub": "QR · check-in"
     },
     "audiences": {
       "label": "WHO IT'S FOR",

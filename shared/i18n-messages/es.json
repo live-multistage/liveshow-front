@@ -2352,7 +2352,12 @@
       "gate": "PUERTA B",
       "access": "Acceso",
       "watch": "Mirar",
-      "ticketDate": "SÁB 21 SEP · 19:00"
+      "ticketDate": "SÁB 21 SEP · 19:00",
+      "venue": "Gimnasio Municipal",
+      "buy": "Comprar entrada",
+      "organizer": "Liga Metropolitana de Vôlei",
+      "digitalSub": "HD · 4 cámaras",
+      "physicalSub": "QR · check-in"
     },
     "audiences": {
       "label": "PARA QUIÉN",

@@ -23,6 +23,7 @@ import { SignalCell } from './SignalCell';
 import { ReplayMock } from './ReplayMock';
 import { LatencyPanel } from './LatencyPanel';
 import { TicketPairMock } from './TicketPairMock';
+import { EventPageMock } from './EventPageMock';
 import { HeroPlayerMock } from '../organizers/HeroPlayerMock';
 
 // Bars are the only spans carrying an inline animation-duration.
@@ -79,6 +80,27 @@ describe('mocks', () => {
 
     const qrCells = container.querySelectorAll('[aria-hidden="true"] > span');
     expect(qrCells).toHaveLength(49);
+  });
+
+  it('EventPageMock renders title, both ticket labels and buy text', () => {
+    render(
+      <EventPageMock
+        live="LIVE"
+        title="Final Estadual · Quadra Central"
+        date="SÁB 21 SET · 19:00"
+        venue="Ginásio Municipal"
+        digitalLabel="DIGITAL"
+        physicalLabel="PRESENCIAL"
+        digitalSub="HD · 4 câmeras"
+        physicalSub="QR · check-in"
+        buy="Comprar ingresso"
+        organizer="Liga Metropolitana de Vôlei"
+      />,
+    );
+    expect(screen.getByText('Final Estadual · Quadra Central')).toBeInTheDocument();
+    expect(screen.getByText('DIGITAL')).toBeInTheDocument();
+    expect(screen.getByText('PRESENCIAL')).toBeInTheDocument();
+    expect(screen.getByText('Comprar ingresso')).toBeInTheDocument();
   });
 
   it('ReplayMock renders the badge', () => {
