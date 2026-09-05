@@ -1,0 +1,74 @@
+@use '../../../../styles/_variables' as *;
+
+.section {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  --w0: min(760px, 88vw);
+  --w1: min(1180px, 95vw);
+  --media-top: 76%; // fallback until measured
+  --hint-factor: 150vw;
+
+  @media (max-width: $md) {
+    --w0: min(320px, 88vw);
+    --media-top: 70%; // fallback until measured
+    --hint-factor: 180vw;
+  }
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.overlay {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding-top: clamp(110px, 16vh, 160px);
+}
+
+// At p=0 the media's TOP edge sits at --media-top (below the overlay text,
+// cut by the fold like the design); at p=1 its CENTER sits at 50%.
+.mediaWrap {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: calc(var(--media-top) + (50% - var(--media-top)) * var(--p));
+  transform: translate(-50%, calc(-50% * var(--p)));
+  width: calc(var(--w0) + (var(--w1) - var(--w0)) * var(--p));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mediaInner {
+  position: relative;
+  width: 100%;
+  max-height: 85vh;
+  overflow: hidden;
+  border-radius: 18px;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  pointer-events: none;
+}
+
+.hint {
+  margin: 18px 0 0;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: $text-muted;
+  transform: translateX(calc(var(--p) * var(--hint-factor)));
+  white-space: nowrap;
+}

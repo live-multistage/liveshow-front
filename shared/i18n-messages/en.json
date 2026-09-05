@@ -1978,7 +1978,8 @@
           "ambient": "AMBIENT",
           "narration": "COMMENTARY"
         }
-      }
+      },
+      "scrollHint": "SCROLL TO EXPAND"
     },
     "audiences": {
       "shows": "Concerts and festivals",

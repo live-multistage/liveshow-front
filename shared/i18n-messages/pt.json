@@ -1978,7 +1978,8 @@
           "ambient": "AMBIENTE",
           "narration": "NARRAÇÃO"
         }
-      }
+      },
+      "scrollHint": "ROLE PARA EXPANDIR"
     },
     "audiences": {
       "shows": "Shows e festivais",
