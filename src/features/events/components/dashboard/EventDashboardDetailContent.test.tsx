@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+// DateTimePicker (inside the edit form) needs t.raw and useLocale.
+vi.mock('next-intl', () => ({
+  useTranslations: () => Object.assign((key: string) => key, { raw: () => [] }),
+  useLocale: () => 'pt',
+}));
 vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
