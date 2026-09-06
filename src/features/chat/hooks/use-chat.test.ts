@@ -125,10 +125,10 @@ describe('useChat', () => {
       sentAt: '2026-01-01T00:00:01.000Z',
     };
 
-    act(() => source.emit('message', incoming));
+    act(() => source.emit('message', { type: 'message', message: incoming }));
     await waitFor(() => expect(result.current.messages).toHaveLength(2));
 
-    act(() => source.emit('message', incoming));
+    act(() => source.emit('message', { type: 'message', message: incoming }));
     expect(result.current.messages).toHaveLength(2);
   });
 
@@ -138,7 +138,7 @@ describe('useChat', () => {
     await waitFor(() => expect(result.current.messages).toHaveLength(1));
 
     const source = latestSource();
-    act(() => source.emit('message.deleted', { messageId: 'm1' }));
+    act(() => source.emit('message.deleted', { type: 'message.deleted', messageId: 'm1' }));
 
     await waitFor(() => expect(result.current.messages).toHaveLength(0));
   });
@@ -150,7 +150,10 @@ describe('useChat', () => {
 
     const source = latestSource();
     act(() =>
-      source.emit('reactions', { counts: { '💜': 3, '🔥': 1, '🤘': 0, '👏': 0, '✨': 0 } }),
+      source.emit('reactions', {
+        type: 'reactions',
+        counts: { '💜': 3, '🔥': 1, '🤘': 0, '👏': 0, '✨': 0 },
+      }),
     );
 
     await waitFor(() => expect(result.current.reactionCounts['💜']).toBe(3));
@@ -164,10 +167,10 @@ describe('useChat', () => {
 
     const source = latestSource();
 
-    act(() => source.emit('muted', { userId: 'someone-else', muted: true }));
+    act(() => source.emit('muted', { type: 'muted', userId: 'someone-else', muted: true }));
     expect(result.current.me?.isMuted).toBe(false);
 
-    act(() => source.emit('muted', { userId: 'user-1', muted: true }));
+    act(() => source.emit('muted', { type: 'muted', userId: 'user-1', muted: true }));
     await waitFor(() => expect(result.current.me?.isMuted).toBe(true));
     expect(result.current.me?.canWrite).toBe(false);
   });
@@ -224,6 +227,102 @@ describe('useChat', () => {
     expect(secondSource).not.toBe(firstSource);
     act(() => secondSource.onopen?.());
     expect(result.current.status).toBe('live');
+  });
+
+  it('backs off exponentially, refreshes the token once per streak, and stops after 5 consecutive failures', async () => {
+    tokenStore.set('token-1');
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ accessToken: 'token-2' }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(() => useChat('evt-1'), { wrapper });
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    act(() => latestSource().onopen?.());
+
+    vi.useFakeTimers();
+    const delays = [3000, 6000, 12000, 24000, 48000];
+    for (const delay of delays) {
+      act(() => latestSource().onerror?.());
+      expect(result.current.status).toBe('reconnecting');
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(delay);
+      });
+    }
+    // 1 initial connection + 5 reconnect attempts.
+    expect(FakeEventSource.instances).toHaveLength(6);
+
+    // A 6th consecutive failure must not schedule another attempt.
+    act(() => latestSource().onerror?.());
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(120_000);
+    });
+    expect(FakeEventSource.instances).toHaveLength(6);
+    expect(result.current.status).toBe('reconnecting');
+    vi.useRealTimers();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+  });
+
+  it('refetches recent messages after reconnecting and merges them by id, ordered by sentAt', async () => {
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(() => useChat('evt-1'), { wrapper });
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    expect(mockedRecent).toHaveBeenCalledTimes(1);
+
+    const firstSource = latestSource();
+    act(() => firstSource.onopen?.());
+
+    mockedRecent.mockResolvedValueOnce({
+      messages: [
+        recentFixture.messages[0],
+        {
+          id: 'm3',
+          eventId: 'evt-1',
+          userId: 'user-4',
+          authorName: 'Duda',
+          body: 'voltei',
+          sentAt: '2026-01-01T00:00:02.000Z',
+        },
+      ],
+      me: recentFixture.me,
+    });
+
+    vi.useFakeTimers();
+    act(() => firstSource.onerror?.());
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000);
+    });
+    vi.useRealTimers();
+
+    const secondSource = latestSource();
+    await act(async () => {
+      secondSource.onopen?.();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    await waitFor(() => expect(result.current.messages.map((m) => m.id)).toEqual(['m1', 'm3']));
+    expect(mockedRecent).toHaveBeenCalledTimes(2);
+  });
+
+  it('bootstraps as forbidden without opening an EventSource when recent 403s', async () => {
+    mockedRecent.mockReset();
+    mockedRecent.mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 403, data: { code: 'CHAT_FORBIDDEN', message: 'forbidden' } },
+    });
+
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(() => useChat('evt-1'), { wrapper });
+
+    await waitFor(() =>
+      expect(result.current.me).toEqual({ canWrite: false, isMuted: false, isModerator: false }),
+    );
+    expect(FakeEventSource.instances).toHaveLength(0);
   });
 
   it('useChat(null) never opens an EventSource nor calls the service', async () => {

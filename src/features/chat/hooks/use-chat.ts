@@ -5,7 +5,12 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { CHAT_ERROR_CODES, REACTION_EMOJIS } from '@live-show/api-contracts';
-import type { ChatMe, ChatMessage as ContractChatMessage, ReactionEmoji } from '@live-show/api-contracts';
+import type {
+  ChatMe,
+  ChatMessage as ContractChatMessage,
+  ChatStreamEvent,
+  ReactionEmoji,
+} from '@live-show/api-contracts';
 import { tokenStore } from '@/lib/auth/token-store';
 import { normalizeError } from '@/lib/http/errors';
 import { useAuth } from '@/features/account/hooks/use-auth';
@@ -15,10 +20,20 @@ import type { ChatMessage } from '../types/chat.types';
 
 const AVATAR_COLORS = ['#46d6d8', '#9b7bff', '#7fe0a0', '#ff7a4d', '#bba6ff', '#ffd166'];
 const MAX_MESSAGES = 500;
-// EventSource's own default retry interval is ~3s; matched here so a dead
-// SSE endpoint (with a healthy refresh route) can't turn into a tight
-// refresh->connect->error busy-loop. Mirrors use-notifications-stream.ts.
-const RECONNECT_DELAY_MS = 3000;
+// EventSource's own default retry interval is ~3s; matched here as the base
+// delay so a dead SSE endpoint (with a healthy refresh route) can't turn into
+// a tight refresh->connect->error busy-loop. Mirrors use-notifications-stream.ts.
+const BASE_RECONNECT_DELAY_MS = 3000;
+const MAX_RECONNECT_DELAY_MS = 60_000;
+// After this many consecutive failures without a successful `onopen`, give
+// up: keep showing the reconnecting banner but stop hammering the endpoint.
+const MAX_CONSECUTIVE_FAILURES = 5;
+
+// Bootstrap error codes that mean "no chat for this viewer" rather than a
+// transient failure — CHAT_FORBIDDEN isn't in CHAT_ERROR_CODES's own union
+// (that one covers write-path errors) and FEATURE_DISABLED comes from the
+// unrelated feature-flags module, so both are compared as raw strings here.
+const CHAT_DISABLED_ERROR_CODES = new Set<string>([CHAT_ERROR_CODES.FORBIDDEN, 'FEATURE_DISABLED']);
 
 function hashString(value: string): number {
   let hash = 0;
@@ -86,6 +101,10 @@ export function useChat(eventId: string | null) {
     staleTime: Infinity,
     enabled: eventId !== null,
   });
+  // Read inside the SSE effect without adding the query object (a new
+  // reference every render) to its dependency array.
+  const refetchRecentRef = useRef(recentQuery.refetch);
+  refetchRecentRef.current = recentQuery.refetch;
 
   // Recent-messages bootstrap seeds local state exactly once per eventId —
   // afterwards `messages`/`me` are owned by the SSE stream (and mutations),
@@ -97,6 +116,22 @@ export function useChat(eventId: string | null) {
     setMe(recentQuery.data.me);
   }, [eventId, recentQuery.data]);
 
+  // Derived synchronously (not via its own effect+state) so it's already
+  // correct on the very render `recentQuery.error` shows up — an effect
+  // setting state here would lag a render behind and let the SSE effect
+  // below open a connection before the disabled state ever "landed".
+  const bootstrapForbidden = useMemo(() => {
+    if (!recentQuery.error) return false;
+    const code = normalizeError(recentQuery.error).code;
+    return !!code && CHAT_DISABLED_ERROR_CODES.has(code);
+  }, [recentQuery.error]);
+
+  useEffect(() => {
+    if (!bootstrapForbidden || seededEventIdRef.current === eventId) return;
+    seededEventIdRef.current = eventId;
+    setMe({ canWrite: false, isMuted: false, isModerator: false });
+  }, [eventId, bootstrapForbidden]);
+
   // Resets the connecting/live/reconnecting indicator whenever the caller
   // switches which event's chat this hook is bound to.
   useEffect(() => {
@@ -104,10 +139,14 @@ export function useChat(eventId: string | null) {
   }, [eventId]);
 
   useEffect(() => {
-    // No event to chat about (chat disabled, or not resolved yet) — never
-    // open an SSE connection, never hit the service. See Task 7 addendum.
-    if (eventId === null) return;
+    // No event to chat about, bootstrap said this viewer has no chat, or the
+    // recent-messages call hasn't settled yet — never open an SSE connection
+    // before we know which of those applies. See Task 7 addendum.
+    if (eventId === null || bootstrapForbidden || recentQuery.isLoading) return;
     let cancelled = false;
+    let consecutiveFailures = 0;
+    let refreshedThisStreak = false;
+    let wasReconnecting = false;
 
     function connect() {
       const token = tokenStore.get();
@@ -115,12 +154,33 @@ export function useChat(eventId: string | null) {
       sourceRef.current = source;
 
       source.onopen = () => {
-        if (!cancelled) setStatus('live');
+        if (cancelled) return;
+        const shouldBackfill = wasReconnecting;
+        consecutiveFailures = 0;
+        refreshedThisStreak = false;
+        wasReconnecting = false;
+        setStatus('live');
+
+        if (!shouldBackfill) return;
+        void refetchRecentRef.current().then((result) => {
+          if (cancelled || !result.data) return;
+          setMessages((prev) => {
+            const byId = new Map(prev.map((existing) => [existing.id, existing]));
+            for (const raw of result.data!.messages) {
+              if (!byId.has(raw.id)) byId.set(raw.id, decorate(raw));
+            }
+            return Array.from(byId.values()).sort(
+              (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime(),
+            );
+          });
+        });
       };
 
       source.addEventListener('message', (event) => {
         try {
-          const message = JSON.parse((event as MessageEvent<string>).data) as ContractChatMessage;
+          const evt = JSON.parse((event as MessageEvent<string>).data) as ChatStreamEvent;
+          if (evt.type !== 'message') return;
+          const message = evt.message;
           setMessages((prev) => {
             if (prev.some((m) => m.id === message.id)) return prev;
             const next = [...prev, decorate(message)];
@@ -133,8 +193,9 @@ export function useChat(eventId: string | null) {
 
       source.addEventListener('message.deleted', (event) => {
         try {
-          const { messageId } = JSON.parse((event as MessageEvent<string>).data) as { messageId: string };
-          setMessages((prev) => prev.filter((m) => m.id !== messageId));
+          const evt = JSON.parse((event as MessageEvent<string>).data) as ChatStreamEvent;
+          if (evt.type !== 'message.deleted') return;
+          setMessages((prev) => prev.filter((m) => m.id !== evt.messageId));
         } catch {
           // ignore
         }
@@ -142,10 +203,9 @@ export function useChat(eventId: string | null) {
 
       source.addEventListener('reactions', (event) => {
         try {
-          const { counts } = JSON.parse((event as MessageEvent<string>).data) as {
-            counts: Record<ReactionEmoji, number>;
-          };
-          setReactionCounts(counts);
+          const evt = JSON.parse((event as MessageEvent<string>).data) as ChatStreamEvent;
+          if (evt.type !== 'reactions') return;
+          setReactionCounts(evt.counts);
         } catch {
           // ignore
         }
@@ -153,12 +213,10 @@ export function useChat(eventId: string | null) {
 
       source.addEventListener('muted', (event) => {
         try {
-          const { userId, muted } = JSON.parse((event as MessageEvent<string>).data) as {
-            userId: string;
-            muted: boolean;
-          };
-          if (userId !== user?.id) return;
-          setMe((prev) => (prev ? { ...prev, isMuted: muted, canWrite: !muted } : prev));
+          const evt = JSON.parse((event as MessageEvent<string>).data) as ChatStreamEvent;
+          if (evt.type !== 'muted') return;
+          if (evt.userId !== user?.id) return;
+          setMe((prev) => (prev ? { ...prev, isMuted: evt.muted, canWrite: !evt.muted } : prev));
         } catch {
           // ignore
         }
@@ -166,23 +224,35 @@ export function useChat(eventId: string | null) {
 
       // The token in the URL is only valid for 15 minutes and EventSource's
       // native retry would otherwise keep reconnecting with that same dead
-      // token — so on error, refresh first (when logged in) and reconnect
-      // with the new one. Anonymous viewers just retry after the delay.
+      // token — so on error, refresh first (when logged in, and only once
+      // per failure streak) and reconnect with the new one. Anonymous
+      // viewers just retry after the delay. The delay backs off
+      // exponentially, and after MAX_CONSECUTIVE_FAILURES we stop retrying
+      // altogether — the banner stays up, but nothing further is scheduled.
       source.onerror = () => {
         source.close();
         if (cancelled) return;
+        wasReconnecting = true;
         setStatus('reconnecting');
+        consecutiveFailures += 1;
+        if (consecutiveFailures > MAX_CONSECUTIVE_FAILURES) return;
+
+        const delay = Math.min(
+          BASE_RECONNECT_DELAY_MS * 2 ** (consecutiveFailures - 1),
+          MAX_RECONNECT_DELAY_MS,
+        );
         reconnectTimeoutRef.current = setTimeout(() => {
           if (cancelled) return;
           const currentToken = tokenStore.get();
-          if (!currentToken) {
+          if (!currentToken || refreshedThisStreak) {
             connect();
             return;
           }
+          refreshedThisStreak = true;
           void refreshAccessToken().then(() => {
             if (!cancelled) connect();
           });
-        }, RECONNECT_DELAY_MS);
+        }, delay);
       };
     }
 
@@ -194,7 +264,7 @@ export function useChat(eventId: string | null) {
       sourceRef.current?.close();
       sourceRef.current = null;
     };
-  }, [eventId, user?.id]);
+  }, [eventId, user?.id, bootstrapForbidden, recentQuery.isLoading]);
 
   const sendMessageMutation = useMutation({
     mutationFn: (body: string) => chatService.send(eventId as string, body),
