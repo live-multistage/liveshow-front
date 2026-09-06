@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Search, Calendar, Ticket, Check, Download } from 'lucide-react';
+import { Search, Calendar, Ticket, Check } from 'lucide-react';
 import type { OrderView } from '@live-show/api-contracts';
 import { useOrderHistoryQuery } from '../queries/get-order-history';
 import { formatCents } from '@/shared/utils/money';
+import { OrderFiscalDocumentButton } from './OrderFiscalDocumentButton';
 import styles from './PurchasesPageContent.module.scss';
 
 type FilterId = 'todos' | 'ativos' | 'passados' | 'reembolsados';
@@ -61,7 +62,11 @@ const STATUS_LABEL: Record<string, string> = {
   PAID: 'Pago', PENDING: 'Pendente', CANCELLED: 'Cancelado', REFUNDED: 'Reembolsado', EXPIRED: 'Expirado',
 };
 
-export function PurchasesPageContent() {
+interface Props {
+  fiscalEnabled?: boolean;
+}
+
+export function PurchasesPageContent({ fiscalEnabled }: Props) {
   const { data: orders, isLoading, isError } = useOrderHistoryQuery();
   const [filter, setFilter] = useState<FilterId>('todos');
   const [search, setSearch] = useState('');
@@ -205,15 +210,7 @@ export function PurchasesPageContent() {
                         {(STATUS_LABEL[o.status] ?? o.status).toUpperCase()}
                       </span>
                     )}
-                    <button
-                      type="button"
-                      className={styles.download}
-                      disabled
-                      title="Recibo em breve"
-                      aria-label="Baixar recibo"
-                    >
-                      <Download size={15} />
-                    </button>
+                    {fiscalEnabled ? <OrderFiscalDocumentButton orderId={o.id} orderStatus={o.status} /> : null}
                   </div>
                 </div>
 
