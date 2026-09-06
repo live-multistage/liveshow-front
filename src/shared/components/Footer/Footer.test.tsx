@@ -31,6 +31,11 @@ describe('Footer', () => {
    * e-mail nunca abriria. Este teste é o que impede alguém de "uniformizar" os
    * três links para <Link>.
    */
+  it('links about to the about page', () => {
+    render(<Footer />);
+    expect(screen.getByRole('link', { name: 'about' })).toHaveAttribute('href', '/about');
+  });
+
   it('renders the contact address as a plain anchor, not a router link', () => {
     render(<Footer />);
     const contact = screen.getByRole('link', { name: 'contact' });

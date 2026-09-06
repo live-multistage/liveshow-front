@@ -1639,7 +1639,8 @@
     "contact": "Contact us",
     "help": "Help",
     "copyright": "© {year} showon.io. All rights reserved.",
-    "organizers": "Become a partner"
+    "organizers": "Become a partner",
+    "about": "About us"
   },
   "help": {
     "metaTitle": "Help",

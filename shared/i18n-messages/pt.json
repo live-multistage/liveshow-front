@@ -1639,7 +1639,8 @@
     "contact": "Fale conosco",
     "help": "Ajuda",
     "copyright": "© {year} showon.io. Todos os direitos reservados.",
-    "organizers": "Seja um parceiro"
+    "organizers": "Seja um parceiro",
+    "about": "Sobre nós"
   },
   "help": {
     "metaTitle": "Ajuda",
