@@ -2806,5 +2806,22 @@
         "button": "Become a partner"
       }
     }
+  },
+  "chat": {
+    "close": "Close chat",
+    "delete": "Delete",
+    "empty": "Be the first to comment",
+    "joinToChat": "Join to participate",
+    "login": "Sign in",
+    "messagesCount": "{count} messages",
+    "muteUser": "Mute {name}",
+    "muted": "You've been muted on this event",
+    "placeholder": "Message…",
+    "rateLimited": "Slow down, 1 message every 2 seconds",
+    "reactions": "{count} reactions",
+    "reconnecting": "Reconnecting…",
+    "send": "Send message",
+    "title": "Chat",
+    "unmuteUser": "Unmute {name}"
   }
 }

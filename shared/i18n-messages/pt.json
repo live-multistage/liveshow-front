@@ -2806,5 +2806,22 @@
         "button": "Seja um parceiro"
       }
     }
+  },
+  "chat": {
+    "close": "Fechar chat",
+    "delete": "Apagar",
+    "empty": "Seja o primeiro a comentar",
+    "joinToChat": "Entre pra participar",
+    "login": "Entrar",
+    "messagesCount": "{count} mensagens",
+    "muteUser": "Silenciar {name}",
+    "muted": "Você foi silenciado neste evento",
+    "placeholder": "Mensagem…",
+    "rateLimited": "Calma, 1 mensagem a cada 2 segundos",
+    "reactions": "{count} reações",
+    "reconnecting": "Reconectando…",
+    "send": "Enviar mensagem",
+    "title": "Chat",
+    "unmuteUser": "Reativar {name}"
   }
 }

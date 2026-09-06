@@ -2806,5 +2806,22 @@
         "button": "Sé un socio"
       }
     }
+  },
+  "chat": {
+    "close": "Cerrar chat",
+    "delete": "Eliminar",
+    "empty": "Sé el primero en comentar",
+    "joinToChat": "Únete para participar",
+    "login": "Inicia sesión",
+    "messagesCount": "{count} mensajes",
+    "muteUser": "Silenciar {name}",
+    "muted": "Has sido silenciado en este evento",
+    "placeholder": "Mensaje…",
+    "rateLimited": "Tranquilo, 1 mensaje cada 2 segundos",
+    "reactions": "{count} reacciones",
+    "reconnecting": "Reconectando…",
+    "send": "Enviar mensaje",
+    "title": "Chat",
+    "unmuteUser": "Reactivar {name}"
   }
 }
