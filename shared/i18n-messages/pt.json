@@ -936,6 +936,7 @@
     "avatarError": "Não foi possível enviar a foto.",
     "name": "Nome",
     "phone": "Telefone",
+    "taxDocument": "CPF / CNPJ",
     "bio": "Bio",
     "save": "Salvar",
     "saved": "Salvos",

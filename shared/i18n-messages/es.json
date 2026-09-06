@@ -936,6 +936,7 @@
     "avatarError": "No pudimos subir la foto.",
     "name": "Nombre",
     "phone": "Teléfono",
+    "taxDocument": "CPF / CNPJ",
     "bio": "Bio",
     "save": "Guardar",
     "saved": "Guardados",
