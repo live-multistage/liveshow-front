@@ -1,7 +1,23 @@
 import type { AdDestination } from '@/features/advertisements/types/advertisement.types';
 import type { ReportReason } from '@/features/reports/types/report.types';
+import type {
+  FiscalDocumentStatus,
+  FiscalDocumentAdminRow,
+  FiscalDocumentAdminList,
+  FiscalTaxRegime,
+  FiscalIssuerView,
+  UpdateFiscalIssuerRequest,
+} from '@live-show/api-contracts';
 
 export type { AdDestination, ReportReason };
+export type {
+  FiscalDocumentStatus,
+  FiscalDocumentAdminRow,
+  FiscalDocumentAdminList,
+  FiscalTaxRegime,
+  FiscalIssuerView,
+  UpdateFiscalIssuerRequest,
+};
 
 export type OrganizationStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED' | 'REJECTED';
 

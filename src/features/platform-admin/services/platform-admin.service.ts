@@ -31,6 +31,10 @@ import type {
   ReportStatus,
   OrganizerApplicationAdmin,
   PlatformSettingsView,
+  FiscalDocumentStatus,
+  FiscalDocumentAdminList,
+  FiscalIssuerView,
+  UpdateFiscalIssuerRequest,
 } from '../types/platform-admin.types';
 
 export const platformAdminService = {
@@ -280,6 +284,31 @@ export const platformAdminService = {
       `/platform-admin/organizations/${organizationId}/members/${memberId}/role`,
       { role },
     );
+    return data;
+  },
+
+  listFiscalDocuments: async (params: {
+    status?: FiscalDocumentStatus;
+    from?: string;
+    to?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<FiscalDocumentAdminList> => {
+    const { data } = await httpClient.get<FiscalDocumentAdminList>('/platform/fiscal/documents', { params });
+    return data;
+  },
+
+  retryFiscalDocument: async (id: string): Promise<void> => {
+    await httpClient.post(`/platform/fiscal/documents/${id}/retry`);
+  },
+
+  getFiscalIssuer: async (): Promise<FiscalIssuerView> => {
+    const { data } = await httpClient.get<FiscalIssuerView>('/platform/fiscal/issuer');
+    return data;
+  },
+
+  updateFiscalIssuer: async (body: UpdateFiscalIssuerRequest): Promise<FiscalIssuerView> => {
+    const { data } = await httpClient.patch<FiscalIssuerView>('/platform/fiscal/issuer', body);
     return data;
   },
 };

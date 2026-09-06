@@ -442,6 +442,7 @@
       "platformEvents": "Event directory",
       "platformRevenue": "Platform revenue",
       "platformPayouts": "Payouts & balances",
+      "platformFiscal": "Invoices",
       "platformStreams": "Stream health",
       "platformAds": "Advertisements",
       "platformCoupons": "Coupons",
@@ -1329,6 +1330,10 @@
       "play_billing": {
         "name": "Google Play Billing",
         "description": "Store billing on Android, offered alongside Stripe."
+      },
+      "fiscal_emission": {
+        "name": "NFS-e issuance",
+        "description": "Service fee tax invoice via PlugNotas."
       },
       "scope": {
         "all": "All orgs",

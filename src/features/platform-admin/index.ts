@@ -20,6 +20,8 @@ export { PlatformAdPartnershipsPage } from './components/PlatformAdPartnershipsP
 export { PlatformCouponsPage } from './components/PlatformCouponsPage';
 export { PlatformOrganizerApplicationsPage } from './components/PlatformOrganizerApplicationsPage';
 export { PlatformEventsPage } from './components/PlatformEventsPage';
+export { PlatformFiscalPage } from './components/PlatformFiscalPage';
+export { FiscalIssuerSection } from './components/FiscalIssuerSection';
 export { useOrganizationDirectoryQuery } from './queries/get-organization-directory';
 export { useOrganizationDetailQuery } from './queries/get-organization-detail';
 export { useOrganizationMembersQuery } from './queries/get-organization-members';
@@ -52,4 +54,8 @@ export {
   lastFlagChange,
   isSettingsAuditEntry,
 } from './queries/get-settings';
+export { useFiscalDocumentsQuery } from './queries/get-fiscal-documents';
+export { useFiscalIssuerQuery } from './queries/get-fiscal-issuer';
+export { useRetryFiscalDocumentMutation } from './mutations/retry-fiscal-document.mutation';
+export { useUpdateFiscalIssuerMutation } from './mutations/update-fiscal-issuer.mutation';
 export type * from './types/platform-admin.types';

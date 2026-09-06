@@ -66,9 +66,13 @@ import {
   useFlagAuditQuery,
   useSettingsAuditQuery,
 } from '../queries/get-settings';
-import type { AuditLogEntry, PlatformSettingsView } from '../types/platform-admin.types';
+import { useFiscalIssuerQuery } from '../queries/get-fiscal-issuer';
+import { useUpdateFiscalIssuerMutation } from '../mutations/update-fiscal-issuer.mutation';
+import type { AuditLogEntry, PlatformSettingsView, FiscalIssuerView } from '../types/platform-admin.types';
 
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock('../queries/get-fiscal-issuer', () => ({ useFiscalIssuerQuery: vi.fn() }));
+vi.mock('../mutations/update-fiscal-issuer.mutation', () => ({ useUpdateFiscalIssuerMutation: vi.fn() }));
 vi.mock('../queries/get-settings', async () => {
   const actual = await vi.importActual<typeof import('../queries/get-settings')>('../queries/get-settings');
   return {
@@ -90,6 +94,27 @@ const mockedFlags = vi.mocked(useGlobalFlagsQuery);
 const mockedSetFlag = vi.mocked(useSetGlobalFlagMutation);
 const mockedFlagAudit = vi.mocked(useFlagAuditQuery);
 const mockedSettingsAudit = vi.mocked(useSettingsAuditQuery);
+const mockedFiscalIssuer = vi.mocked(useFiscalIssuerQuery);
+const mockedUpdateFiscalIssuer = vi.mocked(useUpdateFiscalIssuerMutation);
+
+const FISCAL_ISSUER: FiscalIssuerView = {
+  id: 'i1',
+  issuerKind: 'PLATFORM',
+  cnpj: '12345678000199',
+  legalName: 'Live Show LTDA',
+  municipalRegistration: null,
+  cityIbgeCode: '3550308',
+  serviceCodeNational: '01.07',
+  cnae: null,
+  issRate: 0.05,
+  issWithheld: false,
+  taxRegime: 'SIMPLES_NACIONAL',
+  ibsCbsCst: null,
+  ibsCbsClassTrib: null,
+  serviceDescriptionTemplate: 'Taxa do pedido {orderId}',
+  active: true,
+  updatedAt: '2026-09-06T00:00:00Z',
+};
 
 function stubQuery<T>(data: T, extra?: Partial<UseQueryResult<T>>): UseQueryResult<T> {
   return { data, isLoading: false, isError: false, ...extra } as unknown as UseQueryResult<T>;
@@ -158,6 +183,10 @@ function setup(overrides?: {
     stubQuery<AuditLogEntry[]>(auditEntries.filter((e) => e.action === 'FEATURE_FLAG_SET')),
   );
   mockedSettingsAudit.mockReturnValue(stubQuery<AuditLogEntry[]>(auditEntries));
+  mockedFiscalIssuer.mockReturnValue(stubQuery<FiscalIssuerView>(FISCAL_ISSUER));
+  mockedUpdateFiscalIssuer.mockReturnValue(
+    stubMutation() as unknown as ReturnType<typeof useUpdateFiscalIssuerMutation>,
+  );
 }
 
 describe('PlatformSettingsPage', () => {
@@ -314,7 +343,9 @@ describe('PlatformSettingsPage', () => {
     const input = screen.getByLabelText('Taxa default da plataforma');
     await user.clear(input);
     await user.type(input, '3,5');
-    await user.click(screen.getByRole('button', { name: 'Salvar' }));
+    // Two "Salvar" buttons exist on the page now (fees inline edit + the
+    // fiscal issuer form); the fees one renders first in DOM order.
+    await user.click(screen.getAllByRole('button', { name: 'Salvar' })[0]);
 
     expect(mutate).toHaveBeenCalledWith(0.035, expect.anything());
     expect(toast.error).not.toHaveBeenCalled();
@@ -330,7 +361,9 @@ describe('PlatformSettingsPage', () => {
     const input = screen.getByLabelText('Taxa default da plataforma');
     await user.clear(input);
     await user.type(input, '150');
-    await user.click(screen.getByRole('button', { name: 'Salvar' }));
+    // Two "Salvar" buttons exist on the page now (fees inline edit + the
+    // fiscal issuer form); the fees one renders first in DOM order.
+    await user.click(screen.getAllByRole('button', { name: 'Salvar' })[0]);
 
     expect(mutate).not.toHaveBeenCalled();
     expect(toast.error).toHaveBeenCalledWith('Informe um percentual entre 0 e 100.');
