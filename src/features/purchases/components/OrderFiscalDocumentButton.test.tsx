@@ -1,23 +1,32 @@
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 vi.mock('../queries/get-order-fiscal-document', () => ({ useOrderFiscalDocumentQuery: vi.fn() }));
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { OrderFiscalDocumentButton } from './OrderFiscalDocumentButton';
 import { useOrderFiscalDocumentQuery } from '../queries/get-order-fiscal-document';
 
 const mocked = vi.mocked(useOrderFiscalDocumentQuery);
 
+// jsdom doesn't implement these — Radix DropdownMenu needs them to open.
+beforeEach(() => {
+  window.HTMLElement.prototype.hasPointerCapture = vi.fn().mockReturnValue(false);
+  window.HTMLElement.prototype.releasePointerCapture = vi.fn();
+  window.HTMLElement.prototype.scrollIntoView = vi.fn();
+});
+
 describe('OrderFiscalDocumentButton', () => {
-  it('shows PDF/XML links when AUTHORIZED', () => {
+  it('shows PDF/XML links when AUTHORIZED', async () => {
     mocked.mockReturnValue({
       data: { status: 'AUTHORIZED', nfseNumber: '55', authorizedAt: '2026-09-06T00:00:00Z', pdfUrl: 'https://s/p', xmlUrl: 'https://s/x' },
       isLoading: false,
     } as never);
+    const user = userEvent.setup();
     render(<OrderFiscalDocumentButton orderId="o1" orderStatus="PAID" />);
-    fireEvent.click(screen.getByRole('button', { name: 'download' }));
-    const pdf = screen.getByRole('link', { name: /pdf/i });
-    const xml = screen.getByRole('link', { name: /xml/i });
+    await user.click(screen.getByRole('button', { name: 'download' }));
+    const pdf = await screen.findByRole('menuitem', { name: /pdf/i });
+    const xml = screen.getByRole('menuitem', { name: /xml/i });
     expect(pdf).toHaveAttribute('href', 'https://s/p');
     expect(pdf).toHaveAttribute('target', '_blank');
     expect(pdf).toHaveAttribute('rel', 'noreferrer');
@@ -39,6 +48,12 @@ describe('OrderFiscalDocumentButton', () => {
     mocked.mockReturnValue({ data: null, isLoading: false } as never);
     render(<OrderFiscalDocumentButton orderId="o1" orderStatus="PAID" />);
     expect(screen.getByText('notIssued')).toBeInTheDocument();
+  });
+
+  it('shows failed copy on a query error', () => {
+    mocked.mockReturnValue({ data: undefined, isLoading: false, isError: true } as never);
+    render(<OrderFiscalDocumentButton orderId="o1" orderStatus="PAID" />);
+    expect(screen.getByText('failed')).toBeInTheDocument();
   });
 
   it('does not query for non-PAID/REFUNDED orders', () => {
