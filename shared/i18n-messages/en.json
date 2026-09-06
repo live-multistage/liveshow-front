@@ -57,6 +57,14 @@
       "continueWithApple": "Continue with Apple",
       "noAccount": "Don't have an account?",
       "signUp": "Sign up",
+      "eyebrow": "Sign in · Account",
+      "titleLead": "Welcome",
+      "titleAccent": "back.",
+      "rememberDays": "Stay signed in for 30 days",
+      "secureNote": "Login protected by encryption",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "help": "Help",
       "errors": {
         "INVALID_CREDENTIALS": "Invalid email or password.",
         "USER_BLOCKED": "Your account has been temporarily suspended. Please contact support.",
@@ -123,7 +131,6 @@
     "total": "Total",
     "promoLabel": "Promo code",
     "couponInvalid": "Invalid or expired coupon",
-    "couponsDisabledCleared": "Your coupon was removed because coupons are temporarily disabled.",
     "multiOrg": "multiple organizations",
     "errors": {
       "CURRENCY_MISMATCH": "Your cart only accepts tickets in the same currency."
@@ -135,7 +142,8 @@
     "couponApply": "Apply",
     "couponRemove": "Remove coupon",
     "itemCount": "{count, plural, one {# ticket} other {# tickets}}",
-    "unavailableCurrency": "This cart is in {currency}. In-app purchase is only available in Brazilian reais."
+    "unavailableCurrency": "This cart is in {currency}. In-app purchase is only available in Brazilian reais.",
+    "couponsDisabledCleared": "Your coupon was removed because coupons are temporarily disabled."
   },
   "events": {
     "list": {
@@ -161,7 +169,10 @@
       "sortDateDesc": "Date ↓",
       "sortNameAsc": "Name A–Z",
       "sortNameDesc": "Name Z–A",
-      "sortLiveFirst": "Live first"
+      "sortLiveFirst": "Live first",
+      "eyebrow": "Catalog",
+      "showsFound": "shows found",
+      "liveNow": "live now"
     },
     "detail": {
       "notFound": "Show not found.",

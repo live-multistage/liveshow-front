@@ -13,7 +13,8 @@ export type FeatureFlagKey =
   | 'low_latency_mode'
   | 'coupons'
   | 'physical_tickets'
-  | 'event_collaborations';
+  | 'event_collaborations'
+  | 'fiscal_emission';
 
 export type FeatureFlags = Record<FeatureFlagKey, boolean>;
 
@@ -46,4 +47,6 @@ export const DEFAULT_FEATURE_FLAGS = {
   physical_tickets: false,
   // Ships off — beta, enabled per organization on demand.
   event_collaborations: false,
+  // Ships off — fiscal document emission via PlugNotas.
+  fiscal_emission: false,
 } satisfies Record<FeatureFlagKey, boolean>;

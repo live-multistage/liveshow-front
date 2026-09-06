@@ -22,7 +22,7 @@ export interface AuthUser {
   displayName: string;
   role: UserRole;
   phone?: string | null;
-  cpf?: string | null;
+  taxDocument?: string | null;
   bio?: string | null;
   avatarUrl?: string | null;
   analyticsConsent?: boolean | null;
@@ -49,7 +49,7 @@ export interface RefreshResponse {
 export interface UpdateProfileRequest {
   displayName?: string;
   phone?: string;
-  cpf?: string;
+  taxDocument?: string;
   bio?: string;
   ageBracket?: AgeBracket;
 }

@@ -57,6 +57,14 @@
       "continueWithApple": "Continuar con Apple",
       "noAccount": "¿No tienes cuenta?",
       "signUp": "Regístrate",
+      "eyebrow": "Iniciar sesión · Cuenta",
+      "titleLead": "Bienvenido",
+      "titleAccent": "de vuelta.",
+      "rememberDays": "Mantener sesión iniciada por 30 días",
+      "secureNote": "Inicio de sesión protegido por cifrado",
+      "terms": "Términos",
+      "privacy": "Privacidad",
+      "help": "Ayuda",
       "errors": {
         "INVALID_CREDENTIALS": "Correo o contraseña inválidos.",
         "USER_BLOCKED": "Tu cuenta ha sido suspendida temporalmente. Contacta con soporte.",
@@ -123,7 +131,6 @@
     "total": "Total",
     "promoLabel": "Código promocional",
     "couponInvalid": "Cupón inválido o vencido",
-    "couponsDisabledCleared": "Tu cupón fue eliminado porque los cupones están temporalmente desactivados.",
     "multiOrg": "varias organizaciones",
     "errors": {
       "CURRENCY_MISMATCH": "Tu carrito solo acepta entradas en la misma moneda."
@@ -135,7 +142,8 @@
     "couponApply": "Aplicar",
     "couponRemove": "Quitar cupón",
     "itemCount": "{count, plural, one {# entrada} other {# entradas}}",
-    "unavailableCurrency": "Este carrito está en {currency}. La compra desde la app solo está disponible en reales."
+    "unavailableCurrency": "Este carrito está en {currency}. La compra desde la app solo está disponible en reales.",
+    "couponsDisabledCleared": "Tu cupón fue eliminado porque los cupones están temporalmente desactivados."
   },
   "events": {
     "list": {
@@ -161,7 +169,10 @@
       "sortDateDesc": "Fecha ↓",
       "sortNameAsc": "Nombre A–Z",
       "sortNameDesc": "Nombre Z–A",
-      "sortLiveFirst": "En vivo primero"
+      "sortLiveFirst": "En vivo primero",
+      "eyebrow": "Catálogo",
+      "showsFound": "shows encontrados",
+      "liveNow": "en vivo"
     },
     "detail": {
       "notFound": "Show no encontrado.",

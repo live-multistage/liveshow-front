@@ -141,7 +141,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
 
   const profileForm = useForm<UpdateProfileFormValues>({
     resolver: zodResolver(updateProfileSchema),
-    defaultValues: { displayName: '', phone: '', cpf: '', bio: '' },
+    defaultValues: { displayName: '', phone: '', taxDocument: '', bio: '' },
   });
 
   useEffect(() => {
@@ -149,7 +149,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
       profileForm.reset({
         displayName: me.displayName,
         phone: me.phone ?? '',
-        cpf: me.cpf ?? '',
+        taxDocument: me.taxDocument ?? '',
         bio: me.bio ?? '',
       });
     }
@@ -297,7 +297,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
                 </div>
                 <div className={styles.field}>
                   <label className={styles.fieldLabel}>CPF</label>
-                  <input className={styles.input} placeholder="000.000.000-00" {...profileForm.register('cpf')} />
+                  <input className={styles.input} placeholder="000.000.000-00" {...profileForm.register('taxDocument')} />
                 </div>
                 <div className={`${styles.field} ${styles.fieldSpan}`}>
                   <label className={styles.fieldLabel}>Bio</label>
@@ -308,7 +308,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
               {profileSaved && <p className={styles.successBanner}>Perfil atualizado.</p>}
               <div className={styles.formActions}>
                 <button type="button" className={styles.btnGhost} onClick={() => me && profileForm.reset({
-                  displayName: me.displayName, phone: me.phone ?? '', cpf: me.cpf ?? '', bio: me.bio ?? '',
+                  displayName: me.displayName, phone: me.phone ?? '', taxDocument: me.taxDocument ?? '', bio: me.bio ?? '',
                 })}>Cancelar</button>
                 <button type="submit" className={styles.btnPrimary} disabled={updateProfile.isPending}>
                   <Check size={15} />{updateProfile.isPending ? 'Salvando...' : 'Salvar alterações'}

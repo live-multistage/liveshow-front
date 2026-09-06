@@ -31,3 +31,5 @@ export * from './notifications/types';
 export * from './notifications/safe-link';
 export * from './notifications/preference-map';
 export * from './subscriptions/types';
+export * from './fiscal/types';
+export * from './fiscal/document';
