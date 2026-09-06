@@ -21,6 +21,7 @@ describe('OrderFiscalDocumentButton', () => {
     mocked.mockReturnValue({
       data: { status: 'AUTHORIZED', nfseNumber: '55', authorizedAt: '2026-09-06T00:00:00Z', pdfUrl: 'https://s/p', xmlUrl: 'https://s/x' },
       isLoading: false,
+      refetch: vi.fn(),
     } as never);
     const user = userEvent.setup();
     render(<OrderFiscalDocumentButton orderId="o1" orderStatus="PAID" />);
@@ -33,6 +34,21 @@ describe('OrderFiscalDocumentButton', () => {
     expect(xml).toHaveAttribute('href', 'https://s/x');
     expect(xml).toHaveAttribute('target', '_blank');
     expect(xml).toHaveAttribute('rel', 'noreferrer');
+  });
+
+  it('refetches once when the menu opens', async () => {
+    const refetch = vi.fn();
+    mocked.mockReturnValue({
+      data: { status: 'AUTHORIZED', nfseNumber: '55', authorizedAt: '2026-09-06T00:00:00Z', pdfUrl: 'https://s/p', xmlUrl: 'https://s/x' },
+      isLoading: false,
+      refetch,
+    } as never);
+    const user = userEvent.setup();
+    render(<OrderFiscalDocumentButton orderId="o1" orderStatus="PAID" />);
+    expect(refetch).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'download' }));
+    await screen.findByRole('menuitem', { name: /pdf/i });
+    expect(refetch).toHaveBeenCalledTimes(1);
   });
 
   it('shows processing copy while PENDING/PROCESSING', () => {

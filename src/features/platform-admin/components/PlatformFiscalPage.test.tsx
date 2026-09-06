@@ -6,7 +6,12 @@ import { useRetryFiscalDocumentMutation } from '../mutations/retry-fiscal-docume
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'pt' }));
 vi.mock('./PlatformPageShell', () => ({
-  PlatformPageShell: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  PlatformPageShell: ({ children, actions }: { children: React.ReactNode; actions?: React.ReactNode }) => (
+    <div>
+      {actions}
+      {children}
+    </div>
+  ),
 }));
 vi.mock('../queries/get-fiscal-documents', () => ({ useFiscalDocumentsQuery: vi.fn() }));
 vi.mock('../mutations/retry-fiscal-document.mutation', () => ({ useRetryFiscalDocumentMutation: vi.fn() }));
@@ -41,7 +46,7 @@ describe('PlatformFiscalPage', () => {
     render(<PlatformFiscalPage />);
 
     expect(screen.getByText('Ana')).toBeInTheDocument();
-    expect(screen.getByText('status.REJECTED')).toBeInTheDocument();
+    expect(screen.getByText('Ana').closest('div')).toHaveTextContent('status.REJECTED');
 
     fireEvent.click(screen.getByRole('button', { name: 'retry' }));
     fireEvent.click(screen.getByRole('button', { name: 'confirm' }));
@@ -60,6 +65,22 @@ describe('PlatformFiscalPage', () => {
 
     expect(screen.getByText('Beto')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'retry' })).not.toBeInTheDocument();
+  });
+
+  it('sends "to" as end-of-day when a date range is set', () => {
+    vi.mocked(useFiscalDocumentsQuery).mockReturnValue({
+      data: { items: [], total: 0, page: 1, limit: 25 },
+      isLoading: false,
+    } as never);
+    vi.mocked(useRetryFiscalDocumentMutation).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
+
+    render(<PlatformFiscalPage />);
+
+    fireEvent.change(screen.getByLabelText('filters.to'), { target: { value: '2026-09-06' } });
+
+    const lastCall = vi.mocked(useFiscalDocumentsQuery).mock.calls.at(-1)?.[0];
+    expect(lastCall?.to).toBeDefined();
+    expect(new Date(lastCall!.to as string).getHours()).toBe(23);
   });
 
   it('shows the empty state when there are no documents', () => {

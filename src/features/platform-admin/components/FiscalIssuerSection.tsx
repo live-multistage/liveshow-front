@@ -49,7 +49,7 @@ export function FiscalIssuerSection() {
       { ...rest, issRate: Math.round(pct * 100) / 10000 },
       {
         onSuccess: () => toast.success(t('saved')),
-        onError: () => toast.error(t('error')),
+        onError: (e) => toast.error(e.message || t('error')),
       },
     );
   }
@@ -68,7 +68,14 @@ export function FiscalIssuerSection() {
         <div className={styles.form}>
           <label className={styles.field}>
             <span className={styles.label}>{t('cnpj')}</span>
-            <input className={styles.input} value={draft.cnpj} onChange={(e) => set('cnpj', e.target.value)} aria-label={t('cnpj')} />
+            <input
+              className={styles.input}
+              value={draft.cnpj}
+              onChange={(e) => set('cnpj', e.target.value)}
+              aria-label={t('cnpj')}
+              maxLength={14}
+              placeholder="00000000000000"
+            />
           </label>
           <label className={styles.field}>
             <span className={styles.label}>{t('legalName')}</span>
@@ -85,7 +92,14 @@ export function FiscalIssuerSection() {
           </label>
           <label className={styles.field}>
             <span className={styles.label}>{t('cityIbgeCode')}</span>
-            <input className={styles.input} value={draft.cityIbgeCode} onChange={(e) => set('cityIbgeCode', e.target.value)} aria-label={t('cityIbgeCode')} />
+            <input
+              className={styles.input}
+              value={draft.cityIbgeCode}
+              onChange={(e) => set('cityIbgeCode', e.target.value)}
+              aria-label={t('cityIbgeCode')}
+              maxLength={7}
+              placeholder="3550308"
+            />
           </label>
           <label className={styles.field}>
             <span className={styles.label}>{t('serviceCodeNational')}</span>
@@ -94,11 +108,19 @@ export function FiscalIssuerSection() {
               value={draft.serviceCodeNational}
               onChange={(e) => set('serviceCodeNational', e.target.value)}
               aria-label={t('serviceCodeNational')}
+              maxLength={5}
             />
           </label>
           <label className={styles.field}>
             <span className={styles.label}>{t('cnae')}</span>
-            <input className={styles.input} value={draft.cnae ?? ''} onChange={(e) => set('cnae', e.target.value || null)} aria-label={t('cnae')} />
+            <input
+              className={styles.input}
+              value={draft.cnae ?? ''}
+              onChange={(e) => set('cnae', e.target.value || null)}
+              aria-label={t('cnae')}
+              maxLength={7}
+              placeholder="10.02"
+            />
           </label>
           <label className={styles.field}>
             <span className={styles.label}>{t('issRate')}</span>
@@ -132,6 +154,7 @@ export function FiscalIssuerSection() {
               value={draft.ibsCbsCst ?? ''}
               onChange={(e) => set('ibsCbsCst', e.target.value || null)}
               aria-label={t('ibsCbsCst')}
+              maxLength={3}
             />
           </label>
           <label className={styles.field}>
@@ -141,6 +164,7 @@ export function FiscalIssuerSection() {
               value={draft.ibsCbsClassTrib ?? ''}
               onChange={(e) => set('ibsCbsClassTrib', e.target.value || null)}
               aria-label={t('ibsCbsClassTrib')}
+              maxLength={6}
             />
           </label>
           <label className={styles.field}>

@@ -23,6 +23,6 @@ export function useOrderFiscalDocumentQuery(orderId: string, enabled: boolean) {
     queryKey: orderFiscalDocumentKey(orderId),
     queryFn: () => getOrderFiscalDocument(orderId),
     enabled,
-    staleTime: 60_000,
+    staleTime: 0,
   });
 }

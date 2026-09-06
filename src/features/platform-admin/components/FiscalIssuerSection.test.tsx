@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { toast } from 'sonner';
 import { FiscalIssuerSection } from './FiscalIssuerSection';
 import { useFiscalIssuerQuery } from '../queries/get-fiscal-issuer';
 import { useUpdateFiscalIssuerMutation } from '../mutations/update-fiscal-issuer.mutation';
@@ -68,6 +69,17 @@ describe('FiscalIssuerSection', () => {
 
     const [payload] = mutate.mock.calls[0];
     expect(payload.issRate).toBe(0.035);
+  });
+
+  it('shows the backend error message on a rejected save', () => {
+    const mutate = vi.fn((_payload, opts) => opts.onError({ message: 'cnpj must match' }));
+    vi.mocked(useFiscalIssuerQuery).mockReturnValue({ data: issuer, isLoading: false } as never);
+    vi.mocked(useUpdateFiscalIssuerMutation).mockReturnValue({ mutate, isPending: false } as never);
+
+    render(<FiscalIssuerSection />);
+    fireEvent.click(screen.getByRole('button', { name: 'save' }));
+
+    expect(toast.error).toHaveBeenCalledWith('cnpj must match');
   });
 
   it('shows the inactive hint when the issuer is not active', () => {

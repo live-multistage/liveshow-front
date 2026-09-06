@@ -15,7 +15,7 @@ interface Props {
 export function OrderFiscalDocumentButton({ orderId, orderStatus }: Props) {
   const t = useTranslations('purchases.fiscal');
   const enabled = orderStatus === 'PAID' || orderStatus === 'REFUNDED';
-  const { data, isLoading, isError } = useOrderFiscalDocumentQuery(orderId, enabled);
+  const { data, isLoading, isError, refetch } = useOrderFiscalDocumentQuery(orderId, enabled);
 
   if (!enabled) return <span className={styles.muted} />;
   if (isError) return <span className={styles.muted}>{t('failed')}</span>;
@@ -26,7 +26,7 @@ export function OrderFiscalDocumentButton({ orderId, orderStatus }: Props) {
   if (data.status !== 'AUTHORIZED') return <span className={styles.muted}>{t('failed')}</span>;
 
   return (
-    <DropdownMenu>
+    <DropdownMenu onOpenChange={(open) => { if (open) void refetch(); }}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
