@@ -165,7 +165,9 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   const effectiveTrackingEventId = trackingEventId ?? eventId;
   useViewerTracking(effectiveTrackingEventId, activeCameraIds, user?.id);
   const { currentViewers } = useViewerCount(effectiveTrackingEventId);
-  const chat = useChat(eventId);
+  // Only open the SSE connection (and hit the recent-messages endpoint) when
+  // chat is actually enabled for this event — see Task 7 addendum.
+  const chat = useChat(chatEnabled ? eventId : null);
 
   // Live seek commands are addressed to the camera they were issued for (see
   // CameraGrid, which filters on seekCommand.cameraId). endRewind is
@@ -311,6 +313,12 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
             messages={chat.messages}
             onSend={chat.sendMessage}
             onReact={chat.react}
+            me={chat.me}
+            status={chat.status}
+            onDeleteMessage={chat.deleteMessage}
+            onMuteUser={chat.muteUser}
+            onUnmuteUser={chat.unmuteUser}
+            currentUserId={user?.id ?? null}
           />
         )}
       </div>

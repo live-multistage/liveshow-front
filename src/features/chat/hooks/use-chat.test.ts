@@ -225,4 +225,22 @@ describe('useChat', () => {
     act(() => secondSource.onopen?.());
     expect(result.current.status).toBe('live');
   });
+
+  it('useChat(null) never opens an EventSource nor calls the service', async () => {
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(() => useChat(null), { wrapper });
+
+    // Give any stray effects a tick to run before asserting nothing happened.
+    await act(async () => {});
+
+    expect(FakeEventSource.instances).toHaveLength(0);
+    expect(mockedRecent).not.toHaveBeenCalled();
+    expect(result.current.me).toBeNull();
+    expect(result.current.status).toBe('connecting');
+
+    act(() => result.current.sendMessage('hello'));
+    act(() => result.current.react('🔥'));
+    expect(mockedSend).not.toHaveBeenCalled();
+    expect(mockedReact).not.toHaveBeenCalled();
+  });
 });

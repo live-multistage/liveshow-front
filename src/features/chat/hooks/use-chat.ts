@@ -67,7 +67,7 @@ export type ChatStatus = 'connecting' | 'live' | 'reconnecting';
 // ChatDock/ReactionBar (T7's files, kept untouched) import this from here.
 export { REACTION_EMOJIS };
 
-export function useChat(eventId: string) {
+export function useChat(eventId: string | null) {
   const { user } = useAuth();
   const t = useTranslations('chat');
 
@@ -81,9 +81,10 @@ export function useChat(eventId: string) {
   const seededEventIdRef = useRef<string | null>(null);
 
   const recentQuery = useQuery({
-    queryKey: chatKeys.recent(eventId),
-    queryFn: () => chatService.recent(eventId),
+    queryKey: chatKeys.recent(eventId ?? ''),
+    queryFn: () => chatService.recent(eventId as string),
     staleTime: Infinity,
+    enabled: eventId !== null,
   });
 
   // Recent-messages bootstrap seeds local state exactly once per eventId —
@@ -96,7 +97,16 @@ export function useChat(eventId: string) {
     setMe(recentQuery.data.me);
   }, [eventId, recentQuery.data]);
 
+  // Resets the connecting/live/reconnecting indicator whenever the caller
+  // switches which event's chat this hook is bound to.
   useEffect(() => {
+    setStatus('connecting');
+  }, [eventId]);
+
+  useEffect(() => {
+    // No event to chat about (chat disabled, or not resolved yet) — never
+    // open an SSE connection, never hit the service. See Task 7 addendum.
+    if (eventId === null) return;
     let cancelled = false;
 
     function connect() {
@@ -187,7 +197,7 @@ export function useChat(eventId: string) {
   }, [eventId, user?.id]);
 
   const sendMessageMutation = useMutation({
-    mutationFn: (body: string) => chatService.send(eventId, body),
+    mutationFn: (body: string) => chatService.send(eventId as string, body),
     onError: (error) => {
       const appError = normalizeError(error);
       if (appError.code === CHAT_ERROR_CODES.MUTED) {
@@ -205,14 +215,15 @@ export function useChat(eventId: string) {
   const sendMessage = useCallback(
     (body: string) => {
       const trimmed = body.trim();
-      if (!trimmed) return;
+      if (!trimmed || eventId === null) return;
       sendMessageMutation.mutate(trimmed);
     },
-    [sendMessageMutation],
+    [sendMessageMutation, eventId],
   );
 
   const react = useCallback(
     (emoji: ReactionEmoji) => {
+      if (eventId === null) return;
       setReactionCounts((prev) => ({ ...prev, [emoji]: prev[emoji] + 1 }));
       chatService.react(eventId, emoji).catch((error: unknown) => {
         // Fire-and-forget: a dropped reaction isn't worth surfacing to the
@@ -224,25 +235,40 @@ export function useChat(eventId: string) {
   );
 
   const deleteMessageMutation = useMutation({
-    mutationFn: (messageId: string) => chatService.deleteMessage(eventId, messageId),
+    mutationFn: (messageId: string) => chatService.deleteMessage(eventId as string, messageId),
     onError: (error: unknown) => toast.error(normalizeError(error).message),
   });
   const deleteMessage = useCallback(
-    (messageId: string) => deleteMessageMutation.mutate(messageId),
-    [deleteMessageMutation],
+    (messageId: string) => {
+      if (eventId === null) return;
+      deleteMessageMutation.mutate(messageId);
+    },
+    [deleteMessageMutation, eventId],
   );
 
   const muteUserMutation = useMutation({
-    mutationFn: (userId: string) => chatService.mute(eventId, userId),
+    mutationFn: (userId: string) => chatService.mute(eventId as string, userId),
     onError: (error: unknown) => toast.error(normalizeError(error).message),
   });
-  const muteUser = useCallback((userId: string) => muteUserMutation.mutate(userId), [muteUserMutation]);
+  const muteUser = useCallback(
+    (userId: string) => {
+      if (eventId === null) return;
+      muteUserMutation.mutate(userId);
+    },
+    [muteUserMutation, eventId],
+  );
 
   const unmuteUserMutation = useMutation({
-    mutationFn: (userId: string) => chatService.unmute(eventId, userId),
+    mutationFn: (userId: string) => chatService.unmute(eventId as string, userId),
     onError: (error: unknown) => toast.error(normalizeError(error).message),
   });
-  const unmuteUser = useCallback((userId: string) => unmuteUserMutation.mutate(userId), [unmuteUserMutation]);
+  const unmuteUser = useCallback(
+    (userId: string) => {
+      if (eventId === null) return;
+      unmuteUserMutation.mutate(userId);
+    },
+    [unmuteUserMutation, eventId],
+  );
 
   const totalReactions = useMemo(
     () => Object.values(reactionCounts).reduce((sum, count) => sum + count, 0),
