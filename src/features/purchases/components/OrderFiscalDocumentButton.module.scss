@@ -1,0 +1,28 @@
+@use '../../../styles/_variables' as *;
+
+$mono: 'Space Mono', monospace;
+$label: #8f8f97;
+
+.download {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: #c7c7cd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: none;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover { border-color: rgba(255, 46, 158, 0.4); color: #fff; }
+}
+
+.muted {
+  font-family: $mono;
+  font-size: 11px;
+  color: $label;
+  white-space: nowrap;
+}

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Clock } from 'lucide-react';
 import { PlatformPageShell } from './PlatformPageShell';
 import { FeesSection } from './FeesSection';
+import { FiscalIssuerSection } from './FiscalIssuerSection';
 import { FeatureFlagsSection } from './FeatureFlagsSection';
 import { SettingsAuditRail } from './SettingsAuditRail';
 import styles from './PlatformSettingsPage.module.scss';
@@ -36,6 +37,7 @@ export function PlatformSettingsPage() {
       <div className={styles.grid}>
         <div className={styles.main}>
           <FeesSection />
+          <FiscalIssuerSection />
           <FeatureFlagsSection />
         </div>
         <SettingsAuditRail />

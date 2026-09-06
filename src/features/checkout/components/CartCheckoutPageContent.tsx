@@ -1,17 +1,18 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Shield, AlertCircle, Check, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
-import { useAuth } from '@/features/account';
+import { useAuth, useUpdateProfileMutation } from '@/features/account';
 import { useCartQuery, CAPABILITY_LABELS, type CartLineView } from '@/features/cart';
 import { checkoutService } from '../services/checkout.service';
 import { usePaymentMethodsQuery, usePlaceOrderMutation } from '../mutations/checkout.mutations';
 import { normalizeError, type AppError } from '@/lib/http/errors';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
+import { BuyerDocumentField } from './BuyerDocumentField';
 import { AdBanner } from '@/features/advertisements';
 import styles from './CheckoutPageContent.module.scss';
 import cartStyles from './CartCheckoutPageContent.module.scss';
@@ -25,11 +26,12 @@ function payErrorMessage(err: AppError, t: ReturnType<typeof useTranslations>): 
 
 interface Props {
   couponsEnabled?: boolean;
+  fiscalEnabled?: boolean;
 }
 
-export function CartCheckoutPageContent({ couponsEnabled = true }: Props) {
+export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled = false }: Props) {
   const t = useTranslations('checkout');
-  const { isLoggedIn, isLoading: authLoading } = useAuth();
+  const { isLoggedIn, isLoading: authLoading, user } = useAuth();
   const { data: cart, isLoading: cartLoading } = useCartQuery();
   const router = useRouter();
 
@@ -50,9 +52,20 @@ export function CartCheckoutPageContent({ couponsEnabled = true }: Props) {
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [payErrorMsg, setPayErrorMsg] = useState<string | null>(null);
   const [coupon, setCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [doc, setDoc] = useState({ value: user?.taxDocument ?? '', valid: true });
 
   const paymentMethods = usePaymentMethodsQuery();
   const placeOrder = usePlaceOrderMutation();
+  const updateProfile = useUpdateProfileMutation();
+
+  // `user` hydrates asynchronously after first render; seed the field from it
+  // exactly once so it doesn't clobber whatever the buyer has already typed.
+  const seededDoc = useRef(false);
+  useEffect(() => {
+    if (seededDoc.current || !user) return;
+    seededDoc.current = true;
+    setDoc({ value: user.taxDocument ?? '', valid: true });
+  }, [user]);
 
   // Coupon applied on the cart page travels here via sessionStorage;
   // re-validate against the server so a stale/expired code is dropped silently.
@@ -72,10 +85,21 @@ export function CartCheckoutPageContent({ couponsEnabled = true }: Props) {
   }, [items.length, couponsEnabled]);
 
   const selectedMethod = paymentMethods.data?.find((m) => m.id === selectedMethodId);
+  const submitting = updateProfile.isPending || placeOrder.isPending;
 
-  const handlePay = () => {
-    if (!selectedMethod || items.length === 0) return;
+  const handlePay = async () => {
+    if (!selectedMethod || items.length === 0 || submitting) return;
     setPayErrorMsg(null);
+
+    if (fiscalEnabled && doc.value && doc.value !== user?.taxDocument) {
+      try {
+        await updateProfile.mutateAsync({ taxDocument: doc.value });
+      } catch {
+        setPayErrorMsg(t('buyerDocument.saveError'));
+        return;
+      }
+    }
+
     placeOrder.mutate(
       // PlaceOrderRequest.provider is now 'STRIPE' | 'GOOGLE_PLAY'. The web
       // stays on STRIPE unconditionally: a browser cannot complete a
@@ -145,6 +169,18 @@ export function CartCheckoutPageContent({ couponsEnabled = true }: Props) {
 
         <div className={styles.layout}>
           <div className={styles.left}>
+            {fiscalEnabled && (
+              <BuyerDocumentField
+                value={doc.value}
+                onChange={setDoc}
+                labels={{
+                  label: t('buyerDocument.label'),
+                  hint: t('buyerDocument.hint'),
+                  invalid: t('buyerDocument.invalid'),
+                }}
+              />
+            )}
+
             <PaymentMethodSelector
               methods={paymentMethods.data ?? []}
               selected={selectedMethodId}
@@ -155,10 +191,15 @@ export function CartCheckoutPageContent({ couponsEnabled = true }: Props) {
             <button
               className={styles.payBtn}
               onClick={handlePay}
-              disabled={!selectedMethodId || placeOrder.isPending || items.length === 0}
-              aria-busy={placeOrder.isPending}
+              disabled={
+                !selectedMethodId ||
+                submitting ||
+                items.length === 0 ||
+                (fiscalEnabled && !doc.valid)
+              }
+              aria-busy={submitting}
             >
-              {placeOrder.isPending
+              {submitting
                 ? 'Processando…'
                 : `Pagar ${formatPrice(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)), currency)}`}
             </button>

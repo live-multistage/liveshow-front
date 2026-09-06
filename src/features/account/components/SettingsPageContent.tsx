@@ -298,6 +298,9 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
                 <div className={styles.field}>
                   <label className={styles.fieldLabel}>CPF</label>
                   <input className={styles.input} placeholder="000.000.000-00" {...profileForm.register('taxDocument')} />
+                  {profileForm.formState.errors.taxDocument && (
+                    <span className={styles.fieldError}>{profileForm.formState.errors.taxDocument.message}</span>
+                  )}
                 </div>
                 <div className={`${styles.field} ${styles.fieldSpan}`}>
                   <label className={styles.fieldLabel}>Bio</label>

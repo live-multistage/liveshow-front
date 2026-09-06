@@ -1,12 +1,16 @@
 vi.mock('../queries/get-order-history', () => ({ useOrderHistoryQuery: vi.fn() }));
+vi.mock('../queries/get-order-fiscal-document', () => ({ useOrderFiscalDocumentQuery: vi.fn() }));
+vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import type { OrderView } from '@live-show/api-contracts';
 import { PurchasesPageContent } from './PurchasesPageContent';
 import { useOrderHistoryQuery } from '../queries/get-order-history';
+import { useOrderFiscalDocumentQuery } from '../queries/get-order-fiscal-document';
 
 const mockedOrders = vi.mocked(useOrderHistoryQuery);
+const mockedFiscal = vi.mocked(useOrderFiscalDocumentQuery);
 
 const order: OrderView = {
   id: 'order-1',
@@ -72,6 +76,10 @@ const order: OrderView = {
 };
 
 describe('PurchasesPageContent', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders both product names for an order with 2 lines and the order total once', () => {
     mockedOrders.mockReturnValue({
       data: [order],
@@ -86,5 +94,31 @@ describe('PurchasesPageContent', () => {
 
     const card = screen.getByTestId('order-order-1');
     expect(within(card).getAllByText('R$ 150,00')).toHaveLength(1);
+  });
+
+  it('renders the fiscal document button per order when fiscalEnabled', () => {
+    mockedOrders.mockReturnValue({
+      data: [order],
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOrderHistoryQuery>);
+    mockedFiscal.mockReturnValue({ data: null, isLoading: false } as never);
+
+    render(<PurchasesPageContent fiscalEnabled />);
+
+    const card = screen.getByTestId('order-order-1');
+    expect(within(card).getByText('notIssued')).toBeInTheDocument();
+  });
+
+  it('does not render the fiscal document button when fiscalEnabled is false', () => {
+    mockedOrders.mockReturnValue({
+      data: [order],
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOrderHistoryQuery>);
+
+    render(<PurchasesPageContent />);
+
+    expect(mockedFiscal).not.toHaveBeenCalled();
   });
 });
