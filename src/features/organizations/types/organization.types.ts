@@ -146,3 +146,14 @@ export interface OrganizationLedgerResponse {
   balances: OrganizationLedgerBalance[];
   entries: OrganizationLedgerEntry[];
 }
+
+// Mirrors PayoutOrganizationLedgerUseCase's return shape
+// (live-show-orchestrator payout-organization-ledger.use-case.ts). The
+// endpoint pays out every currency the connected account can settle in one
+// call — it does not accept a currency parameter.
+export interface OrganizationPayoutResult {
+  payouts: Array<{ transferId: string; amount: number; currency: string }>;
+  failed: Array<{ currency: string; amount: number; error: string }>;
+  negativeBalances: Array<{ currency: string; balance: number }>;
+  heldCurrencies?: Array<{ currency: string; balance: number }>;
+}

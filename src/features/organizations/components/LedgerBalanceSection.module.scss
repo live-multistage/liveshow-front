@@ -12,6 +12,17 @@
   gap: 0.75rem;
 }
 
+.withdrawButton {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.zeroHint {
+  font-size: 0.8rem;
+  color: $text-secondary;
+  margin: 0;
+}
+
 .balanceIcon {
   display: inline-flex;
   align-items: center;

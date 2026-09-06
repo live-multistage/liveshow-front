@@ -5,6 +5,7 @@ import type {
   UpdateOrganizationRequest,
   StripeAccountStatus,
   OrganizationLedgerResponse,
+  OrganizationPayoutResult,
   CreateOrganizerApplicationRequest,
   OrganizerApplicationResponse,
 } from '../types/organization.types';
@@ -94,6 +95,13 @@ export const organizationService = {
   getLedger: async (orgId: string): Promise<OrganizationLedgerResponse> => {
     const { data } = await httpClient.get<OrganizationLedgerResponse>(
       `/organizations/${orgId}/ledger`,
+    );
+    return data;
+  },
+
+  withdrawLedgerBalance: async (orgId: string): Promise<OrganizationPayoutResult> => {
+    const { data } = await httpClient.post<OrganizationPayoutResult>(
+      `/organizations/${orgId}/ledger/withdraw`,
     );
     return data;
   },
