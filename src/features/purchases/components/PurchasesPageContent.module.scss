@@ -129,10 +129,19 @@ $label: #8f8f97;
   background: $card;
   border: 1px solid $hairline;
   border-radius: 14px;
+  // No mobile a régua excede a viewport; rola dentro de si mesma em vez de
+  // estourar a página (scrollbar escondida, comportamento de "chips").
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 .filterBtn {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+  white-space: nowrap;
   gap: 8px;
   background: transparent;
   color: #c7c7cd;
