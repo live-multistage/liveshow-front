@@ -4,6 +4,7 @@ export { AccountPageContent } from './components/AccountPageContent';
 export { SettingsPageContent } from './components/SettingsPageContent';
 export { useRegisterMutation } from './mutations/use-register.mutation';
 export { useLoginMutation } from './mutations/use-login.mutation';
+export { useUpdateProfileMutation } from './mutations/update-profile.mutation';
 export { useAuth } from './hooks/use-auth';
 export { useAuthCheck } from './hooks/use-auth-check';
 export type { AuthUser, AuthResponse, RegisterRequest, LoginRequest } from './types/account.types';

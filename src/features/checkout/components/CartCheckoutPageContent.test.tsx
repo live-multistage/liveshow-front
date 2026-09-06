@@ -10,7 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CartCheckoutPageContent } from './CartCheckoutPageContent';
 import { checkoutService } from '../services/checkout.service';
 import { usePaymentMethodsQuery, usePlaceOrderMutation } from '../mutations/checkout.mutations';
-import { useAuth } from '@/features/account';
+import { useAuth, useUpdateProfileMutation } from '@/features/account';
 import { useCartQuery } from '@/features/cart';
 import type { PaymentMethod } from '../types/checkout.types';
 import type { PlaceOrderResponse } from '@live-show/api-contracts';
@@ -29,7 +29,7 @@ vi.mock('../mutations/checkout.mutations', () => ({
   usePaymentMethodsQuery: vi.fn(),
   usePlaceOrderMutation: vi.fn(),
 }));
-vi.mock('@/features/account', () => ({ useAuth: vi.fn() }));
+vi.mock('@/features/account', () => ({ useAuth: vi.fn(), useUpdateProfileMutation: vi.fn() }));
 vi.mock('@/features/cart', () => ({
   useCartQuery: vi.fn(),
   CAPABILITY_LABELS: {},
@@ -41,6 +41,7 @@ const mockedPaymentMethods = vi.mocked(usePaymentMethodsQuery);
 const mockedPlaceOrder = vi.mocked(usePlaceOrderMutation);
 const mockedAuth = vi.mocked(useAuth);
 const mockedCart = vi.mocked(useCartQuery);
+const mockedUpdateProfile = vi.mocked(useUpdateProfileMutation);
 
 const method: PaymentMethod = {
   id: 'pm-1',
@@ -68,11 +69,11 @@ const cart: CartView = {
   totals: { subtotal: 100, lines: [], total: 100 },
 };
 
-function renderPage() {
+function renderPage(props: { fiscalEnabled?: boolean } = {}) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
-      <CartCheckoutPageContent />
+      <CartCheckoutPageContent {...props} />
     </QueryClientProvider>,
   );
 }
@@ -89,12 +90,15 @@ describe('CartCheckoutPageContent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     sessionStorage.clear();
-    mockedAuth.mockReturnValue({ isLoggedIn: true, isLoading: false } as ReturnType<typeof useAuth>);
+    mockedAuth.mockReturnValue({ isLoggedIn: true, isLoading: false, user: null } as ReturnType<typeof useAuth>);
     mockedCart.mockReturnValue({ data: cart, isLoading: false } as ReturnType<typeof useCartQuery>);
     mockedPaymentMethods.mockReturnValue({
       data: [method],
       isLoading: false,
     } as ReturnType<typeof usePaymentMethodsQuery>);
+    mockedUpdateProfile.mockReturnValue({
+      mutateAsync: vi.fn().mockResolvedValue(undefined),
+    } as unknown as ReturnType<typeof useUpdateProfileMutation>);
     Object.defineProperty(window, 'location', { value: { href: '' }, writable: true });
   });
 
@@ -160,6 +164,21 @@ describe('CartCheckoutPageContent', () => {
     await vi.waitFor(() => {
       expect(capturedPayload).toEqual(expect.objectContaining({ provider: 'STRIPE' }));
     });
+  });
+
+  it('renders the buyer document field and disables pay on an invalid document when fiscalEnabled', async () => {
+    stubPlaceOrder(async () => ({
+      order: { id: 'order-1' } as PlaceOrderResponse['order'],
+      payment: { id: 'pay-1', action: { type: 'COMPLETED', externalReference: 'ref' } },
+    }));
+
+    renderPage({ fiscalEnabled: true });
+
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
+    expect(screen.getByLabelText('buyerDocument.label')).toBeInTheDocument();
+
+    await userEvent.type(screen.getByLabelText('buyerDocument.label'), '111');
+    expect(screen.getByRole('button', { name: /Pagar/i })).toBeDisabled();
   });
 });
 

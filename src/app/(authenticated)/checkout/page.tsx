@@ -6,5 +6,5 @@ export const metadata: Metadata = { title: 'Checkout' };
 
 export default async function CheckoutPage() {
   const flags = await fetchFeatureFlags();
-  return <CartCheckoutPageContent couponsEnabled={flags.coupons} />;
+  return <CartCheckoutPageContent couponsEnabled={flags.coupons} fiscalEnabled={flags.fiscal_emission} />;
 }

@@ -83,3 +83,44 @@
 .totalValue {
   font-size: 1.1rem;
 }
+
+.buyerDoc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.buyerDocLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: $text-secondary;
+  text-transform: uppercase;
+}
+
+.buyerDocInput {
+  height: 48px;
+  padding: 0 1rem;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  color: $text-primary;
+  font-size: 0.95rem;
+
+  &:focus-visible {
+    outline: 2px solid $action;
+    outline-offset: 2px;
+  }
+}
+
+.buyerDocHint {
+  font-size: 0.78rem;
+  color: $text-muted;
+}
+
+.buyerDocError {
+  font-size: 0.78rem;
+  color: $error;
+}
