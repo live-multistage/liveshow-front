@@ -57,6 +57,14 @@
       "continueWithApple": "Continuar com Apple",
       "noAccount": "Não tem uma conta?",
       "signUp": "Cadastre-se",
+      "eyebrow": "Entrar · Conta",
+      "titleLead": "Bem-vindo",
+      "titleAccent": "de volta.",
+      "rememberDays": "Manter conectado por 30 dias",
+      "secureNote": "Login protegido por criptografia",
+      "terms": "Termos",
+      "privacy": "Privacidade",
+      "help": "Ajuda",
       "errors": {
         "INVALID_CREDENTIALS": "E-mail ou senha inválidos.",
         "USER_BLOCKED": "Sua conta foi temporariamente suspensa. Entre em contato com o suporte.",
@@ -123,7 +131,6 @@
     "total": "Total",
     "promoLabel": "Código promocional",
     "couponInvalid": "Cupom inválido ou expirado",
-    "couponsDisabledCleared": "O cupom foi removido porque cupons estão temporariamente desativados.",
     "multiOrg": "várias organizações",
     "errors": {
       "CURRENCY_MISMATCH": "Seu carrinho só aceita ingressos na mesma moeda."
@@ -135,7 +142,8 @@
     "couponApply": "Aplicar",
     "couponRemove": "Remover cupom",
     "itemCount": "{count, plural, one {# ingresso} other {# ingressos}}",
-    "unavailableCurrency": "Este carrinho está em {currency}. A compra pelo app só está disponível em reais."
+    "unavailableCurrency": "Este carrinho está em {currency}. A compra pelo app só está disponível em reais.",
+    "couponsDisabledCleared": "O cupom foi removido porque cupons estão temporariamente desativados."
   },
   "events": {
     "list": {
@@ -143,8 +151,8 @@
       "subtitle": "Shows ao vivo de todo o mundo, na palma da sua mão",
       "searchPlaceholder": "Buscar por show, artista ou cidade...",
       "all": "Todos",
-      "liveOnly": "Somente Ao Vivo",
-      "withReplay": "Com Reprise",
+      "liveOnly": "Somente ao vivo",
+      "withReplay": "Com reprise",
       "loading": "Carregando...",
       "count": "{count, plural, one {# show encontrado} other {# shows encontrados}}",
       "error": "Erro ao carregar eventos.",
@@ -161,7 +169,10 @@
       "sortDateDesc": "Data ↓",
       "sortNameAsc": "Nome A–Z",
       "sortNameDesc": "Nome Z–A",
-      "sortLiveFirst": "Ao vivo primeiro"
+      "sortLiveFirst": "Ao vivo primeiro",
+      "eyebrow": "Catálogo",
+      "showsFound": "shows encontrados",
+      "liveNow": "ao vivo"
     },
     "detail": {
       "notFound": "Show não encontrado.",

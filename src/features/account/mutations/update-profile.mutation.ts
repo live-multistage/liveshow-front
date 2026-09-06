@@ -10,7 +10,7 @@ import type { AgeBracket } from '../types/age-bracket.types';
 interface UpdateProfilePayload {
   displayName?: string;
   phone?: string;
-  cpf?: string;
+  taxDocument?: string;
   bio?: string;
   ageBracket?: AgeBracket;
 }
