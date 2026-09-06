@@ -61,7 +61,13 @@ function mutateFailingWith(error: AppError) {
 beforeEach(() => {
   vi.clearAllMocks();
   mockedStripeStatus.mockReturnValue({
-    data: { hasAccount: true, onboardingComplete: true, feeRateOverride: null, effectiveFeeRate: 0.1 },
+    data: {
+      hasAccount: true,
+      onboardingComplete: true,
+      feeRateOverride: null,
+      effectiveFeeRate: 0.1,
+      requirements: { currentlyDue: [], pastDue: [], disabledReason: null },
+    },
   } as ReturnType<typeof useStripeStatus>);
   mockedWithdraw.mockReturnValue({
     mutate: vi.fn(),

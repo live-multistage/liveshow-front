@@ -1,8 +1,10 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { ExternalLink, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { useStripeStatus } from '../hooks/use-stripe-status';
 import { useInitiateStripeConnect } from '../hooks/use-initiate-stripe-connect';
+import { requirementLabel, disabledReasonLabel } from '../utils/stripe-requirements';
 import styles from './StripeConnectSection.module.scss';
 
 interface Props {
@@ -10,6 +12,7 @@ interface Props {
 }
 
 export function StripeConnectSection({ orgId }: Props) {
+  const t = useTranslations('organizations');
   const { data: status, isLoading, isError } = useStripeStatus(orgId);
   const connectMutation = useInitiateStripeConnect(orgId);
 
@@ -55,6 +58,10 @@ export function StripeConnectSection({ orgId }: Props) {
   }
 
   if (!status.onboardingComplete) {
+    const { currentlyDue, pastDue, disabledReason } = status.requirements;
+    const dueNotAlreadyPastDue = currentlyDue.filter((code) => !pastDue.includes(code));
+    const hasRequirements = pastDue.length > 0 || dueNotAlreadyPastDue.length > 0;
+
     return (
       <div className={styles.container}>
         <div className={styles.statusRow}>
@@ -66,6 +73,26 @@ export function StripeConnectSection({ orgId }: Props) {
         <p className={styles.description}>
           O cadastro no Stripe está incompleto. Continue para ativar os recebimentos.
         </p>
+        {hasRequirements && (
+          <div className={styles.requirementsPanel} data-testid="stripe-requirements-panel">
+            <p className={styles.requirementsHeadline}>
+              {disabledReason ? disabledReasonLabel(disabledReason, t) : t('stripeRequirementsTitle')}
+            </p>
+            <ul className={styles.requirementsList}>
+              {pastDue.map((code) => (
+                <li key={code} className={styles.requirementItem} data-urgent="true">
+                  {requirementLabel(code, t)}
+                </li>
+              ))}
+              {dueNotAlreadyPastDue.map((code) => (
+                <li key={code} className={styles.requirementItem}>
+                  {requirementLabel(code, t)}
+                </li>
+              ))}
+            </ul>
+            <p className={styles.requirementsHint}>{t('stripeRequirementsHint')}</p>
+          </div>
+        )}
         {connectMutation.error && (
           <p className={styles.error}>{connectMutation.error.message}</p>
         )}

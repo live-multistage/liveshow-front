@@ -112,11 +112,18 @@ export interface UpdateOrganizationSettingsRequest {
   timezone?: string;
 }
 
+export interface StripeAccountRequirements {
+  currentlyDue: string[];
+  pastDue: string[];
+  disabledReason: string | null;
+}
+
 export interface StripeAccountStatus {
   hasAccount: boolean;
   onboardingComplete: boolean;
   feeRateOverride: number | null;
   effectiveFeeRate: number;
+  requirements: StripeAccountRequirements;
 }
 
 export type OrganizationLedgerEntryType = 'SALE' | 'REFUND' | 'PAYOUT';
