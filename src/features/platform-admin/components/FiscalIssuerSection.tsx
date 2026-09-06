@@ -16,7 +16,7 @@ type Draft = Omit<FiscalIssuerView, 'id' | 'issuerKind' | 'updatedAt' | 'issRate
 
 function toDraft(issuer: FiscalIssuerView): Draft {
   const { id: _id, issuerKind: _issuerKind, updatedAt: _updatedAt, issRate, ...rest } = issuer;
-  return { ...rest, issRatePct: (issRate * 100).toString().replace('.', ',') };
+  return { ...rest, issRatePct: String(Math.round(issRate * 10000) / 100).replace('.', ',') };
 }
 
 // NFS-e issuer (platform) card, mirrors FeesSection's card structure. The
@@ -46,7 +46,7 @@ export function FiscalIssuerSection() {
     }
     const { issRatePct: _issRatePct, ...rest } = draft;
     update.mutate(
-      { ...rest, issRate: pct / 100 },
+      { ...rest, issRate: Math.round(pct * 100) / 10000 },
       {
         onSuccess: () => toast.success(t('saved')),
         onError: () => toast.error(t('error')),

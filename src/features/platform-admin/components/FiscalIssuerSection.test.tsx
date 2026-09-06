@@ -50,6 +50,26 @@ describe('FiscalIssuerSection', () => {
     );
   });
 
+  it('rounds issRate to 4 decimals in both directions (no float noise)', () => {
+    const mutate = vi.fn();
+    vi.mocked(useFiscalIssuerQuery).mockReturnValue({
+      data: { ...issuer, issRate: 0.029 },
+      isLoading: false,
+    } as never);
+    vi.mocked(useUpdateFiscalIssuerMutation).mockReturnValue({ mutate, isPending: false } as never);
+
+    render(<FiscalIssuerSection />);
+
+    const issRateInput = screen.getByLabelText('issRate') as HTMLInputElement;
+    expect(issRateInput.value).toBe('2,9');
+
+    fireEvent.change(issRateInput, { target: { value: '3,5' } });
+    fireEvent.click(screen.getByRole('button', { name: 'save' }));
+
+    const [payload] = mutate.mock.calls[0];
+    expect(payload.issRate).toBe(0.035);
+  });
+
   it('shows the inactive hint when the issuer is not active', () => {
     vi.mocked(useFiscalIssuerQuery).mockReturnValue({
       data: { ...issuer, active: false },
