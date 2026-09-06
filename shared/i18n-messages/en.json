@@ -409,6 +409,12 @@
       "PURCHASE_NOT_VALID": "We couldn't validate that purchase. Please contact support through the Help Centre.",
       "PLAY_BILLING_DISABLED": "Google Play payment isn't available here. Please pay by card.",
       "PLAY_UNAVAILABLE": "We couldn't open Google Play. Try again or pay by card."
+    },
+    "buyerDocument": {
+      "label": "CPF or CNPJ (optional)",
+      "hint": "Used in the invoice for the service fee.",
+      "invalid": "Invalid CPF or CNPJ.",
+      "saveError": "Could not save the document."
     }
   },
   "carousel": {
@@ -969,7 +975,8 @@
       "done": "Your account has been deleted.",
       "error": "We could not delete your account right now."
     },
-    "connectedWith": "Connected with {provider}"
+    "connectedWith": "Connected with {provider}",
+    "taxDocumentInvalid": "Invalid CPF or CNPJ."
   },
   "consent": {
     "title": "Privacy",
@@ -1479,6 +1486,63 @@
         "eyebrow": "HOW IT WORKS",
         "text": "Global flags apply to all organizations. Changes take effect within 60 seconds and require no deploy. Flags marked as <risky>payment-impacting</risky> require confirmation.",
         "link": "Per-organization overrides"
+      }
+    },
+    "fiscal": {
+      "group": "FINANCIAL · FISCAL",
+      "title": "Invoices",
+      "subtitle": "Service fee invoices issued via PlugNotas.",
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "from": "From",
+        "to": "To"
+      },
+      "columns": {
+        "order": "Order",
+        "buyer": "Buyer",
+        "amount": "Amount",
+        "status": "Status",
+        "number": "NFS-e No.",
+        "error": "Error",
+        "updated": "Updated"
+      },
+      "retry": "Reprocess",
+      "retryConfirm": "Reprocess the invoice for order {order}?",
+      "retrySuccess": "Invoice requeued.",
+      "retryError": "Could not reprocess.",
+      "empty": "No invoices in this period.",
+      "status": {
+        "PENDING": "Pending",
+        "PROCESSING": "Processing",
+        "AUTHORIZED": "Authorized",
+        "REJECTED": "Rejected",
+        "SKIPPED": "Not issued",
+        "CANCELLING": "Cancelling",
+        "CANCELLED": "Cancelled",
+        "CANCEL_FAILED": "Cancellation failed"
+      },
+      "issuer": {
+        "eyebrow": "FISCAL",
+        "title": "NFS-e Issuer (platform)",
+        "sub": "Service provider data sent to PlugNotas. Validate with your accountant.",
+        "cnpj": "CNPJ",
+        "legalName": "Legal name",
+        "municipalRegistration": "Municipal registration",
+        "cityIbgeCode": "Municipality IBGE code",
+        "serviceCodeNational": "Service code (LC 116)",
+        "cnae": "CNAE",
+        "issRate": "ISS rate (%)",
+        "issWithheld": "ISS withheld",
+        "taxRegime": "Tax regime",
+        "ibsCbsCst": "CST IBS/CBS",
+        "ibsCbsClassTrib": "cClassTrib IBS/CBS",
+        "serviceDescriptionTemplate": "Description (use {orderId})",
+        "active": "Issuer active",
+        "save": "Save",
+        "saved": "Issuer updated.",
+        "error": "Could not save.",
+        "inactiveHint": "While inactive, orders remain pending issuance."
       }
     }
   },
@@ -2167,6 +2231,17 @@
       "CANCELLED": "Cancelled",
       "REFUNDED": "Refunded",
       "EXPIRED": "Expired"
+    },
+    "fiscal": {
+      "label": "Invoice",
+      "download": "Download invoice",
+      "pdf": "PDF",
+      "xml": "XML",
+      "processing": "Invoice processing",
+      "notIssued": "Invoice not issued",
+      "cancelled": "Invoice cancelled",
+      "failed": "Issuance failed. Contact support.",
+      "number": "NFS-e no. {number}"
     }
   },
   "notifications": {

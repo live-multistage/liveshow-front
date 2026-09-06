@@ -409,6 +409,12 @@
       "PURCHASE_NOT_VALID": "No pudimos validar esa compra. Contacta al soporte desde el Centro de Ayuda.",
       "PLAY_BILLING_DISABLED": "El pago con Google Play no está disponible aquí. Paga con tarjeta.",
       "PLAY_UNAVAILABLE": "No pudimos abrir Google Play. Inténtalo de nuevo o paga con tarjeta."
+    },
+    "buyerDocument": {
+      "label": "CPF o CNPJ (opcional)",
+      "hint": "Utilizado en la factura de la tarifa de servicio.",
+      "invalid": "CPF o CNPJ inválido.",
+      "saveError": "No se pudo guardar el documento."
     }
   },
   "carousel": {
@@ -969,7 +975,8 @@
       "done": "Tu cuenta ha sido eliminada.",
       "error": "No pudimos eliminar tu cuenta ahora."
     },
-    "connectedWith": "Conectado con {provider}"
+    "connectedWith": "Conectado con {provider}",
+    "taxDocumentInvalid": "CPF o CNPJ inválido."
   },
   "consent": {
     "title": "Privacidad",
@@ -1479,6 +1486,63 @@
         "eyebrow": "CÓMO FUNCIONA",
         "text": "Las flags globales aplican a todas las organizaciones. Los cambios entran en vigor en hasta 60 segundos y no requieren deploy. Las flags marcadas como <risky>impacta el pago</risky> piden confirmación.",
         "link": "Overrides por organización"
+      }
+    },
+    "fiscal": {
+      "group": "FINANCIERO · FISCAL",
+      "title": "Facturas",
+      "subtitle": "Facturas de tarifa de servicio emitidas vía PlugNotas.",
+      "filters": {
+        "status": "Estado",
+        "all": "Todas",
+        "from": "De",
+        "to": "Hasta"
+      },
+      "columns": {
+        "order": "Pedido",
+        "buyer": "Comprador",
+        "amount": "Importe",
+        "status": "Estado",
+        "number": "Nº NFS-e",
+        "error": "Error",
+        "updated": "Actualizado"
+      },
+      "retry": "Reprocesar",
+      "retryConfirm": "¿Reprocesar la factura del pedido {order}?",
+      "retrySuccess": "Factura reencolada.",
+      "retryError": "No se pudo reprocesar.",
+      "empty": "Sin facturas en este período.",
+      "status": {
+        "PENDING": "Pendiente",
+        "PROCESSING": "Procesando",
+        "AUTHORIZED": "Autorizada",
+        "REJECTED": "Rechazada",
+        "SKIPPED": "No emitida",
+        "CANCELLING": "Cancelando",
+        "CANCELLED": "Cancelada",
+        "CANCEL_FAILED": "Error en cancelación"
+      },
+      "issuer": {
+        "eyebrow": "FISCAL",
+        "title": "Emisor NFS-e (plataforma)",
+        "sub": "Datos del prestador enviados a PlugNotas. Valida con tu contador.",
+        "cnpj": "CNPJ",
+        "legalName": "Razón social",
+        "municipalRegistration": "Inscripción municipal",
+        "cityIbgeCode": "Código IBGE del municipio",
+        "serviceCodeNational": "Código de servicio (LC 116)",
+        "cnae": "CNAE",
+        "issRate": "Alícuota ISS (%)",
+        "issWithheld": "ISS retenido",
+        "taxRegime": "Régimen tributario",
+        "ibsCbsCst": "CST IBS/CBS",
+        "ibsCbsClassTrib": "cClassTrib IBS/CBS",
+        "serviceDescriptionTemplate": "Discriminación (usa {orderId})",
+        "active": "Emisor activo",
+        "save": "Guardar",
+        "saved": "Emisor actualizado.",
+        "error": "No se pudo guardar.",
+        "inactiveHint": "Mientras esté inactivo, los pedidos permanecen pendientes de emisión."
       }
     }
   },
@@ -2167,6 +2231,17 @@
       "CANCELLED": "Cancelado",
       "REFUNDED": "Reembolsado",
       "EXPIRED": "Expirado"
+    },
+    "fiscal": {
+      "label": "Factura",
+      "download": "Descargar factura",
+      "pdf": "PDF",
+      "xml": "XML",
+      "processing": "Factura en procesamiento",
+      "notIssued": "Factura no emitida",
+      "cancelled": "Factura cancelada",
+      "failed": "Error en la emisión. Contacta con soporte.",
+      "number": "NFS-e nº {number}"
     }
   },
   "notifications": {
