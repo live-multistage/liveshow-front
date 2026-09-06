@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import styles from './ReactionsTicker.module.scss';
 
 interface Props {
@@ -15,6 +16,7 @@ function fmtCompact(v: number): string {
 }
 
 export function ReactionsTicker({ totalReactions }: Props) {
+  const t = useTranslations('chat');
   if (totalReactions === 0) return null;
 
   return (
@@ -22,9 +24,7 @@ export function ReactionsTicker({ totalReactions }: Props) {
       <span>💜</span>
       <span>🔥</span>
       <span>🤘</span>
-      <span className={styles.count}>
-        <strong>{fmtCompact(totalReactions)}</strong> reações
-      </span>
+      <span className={styles.count}>{t('reactions', { count: fmtCompact(totalReactions) })}</span>
     </div>
   );
 }

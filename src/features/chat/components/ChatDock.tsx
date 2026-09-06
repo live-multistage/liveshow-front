@@ -1,7 +1,9 @@
 'use client';
 
 import { X, MessageSquare } from 'lucide-react';
-import type { ChatMessage, ReactionEmoji } from '../types/chat.types';
+import { useTranslations } from 'next-intl';
+import type { ChatMe, ChatMessage, ReactionEmoji } from '../types/chat.types';
+import type { ChatStatus } from '../hooks/use-chat';
 import { ChatMessageList } from './ChatMessageList';
 import { ChatInput } from './ChatInput';
 import { ReactionBar } from './ReactionBar';
@@ -13,9 +15,33 @@ interface Props {
   messages: ChatMessage[];
   onSend: (body: string) => void;
   onReact: (emoji: ReactionEmoji) => void;
+  me: ChatMe | null;
+  status: ChatStatus;
+  onDeleteMessage: (messageId: string) => void;
+  onMuteUser: (userId: string) => void;
+  // Wired for parity with the hook — v1 has no unmute UI, only the mute
+  // action is exposed from ChatMessageItem's moderation menu.
+  onUnmuteUser: (userId: string) => void;
+  currentUserId: string | null;
 }
 
-export function ChatDock({ open, onClose, messages, onSend, onReact }: Props) {
+export function ChatDock({
+  open,
+  onClose,
+  messages,
+  onSend,
+  onReact,
+  me,
+  status,
+  onDeleteMessage,
+  onMuteUser,
+  onUnmuteUser,
+  currentUserId,
+}: Props) {
+  const t = useTranslations('chat');
+  // v1 has no unmute UI beyond the hook itself — kept as a prop for parity,
+  // deliberately unused here.
+  void onUnmuteUser;
   if (!open) return null;
 
   return (
@@ -23,19 +49,29 @@ export function ChatDock({ open, onClose, messages, onSend, onReact }: Props) {
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <MessageSquare size={14} color="#ff8ec9" />
-          <span className={styles.title}>Chat</span>
-          <span className={styles.count}>{messages.length} MENSAGENS</span>
+          <span className={styles.title}>{t('title')}</span>
+          <span className={styles.count}>{t('messagesCount', { count: messages.length })}</span>
         </div>
-        <button className={styles.closeBtn} onClick={onClose} aria-label="Fechar chat">
+        <button className={styles.closeBtn} onClick={onClose} aria-label={t('close')}>
           <X size={12} />
         </button>
       </div>
 
-      <ChatMessageList messages={messages} />
+      {status === 'reconnecting' && (
+        <div className={styles.reconnecting}>{t('reconnecting')}</div>
+      )}
+
+      <ChatMessageList
+        messages={messages}
+        me={me}
+        currentUserId={currentUserId}
+        onDeleteMessage={onDeleteMessage}
+        onMuteUser={onMuteUser}
+      />
       <ReactionBar onReact={onReact} />
 
       <div className={styles.inputArea}>
-        <ChatInput onSend={onSend} />
+        <ChatInput onSend={onSend} me={me} />
       </div>
     </div>
   );
