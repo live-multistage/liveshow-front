@@ -85,9 +85,10 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
   }, [items.length, couponsEnabled]);
 
   const selectedMethod = paymentMethods.data?.find((m) => m.id === selectedMethodId);
+  const submitting = updateProfile.isPending || placeOrder.isPending;
 
   const handlePay = async () => {
-    if (!selectedMethod || items.length === 0) return;
+    if (!selectedMethod || items.length === 0 || submitting) return;
     setPayErrorMsg(null);
 
     if (fiscalEnabled && doc.value && doc.value !== user?.taxDocument) {
@@ -192,13 +193,13 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
               onClick={handlePay}
               disabled={
                 !selectedMethodId ||
-                placeOrder.isPending ||
+                submitting ||
                 items.length === 0 ||
                 (fiscalEnabled && !doc.valid)
               }
-              aria-busy={placeOrder.isPending}
+              aria-busy={submitting}
             >
-              {placeOrder.isPending
+              {submitting
                 ? 'Processando…'
                 : `Pagar ${formatPrice(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)), currency)}`}
             </button>

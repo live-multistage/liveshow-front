@@ -180,6 +180,49 @@ describe('CartCheckoutPageContent', () => {
     await userEvent.type(screen.getByLabelText('buyerDocument.label'), '111');
     expect(screen.getByRole('button', { name: /Pagar/i })).toBeDisabled();
   });
+
+  it('shows the save error and never places the order when the document PATCH rejects', async () => {
+    mockedAuth.mockReturnValue({
+      isLoggedIn: true,
+      isLoading: false,
+      user: { taxDocument: '' },
+    } as unknown as ReturnType<typeof useAuth>);
+    const mutateAsync = vi.fn().mockRejectedValue(new Error('boom'));
+    mockedUpdateProfile.mockReturnValue({
+      mutateAsync,
+      isPending: false,
+    } as unknown as ReturnType<typeof useUpdateProfileMutation>);
+    const placeOrderMutate = vi.fn();
+    mockedPlaceOrder.mockReturnValue({
+      mutate: placeOrderMutate,
+      isPending: false,
+    } as unknown as ReturnType<typeof usePlaceOrderMutation>);
+
+    renderPage({ fiscalEnabled: true });
+
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
+    await userEvent.type(screen.getByLabelText('buyerDocument.label'), '52998224725');
+    await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
+
+    expect(await screen.findByText('buyerDocument.saveError')).toBeInTheDocument();
+    expect(mutateAsync).toHaveBeenCalledWith({ taxDocument: '52998224725' });
+    expect(placeOrderMutate).not.toHaveBeenCalled();
+  });
+
+  it('disables the pay button while the document PATCH is pending', () => {
+    mockedPlaceOrder.mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as unknown as ReturnType<typeof usePlaceOrderMutation>);
+    mockedUpdateProfile.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: true,
+    } as unknown as ReturnType<typeof useUpdateProfileMutation>);
+
+    renderPage({ fiscalEnabled: true });
+
+    expect(screen.getByRole('button', { name: /Processando/i })).toBeDisabled();
+  });
 });
 
 describe('web order provider schema', () => {
