@@ -89,6 +89,11 @@
   border-bottom: 1px solid $border;
 }
 
+.reactionArea {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .inputArea {
   padding: 0.625rem 0.875rem 0.75rem;
   border-top: 1px solid $border;

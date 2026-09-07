@@ -313,6 +313,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
             messages={chat.messages}
             onSend={chat.sendMessage}
             onReact={chat.react}
+            reactionCounts={chat.reactionCounts}
             me={chat.me}
             status={chat.status}
             onDeleteMessage={chat.deleteMessage}
