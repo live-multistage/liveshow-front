@@ -17,11 +17,14 @@ function fmtCompact(v: number): string {
 }
 
 export function ReactionBar({ onReact, counts }: Props) {
-  const [pulsing, setPulsing] = useState<ReactionEmoji | null>(null);
+  // { emoji, nonce }: the nonce keys the inner span so a re-click during the
+  // 250ms pulse remounts it and the CSS animation restarts instead of being
+  // swallowed by an unchanged className.
+  const [pulsing, setPulsing] = useState<{ emoji: ReactionEmoji; nonce: number } | null>(null);
 
   function handleClick(emoji: ReactionEmoji) {
     onReact(emoji);
-    setPulsing(emoji);
+    setPulsing((prev) => ({ emoji, nonce: (prev?.nonce ?? 0) + 1 }));
   }
 
   return (
@@ -32,11 +35,17 @@ export function ReactionBar({ onReact, counts }: Props) {
         return (
           <button
             key={emoji}
-            className={pulsing === emoji ? `${styles.emojiBtn} ${styles.pulse}` : styles.emojiBtn}
+            className={styles.emojiBtn}
+            aria-label={`Reagir com ${emoji}`}
             onClick={() => handleClick(emoji)}
-            onAnimationEnd={() => setPulsing((prev) => (prev === emoji ? null : prev))}
           >
-            <span className={styles.emoji}>{emoji}</span>
+            <span
+              key={pulsing?.emoji === emoji ? pulsing.nonce : 0}
+              className={pulsing?.emoji === emoji ? `${styles.emoji} ${styles.pulse}` : styles.emoji}
+              onAnimationEnd={() => setPulsing((prev) => (prev?.emoji === emoji ? null : prev))}
+            >
+              {emoji}
+            </span>
             {count > 0 && <span className={styles.count}>{fmtCompact(count)}</span>}
           </button>
         );

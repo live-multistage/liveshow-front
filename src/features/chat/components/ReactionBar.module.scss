@@ -39,6 +39,7 @@
 }
 
 .emoji {
+  display: inline-block; // transform (pulse) needs a box; inline spans ignore it
   line-height: 1;
 }
 
