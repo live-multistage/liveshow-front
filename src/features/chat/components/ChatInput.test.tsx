@@ -12,6 +12,11 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/events/evt-1',
 }));
 
+const auth = { isLoggedIn: false };
+vi.mock('@/features/account/hooks/use-auth', () => ({
+  useAuth: () => auth,
+}));
+
 const me = (overrides: Partial<ChatMe> = {}): ChatMe => ({
   canWrite: true,
   isMuted: false,
@@ -20,6 +25,22 @@ const me = (overrides: Partial<ChatMe> = {}): ChatMe => ({
 });
 
 describe('ChatInput', () => {
+  it('logged in with no bootstrap yet shows a disabled "connecting" input, never the login link', () => {
+    auth.isLoggedIn = true;
+    render(<ChatInput onSend={vi.fn()} me={null} />);
+    const input = screen.getByPlaceholderText('connecting') as HTMLInputElement;
+    expect(input.disabled).toBe(true);
+    expect(screen.queryByText('login')).toBeNull();
+    auth.isLoggedIn = false;
+  });
+
+  it('logged in without write access shows a disabled "unavailable" input', () => {
+    auth.isLoggedIn = true;
+    render(<ChatInput onSend={vi.fn()} me={me({ canWrite: false })} />);
+    expect((screen.getByPlaceholderText('unavailable') as HTMLInputElement).disabled).toBe(true);
+    auth.isLoggedIn = false;
+  });
+
   it('anonymous (me === null) shows the join link with returnTo/redirect to the current path', () => {
     render(<ChatInput onSend={vi.fn()} me={null} />);
 

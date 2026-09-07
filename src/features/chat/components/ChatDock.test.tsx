@@ -4,6 +4,10 @@ vi.mock('next-intl', () => ({
 }));
 vi.mock('next/navigation', () => ({ usePathname: () => '/events/evt-1' }));
 
+vi.mock('@/features/account/hooks/use-auth', () => ({
+  useAuth: () => ({ isLoggedIn: false }),
+}));
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ChatDock } from './ChatDock';

@@ -2822,6 +2822,8 @@
     "reconnecting": "Reconectando…",
     "send": "Enviar mensagem",
     "title": "Chat",
-    "unmuteUser": "Reativar {name}"
+    "unmuteUser": "Reativar {name}",
+    "connecting": "Conectando…",
+    "unavailable": "Chat indisponível para você neste evento"
   }
 }
