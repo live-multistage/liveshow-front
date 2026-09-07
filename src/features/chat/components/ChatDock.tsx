@@ -7,6 +7,7 @@ import type { ChatStatus } from '../hooks/use-chat';
 import { ChatMessageList } from './ChatMessageList';
 import { ChatInput } from './ChatInput';
 import { ReactionBar } from './ReactionBar';
+import { FloatingReactions } from './FloatingReactions';
 import styles from './ChatDock.module.scss';
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
   messages: ChatMessage[];
   onSend: (body: string) => void;
   onReact: (emoji: ReactionEmoji) => void;
+  reactionCounts: Record<ReactionEmoji, number>;
   me: ChatMe | null;
   status: ChatStatus;
   onDeleteMessage: (messageId: string) => void;
@@ -31,6 +33,7 @@ export function ChatDock({
   messages,
   onSend,
   onReact,
+  reactionCounts,
   me,
   status,
   onDeleteMessage,
@@ -68,7 +71,10 @@ export function ChatDock({
         onDeleteMessage={onDeleteMessage}
         onMuteUser={onMuteUser}
       />
-      <ReactionBar onReact={onReact} />
+      <div className={styles.reactionArea}>
+        <FloatingReactions counts={reactionCounts} />
+        <ReactionBar onReact={onReact} counts={reactionCounts} />
+      </div>
 
       <div className={styles.inputArea}>
         <ChatInput onSend={onSend} me={me} />

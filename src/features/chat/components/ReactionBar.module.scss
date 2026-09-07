@@ -18,8 +18,14 @@
 }
 
 .emojiBtn {
-  width: 1.75rem;
-  height: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  padding: 0.15rem 0.3rem;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
   border: none;
@@ -29,5 +35,38 @@
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.emoji {
+  line-height: 1;
+}
+
+.count {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.5rem;
+  line-height: 1;
+  color: $text-muted;
+}
+
+@keyframes reaction-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pulse {
+  animation: reaction-pulse 250ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
   }
 }

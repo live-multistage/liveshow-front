@@ -28,6 +28,7 @@ function renderDock(status: ChatStatus) {
       messages={[]}
       onSend={vi.fn()}
       onReact={vi.fn()}
+      reactionCounts={{ '💜': 0, '🔥': 0, '🤘': 0, '👏': 0, '✨': 0 }}
       me={me}
       status={status}
       onDeleteMessage={vi.fn()}
