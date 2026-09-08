@@ -153,6 +153,8 @@ export interface EventScheduleItemInput {
   artistId?: string | null;
   title?: string | null;
   description?: string | null;
+  /** Soft reference to a stage of this event's stream; optional, null = no stage. */
+  stageId?: string | null;
 }
 
 export interface EventScheduleArtist {
@@ -160,6 +162,11 @@ export interface EventScheduleArtist {
   slug: string;
   name: string;
   imageUrl?: string;
+}
+
+export interface EventScheduleStage {
+  id: string;
+  name: string;
 }
 
 // Response item — save semantics are replace-all, so `position` is always
@@ -173,6 +180,8 @@ export interface EventScheduleItem {
   position: number;
   title?: string | null;
   artist?: EventScheduleArtist | null;
+  stageId?: string | null;
+  stage?: EventScheduleStage | null;
 }
 
 export interface ReplaceEventScheduleRequest {
