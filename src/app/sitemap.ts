@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import type { PaginatedEventsResponse } from '@/features/events/types/event.types';
 import type { ChannelListItem } from '@/features/channels/types/channel.types';
+import type { ArtistListItem } from '@live-show/api-contracts';
 import { eventHref } from '@/features/events/utils/slug';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
@@ -32,6 +33,26 @@ async function fetchAllEvents() {
   return items;
 }
 
+// Artists catalog walks paginated endpoint, fail-soft.
+// ponytail: capped at 2 pages (artists catalog likely small); expand if needed.
+async function fetchArtists() {
+  const items: ArtistListItem[] = [];
+  try {
+    for (let page = 1; page <= 2; page++) {
+      const res = await fetch(`${apiBase()}/artists?page=${page}&pageSize=${PAGE_SIZE}`, {
+        next: { revalidate: 3600 },
+      });
+      if (!res.ok) break;
+      const data = (await res.json()) as { items: ArtistListItem[]; total: number };
+      items.push(...data.items);
+      if (items.length >= data.total) break;
+    }
+  } catch {
+    // network/API down — serve without artist entries
+  }
+  return items;
+}
+
 // Channels are a small public catalog — one fetch, fail-soft.
 async function fetchList<T>(path: string): Promise<T[]> {
   try {
@@ -46,14 +67,16 @@ async function fetchList<T>(path: string): Promise<T[]> {
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [events, channels] = await Promise.all([
+  const [events, channels, artists] = await Promise.all([
     fetchAllEvents(),
     fetchList<ChannelListItem>('/channels'),
+    fetchArtists(),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: 'hourly', priority: 1 },
     { url: `${SITE_URL}/events`, changeFrequency: 'hourly', priority: 0.9 },
+    { url: `${SITE_URL}/artists`, changeFrequency: 'daily', priority: 0.7 },
     { url: `${SITE_URL}/be-partner`, changeFrequency: 'monthly', priority: 0.6 },
     ...(channels.length ? [{ url: `${SITE_URL}/channels`, changeFrequency: 'daily' as const, priority: 0.8 }] : []),
     { url: `${SITE_URL}/about`, changeFrequency: 'monthly', priority: 0.4 },
@@ -80,5 +103,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticEntries, ...eventEntries, ...orgEntries, ...channelEntries];
+  const artistEntries: MetadataRoute.Sitemap = artists.map((artist) => ({
+    url: `${SITE_URL}/artists/${artist.slug}`,
+    changeFrequency: 'weekly',
+    priority: 0.6,
+  }));
+
+  return [...staticEntries, ...eventEntries, ...orgEntries, ...channelEntries, ...artistEntries];
 }
