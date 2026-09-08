@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import styles from './page.module.scss';
+import { ArtistsListPage } from '@/features/artists';
+import { fetchArtistsFirstPage } from '@/features/artists/queries/get-artist.server';
 
 const TITLE = 'Artistas';
 const DESCRIPTION = 'Descubra os artistas e atrações que transmitem ao vivo no showon.io.';
@@ -12,10 +13,11 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION },
 };
 
-export default function ArtistsPage() {
-  return (
-    <div className={styles.page}>
-      <h1 className={styles.title}>Artists</h1>
-    </div>
-  );
+export const revalidate = 300;
+
+export default async function ArtistsPage() {
+  // SSR-seed the catalog's first page so it's in the initial HTML — matches
+  // the events list page's caching (fetchFeedFirstPage).
+  const { items } = await fetchArtistsFirstPage();
+  return <ArtistsListPage initialArtists={items} />;
 }

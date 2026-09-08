@@ -1,0 +1,134 @@
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  color: #f4f4f5;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 24px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.headText {
+  max-width: 540px;
+}
+
+.eyebrow {
+  display: block;
+  font-family: var(--font-space-mono);
+  font-size: 11px;
+  letter-spacing: .2em;
+  color: #ff8ec9;
+  margin-bottom: 10px;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  margin: 0 0 10px;
+
+  @media (min-width: 768px) {
+    font-size: 52px;
+  }
+}
+
+.subtitle {
+  color: #a1a1aa;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 300px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  background: #0e0e11;
+}
+
+.searchIcon {
+  color: #71717a;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: #f4f4f5;
+  font-size: 14px;
+
+  &::placeholder {
+    color: #71717a;
+  }
+}
+
+.filterRow {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.resultCount {
+  font-family: var(--font-space-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: #9a9aa2;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: 20px;
+}
+
+.skeletonCard {
+  aspect-ratio: 4 / 3.6;
+  border-radius: 18px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 64px 24px;
+  border: 1px dashed rgba(255, 255, 255, .14);
+  border-radius: 18px;
+}
+
+.emptyIcon {
+  color: #71717a;
+  margin-bottom: 6px;
+}
+
+.emptyTitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.emptyHint {
+  color: #9a9aa2;
+  font-size: 13px;
+  margin: 0;
+}
