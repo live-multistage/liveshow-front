@@ -689,7 +689,7 @@
     "checklistTicket": "Create at least 1 ticket type",
     "checklistDescription": "Add a description",
     "descriptionEmpty": "No description. Add text for the event public page.",
-    "lineup": "On stage",
+    "lineup": "In the event",
     "schedule": {
       "title": "Schedule",
       "countBlocks": "{count, plural, one {# block} other {# blocks}}",
@@ -2954,7 +2954,7 @@
         "declined": "Declined"
       },
       "lineup": {
-        "title": "On stage",
+        "title": "In the event",
         "inviteCta": "Invite from catalog",
         "searchPlaceholder": "Search artist by name...",
         "statusPending": "Invite sent",

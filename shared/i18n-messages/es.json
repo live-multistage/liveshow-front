@@ -689,7 +689,7 @@
     "checklistTicket": "Crear al menos 1 tipo de entrada",
     "checklistDescription": "Añadir descripción",
     "descriptionEmpty": "Sin descripción. Añade un texto para la página pública del evento.",
-    "lineup": "En el escenario",
+    "lineup": "En el evento",
     "schedule": {
       "title": "Programación",
       "countBlocks": "{count, plural, one {# bloque} other {# bloques}}",
@@ -2954,7 +2954,7 @@
         "declined": "Rechazada"
       },
       "lineup": {
-        "title": "En el escenario",
+        "title": "En el evento",
         "inviteCta": "Invitar desde el catálogo",
         "searchPlaceholder": "Buscar artista por nombre...",
         "statusPending": "Invitación enviada",
