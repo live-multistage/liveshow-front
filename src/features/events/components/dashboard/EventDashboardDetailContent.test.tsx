@@ -50,6 +50,13 @@ vi.mock('./EventCollaboratorsSection', () => ({
     <div>collaborators-section{props.readOnly ? '-readonly' : ''}</div>
   ),
 }));
+vi.mock('./EventArtistsSection', () => ({
+  EventArtistsSection: (props: { readOnly?: boolean }) => (
+    <div>artists-section{props.readOnly ? '-readonly' : ''}</div>
+  ),
+}));
+vi.mock('./EventScheduleEditor', () => ({ EventScheduleEditor: () => <div>schedule-editor</div> }));
+vi.mock('../public/EventSchedule', () => ({ EventSchedule: () => <div>schedule-view</div> }));
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

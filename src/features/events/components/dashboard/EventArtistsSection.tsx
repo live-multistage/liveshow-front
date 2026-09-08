@@ -16,6 +16,9 @@ import styles from './EventArtistsSection.module.scss';
 
 interface Props {
   eventId: string;
+  // Viewing org is a COLLABORATOR (or view mode): hide search/invite/remove,
+  // show only the lineup list. Mirrors EventCollaboratorsSection's readOnly.
+  readOnly?: boolean;
 }
 
 const STATUS_CLASS: Record<LineupInvitationStatus, string> = {
@@ -24,7 +27,7 @@ const STATUS_CLASS: Record<LineupInvitationStatus, string> = {
   DECLINED: 'declined',
 };
 
-export function EventArtistsSection({ eventId }: Props) {
+export function EventArtistsSection({ eventId, readOnly = false }: Props) {
   const t = useTranslations('artists');
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -68,53 +71,57 @@ export function EventArtistsSection({ eventId }: Props) {
     <div className={styles.section}>
       <h2 className={styles.title}>{t('dashboard.lineup.title')}</h2>
 
-      <div className={styles.searchWrap}>
-        <input
-          className={styles.searchInput}
-          placeholder={t('dashboard.lineup.searchPlaceholder')}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        {debouncedQuery && searchResults.length > 0 && (
-          <div className={styles.results}>
-            {searchResults.map((artist) => (
-              <button
-                key={artist.id}
-                type="button"
-                className={styles.resultItem}
-                onClick={() => handleInvite(artist.id)}
-              >
-                {artist.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={artist.imageUrl} alt="" className={styles.resultAvatar} />
-                ) : (
-                  <span className={styles.resultAvatarPlaceholder}>
-                    <User size={14} />
-                  </span>
-                )}
-                <span>{artist.name}</span>
-                <span className={styles.resultCta}>{t('dashboard.lineup.inviteCta')}</span>
-              </button>
-            ))}
-          </div>
-        )}
-        {debouncedQuery.trim().length >= 2 && searchResults.length === 0 && (
-          <button
-            type="button"
-            className={styles.externalSearchAffordance}
-            onClick={() => setExternalSearchOpen(true)}
-          >
-            Não encontrou &ldquo;{debouncedQuery}&rdquo;? Buscar em fontes externas
-          </button>
-        )}
-      </div>
+      {!readOnly && (
+        <div className={styles.searchWrap}>
+          <input
+            className={styles.searchInput}
+            placeholder={t('dashboard.lineup.searchPlaceholder')}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {debouncedQuery && searchResults.length > 0 && (
+            <div className={styles.results}>
+              {searchResults.map((artist) => (
+                <button
+                  key={artist.id}
+                  type="button"
+                  className={styles.resultItem}
+                  onClick={() => handleInvite(artist.id)}
+                >
+                  {artist.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={artist.imageUrl} alt="" className={styles.resultAvatar} />
+                  ) : (
+                    <span className={styles.resultAvatarPlaceholder}>
+                      <User size={14} />
+                    </span>
+                  )}
+                  <span>{artist.name}</span>
+                  <span className={styles.resultCta}>{t('dashboard.lineup.inviteCta')}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {debouncedQuery.trim().length >= 2 && searchResults.length === 0 && (
+            <button
+              type="button"
+              className={styles.externalSearchAffordance}
+              onClick={() => setExternalSearchOpen(true)}
+            >
+              Não encontrou &ldquo;{debouncedQuery}&rdquo;? Buscar em fontes externas
+            </button>
+          )}
+        </div>
+      )}
 
-      <ExternalArtistSearchModal
-        eventId={eventId}
-        initialQuery={debouncedQuery}
-        open={externalSearchOpen}
-        onClose={handleExternalSearchClose}
-      />
+      {!readOnly && (
+        <ExternalArtistSearchModal
+          eventId={eventId}
+          initialQuery={debouncedQuery}
+          open={externalSearchOpen}
+          onClose={handleExternalSearchClose}
+        />
+      )}
 
       <div className={styles.list}>
         {isLoading && (
@@ -142,14 +149,16 @@ export function EventArtistsSection({ eventId }: Props) {
               {status === 'ACCEPTED' && t('dashboard.lineup.statusAccepted')}
               {status === 'DECLINED' && t('dashboard.lineup.statusDeclined')}
             </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => removeMutation.mutate(artist.id)}
-              disabled={removeMutation.isPending}
-            >
-              {t('dashboard.lineup.remove')}
-            </Button>
+            {!readOnly && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeMutation.mutate(artist.id)}
+                disabled={removeMutation.isPending}
+              >
+                {t('dashboard.lineup.remove')}
+              </Button>
+            )}
           </div>
         ))}
       </div>

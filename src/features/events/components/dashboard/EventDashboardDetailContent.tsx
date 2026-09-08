@@ -24,6 +24,7 @@ import { PhotosSection } from './PhotosSection';
 import { EventCollaboratorsSection } from './EventCollaboratorsSection';
 import { EventArtistsSection } from './EventArtistsSection';
 import { EventScheduleEditor } from './EventScheduleEditor';
+import { EventSchedule } from '../public/EventSchedule';
 import { VodUploadCard } from '../VodUploadCard/VodUploadCard';
 import { EventMetadataSection } from '@/features/metadata';
 import { formatDate, formatTime, formatDuration } from '../../utils/event-formatters';
@@ -264,6 +265,8 @@ export function EventDashboardDetailContent({
             </div>
             <EventMetadataSection eventId={id} readOnly={readOnly} />
             <EventTicketList tickets={tickets} />
+            <EventArtistsSection eventId={id} readOnly />
+            <EventSchedule eventId={id} />
             <EventCollaboratorsSection eventId={id} readOnly={readOnly} collaborationsEnabled={collaborationsEnabled} />
           </div>
 
