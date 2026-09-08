@@ -16,6 +16,7 @@ import { AdBanner } from '@/features/advertisements';
 import { ReportButton } from '@/features/reports';
 import { WishlistButton } from '@/features/wishlist';
 import { MediaWithTeaserVideo } from '@/shared/components/MediaWithTeaserVideo';
+import { EventSchedule } from './EventSchedule';
 import styles from './EventDetailPageContent.module.scss';
 
 interface Props {
@@ -194,6 +195,8 @@ export function EventDetailPageContent({ id }: Props) {
                 </div>
               </div>
             )}
+
+            <EventSchedule eventId={id} />
           </div>
 
           <div className={styles.sidebarCol}>
