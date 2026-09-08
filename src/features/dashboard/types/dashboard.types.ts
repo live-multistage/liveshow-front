@@ -80,6 +80,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'platformOrganizations', href: '/dashboard/platform/organizations', icon: Building2,    group: 'PLATAFORMA', badge: () => createElement(PendingOrgsBadge) },
     { navKey: 'platformUsers',         href: '/dashboard/platform/users',         icon: Users,        group: 'PLATAFORMA' },
     { navKey: 'platformOrganizerApplications', href: '/dashboard/platform/organizer-applications', icon: UserPlus, group: 'PLATAFORMA' },
+    { navKey: 'platformArtistApplications', href: '/dashboard/platform/artist-applications', icon: Mic2, group: 'PLATAFORMA' },
     { navKey: 'platformEvents',        href: '/dashboard/platform/events',        icon: CalendarDays, group: 'PLATAFORMA' },
     { navKey: 'platformRevenue',       href: '/dashboard/platform/revenue',       icon: DollarSign,   group: 'FINANCEIRO' },
     { navKey: 'platformPayouts',       href: '/dashboard/platform/payouts',       icon: Wallet,       group: 'FINANCEIRO' },

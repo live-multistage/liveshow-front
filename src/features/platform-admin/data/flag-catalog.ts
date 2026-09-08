@@ -1,4 +1,4 @@
-// Static catalog for the 16 global feature flag keys the backend exposes.
+// Static catalog for the 17 global feature flag keys the backend exposes.
 // An unknown key (new backend flag not yet cataloged) falls back to
 // { group: 'other', scope: 'all' } via flagMeta() instead of throwing.
 export type FlagGroup = 'player' | 'account' | 'payments' | 'other';
@@ -21,6 +21,7 @@ export const FLAG_CATALOG: Record<string, FlagMeta> = {
   ads_delivery: { group: 'payments', scope: 'all', risky: true },
   ad_revenue_share: { group: 'payments', scope: 'all', risky: true },
   organizer_applications: { group: 'account', scope: 'all' },
+  artist_applications: { group: 'account', scope: 'all' },
   social_login: { group: 'account', scope: 'viewers' },
   low_latency_mode: { group: 'player', scope: 'all' },
   physical_tickets: { group: 'player', scope: 'all' },

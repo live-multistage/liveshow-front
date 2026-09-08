@@ -13,6 +13,7 @@ const ALL_KEYS: FeatureFlagKey[] = [
   'ads_delivery',
   'ad_revenue_share',
   'organizer_applications',
+  'artist_applications',
   'social_login',
   'low_latency_mode',
   'coupons',

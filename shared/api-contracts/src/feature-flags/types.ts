@@ -9,6 +9,7 @@ export type FeatureFlagKey =
   | 'ads_delivery'
   | 'ad_revenue_share'
   | 'organizer_applications'
+  | 'artist_applications'
   | 'social_login'
   | 'low_latency_mode'
   | 'coupons'
@@ -37,6 +38,8 @@ export const DEFAULT_FEATURE_FLAGS = {
   ad_revenue_share: true,
   // Ships on — seeded ON; public organizer applications form stays open.
   organizer_applications: true,
+  // Ships on — seeded ON; public artist applications form stays open.
+  artist_applications: true,
   // Ships on — seeded ON; Google/Apple login buttons stay visible.
   social_login: true,
   // Ships on — seeded ON; LL-HLS option stays available, org-scoped rollout.
