@@ -9,9 +9,14 @@ import type { EventScheduleItem, EventScheduleItemInput, ScheduleItemKind } from
 import { useEventSchedule } from '../../hooks/use-event-schedule';
 import { useReplaceEventScheduleMutation } from '../../mutations/schedule.mutations';
 import { useEventLineup } from '@/features/artists';
+import { useEventStagesQuery } from '@/features/streams/queries/streams.queries';
 import styles from './EventScheduleEditor.module.scss';
 
 const TIME_RE = /^([01]?\d|2[0-3]):[0-5]\d$/;
+// Radix Select reserves the empty string for "no value" and rejects an
+// Item with value="" — use a sentinel for the "Sem palco" option and
+// translate it back to '' at the state boundary.
+const NO_STAGE = '__no-stage__';
 
 interface Block {
   tempId: string;
@@ -21,6 +26,7 @@ interface Block {
   artistId: string;
   title: string;
   description: string;
+  stageId: string;
 }
 
 let seq = 0;
@@ -38,6 +44,7 @@ function toBlock(item: EventScheduleItem): Block {
     artistId: item.artist?.id ?? '',
     title: item.title ?? '',
     description: item.description ?? '',
+    stageId: item.stageId ?? '',
   };
 }
 
@@ -50,6 +57,7 @@ function emptyBlock(): Block {
     artistId: '',
     title: '',
     description: '',
+    stageId: '',
   };
 }
 
@@ -81,6 +89,7 @@ function toInput(block: Block): EventScheduleItemInput {
     artistId: block.kind === 'ARTIST' ? block.artistId : null,
     title: block.kind === 'SEGMENT' ? block.title.trim() : null,
     description: block.description.trim() || null,
+    stageId: block.stageId || null,
   };
 }
 
@@ -92,7 +101,9 @@ export function EventScheduleEditor({ eventId }: Props) {
   const t = useTranslations('createEvent.schedule');
   const { data: schedule } = useEventSchedule(eventId);
   const { data: lineup = [] } = useEventLineup(eventId);
+  const { stages } = useEventStagesQuery(eventId);
   const replaceMutation = useReplaceEventScheduleMutation(eventId);
+  const hasStages = stages.length > 0;
 
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [dirty, setDirty] = useState(false);
@@ -112,6 +123,8 @@ export function EventScheduleEditor({ eventId }: Props) {
   const artistOptions: SelectOption[] = lineup
     .filter((item) => item.status !== 'DECLINED')
     .map((item) => ({ value: item.artist.id, label: item.artist.name }));
+
+  const stageOptions: SelectOption[] = stages.map((stage) => ({ value: stage.id, label: stage.name }));
 
   function updateBlock(tempId: string, patch: Partial<Block>) {
     setBlocks((prev) => prev.map((b) => (b.tempId === tempId ? { ...b, ...patch } : b)));
@@ -222,7 +235,7 @@ export function EventScheduleEditor({ eventId }: Props) {
                 </button>
               </div>
 
-              <div className={styles.blockGrid}>
+              <div className={`${styles.blockGrid} ${hasStages ? styles.blockGridWithStage : ''}`}>
                 <div className={styles.field}>
                   <label className={styles.fieldLabel}>{t('startLabel')} *</label>
                   <Input
@@ -263,6 +276,19 @@ export function EventScheduleEditor({ eventId }: Props) {
                     </>
                   )}
                 </div>
+                {hasStages && (
+                  <div className={`${styles.field} ${styles.stageField} ${block.stageId ? styles.stageFieldSelected : ''}`}>
+                    <label className={styles.fieldLabel}>{t('stageLabel')}</label>
+                    <SimpleCustomSelect
+                      value={block.stageId || NO_STAGE}
+                      onValueChange={(value) =>
+                        updateBlock(block.tempId, { stageId: value === NO_STAGE ? '' : value })
+                      }
+                      placeholder={t('noStage')}
+                      options={[{ value: NO_STAGE, label: t('noStage') }, ...stageOptions]}
+                    />
+                  </div>
+                )}
               </div>
 
               <Input

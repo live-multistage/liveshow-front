@@ -696,6 +696,8 @@
       "empty": "Programação em breve",
       "badgeArtist": "ARTISTA",
       "badgeSegment": "SEGMENTO",
+      "stageLabel": "PALCO",
+      "stageAll": "TODOS",
       "live": "AO VIVO"
     }
   },
@@ -810,6 +812,8 @@
       "endPlaceholder": "opcional",
       "artistLabel": "Artista (lineup)",
       "artistPlaceholder": "Selecionar do lineup…",
+      "stageLabel": "PALCO",
+      "noStage": "Sem palco",
       "segmentLabel": "Título do segmento",
       "segmentPlaceholder": "Pré-jogo, Intervalo…",
       "descPlaceholder": "Descrição curta (opcional)",

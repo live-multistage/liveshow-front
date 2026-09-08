@@ -181,6 +181,69 @@
   border-radius: 999px;
 }
 
+.badgeGroup {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stageChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: #c78bff;
+  background: rgba(152, 16, 250, .12);
+  border: 1px solid rgba(152, 16, 250, .34);
+  padding: 4px 9px;
+  border-radius: 999px;
+}
+
+// ── Stage filter ─────────────────────────────────────────────────
+.stageFilter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stageFilterLabel {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: #8f8f97;
+  margin-right: 2px;
+}
+
+.stageFilterChip {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: #b9b9c0;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, .18);
+  padding: 5px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover { border-color: rgba(255, 255, 255, .34); }
+}
+
+.stageFilterChipActive {
+  @extend .stageFilterChip;
+  color: #0a0a0b;
+  background: #ff2e9e;
+  border-color: #ff2e9e;
+
+  &:hover { border-color: #ff2e9e; }
+}
+
 .description {
   font-size: 13.5px;
   line-height: 1.55;

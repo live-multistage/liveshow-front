@@ -696,6 +696,8 @@
       "empty": "Schedule coming soon",
       "badgeArtist": "ARTIST",
       "badgeSegment": "SEGMENT",
+      "stageLabel": "STAGE",
+      "stageAll": "ALL",
       "live": "LIVE"
     }
   },
@@ -810,6 +812,8 @@
       "endPlaceholder": "optional",
       "artistLabel": "Artist (lineup)",
       "artistPlaceholder": "Select from lineup…",
+      "stageLabel": "STAGE",
+      "noStage": "No stage",
       "segmentLabel": "Segment title",
       "segmentPlaceholder": "Pre-show, Intermission…",
       "descPlaceholder": "Short description (optional)",

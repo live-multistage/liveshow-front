@@ -1,8 +1,9 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Clock } from 'lucide-react';
+import { Clock, Theater } from 'lucide-react';
 import { Skeleton } from '@live-show/design-system';
 import { useEventSchedule } from '../../hooks/use-event-schedule';
 import styles from './EventSchedule.module.scss';
@@ -11,9 +12,31 @@ interface Props {
   eventId: string;
 }
 
+const ALL_STAGES = 'all';
+
 export function EventSchedule({ eventId }: Props) {
   const t = useTranslations('eventDetail.schedule');
   const { data: items = [], isLoading } = useEventSchedule(eventId);
+  const [stageFilter, setStageFilter] = useState(ALL_STAGES);
+
+  const stages = useMemo(() => {
+    const byId = new Map<string, { id: string; name: string; count: number }>();
+    for (const item of items) {
+      if (!item.stage) continue;
+      const existing = byId.get(item.stage.id);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        byId.set(item.stage.id, { id: item.stage.id, name: item.stage.name, count: 1 });
+      }
+    }
+    return Array.from(byId.values());
+  }, [items]);
+
+  const showStageFilter = stages.length > 1;
+  const visibleItems = showStageFilter && stageFilter !== ALL_STAGES
+    ? items.filter((item) => item.stage?.id === stageFilter)
+    : items;
 
   if (isLoading) {
     return (
@@ -58,8 +81,31 @@ export function EventSchedule({ eventId }: Props) {
         <span className={styles.countBadge}>{t('countBlocks', { count: items.length })}</span>
       </div>
 
+      {showStageFilter && (
+        <div className={styles.stageFilter}>
+          <span className={styles.stageFilterLabel}>{t('stageLabel')}</span>
+          <button
+            type="button"
+            className={stageFilter === ALL_STAGES ? styles.stageFilterChipActive : styles.stageFilterChip}
+            onClick={() => setStageFilter(ALL_STAGES)}
+          >
+            {t('stageAll')} ({items.length})
+          </button>
+          {stages.map((stage) => (
+            <button
+              key={stage.id}
+              type="button"
+              className={stageFilter === stage.id ? styles.stageFilterChipActive : styles.stageFilterChip}
+              onClick={() => setStageFilter(stage.id)}
+            >
+              {stage.name.toUpperCase()} ({stage.count})
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className={styles.timeline}>
-        {items.map((item) => {
+        {visibleItems.map((item) => {
           const artist = item.artist;
           const href = artist ? `/artists/${artist.slug || artist.id}` : null;
 
@@ -91,7 +137,15 @@ export function EventSchedule({ eventId }: Props) {
                           </Link>
                         )}
                       </div>
-                      <span className={styles.badge}>{t('badgeArtist')}</span>
+                      <div className={styles.badgeGroup}>
+                        {item.stage && (
+                          <span className={styles.stageChip}>
+                            <Theater size={10} />
+                            {item.stage.name.toUpperCase()}
+                          </span>
+                        )}
+                        <span className={styles.badge}>{t('badgeArtist')}</span>
+                      </div>
                     </div>
                   )
                   : (
@@ -102,7 +156,15 @@ export function EventSchedule({ eventId }: Props) {
                       <div className={styles.cardHeadInfo}>
                         <span className={styles.headline}>{item.title}</span>
                       </div>
-                      <span className={styles.badge}>{t('badgeSegment')}</span>
+                      <div className={styles.badgeGroup}>
+                        {item.stage && (
+                          <span className={styles.stageChip}>
+                            <Theater size={10} />
+                            {item.stage.name.toUpperCase()}
+                          </span>
+                        )}
+                        <span className={styles.badge}>{t('badgeSegment')}</span>
+                      </div>
                     </div>
                   )}
 

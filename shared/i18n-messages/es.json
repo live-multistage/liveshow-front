@@ -696,6 +696,8 @@
       "empty": "Programación próximamente",
       "badgeArtist": "ARTISTA",
       "badgeSegment": "SEGMENTO",
+      "stageLabel": "ESCENARIO",
+      "stageAll": "TODOS",
       "live": "EN VIVO"
     }
   },
@@ -810,6 +812,8 @@
       "endPlaceholder": "opcional",
       "artistLabel": "Artista (lineup)",
       "artistPlaceholder": "Seleccionar del lineup…",
+      "stageLabel": "ESCENARIO",
+      "noStage": "Sin escenario",
       "segmentLabel": "Título del segmento",
       "segmentPlaceholder": "Pre-show, Intermedio…",
       "descPlaceholder": "Descripción corta (opcional)",

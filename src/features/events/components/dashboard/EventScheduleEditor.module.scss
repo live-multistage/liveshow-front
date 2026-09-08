@@ -150,6 +150,27 @@
   align-items: end;
 }
 
+.blockGridWithStage {
+  grid-template-columns: 108px 108px minmax(0, 1fr) 150px;
+}
+
+.stageField {
+  // SimpleCustomSelect's trigger className is scoped to its own module —
+  // reach through with a descendant selector on the native <button> Radix
+  // renders instead of threading a className prop through the primitive.
+  :global(button) {
+    transition: border-color 0.15s, color 0.15s;
+    color: $text-secondary;
+  }
+}
+
+.stageFieldSelected {
+  :global(button) {
+    border-color: $accent-selected-border;
+    color: $accent-bright;
+  }
+}
+
 .field {
   display: flex;
   flex-direction: column;
