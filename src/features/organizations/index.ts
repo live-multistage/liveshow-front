@@ -4,6 +4,7 @@ export { CreateOrganizationPage } from './pages/CreateOrganizationPage';
 export { OrganizationDashboardPage } from './pages/OrganizationDashboardPage';
 export { OrganizationAnalyticsPage } from './pages/OrganizationAnalyticsPage';
 export { MembersPage } from './pages/MembersPage';
+export { AcceptInvitationPage } from './pages/AcceptInvitationPage';
 export { SettingsPage } from './pages/SettingsPage';
 export { PublicPreviewPage } from './pages/PublicPreviewPage';
 export { OrganizationPublicPage } from './pages/OrganizationPublicPage';
@@ -23,6 +24,7 @@ export { MembersTable } from './components/MembersTable';
 export { InviteMemberModal } from './components/InviteMemberModal';
 export { MemberRoleSelector } from './components/MemberRoleSelector';
 export { RemoveMemberDialog } from './components/RemoveMemberDialog';
+export { PendingInvitations } from './components/PendingInvitations';
 export { OrganizationLogoUploader } from './components/OrganizationLogoUploader';
 export { OrganizationBannerUploader } from './components/OrganizationBannerUploader';
 export { OrganizationsGuard } from './components/OrganizationsGuard';
@@ -42,6 +44,12 @@ export { useOrganizationAnalytics, organizationAnalyticsKey } from './hooks/use-
 export { useCreateOrganization } from './hooks/use-create-organization';
 export { useUpdateOrganization } from './hooks/use-update-organization';
 export { useInviteMember } from './hooks/use-invite-member';
+export {
+  useOrganizationInvitations,
+  useRevokeInvitation,
+  organizationInvitationsKey,
+} from './hooks/use-organization-invitations';
+export { useAcceptInvitation } from './hooks/use-accept-invitation';
 export { useRemoveMember } from './hooks/use-remove-member';
 export { useUpdateMemberRole } from './hooks/use-update-member-role';
 
@@ -62,6 +70,9 @@ export type {
   InviteMemberRequest,
   UpdateMemberRoleRequest,
   UpdateOrganizationSettingsRequest,
+  OrganizationInvitationResponse,
+  OrganizationInvitationStatus,
+  AcceptOrganizationInvitationResponse,
 } from './types/organization.types';
 export type {
   OrganizationAnalyticsResponse,

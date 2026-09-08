@@ -1,4 +1,12 @@
-export type { OrganizationRole, OrganizationResponse, OrganizationEventsFilter } from '@live-show/api-contracts';
+export type {
+  OrganizationRole,
+  OrganizationResponse,
+  OrganizationEventsFilter,
+  OrganizationInvitationStatus,
+  OrganizationInvitationResponse,
+  InviteOrganizationMemberRequest,
+  AcceptOrganizationInvitationResponse,
+} from '@live-show/api-contracts';
 import type { OrganizationRole } from '@live-show/api-contracts';
 
 // Roles allowed to create events/coupons — mirrors the backend's

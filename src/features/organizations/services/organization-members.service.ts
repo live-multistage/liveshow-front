@@ -1,6 +1,8 @@
 import { httpClient } from '@/lib/http/client';
 import type {
   OrganizationMemberResponse,
+  OrganizationInvitationResponse,
+  AcceptOrganizationInvitationResponse,
   InviteMemberRequest,
   UpdateMemberRoleRequest,
   UserSearchResult,
@@ -14,13 +16,34 @@ export const organizationMembersService = {
     return data;
   },
 
+  // Membership is only granted when the invitee accepts, so this answers with
+  // a PENDING invitation — the invited person does NOT show up in getMembers()
+  // until then; they show up in listInvitations().
   inviteMember: async (
     orgId: string,
     payload: InviteMemberRequest,
-  ): Promise<OrganizationMemberResponse> => {
-    const { data } = await httpClient.post<OrganizationMemberResponse>(
+  ): Promise<OrganizationInvitationResponse> => {
+    const { data } = await httpClient.post<OrganizationInvitationResponse>(
       `/organizations/${orgId}/members/invite`,
       payload,
+    );
+    return data;
+  },
+
+  listInvitations: async (orgId: string): Promise<OrganizationInvitationResponse[]> => {
+    const { data } = await httpClient.get<OrganizationInvitationResponse[]>(
+      `/organizations/${orgId}/invitations`,
+    );
+    return data;
+  },
+
+  revokeInvitation: async (orgId: string, invitationId: string): Promise<void> => {
+    await httpClient.delete(`/organizations/${orgId}/invitations/${invitationId}`);
+  },
+
+  acceptInvitation: async (token: string): Promise<AcceptOrganizationInvitationResponse> => {
+    const { data } = await httpClient.post<AcceptOrganizationInvitationResponse>(
+      `/organizations/invitations/${encodeURIComponent(token)}/accept`,
     );
     return data;
   },

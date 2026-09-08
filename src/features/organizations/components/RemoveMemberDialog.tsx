@@ -9,26 +9,45 @@ interface Props {
   onConfirm: () => void;
   onCancel: () => void;
   isPending?: boolean;
+  /** Overrides for reuse by other destructive confirmations (e.g. revoking an invitation). */
+  title?: string;
+  body?: React.ReactNode;
+  confirmLabel?: string;
+  pendingLabel?: string;
 }
 
-export function RemoveMemberDialog({ isOpen, memberName, onConfirm, onCancel, isPending }: Props) {
+export function RemoveMemberDialog({
+  isOpen,
+  memberName,
+  onConfirm,
+  onCancel,
+  isPending,
+  title,
+  body,
+  confirmLabel,
+  pendingLabel,
+}: Props) {
   const t = useTranslations('organizations');
   if (!isOpen) return null;
 
   return (
     <div className={styles.overlay} onClick={onCancel}>
       <div className={styles.dialog} onClick={(e) => e.stopPropagation()}>
-        <h2 className={styles.title}>Remover Membro</h2>
+        <h2 className={styles.title}>{title ?? 'Remover Membro'}</h2>
         <p className={styles.body}>
-          Tem certeza que deseja remover <strong>{memberName}</strong> da organização? Esta ação não
-          pode ser desfeita.
+          {body ?? (
+            <>
+              Tem certeza que deseja remover <strong>{memberName}</strong> da organização? Esta ação
+              não pode ser desfeita.
+            </>
+          )}
         </p>
         <div className={styles.actions}>
           <button className={styles.cancelBtn} onClick={onCancel} disabled={isPending}>
             Cancelar
           </button>
           <button className={styles.confirmBtn} onClick={onConfirm} disabled={isPending}>
-            {isPending ? t('removing') : t('removeBtn')}
+            {isPending ? (pendingLabel ?? t('removing')) : (confirmLabel ?? t('removeBtn'))}
           </button>
         </div>
       </div>

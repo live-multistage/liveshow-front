@@ -1,12 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { UserPlus } from 'lucide-react';
 import { useAuth } from '@/features/account';
 import { OrganizationHeader } from '../components/OrganizationHeader';
 import { MembersTable } from '../components/MembersTable';
 import { InviteMemberModal } from '../components/InviteMemberModal';
 import { RemoveMemberDialog } from '../components/RemoveMemberDialog';
+import { PendingInvitations } from '../components/PendingInvitations';
+import { inviteErrorKey } from '../utils/invitation-errors';
 import { useOrganization } from '../hooks/use-organizations';
 import { useOrganizationMembers } from '../hooks/use-organization-members';
 import { useInviteMember } from '../hooks/use-invite-member';
@@ -21,6 +24,7 @@ interface Props {
 }
 
 export function MembersPage({ organizationId }: Props) {
+  const t = useTranslations('organizations');
   const { user } = useAuth();
   const { data: org, isLoading: orgLoading, isError: orgError } = useOrganization(organizationId);
   const { data: members = [], isLoading: membersLoading } = useOrganizationMembers(organizationId);
@@ -44,7 +48,7 @@ export function MembersPage({ organizationId }: Props) {
     setInviteError(null);
     inviteMutation.mutate({ email: values.email, role: values.role }, {
       onSuccess: () => setInviteOpen(false),
-      onError: (e) => setInviteError(e.message),
+      onError: (e) => setInviteError(t(inviteErrorKey(e))),
     });
   };
 
@@ -92,6 +96,8 @@ export function MembersPage({ organizationId }: Props) {
             isUpdatingRole={updateRoleMutation.isPending}
           />
         )}
+
+        <PendingInvitations organizationId={organizationId} canManage={canManage} />
       </div>
 
       <InviteMemberModal

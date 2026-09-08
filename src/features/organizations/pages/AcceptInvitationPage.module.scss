@@ -1,0 +1,49 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  max-width: 560px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0;
+}
+
+.body {
+  font-size: 0.9rem;
+  color: $text-secondary;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  background-color: $action;
+  color: $text-primary;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover { opacity: 0.88; }
+}
+
+.state {
+  font-size: 0.9rem;
+  color: $text-secondary;
+  padding: 4rem 2rem;
+  max-width: 560px;
+  margin: 0 auto;
+  width: 100%;
+}
