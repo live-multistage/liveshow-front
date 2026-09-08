@@ -68,9 +68,13 @@ function HeroSlideMedia({
   );
 }
 
-function SlideContent({ show }: { show: Show }) {
+function SlideContent({ show, active }: { show: Show; active: boolean }) {
   const priceLabel = fmtPrice(show);
   const isFree = priceLabel === 'Grátis';
+  // Only the active slide's headline may be an <h1> — with multiple slides
+  // in the DOM at once (carousel), every one rendering <h1> would give the
+  // page multiple top-level headings even though only one is visible.
+  const TitleTag = active ? 'h1' : 'h2';
 
   return (
     <div className={styles.heroV2Content}>
@@ -81,7 +85,7 @@ function SlideContent({ show }: { show: Show }) {
         </span>
       )}
 
-      <h1 className={styles.heroV2Title}>{show.title}</h1>
+      <TitleTag className={styles.heroV2Title}>{show.title}</TitleTag>
 
       {show.viewers != null && (
         <div className={styles.heroV2Watching}>
@@ -186,7 +190,7 @@ export function EditorialHero({ slides }: Props) {
         <HeroSlideMedia show={slides[0]} active reducedMotion={reducedMotion} />
         <div className={styles.heroV2Glow} aria-hidden="true" />
         <div className={styles.heroV2Scrim} aria-hidden="true" />
-        <SlideContent show={slides[0]} />
+        <SlideContent show={slides[0]} active />
       </div>
     );
   }
@@ -255,7 +259,7 @@ export function EditorialHero({ slides }: Props) {
             />
             <div className={styles.heroV2Glow} aria-hidden="true" />
             <div className={styles.heroV2Scrim} aria-hidden="true" />
-            <SlideContent show={show} />
+            <SlideContent show={show} active={i === index} />
           </div>
         ))}
       </div>
