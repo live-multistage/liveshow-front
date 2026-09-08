@@ -21,6 +21,7 @@ export { PlatformCouponsPage } from './components/PlatformCouponsPage';
 export { PlatformOrganizerApplicationsPage } from './components/PlatformOrganizerApplicationsPage';
 export { PlatformEventsPage } from './components/PlatformEventsPage';
 export { PlatformFiscalPage } from './components/PlatformFiscalPage';
+export { ArtistCatalogPage } from './components/ArtistCatalogPage';
 export { FiscalIssuerSection } from './components/FiscalIssuerSection';
 export { useOrganizationDirectoryQuery } from './queries/get-organization-directory';
 export { useOrganizationDetailQuery } from './queries/get-organization-detail';
