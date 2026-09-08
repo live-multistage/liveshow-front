@@ -7,6 +7,7 @@ import { Bell, Calendar, Video } from 'lucide-react';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { useGetEventQuery } from '@/features/events/queries/get-event';
 import { useWishlistIdsQuery, useToggleWishlistMutation } from '@/features/wishlist';
+import { MediaWithTeaserVideo } from '@/shared/components/MediaWithTeaserVideo';
 import styles from './LiveNotStarted.module.scss';
 
 interface Props {
@@ -112,9 +113,17 @@ export function LiveNotStarted({ eventId, eventTitle, cameraCount, onExit }: Pro
       {/* Stage */}
       <main className={styles.main}>
         {event.data?.bannerUrl && (
-          // ponytail: plain img — this is a decorative blurred backdrop, not
-          // a content image; next/image's contract adds nothing here.
-          <img src={event.data.bannerUrl} alt="" className={styles.backdrop} aria-hidden="true" />
+          // Decorative blurred backdrop: the event's teaser video plays over the
+          // banner poster when present (muted/looping, fades in once buffered),
+          // falling back to the still banner. Reuses the shared teaser component.
+          <MediaWithTeaserVideo
+            posterSrc={event.data.bannerUrl}
+            posterAlt=""
+            videoSrc={event.data.teaserVideoUrl ?? undefined}
+            posterClassName={styles.backdrop}
+            videoClassName={styles.backdropVideo}
+            videoVisibleClassName={styles.backdropVideoVisible}
+          />
         )}
         <div className={styles.scrim} aria-hidden="true" />
         {orgName && (
