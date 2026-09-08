@@ -394,6 +394,42 @@
   object-fit: cover;
 }
 
+// ── Org card / collaborators skeleton ─────────────────────────────
+.skeletonOrgAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.skeletonOrgLabel {
+  width: 80px;
+  height: 10px;
+}
+
+.skeletonOrgName {
+  width: 160px;
+  height: 16px;
+}
+
+.skeletonOrgArrow {
+  margin-left: auto;
+  width: 70px;
+  height: 11px;
+  flex-shrink: 0;
+}
+
+.skeletonCollaboratorsLabel {
+  width: 90px;
+  height: 10px;
+}
+
+.skeletonCollaboratorChip {
+  width: 100px;
+  height: 26px;
+  border-radius: 999px;
+}
+
 // ── Content sections ─────────────────────────────────────────────
 .section {
   display: flex;

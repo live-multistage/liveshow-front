@@ -17,6 +17,7 @@ import { ReportButton } from '@/features/reports';
 import { WishlistButton } from '@/features/wishlist';
 import { MediaWithTeaserVideo } from '@/shared/components/MediaWithTeaserVideo';
 import { EventSchedule } from './EventSchedule';
+import { Skeleton } from '@live-show/design-system';
 import styles from './EventDetailPageContent.module.scss';
 
 interface Props {
@@ -29,7 +30,7 @@ export function EventDetailPageContent({ id }: Props) {
   const tEvent = useTranslations('eventDetail');
   const { data: event, isLoading, isError, error, refetch } = useGetEventQuery(id);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
-  const { data: org } = useOrganization(event?.organizationId ?? '');
+  const { data: org, isLoading: orgLoading } = useOrganization(event?.organizationId ?? '');
   const { user } = useAuth();
   const [heroImgFailed, setHeroImgFailed] = useState(false);
   useTrackEventView(id, user?.id);
@@ -138,7 +139,27 @@ export function EventDetailPageContent({ id }: Props) {
               <p className={styles.description}>{event.description}</p>
             </div>
 
-            {org && (
+            {orgLoading && (
+              <>
+                <div className={styles.orgCard}>
+                  <Skeleton className={styles.skeletonOrgAvatar} />
+                  <div className={styles.orgInfo}>
+                    <Skeleton className={styles.skeletonOrgLabel} />
+                    <Skeleton className={styles.skeletonOrgName} />
+                  </div>
+                  <Skeleton className={styles.skeletonOrgArrow} />
+                </div>
+                {!!event.collaborators?.length && (
+                  <div className={styles.collaboratorsRow}>
+                    <Skeleton className={styles.skeletonCollaboratorsLabel} />
+                    <Skeleton className={styles.skeletonCollaboratorChip} />
+                    <Skeleton className={styles.skeletonCollaboratorChip} />
+                  </div>
+                )}
+              </>
+            )}
+
+            {!orgLoading && org && (
               <>
                 <Link href={`/o/${org.slug}`} className={styles.orgCard}>
                   <div className={styles.orgAvatar}>

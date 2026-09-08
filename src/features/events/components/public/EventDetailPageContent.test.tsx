@@ -25,6 +25,10 @@ vi.mock('../../hooks/use-track-event-view', () => ({ useTrackEventView: vi.fn() 
 vi.mock('@/features/advertisements', () => ({ AdBanner: () => null }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
 vi.mock('./TicketPanel', () => ({ TicketPanel: () => null }));
+// Both use React Query (useEventSchedule / useListEventsQuery) and have their own
+// suites; here they'd need a QueryClientProvider, so stub them out like TicketPanel.
+vi.mock('./EventSchedule', () => ({ EventSchedule: () => null }));
+vi.mock('./RelatedEvents', () => ({ RelatedEvents: () => null }));
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { EventDetailPageContent } from './EventDetailPageContent';

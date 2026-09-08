@@ -187,3 +187,21 @@
   color: #8f8f97;
   margin: 12px 0 0;
 }
+
+// ── Skeleton ─────────────────────────────────────────────────────
+.skeletonTime {
+  width: 44px;
+  height: 14px;
+}
+
+.skeletonAvatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 11px;
+  flex-shrink: 0;
+}
+
+.skeletonHeadline {
+  width: 160px;
+  height: 17px;
+}

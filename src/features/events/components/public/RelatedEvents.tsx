@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { Skeleton } from '@live-show/design-system';
 import { useListEventsQuery } from '../../queries/use-list-events';
 import { eventHref } from '../../utils/slug';
 import { formatDateShort } from '../../utils/event-formatters';
@@ -22,7 +23,24 @@ export function RelatedEvents({ currentEventId, organizationId }: Props) {
   const t = useTranslations('events.detail.related');
   const { data: events, isLoading } = useListEventsQuery('all');
 
-  if (isLoading || !events) return null;
+  if (isLoading) {
+    return (
+      <section className={styles.section}>
+        <h2 className={styles.heading}>{t('title')}</h2>
+        <div className={styles.grid}>
+          {Array.from({ length: MAX_RELATED }).map((_, i) => (
+            <div key={i} className={styles.card}>
+              <Skeleton className={styles.skeletonThumb} />
+              <Skeleton className={styles.skeletonTitle} />
+              <Skeleton className={styles.skeletonDate} />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (!events) return null;
 
   const related = events
     .filter((event) => event.id !== currentEventId)

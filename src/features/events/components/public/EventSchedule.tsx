@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Clock } from 'lucide-react';
+import { Skeleton } from '@live-show/design-system';
 import { useEventSchedule } from '../../hooks/use-event-schedule';
 import styles from './EventSchedule.module.scss';
 
@@ -14,7 +15,32 @@ export function EventSchedule({ eventId }: Props) {
   const t = useTranslations('eventDetail.schedule');
   const { data: items = [], isLoading } = useEventSchedule(eventId);
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return (
+      <div className={styles.section}>
+        <h2 className={styles.sectionLabel}>{t('title')}</h2>
+        <div className={styles.timeline}>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className={styles.row}>
+              <div className={styles.timeCol}>
+                <Skeleton className={styles.skeletonTime} />
+              </div>
+              <div className={styles.dotCol}>
+                <span className={styles.dot} />
+                <span className={styles.line} />
+              </div>
+              <div className={styles.card}>
+                <div className={styles.cardHead}>
+                  <Skeleton className={styles.skeletonAvatar} />
+                  <Skeleton className={styles.skeletonHeadline} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (!items.length) {
     return (
