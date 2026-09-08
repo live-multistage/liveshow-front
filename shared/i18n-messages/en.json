@@ -38,7 +38,8 @@
     "wishlist": "Wishlist",
     "help": "Help",
     "search": "Search",
-    "organizers": "Become a partner"
+    "organizers": "Become a partner",
+    "artists": "Artists"
   },
   "auth": {
     "login": {
@@ -683,7 +684,8 @@
     "checklistDate": "Date and time set",
     "checklistTicket": "Create at least 1 ticket type",
     "checklistDescription": "Add a description",
-    "descriptionEmpty": "No description. Add text for the event public page."
+    "descriptionEmpty": "No description. Add text for the event public page.",
+    "lineup": "On stage"
   },
   "createEvent": {
     "back": "Events",
@@ -2855,5 +2857,32 @@
     "unmuteUser": "Unmute {name}",
     "connecting": "Connecting…",
     "unavailable": "Chat is unavailable for you in this event"
+  },
+  "artists": {
+    "listTitle": "Artists",
+    "listSubtitle": "Discover the artists and acts streaming live on showon.io.",
+    "breadcrumbRoot": "ARTISTS",
+    "aboutLabel": "ABOUT THE ARTIST",
+    "eventsHeading": "Shows from this artist",
+    "eventsCount": "{count, plural, one {# show} other {# shows}}",
+    "liveNow": "LIVE NOW",
+    "follow": "Follow",
+    "seeShows": "See shows",
+    "socials": {
+      "instagram": "Instagram",
+      "youtube": "YouTube",
+      "x": "X",
+      "tiktok": "TikTok",
+      "site": "Official site"
+    },
+    "empty": {
+      "title": "No shows yet",
+      "description": "This artist hasn't announced any shows on the platform yet. Follow the profile to get notified as soon as the first date is set.",
+      "cta": "Follow artist"
+    },
+    "notFound": {
+      "title": "Artist not found",
+      "description": "This artist doesn't exist or is no longer available."
+    }
   }
 }

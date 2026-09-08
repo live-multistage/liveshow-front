@@ -38,7 +38,8 @@
     "wishlist": "Favoritos",
     "help": "Ayuda",
     "search": "Buscar",
-    "organizers": "Sé un socio"
+    "organizers": "Sé un socio",
+    "artists": "Artistas"
   },
   "auth": {
     "login": {
@@ -683,7 +684,8 @@
     "checklistDate": "Fecha y hora definidas",
     "checklistTicket": "Crear al menos 1 tipo de entrada",
     "checklistDescription": "Añadir descripción",
-    "descriptionEmpty": "Sin descripción. Añade un texto para la página pública del evento."
+    "descriptionEmpty": "Sin descripción. Añade un texto para la página pública del evento.",
+    "lineup": "En el escenario"
   },
   "createEvent": {
     "back": "Eventos",
@@ -2855,5 +2857,32 @@
     "unmuteUser": "Reactivar {name}",
     "connecting": "Conectando…",
     "unavailable": "El chat no está disponible para ti en este evento"
+  },
+  "artists": {
+    "listTitle": "Artistas",
+    "listSubtitle": "Descubre a los artistas y atracciones que transmiten en vivo en showon.io.",
+    "breadcrumbRoot": "ARTISTAS",
+    "aboutLabel": "SOBRE EL ARTISTA",
+    "eventsHeading": "Shows de este artista",
+    "eventsCount": "{count, plural, one {# show} other {# shows}}",
+    "liveNow": "EN VIVO AHORA",
+    "follow": "Seguir",
+    "seeShows": "Ver shows",
+    "socials": {
+      "instagram": "Instagram",
+      "youtube": "YouTube",
+      "x": "X",
+      "tiktok": "TikTok",
+      "site": "Sitio oficial"
+    },
+    "empty": {
+      "title": "Aún no hay shows",
+      "description": "Este artista todavía no anunció shows en la plataforma. Sigue el perfil para enterarte en cuanto se confirme la primera fecha.",
+      "cta": "Seguir artista"
+    },
+    "notFound": {
+      "title": "Artista no encontrado",
+      "description": "Este artista no existe o ya no está disponible."
+    }
   }
 }
