@@ -106,8 +106,11 @@ export function EventScheduleEditor({ eventId }: Props) {
     setDirty(false);
   }, [schedule]);
 
+  // Any invited lineup member the org can schedule (INVITED or ACCEPTED) — only
+  // a declined invite is excluded. Matches the backend: waiting for the artist
+  // to accept before they can be slotted would block planning.
   const artistOptions: SelectOption[] = lineup
-    .filter((item) => item.status === 'ACCEPTED')
+    .filter((item) => item.status !== 'DECLINED')
     .map((item) => ({ value: item.artist.id, label: item.artist.name }));
 
   function updateBlock(tempId: string, patch: Partial<Block>) {
