@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { RotateCcw } from 'lucide-react';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
 import { TicketPanel } from './TicketPanel';
+import { RelatedEvents } from './RelatedEvents';
 import { formatDateShort, formatTime, formatDuration, statusLabel } from '../../utils/event-formatters';
 import { useOrganization } from '@/features/organizations';
 import { useAuth } from '@/features/account/hooks/use-auth';
@@ -185,6 +186,8 @@ export function EventDetailPageContent({ id }: Props) {
             <AdBanner placement="EVENT_DETAIL" className={styles.sidebarAd} />
           </div>
         </div>
+
+        <RelatedEvents currentEventId={id} organizationId={event.organizationId} />
       </div>
     </div>
   );

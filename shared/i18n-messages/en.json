@@ -193,7 +193,10 @@
       "about": "About the Show",
       "availableCameras": "Available Cameras ({count})",
       "watching": "{count} watching",
-      "cameraViews": "{count} camera views"
+      "cameraViews": "{count} camera views",
+      "related": {
+        "title": "You might also like"
+      }
     },
     "status": {
       "PUBLISHED": "Coming Soon",

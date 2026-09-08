@@ -94,8 +94,35 @@ export default async function ShowDetail({ params }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(qc)}>
-      {event && <JsonLd data={buildEventJsonLd(event, `${SITE_URL}/events/${event.slug || event.id}`)} />}
+      {event && (
+        <JsonLd
+          data={[
+            buildEventJsonLd(event, `${SITE_URL}/events/${event.slug || event.id}`),
+            buildBreadcrumbJsonLd(event),
+          ]}
+        />
+      )}
       <EventDetailPageContent id={id} />
     </HydrationBoundary>
   );
+}
+
+// Home › Events › {event title}, mirroring the site's actual nav hierarchy so
+// this matches the canonical URL scheme (slug-based, id fallback) rather than
+// duplicating the redirect logic above with its own URL construction.
+function buildBreadcrumbJsonLd(event: { title: string; slug?: string | null; id: string }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Events', item: `${SITE_URL}/events` },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: event.title,
+        item: `${SITE_URL}/events/${event.slug || event.id}`,
+      },
+    ],
+  };
 }
