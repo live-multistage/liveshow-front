@@ -37,6 +37,15 @@ export interface LiveCamera {
   // events (see LivePlaybackResponse.latencyMode). Null on STANDARD events
   // and while not yet transcoding.
   llPath: string | null;
+  // True when this camera has an active transcode/HLS output right now.
+  // Every ENABLED camera of the stream is always present in `cameras` (stable
+  // grid — no layout shift on ingest loss); `live: false` cameras carry
+  // manifestPath/llPath: null and the player should show `thumbnailUrl`
+  // instead of attempting HLS.
+  live: boolean;
+  // Poster shown when `live` is false (or while connecting). Null falls back
+  // to the showon.io logo.
+  thumbnailUrl?: string | null;
 }
 
 export interface LiveStage {
@@ -72,6 +81,12 @@ export interface ReplayCameraPlayback {
   // absolute wall-clock timeline — see replay-timeline.ts. Empty when the
   // camera has no replay.
   coverage: ReplaySegmentCoverage[];
+  // True when this camera has a replayable package (== replayPath !== null).
+  // Every enabled camera of the stream is always present in `cameras` (stable
+  // grid); the player should show `thumbnailUrl` when false.
+  available: boolean;
+  // Poster shown when `available` is false. Null falls back to the showon.io logo.
+  thumbnailUrl?: string | null;
 }
 
 // The event's absolute replay timeline — the domain every camera's coverage
