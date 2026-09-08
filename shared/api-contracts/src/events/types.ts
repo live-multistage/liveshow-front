@@ -137,3 +137,44 @@ export interface EventPhotoResponse {
   position: number;
   createdAt: string;
 }
+
+// Event schedule (Programação): an ordered list of blocks per event, each
+// either an ARTIST slot (must reference an artist with an ACCEPTED lineup
+// invitation on this event) or a free-text SEGMENT (e.g. "Pré-jogo").
+export type ScheduleItemKind = 'ARTIST' | 'SEGMENT';
+
+// PUT payload item — order is implied by array index, no explicit position.
+export interface EventScheduleItemInput {
+  /** "HH:MM" */
+  startTime: string;
+  /** "HH:MM", optional */
+  endTime?: string | null;
+  kind: ScheduleItemKind;
+  artistId?: string | null;
+  title?: string | null;
+  description?: string | null;
+}
+
+export interface EventScheduleArtist {
+  id: string;
+  slug: string;
+  name: string;
+  imageUrl?: string;
+}
+
+// Response item — save semantics are replace-all, so `position` is always
+// server-assigned from the PUT array order.
+export interface EventScheduleItem {
+  id: string;
+  startTime: string;
+  endTime?: string | null;
+  kind: ScheduleItemKind;
+  description?: string | null;
+  position: number;
+  title?: string | null;
+  artist?: EventScheduleArtist | null;
+}
+
+export interface ReplaceEventScheduleRequest {
+  items: EventScheduleItemInput[];
+}
