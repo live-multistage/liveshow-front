@@ -48,4 +48,29 @@ describe('buildEventJsonLd', () => {
     expect(ld.eventStatus).toBe('https://schema.org/EventCancelled');
     expect(ld.offers).toBeUndefined();
   });
+
+  it('lists artists as performers when the event has a lineup', () => {
+    const ld = buildEventJsonLd(
+      {
+        ...base,
+        artists: [
+          { id: 'a1', slug: 'dj-one', name: 'DJ One' },
+          { id: 'a2', slug: 'dj-two', name: 'DJ Two' },
+        ],
+      },
+      URL,
+    );
+    expect(ld.performer).toEqual([
+      { '@type': 'Person', name: 'DJ One', url: 'https://showon.io/artists/dj-one' },
+      { '@type': 'Person', name: 'DJ Two', url: 'https://showon.io/artists/dj-two' },
+    ]);
+  });
+
+  it('omits performer when the event has no artists', () => {
+    const ld = buildEventJsonLd({ ...base, artists: [] }, URL);
+    expect(ld.performer).toBeUndefined();
+
+    const ldNoField = buildEventJsonLd(base, URL);
+    expect(ldNoField.performer).toBeUndefined();
+  });
 });

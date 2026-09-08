@@ -1,5 +1,7 @@
 import type { EventResponse } from '../types/event.types';
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
+
 // schema.org Event JSON-LD for a streaming (and optionally in-person) event.
 // Enables Google's Event rich result and, via the offers, price snippets.
 // Built from the EventResponse alone — no extra fetch — so any field that
@@ -47,6 +49,13 @@ export function buildEventJsonLd(event: EventResponse, url: string): Record<stri
       '@type': 'Organization',
       name: event.organization.name,
     };
+  }
+  if (event.artists?.length) {
+    jsonLd.performer = event.artists.map((artist) => ({
+      '@type': 'Person',
+      name: artist.name,
+      url: `${SITE_URL}/artists/${artist.slug}`,
+    }));
   }
 
   // Offers: cents → decimal string, in the event's own currency band. Free

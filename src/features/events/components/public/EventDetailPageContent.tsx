@@ -25,6 +25,7 @@ interface Props {
 export function EventDetailPageContent({ id }: Props) {
   const t = useTranslations('events.detail');
   const tc = useTranslations('collaborations');
+  const tEvent = useTranslations('eventDetail');
   const { data: event, isLoading, isError, error, refetch } = useGetEventQuery(id);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
   const { data: org } = useOrganization(event?.organizationId ?? '');
@@ -172,6 +173,26 @@ export function EventDetailPageContent({ id }: Props) {
                   </div>
                 )}
               </>
+            )}
+
+            {!!event.artists?.length && (
+              <div className={styles.section}>
+                <h2 className={styles.sectionLabel}>{tEvent('lineup')}</h2>
+                <div className={styles.collaboratorsRow}>
+                  {event.artists.map((artist) => (
+                    <Link
+                      key={artist.id}
+                      href={`/artists/${artist.slug || artist.id}`}
+                      className={styles.collaboratorLink}
+                    >
+                      {artist.imageUrl && (
+                        <img src={artist.imageUrl} alt={artist.name} className={styles.collaboratorLogo} />
+                      )}
+                      {artist.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 
