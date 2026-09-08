@@ -20,6 +20,7 @@ import {
   Settings,
   Handshake,
   FileText,
+  Mic2,
 } from 'lucide-react';
 import type { UserRole } from '@/types';
 import type { FeatureFlagKey } from '@/features/feature-flags';
@@ -64,6 +65,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
   ],
   ARTIST: [
     { navKey: 'overview',       href: '/dashboard',                icon: LayoutDashboard },
+    { navKey: 'artists',        href: '/dashboard/artists',        icon: Mic2 },
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
   ],
@@ -99,6 +101,6 @@ export const MOBILE_NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, string[]> = {
   // bottom nav sem substituto.
   ADMIN: ['overview', 'events', 'streams', 'channels', 'analytics'],
   ORGANIZER: ['overview', 'events', 'streams', 'channels', 'analytics'],
-  ARTIST: ['overview', 'streams', 'analytics'],
+  ARTIST: ['overview', 'artists', 'streams', 'analytics'],
   SUPER_ADMIN: ['overviewGlobal', 'platformOrganizations', 'platformEvents', 'platformStreams', 'platformRevenue'],
 };

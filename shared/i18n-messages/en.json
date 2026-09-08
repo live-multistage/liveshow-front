@@ -456,7 +456,8 @@
       "series": "Programs",
       "platformFeatureFlags": "Feature Flags",
       "platformAdPartnerships": "Ad partnerships",
-      "platformOrganizerApplications": "Applications"
+      "platformOrganizerApplications": "Applications",
+      "artists": "Artists"
     },
     "navMobile": {
       "overview": "Home",
@@ -469,7 +470,8 @@
       "platformEvents": "Events",
       "platformStreams": "Streams",
       "platformRevenue": "Revenue",
-      "channels": "Channels"
+      "channels": "Channels",
+      "artists": "Artists"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -2883,6 +2885,64 @@
     "notFound": {
       "title": "Artist not found",
       "description": "This artist doesn't exist or is no longer available."
+    },
+    "dashboard": {
+      "profile": {
+        "name": "Name",
+        "slug": "Slug",
+        "bio": "Bio",
+        "avatar": "Profile photo",
+        "banner": "Banner",
+        "genres": "Genres",
+        "socialLinks": "Social links",
+        "status": "Status",
+        "save": "Save",
+        "cancel": "Cancel",
+        "create": "Create artist",
+        "edit": "Edit artist",
+        "delete": "Delete artist",
+        "deleteConfirm": "Are you sure you want to delete this artist profile? This action cannot be undone."
+      },
+      "invitations": {
+        "title": "Invitations",
+        "empty": "No invitations right now.",
+        "accept": "Accept",
+        "decline": "Decline",
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "declined": "Declined"
+      },
+      "lineup": {
+        "title": "On stage",
+        "inviteCta": "Invite from catalog",
+        "searchPlaceholder": "Search artist by name...",
+        "statusPending": "Invite sent",
+        "statusAccepted": "Confirmed",
+        "statusDeclined": "Declined",
+        "remove": "Remove"
+      },
+      "catalog": {
+        "title": "Artists",
+        "newArtist": "New artist",
+        "empty": "No artists registered yet.",
+        "columns": {
+          "name": "Name",
+          "slug": "Slug",
+          "owner": "Owner",
+          "events": "Shows",
+          "status": "Status"
+        }
+      },
+      "toasts": {
+        "created": "Artist created successfully.",
+        "updated": "Artist updated successfully.",
+        "deleted": "Artist deleted successfully.",
+        "invited": "Invite sent successfully.",
+        "accepted": "Invitation accepted.",
+        "declined": "Invitation declined.",
+        "removed": "Artist removed from the lineup.",
+        "error": "Could not complete the action. Please try again."
+      }
     }
   }
 }

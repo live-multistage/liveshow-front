@@ -456,7 +456,8 @@
       "series": "Programas",
       "platformFeatureFlags": "Feature Flags",
       "platformAdPartnerships": "Parcerias de anúncios",
-      "platformOrganizerApplications": "Candidaturas"
+      "platformOrganizerApplications": "Candidaturas",
+      "artists": "Artistas"
     },
     "navMobile": {
       "overview": "Painel",
@@ -469,7 +470,8 @@
       "platformEvents": "Eventos",
       "platformStreams": "Streams",
       "platformRevenue": "Receita",
-      "channels": "Canais"
+      "channels": "Canais",
+      "artists": "Artistas"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -2883,6 +2885,64 @@
     "notFound": {
       "title": "Artista não encontrado",
       "description": "Este artista não existe ou saiu do ar."
+    },
+    "dashboard": {
+      "profile": {
+        "name": "Nome",
+        "slug": "Slug",
+        "bio": "Biografia",
+        "avatar": "Foto de perfil",
+        "banner": "Banner",
+        "genres": "Gêneros",
+        "socialLinks": "Redes sociais",
+        "status": "Status",
+        "save": "Salvar",
+        "cancel": "Cancelar",
+        "create": "Criar artista",
+        "edit": "Editar artista",
+        "delete": "Excluir artista",
+        "deleteConfirm": "Tem certeza que deseja excluir este perfil de artista? Esta ação não pode ser desfeita."
+      },
+      "invitations": {
+        "title": "Convites",
+        "empty": "Nenhum convite no momento.",
+        "accept": "Aceitar",
+        "decline": "Recusar",
+        "pending": "Pendente",
+        "accepted": "Aceito",
+        "declined": "Recusado"
+      },
+      "lineup": {
+        "title": "No palco",
+        "inviteCta": "Convidar do catálogo",
+        "searchPlaceholder": "Buscar artista pelo nome...",
+        "statusPending": "Convite enviado",
+        "statusAccepted": "Confirmado",
+        "statusDeclined": "Recusado",
+        "remove": "Remover"
+      },
+      "catalog": {
+        "title": "Artistas",
+        "newArtist": "Novo artista",
+        "empty": "Nenhum artista cadastrado ainda.",
+        "columns": {
+          "name": "Nome",
+          "slug": "Slug",
+          "owner": "Dono",
+          "events": "Shows",
+          "status": "Status"
+        }
+      },
+      "toasts": {
+        "created": "Artista criado com sucesso.",
+        "updated": "Artista atualizado com sucesso.",
+        "deleted": "Artista excluído com sucesso.",
+        "invited": "Convite enviado com sucesso.",
+        "accepted": "Convite aceito.",
+        "declined": "Convite recusado.",
+        "removed": "Artista removido do line-up.",
+        "error": "Não foi possível concluir a ação. Tente novamente."
+      }
     }
   }
 }

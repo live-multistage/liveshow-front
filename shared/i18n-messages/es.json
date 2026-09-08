@@ -456,7 +456,8 @@
       "series": "Programas",
       "platformFeatureFlags": "Feature Flags",
       "platformAdPartnerships": "Alianzas de anuncios",
-      "platformOrganizerApplications": "Candidaturas"
+      "platformOrganizerApplications": "Candidaturas",
+      "artists": "Artistas"
     },
     "navMobile": {
       "overview": "Panel",
@@ -469,7 +470,8 @@
       "platformEvents": "Eventos",
       "platformStreams": "Streams",
       "platformRevenue": "Ingresos",
-      "channels": "Canales"
+      "channels": "Canales",
+      "artists": "Artistas"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -2883,6 +2885,64 @@
     "notFound": {
       "title": "Artista no encontrado",
       "description": "Este artista no existe o ya no está disponible."
+    },
+    "dashboard": {
+      "profile": {
+        "name": "Nombre",
+        "slug": "Slug",
+        "bio": "Biografía",
+        "avatar": "Foto de perfil",
+        "banner": "Banner",
+        "genres": "Géneros",
+        "socialLinks": "Redes sociales",
+        "status": "Estado",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "create": "Crear artista",
+        "edit": "Editar artista",
+        "delete": "Eliminar artista",
+        "deleteConfirm": "¿Seguro que deseas eliminar este perfil de artista? Esta acción no se puede deshacer."
+      },
+      "invitations": {
+        "title": "Invitaciones",
+        "empty": "No hay invitaciones por el momento.",
+        "accept": "Aceptar",
+        "decline": "Rechazar",
+        "pending": "Pendiente",
+        "accepted": "Aceptada",
+        "declined": "Rechazada"
+      },
+      "lineup": {
+        "title": "En el escenario",
+        "inviteCta": "Invitar desde el catálogo",
+        "searchPlaceholder": "Buscar artista por nombre...",
+        "statusPending": "Invitación enviada",
+        "statusAccepted": "Confirmado",
+        "statusDeclined": "Rechazada",
+        "remove": "Quitar"
+      },
+      "catalog": {
+        "title": "Artistas",
+        "newArtist": "Nuevo artista",
+        "empty": "Aún no hay artistas registrados.",
+        "columns": {
+          "name": "Nombre",
+          "slug": "Slug",
+          "owner": "Dueño",
+          "events": "Shows",
+          "status": "Estado"
+        }
+      },
+      "toasts": {
+        "created": "Artista creado con éxito.",
+        "updated": "Artista actualizado con éxito.",
+        "deleted": "Artista eliminado con éxito.",
+        "invited": "Invitación enviada con éxito.",
+        "accepted": "Invitación aceptada.",
+        "declined": "Invitación rechazada.",
+        "removed": "Artista eliminado del line-up.",
+        "error": "No se pudo completar la acción. Inténtalo de nuevo."
+      }
     }
   }
 }
