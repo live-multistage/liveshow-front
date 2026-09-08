@@ -2,14 +2,28 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { artistService } from '../services/artist.service';
-
-export const artistKey = (slugOrId: string) => ['artists', slugOrId] as const;
-export const artistEventsKey = (slugOrId: string) => ['artists', slugOrId, 'events'] as const;
-export const ARTISTS_LIST_KEY = ['artists', 'list'] as const;
-export const myArtistsKey = ['artists', 'mine'] as const;
-export const adminArtistsKey = (page = 1) => ['artists', 'admin', page] as const;
-export const artistInvitationsKey = (artistId: string) => ['artists', artistId, 'invitations'] as const;
-export const eventLineupKey = (eventId: string) => ['artists', 'lineup', eventId] as const;
+// Query keys live in a server-safe module (the artist detail Server Component
+// seeds the cache with them); re-exported here for client consumers.
+export {
+  artistKey,
+  artistEventsKey,
+  ARTISTS_LIST_KEY,
+  myArtistsKey,
+  adminArtistsKey,
+  artistInvitationsKey,
+  eventLineupKey,
+  externalArtistSearchKey,
+} from './artist-keys';
+import {
+  artistKey,
+  artistEventsKey,
+  ARTISTS_LIST_KEY,
+  myArtistsKey,
+  adminArtistsKey,
+  artistInvitationsKey,
+  eventLineupKey,
+  externalArtistSearchKey,
+} from './artist-keys';
 
 /** Accepts UUID or slug. */
 export function useArtist(slugOrId: string) {
@@ -70,7 +84,6 @@ export function useEventLineup(eventId: string) {
   });
 }
 
-export const externalArtistSearchKey = (q: string) => ['artists', 'external-search', q] as const;
 
 /** Spotify + Wikidata lookup, used by the external-search modal's SEARCH phase. */
 export function useExternalArtistSearch(query: string) {

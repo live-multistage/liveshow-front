@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query';
 import { ArtistPublicPage } from '@/features/artists';
-import { artistKey, artistEventsKey } from '@/features/artists/hooks/use-artists';
+import { artistKey, artistEventsKey } from '@/features/artists/hooks/artist-keys';
 import {
   fetchArtistByParam,
   fetchArtistEvents,
