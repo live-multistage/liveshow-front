@@ -1,6 +1,7 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { streamsService } from '../services/streams.service';
 import { normalizeError } from '@/lib/http/errors';
 import { STREAM_KEYS } from '../queries/streams.queries';
@@ -41,6 +42,46 @@ export function useToggleCameraMutation(feedId: string) {
         (prev: CameraResponse[] | undefined) =>
           prev?.map((c) => (c.id === data.id ? data : c)),
       );
+    },
+  });
+}
+
+// Optional fallback poster shown when a camera has no live signal.
+export function useUploadCameraThumbnailMutation(cameraId: string, feedId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      try {
+        return await streamsService.uploadCameraThumbnail(cameraId, file);
+      } catch (err) {
+        throw normalizeError(err);
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: STREAM_KEYS.cameras(feedId) });
+    },
+    onError: () => {
+      toast.error('Falha ao enviar a thumbnail da câmera.');
+    },
+  });
+}
+
+// Clears the custom thumbnail (falls back to the platform default poster).
+export function useClearCameraThumbnailMutation(cameraId: string, feedId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        return await streamsService.updateCamera(cameraId, { thumbnailUrl: null });
+      } catch (err) {
+        throw normalizeError(err);
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: STREAM_KEYS.cameras(feedId) });
+    },
+    onError: () => {
+      toast.error('Falha ao remover a thumbnail da câmera.');
     },
   });
 }

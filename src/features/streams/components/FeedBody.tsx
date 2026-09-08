@@ -9,6 +9,7 @@ import { useAccessibilityQuery, useSetLibrasCameraMutation } from '@/features/ev
 import type { CameraResponse, FeedResponse } from '../types/stream.types';
 import { InlineAddForm } from './InlineAddForm';
 import { IngestCredentials } from './IngestCredentials';
+import { CameraThumbnail } from './CameraThumbnail';
 import { SignalBadge } from './SignalBadge';
 import { HlsPreview } from './HlsPreview';
 import styles from './StreamBuilder.module.scss';
@@ -83,6 +84,7 @@ function CameraRow({
         </button>
       </div>
       <IngestCredentials cameraId={cam.id} />
+      <CameraThumbnail cameraId={cam.id} feedId={feedId} thumbnailUrl={cam.thumbnailUrl} />
     </div>
   );
 }

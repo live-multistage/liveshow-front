@@ -127,6 +127,20 @@ export const streamsService = {
     return data;
   },
 
+  // Fallback poster shown when the camera has no live signal.
+  uploadCameraThumbnail: async (cameraId: string, file: File): Promise<{ url: string }> => {
+    const form = new FormData();
+    form.append('file', file);
+    const { data } = await httpClient.post<{ url: string }>(`/cameras/${cameraId}/thumbnail`, form);
+    return data;
+  },
+
+  // thumbnailUrl: null clears it, reverting to the platform default poster.
+  updateCamera: async (cameraId: string, payload: { thumbnailUrl: string | null }): Promise<CameraResponse> => {
+    const { data } = await httpClient.patch<CameraResponse>(`/cameras/${cameraId}`, payload);
+    return data;
+  },
+
   // ── Ops stats (admin control-room strip) ───────────────────────
   getStreamStats: async (streamId: string): Promise<StreamStatsResponse> => {
     const { data } = await httpClient.get<StreamStatsResponse>(`/streams/${streamId}/stats`);

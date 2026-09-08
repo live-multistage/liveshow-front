@@ -41,6 +41,9 @@ export interface CameraResponse {
   slug: string;
   priority: number;
   enabled: boolean;
+  // Fallback poster shown when the camera has no live signal (showon's logo
+  // is used when this is unset).
+  thumbnailUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 }
