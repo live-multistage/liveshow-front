@@ -1,6 +1,11 @@
+import type { Metadata } from 'next';
 import { Navbar } from '@/shared/components/Navbar';
 import { Footer } from '@/shared/components/Footer/Footer';
 import styles from './layout.module.scss';
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 // Providers already wraps the whole app from the root layout — this
 // nested wrap was redundant (silently duplicating Toaster/NavigationEvents/

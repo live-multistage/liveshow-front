@@ -1,7 +1,12 @@
+import type { Metadata } from 'next';
 import { DashboardGuard, DashboardSidebar, DashboardMobileNav } from '@/features/dashboard';
 import { Toaster } from '@live-show/design-system';
 import { fetchFeatureFlags } from '@/features/feature-flags';
 import styles from './layout.module.scss';
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const flags = await fetchFeatureFlags();
