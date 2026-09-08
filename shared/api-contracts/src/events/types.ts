@@ -1,4 +1,5 @@
 import type { AccessCapability } from '../common/access-capability';
+import type { ArtistListItem } from '../artists/types';
 
 export type EventStatus = 'DRAFT' | 'PUBLISHED' | 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'CANCELLED';
 
@@ -80,6 +81,8 @@ export interface EventResponse {
   priceToCents?: number;
   collaborators?: EventOrganization[];
   collaborationRole?: 'OWNER' | 'COLLABORATOR';
+  // Optional: absent on responses cached before this field shipped.
+  artists?: ArtistListItem[];
   // How long after the last camera drops the backend auto-finishes a LIVE event.
   // Optional: a response cached before this field shipped won't carry it.
   lifecycle?: { idleFinishMinutes: number };

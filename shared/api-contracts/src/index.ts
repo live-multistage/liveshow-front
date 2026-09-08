@@ -14,6 +14,7 @@ export * from './events/derive';
 export * from './events/format';
 export * from './channels/types';
 export * from './organizations/types';
+export * from './artists/types';
 export * from './feature-flags/types';
 export * from './access/types';
 export * from './playback/types';
