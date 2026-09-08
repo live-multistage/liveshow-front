@@ -13,22 +13,29 @@ interface Props {
   initialArtists?: ArtistListItem[];
 }
 
-// ponytail: no genre/live filter row — GET /artists (ArtistListItem) has no
-// genres or live flag to derive chips from (see ArtistCard.tsx comment).
-// Name search is the one filter the contract actually supports, so that's
-// the only one implemented; add genre chips back once the endpoint carries
-// genres per item.
+// ponytail: no live filter chip — GET /artists (ArtistListItem) still has no
+// live flag to derive it from. Genre chips are derived client-side from the
+// loaded page's distinct genres; add server-side genre filtering if the
+// artist count ever outgrows a single page.
 export function ArtistsListPage({ initialArtists }: Props) {
   const t = useTranslations('artists');
   const [query, setQuery] = useState('');
+  const [genre, setGenre] = useState<string | null>(null);
   const { data, isLoading } = useArtists();
 
   const artists = data?.items ?? initialArtists ?? [];
+  const genres = useMemo(
+    () => [...new Set(artists.flatMap((a) => a.genres ?? []))].sort(),
+    [artists],
+  );
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return artists;
-    return artists.filter((a) => a.name.toLowerCase().includes(q));
-  }, [artists, query]);
+    return artists.filter((a) => {
+      const matchesQuery = !q || a.name.toLowerCase().includes(q);
+      const matchesGenre = !genre || (a.genres ?? []).includes(genre);
+      return matchesQuery && matchesGenre;
+    });
+  }, [artists, query, genre]);
 
   return (
     <div className={styles.page}>
@@ -50,6 +57,28 @@ export function ArtistsListPage({ initialArtists }: Props) {
           />
         </div>
       </div>
+
+      {genres.length > 0 && (
+        <div className={styles.genreFilterRow}>
+          <button
+            type="button"
+            onClick={() => setGenre(null)}
+            className={genre === null ? styles.genreChipActive : styles.genreChipFilter}
+          >
+            TODOS
+          </button>
+          {genres.map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => setGenre(g)}
+              className={genre === g ? styles.genreChipActive : styles.genreChipFilter}
+            >
+              {g}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className={styles.filterRow}>
         <span className={styles.resultCount}>

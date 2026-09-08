@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { User } from 'lucide-react';
 import type { ArtistListItem } from '@live-show/api-contracts';
 import { artistHref } from '../utils/slug';
@@ -10,12 +11,13 @@ interface Props {
   artist: ArtistListItem;
 }
 
-// ArtistListItem carries only id/slug/name/imageUrl(+optional eventCount) — the
-// list endpoint has no genres/city/live flag (see artists.controller.ts
-// artistToListItem). Genre chips, city and the live badge from the design are
-// omitted here rather than invented; add them once the backend projects those
-// fields on GET /artists.
+// ArtistListItem still has no city/live flag (see artists.controller.ts
+// artistToListItem) — the live badge and city from the design stay omitted
+// until the backend projects those fields on GET /artists. genres and
+// eventCount are now populated.
 export function ArtistCard({ artist }: Props) {
+  const t = useTranslations('artists');
+
   return (
     <Link href={artistHref(artist)} className={styles.card}>
       <div className={styles.cover}>
@@ -41,10 +43,18 @@ export function ArtistCard({ artist }: Props) {
 
         <h3 className={styles.name}>{artist.name}</h3>
 
+        {artist.genres && artist.genres.length > 0 && (
+          <div className={styles.genres}>
+            {artist.genres.map((genre) => (
+              <span key={genre} className={styles.genreChip}>
+                {genre}
+              </span>
+            ))}
+          </div>
+        )}
+
         {typeof artist.eventCount === 'number' && (
-          <span className={styles.eventCount}>
-            {artist.eventCount} {artist.eventCount === 1 ? 'show' : 'shows'}
-          </span>
+          <span className={styles.eventCount}>{t('eventsCount', { count: artist.eventCount })}</span>
         )}
       </div>
     </Link>

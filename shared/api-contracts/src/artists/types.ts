@@ -8,6 +8,7 @@ export interface ArtistListItem {
   name: string;
   imageUrl?: string;
   eventCount?: number;
+  genres?: string[];
 }
 
 export interface ArtistResponse extends ArtistListItem {

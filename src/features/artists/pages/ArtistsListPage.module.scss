@@ -79,6 +79,37 @@
   }
 }
 
+.genreFilterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.genreChipFilter,
+.genreChipActive {
+  font-family: var(--font-space-mono);
+  font-size: 11px;
+  letter-spacing: .06em;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, .14);
+  background: transparent;
+  color: #d4d4d8;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+
+  &:hover {
+    border-color: #ff2e9e;
+  }
+}
+
+.genreChipActive {
+  background: #ff2e9e;
+  border-color: #ff2e9e;
+  color: #fff;
+}
+
 .filterRow {
   display: flex;
   justify-content: flex-end;

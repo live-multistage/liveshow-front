@@ -70,6 +70,24 @@
   font-weight: 700;
 }
 
+.genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.genreChip {
+  font-family: var(--font-space-mono);
+  font-size: 10px;
+  letter-spacing: .04em;
+  color: #d4d4d8;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
 .eventCount {
   display: block;
   margin-top: 4px;
