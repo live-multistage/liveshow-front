@@ -20,7 +20,7 @@
 }
 
 .wrapLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.7rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -139,7 +139,7 @@
 }
 
 .ticketPrice {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.8rem;
   font-weight: 700;
   color: $action;

@@ -21,7 +21,7 @@
 
 .eyebrow {
   margin: 0 0 10px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -97,7 +97,7 @@
   align-items: center;
   gap: 10px;
   margin: 0 0 16px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -237,7 +237,7 @@
 }
 
 .teaserLink {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.1em;

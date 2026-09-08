@@ -36,7 +36,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.1em;
   color: #8a8a92;
@@ -102,7 +102,7 @@
   background: rgba(8, 8, 10, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.16);
   color: #d4d4da;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -155,7 +155,7 @@
 }
 
 .processingLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.14em;
   color: #ff8ec9;
@@ -177,7 +177,7 @@
 }
 
 .includesLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.16em;
   color: #8a8a92;
@@ -217,7 +217,7 @@
   align-items: center;
   gap: 9px;
   align-self: flex-start;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -229,7 +229,7 @@
 }
 
 .eyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.14em;
   color: #8a8a92;
@@ -266,7 +266,7 @@
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   letter-spacing: 0.08em;
   color: #8a8a92;

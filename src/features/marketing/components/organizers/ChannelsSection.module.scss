@@ -49,7 +49,7 @@
 }
 
 .grade {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   color: $text-muted;
 }
@@ -58,7 +58,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -84,7 +84,7 @@
 .hours {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   color: $text-muted;
   margin-bottom: 10px;
@@ -113,7 +113,7 @@
 }
 
 .slotKind {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   color: $text-muted;
   font-weight: 400;

@@ -17,7 +17,7 @@
 }
 
 .breadcrumb {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .16em;
   color: #ff7ec2;
@@ -42,7 +42,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .06em;
   color: #8f8f97;
@@ -106,7 +106,7 @@
   cursor: pointer;
   margin-top: 24px;
   transition: filter .15s;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
 
   &:hover:not(:disabled) { filter: brightness(1.08); }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -121,7 +121,7 @@
   justify-content: center;
   gap: 8px;
   margin-top: 18px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   letter-spacing: .06em;
   color: #6f6f77;

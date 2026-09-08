@@ -90,7 +90,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: $text-primary;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.02em;
   margin: 0;

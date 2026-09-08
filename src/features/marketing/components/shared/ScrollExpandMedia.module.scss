@@ -65,7 +65,7 @@
 
 .hint {
   margin: 18px 0 0;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.14em;
   color: $text-muted;

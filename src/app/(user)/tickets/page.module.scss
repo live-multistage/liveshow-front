@@ -35,7 +35,7 @@
 }
 
 .eyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .16em;
   color: #ff7ec2;
@@ -96,7 +96,7 @@
 
 .statLabel {
   position: relative;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .12em;
   color: #8f8f97;
@@ -115,7 +115,7 @@
 }
 
 .statNumber {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 28px;
   font-weight: 700;
   color: #fff;
@@ -209,7 +209,7 @@
 }
 
 .recoLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .14em;
   color: #fff;
@@ -225,7 +225,7 @@
 
 .recoLink {
   display: inline-block;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   letter-spacing: .08em;
   color: #ff5fb4;

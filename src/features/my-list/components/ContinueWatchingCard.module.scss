@@ -100,7 +100,7 @@
 
 .remaining {
   margin: 0;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.656rem;
   color: #ff8ec9;
   letter-spacing: 0.05em;

@@ -12,7 +12,7 @@
 }
 
 .label {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   letter-spacing: .06em;
   color: #8f8f97;

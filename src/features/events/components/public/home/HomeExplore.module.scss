@@ -19,7 +19,7 @@
 
 .heading {
   margin: 0;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 28px;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -34,7 +34,7 @@
 }
 
 %chipBase {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -79,7 +79,7 @@
   text-align: center;
   border: 1px dashed rgba(255, 255, 255, 0.12);
   border-radius: 16px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   color: $text-muted;
 }

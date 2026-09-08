@@ -22,7 +22,7 @@
 }
 
 .eyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .16em;
   color: #ff7ec2;
@@ -53,7 +53,7 @@
 }
 
 .rangeBtn {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: #8f8f97;
   background: transparent;
@@ -75,7 +75,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: #7d7d85;
 
@@ -139,7 +139,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .1em;
   color: #8f8f97;
@@ -153,7 +153,7 @@
 }
 
 .kpiValue {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 26px;
   font-weight: 700;
   letter-spacing: -.02em;
@@ -188,7 +188,7 @@
 }
 
 .viewersEyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .12em;
   color: #8f8f97;
@@ -209,7 +209,7 @@
 }
 
 .viewersBig {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 40px;
   font-weight: 700;
   letter-spacing: -.02em;
@@ -250,14 +250,14 @@
 }
 
 .viewersCount {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12.5px;
   color: #c7c7cd;
   flex-shrink: 0;
 }
 
 .viewersEmpty {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   color: #6f6f77;
   padding: 18px 0;
@@ -280,7 +280,7 @@
 }
 
 .finEyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .12em;
   color: #8f8f97;
@@ -316,7 +316,7 @@
 }
 
 .finBig {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 24px;
   font-weight: 700;
   color: #ff5fb4;
@@ -351,7 +351,7 @@
 
 .barEmpty {
   margin: auto;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   color: #6f6f77;
 }
@@ -366,14 +366,14 @@
 }
 
 .finStatLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .08em;
   color: #8f8f97;
 }
 
 .finStatValue {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 16px;
   font-weight: 700;
   margin-top: 5px;
@@ -392,7 +392,7 @@
 
 .balHead {
   padding: 0 4px 10px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: .08em;
@@ -418,13 +418,13 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12.5px;
   color: #c7c7cd;
 }
 
 .balOvr {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 8px;
   font-weight: 700;
   color: #9b7bff;
@@ -435,7 +435,7 @@
 }
 
 .balValue {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13.5px;
   font-weight: 700;
   text-align: right;
@@ -443,7 +443,7 @@
 }
 
 .balEmpty {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   color: #6f6f77;
   padding: 16px 4px;
@@ -466,7 +466,7 @@
   margin: -2px -4px;
   border-radius: 5px;
   cursor: pointer;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12.5px;
   color: #c7c7cd;
 
@@ -479,7 +479,7 @@
   border: 1px solid rgba(155, 123, 255, .5);
   border-radius: 5px;
   padding: 3px 6px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12.5px;
   color: #fff;
 
@@ -495,7 +495,7 @@
 
 .balPayBtn,
 .balPayConfirm {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -536,7 +536,7 @@
 }
 
 .auditAction {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: .05em;
@@ -579,7 +579,7 @@
 }
 
 .auditTime {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: #6f6f77;
   white-space: nowrap;
@@ -690,7 +690,7 @@
 }
 
 .impResultMeta {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: #7d7d85;
 }
@@ -718,7 +718,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: #EF4444;
   flex-shrink: 0;
@@ -748,7 +748,7 @@
 .opsStatDanger { border-color: rgba(239, 68, 68, .28); }
 
 .opsLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .08em;
   color: #8f8f97;
@@ -762,7 +762,7 @@
 }
 
 .opsValue {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 22px;
   font-weight: 700;
 }
@@ -773,7 +773,7 @@
 
 .opsNote {
   margin-top: 16px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: #6f6f77;
 }
@@ -812,13 +812,13 @@
 .opsRowCamera { color: #8f8f97; }
 
 .opsRowMeta {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: #6f6f77;
 }
 
 .opsRowError {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: #EF4444;
   flex: 1 1 100%;
@@ -829,7 +829,7 @@
 }
 
 .opsBadge {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -842,7 +842,7 @@
 
 // ── Approval queue ───────────────────────────────────────────────
 .queueBadge {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   background: #ff2e9e;
@@ -890,7 +890,7 @@
 }
 
 .queueMeta {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: #8f8f97;
   margin-top: 2px;
@@ -950,19 +950,19 @@
 
 .setLabel { font-size: 13.5px; font-weight: 600; }
 .setSub { font-size: 11.5px; color: #8f8f97; margin-top: 2px; }
-.setSubMono { font-family: 'Space Mono', monospace; font-size: 10.5px; color: #8f8f97; margin-top: 2px; }
+.setSubMono { font-family: var(--font-space-mono), 'Space Mono', monospace; font-size: 10.5px; color: #8f8f97; margin-top: 2px; }
 
 .setEdit { display: flex; align-items: center; gap: 8px; }
 
 .setValue {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 20px;
   font-weight: 700;
   color: #ff5fb4;
 }
 
 .setValueMuted {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: #6f6f77;
 }
@@ -973,14 +973,14 @@
   border: 1px solid rgba(255, 46, 158, .4);
   border-radius: 8px;
   color: #f4f4f5;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 16px;
   text-align: right;
   padding: 5px 8px;
   outline: none;
 }
 
-.setPct { font-family: 'Space Mono', monospace; font-size: 14px; color: #8f8f97; }
+.setPct { font-family: var(--font-space-mono), 'Space Mono', monospace; font-size: 14px; color: #8f8f97; }
 
 .setIcon, .setIconOk {
   width: 30px;
@@ -1000,7 +1000,7 @@
 .setIconOk { border-color: rgba(127, 224, 160, .4); color: #7fe0a0; }
 
 .setFlagsHead {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .12em;
   color: #5a5a62;
@@ -1016,7 +1016,7 @@
   gap: 12px;
 }
 
-.setFlagKey { font-family: 'Space Mono', monospace; font-size: 12.5px; color: #c7c7cd; }
+.setFlagKey { font-family: var(--font-space-mono), 'Space Mono', monospace; font-size: 12.5px; color: #c7c7cd; }
 
 .toggle {
   width: 40px;
@@ -1089,7 +1089,7 @@
 }
 
 .catalogTitle { font-size: 16px; font-weight: 800; letter-spacing: -.02em; }
-.catalogTag { font-family: 'Space Mono', monospace; font-size: 9.5px; color: #8f8f97; margin-top: 2px; }
+.catalogTag { font-family: var(--font-space-mono), 'Space Mono', monospace; font-size: 9.5px; color: #8f8f97; margin-top: 2px; }
 
 .catalogStats { display: flex; flex-direction: column; gap: 9px; flex: 1; }
 
@@ -1100,7 +1100,7 @@
 }
 
 .catalogStatLabel { font-size: 12.5px; color: #9a9aa2; }
-.catalogStatValue { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; }
+.catalogStatValue { font-family: var(--font-space-mono), 'Space Mono', monospace; font-size: 13px; font-weight: 700; }
 
 .catalogCta {
   margin-top: 16px;
@@ -1131,7 +1131,7 @@
 }
 
 .soonLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .12em;
   color: #5a5a62;
@@ -1149,7 +1149,7 @@
 
 .finCurrencyTag {
   display: inline-block;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;

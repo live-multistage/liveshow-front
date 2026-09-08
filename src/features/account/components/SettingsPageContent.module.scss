@@ -1,5 +1,5 @@
-$mono: 'Space Mono', monospace;
-$sans: 'Archivo', sans-serif;
+$mono: var(--font-space-mono), 'Space Mono', monospace;
+$sans: var(--font-archivo), 'Archivo', sans-serif;
 $bg: #08080a;
 $card: #101013;
 $inset: #0b0b0d;

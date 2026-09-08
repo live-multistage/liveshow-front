@@ -66,7 +66,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 28px;
   font-weight: 700;
   border: 3px solid #101013;
@@ -89,7 +89,7 @@
 
 .name {
   margin: 0;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 30px;
   font-weight: 800;
   letter-spacing: -.02em;
@@ -104,7 +104,7 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   color: #9a9aa2;
 }
@@ -126,7 +126,7 @@
   background: transparent;
   border: 1px solid rgba(255, 255, 255, .16);
   color: #e7e7ea;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -146,7 +146,7 @@
   gap: 8px;
   background: #ff2e9e;
   color: #0a0a0b;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -191,7 +191,7 @@
   gap: 8px;
   background: transparent;
   border: none;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 14px;
   padding: 14px 18px;
   border-bottom: 2px solid transparent;
@@ -216,7 +216,7 @@
 }
 
 .tabBadgeActive {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   background: rgba(255, 46, 158, .16);
@@ -226,7 +226,7 @@
 }
 
 .tabBadgeInactive {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   background: rgba(255, 255, 255, .06);

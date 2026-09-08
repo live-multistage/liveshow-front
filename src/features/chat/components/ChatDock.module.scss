@@ -45,14 +45,14 @@
 }
 
 .title {
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 0.8rem;
   font-weight: 700;
   color: $text-primary;
 }
 
 .count {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -81,7 +81,7 @@
 .reconnecting {
   flex-shrink: 0;
   padding: 0.25rem 1rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.59rem;
   letter-spacing: 0.04em;
   color: $muted;

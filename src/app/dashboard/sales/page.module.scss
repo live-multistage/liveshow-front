@@ -1,6 +1,6 @@
 @use '../../../styles/_variables' as *;
 
-$mono: 'Space Mono', monospace;
+$mono: var(--font-space-mono), 'Space Mono', monospace;
 
 .header {
   display: flex;
@@ -32,7 +32,7 @@ $mono: 'Space Mono', monospace;
 
 .title {
   margin: 0 0 8px;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 34px;
   font-weight: 800;
   letter-spacing: -0.025em;
@@ -81,7 +81,7 @@ $mono: 'Space Mono', monospace;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.16);
   color: #e7e7ea;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 13px;
   font-weight: 600;
   padding: 11px 16px;

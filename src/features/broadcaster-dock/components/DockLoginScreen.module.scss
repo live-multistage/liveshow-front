@@ -13,7 +13,7 @@
 }
 
 .eyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .16em;
@@ -50,7 +50,7 @@
 }
 
 .label {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .1em;
@@ -75,7 +75,7 @@
   background: #101013;
   border: 1px solid rgba(255, 255, 255, .08);
   color: #f4f4f5;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 14px;
   padding: 12px 14px 12px 40px;
   border-radius: 10px;
@@ -108,7 +108,7 @@
 }
 
 .fieldError {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: #ff5fb4;
 }

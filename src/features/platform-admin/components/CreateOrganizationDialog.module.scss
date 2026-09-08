@@ -30,7 +30,7 @@
 }
 
 .label {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .1em;
   color: #c7c7cd;
@@ -54,7 +54,7 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   color: #6f6f77;
   pointer-events: none;
@@ -74,7 +74,7 @@
 }
 
 .slugMsg {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   margin-top: 4px;
 }

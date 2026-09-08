@@ -69,7 +69,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 16px;
   font-weight: 700;
   border: 1px solid rgba(255, 255, 255, .08);
@@ -81,7 +81,7 @@
 }
 
 .name {
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -.01em;
@@ -94,7 +94,7 @@
 }
 
 .handle {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: #9a9aa2;
   margin-top: 3px;
@@ -144,7 +144,7 @@
 .stat {}
 
 .statLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .1em;
   color: #7d7d85;
@@ -152,7 +152,7 @@
 }
 
 .statValue {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 15px;
   font-weight: 700;
   color: #fff;
@@ -182,7 +182,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   font-weight: 700;
   border: 2px solid #101013;
@@ -192,7 +192,7 @@
 }
 
 .statusBadge {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;
@@ -206,7 +206,7 @@
   background: rgba(255, 46, 158, .12);
   border: 1px solid rgba(255, 46, 158, .4);
   color: #ff8ec9;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;

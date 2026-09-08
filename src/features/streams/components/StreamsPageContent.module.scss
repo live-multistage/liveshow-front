@@ -21,7 +21,7 @@
 }
 
 .breadcrumb {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .16em;
   color: #ff7ec2;
@@ -30,7 +30,7 @@
 
 .heading {
   margin: 0;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 32px;
   font-weight: 800;
   letter-spacing: -.025em;
@@ -49,7 +49,7 @@
 }
 
 .eventLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   letter-spacing: .1em;
   color: #8f8f97;
@@ -102,7 +102,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .12em;
   color: #8f8f97;
@@ -128,7 +128,7 @@
 
 .statValue {
   position: relative;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 22px;
   font-weight: 700;
   color: #fff;
@@ -200,7 +200,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .12em;
   color: #fff;
@@ -212,7 +212,7 @@
 }
 
 .sidebarCount {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   color: #7d7d85;
 }
@@ -223,7 +223,7 @@
   gap: 6px;
   background: #ff2e9e;
   color: #0a0a0b;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -245,7 +245,7 @@
 }
 
 .emptyList {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: #7d7d85;
   text-align: center;
@@ -265,7 +265,7 @@
   border-radius: 12px;
   padding: 12px;
   color: #9a9aa2;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .06em;
   cursor: pointer;
@@ -315,7 +315,7 @@
   border-radius: 10px;
   padding: 9px 20px;
   color: #ff2e9e;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -339,7 +339,7 @@
 }
 
 .createFormTitle {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: .1em;
@@ -356,7 +356,7 @@
 }
 
 .fieldLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .1em;
   color: #7d7d85;
@@ -402,7 +402,7 @@
 .btnSubmit {
   padding: 7px 16px;
   border-radius: 8px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -419,7 +419,7 @@
 .btnDismiss {
   padding: 7px 14px;
   border-radius: 8px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: .06em;

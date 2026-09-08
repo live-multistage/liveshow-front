@@ -49,7 +49,7 @@
 }
 
 .stepNum {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -151,7 +151,7 @@
 
 // ── Screen: shared bits ─────────────────────────────────────────────
 .screenLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -263,7 +263,7 @@
 }
 
 .reviewLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -311,7 +311,7 @@
 }
 
 .approvedMeta {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: $text-muted;
   margin-top: 3px;
@@ -344,7 +344,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-weight: 700;
   color: $text-primary;
   font-size: 15px;
@@ -361,7 +361,7 @@
 }
 
 .connectedPill {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -386,7 +386,7 @@
 }
 
 .statLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: 0.14em;
   color: $text-muted;
@@ -394,14 +394,14 @@
 }
 
 .statValue {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 20px;
   font-weight: 700;
   color: $text-primary;
 }
 
 .statValuePrice {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 20px;
   font-weight: 700;
   color: $price;
@@ -427,7 +427,7 @@
 }
 
 .posterLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.12em;
   color: $pink-soft;
@@ -455,7 +455,7 @@
 }
 
 .chip {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.1em;
   color: $text-secondary;
@@ -482,7 +482,7 @@
 }
 
 .ticketPrice {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   color: $price;
 }
 

@@ -23,7 +23,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.18em;
   color: #ff8ec9;
@@ -52,7 +52,7 @@
 }
 
 .h1 {
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-weight: 900;
   font-size: clamp(38px, 4.6vw, 64px);
   letter-spacing: -0.045em;
@@ -114,7 +114,7 @@
 }
 
 .stepsEyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.18em;
   color: $text-muted;
@@ -135,7 +135,7 @@
 }
 
 .stepNumber {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.85rem;
   color: $action;
   margin: 0 0 0.6rem;
@@ -230,7 +230,7 @@
 
 .progress {
   flex-shrink: 0;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   color: $text-muted;
@@ -259,21 +259,21 @@
 }
 
 .fieldLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   color: $text-secondary;
 }
 
 .fieldNote {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   color: $text-muted;
 }
 
 .counterOk {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   color: $success-light;
@@ -452,7 +452,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   color: $text-muted;
@@ -480,7 +480,7 @@
 }
 
 .successEyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   color: $success-light;
@@ -488,7 +488,7 @@
 }
 
 .successTitle {
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: clamp(26px, 3vw, 34px);
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -542,7 +542,7 @@
 }
 
 .gateHeading {
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: clamp(28px, 3vw, 40px);
   font-weight: 800;
   letter-spacing: -0.03em;

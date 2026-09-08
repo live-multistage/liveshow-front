@@ -27,7 +27,7 @@ $mobile-max: 820px;
 }
 
 .logoText {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-weight: 700;
   letter-spacing: 0.16em;
   font-size: 13px;
@@ -99,7 +99,7 @@ $mobile-max: 820px;
 }
 
 .navLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: 0.06em;
   font-weight: 700;

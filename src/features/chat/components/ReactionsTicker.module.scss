@@ -19,7 +19,7 @@
 }
 
 .count {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.59375rem;
   letter-spacing: 0.1em;
   color: $muted;

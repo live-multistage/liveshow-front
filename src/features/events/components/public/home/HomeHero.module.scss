@@ -74,7 +74,7 @@
   background: rgba(255, 46, 158, 0.18);
   border: 1px solid rgba(255, 46, 158, 0.5);
   color: #ff8ec9;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -92,7 +92,7 @@
 }
 
 .title {
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: clamp(44px, 8vw, 80px);
   font-weight: 900;
   letter-spacing: -0.035em;

@@ -3,7 +3,7 @@
   z-index: 40;
   pointer-events: none;
   user-select: none;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.06em;
   color: rgba(255, 255, 255, 0.22);

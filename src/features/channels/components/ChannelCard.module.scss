@@ -74,7 +74,7 @@
   border-radius: 0.3125rem;
   background: rgba(255, 46, 158, 0.92);
   color: #0a0a0b;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.53125rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -94,7 +94,7 @@
   left: 0.6875rem;
   padding: 0.3125rem 0.5rem;
   border-radius: 0.3125rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.53125rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -109,7 +109,7 @@
   right: 0.6875rem;
   padding: 0.3125rem 0.5rem;
   border-radius: 0.3125rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.53125rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -171,7 +171,7 @@
 }
 
 .bugLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.5625rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -207,7 +207,7 @@
 
 .accessPill {
   flex: none;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.53125rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -244,7 +244,7 @@
 .slotLabel {
   flex: none;
   width: 3.375rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.53125rem;
   font-weight: 700;
   letter-spacing: 0.12em;

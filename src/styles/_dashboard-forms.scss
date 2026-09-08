@@ -3,7 +3,7 @@
 @forward './variables';
 @use './variables' as *;
 
-$mono: 'Space Mono', monospace;
+$mono: var(--font-space-mono), 'Space Mono', monospace;
 
 $accent-bright: #ff7ec2; // magenta claro dos eyebrows/breadcrumb
 $accent-tint: rgba(255, 46, 158, 0.07); // fundo dos cards e avisos selecionados

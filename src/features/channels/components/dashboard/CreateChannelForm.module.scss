@@ -4,7 +4,7 @@
   max-width: 62.5rem; // 1000px
   margin: 0 auto;
   padding: 1.875rem 2.5rem 4rem;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
 }
 
 .breadcrumb {

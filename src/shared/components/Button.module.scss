@@ -104,7 +104,7 @@
 
 // ── Uppercase modifier (Space Mono caps style) ────────────────────
 .uppercase {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   text-transform: uppercase;
   letter-spacing: 0.07em;
 }

@@ -54,7 +54,7 @@
   color: var(--muted-foreground);
   border-radius: 6px;
   padding: 4px 9px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.594rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -64,7 +64,7 @@
   position: absolute;
   bottom: 12px;
   left: 12px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.656rem;
   color: var(--muted-foreground);
   letter-spacing: 0.05em;

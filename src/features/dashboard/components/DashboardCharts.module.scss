@@ -59,7 +59,7 @@
 .dotPink   { background-color: #ff2e9e; } // RECEITA (magenta)
 
 .chartTitle {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   letter-spacing: .1em;
   color: #fff;
@@ -69,7 +69,7 @@
 }
 
 .mock {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   color: #6f6f77;
   margin-left: auto;

@@ -31,7 +31,7 @@
   position: absolute;
   top: 14px;
   left: 14px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -136,7 +136,7 @@
 .times {
   display: flex;
   justify-content: space-between;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: $text-secondary;
 }

@@ -16,7 +16,7 @@
   background: rgba(8, 8, 10, 0.72);
   backdrop-filter: blur(6px);
   color: $text-primary;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 0.8125rem;
   font-weight: 600;
   text-decoration: none;

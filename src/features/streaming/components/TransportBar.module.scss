@@ -26,7 +26,7 @@
   background: $action-dim;
   border: 1px solid rgba(255, 46, 158, 0.28);
   border-radius: 8px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -76,7 +76,7 @@
 }
 
 .timeLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.6875rem;
   color: $muted;
   flex-shrink: 0;

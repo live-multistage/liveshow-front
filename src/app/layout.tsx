@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Archivo, Space_Mono } from 'next/font/google';
 import { cookies } from 'next/headers';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getLocale } from 'next-intl/server';
@@ -12,6 +13,20 @@ import '@/styles/globals.scss';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 const SITE_DESCRIPTION = 'Shows ao vivo de todo o mundo, na palma da sua mão.';
+
+const archivo = Archivo({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-archivo',
+  display: 'swap',
+});
+
+const spaceMono = Space_Mono({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-space-mono',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   // Anchors every relative URL in OG/canonical/twitter metadata to the real
@@ -37,7 +52,7 @@ export const metadata: Metadata = {
 };
 
 // Organization + WebSite schema for the whole site — shows the brand card and
-// enables a sitelinks search box eligibility in Google.
+// establishes the canonical site identity in Google's knowledge graph.
 const ORG_JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -45,6 +60,14 @@ const ORG_JSON_LD = {
   url: SITE_URL,
   logo: `${SITE_URL}/showon-icon.svg`,
   description: SITE_DESCRIPTION,
+};
+
+const WEBSITE_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'showon.io',
+  url: SITE_URL,
+  inLanguage: 'pt-BR',
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -66,19 +89,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   ]);
 
   return (
-    <html lang={locale} className="dark">
+    <html lang={locale} className={`dark ${archivo.variable} ${spaceMono.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
         <link rel="icon" href="/showon-icon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body>
-        <JsonLd data={ORG_JSON_LD} />
+        <JsonLd data={[ORG_JSON_LD, WEBSITE_JSON_LD]} />
         <NextIntlClientProvider messages={messages}>
           <ErrorReportingProvider>
             <Providers

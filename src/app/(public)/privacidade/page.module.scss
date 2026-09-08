@@ -10,7 +10,7 @@
 .content {
   max-width: 720px;
   margin: 0 auto;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
 }
 
 .title {

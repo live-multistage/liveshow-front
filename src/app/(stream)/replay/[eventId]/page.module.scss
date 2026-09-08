@@ -10,5 +10,5 @@
 
 .text {
   color: $text-secondary;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
 }

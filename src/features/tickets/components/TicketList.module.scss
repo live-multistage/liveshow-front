@@ -48,7 +48,7 @@
 .badgeActive {
   background: rgba(10, 10, 11, .18);
   color: #0a0a0b;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   padding: 2px 7px;
@@ -58,7 +58,7 @@
 .badgeInactive {
   background: rgba(255, 255, 255, .06);
   color: #c7c7cd;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   padding: 2px 7px;

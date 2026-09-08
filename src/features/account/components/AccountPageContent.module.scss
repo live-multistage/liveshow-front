@@ -36,7 +36,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 1.25rem;
   font-weight: 600;
   color: $action;
@@ -51,7 +51,7 @@
 
 .name {
   margin: 0;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 1.5rem;
   font-weight: 500;
   color: $text-primary;

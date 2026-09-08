@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .14em;
   color: #9a9aa2;
@@ -73,7 +73,7 @@
 }
 
 .meta {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   color: #9a9aa2;
 }
@@ -134,7 +134,7 @@
 }
 
 .overviewHead {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .14em;
   color: #fff;
@@ -149,7 +149,7 @@
 }
 
 .overviewLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .1em;
   color: #7d7d85;
@@ -162,7 +162,7 @@
 }
 
 .overviewValueMono {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 14px;
   color: #e7e7ea;
 }

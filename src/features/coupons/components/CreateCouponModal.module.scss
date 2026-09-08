@@ -1,6 +1,6 @@
 @use '../../../styles/_variables' as *;
 
-$mono: 'Space Mono', monospace;
+$mono: var(--font-space-mono), 'Space Mono', monospace;
 $pink-soft: #ff5fb4;
 $pink-chip: #ff7ec2;
 
@@ -252,7 +252,7 @@ $pink-chip: #ff7ec2;
   padding: 0 12px;
   height: 44px;
   color: $text-primary;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 13.5px;
   outline: none;
   margin-bottom: 20px;
@@ -350,7 +350,7 @@ $pink-chip: #ff7ec2;
   background: $action;
   border: none;
   color: #0a0a0b;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 13.5px;
   font-weight: 700;
   padding: 11px 22px;

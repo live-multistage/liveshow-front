@@ -17,7 +17,7 @@
 .heading {
   font-size: 1.5rem;
   font-weight: 700;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: $text-primary;
@@ -90,7 +90,7 @@
 .statValue {
   font-size: 1.5rem;
   font-weight: 700;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   color: $text-primary;
   margin: 0;
   line-height: 1;
@@ -176,7 +176,7 @@
 }
 
 .sheetTitle {
-  font-family: 'Archivo', sans-serif !important;
+  font-family: var(--font-archivo), 'Archivo', sans-serif !important;
   text-transform: uppercase !important;
   letter-spacing: 0.06em !important;
   color: $text-primary !important;

@@ -10,7 +10,7 @@
 }
 
 .label {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.5625rem;
   letter-spacing: 0.12em;
   color: $text-muted;
@@ -44,7 +44,7 @@
 }
 
 .count {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.5rem;
   line-height: 1;
   color: $text-muted;

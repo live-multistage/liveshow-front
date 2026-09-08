@@ -33,7 +33,7 @@
   background: transparent;
   border: 1px solid rgba(255, 255, 255, .08);
   color: #e7e7ea;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .05em;
@@ -68,7 +68,7 @@
   padding: 13px 20px;
   background: #0c0c0f;
   border-bottom: 1px solid rgba(255, 255, 255, .07);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .12em;
   color: #7d7d85;
@@ -103,7 +103,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-weight: 700;
   font-size: 11px;
 }
@@ -117,7 +117,7 @@
 }
 
 .email {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   color: #9a9aa2;
   white-space: nowrap;

@@ -20,7 +20,7 @@
 .labelRow {
   display: flex;
   justify-content: space-between;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -101,7 +101,7 @@
   background: transparent;
   border: none;
   color: $text-primary;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 15px;
   padding: 0 14px;
   letter-spacing: 0.02em;
@@ -129,7 +129,7 @@
   background: transparent;
   border: none;
   color: $text-primary;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 15px;
   padding: 0 14px;
   text-align: center;
@@ -214,7 +214,7 @@
 
 .weekday {
   text-align: center;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: 0.1em;
   color: $text-muted;
@@ -233,7 +233,7 @@
   border: 1px solid transparent;
   background: transparent;
   color: $text-primary;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   cursor: pointer;
   transition: all 0.12s;
@@ -277,7 +277,7 @@
 }
 
 .timeLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -292,7 +292,7 @@
   border: 1px solid $border;
   background-color: $bg;
   color: $text-primary;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 14px;
   text-align: center;
 
@@ -322,7 +322,7 @@
   border: 1px solid $border;
   background: transparent;
   color: $text-secondary;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11.5px;
   cursor: pointer;
   transition: border-color 0.15s, background-color 0.15s, color 0.15s;

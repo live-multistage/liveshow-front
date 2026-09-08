@@ -36,7 +36,7 @@
 }
 
 .badge {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .08em;
   text-transform: uppercase;

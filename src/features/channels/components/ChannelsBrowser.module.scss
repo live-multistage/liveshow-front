@@ -26,7 +26,7 @@
 }
 
 .eyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -116,7 +116,7 @@
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: #b9b9c0;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -160,7 +160,7 @@
 
 .total {
   margin-left: auto;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;

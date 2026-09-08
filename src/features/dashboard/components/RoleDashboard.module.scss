@@ -32,7 +32,7 @@
 }
 
 .upperSubTitle {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .16em;
   color: #ff7ec2;
@@ -43,7 +43,7 @@
   font-size: 32px;
   font-weight: 800;
   letter-spacing: -.02em;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   color: #f4f4f5;
   margin: 0;
 }
@@ -64,7 +64,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .04em;
   color: #7d7d85;
@@ -136,7 +136,7 @@
   letter-spacing: -.03em;
   line-height: 1;
   color: #f4f4f5;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   margin: 0;
 }
 
@@ -144,7 +144,7 @@
 .cardValueMuted { color: #5a5a62; }
 
 .cardLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .1em;
   color: #cfcfd6;
@@ -178,7 +178,7 @@
 }
 
 .sectionTitle {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   letter-spacing: .16em;
   color: #fff;
@@ -188,7 +188,7 @@
 }
 
 .viewAll {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   letter-spacing: .05em;
   color: #ff2e9e;
@@ -209,7 +209,7 @@
 }
 
 .eventsEmpty {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   color: #7d7d85;
   padding: 2rem 0;

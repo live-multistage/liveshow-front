@@ -42,7 +42,7 @@
 }
 
 .headerLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .1em;
@@ -126,7 +126,7 @@
 }
 
 .stepTitle {
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: -.02em;
@@ -170,7 +170,7 @@
   background: rgba(255, 46, 158, .15);
   border: 1px solid rgba(255, 46, 158, .3);
   border-radius: 999px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   color: #ff2e9e;
@@ -179,7 +179,7 @@
 .welcomeStepIcon { color: #9a9aa2; }
 
 .welcomeStepLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -200,7 +200,7 @@
 .field { display: flex; flex-direction: column; gap: 6px; }
 
 .fieldLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -214,7 +214,7 @@
   border-radius: 10px;
   padding: 11px 14px;
   color: #f4f4f5;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 14px;
   outline: none;
   resize: none;
@@ -241,7 +241,7 @@
 }
 
 .obsStepsTitle {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -299,7 +299,7 @@
   height: 48px;
   background: #ff2e9e;
   color: #08080a;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -316,7 +316,7 @@
   background: transparent;
   border: none;
   color: #6b6b76;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .06em;

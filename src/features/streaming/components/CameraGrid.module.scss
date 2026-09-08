@@ -105,7 +105,7 @@
   align-items: center;
   justify-content: center;
   color: $muted;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.875rem;
 }
 
@@ -131,7 +131,7 @@
   background: rgba(10, 10, 11, 0.65);
   backdrop-filter: blur(4px);
   color: #7fe0a0;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.53125rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -181,7 +181,7 @@
 
 .stripName {
   color: #fff;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 0.6875rem;
   font-weight: 700;
   margin: 0;
@@ -192,7 +192,7 @@
 
 .stripAngle {
   color: $text-secondary;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.53125rem;
   letter-spacing: 0.08em;
   font-weight: 700;
@@ -231,14 +231,14 @@
 }
 
 .drawerLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.5625rem;
   letter-spacing: 0.14em;
   color: $text-muted;
 }
 
 .drawerCount {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.75rem;
   font-weight: 700;
   color: $text-primary;
@@ -297,7 +297,7 @@
   position: absolute;
   top: 6px;
   left: 6px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.5rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -330,7 +330,7 @@
   border: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   color: $text-primary;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;

@@ -176,7 +176,7 @@
 
 .publicUrlLabel {
   flex: none;
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: var(--font-space-mono), 'Space Mono', ui-monospace, monospace;
   font-size: 0.625rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -189,7 +189,7 @@
   min-width: 0;
   font-size: 0.8125rem;
   color: #d4d4da;
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: var(--font-space-mono), 'Space Mono', ui-monospace, monospace;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -249,7 +249,7 @@
   letter-spacing: 0.12em;
   padding: 5px 12px;
   border-radius: 9999px;
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: var(--font-space-mono), 'Space Mono', ui-monospace, monospace;
 }
 
 .statusDot {
@@ -326,7 +326,7 @@
 .title {
   font-size: 2.375rem;
   font-weight: 900;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   color: $text-primary;
   margin: 0;
   line-height: 1.02;
@@ -374,7 +374,7 @@
 }
 
 .infoLabel {
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: var(--font-space-mono), 'Space Mono', ui-monospace, monospace;
   font-size: 0.6rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -470,7 +470,7 @@
 
 .ticketPrice {
   flex: none;
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: var(--font-space-mono), 'Space Mono', ui-monospace, monospace;
   font-size: 1rem;
   font-weight: 700;
   color: $price;
@@ -488,7 +488,7 @@
   border: 1px solid rgba(152, 16, 250, 0.35);
   color: #c084fc;
   font-size: 0.625rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-weight: 600;
   padding: 0.2rem 0.5rem;
   border-radius: 9999px;
@@ -748,7 +748,7 @@
 }
 
 .eyebrow {
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: var(--font-space-mono), 'Space Mono', ui-monospace, monospace;
   font-size: 0.6875rem;
   letter-spacing: 0.16em;
   color: #ff8ec9;
@@ -817,7 +817,7 @@
 .railHead {
   padding: 1rem 1.25rem 0.8125rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: var(--font-space-mono), 'Space Mono', ui-monospace, monospace;
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -834,7 +834,7 @@
 }
 
 .checklistHead {
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: var(--font-space-mono), 'Space Mono', ui-monospace, monospace;
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -868,7 +868,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: var(--font-space-mono), 'Space Mono', ui-monospace, monospace;
   font-size: 0.625rem;
   font-weight: 700;
 }

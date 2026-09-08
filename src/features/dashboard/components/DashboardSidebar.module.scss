@@ -30,7 +30,7 @@
 }
 
 .logoText {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-weight: 700;
   letter-spacing: .18em;
   font-size: 16px;
@@ -41,7 +41,7 @@
 // "Studio" on the standard organizer dashboard (Liveshow Super Admin.dc.html).
 .logoBadge {
   margin-left: auto;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 8.5px;
   font-weight: 700;
   letter-spacing: .1em;
@@ -67,7 +67,7 @@
 }
 
 .navSectionLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .16em;
   color: #5a5a62;

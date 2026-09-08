@@ -20,7 +20,7 @@ $red-strong: #ef4444;
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: $text-2;
   border: 1px solid $border;
@@ -134,7 +134,7 @@ $red-strong: #ef4444;
 }
 
 .mono10 {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .1em;
   color: $muted-2;
@@ -151,7 +151,7 @@ $red-strong: #ef4444;
 .chip {
   display: inline-flex;
   align-items: center;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: $text-2;
   background: $chip-bg;
@@ -194,7 +194,7 @@ $red-strong: #ef4444;
 }
 
 .feeValue {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 28px;
   font-weight: 700;
   color: $pink-soft;
@@ -202,7 +202,7 @@ $red-strong: #ef4444;
 
 .feeInput {
   width: 70px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 20px;
   background: $chip-bg;
   border: 1px solid $border;
@@ -214,7 +214,7 @@ $red-strong: #ef4444;
   &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
 }
 
-.feePct { font-family: 'Space Mono', monospace; font-size: 14px; color: $muted-2; }
+.feePct { font-family: var(--font-space-mono), 'Space Mono', monospace; font-size: 14px; color: $muted-2; }
 
 .iconBtn, .iconBtnOk {
   display: inline-flex;
@@ -234,7 +234,7 @@ $red-strong: #ef4444;
 .iconBtnOk { border-color: rgba(74, 222, 128, .4); color: $green; }
 
 .feeMeta {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   color: $muted;
 }
@@ -249,7 +249,7 @@ $red-strong: #ef4444;
 }
 
 .counters {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: $text-2;
 }
@@ -322,7 +322,7 @@ $red-strong: #ef4444;
 }
 
 .groupLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   font-weight: 500;
   letter-spacing: .18em;
@@ -358,7 +358,7 @@ $red-strong: #ef4444;
 .flagName { font-size: 15px; font-weight: 600; color: #f4f4f5; }
 
 .badge {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -372,7 +372,7 @@ $red-strong: #ef4444;
 .flagDescription { font-size: 13.5px; color: $text-2; }
 
 .flagMeta {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: $muted;
 }
@@ -384,7 +384,7 @@ $red-strong: #ef4444;
 }
 
 .stateLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .12em;
@@ -496,7 +496,7 @@ $red-strong: #ef4444;
 
 .auditLine { font-size: 13px; color: #e4e4e7; }
 .auditSub {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: $muted;
   margin-top: 3px;

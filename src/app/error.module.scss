@@ -15,7 +15,7 @@
 
 .title {
   font-size: 1.25rem;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
@@ -28,7 +28,7 @@
 
 .requestId {
   color: $text-secondary;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.75rem;
   margin-bottom: 1rem;
 }

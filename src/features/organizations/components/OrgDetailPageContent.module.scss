@@ -32,7 +32,7 @@
 .heading {
   font-size: 1.5rem;
   font-weight: 700;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: $text-primary;
@@ -42,7 +42,7 @@
 .slug {
   font-size: 0.8rem;
   color: $text-secondary;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   margin: 0.2rem 0 0;
 }
 
@@ -92,7 +92,7 @@
 
 .roleBadge {
   font-size: 0.7rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 
@@ -121,7 +121,7 @@
 .memberEmail {
   font-size: 0.72rem;
   color: $text-muted;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -218,7 +218,7 @@
 .foundUserEmail {
   font-size: 0.75rem;
   color: $text-muted;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
 }
 
 .addRow {
@@ -235,7 +235,7 @@
   border-radius: 6px;
   color: $text-primary;
   font-size: 0.8rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   padding: 0.5rem 0.75rem;
   outline: none;
   transition: border-color 0.15s;

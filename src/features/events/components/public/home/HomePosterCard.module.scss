@@ -61,7 +61,7 @@
   gap: 5px;
   background: #ff2e9e;
   color: #0a0a0b;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   padding: 4px 8px;
@@ -80,7 +80,7 @@
 .badgeReplay {
   background: rgba(0, 0, 0, 0.5);
   color: #e7e7ea;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   padding: 4px 8px;
@@ -94,7 +94,7 @@
   gap: 4px;
   background: rgba(0, 0, 0, 0.5);
   color: #e7e7ea;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   padding: 4px 7px;
   border-radius: 6px;
@@ -109,7 +109,7 @@
 }
 
 .genre {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.12em;
   color: #ffa6d4;
@@ -118,7 +118,7 @@
 }
 
 .title {
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.02;
@@ -138,7 +138,7 @@
 }
 
 .meta {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: #b9b9c0;
   overflow: hidden;
@@ -147,7 +147,7 @@
 }
 
 .price {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;

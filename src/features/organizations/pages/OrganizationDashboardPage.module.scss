@@ -63,7 +63,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .12em;
   color: #8f8f97;
@@ -78,7 +78,7 @@
 }
 
 .kpiNum {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 26px;
   font-weight: 700;
   letter-spacing: -.01em;
@@ -115,7 +115,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .14em;
   color: #fff;
@@ -129,7 +129,7 @@
   background: transparent;
   border: none;
   color: #9a9aa2;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   letter-spacing: .08em;
   cursor: pointer;
@@ -146,7 +146,7 @@
   background: transparent;
   border: none;
   color: #ff5fb4;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   letter-spacing: .08em;
   cursor: pointer;
@@ -157,7 +157,7 @@
 }
 
 .seeAllLink {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .06em;
   color: #ff5fb4;
@@ -186,7 +186,7 @@
 }
 
 .aboutLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .1em;
   color: #7d7d85;
@@ -230,14 +230,14 @@
 }
 
 .eventMonth {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .1em;
   color: #ff8ec9;
 }
 
 .eventDay {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 18px;
   font-weight: 700;
   color: #fff;
@@ -261,7 +261,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: #8f8f97;
 }
@@ -271,14 +271,14 @@
 .eventSold { text-align: right; }
 
 .eventSoldNum {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 14px;
   font-weight: 700;
   color: #fff;
 }
 
 .eventSoldLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   color: #7d7d85;
   letter-spacing: .06em;
@@ -291,7 +291,7 @@
   background: rgba(255, 46, 158, .14);
   border: 1px solid rgba(255, 46, 158, .4);
   color: #ff8ec9;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;
@@ -309,7 +309,7 @@
 }
 
 .statusPill {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;
@@ -340,7 +340,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-weight: 700;
   font-size: 11px;
   flex-shrink: 0;
@@ -361,13 +361,13 @@
 }
 
 .memberRole {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: #8f8f97;
 }
 
 .youBadge {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: .08em;

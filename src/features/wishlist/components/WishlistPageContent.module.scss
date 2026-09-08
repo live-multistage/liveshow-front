@@ -21,7 +21,7 @@
 
 .eyebrow {
   margin: 0 0 10px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.688rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -49,7 +49,7 @@
 }
 
 .tab {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.656rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -127,7 +127,7 @@
 }
 
 .teaserAll {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.688rem;
   font-weight: 700;
   letter-spacing: 0.08em;

@@ -57,6 +57,6 @@
 .time {
   font-size: 0.72rem;
   color: $text-muted;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   flex-shrink: 0;
 }

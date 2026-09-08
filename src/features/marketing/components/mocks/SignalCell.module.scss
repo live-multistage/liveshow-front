@@ -22,7 +22,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: 0.14em;
   color: $green;
@@ -73,7 +73,7 @@
 .meta {
   display: flex;
   justify-content: space-between;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: $text-muted;
 }

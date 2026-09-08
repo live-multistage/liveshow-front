@@ -5,7 +5,7 @@
 }
 
 .chip {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .07em;
@@ -63,7 +63,7 @@
 }
 
 .userId {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: #8f8f97;
 }
@@ -82,7 +82,7 @@
   height: 26px;
   padding: 0 8px;
   border-radius: 8px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   font-weight: 700;
 }
@@ -91,7 +91,7 @@
 .scoreOk     { color: #7fe0a0; background: rgba(127, 224, 160, .12); border: 1px solid rgba(127, 224, 160, .3); }
 
 .status {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: .05em;
@@ -111,7 +111,7 @@
 
 .tag {
   display: inline-block;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .04em;
@@ -136,7 +136,7 @@
   strong { color: #fff; }
 }
 .social {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   color: #ff7ec2;
   text-decoration: none;
@@ -182,7 +182,7 @@
 }
 
 .btn {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .04em;
@@ -202,7 +202,7 @@
 .btnDanger:hover:not(:disabled)  { border-color: rgba(239, 68, 68, .5); color: #ef4444; }
 
 .empty {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   color: #8f8f97;
   padding: 32px 4px;

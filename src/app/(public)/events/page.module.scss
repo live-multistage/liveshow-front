@@ -38,7 +38,7 @@
 }
 
 .eyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .16em;
   color: #ff7ec2;
@@ -102,7 +102,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .12em;
   color: #8f8f97;
@@ -130,7 +130,7 @@
 }
 
 .statNumber {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 28px;
   font-weight: 700;
   color: #fff;
@@ -173,7 +173,7 @@
   flex: 1;
   background: transparent;
   color: #f4f4f5;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 14.5px;
   outline: none;
   border: none;
@@ -207,7 +207,7 @@
   background: #101013;
   border: 1px solid rgba(255, 255, 255, .08);
   color: #e7e7ea;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   letter-spacing: .06em;
   padding: 0 20px;
@@ -220,7 +220,7 @@
 }
 
 .sortLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   letter-spacing: .06em;
   color: #e7e7ea;
@@ -259,7 +259,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .08em;
@@ -289,7 +289,7 @@
 .chipBadgeActive {
   background: #ff2e9e;
   color: #0a0a0b;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   padding: 1px 7px;
@@ -299,7 +299,7 @@
 .chipBadgeInactive {
   background: rgba(255, 255, 255, .06);
   color: #c7c7cd;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   padding: 1px 7px;
@@ -318,7 +318,7 @@
 }
 
 .countLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .08em;
   color: #8f8f97;
@@ -374,7 +374,7 @@
 }
 
 .emptySubtitle {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   color: #8f8f97;
   margin-bottom: 16px;

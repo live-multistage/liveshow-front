@@ -14,7 +14,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-weight: 700;
   font-size: 0.59rem;
   flex-shrink: 0;
@@ -38,7 +38,7 @@
 }
 
 .time {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.53125rem;
   color: $text-muted;
 }

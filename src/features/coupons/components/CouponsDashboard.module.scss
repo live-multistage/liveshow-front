@@ -1,6 +1,6 @@
 @use '../../../styles/_variables' as *;
 
-$mono: 'Space Mono', monospace;
+$mono: var(--font-space-mono), 'Space Mono', monospace;
 $pink-soft: #ff5fb4;
 $pink-chip: #ff7ec2;
 $pink-badge: #ff8ec9;
@@ -113,7 +113,7 @@ $yellow: #ffd166;
     border: none;
     outline: none;
     color: $text-primary;
-    font-family: 'Archivo', sans-serif;
+    font-family: var(--font-archivo), 'Archivo', sans-serif;
     font-size: 13.5px;
     font-weight: 600;
     padding-right: 22px;
@@ -137,7 +137,7 @@ $yellow: #ffd166;
   background: $action;
   border: none;
   color: #0a0a0b;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-weight: 700;
   font-size: 14px;
   padding: 0 22px;

@@ -124,7 +124,7 @@
   backdrop-filter: blur(6px);
   border: 1px solid rgba(255, 255, 255, .14);
   color: #e7e7ea;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -155,7 +155,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;
@@ -172,7 +172,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;
@@ -185,7 +185,7 @@
 .badgeStatus {
   display: inline-flex;
   align-items: center;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;
@@ -257,7 +257,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .1em;
   color: #8f8f97;
@@ -326,7 +326,7 @@
 }
 
 .orgLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .12em;
   color: #8f8f97;
@@ -344,7 +344,7 @@
 
 .orgArrow {
   margin-left: auto;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .06em;
   color: #9a9aa2;
@@ -364,7 +364,7 @@
 }
 
 .collaboratorsLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .12em;
   color: #8f8f97;
@@ -403,7 +403,7 @@
 }
 
 .sectionLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   letter-spacing: .14em;
   color: #fff;
@@ -496,7 +496,7 @@
 
 .heroDateLine {
   margin: 14px 0 0;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   color: #ff8ec9;
   letter-spacing: .05em;

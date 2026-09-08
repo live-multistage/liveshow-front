@@ -17,7 +17,7 @@
 .headings { min-width: 0; }
 
 .eyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .16em;
   color: #ff7ec2;
@@ -29,7 +29,7 @@
   font-size: 30px;
   font-weight: 800;
   letter-spacing: -.025em;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   color: #f4f4f5;
 }
 

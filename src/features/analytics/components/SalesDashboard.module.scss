@@ -1,8 +1,8 @@
 @use '../../../styles/_variables' as *;
 
 // Liveshow design system — sales surfaces
-$mono: 'Space Mono', monospace;
-$sans: 'Archivo', sans-serif;
+$mono: var(--font-space-mono), 'Space Mono', monospace;
+$sans: var(--font-archivo), 'Archivo', sans-serif;
 
 $card-bg: #101013;
 $card-line: rgba(255, 255, 255, 0.08);

@@ -89,7 +89,7 @@
 .orgName {
   font-size: 1.25rem;
   font-weight: 700;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: $text-primary;
@@ -99,7 +99,7 @@
 .orgSlug {
   font-size: 0.75rem;
   color: $text-muted;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   margin: 0.1rem 0 0;
 }
 

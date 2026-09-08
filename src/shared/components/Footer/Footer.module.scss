@@ -21,7 +21,7 @@
 }
 
 .wordmark {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.18em;

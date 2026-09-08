@@ -26,7 +26,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .16em;
   color: #9a9aa2;
@@ -37,7 +37,7 @@
 .breadcrumbActive { color: #ff7ec2; }
 
 .heading {
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 38px;
   font-weight: 800;
   letter-spacing: -.025em;
@@ -58,7 +58,7 @@
   gap: 9px;
   background: #ff2e9e;
   color: #0a0a0b;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-weight: 700;
   font-size: 14px;
   border: none;
@@ -111,7 +111,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .12em;
   color: #8f8f97;
@@ -126,7 +126,7 @@
 }
 
 .kpiNum {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 30px;
   font-weight: 700;
   letter-spacing: -.01em;
@@ -167,7 +167,7 @@
   border: 1px solid rgba(255, 255, 255, .08);
   border-radius: 12px;
   color: #f4f4f5;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 14.5px;
   padding: 14px 18px 14px 48px;
   outline: none;
@@ -205,7 +205,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .08em;
@@ -232,7 +232,7 @@
 .chipBadgeActive {
   background: #ff2e9e;
   color: #0a0a0b;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   padding: 1px 7px;
   border-radius: 999px;
@@ -241,7 +241,7 @@
 .chipBadgeInactive {
   background: rgba(255, 255, 255, .06);
   color: #c7c7cd;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   padding: 1px 7px;
   border-radius: 999px;

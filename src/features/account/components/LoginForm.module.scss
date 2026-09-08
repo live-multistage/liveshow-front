@@ -34,7 +34,7 @@
 // ── Form header ───────────────────────────────────────────────────
 
 .formTitle {
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 36px;
   font-weight: 800;
   letter-spacing: -.03em;
@@ -92,7 +92,7 @@
 }
 
 .fieldError {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: #ff5fb4;
 }
@@ -144,7 +144,7 @@
   width: 100% !important;
   height: 50px !important;
   border-radius: 12px !important;
-  font-family: 'Space Mono', monospace !important;
+  font-family: var(--font-space-mono), 'Space Mono', monospace !important;
   font-size: 12px !important;
   font-weight: 700 !important;
   letter-spacing: .1em !important;
@@ -168,7 +168,7 @@
 
 .dividerText {
   padding: 0 14px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .1em;
   color: #6f6f77;
@@ -190,7 +190,7 @@
 .oauthBtn {
   height: 48px !important;
   border-radius: 12px !important;
-  font-family: 'Archivo', sans-serif !important;
+  font-family: var(--font-archivo), 'Archivo', sans-serif !important;
   font-size: 13.5px !important;
   font-weight: 600 !important;
 }
@@ -203,7 +203,7 @@
   justify-content: center;
   gap: 7px;
   margin-top: 20px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .12em;
   color: #6f6f77;

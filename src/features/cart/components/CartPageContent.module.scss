@@ -23,7 +23,7 @@
 
 // ─── Page header ──────────────────────────────────────────────
 .eyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .16em;
   color: #ff7ec2;
@@ -48,14 +48,14 @@
   font-size: 40px;
   font-weight: 800;
   letter-spacing: -.025em;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
 }
 
 .continueLink {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   letter-spacing: .06em;
   color: #9a9aa2;
@@ -88,7 +88,7 @@
 }
 
 .colTitle {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   letter-spacing: .14em;
   color: $text-primary;
@@ -96,7 +96,7 @@
 }
 
 .colCount {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   color: #7d7d85;
 }
@@ -120,7 +120,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .1em;
   color: #9a9aa2;
@@ -216,7 +216,7 @@
   gap: 5px;
   background: #ff2e9e;
   color: #0a0a0b;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   padding: 4px 8px;
@@ -263,7 +263,7 @@
 }
 
 .itemKind {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: #8f8f97;
   letter-spacing: .04em;
@@ -305,7 +305,7 @@
 }
 
 .chipLive {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;
@@ -316,7 +316,7 @@
 }
 
 .chipReprise {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;
@@ -341,7 +341,7 @@
 }
 
 .linePrice {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 20px;
   font-weight: 700;
   letter-spacing: .01em;
@@ -437,7 +437,7 @@
   border: none;
   outline: none;
   color: $text-primary;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   padding: 14px 0;
 
@@ -446,7 +446,7 @@
 }
 
 .promoApply {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .06em;
   font-weight: 700;
@@ -467,7 +467,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   margin-bottom: 18px;
 }
@@ -516,7 +516,7 @@
 }
 
 .summaryLineValue {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 14px;
   color: $text-primary;
 }
@@ -547,13 +547,13 @@
 }
 
 .totalCurrency {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: #7d7d85;
 }
 
 .totalValue {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 28px;
   font-weight: 700;
   letter-spacing: -.01em;
@@ -613,7 +613,7 @@
   justify-content: center;
   gap: 8px;
   margin-top: 18px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   letter-spacing: .06em;
   color: #8f8f97; // was #6f6f77 (~3.8:1); AA at this size needs ~4.5:1
@@ -634,7 +634,7 @@
 }
 
 .emptySubtitle {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   color: #8f8f97;
   margin-bottom: 20px;

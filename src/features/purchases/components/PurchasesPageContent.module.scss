@@ -1,6 +1,6 @@
 @use '../../../styles/_variables' as *;
 
-$mono: 'Space Mono', monospace;
+$mono: var(--font-space-mono), 'Space Mono', monospace;
 $card: #101013;
 $hairline: rgba(255, 255, 255, 0.07);
 $hairline-strong: rgba(255, 255, 255, 0.08);
@@ -194,7 +194,7 @@ $label: #8f8f97;
   border: none;
   outline: none;
   color: #f4f4f5;
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 13.5px;
 
   &::placeholder { color: $label; }

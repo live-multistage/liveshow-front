@@ -1,6 +1,6 @@
 @use '../../../styles/_variables' as *;
 
-$mono: 'Space Mono', monospace;
+$mono: var(--font-space-mono), 'Space Mono', monospace;
 $label: #8f8f97;
 
 .download {
