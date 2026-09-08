@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import Image from 'next/image';
 import { Building2, Calendar, Radio } from 'lucide-react';
 import { useOrganizationBySlug, useOrganizationEvents } from '../hooks/use-organizations';
 import { OrganizationPublicEventCard } from '../components/OrganizationPublicEventCard';
@@ -52,7 +53,13 @@ export function OrganizationPublicPage({ slug }: Props) {
     <div className={styles.page}>
       <div className={styles.banner}>
         {org.bannerUrl ? (
-          <img src={org.bannerUrl} alt={`${org.name} banner`} className={styles.bannerImg} />
+          <Image
+            src={org.bannerUrl}
+            alt=""
+            fill
+            sizes="100vw"
+            className={styles.bannerImg}
+          />
         ) : (
           <div className={styles.bannerPlaceholder} />
         )}
@@ -62,7 +69,13 @@ export function OrganizationPublicPage({ slug }: Props) {
         <div className={styles.profileRow}>
           <div className={styles.avatar}>
             {org.logoUrl ? (
-              <img src={org.logoUrl} alt={org.name} className={styles.avatarImg} />
+              <Image
+                src={org.logoUrl}
+                alt={org.name}
+                width={96}
+                height={96}
+                className={styles.avatarImg}
+              />
             ) : (
               <div className={styles.avatarPlaceholder}>
                 <Building2 size={32} />

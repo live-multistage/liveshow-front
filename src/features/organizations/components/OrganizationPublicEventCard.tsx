@@ -1,6 +1,7 @@
 'use client';
 
 import { Calendar, Clock, MapPin, Radio } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import type { EventResponse } from '@/features/events/types/event.types';
@@ -34,9 +35,11 @@ export function OrganizationPublicEventCard({ event }: Props) {
     >
       <div className={styles.thumb}>
         {event.thumbnailUrl || event.bannerUrl ? (
-          <img
+          <Image
             src={(event.thumbnailUrl ?? event.bannerUrl) as string}
             alt={event.title}
+            fill
+            sizes="100px"
             className={styles.thumbImg}
           />
         ) : (

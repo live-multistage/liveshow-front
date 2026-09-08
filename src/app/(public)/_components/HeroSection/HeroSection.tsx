@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Play, Eye, Camera } from 'lucide-react';
 import type { Show } from '@/features/events/types/show';
@@ -20,7 +21,14 @@ export function HeroSection({ show }: HeroSectionProps) {
 
   return (
     <section className={styles.hero}>
-      <img src={show.image} alt={show.title} className={styles.image} />
+      <Image
+        src={show.image}
+        alt={show.title}
+        fill
+        sizes="(max-width: 768px) 100vw, 60vw"
+        className={styles.image}
+        priority
+      />
       <div className={styles.gradient} />
 
       <div className={styles.content}>

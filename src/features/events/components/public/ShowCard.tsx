@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Show } from '../../types/show';
@@ -40,7 +41,13 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
     <div className={`${styles.card} ${layout === 'horizontal' ? styles.cardHorizontal : ''}`}>
       <Link href={cardHref} className={styles.cardLink} aria-label={show.title}>
         <div className={styles.imageWrapper}>
-          <img src={show.image} alt={show.title} className={styles.image} />
+          <Image
+            src={show.image}
+            alt={show.title}
+            fill
+            sizes="(max-width: 640px) 100vw, 320px"
+            className={styles.image}
+          />
           <div className={styles.imageScrim} />
 
           {show.isLive ? (

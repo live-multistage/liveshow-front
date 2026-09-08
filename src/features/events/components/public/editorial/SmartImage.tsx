@@ -1,6 +1,7 @@
 'use client';
 
 import type { SyntheticEvent } from 'react';
+import Image from 'next/image';
 import { FALLBACK_IMAGE } from '@/features/events/utils/event-adapter';
 
 // Minimal client island: the ONLY reason the cards can't be pure server
@@ -13,5 +14,14 @@ export function onImgError(e: SyntheticEvent<HTMLImageElement>) {
 }
 
 export function SmartImage(props: { src: string; alt: string; className?: string }) {
-  return <img src={props.src} alt={props.alt} className={props.className} onError={onImgError} />;
+  return (
+    <Image
+      src={props.src}
+      alt={props.alt}
+      fill
+      sizes="(max-width: 640px) 100vw, 320px"
+      className={props.className}
+      onError={onImgError}
+    />
+  );
 }
