@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { usePrerollGate } from '@/features/advertisements/hooks/use-preroll-gate';
@@ -9,6 +10,7 @@ import { useLiveAccessQuery, useLivePlaybackQuery } from '../queries/live.querie
 import { LivePlayer } from './LivePlayer';
 import { LiveGateLoading } from './LiveGateLoading';
 import { LiveNoAccess } from './LiveNoAccess';
+import { LiveNotStarted } from './LiveNotStarted';
 
 interface Props {
   eventId: string;
@@ -19,6 +21,7 @@ interface Props {
 
 export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }: Props) {
   const t = useTranslations('liveGate');
+  const router = useRouter();
   const { isLoggedIn, isLoading: authLoading } = useAuth();
   const access = useLiveAccessQuery(eventId, !authLoading);
   const authorized = access.data === true;
@@ -45,10 +48,12 @@ export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }
   // waiting screen while nothing is actually live.
   if (!playback.data?.live) {
     return (
-      <div style={{ padding: 40, textAlign: 'center' }}>
-        <h2>{eventTitle}</h2>
-        <p>{t('notStarted')}</p>
-      </div>
+      <LiveNotStarted
+        eventId={eventId}
+        eventTitle={eventTitle}
+        cameraCount={playback.data?.cameras.length ?? 0}
+        onExit={() => router.push(`/events/${eventId}`)}
+      />
     );
   }
 

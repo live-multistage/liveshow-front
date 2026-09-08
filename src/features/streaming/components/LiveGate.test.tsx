@@ -4,6 +4,11 @@ import { LiveGate } from './LiveGate';
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => '/live/evt-1',
+}));
+
 const authState = { isLoggedIn: true, isLoading: false };
 vi.mock('@/features/account/hooks/use-auth', () => ({
   useAuth: () => authState,
