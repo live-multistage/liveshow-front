@@ -688,7 +688,15 @@
     "checklistTicket": "Create at least 1 ticket type",
     "checklistDescription": "Add a description",
     "descriptionEmpty": "No description. Add text for the event public page.",
-    "lineup": "On stage"
+    "lineup": "On stage",
+    "schedule": {
+      "title": "Schedule",
+      "countBlocks": "{count, plural, one {# block} other {# blocks}}",
+      "empty": "Schedule coming soon",
+      "badgeArtist": "ARTIST",
+      "badgeSegment": "SEGMENT",
+      "live": "LIVE"
+    }
   },
   "createEvent": {
     "back": "Events",
@@ -700,7 +708,8 @@
       "production": "Production",
       "stream": "Stream",
       "tickets": "Tickets",
-      "images": "Images"
+      "images": "Images",
+      "schedule": "Schedule"
     },
     "nav": {
       "back": "Back",
@@ -786,7 +795,37 @@
       "ticketsEmpty": "No tickets configured yet"
     },
     "replayTicketDesc": "Access to the recording after the event",
-    "mainStreamTitle": "Main Broadcast"
+    "mainStreamTitle": "Main Broadcast",
+    "schedule": {
+      "stepLabel": "Schedule",
+      "title": "Schedule",
+      "subtitle": "Describe what happens at each time slot. Artist blocks pull from the confirmed lineup.",
+      "addBlock": "Add block",
+      "blockLabel": "Block",
+      "typeArtist": "Artist",
+      "typeSegment": "Segment",
+      "startLabel": "Start",
+      "endLabel": "End",
+      "endPlaceholder": "optional",
+      "artistLabel": "Artist (lineup)",
+      "artistPlaceholder": "Select from lineup…",
+      "segmentLabel": "Segment title",
+      "segmentPlaceholder": "Pre-show, Intermission…",
+      "descPlaceholder": "Short description (optional)",
+      "save": "Save schedule",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "empty": "No blocks yet",
+      "dirty": "Unsaved changes",
+      "clean": "All saved",
+      "errStartRequired": "Enter a start time",
+      "errStartInvalid": "Invalid start time",
+      "errEndInvalid": "Invalid end time",
+      "errArtistRequired": "Select an artist",
+      "errSegmentRequired": "Enter the segment title",
+      "savedToast": "Schedule saved.",
+      "errorToast": "Could not save the schedule."
+    }
   },
   "dateTimeInput": {
     "invalidDate": "Invalid date. Use dd/mm/yyyy.",

@@ -15,6 +15,8 @@ export { useGetEventQuery, useEventBySlugQuery, useListTicketProductsQuery, useS
 export { useMyEventsQuery, MY_EVENTS_KEY } from './queries/get-my-events';
 export { useListEventsQuery, useInfiniteEventsQuery, LIST_EVENTS_KEY, INFINITE_EVENTS_KEY } from './queries/use-list-events';
 export { useRecommendedEventsQuery, RECOMMENDED_EVENTS_KEY } from './queries/use-recommended-events';
+export { useEventSchedule, eventScheduleKey } from './hooks/use-event-schedule';
+export { useReplaceEventScheduleMutation } from './mutations/schedule.mutations';
 export { eventToShow } from './utils/event-adapter';
 export { eventHref, slugify, isEventId, SLUG_PATTERN, SLUG_MIN_LENGTH, SLUG_MAX_LENGTH } from './utils/slug';
 export { formatDate, formatTime, formatDuration, formatPrice, formatPriceRange } from './utils/event-formatters';

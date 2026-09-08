@@ -688,7 +688,15 @@
     "checklistTicket": "Criar ao menos 1 tipo de ingresso",
     "checklistDescription": "Adicionar descrição",
     "descriptionEmpty": "Sem descrição. Adicione um texto para a página pública do evento.",
-    "lineup": "No palco"
+    "lineup": "No palco",
+    "schedule": {
+      "title": "Programação",
+      "countBlocks": "{count, plural, one {# bloco} other {# blocos}}",
+      "empty": "Programação em breve",
+      "badgeArtist": "ARTISTA",
+      "badgeSegment": "SEGMENTO",
+      "live": "AO VIVO"
+    }
   },
   "createEvent": {
     "back": "Eventos",
@@ -700,7 +708,8 @@
       "production": "Produção",
       "stream": "Stream",
       "tickets": "Ingressos",
-      "images": "Imagens"
+      "images": "Imagens",
+      "schedule": "Programação"
     },
     "nav": {
       "back": "Voltar",
@@ -786,7 +795,37 @@
       "ticketsEmpty": "Nenhum ingresso configurado ainda"
     },
     "replayTicketDesc": "Acesso à gravação após o evento",
-    "mainStreamTitle": "Transmissão Principal"
+    "mainStreamTitle": "Transmissão Principal",
+    "schedule": {
+      "stepLabel": "Programação",
+      "title": "Programação",
+      "subtitle": "Descreva o que acontece em cada horário. Blocos de artista puxam do lineup já confirmado.",
+      "addBlock": "Adicionar bloco",
+      "blockLabel": "Bloco",
+      "typeArtist": "Artista",
+      "typeSegment": "Segmento",
+      "startLabel": "Início",
+      "endLabel": "Fim",
+      "endPlaceholder": "opcional",
+      "artistLabel": "Artista (lineup)",
+      "artistPlaceholder": "Selecionar do lineup…",
+      "segmentLabel": "Título do segmento",
+      "segmentPlaceholder": "Pré-jogo, Intervalo…",
+      "descPlaceholder": "Descrição curta (opcional)",
+      "save": "Salvar programação",
+      "saving": "Salvando…",
+      "cancel": "Cancelar",
+      "empty": "Nenhum bloco ainda",
+      "dirty": "Alterações não salvas",
+      "clean": "Tudo salvo",
+      "errStartRequired": "Informe o horário de início",
+      "errStartInvalid": "Horário de início inválido",
+      "errEndInvalid": "Horário de fim inválido",
+      "errArtistRequired": "Selecione um artista",
+      "errSegmentRequired": "Informe o título do segmento",
+      "savedToast": "Programação salva.",
+      "errorToast": "Não foi possível salvar a programação."
+    }
   },
   "dateTimeInput": {
     "invalidDate": "Data inválida. Use dd/mm/aaaa.",
