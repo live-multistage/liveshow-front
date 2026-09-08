@@ -69,3 +69,14 @@ export function useEventLineup(eventId: string) {
     enabled: !!eventId,
   });
 }
+
+export const externalArtistSearchKey = (q: string) => ['artists', 'external-search', q] as const;
+
+/** Spotify + Wikidata lookup, used by the external-search modal's SEARCH phase. */
+export function useExternalArtistSearch(query: string) {
+  return useQuery({
+    queryKey: externalArtistSearchKey(query),
+    queryFn: () => artistService.searchExternal(query),
+    enabled: query.trim().length >= 2,
+  });
+}

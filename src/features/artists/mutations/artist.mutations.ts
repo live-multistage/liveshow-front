@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { normalizeError } from '@/lib/http/errors';
+import type { CreateArtistFromExternalRequest } from '@live-show/api-contracts';
 import {
   artistService,
   type CreateArtistRequest,
@@ -118,6 +119,27 @@ export function useInviteArtistMutation(eventId: string) {
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: eventLineupKey(eventId) });
+    },
+  });
+}
+
+/** Creates (or dedupes into) an artist from a chosen Spotify/Wikidata candidate. */
+export function useCreateArtistFromExternalMutation() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: CreateArtistFromExternalRequest) => {
+      try {
+        return await artistService.createFromExternal(payload);
+      } catch (e) {
+        throw normalizeError(e);
+      }
+    },
+    onError: () => {
+      toast.error('Não foi possível criar o artista a partir da fonte externa.');
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ARTISTS_LIST_KEY });
     },
   });
 }

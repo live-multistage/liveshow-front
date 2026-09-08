@@ -15,6 +15,7 @@ export {
   useAdminArtists,
   useArtistInvitations,
   useEventLineup,
+  useExternalArtistSearch,
   artistKey,
   artistEventsKey,
   ARTISTS_LIST_KEY,
@@ -22,6 +23,7 @@ export {
   adminArtistsKey,
   artistInvitationsKey,
   eventLineupKey,
+  externalArtistSearchKey,
 } from './hooks/use-artists';
 
 // Mutations
@@ -34,7 +36,11 @@ export {
   useRemoveArtistFromEventMutation,
   useUploadArtistAvatarMutation,
   useUploadArtistBannerMutation,
+  useCreateArtistFromExternalMutation,
 } from './mutations/artist.mutations';
+
+// External artist search / disambiguation modal
+export { ExternalArtistSearchModal } from './components/ExternalArtistSearchModal';
 
 // Service (for server components / direct use)
 export { artistService } from './services/artist.service';
@@ -62,4 +68,6 @@ export type {
   LineupInvitationStatus,
   EventLineupItem,
   ArtistInvitationItem,
+  ExternalArtistCandidate,
+  SearchExternalArtistsResponse,
 } from '@live-show/api-contracts';

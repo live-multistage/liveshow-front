@@ -7,6 +7,8 @@ import type {
   ArtistInvitationItem,
   EventLineupItem,
   ArtistStatus,
+  SearchExternalArtistsResponse,
+  CreateArtistFromExternalRequest,
 } from '@live-show/api-contracts';
 
 export interface CreateArtistRequest {
@@ -101,6 +103,21 @@ export const artistService = {
   /** Org withdraws an invite, or the artist leaves the lineup — same endpoint. */
   removeFromEvent: async (artistId: string, eventId: string): Promise<void> => {
     await httpClient.delete(`/artists/${artistId}/events/${eventId}`);
+  },
+
+  /** Spotify + Wikidata lookup for the "artist not in our base" flow. */
+  searchExternal: async (q: string): Promise<SearchExternalArtistsResponse> => {
+    const { data } = await httpClient.get<SearchExternalArtistsResponse>(
+      '/artists/external-search',
+      { params: { q } },
+    );
+    return data;
+  },
+
+  /** Creates (or dedupes into) an artist from a chosen external candidate. */
+  createFromExternal: async (payload: CreateArtistFromExternalRequest): Promise<ArtistResponse> => {
+    const { data } = await httpClient.post<ArtistResponse>('/artists/from-external', payload);
+    return data;
   },
 
   checkSlug: async (slug: string, excludeId?: string): Promise<{ available: boolean }> => {

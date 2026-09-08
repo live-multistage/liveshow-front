@@ -8,6 +8,7 @@ import {
   useArtists,
   useInviteArtistMutation,
   useRemoveArtistFromEventMutation,
+  ExternalArtistSearchModal,
   type LineupInvitationStatus,
 } from '@/features/artists';
 import { Button } from '@/shared/components/Button';
@@ -27,6 +28,7 @@ export function EventArtistsSection({ eventId }: Props) {
   const t = useTranslations('artists');
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [externalSearchOpen, setExternalSearchOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query), 300);
@@ -52,6 +54,12 @@ export function EventArtistsSection({ eventId }: Props) {
 
   function handleInvite(artistId: string) {
     inviteMutation.mutate(artistId);
+    setQuery('');
+    setDebouncedQuery('');
+  }
+
+  function handleExternalSearchClose() {
+    setExternalSearchOpen(false);
     setQuery('');
     setDebouncedQuery('');
   }
@@ -90,7 +98,23 @@ export function EventArtistsSection({ eventId }: Props) {
             ))}
           </div>
         )}
+        {debouncedQuery.trim().length >= 2 && searchResults.length === 0 && (
+          <button
+            type="button"
+            className={styles.externalSearchAffordance}
+            onClick={() => setExternalSearchOpen(true)}
+          >
+            Não encontrou &ldquo;{debouncedQuery}&rdquo;? Buscar em fontes externas
+          </button>
+        )}
       </div>
+
+      <ExternalArtistSearchModal
+        eventId={eventId}
+        initialQuery={debouncedQuery}
+        open={externalSearchOpen}
+        onClose={handleExternalSearchClose}
+      />
 
       <div className={styles.list}>
         {isLoading && (
