@@ -1,6 +1,7 @@
 // Pages
 export { ArtistPublicPage } from './pages/ArtistPublicPage';
 export { ArtistsListPage } from './pages/ArtistsListPage';
+export { ArtistApplicationContent } from './pages/ArtistApplicationPage';
 
 // Components
 export { ArtistCard } from './components/ArtistCard';
@@ -38,6 +39,14 @@ export {
 // Service (for server components / direct use)
 export { artistService } from './services/artist.service';
 export type { CreateArtistRequest, UpdateArtistRequest } from './services/artist.service';
+export { artistApplicationService } from './services/artist-application.service';
+
+// Artist applications (public apply flow)
+export { useCreateArtistApplication } from './hooks/use-create-artist-application';
+export type {
+  CreateArtistApplicationRequest,
+  ArtistApplicationResponse,
+} from './types/artist-application.types';
 
 // Utils
 export { artistHref } from './utils/slug';

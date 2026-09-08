@@ -42,6 +42,17 @@
   }
 }
 
+.applyLink {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ff2e9e;
+  text-decoration: none;
+
+  &:hover { color: #ff8ec9; }
+}
+
 .subtitle {
   color: #a1a1aa;
   margin: 0;

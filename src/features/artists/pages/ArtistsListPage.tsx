@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { Search } from 'lucide-react';
 import type { ArtistListItem } from '@live-show/api-contracts';
 import { useArtists } from '../hooks/use-artists';
@@ -44,6 +45,9 @@ export function ArtistsListPage({ initialArtists }: Props) {
           <span className={styles.eyebrow}>QUEM SOBE AO PALCO</span>
           <h1 className={styles.title}>{t('listTitle')}</h1>
           <p className={styles.subtitle}>{t('listSubtitle')}</p>
+          <Link href="/artists/apply" className={styles.applyLink}>
+            Você é artista? Candidate-se →
+          </Link>
         </div>
 
         <div className={styles.searchBox}>
