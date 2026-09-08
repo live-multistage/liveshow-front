@@ -30,7 +30,11 @@
 
 .root {
   position: relative;
-  min-height: 100%;
+  // Fill the viewport like LivePlayer (height:100vh) — the (stream) page mounts
+  // this directly with no height-giving wrapper, so min-height:100% collapsed to
+  // content height and left a black void below the transport bar.
+  min-height: 100vh;
+  min-height: 100dvh;
   background: $bg;
   color: $text-primary;
   display: flex;
