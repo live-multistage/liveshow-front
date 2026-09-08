@@ -86,7 +86,7 @@ const eventPlayback: ChannelPlaybackResponse = {
   live: true,
   latencyMode: 'STANDARD',
   stages: [],
-  cameras: [{ cameraId: 'cam-1', name: 'Cam 1', slug: 'cam-1', priority: 0, manifestPath: null, llPath: null }],
+  cameras: [{ cameraId: 'cam-1', name: 'Cam 1', slug: 'cam-1', priority: 0, manifestPath: null, llPath: null, live: false }],
   primaryCameraId: 'cam-1',
   librasCameraId: null,
   playbackEventId: 'evt-carried',
@@ -144,7 +144,7 @@ describe('ChannelPlayer', () => {
       ...eventPlayback,
       cameras: [
         ...eventPlayback.cameras,
-        { cameraId: 'cam-2', name: 'Cam 2', slug: 'cam-2', priority: 1, manifestPath: null, llPath: null },
+        { cameraId: 'cam-2', name: 'Cam 2', slug: 'cam-2', priority: 1, manifestPath: null, llPath: null, live: false },
       ],
     };
     rerender(

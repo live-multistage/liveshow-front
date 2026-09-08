@@ -4,7 +4,7 @@ import { usePlayerAudio } from './use-player-audio';
 import type { LiveCamera } from '../types/live.types';
 
 const cameras: LiveCamera[] = [
-  { cameraId: 'cam-1', name: 'Cam 1', slug: 'cam-1', priority: 0, manifestPath: null, llPath: null },
+  { cameraId: 'cam-1', name: 'Cam 1', slug: 'cam-1', priority: 0, manifestPath: null, llPath: null, live: false },
 ];
 
 describe('usePlayerAudio', () => {

@@ -107,6 +107,7 @@ const camA: ReplayCameraPlayback = {
   name: 'Câmera A',
   slug: 'camera-a',
   priority: 1,
+  available: true,
   replayPath: '/packages/pkg-a/replay/master.m3u8',
   coverage: [{ startsAtMs: CAM_A_START_MS, endsAtMs: CAM_A_START_MS + 600_000, localStartSec: 0 }],
 };
@@ -116,6 +117,7 @@ const camB: ReplayCameraPlayback = {
   name: 'Câmera B',
   slug: 'camera-b',
   priority: 2,
+  available: true,
   replayPath: '/packages/pkg-b/replay/master.m3u8',
   coverage: [{ startsAtMs: CAM_B_START_MS, endsAtMs: CAM_B_START_MS + 300_000, localStartSec: 0 }],
 };

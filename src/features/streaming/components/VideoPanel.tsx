@@ -15,6 +15,7 @@ import type { ClockRole, ClockSample } from '../hooks/use-clock-sync';
 import type { MutableRefObject } from 'react';
 import type { ReplaySegmentCoverage } from '../utils/replay-timeline';
 import { CameraPlaceholder } from './CameraPlaceholder';
+import { CameraOfflinePoster } from './CameraOfflinePoster';
 import styles from './VideoPanel.module.scss';
 
 // Re-exported so existing importers (CameraGrid, tests) keep their paths.
@@ -239,14 +240,26 @@ export function VideoPanel({
         playsInline
       />
 
-      {outsideCoverage && <CameraPlaceholder />}
+      {!camera.live ? (
+        // Camera has no live feed (live) / no archived segment (replay) — a
+        // poster fills its slot instead of attempting HLS, so the tile stays
+        // in its grid position rather than disappearing. The <video> element
+        // above stays mounted underneath (never removed from the tree), so
+        // when the camera flips live on the next poll this overlay just
+        // unmounts and playback starts on the SAME panel — no remount.
+        <CameraOfflinePoster thumbnailUrl={camera.thumbnailUrl} />
+      ) : (
+        <>
+          {outsideCoverage && <CameraPlaceholder />}
 
-      {connecting && (
-        <div className={styles.panelError}>
-          {mode === 'replay' ? t('replayUnavailable') : t('connecting')}
-        </div>
+          {connecting && (
+            <div className={styles.panelError}>
+              {mode === 'replay' ? t('replayUnavailable') : t('connecting')}
+            </div>
+          )}
+          {!connecting && error && <div className={styles.panelError}>{t('noSignal')}</div>}
+        </>
       )}
-      {!connecting && error && <div className={styles.panelError}>{t('noSignal')}</div>}
 
       <div className={styles.topBar}>
         {showLabel && (

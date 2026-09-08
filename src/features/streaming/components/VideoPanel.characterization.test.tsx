@@ -91,6 +91,7 @@ const cam = (over: Partial<LiveCamera> = {}): LiveCamera => ({
   priority: 1,
   manifestPath: '/origin/pkg-1/master.m3u8',
   llPath: null,
+  live: true,
   ...over,
 });
 

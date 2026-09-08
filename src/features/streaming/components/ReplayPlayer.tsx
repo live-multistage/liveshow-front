@@ -140,6 +140,8 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
         // volta a tratar o instante absoluto como se fosse tempo local dele.
         coverage: c.coverage,
         llPath: null, // LL-HLS is a live-only mode; replay always plays the standard ABR ladder
+        live: c.available,
+        thumbnailUrl: c.thumbnailUrl,
       })),
     [rawCameras],
   );

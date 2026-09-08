@@ -177,6 +177,7 @@ const cam = (over: Partial<LiveCamera> = {}): LiveCamera => ({
   name: 'Câmera A',
   slug: 'camera-a',
   priority: 1,
+  live: true,
   manifestPath: '/origin/pkg-1/master.m3u8?pt=t1',
   llPath: null,
   ...over,

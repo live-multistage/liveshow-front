@@ -58,6 +58,7 @@ const cam = (id: string): LiveCamera => ({
   cameraId: id,
   name: id,
   slug: id,
+  live: true,
   priority: 1,
   manifestPath: `/origin/${id}/master.m3u8`,
   llPath: null,

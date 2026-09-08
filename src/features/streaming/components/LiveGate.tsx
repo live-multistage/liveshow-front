@@ -38,8 +38,12 @@ export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }
     return <LiveGateLoading message={t('loadingStream')} eventTitle={eventTitle} />;
   }
 
-  const hasStages = (playback.data?.stages?.length ?? 0) > 0;
-  if (!playback.data?.live && !hasStages) {
+  // Pre-live gating keys ONLY on the top-level `live` flag ("something is
+  // actually transcoding") — never on cameras/stages presence. The playback
+  // response now always lists every enabled camera (live or not) so the grid
+  // is never empty, and using its length here would skip straight past the
+  // waiting screen while nothing is actually live.
+  if (!playback.data?.live) {
     return (
       <div style={{ padding: 40, textAlign: 'center' }}>
         <h2>{eventTitle}</h2>
