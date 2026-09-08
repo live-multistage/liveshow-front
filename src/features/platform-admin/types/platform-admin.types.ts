@@ -352,6 +352,26 @@ export interface OrganizerApplicationAdmin {
   updatedAt: string;
 }
 
+// Artist applications (GET /platform-admin/artist-applications).
+export type ArtistApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface ArtistApplicationAdmin {
+  id: string;
+  userId: string;
+  artistName: string;
+  socialLink: string | null;
+  genres: string[];
+  about: string;
+  spamScore: number; // 0..100, higher = more suspicious
+  reviewFlags: string[];
+  status: ArtistApplicationStatus;
+  rejectionReason: string | null;
+  reviewedByUserId: string | null;
+  reviewedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Global coupon directory (GET /platform-admin/coupons).
 export interface PlatformCouponRow {
   id: string;

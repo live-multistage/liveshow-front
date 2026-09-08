@@ -19,6 +19,7 @@ export { PlatformAdsPage } from './components/PlatformAdsPage';
 export { PlatformAdPartnershipsPage } from './components/PlatformAdPartnershipsPage';
 export { PlatformCouponsPage } from './components/PlatformCouponsPage';
 export { PlatformOrganizerApplicationsPage } from './components/PlatformOrganizerApplicationsPage';
+export { PlatformArtistApplicationsPage } from './components/PlatformArtistApplicationsPage';
 export { PlatformEventsPage } from './components/PlatformEventsPage';
 export { PlatformFiscalPage } from './components/PlatformFiscalPage';
 export { ArtistCatalogPage } from './components/ArtistCatalogPage';

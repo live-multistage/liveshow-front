@@ -30,6 +30,7 @@ import type {
   PlatformReportsResult,
   ReportStatus,
   OrganizerApplicationAdmin,
+  ArtistApplicationAdmin,
   PlatformSettingsView,
   FiscalDocumentStatus,
   FiscalDocumentAdminList,
@@ -202,6 +203,19 @@ export const platformAdminService = {
   },
   rejectOrganizerApplication: async (id: string, reason: string): Promise<void> => {
     await httpClient.post(`/platform-admin/organizer-applications/${id}/reject`, { reason });
+  },
+
+  listArtistApplications: async (status?: string): Promise<ArtistApplicationAdmin[]> => {
+    const { data } = await httpClient.get<ArtistApplicationAdmin[]>('/platform-admin/artist-applications', {
+      params: { status },
+    });
+    return data;
+  },
+  approveArtistApplication: async (id: string): Promise<void> => {
+    await httpClient.post(`/platform-admin/artist-applications/${id}/approve`);
+  },
+  rejectArtistApplication: async (id: string, reason: string): Promise<void> => {
+    await httpClient.post(`/platform-admin/artist-applications/${id}/reject`, { reason });
   },
 
   getPlatformCoupons: async (params: { status?: string; q?: string; page?: number }): Promise<PlatformCouponsResult> => {
