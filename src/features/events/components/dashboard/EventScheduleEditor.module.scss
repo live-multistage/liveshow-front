@@ -1,0 +1,214 @@
+@use '../../../../styles/_dashboard-forms' as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin-top: 4px;
+  font-size: 13px;
+  color: $text-secondary;
+  max-width: 520px;
+}
+
+.dirtyBadge {
+  @include mono-meta;
+  flex-shrink: 0;
+  color: $success-light;
+}
+
+.dirtyBadgeOn {
+  color: $accent-bright;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.empty {
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px dashed $border;
+  text-align: center;
+  color: $text-muted;
+  font-size: 13px;
+}
+
+.block {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.blockTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reorder {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reorderBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  color: $text-muted;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: $text-primary;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.blockLabel {
+  @include mono-meta;
+  color: $text-secondary;
+}
+
+.typeToggle {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.typeBtn {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid $border;
+  background: transparent;
+  color: $text-secondary;
+  font-size: 12px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $accent-selected-border;
+  }
+}
+
+.typeBtnActive {
+  background: $action;
+  border-color: $action;
+  color: $text-primary;
+  font-weight: 600;
+
+  &:hover {
+    border-color: $action;
+  }
+}
+
+.removeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid $border;
+  background: transparent;
+  color: $error;
+  cursor: pointer;
+
+  &:hover {
+    background: $error-bg;
+  }
+}
+
+.blockGrid {
+  display: grid;
+  grid-template-columns: 120px 128px 1fr;
+  gap: 10px;
+  align-items: end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.fieldLabel {
+  @include mono-meta;
+  font-size: 10px;
+}
+
+.timeInput {
+  font-family: $mono;
+}
+
+.inputError {
+  border-color: $error !important;
+}
+
+.descInput {
+  width: 100%;
+}
+
+.blockError {
+  font-size: 12px;
+  color: $error;
+}
+
+.addBlock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px dashed $border;
+  background: transparent;
+  color: $text-secondary;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $accent-selected-border;
+    color: $text-primary;
+  }
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footerSpacer {
+  flex: 1;
+}
+
+.pendingLabel {
+  @include mono-meta;
+  color: $error;
+}
