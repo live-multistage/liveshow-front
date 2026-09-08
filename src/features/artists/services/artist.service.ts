@@ -2,9 +2,11 @@ import { httpClient } from '@/lib/http/client';
 import type {
   ArtistResponse,
   ArtistListItem,
+  AdminArtistListItem,
   ArtistEventsResponse,
   ArtistInvitationItem,
   EventLineupItem,
+  ArtistStatus,
 } from '@live-show/api-contracts';
 
 export interface CreateArtistRequest {
@@ -16,6 +18,7 @@ export interface CreateArtistRequest {
   genres?: string[];
   // Admin-only: assign the profile to a different user than the requester.
   ownerUserId?: string;
+  status?: ArtistStatus;
 }
 
 export type UpdateArtistRequest = Partial<CreateArtistRequest>;
@@ -37,6 +40,14 @@ export const artistService = {
 
   list: async (page = 1, pageSize = 100): Promise<{ items: ArtistListItem[]; total: number }> => {
     const { data } = await httpClient.get<{ items: ArtistListItem[]; total: number }>('/artists', {
+      params: { page, pageSize },
+    });
+    return data;
+  },
+
+  /** Platform-admin catalog — every status, plus owner id. Admin only. */
+  listAdmin: async (page = 1, pageSize = 50): Promise<{ items: AdminArtistListItem[]; total: number }> => {
+    const { data } = await httpClient.get<{ items: AdminArtistListItem[]; total: number }>('/artists/admin', {
       params: { page, pageSize },
     });
     return data;

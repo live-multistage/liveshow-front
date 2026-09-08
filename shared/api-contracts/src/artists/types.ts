@@ -19,6 +19,14 @@ export interface ArtistResponse extends ArtistListItem {
   // Artist is independent of any organization: owned by a user (nullable —
   // an admin-created profile can sit unclaimed until the artist signs up).
   ownerUserId?: string | null;
+  status: ArtistStatus;
+}
+
+// Platform-admin catalog row (GET /artists/admin) — every status, plus the
+// owner id the public ArtistListItem never exposes.
+export interface AdminArtistListItem extends ArtistListItem {
+  ownerUserId: string | null;
+  status: ArtistStatus;
 }
 
 export type ArtistEventsFilter = 'upcoming' | 'past' | 'all';

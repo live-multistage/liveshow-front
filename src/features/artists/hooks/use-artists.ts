@@ -7,6 +7,7 @@ export const artistKey = (slugOrId: string) => ['artists', slugOrId] as const;
 export const artistEventsKey = (slugOrId: string) => ['artists', slugOrId, 'events'] as const;
 export const ARTISTS_LIST_KEY = ['artists', 'list'] as const;
 export const myArtistsKey = ['artists', 'mine'] as const;
+export const adminArtistsKey = (page = 1) => ['artists', 'admin', page] as const;
 export const artistInvitationsKey = (artistId: string) => ['artists', artistId, 'invitations'] as const;
 export const eventLineupKey = (eventId: string) => ['artists', 'lineup', eventId] as const;
 
@@ -32,6 +33,14 @@ export function useArtists() {
   return useQuery({
     queryKey: ARTISTS_LIST_KEY,
     queryFn: () => artistService.list(1, 100),
+  });
+}
+
+/** Platform-admin catalog — every artist, every status. Admin only. */
+export function useAdminArtists(page = 1) {
+  return useQuery({
+    queryKey: adminArtistsKey(page),
+    queryFn: () => artistService.listAdmin(page),
   });
 }
 

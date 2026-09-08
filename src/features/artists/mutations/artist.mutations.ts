@@ -15,6 +15,7 @@ import {
   artistKey,
   artistInvitationsKey,
   eventLineupKey,
+  adminArtistsKey,
 } from '../hooks/use-artists';
 
 export function useCreateArtistMutation() {
@@ -38,6 +39,7 @@ export function useCreateArtistMutation() {
     onSettled: () => {
       qc.invalidateQueries({ queryKey: myArtistsKey });
       qc.invalidateQueries({ queryKey: ARTISTS_LIST_KEY });
+      qc.invalidateQueries({ queryKey: adminArtistsKey().slice(0, 2) as unknown[] });
     },
   });
 }
@@ -64,6 +66,7 @@ export function useUpdateArtistMutation(id: string) {
       qc.invalidateQueries({ queryKey: myArtistsKey });
       qc.invalidateQueries({ queryKey: artistKey(id) });
       qc.invalidateQueries({ queryKey: ARTISTS_LIST_KEY });
+      qc.invalidateQueries({ queryKey: adminArtistsKey().slice(0, 2) as unknown[] });
     },
   });
 }
@@ -89,6 +92,7 @@ export function useDeleteArtistMutation() {
     onSettled: () => {
       qc.invalidateQueries({ queryKey: myArtistsKey });
       qc.invalidateQueries({ queryKey: ARTISTS_LIST_KEY });
+      qc.invalidateQueries({ queryKey: adminArtistsKey().slice(0, 2) as unknown[] });
     },
   });
 }

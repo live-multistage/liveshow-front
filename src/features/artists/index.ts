@@ -11,12 +11,14 @@ export {
   useArtistEvents,
   useArtists,
   useMyArtists,
+  useAdminArtists,
   useArtistInvitations,
   useEventLineup,
   artistKey,
   artistEventsKey,
   ARTISTS_LIST_KEY,
   myArtistsKey,
+  adminArtistsKey,
   artistInvitationsKey,
   eventLineupKey,
 } from './hooks/use-artists';
@@ -44,6 +46,7 @@ export { artistHref } from './utils/slug';
 export type {
   ArtistResponse,
   ArtistListItem,
+  AdminArtistListItem,
   ArtistEventsResponse,
   ArtistStatus,
   ArtistEventsFilter,

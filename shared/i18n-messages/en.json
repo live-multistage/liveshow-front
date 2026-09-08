@@ -457,7 +457,8 @@
       "platformFeatureFlags": "Feature Flags",
       "platformAdPartnerships": "Ad partnerships",
       "platformOrganizerApplications": "Applications",
-      "artists": "Artists"
+      "artists": "Artists",
+      "artistsCatalog": "Artist Catalog"
     },
     "navMobile": {
       "overview": "Home",
@@ -2931,7 +2932,8 @@
           "owner": "Owner",
           "events": "Shows",
           "status": "Status"
-        }
+        },
+        "noOwner": "no owner"
       },
       "toasts": {
         "created": "Artist created successfully.",

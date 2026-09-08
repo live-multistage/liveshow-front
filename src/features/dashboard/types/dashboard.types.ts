@@ -50,6 +50,9 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'streams',        href: '/dashboard/streams',        icon: Radio },
     { navKey: 'channels',       href: '/dashboard/channels',       icon: Tv,   flag: 'linear_channels' },
     { navKey: 'analytics',      href: '/dashboard/analytics',      icon: BarChart2 },
+    // Platform-wide artist catalog (all statuses) — distinct from ARTIST's
+    // own self-service 'artists' nav entry below.
+    { navKey: 'artistsCatalog', href: '/dashboard/platform/artists', icon: Mic2 },
     { navKey: 'advertisement',  href: config.adsManagerUrl,        icon: Megaphone, external: true },
   ],
   ORGANIZER: [
