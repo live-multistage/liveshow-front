@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION },
 };
 
+export const revalidate = 300;
+
 export default async function Shows() {
   // SSR-seed the listing's first page (cached 30s in Next's Data Cache) so the
   // catalog is in the initial HTML and the client infinite query skips its

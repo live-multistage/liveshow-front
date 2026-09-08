@@ -17,6 +17,8 @@ export const metadata: Metadata = {
 // Listagem pública de canais publicados. É o destino do "ver todos" do trilho
 // da home e da saída do player de canal. SSR busca o catálogo; o filtro/busca
 // vive num shell client (ChannelsBrowser).
+export const revalidate = 300;
+
 export default async function ChannelsPage() {
   const channels = await fetchChannels();
 
