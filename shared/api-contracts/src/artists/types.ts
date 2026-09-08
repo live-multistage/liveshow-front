@@ -20,6 +20,42 @@ export interface ArtistResponse extends ArtistListItem {
   // an admin-created profile can sit unclaimed until the artist signs up).
   ownerUserId?: string | null;
   status: ArtistStatus;
+  // Present only for a stub created via the external-enrichment flow
+  // (undefined for every manual/pre-existing artist).
+  source?: 'spotify' | 'wikidata';
+  imageAttribution?: string;
+}
+
+// Spotify + Wikidata search result for the "artist not in our base" flow.
+// `sources` lists every provider that returned this entity (merged when
+// more than one matched); `spotifyId`/`wikidataId` are kept so the client's
+// chosen candidate can be re-resolved server-side regardless of which
+// provider is canonical.
+export interface ExternalArtistCandidate {
+  source: 'spotify' | 'wikidata';
+  externalId: string;
+  name: string;
+  imageUrl?: string;
+  imageAttribution?: string;
+  category?: string;
+  description?: string;
+  genres?: string[];
+  sameAs?: string[];
+  externalUrl?: string;
+  sources: ('spotify' | 'wikidata')[];
+  spotifyId?: string;
+  wikidataId?: string;
+}
+
+export interface SearchExternalArtistsResponse {
+  candidates: ExternalArtistCandidate[];
+  localMatches: ArtistListItem[];
+}
+
+export interface CreateArtistFromExternalRequest {
+  source: 'spotify' | 'wikidata';
+  externalId: string;
+  name: string;
 }
 
 // Platform-admin catalog row (GET /artists/admin) — every status, plus the
