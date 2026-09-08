@@ -90,18 +90,21 @@ interface Props {
 
 export function EventScheduleEditor({ eventId }: Props) {
   const t = useTranslations('createEvent.schedule');
-  const { data: schedule = [], isLoading } = useEventSchedule(eventId);
+  const { data: schedule } = useEventSchedule(eventId);
   const { data: lineup = [] } = useEventLineup(eventId);
   const replaceMutation = useReplaceEventScheduleMutation(eventId);
 
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [dirty, setDirty] = useState(false);
 
+  // Seed local state from the loaded schedule. Depend on `schedule` itself
+  // (a stable reference once React Query resolves) — never a `= []` default,
+  // which is a fresh array every render and would loop setState → re-render.
   useEffect(() => {
-    if (isLoading) return;
+    if (!schedule) return;
     setBlocks(schedule.map(toBlock));
     setDirty(false);
-  }, [isLoading, schedule]);
+  }, [schedule]);
 
   const artistOptions: SelectOption[] = lineup
     .filter((item) => item.status === 'ACCEPTED')
@@ -134,7 +137,7 @@ export function EventScheduleEditor({ eventId }: Props) {
   }
 
   function cancel() {
-    setBlocks(schedule.map(toBlock));
+    setBlocks((schedule ?? []).map(toBlock));
     setDirty(false);
   }
 
