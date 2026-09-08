@@ -67,9 +67,19 @@ export default async function OrganizationPage({ params }: Props) {
     ...(org.logoUrl ? { logo: org.logoUrl } : {}),
   };
 
+  const breadcrumbJsonLd = org && {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Início', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: org.name, item: `${SITE_URL}/o/${org.slug}` },
+    ],
+  };
+
   return (
     <HydrationBoundary state={dehydrate(qc)}>
       {orgJsonLd && <JsonLd data={orgJsonLd} />}
+      {breadcrumbJsonLd && <JsonLd data={breadcrumbJsonLd} />}
       <OrganizationPublicPage slug={slug} />
     </HydrationBoundary>
   );

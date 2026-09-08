@@ -56,9 +56,20 @@ export default async function ChannelPage({ params }: Props) {
     broadcastDisplayName: channel.name,
   };
 
+  const breadcrumbJsonLd = channel && {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Início', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Canais', item: `${SITE_URL}/channels` },
+      { '@type': 'ListItem', position: 3, name: channel.name, item: `${SITE_URL}/channels/${channel.slug}` },
+    ],
+  };
+
   return (
     <HydrationBoundary state={dehydrate(qc)}>
       {channelJsonLd && <JsonLd data={channelJsonLd} />}
+      {breadcrumbJsonLd && <JsonLd data={breadcrumbJsonLd} />}
       <ChannelGate slug={slug} chatEnabled={flags.chat} adsEnabled={flags.ads_delivery} />
     </HydrationBoundary>
   );
