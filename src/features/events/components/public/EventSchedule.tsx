@@ -22,12 +22,13 @@ export function EventSchedule({ eventId }: Props) {
   const stages = useMemo(() => {
     const byId = new Map<string, { id: string; name: string; count: number }>();
     for (const item of items) {
-      if (!item.stage) continue;
-      const existing = byId.get(item.stage.id);
-      if (existing) {
-        existing.count += 1;
-      } else {
-        byId.set(item.stage.id, { id: item.stage.id, name: item.stage.name, count: 1 });
+      for (const stage of item.stages) {
+        const existing = byId.get(stage.id);
+        if (existing) {
+          existing.count += 1;
+        } else {
+          byId.set(stage.id, { id: stage.id, name: stage.name, count: 1 });
+        }
       }
     }
     return Array.from(byId.values());
@@ -35,7 +36,7 @@ export function EventSchedule({ eventId }: Props) {
 
   const showStageFilter = stages.length > 1;
   const visibleItems = showStageFilter && stageFilter !== ALL_STAGES
-    ? items.filter((item) => item.stage?.id === stageFilter)
+    ? items.filter((item) => item.stages.some((stage) => stage.id === stageFilter))
     : items;
 
   if (isLoading) {
@@ -106,8 +107,7 @@ export function EventSchedule({ eventId }: Props) {
 
       <div className={styles.timeline}>
         {visibleItems.map((item) => {
-          const artist = item.artist;
-          const href = artist ? `/artists/${artist.slug || artist.id}` : null;
+          const [leadArtist] = item.artists;
 
           return (
             <div key={item.id} className={styles.row}>
@@ -123,27 +123,34 @@ export function EventSchedule({ eventId }: Props) {
               </div>
 
               <div className={styles.card}>
-                {artist
+                {leadArtist
                   ? (
                     <div className={styles.cardHead}>
                       <div className={styles.avatar}>
-                        {artist.imageUrl && <img src={artist.imageUrl} alt={artist.name} className={styles.avatarImg} />}
+                        {leadArtist.imageUrl && <img src={leadArtist.imageUrl} alt={leadArtist.name} className={styles.avatarImg} />}
                       </div>
                       <div className={styles.cardHeadInfo}>
-                        <span className={styles.headline}>{artist.name}</span>
-                        {href && (
-                          <Link href={href} className={styles.artistLink}>
-                            {artist.name} ↗
-                          </Link>
-                        )}
+                        <span className={styles.headline}>
+                          {item.artists.map((a) => a.name).join(' + ')}
+                        </span>
+                        <span className={styles.artistLinks}>
+                          {item.artists.map((a, i) => (
+                            <span key={a.id}>
+                              {i > 0 && ' · '}
+                              <Link href={`/artists/${a.slug || a.id}`} className={styles.artistLink}>
+                                {a.name} ↗
+                              </Link>
+                            </span>
+                          ))}
+                        </span>
                       </div>
                       <div className={styles.badgeGroup}>
-                        {item.stage && (
-                          <span className={styles.stageChip}>
+                        {item.stages.map((stage) => (
+                          <span key={stage.id} className={styles.stageChip}>
                             <Theater size={10} />
-                            {item.stage.name.toUpperCase()}
+                            {stage.name.toUpperCase()}
                           </span>
-                        )}
+                        ))}
                         <span className={styles.badge}>{t('badgeArtist')}</span>
                       </div>
                     </div>
@@ -157,12 +164,12 @@ export function EventSchedule({ eventId }: Props) {
                         <span className={styles.headline}>{item.title}</span>
                       </div>
                       <div className={styles.badgeGroup}>
-                        {item.stage && (
-                          <span className={styles.stageChip}>
+                        {item.stages.map((stage) => (
+                          <span key={stage.id} className={styles.stageChip}>
                             <Theater size={10} />
-                            {item.stage.name.toUpperCase()}
+                            {stage.name.toUpperCase()}
                           </span>
-                        )}
+                        ))}
                         <span className={styles.badge}>{t('badgeSegment')}</span>
                       </div>
                     </div>

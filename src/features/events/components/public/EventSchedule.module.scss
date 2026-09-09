@@ -159,6 +159,11 @@
   color: $text-primary;
 }
 
+.artistLinks {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .artistLink {
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
@@ -185,6 +190,7 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
 }
 

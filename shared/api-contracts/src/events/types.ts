@@ -150,11 +150,18 @@ export interface EventScheduleItemInput {
   /** "HH:MM", optional */
   endTime?: string | null;
   kind: ScheduleItemKind;
-  artistId?: string | null;
+  /**
+   * Artists in this slot. ARTIST blocks: 1..N (collab/B2B slots share one
+   * block). SEGMENT blocks: ignored, always [].
+   */
+  artistIds?: string[];
   title?: string | null;
   description?: string | null;
-  /** Soft reference to a stage of this event's stream; optional, null = no stage. */
-  stageId?: string | null;
+  /**
+   * Soft references to stages of this event's stream. ARTIST blocks: at most
+   * one. SEGMENT blocks: any number. Omit or [] = no stage.
+   */
+  stageIds?: string[];
 }
 
 export interface EventScheduleArtist {
@@ -179,9 +186,10 @@ export interface EventScheduleItem {
   description?: string | null;
   position: number;
   title?: string | null;
-  artist?: EventScheduleArtist | null;
-  stageId?: string | null;
-  stage?: EventScheduleStage | null;
+  artistIds: string[];
+  artists: EventScheduleArtist[];
+  stageIds: string[];
+  stages: EventScheduleStage[];
 }
 
 export interface ReplaceEventScheduleRequest {

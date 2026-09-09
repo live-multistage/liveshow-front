@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowUp, ArrowDown, Trash2, Plus } from 'lucide-react';
+import { ArrowUp, ArrowDown, Trash2, Plus, X } from 'lucide-react';
 import { Button, Input, SimpleCustomSelect } from '@live-show/design-system';
 import type { SelectOption } from '@live-show/design-system';
 import type { EventScheduleItem, EventScheduleItemInput, ScheduleItemKind } from '@live-show/api-contracts';
@@ -23,10 +23,10 @@ interface Block {
   startTime: string;
   endTime: string;
   kind: ScheduleItemKind;
-  artistId: string;
+  artistIds: string[];
   title: string;
   description: string;
-  stageId: string;
+  stageIds: string[];
 }
 
 let seq = 0;
@@ -41,10 +41,10 @@ function toBlock(item: EventScheduleItem): Block {
     startTime: item.startTime,
     endTime: item.endTime ?? '',
     kind: item.kind,
-    artistId: item.artist?.id ?? '',
+    artistIds: item.artistIds ?? [],
     title: item.title ?? '',
     description: item.description ?? '',
-    stageId: item.stageId ?? '',
+    stageIds: item.stageIds ?? [],
   };
 }
 
@@ -54,17 +54,17 @@ function emptyBlock(): Block {
     startTime: '',
     endTime: '',
     kind: 'ARTIST',
-    artistId: '',
+    artistIds: [],
     title: '',
     description: '',
-    stageId: '',
+    stageIds: [],
   };
 }
 
 interface BlockErrors {
   startTime?: string;
   endTime?: string;
-  artistId?: string;
+  artistIds?: string;
   title?: string;
 }
 
@@ -75,7 +75,7 @@ function validateBlock(block: Block, t: (key: string) => string): BlockErrors {
 
   if (block.endTime && !TIME_RE.test(block.endTime)) errors.endTime = t('errEndInvalid');
 
-  if (block.kind === 'ARTIST' && !block.artistId) errors.artistId = t('errArtistRequired');
+  if (block.kind === 'ARTIST' && block.artistIds.length === 0) errors.artistIds = t('errArtistRequired');
   if (block.kind === 'SEGMENT' && !block.title.trim()) errors.title = t('errSegmentRequired');
 
   return errors;
@@ -86,11 +86,72 @@ function toInput(block: Block): EventScheduleItemInput {
     startTime: block.startTime,
     endTime: block.endTime || null,
     kind: block.kind,
-    artistId: block.kind === 'ARTIST' ? block.artistId : null,
+    artistIds: block.kind === 'ARTIST' ? block.artistIds : [],
     title: block.kind === 'SEGMENT' ? block.title.trim() : null,
     description: block.description.trim() || null,
-    stageId: block.stageId || null,
+    stageIds: block.stageIds,
   };
+}
+
+// Compact multi-select over a known option set: selected options render as
+// removable chips, remaining options are picked from a select that resets
+// itself after each pick (remounted via `key` — simpler than wiring a
+// separate "add" value into controlled state).
+interface ChipMultiSelectProps {
+  selectedIds: string[];
+  options: SelectOption[];
+  onChange: (ids: string[]) => void;
+  addPlaceholder: string;
+  selectAllLabel?: string;
+}
+
+function ChipMultiSelect({ selectedIds, options, onChange, addPlaceholder, selectAllLabel }: ChipMultiSelectProps) {
+  const [addKey, setAddKey] = useState(0);
+  const selected = options.filter((opt) => selectedIds.includes(opt.value));
+  const remaining = options.filter((opt) => !selectedIds.includes(opt.value));
+
+  function addId(id: string) {
+    onChange([...selectedIds, id]);
+    setAddKey((k) => k + 1);
+  }
+
+  function removeId(id: string) {
+    onChange(selectedIds.filter((v) => v !== id));
+  }
+
+  return (
+    <div className={styles.chipMultiSelect}>
+      {(selected.length > 0 || (selectAllLabel && remaining.length > 0)) && (
+        <div className={styles.chipMultiSelectChips}>
+          {selected.map((opt) => (
+            <span key={opt.value} className={styles.chip}>
+              {opt.label}
+              <button
+                type="button"
+                onClick={() => removeId(opt.value)}
+                className={styles.chipRemove}
+                aria-label={`remove ${opt.label}`}
+              >
+                <X size={12} />
+              </button>
+            </span>
+          ))}
+          {selectAllLabel && remaining.length > 0 && (
+            <button
+              type="button"
+              className={styles.chipSelectAll}
+              onClick={() => onChange(options.map((opt) => opt.value))}
+            >
+              {selectAllLabel}
+            </button>
+          )}
+        </div>
+      )}
+      {remaining.length > 0 && (
+        <SimpleCustomSelect key={addKey} onValueChange={addId} placeholder={addPlaceholder} options={remaining} />
+      )}
+    </div>
+  );
 }
 
 interface Props {
@@ -258,11 +319,11 @@ export function EventScheduleEditor({ eventId }: Props) {
                   {block.kind === 'ARTIST' ? (
                     <>
                       <label className={styles.fieldLabel}>{t('artistLabel')} *</label>
-                      <SimpleCustomSelect
-                        value={block.artistId}
-                        onValueChange={(value) => updateBlock(block.tempId, { artistId: value })}
-                        placeholder={t('artistPlaceholder')}
+                      <ChipMultiSelect
+                        selectedIds={block.artistIds}
                         options={artistOptions}
+                        onChange={(artistIds) => updateBlock(block.tempId, { artistIds })}
+                        addPlaceholder={t('artistPlaceholder')}
                       />
                     </>
                   ) : (
@@ -276,16 +337,32 @@ export function EventScheduleEditor({ eventId }: Props) {
                     </>
                   )}
                 </div>
-                {hasStages && (
-                  <div className={`${styles.field} ${styles.stageField} ${block.stageId ? styles.stageFieldSelected : ''}`}>
+                {hasStages && block.kind === 'ARTIST' && (
+                  <div
+                    className={`${styles.field} ${styles.stageField} ${block.stageIds.length > 0 ? styles.stageFieldSelected : ''}`}
+                  >
                     <label className={styles.fieldLabel}>{t('stageLabel')}</label>
                     <SimpleCustomSelect
-                      value={block.stageId || NO_STAGE}
+                      value={block.stageIds[0] ?? NO_STAGE}
                       onValueChange={(value) =>
-                        updateBlock(block.tempId, { stageId: value === NO_STAGE ? '' : value })
+                        updateBlock(block.tempId, { stageIds: value === NO_STAGE ? [] : [value] })
                       }
                       placeholder={t('noStage')}
                       options={[{ value: NO_STAGE, label: t('noStage') }, ...stageOptions]}
+                    />
+                  </div>
+                )}
+                {hasStages && block.kind === 'SEGMENT' && (
+                  <div
+                    className={`${styles.field} ${styles.stageField} ${block.stageIds.length > 0 ? styles.stageFieldSelected : ''}`}
+                  >
+                    <label className={styles.fieldLabel}>{t('stageLabel')}</label>
+                    <ChipMultiSelect
+                      selectedIds={block.stageIds}
+                      options={stageOptions}
+                      onChange={(stageIds) => updateBlock(block.tempId, { stageIds })}
+                      addPlaceholder={t('noStage')}
+                      selectAllLabel={t('allStages')}
                     />
                   </div>
                 )}
@@ -298,9 +375,9 @@ export function EventScheduleEditor({ eventId }: Props) {
                 onChange={(e) => updateBlock(block.tempId, { description: e.target.value })}
               />
 
-              {(errors.startTime || errors.endTime || errors.artistId || errors.title) && (
+              {(errors.startTime || errors.endTime || errors.artistIds || errors.title) && (
                 <p className={styles.blockError}>
-                  {errors.startTime ?? errors.endTime ?? errors.artistId ?? errors.title}
+                  {errors.startTime ?? errors.endTime ?? errors.artistIds ?? errors.title}
                 </p>
               )}
             </div>
