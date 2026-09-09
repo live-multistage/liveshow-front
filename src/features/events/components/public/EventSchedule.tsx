@@ -16,8 +16,16 @@ const ALL_STAGES = 'all';
 
 export function EventSchedule({ eventId }: Props) {
   const t = useTranslations('eventDetail.schedule');
-  const { data: items = [], isLoading } = useEventSchedule(eventId);
+  const { data: rawItems, isLoading } = useEventSchedule(eventId);
   const [stageFilter, setStageFilter] = useState(ALL_STAGES);
+
+  // Normalize: an older API build (pre stage_ids[]/artist_ids[] deploy) may omit
+  // these arrays, so `item.stages`/`item.artists` could be undefined and blow up
+  // the .map/.some below with "not iterable". Default them to [].
+  const items = useMemo(
+    () => (rawItems ?? []).map((i) => ({ ...i, stages: i.stages ?? [], artists: i.artists ?? [] })),
+    [rawItems],
+  );
 
   const stages = useMemo(() => {
     const byId = new Map<string, { id: string; name: string; count: number }>();
