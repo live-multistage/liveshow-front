@@ -134,8 +134,16 @@ export function EventSchedule({ eventId }: Props) {
                 {leadArtist
                   ? (
                     <div className={styles.cardHead}>
-                      <div className={styles.avatar}>
-                        {leadArtist.imageUrl && <img src={leadArtist.imageUrl} alt={leadArtist.name} className={styles.avatarImg} />}
+                      <div className={styles.avatarStack} style={{ width: 46 + (item.artists.length - 1) * 30 }}>
+                        {item.artists.map((artist, i) => (
+                          <span
+                            key={artist.id}
+                            className={styles.avatar}
+                            style={{ marginLeft: i === 0 ? 0 : -16, zIndex: item.artists.length - i }}
+                          >
+                            {artist.imageUrl && <img src={artist.imageUrl} alt={artist.name} className={styles.avatarImg} />}
+                          </span>
+                        ))}
                       </div>
                       <div className={styles.cardHeadInfo}>
                         <span className={styles.headline}>

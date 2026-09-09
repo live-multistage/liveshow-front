@@ -17,6 +17,7 @@ import { ReportButton } from '@/features/reports';
 import { WishlistButton } from '@/features/wishlist';
 import { MediaWithTeaserVideo } from '@/shared/components/MediaWithTeaserVideo';
 import { EventSchedule } from './EventSchedule';
+import { EventLineupGrid } from './EventLineupGrid';
 import { Skeleton } from '@live-show/design-system';
 import styles from './EventDetailPageContent.module.scss';
 
@@ -27,7 +28,6 @@ interface Props {
 export function EventDetailPageContent({ id }: Props) {
   const t = useTranslations('events.detail');
   const tc = useTranslations('collaborations');
-  const tEvent = useTranslations('eventDetail');
   const { data: event, isLoading, isError, error, refetch } = useGetEventQuery(id);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
   const { data: org, isLoading: orgLoading } = useOrganization(event?.organizationId ?? '');
@@ -197,25 +197,7 @@ export function EventDetailPageContent({ id }: Props) {
               </>
             )}
 
-            {!!event.artists?.length && (
-              <div className={styles.section}>
-                <h2 className={styles.sectionLabel}>{tEvent('lineup')}</h2>
-                <div className={styles.collaboratorsRow}>
-                  {event.artists.map((artist) => (
-                    <Link
-                      key={artist.id}
-                      href={`/artists/${artist.slug || artist.id}`}
-                      className={styles.collaboratorLink}
-                    >
-                      {artist.imageUrl && (
-                        <img src={artist.imageUrl} alt={artist.name} className={styles.collaboratorLogo} />
-                      )}
-                      {artist.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
+            {!!event.artists?.length && <EventLineupGrid artists={event.artists} />}
 
             <EventSchedule eventId={id} />
           </div>

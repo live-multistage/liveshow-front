@@ -114,12 +114,20 @@
   gap: 12px;
 }
 
+.avatarStack {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
 .avatar {
+  position: relative;
   width: 46px;
   height: 46px;
   border-radius: 11px;
   flex-shrink: 0;
   overflow: hidden;
+  border: 2px solid #101013;
   background:
     radial-gradient(120% 120% at 30% 20%, rgba(70, 214, 216, .5), transparent 60%),
     linear-gradient(150deg, #13212b, #0d1117);

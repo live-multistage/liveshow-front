@@ -690,6 +690,8 @@
     "checklistDescription": "Add a description",
     "descriptionEmpty": "No description. Add text for the event public page.",
     "lineup": "In the event",
+    "lineupCount": "{count, plural, one {# artist} other {# artists}}",
+    "viewArtist": "View artist",
     "schedule": {
       "title": "Schedule",
       "countBlocks": "{count, plural, one {# block} other {# blocks}}",

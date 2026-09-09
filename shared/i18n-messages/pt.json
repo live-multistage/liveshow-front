@@ -690,6 +690,8 @@
     "checklistDescription": "Adicionar descrição",
     "descriptionEmpty": "Sem descrição. Adicione um texto para a página pública do evento.",
     "lineup": "No evento",
+    "lineupCount": "{count, plural, one {# artista} other {# artistas}}",
+    "viewArtist": "Ver artista",
     "schedule": {
       "title": "Programação",
       "countBlocks": "{count, plural, one {# bloco} other {# blocos}}",
