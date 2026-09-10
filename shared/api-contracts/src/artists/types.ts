@@ -24,6 +24,8 @@ export interface ArtistResponse extends ArtistListItem {
   // (undefined for every manual/pre-existing artist).
   source?: 'spotify' | 'wikidata';
   imageAttribution?: string;
+  // Credit for a Wikimedia Commons banner imported by the enrichment flow.
+  bannerAttribution?: string;
 }
 
 // Spotify + Wikidata search result for the "artist not in our base" flow.
