@@ -5,7 +5,10 @@ vi.mock('@/features/checkout/services/checkout.service', () => ({
   checkoutService: { previewCartCoupon: vi.fn() },
 }));
 
-const toast = { info: vi.fn() };
+// vi.mock is hoisted above module-level consts, so the factory can't close over
+// a plain `const toast` (TDZ: "Cannot access 'toast' before initialization").
+// vi.hoisted lifts the value with the mock.
+const { toast } = vi.hoisted(() => ({ toast: { info: vi.fn() } }));
 vi.mock('sonner', () => ({ toast }));
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

@@ -30,6 +30,17 @@ const nextConfig: NextConfig = {
         port: '8080',
         pathname: '/uploads/**',
       },
+      // Production upload origin (next/image 400s on any host not listed here).
+      {
+        protocol: 'https',
+        hostname: 'api.showon.io',
+        pathname: '/uploads/**',
+      },
+      // Bunny CDN edge that fronts media in production (MEDIA_CDN_BASE_URL).
+      {
+        protocol: 'https',
+        hostname: 'showon.b-cdn.net',
+      },
     ],
   },
 };
