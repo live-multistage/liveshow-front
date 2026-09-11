@@ -73,7 +73,7 @@ function RelatedEventCard({ event }: { event: EventResponse }) {
             in EventDetailPageContent (MediaWithTeaserVideo). */}
         {image && <img src={image} alt={event.title} className={styles.thumb} />}
       </div>
-      <span className={styles.cardTitle}>{event.title}</span>
+      <h3 className={styles.cardTitle}>{event.title}</h3>
       <span className={styles.cardDate}>{formatDateShort(event.startsAt)}</span>
     </Link>
   );

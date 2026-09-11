@@ -172,7 +172,7 @@ export function ArtistPublicPage({ slugOrId }: Props) {
 
       {artist.description && (
         <section className={styles.bioCard}>
-          <span className={styles.bioLabel}>{t('aboutLabel')}</span>
+          <h2 className={styles.bioLabel}>{t('aboutLabel')}</h2>
           <p className={styles.bioText}>{artist.description}</p>
         </section>
       )}

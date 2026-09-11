@@ -29,7 +29,7 @@ export function PaymentSection() {
                 {key === 'payout' && '→'}
                 {key === 'cards' && <CreditCard size={40} strokeWidth={1.6} />}
               </div>
-              <div className={styles.title}>{t(`payment.cards.${key}.title`)}</div>
+              <h3 className={styles.title}>{t(`payment.cards.${key}.title`)}</h3>
               <p className={styles.text}>{t(`payment.cards.${key}.text`)}</p>
             </Reveal>
           ))}

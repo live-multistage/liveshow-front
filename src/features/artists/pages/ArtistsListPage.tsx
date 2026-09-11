@@ -85,9 +85,9 @@ export function ArtistsListPage({ initialArtists }: Props) {
       )}
 
       <div className={styles.filterRow}>
-        <span className={styles.resultCount}>
+        <h2 className={styles.resultCount}>
           {filtered.length} {filtered.length === 1 ? 'ARTISTA' : 'ARTISTAS'}
-        </span>
+        </h2>
       </div>
 
       {isLoading && !initialArtists ? (

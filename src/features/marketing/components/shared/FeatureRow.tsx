@@ -17,7 +17,7 @@ export function FeatureRow({ icon, title, text, tone = 'pink', delay }: FeatureR
     <Reveal as="div" className={styles.row} delay={delay}>
       <span className={[styles.chip, styles[tone]].join(' ')}>{icon}</span>
       <div>
-        <div className={styles.title}>{title}</div>
+        <h3 className={styles.title}>{title}</h3>
         <p className={styles.text}>{text}</p>
       </div>
     </Reveal>

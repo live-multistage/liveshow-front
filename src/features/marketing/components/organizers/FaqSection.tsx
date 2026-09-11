@@ -20,19 +20,21 @@ function FaqRow({ item, isOpen, onToggle }: { item: FaqItem; isOpen: boolean; on
 
   return (
     <div className={styles.item}>
-      <button
-        type="button"
-        id={btnId}
-        aria-expanded={isOpen}
-        aria-controls={panelId}
-        className={[styles.trigger, isOpen ? styles.open : ''].join(' ').trim()}
-        onClick={onToggle}
-      >
-        {item.q}
-        <span className={[styles.icon, isOpen ? styles.open : ''].join(' ').trim()}>
-          <Plus size={14} strokeWidth={2.4} />
-        </span>
-      </button>
+      <h3 className={styles.question}>
+        <button
+          type="button"
+          id={btnId}
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+          className={[styles.trigger, isOpen ? styles.open : ''].join(' ').trim()}
+          onClick={onToggle}
+        >
+          {item.q}
+          <span className={[styles.icon, isOpen ? styles.open : ''].join(' ').trim()}>
+            <Plus size={14} strokeWidth={2.4} />
+          </span>
+        </button>
+      </h3>
       <div id={panelId} role="region" aria-labelledby={btnId} aria-hidden={!isOpen} className={[styles.panel, isOpen ? styles.open : ''].join(' ').trim()}>
         <p className={styles.answer}>{item.a}</p>
       </div>

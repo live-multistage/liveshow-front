@@ -111,6 +111,7 @@ export function OrganizationPublicPage({ slug }: Props) {
             )}
 
             <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>Eventos</h2>
               <div className={styles.tabsRow}>
                 <button
                   className={`${styles.tab} ${tab === 'upcoming' ? styles.tabActive : ''}`}
@@ -149,7 +150,7 @@ export function OrganizationPublicPage({ slug }: Props) {
 
           <aside className={styles.sidebar}>
             <div className={styles.sideCard}>
-              <h3 className={styles.sideCardTitle}>Sobre</h3>
+              <h2 className={styles.sideCardTitle}>Sobre</h2>
               <div className={styles.statRow}>
                 <Calendar size={14} className={styles.statIcon} />
                 <span className={styles.statText}>

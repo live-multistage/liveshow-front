@@ -91,7 +91,7 @@ export function ChannelsBrowser({ channels }: Props) {
             </button>
           ))}
         </div>
-        <span className={styles.total}>{t('browse.countLabel', { count: shown.length })}</span>
+        <h2 className={styles.total}>{t('browse.countLabel', { count: shown.length })}</h2>
       </div>
 
       {shown.length === 0 ? (

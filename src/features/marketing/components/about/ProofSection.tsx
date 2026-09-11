@@ -45,7 +45,7 @@ export async function ProofSection() {
                     style={poster ? { backgroundImage: `url("${encodeURI(poster)}")` } : undefined}
                   >
                     <span className={styles.badge}>{t('proof.badge')}</span>
-                    <span className={styles.title}>{event.title}</span>
+                    <h3 className={styles.title}>{event.title}</h3>
                   </div>
                   <div className={styles.meta}>
                     <span className={styles.org}>{event.organization?.name}</span>

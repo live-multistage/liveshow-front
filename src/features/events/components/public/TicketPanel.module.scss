@@ -35,13 +35,13 @@
 
 // ── Panel label ──────────────────────────────────────────────────
 .panelLabel {
+  margin: 0 0 16px;
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .14em;
   color: #ff7ec2;
   font-weight: 700;
   text-transform: uppercase;
-  margin-bottom: 16px;
 }
 
 // ── Empty / loading states ────────────────────────────────────────

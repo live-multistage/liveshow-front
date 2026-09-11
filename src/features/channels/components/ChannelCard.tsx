@@ -67,7 +67,7 @@ export function ChannelCard({ channel }: Props) {
 
       <div className={styles.body}>
         <div className={styles.nameRow}>
-          <p className={styles.name}>{channel.name}</p>
+          <h3 className={styles.name}>{channel.name}</h3>
           <span
             className={clsx(
               styles.accessPill,

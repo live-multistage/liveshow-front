@@ -98,4 +98,9 @@ describe('AboutPageContent', () => {
     render(await AboutPageContent());
     expect(screen.getByTestId('proof')).toBeInTheDocument();
   });
+
+  it('renders exactly one h1', async () => {
+    render(await AboutPageContent());
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+  });
 });

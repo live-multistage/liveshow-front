@@ -40,6 +40,12 @@ const channels = [
 ];
 
 describe('ChannelsBrowser', () => {
+  it('renders exactly one h1 with the page title', () => {
+    render(<ChannelsBrowser channels={channels} />);
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('title');
+  });
+
   it('shows all channels by default', () => {
     render(<ChannelsBrowser channels={channels} />);
     expect(screen.getByText('Arena Rock')).toBeInTheDocument();

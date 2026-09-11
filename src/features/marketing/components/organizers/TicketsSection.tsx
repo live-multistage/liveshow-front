@@ -32,7 +32,7 @@ export function TicketsSection() {
             <Reveal as="div" key={item.key} delay={(i % 3) * 90} className={styles.card}>
               <span className={styles.icon}>{organizerIcon(item.icon, 28)}</span>
               <div>
-                <div className={styles.title}>{t(`tickets.items.${item.key}.title`)}</div>
+                <h3 className={styles.title}>{t(`tickets.items.${item.key}.title`)}</h3>
                 <p className={styles.text}>{t(`tickets.items.${item.key}.text`)}</p>
               </div>
             </Reveal>

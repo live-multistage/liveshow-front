@@ -146,9 +146,9 @@ export function EventSchedule({ eventId }: Props) {
                         ))}
                       </div>
                       <div className={styles.cardHeadInfo}>
-                        <span className={styles.headline}>
+                        <h3 className={styles.headline}>
                           {item.artists.map((a) => a.name).join(' + ')}
-                        </span>
+                        </h3>
                         <span className={styles.artistLinks}>
                           {item.artists.map((a, i) => (
                             <span key={a.id}>
@@ -177,7 +177,7 @@ export function EventSchedule({ eventId }: Props) {
                         <Clock size={18} />
                       </div>
                       <div className={styles.cardHeadInfo}>
-                        <span className={styles.headline}>{item.title}</span>
+                        <h3 className={styles.headline}>{item.title}</h3>
                       </div>
                       <div className={styles.badgeGroup}>
                         {item.stages.map((stage) => (

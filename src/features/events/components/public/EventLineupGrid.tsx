@@ -42,7 +42,7 @@ export function EventLineupGrid({ artists }: Props) {
             )}
             <div className={styles.cardScrim} />
             <div className={styles.cardBody}>
-              <div className={styles.cardName}>{artist.name}</div>
+              <h3 className={styles.cardName}>{artist.name}</h3>
               <div className={styles.cardCta}>{t('viewArtist')} →</div>
             </div>
           </Link>

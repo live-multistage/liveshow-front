@@ -167,6 +167,15 @@ describe('EventDetailPageContent hero media', () => {
 // The production topology reads (streams/stages/feeds/cameras) are org-admin
 // only. An anonymous visitor on this public page would get 401/403 from all of
 // them, so the page must not reach for them at all.
+describe('EventDetailPageContent heading structure', () => {
+  it('renders exactly one level-1 heading, the event title', () => {
+    renderWithEvent(makeEvent());
+
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Show Teste');
+  });
+});
+
 describe('EventDetailPageContent camera topology', () => {
   it('never queries the org-gated camera topology', () => {
     renderWithEvent(makeEvent());

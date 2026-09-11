@@ -135,7 +135,7 @@ export function EventDetailPageContent({ id }: Props) {
             </div>
 
             <div className={styles.section}>
-              <div className={styles.sectionLabel}>SOBRE O SHOW</div>
+              <h2 className={styles.sectionLabel}>SOBRE O SHOW</h2>
               <p className={styles.description}>{event.description}</p>
             </div>
 

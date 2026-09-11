@@ -205,7 +205,7 @@ export function TicketPanel({ event, tickets }: Props) {
       <div className={styles.panel}>
         <div className={styles.glow} aria-hidden />
         <div className={styles.panelContent}>
-          <div className={styles.panelLabel}>{t('freeEvent')}</div>
+          <h2 className={styles.panelLabel}>{t('freeEvent')}</h2>
           <TicketCapabilityChips ticket={soleFreeTicket} />
           <Button
             variant="primary"
@@ -239,9 +239,9 @@ export function TicketPanel({ event, tickets }: Props) {
     <div className={styles.panel} ref={panelRef}>
       <div className={styles.glow} aria-hidden />
       <div className={styles.panelContent}>
-        <div className={styles.panelLabel}>
+        <h2 className={styles.panelLabel}>
           {isFinished ? t('buyReplay') : t('buyTicket')}
-        </div>
+        </h2>
 
         <div className={styles.ticketOptions}>
           {purchasableTickets.map((opt) => (

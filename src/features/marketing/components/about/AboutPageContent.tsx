@@ -208,7 +208,7 @@ export async function AboutPageContent() {
             {AUDIENCES.map(({ key, icon }, i) => (
               <Reveal as="div" key={key} delay={(i % 3) * 90} className={styles.audienceCard}>
                 <span className={styles.audienceChip}>{organizerIcon(icon, 18)}</span>
-                <div className={styles.audienceTitle}>{t(`audiences.items.${key}.title`)}</div>
+                <h3 className={styles.audienceTitle}>{t(`audiences.items.${key}.title`)}</h3>
                 <div className={styles.audienceText}>{t(`audiences.items.${key}.text`)}</div>
               </Reveal>
             ))}
@@ -225,7 +225,7 @@ export async function AboutPageContent() {
               <Reveal as="div" key={step.title} delay={i * 90} className={styles.howCard}>
                 <span className={styles.howNum}>{String(i + 1).padStart(2, '0')}</span>
                 <div>
-                  <div className={styles.howCardTitle}>{step.title}</div>
+                  <h3 className={styles.howCardTitle}>{step.title}</h3>
                   <div className={styles.howCardText}>{step.text}</div>
                 </div>
               </Reveal>
@@ -284,7 +284,7 @@ export async function AboutPageContent() {
           <div className={styles.ctaGrid}>
             <Reveal as="div" delay={80} className={styles.ctaCard}>
               <div>
-                <div className={styles.ctaCardTitle}>{t('cta.viewer.title')}</div>
+                <h3 className={styles.ctaCardTitle}>{t('cta.viewer.title')}</h3>
                 <div className={styles.ctaCardText}>{t('cta.viewer.text')}</div>
               </div>
               <Link href="/events" className={styles.ctaViewerButton}>
@@ -294,7 +294,7 @@ export async function AboutPageContent() {
             <Reveal as="div" delay={160} className={`${styles.ctaCard} ${styles.ctaCardOrganizer}`}>
               <div className={styles.ctaGlowInner} aria-hidden="true" />
               <div>
-                <div className={styles.ctaCardTitle}>{t('cta.organizer.title')}</div>
+                <h3 className={styles.ctaCardTitle}>{t('cta.organizer.title')}</h3>
                 <div className={styles.ctaCardText}>{t('cta.organizer.text')}</div>
               </div>
               <Link href="/be-partner" className={`${ctaStyles.cta} ${ctaStyles.lg} ${styles.ctaOrganizerButton}`}>
