@@ -57,7 +57,7 @@ describe('ShowCard compact', () => {
   it('applies the compact class only when size="compact"', () => {
     const { container: base, unmount } = render(<ShowCard show={makeShow()} />);
     expect(base.firstChild).not.toHaveClass(styles.cardCompact);
-    expect(screen.getByText('SHOW')).toBeInTheDocument();
+    expect(screen.getByText('showTag')).toBeInTheDocument();
     unmount();
 
     const { container } = render(<ShowCard show={makeShow()} size="compact" />);
@@ -70,12 +70,40 @@ describe('ShowCard category label', () => {
   it('shows the category label for a real category', () => {
     render(<ShowCard show={makeShow({ category: 'Rock', categoryKey: 'MUSIC' })} />);
 
-    expect(screen.getByText('ROCK')).toBeInTheDocument();
+    expect(screen.getByText('Rock')).toBeInTheDocument();
   });
 
   it('hides the category label when the category is OTHER', () => {
     render(<ShowCard show={makeShow({ category: 'Outro', categoryKey: 'OTHER' })} />);
 
-    expect(screen.queryByText('OUTRO')).not.toBeInTheDocument();
+    expect(screen.queryByText('Outro')).not.toBeInTheDocument();
+  });
+});
+
+describe('ShowCard labels', () => {
+  it('renders the live badge text from i18n', () => {
+    render(<ShowCard show={makeShow({ isLive: true })} />);
+
+    expect(screen.getByText('live')).toBeInTheDocument();
+  });
+
+  it('renders the replay badge text from i18n', () => {
+    render(<ShowCard show={makeShow({ hasReplay: true })} />);
+
+    expect(screen.getAllByText('replay').length).toBeGreaterThan(0);
+  });
+});
+
+describe('ShowCard location meta', () => {
+  it('joins venue and city with a middle dot', () => {
+    render(<ShowCard show={makeShow({ venue: 'Arena', city: 'São Paulo' })} />);
+
+    expect(screen.getByText('Arena · São Paulo')).toBeInTheDocument();
+  });
+
+  it('omits the location item when venue and city are both empty', () => {
+    const { container } = render(<ShowCard show={makeShow({ venue: '', city: '' })} />);
+
+    expect(container.querySelectorAll(`.${styles.metaItem}`)).toHaveLength(1);
   });
 });

@@ -47,7 +47,7 @@ export function ChannelCard({ channel }: Props) {
 
         {live ? (
           <span className={styles.onAir}>
-            <span className={styles.onAirDot} />
+            <span className={styles.onAirDot} aria-hidden="true" />
             {t('onAir')}
           </span>
         ) : (
@@ -109,11 +109,11 @@ export function ChannelCard({ channel }: Props) {
           )}
         </div>
 
-        <span className={styles.cta}>
+        <span className={live ? styles.ctaLive : styles.ctaOffline}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M8 5v14l11-7z" />
           </svg>
-          {t('enterLive')}
+          {live ? t('watchNow') : t('viewSchedule')}
         </span>
       </div>
     </Link>
