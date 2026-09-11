@@ -327,6 +327,9 @@
   // 3/4 poster, but capped so wide grids (home is full-bleed, 5 per row)
   // don't turn the cover into a 470px wall. Programação (6 per 1280) never hits it.
   & .imageWrapper {
+    // Explicit width: without it the max-height constraint transfers through
+    // the aspect-ratio and shrinks the width instead.
+    width: 100%;
     aspect-ratio: 3 / 4;
     max-height: 270px;
   }
