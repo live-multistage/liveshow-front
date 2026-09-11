@@ -13,20 +13,47 @@
   pointer-events: none;
 }
 
-.trigger {
+// Nested under .wrap on purpose: the design-system SelectTrigger ships its own
+// `.trigger` (surface background, 1px border, 6px radius, focus/open glow) at
+// the same single-class specificity, so a bare `.trigger` here only wins when
+// this module happens to load later — which it didn't, hence the boxed look.
+// `.wrap .trigger` outranks it regardless of stylesheet order.
+.wrap .trigger {
+  width: auto;
+  height: auto;
+  padding: 0 0.25rem;
   background: transparent;
-  border: none;
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   color: $text-primary;
   font-size: 0.78rem;
   font-family: inherit;
-  height: auto;
-  padding: 0 0.25rem;
-  box-shadow: none;
   gap: 0.25rem;
 
-  &:hover { color: $text-primary; }
-  &:focus { box-shadow: none; outline: none; }
-  &[data-disabled] { opacity: 0.5; cursor: not-allowed; }
+  &:hover {
+    color: $text-primary;
+    border-color: transparent;
+  }
 
-  svg:last-child { width: 12px; height: 12px; opacity: 1; }
+  &:focus,
+  &:focus-visible,
+  &[data-state='open'] {
+    border-color: transparent;
+    box-shadow: none;
+    outline: none;
+  }
+
+  &[data-disabled],
+  &[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg:last-child {
+    width: 12px;
+    height: 12px;
+    opacity: 1;
+  }
 }

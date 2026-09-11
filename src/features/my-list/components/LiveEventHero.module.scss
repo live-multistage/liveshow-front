@@ -2,7 +2,11 @@
 
 .hero {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
+  // Fixed cover column: 440px wide at the 250px min-height is ~16:9, so the
+  // event image shows a normal frame. A fractional column here stretched the
+  // cover to ~1000px × 250px (4:1) and object-fit: cover cropped the photo
+  // down to a random horizontal band.
+  grid-template-columns: 440px minmax(0, 1fr);
   background: var(--card);
   border: 1px solid rgba(255, 46, 158, 0.3);
   border-radius: 16px;
@@ -23,7 +27,9 @@
   min-height: 250px;
 
   @media (max-width: $md) {
-    min-height: 180px;
+    // Full-width on mobile: keep the frame proportional instead of a short strip.
+    min-height: 0;
+    aspect-ratio: 16 / 9;
   }
 }
 
