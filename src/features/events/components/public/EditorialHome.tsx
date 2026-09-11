@@ -45,7 +45,8 @@ export function EditorialHome({
   return (
     <div className={styles.page}>
 
-      {heroSlides.length > 0 && <EditorialHero slides={heroSlides} localeCode={localeCode} headline={t('headline')} />}
+      <h1 className={styles.visuallyHidden}>{t('headline')}</h1>
+      {heroSlides.length > 0 && <EditorialHero slides={heroSlides} />}
 
       <div className={styles.inner}>
         {liveShows.length > 0 && (
