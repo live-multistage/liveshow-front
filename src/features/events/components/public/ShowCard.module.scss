@@ -324,7 +324,12 @@
 // ── Compact (6-per-row Programação grid) ──────────────────────────
 // Nested overrides so they outrank the base rules regardless of order.
 .cardCompact {
-  & .imageWrapper { aspect-ratio: 3 / 4; }
+  // 3/4 poster, but capped so wide grids (home is full-bleed, 5 per row)
+  // don't turn the cover into a 470px wall. Programação (6 per 1280) never hits it.
+  & .imageWrapper {
+    aspect-ratio: 3 / 4;
+    max-height: 270px;
+  }
 
   & .content {
     padding: 13px 13px 0;
