@@ -12,7 +12,7 @@ import {
   type ScriptableContext,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import type { SalesGranularity, SalesSummary } from '../types/sales.types';
+import type { EventSalesSeries, SalesGranularity, SalesSummary } from '../types/sales.types';
 import { EventSalesTable } from './EventSalesTable';
 import styles from './SalesDashboard.module.scss';
 
@@ -20,6 +20,8 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip,
 
 const ORDERS_COLOR = '#9b7bff';
 const REVENUE_COLOR = '#ff2e9e';
+// Per-event lines cycle through these; beyond the palette, hues repeat.
+const EVENT_COLORS = ['#ff2e9e', '#9b7bff', '#46d6d8', '#7fe0a0', '#ff7a4d', '#ffd166', '#5aa9ff', '#f28cff'];
 
 const CHART_OPTIONS = {
   responsive: true,
@@ -102,9 +104,13 @@ const ICONS = {
 } as const;
 
 type ChartView = 'orders' | 'revenue';
+type ChartSplit = 'total' | 'event';
 
 interface SalesDashboardProps {
   data: SalesSummary | undefined;
+  // Same slots as data.data; when present with 2+ events the chart can be
+  // split into one line per event.
+  byEvent?: EventSalesSeries[];
   isLoading: boolean;
   granularity: SalesGranularity;
   onGranularityChange: (g: SalesGranularity) => void;
@@ -113,20 +119,40 @@ interface SalesDashboardProps {
   currency?: string;
 }
 
-export function SalesDashboard({ data, isLoading, granularity, onGranularityChange, showEventTable = true, currency = 'BRL' }: SalesDashboardProps) {
+export function SalesDashboard({ data, byEvent = [], isLoading, granularity, onGranularityChange, showEventTable = true, currency = 'BRL' }: SalesDashboardProps) {
   const [chartView, setChartView] = useState<ChartView>('orders');
+  const [chartSplit, setChartSplit] = useState<ChartSplit>('total');
 
   const isOrders = chartView === 'orders';
   const series = isOrders ? ORDERS_COLOR : REVENUE_COLOR;
+  const canSplit = byEvent.length > 1;
+  const splitByEvent = canSplit && chartSplit === 'event';
 
   const avgTicket = data && data.totalOrders > 0 ? data.totalRevenue / data.totalOrders : 0;
 
   const labels = data?.data.map((p) => formatLabel(p.date, granularity)) ?? [];
   const chartDataValues = data?.data.map((p) => (isOrders ? p.orders : p.revenue)) ?? [];
 
+  const eventDatasets = byEvent.map((ev, i) => {
+    const color = EVENT_COLORS[i % EVENT_COLORS.length];
+    return {
+      label: ev.eventTitle,
+      data: ev.data.map((p) => (isOrders ? p.orders : p.revenue)),
+      borderColor: color,
+      backgroundColor: color,
+      fill: false,
+      tension: 0.4,
+      pointRadius: 3,
+      pointBackgroundColor: color,
+      pointBorderColor: '#08080a',
+      pointBorderWidth: 2,
+      borderWidth: 2,
+    };
+  });
+
   const chartDataset = {
     labels,
-    datasets: [
+    datasets: splitByEvent ? eventDatasets : [
       {
         label: isOrders ? 'Vendas' : `Receita (${currency})`,
         data: chartDataValues,
@@ -142,7 +168,7 @@ export function SalesDashboard({ data, isLoading, granularity, onGranularityChan
     ],
   };
 
-  const chartSub = `${isOrders ? 'Ingressos vendidos' : `Faturamento em ${currency}`} · ${granularity === 'day' ? 'por dia' : 'por mês'}`;
+  const chartSub = `${isOrders ? 'Ingressos vendidos' : `Faturamento em ${currency}`} · ${granularity === 'day' ? 'por dia' : 'por mês'}${splitByEvent ? ' · por evento' : ''}`;
 
   return (
     <div className={styles.page}>
@@ -211,6 +237,23 @@ export function SalesDashboard({ data, isLoading, granularity, onGranularityChan
               </button>
             </div>
 
+            {canSplit && (
+              <div className={`${styles.segment} ${styles.segMono}`}>
+                <button
+                  className={`${styles.segBtn} ${!splitByEvent ? styles.segBtnActive : ''}`}
+                  onClick={() => setChartSplit('total')}
+                >
+                  Total
+                </button>
+                <button
+                  className={`${styles.segBtn} ${splitByEvent ? styles.segBtnActive : ''}`}
+                  onClick={() => setChartSplit('event')}
+                >
+                  Por evento
+                </button>
+              </div>
+            )}
+
             <div className={`${styles.segment} ${styles.segMono}`}>
               <button
                 className={`${styles.segBtn} ${granularity === 'day' ? styles.segBtnActive : ''}`}
@@ -237,6 +280,16 @@ export function SalesDashboard({ data, isLoading, granularity, onGranularityChan
             <Line data={chartDataset} options={CHART_OPTIONS} />
           )}
         </div>
+        {splitByEvent && (
+          <ul className={styles.legend}>
+            {eventDatasets.map((d) => (
+              <li key={d.label} className={styles.legendItem}>
+                <span className={styles.legendSwatch} style={{ background: d.borderColor }} />
+                {d.label}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {showEventTable && <EventSalesTable />}

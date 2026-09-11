@@ -169,6 +169,7 @@ export function OrganizationAnalyticsPage({ organizationId }: Props) {
             )}
             <SalesDashboard
               data={activeSales.summary}
+              byEvent={activeSales.byEvent}
               isLoading={analyticsLoading}
               granularity={granularity}
               onGranularityChange={setGranularity}

@@ -12,10 +12,18 @@ export interface SalesSummary {
   data: SalesDataPoint[];
 }
 
+// One chart line per event, on the same slots as summary.data.
+export interface EventSalesSeries {
+  eventId: string;
+  eventTitle: string;
+  data: SalesDataPoint[];
+}
+
 // No FX conversion — sales are reported per currency, never summed across.
 export interface SalesByCurrency {
   currency: string;
   summary: SalesSummary;
+  byEvent: EventSalesSeries[];
 }
 
 export interface EventSalesRow {

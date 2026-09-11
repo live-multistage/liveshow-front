@@ -100,6 +100,7 @@ export default function DashboardSalesPage() {
           )}
           <SalesDashboard
             data={active.summary}
+            byEvent={active.byEvent}
             isLoading={isLoading}
             granularity={granularity}
             onGranularityChange={setGranularity}
