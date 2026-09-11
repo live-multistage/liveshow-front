@@ -1,75 +1,103 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import { ScrollExpandMedia } from './ScrollExpandMedia';
 
 afterEach(() => {
   cleanup();
-  window.scrollY = 0;
-  window.location.hash = '';
+  vi.restoreAllMocks();
 });
+
+function mockMatchMedia(reduced: boolean) {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    configurable: true,
+    value: (query: string) => ({
+      matches: query.includes('prefers-reduced-motion') ? reduced : false,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }),
+  });
+}
 
 describe('ScrollExpandMedia', () => {
   it('renders the media and the overlay content', () => {
-    render(
-      <ScrollExpandMedia media={<div>media</div>} overlay={() => <h1>headline</h1>} />,
-    );
+    mockMatchMedia(false);
+    render(<ScrollExpandMedia media={<div>media</div>} overlay={() => <h1>headline</h1>} />);
 
     expect(screen.getByText('media')).toBeInTheDocument();
     expect(screen.getByText('headline')).toBeInTheDocument();
   });
 
-  it('expands after a large wheel scroll', async () => {
+  it('never calls scrollTo or preventDefault while scrolling', () => {
+    mockMatchMedia(false);
+    const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
     const { container } = render(<ScrollExpandMedia media={<div>media</div>} overlay={() => <h1>h</h1>} />);
     const section = container.querySelector('section') as HTMLElement;
 
-    expect(section).toHaveAttribute('data-expanded', 'false');
+    const wheelEvent = new WheelEvent('wheel', { deltaY: 2000, cancelable: true });
+    const preventDefaultSpy = vi.spyOn(wheelEvent, 'preventDefault');
+    window.dispatchEvent(wheelEvent);
 
-    fireEvent.wheel(window, { deltaY: 2000 });
+    const scrollEvent = new Event('scroll');
+    window.dispatchEvent(scrollEvent);
+
+    expect(scrollToSpy).not.toHaveBeenCalled();
+    expect(preventDefaultSpy).not.toHaveBeenCalled();
+    // Native scroll wasn't hijacked: the section stays mounted and readable.
+    expect(section).toBeInTheDocument();
+  });
+
+  it('derives progress from the section position, not from wheel/touch deltas', async () => {
+    mockMatchMedia(false);
+    const { container } = render(<ScrollExpandMedia media={<div>media</div>} overlay={() => <h1>h</h1>} />);
+    const section = container.querySelector('section') as HTMLElement;
+
+    vi.spyOn(section, 'getBoundingClientRect').mockReturnValue({
+      top: 0,
+      height: window.innerHeight * 2,
+    } as DOMRect);
+
+    window.dispatchEvent(new Event('scroll'));
+
+    await waitFor(() => expect(section.style.getPropertyValue('--p')).toBe('0'));
+
+    vi.spyOn(section, 'getBoundingClientRect').mockReturnValue({
+      top: -window.innerHeight,
+      height: window.innerHeight * 2,
+    } as DOMRect);
+
+    window.dispatchEvent(new Event('scroll'));
 
     await waitFor(() => expect(section).toHaveAttribute('data-expanded', 'true'));
   });
 
-  it('expands when the overlay calls expand()', async () => {
-    const { container } = render(
-      <ScrollExpandMedia
-        media={<div>media</div>}
-        overlay={({ expand }) => (
-          <button type="button" onClick={expand}>
-            go
-          </button>
-        )}
-      />,
-    );
+  it('renders fully expanded and static when the user prefers reduced motion', () => {
+    mockMatchMedia(true);
+    const { container } = render(<ScrollExpandMedia media={<div>media</div>} overlay={() => <h1>h</h1>} />);
     const section = container.querySelector('section') as HTMLElement;
 
-    fireEvent.click(screen.getByRole('button', { name: 'go' }));
-
-    await waitFor(() => expect(section).toHaveAttribute('data-expanded', 'true'));
-  });
-
-  it('collapsing at the top resets progress to 0 so the overlay text returns', async () => {
-    const { container } = render(
-      <ScrollExpandMedia media={<div>media</div>} overlay={() => <h1>h</h1>} />,
-    );
-    const section = container.querySelector('section') as HTMLElement;
-
-    fireEvent.wheel(window, { deltaY: 2000 });
-    await waitFor(() => expect(section).toHaveAttribute('data-expanded', 'true'));
+    expect(section).toHaveAttribute('data-expanded', 'true');
     expect(section.style.getPropertyValue('--p')).toBe('1');
-
-    // Back at the top, scroll up: it must re-collapse AND drive progress to 0
-    // (regression — it used to stay at 1, leaving the hero text faded out).
-    window.scrollY = 0;
-    fireEvent.wheel(window, { deltaY: -2000 });
-    await waitFor(() => expect(section).toHaveAttribute('data-expanded', 'false'));
-    expect(section.style.getPropertyValue('--p')).toBe('0');
   });
 
-  it('starts expanded when the page is already scrolled at mount', async () => {
-    window.scrollY = 40;
-    const { container } = render(<ScrollExpandMedia media={<div>media</div>} overlay={() => <h1>h</h1>} />);
+  it('hides the scroll hint once progress passes the 0.2 threshold', async () => {
+    mockMatchMedia(false);
+    const rectSpy = vi
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ top: 0, height: window.innerHeight * 2 } as DOMRect);
+
+    const { container } = render(
+      <ScrollExpandMedia media={<div>media</div>} overlay={() => <h1>h</h1>} hint="role para expandir" />,
+    );
     const section = container.querySelector('section') as HTMLElement;
 
+    expect(screen.getByText('role para expandir')).toBeInTheDocument();
+
+    rectSpy.mockReturnValue({ top: -window.innerHeight, height: window.innerHeight * 2 } as DOMRect);
+    window.dispatchEvent(new Event('scroll'));
+
     await waitFor(() => expect(section).toHaveAttribute('data-expanded', 'true'));
+    expect(screen.queryByText('role para expandir')).not.toBeInTheDocument();
   });
 });

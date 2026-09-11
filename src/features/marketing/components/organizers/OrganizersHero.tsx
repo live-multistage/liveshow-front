@@ -7,13 +7,8 @@ import { OrganizerCtaLink } from '../shared/OrganizerCtaLink';
 import { HeroPlayerMock } from './HeroPlayerMock';
 import styles from './OrganizersHero.module.scss';
 
-function goToHowItWorks(expand: () => void) {
-  expand();
-  // Wait for the expand state to flush before jumping — otherwise the
-  // scroll-lock effect fights the anchor navigation.
-  window.requestAnimationFrame(() => {
-    document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' });
-  });
+function goToHowItWorks() {
+  document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' });
 }
 
 interface Props {
@@ -37,7 +32,7 @@ export function OrganizersHero({ applicationsOpen = true }: Props) {
         </>
       }
       media={<HeroPlayerMock />}
-      overlay={({ progress, expand }) => {
+      overlay={({ progress }) => {
         const fade = Math.max(0, 1 - progress * 4);
         const shiftUp = -progress * 40;
 
@@ -55,20 +50,23 @@ export function OrganizersHero({ applicationsOpen = true }: Props) {
               {t('hero.subtitle')}
             </p>
             <div className={styles.ctaRow} style={{ opacity: fade, transform: `translateY(${shiftUp}px)` }}>
-              <OrganizerCtaLink
-                size="lg"
-                withArrow={applicationsOpen}
-                disabled={!applicationsOpen}
-                disabledLabel={t('hero.ctaClosed')}
-              >
-                {t('hero.cta')}
-              </OrganizerCtaLink>
+              <div className={styles.ctaGroup}>
+                <OrganizerCtaLink
+                  size="lg"
+                  withArrow={applicationsOpen}
+                  disabled={!applicationsOpen}
+                  disabledLabel={t('hero.ctaClosed')}
+                >
+                  {t('hero.cta')}
+                </OrganizerCtaLink>
+                {applicationsOpen ? <p className={styles.ctaHint}>{t('hero.ctaHint')}</p> : null}
+              </div>
               <a
                 href="#como-funciona"
                 className={styles.secondaryLink}
                 onClick={(event) => {
                   event.preventDefault();
-                  goToHowItWorks(expand);
+                  goToHowItWorks();
                 }}
               >
                 {t('hero.secondary')}

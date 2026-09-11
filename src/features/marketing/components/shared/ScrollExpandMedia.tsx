@@ -23,27 +23,12 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-// Should the hero start already expanded instead of hijacking scroll?
-// True on a mid-page refresh, an anchor-link landing, or reduced motion —
-// none of those should trap the user behind the wheel/touch handlers below.
-function shouldStartExpanded(): boolean {
-  if (typeof window === 'undefined') return false;
-  if (window.scrollY > 5) return true;
-  if (window.location.hash) return true;
-  return prefersReducedMotion();
-}
-
 export function ScrollExpandMedia({ media, overlay, hint, background, className }: ScrollExpandMediaProps) {
   // Always start collapsed so server and client markup match; the
-  // environment checks run in the effect below.
+  // environment check (reduced motion) runs in the effect below.
   const [progress, setProgress] = useState(0);
-  const [expanded, setExpanded] = useState(false);
-
-  // Mirrored in refs so the listeners can be registered once (mount) and
-  // still read the latest values, instead of re-binding on every frame.
-  const progressRef = useRef(progress);
-  const expandedRef = useRef(expanded);
-  const touchStartYRef = useRef(0);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const sectionRef = useRef<HTMLElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   // Collapsed media sits right under the overlay text, whatever its height.
   const [mediaTop, setMediaTop] = useState<number | null>(null);
@@ -58,133 +43,93 @@ export function ScrollExpandMedia({ media, overlay, hint, background, className 
     return () => observer.disconnect();
   }, []);
 
-  // Direct setState: React batches per event, and wheel/touch events are
-  // already frame-paced by the browser. rAF would stall in hidden tabs.
-  const flush = () => {
-    setProgress(progressRef.current);
-    setExpanded(expandedRef.current);
-  };
-
-  const expand = () => {
-    progressRef.current = 1;
-    expandedRef.current = true;
-    flush();
-  };
-
-  // Symmetric with expand(): re-collapsing at the top must also drive progress
-  // back to 0, otherwise the overlay stays at its progress=1 state (the hero
-  // text keeps its faded-out opacity and never comes back).
-  const collapse = () => {
-    progressRef.current = 0;
-    expandedRef.current = false;
-    flush();
-  };
-
+  // Scroll-driven, not scroll-hijacking: progress is derived from where the
+  // (tall) section sits relative to the viewport as the user scrolls the
+  // page normally. No preventDefault, no scrollTo, no wheel/touch capture —
+  // native scrolling, keyboard, and anchor links all just work.
   useEffect(() => {
-    if (shouldStartExpanded()) {
-      expand();
+    if (prefersReducedMotion()) {
+      setReducedMotion(true);
+      setProgress(1);
       return undefined;
     }
 
-    const setProgressClamped = (next: number) => {
-      progressRef.current = Math.min(Math.max(next, 0), 1);
-      if (progressRef.current >= 1) expandedRef.current = true;
-      flush();
-    };
+    let ticking = false;
 
-    const onWheel = (event: WheelEvent) => {
-      if (expandedRef.current && event.deltaY < 0 && window.scrollY <= 5) {
-        event.preventDefault();
-        collapse();
+    const computeProgress = () => {
+      ticking = false;
+      const section = sectionRef.current;
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const scrollRange = rect.height - window.innerHeight;
+      if (scrollRange <= 0) {
+        setProgress(1);
         return;
       }
-      if (expandedRef.current) return;
-      event.preventDefault();
-      setProgressClamped(progressRef.current + event.deltaY * 0.0009);
-    };
-
-    const onTouchStart = (event: TouchEvent) => {
-      touchStartYRef.current = event.touches[0]?.clientY ?? 0;
-    };
-
-    const onTouchMove = (event: TouchEvent) => {
-      if (!touchStartYRef.current) return;
-      const touchY = event.touches[0]?.clientY ?? touchStartYRef.current;
-      const deltaY = touchStartYRef.current - touchY;
-
-      if (expandedRef.current && deltaY < -20 && window.scrollY <= 5) {
-        event.preventDefault();
-        collapse();
-        return;
-      }
-      if (expandedRef.current) return;
-
-      event.preventDefault();
-      const scrollFactor = deltaY < 0 ? 0.008 : 0.005;
-      setProgressClamped(progressRef.current + deltaY * scrollFactor);
-      touchStartYRef.current = touchY;
-    };
-
-    const onTouchEnd = () => {
-      touchStartYRef.current = 0;
+      const next = -rect.top / scrollRange;
+      setProgress(Math.min(Math.max(next, 0), 1));
     };
 
     const onScroll = () => {
-      if (!expandedRef.current) window.scrollTo(0, 0);
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(computeProgress);
     };
 
-    window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('scroll', onScroll);
-    window.addEventListener('touchstart', onTouchStart, { passive: false });
-    window.addEventListener('touchmove', onTouchMove, { passive: false });
-    window.addEventListener('touchend', onTouchEnd);
-
+    computeProgress();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
     return () => {
-      window.removeEventListener('wheel', onWheel);
       window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('resize', onScroll);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const expanded = reducedMotion || progress >= 1;
+
+  const expand = () => {
+    sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  };
 
   return (
     <section
-      className={[styles.section, className ?? ''].join(' ').trim()}
+      ref={sectionRef}
+      className={[styles.section, reducedMotion ? styles.reducedMotion : '', className ?? ''].join(' ').trim()}
       style={{ '--p': progress, ...(mediaTop !== null ? { '--media-top': `${mediaTop}px` } : {}) } as never}
       data-expanded={expanded}
     >
-      {background ? (
-        <motion.div
-          className={styles.background}
-          initial={{ opacity: 1 - progress }}
-          animate={{ opacity: 1 - progress }}
-          transition={{ duration: 0.1 }}
-        >
-          {background}
-        </motion.div>
-      ) : null}
-
-      <div ref={overlayRef} className={styles.overlay}>
-        {overlay({ progress, expanded, expand })}
-      </div>
-
-      <div className={styles.mediaWrap}>
-        <div className={styles.mediaInner}>
-          {media}
+      <div className={styles.sticky}>
+        {background ? (
           <motion.div
-            className={styles.scrim}
-            initial={{ opacity: 0.5 - progress * 0.3 }}
-            animate={{ opacity: 0.5 - progress * 0.3 }}
-            transition={{ duration: 0.2 }}
-          />
-        </div>
-        {hint ? (
-          <p className={styles.hint} style={{ opacity: 1 - progress }}>
-            {hint}
-          </p>
+            className={styles.background}
+            initial={{ opacity: 1 - progress }}
+            animate={{ opacity: 1 - progress }}
+            transition={{ duration: 0.1 }}
+          >
+            {background}
+          </motion.div>
         ) : null}
+
+        <div ref={overlayRef} className={styles.overlay}>
+          {overlay({ progress, expanded, expand })}
+        </div>
+
+        <div className={styles.mediaWrap}>
+          <div className={styles.mediaInner}>
+            {media}
+            <motion.div
+              className={styles.scrim}
+              initial={{ opacity: 0.5 - progress * 0.3 }}
+              animate={{ opacity: 0.5 - progress * 0.3 }}
+              transition={{ duration: 0.2 }}
+            />
+          </div>
+          {hint && progress < 0.2 ? (
+            <p className={styles.hint} style={{ opacity: 1 - progress }}>
+              {hint}
+            </p>
+          ) : null}
+        </div>
       </div>
     </section>
   );
