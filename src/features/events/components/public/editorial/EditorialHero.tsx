@@ -162,11 +162,18 @@ export function EditorialHero({ slides }: Props) {
   // runtimes, so `toggleAttribute` bypasses the JSX/React attribute layer
   // entirely and is correct everywhere. `aria-hidden` stays a normal JSX
   // prop below so SSR/pre-hydration markup still marks inactive slides.
-  useEffect(() => {
-    slideRefs.current.forEach((el, i) => {
-      el?.toggleAttribute('inert', i !== index);
-    });
-  }, [index, count]);
+  //
+  // Applied from the ref callback itself, not a useEffect keyed on
+  // [index, count]: `heroSlides` is recomputed on every parent render from
+  // live event data, so a show going live/ending can swap the Show at a
+  // given index while count and index stay the same. React then mounts a
+  // *new* DOM node under the same `key={show.id}` position, which a
+  // `[index, count]`-keyed effect never revisits — that node would be
+  // missing `inert` until the next navigation. An inline arrow-function ref
+  // gets a new identity every render, so React calls it (with the live
+  // element) on every render, not just on mount/unmount — it self-heals
+  // regardless of whether the DOM node is new or reused, so no separate
+  // effect is needed to keep it in sync.
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return undefined;
@@ -275,7 +282,10 @@ export function EditorialHero({ slides }: Props) {
         {slides.map((show, i) => (
           <div
             key={show.id}
-            ref={(el) => { slideRefs.current[i] = el; }}
+            ref={(el) => {
+              slideRefs.current[i] = el;
+              el?.toggleAttribute('inert', i !== index);
+            }}
             className={styles.heroV2Slide}
             aria-hidden={i !== index || undefined}
           >

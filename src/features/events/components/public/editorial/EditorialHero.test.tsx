@@ -405,6 +405,29 @@ describe('inactive slide accessibility', () => {
     expect(errorSpy).not.toHaveBeenCalled();
     errorSpy.mockRestore();
   });
+
+  // Regression: an earlier version applied `inert` from a useEffect keyed on
+  // [index, count]. `heroSlides` is recomputed from live event data on every
+  // parent render, so a show going live/ending can swap the Show at a given
+  // index while count and index stay the same — React then mounts a *new*
+  // DOM node (new `key={show.id}`) at that position, which an
+  // [index, count]-effect never revisits, leaving it missing `inert`.
+  it('keeps inert correct when the slides swap (new keys) at the same index and count', () => {
+    const { container, rerender } = render(<EditorialHero slides={[slide1, slide2, slide3]} />);
+
+    const slideD = makeShow({ id: 'd', title: 'Slide D' });
+    const slideE = makeShow({ id: 'e', title: 'Slide E' });
+    const slideF = makeShow({ id: 'f', title: 'Slide F' });
+    rerender(<EditorialHero slides={[slideD, slideE, slideF]} />);
+
+    const track = container.querySelector('[class*="heroV2Track"]') as HTMLElement;
+    const slides = Array.from(track.children) as HTMLElement[];
+    expect(slides).toHaveLength(3);
+
+    expect(slides[0]).not.toHaveAttribute('inert');
+    expect(slides[1]).toHaveAttribute('inert');
+    expect(slides[2]).toHaveAttribute('inert');
+  });
 });
 
 describe('i18n: cameras count plural', () => {
