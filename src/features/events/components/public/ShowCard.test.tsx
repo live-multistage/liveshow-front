@@ -92,6 +92,14 @@ describe('ShowCard labels', () => {
 
     expect(screen.getAllByText('replay').length).toBeGreaterThan(0);
   });
+
+  it('renders the overlay replay badge with the uppercase-styled class', () => {
+    const { container } = render(<ShowCard show={makeShow({ hasReplay: true })} />);
+
+    const badge = container.querySelector(`.${styles.replayBadge}`);
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent('replay');
+  });
 });
 
 describe('ShowCard location meta', () => {

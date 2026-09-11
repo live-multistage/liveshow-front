@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { CalendarDays } from 'lucide-react';
 import clsx from 'clsx';
 import type { ChannelListItem, ScheduledSlot } from '../types/channel.types';
 import styles from './ChannelCard.module.scss';
@@ -110,9 +111,13 @@ export function ChannelCard({ channel }: Props) {
         </div>
 
         <span className={live ? styles.ctaLive : styles.ctaOffline}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M8 5v14l11-7z" />
-          </svg>
+          {live ? (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          ) : (
+            <CalendarDays size={13} aria-hidden="true" />
+          )}
           {live ? t('watchNow') : t('viewSchedule')}
         </span>
       </div>

@@ -40,4 +40,13 @@ describe('ChannelCard CTA', () => {
 
     expect(screen.getByText('viewSchedule')).toBeInTheDocument();
   });
+
+  it('shows the play-triangle icon only when the channel is on air', () => {
+    const { container: onAir } = render(<ChannelCard channel={makeChannel({ isOnAir: true })} />);
+    expect(onAir.querySelector('path[d="M8 5v14l11-7z"]')).toBeInTheDocument();
+
+    const { container: offAir } = render(<ChannelCard channel={makeChannel({ isOnAir: false })} />);
+    expect(offAir.querySelector('path[d="M8 5v14l11-7z"]')).not.toBeInTheDocument();
+    expect(offAir.querySelector('.lucide-calendar-days')).toBeInTheDocument();
+  });
 });

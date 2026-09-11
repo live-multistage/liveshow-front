@@ -13,8 +13,10 @@
 
 .card {
   @include card-shell;
-  display: block;
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  height: 100%;
   text-decoration: none;
   color: inherit;
 }
@@ -156,6 +158,7 @@
   padding: 0.8125rem 0.9375rem 0.9375rem;
   display: flex;
   flex-direction: column;
+  flex: 1;
   gap: 0.6875rem;
 }
 
@@ -266,10 +269,12 @@
   @include card-cta;
   justify-content: center;
   width: 100%;
+  margin-top: auto;
 }
 
 .ctaOffline {
   @include card-cta-tinted;
   justify-content: center;
   width: 100%;
+  margin-top: auto;
 }
