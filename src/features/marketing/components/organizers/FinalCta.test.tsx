@@ -27,12 +27,12 @@ describe('FinalCta', () => {
     expect(screen.getByText('finalCta.title')).toBeInTheDocument();
   });
 
-  it('sends a logged-out visitor to register with a redirect back to create-organization', () => {
+  it('sends a logged-out visitor to register with a redirect back to the application form', () => {
     mockIsLoggedIn = false;
     render(<FinalCta />);
     expect(screen.getByRole('link', { name: 'finalCta.cta' })).toHaveAttribute(
       'href',
-      '/register?redirect=%2Fdashboard%2Forganizations%2Fnew',
+      '/register?redirect=%2Fbe-partner%2Fapply',
     );
   });
 

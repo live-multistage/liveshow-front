@@ -9,16 +9,16 @@ import { render, screen } from '@testing-library/react';
 import { OrganizerCtaLink } from './OrganizerCtaLink';
 
 describe('OrganizerCtaLink', () => {
-  it('sends a logged-out visitor to register with a redirect back to create-organization', () => {
+  it('sends a logged-out visitor to register with a redirect back to the application form', () => {
     mockIsLoggedIn = false;
     render(<OrganizerCtaLink>Criar minha organização</OrganizerCtaLink>);
-    expect(screen.getByRole('link').getAttribute('href')).toBe('/register?redirect=%2Fdashboard%2Forganizations%2Fnew');
+    expect(screen.getByRole('link').getAttribute('href')).toBe('/register?redirect=%2Fbe-partner%2Fapply');
   });
 
-  it('sends a logged-in organizer straight to the create-organization flow', () => {
+  it('sends a logged-in organizer straight to the application form', () => {
     mockIsLoggedIn = true;
     render(<OrganizerCtaLink>Criar minha organização</OrganizerCtaLink>);
-    expect(screen.getByRole('link').getAttribute('href')).toBe('/dashboard/organizations/new');
+    expect(screen.getByRole('link').getAttribute('href')).toBe('/be-partner/apply');
   });
 
   it('renders a disabled button with the disabled label when disabled', () => {
