@@ -12,7 +12,6 @@ import { ChannelsRail } from '@/app/(public)/_components/ChannelsRail/ChannelsRa
 import type { ChannelListItem } from '@/features/channels';
 import { GenreGrid } from './editorial/GenreGrid';
 import { EditorialHero } from './editorial/EditorialHero';
-import { LiveTicker } from './editorial/editorial-parts';
 import { ShowCard } from './ShowCard';
 import styles from './EditorialHomeContent.module.scss';
 

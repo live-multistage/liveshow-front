@@ -279,7 +279,7 @@ export function EditorialHero({ slides, headline }: Props) {
           <button
             key={show.id}
             type="button"
-            className={i === index ? styles.heroV2DotActive : styles.heroV2Dot}
+            className={`${styles.heroV2Dot} ${i === index ? styles.heroV2DotActive : ''}`}
             aria-label={`Ir para o slide ${i + 1} de ${count}`}
             aria-current={i === index}
             onClick={() => goTo(i)}
