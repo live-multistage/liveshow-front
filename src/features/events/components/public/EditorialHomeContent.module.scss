@@ -1,3 +1,5 @@
+@use '../../../styles/_variables' as *;
+
 @keyframes lsPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: .35; transform: scale(.7); }
@@ -333,84 +335,17 @@
   font-size: 11px;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: #7d7d85;
+  color: $text-secondary;
   margin-right: 4px;
   white-space: nowrap;
 }
 
-.genreChip {
-  font-family: var(--font-space-mono), 'Space Mono', monospace;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  cursor: pointer;
-  white-space: nowrap;
-  font-size: 12px;
-  padding: 10px 17px;
+// Comfortable thumb target on touch for the Chip design-system component
+// (was ~36px tall) — everything else about the chip's look lives in Chip.
+.genreChipTouch {
   scroll-snap-align: start;
-  transition: background .15s, color .15s, border-color .15s;
 
-  // Comfortable thumb target on touch (was ~36px tall).
   @media (pointer: coarse) { padding: 12px 18px; }
-}
-
-.genreChipActive {
-  font-weight: 700;
-  background: #ff2e9e;
-  color: #0a0a0b;
-  border: 1px solid #ff2e9e;
-}
-
-.genreChipInactive {
-  font-weight: 500;
-  background: rgba(255, 255, 255, .04);
-  color: #c7c7cd;
-  border: 1px solid rgba(255, 255, 255, .1);
-
-  &:hover { background: rgba(255, 255, 255, .08); border-color: rgba(255, 46, 158, .32); color: #fff; }
-}
-
-// ── Section header ────────────────────────────────────────────────
-
-.sectionHeader {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-
-.sectionEyebrow {
-  font-family: var(--font-space-mono), 'Space Mono', monospace;
-  font-size: 11px;
-  letter-spacing: .14em;
-  color: #ff7ec2;
-  margin-bottom: 6px;
-}
-
-.sectionTitle {
-  font-family: var(--font-archivo), 'Archivo', sans-serif;
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -.02em;
-  color: #f4f4f5;
-  // Rendered as <h2> for the document outline — kill the UA heading margin.
-  margin: 0;
-}
-
-.sectionMore {
-  font-family: var(--font-space-mono), 'Space Mono', monospace;
-  font-size: 12px;
-  color: #ff2e9e;
-  letter-spacing: .06em;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: opacity .15s;
-  white-space: nowrap;
-  flex-shrink: 0;
-  text-decoration: none;
-
-  &:hover { opacity: .8; }
 }
 
 // ── Event grid ────────────────────────────────────────────────────
@@ -449,11 +384,11 @@
 .emptyGrid {
   padding: 48px;
   text-align: center;
-  border: 1px dashed rgba(255, 255, 255, .12);
+  border: 1px dashed $hairline;
   border-radius: 16px;
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
-  color: #8f8f97;
+  color: $text-secondary;
   display: flex;
   flex-direction: column;
   align-items: center;

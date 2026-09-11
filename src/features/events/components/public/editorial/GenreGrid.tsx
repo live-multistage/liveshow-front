@@ -1,65 +1,77 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Chip } from '@live-show/design-system';
 import type { Show } from '@/features/events/types/show';
+import { SectionHeader } from '@/shared/components/SectionHeader/SectionHeader';
 import { GENRES_PREVIEW_COUNT } from './editorial-parts';
 import { ShowCard } from '../ShowCard';
 import styles from '../EditorialHomeContent.module.scss';
 
+// Sentinel for "no filter" — never the translated "Todos" label, so the
+// filter state doesn't depend on locale.
+const ALL_KEY = '__all__';
+
+const isRealCategory = (show: Show) => show.categoryKey !== 'OTHER';
+
 // The only interactive island on the home: the genre filter + the grid it
 // drives. Everything above it (hero, rails, carousels) is server-rendered.
 export function GenreGrid({ shows }: { shows: Show[] }) {
-  const [activeGenre, setActiveGenre] = useState('Todos');
+  const t = useTranslations('home');
+  const [activeGenre, setActiveGenre] = useState<string>(ALL_KEY);
   const [genresExpanded, setGenresExpanded] = useState(false);
 
-  const genres = useMemo(() => {
-    const unique = [...new Set(shows.map((s) => s.category))].filter(Boolean);
-    return ['Todos', ...unique];
-  }, [shows]);
+  const genres = useMemo(
+    () => [...new Set(shows.filter(isRealCategory).map((s) => s.category))].filter(Boolean),
+    [shows],
+  );
 
   const filtered = useMemo(
-    () => (activeGenre === 'Todos' ? shows : shows.filter((s) => s.category === activeGenre)),
+    () => (activeGenre === ALL_KEY ? shows : shows.filter((s) => s.category === activeGenre)),
     [shows, activeGenre],
   );
 
   return (
-    <div className={styles.gridSection}>
-      <div className={styles.genreRow}>
-        <span className={styles.genreLabel}>Filtrar por categoria</span>
-        {/* Cap the visible chips — 13 choices before the grid is a wall.
-            The active genre always stays visible even when collapsed. */}
-        {(genresExpanded
-          ? genres
-          : genres.filter((g, i) => i < GENRES_PREVIEW_COUNT || g === activeGenre)
-        ).map((g) => (
-          <button
-            key={g}
-            onClick={() => setActiveGenre(g)}
-            className={`${styles.genreChip} ${g === activeGenre ? styles.genreChipActive : styles.genreChipInactive}`}
-          >
-            {g}
-          </button>
-        ))}
-        {!genresExpanded && genres.length > GENRES_PREVIEW_COUNT && (
-          <button
-            onClick={() => setGenresExpanded(true)}
-            className={`${styles.genreChip} ${styles.genreChipInactive}`}
-          >
-            +{genres.length - GENRES_PREVIEW_COUNT} mais
-          </button>
-        )}
-      </div>
+    <section className={styles.gridSection} aria-labelledby="home-all-shows-heading">
+      <SectionHeader title={t('allShows')} titleId="home-all-shows-heading" seeAllHref="/events" />
 
-      <div className={styles.sectionHeader}>
-        <div>
-          <div className={styles.sectionEyebrow}>PRÓXIMOS SHOWS</div>
-          <h2 className={styles.sectionTitle}>Em alta no showon.io</h2>
+      {genres.length >= 2 && (
+        <div className={styles.genreRow}>
+          <span className={styles.genreLabel}>{t('filterByCategory')}</span>
+          <Chip
+            variant={activeGenre === ALL_KEY ? 'active' : 'default'}
+            className={styles.genreChipTouch}
+            onClick={() => setActiveGenre(ALL_KEY)}
+          >
+            {t('all')}
+          </Chip>
+          {/* Cap the visible chips — 13 choices before the grid is a wall.
+              The active genre always stays visible even when collapsed. */}
+          {(genresExpanded
+            ? genres
+            : genres.filter((g, i) => i < GENRES_PREVIEW_COUNT || g === activeGenre)
+          ).map((g) => (
+            <Chip
+              key={g}
+              variant={g === activeGenre ? 'active' : 'default'}
+              className={styles.genreChipTouch}
+              onClick={() => setActiveGenre(g)}
+            >
+              {g}
+            </Chip>
+          ))}
+          {!genresExpanded && genres.length > GENRES_PREVIEW_COUNT && (
+            <Chip
+              variant="default"
+              className={styles.genreChipTouch}
+              onClick={() => setGenresExpanded(true)}
+            >
+              {t('moreGenres', { count: genres.length - GENRES_PREVIEW_COUNT })}
+            </Chip>
+          )}
         </div>
-        <Link href="/events" className={styles.sectionMore}>
-          VER TODOS →
-        </Link>
-      </div>
+      )}
 
       {filtered.length > 0 ? (
         <div className={styles.eventGrid}>
@@ -69,9 +81,9 @@ export function GenreGrid({ shows }: { shows: Show[] }) {
         </div>
       ) : (
         <div className={styles.emptyGrid}>
-          Nenhum evento neste gênero ainda — em breve.
+          {activeGenre === ALL_KEY ? t('noShows') : t('noShowsInCategory')}
         </div>
       )}
-    </div>
+    </section>
   );
 }

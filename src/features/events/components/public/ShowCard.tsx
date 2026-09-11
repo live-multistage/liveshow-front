@@ -88,7 +88,7 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
             {show.cameras.length}
           </span>
 
-          {show.category && (
+          {show.category && show.categoryKey !== 'OTHER' && (
             <span className={styles.genreLabel}>{show.category.toUpperCase()}</span>
           )}
 

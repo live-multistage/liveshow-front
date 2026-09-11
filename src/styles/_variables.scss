@@ -18,10 +18,16 @@ $text-primary:   #FFFFFF;
 $text-secondary: #A1A1AA;
 $text-muted:     #71717A;
 $white-50:       rgba(255, 255, 255, 0.5);
+$accent-text:    #ff8ec9;
+$ink:            #0a0a0b;
 
 // ── Borders & hover ───────────────────────────────────────────────
 $border:       #27272A;
 $bg-hover:     #1f1f23;
+$hairline:     rgba(255, 255, 255, 0.08);
+
+// ── Radius ────────────────────────────────────────────────────────
+$radius-card:  18px;
 
 // ── Feedback (stays red — never magenta) ──────────────────────────
 $error:        #F87171;
@@ -46,3 +52,4 @@ $surface-2:    $surface;
 $sm: 640px;
 $md: 768px;
 $lg: 1024px;
+$xl: 1280px;

@@ -1,9 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Carousel } from '../Carousel/Carousel';
 import { ChannelCard } from '@/features/channels/components/ChannelCard';
+import { SectionHeader } from '@/shared/components/SectionHeader/SectionHeader';
 import type { ChannelListItem } from '@/features/channels';
 import styles from './ChannelsRail.module.scss';
 
@@ -12,21 +12,22 @@ interface Props {
 }
 
 // Trilho de canais da home. Sem canais publicados o trilho some por completo —
-// um carrossel vazio com título é pior do que nenhum. O cabeçalho replica o
-// padrão das seções de eventos (eyebrow + título 28px), alinhado ao padding do
-// gridSection — o header interno do Carousel somaria 3rem de recuo extra.
+// um carrossel vazio com título é pior do que nenhum. Única seção da home que
+// mantém eyebrow (R1): informa "TV linear · 24h" + contagem no ar.
 export function ChannelsRail({ channels }: Props) {
   const t = useTranslations('channels');
-  const tCarousel = useTranslations('carousel');
   if (channels.length === 0) return null;
 
   const onAirCount = channels.filter((c) => c.isOnAir).length;
 
   return (
     <div>
-      <div className={styles.header}>
-        <div>
-          <div className={styles.eyebrow}>
+      <SectionHeader
+        title={t('title')}
+        titleId="home-channels-heading"
+        seeAllHref="/channels"
+        eyebrow={
+          <>
             <svg
               width="15"
               height="15"
@@ -43,13 +44,9 @@ export function ChannelsRail({ channels }: Props) {
             {onAirCount > 0 && (
               <span className={styles.onAirCount}>{t('onAirCount', { count: onAirCount })}</span>
             )}
-          </div>
-          <h2 className={styles.title}>{t('title')}</h2>
-        </div>
-        <Link href="/channels" className={styles.more}>
-          {tCarousel('seeAll')}
-        </Link>
-      </div>
+          </>
+        }
+      />
 
       <Carousel>
         {channels.map((channel) => (

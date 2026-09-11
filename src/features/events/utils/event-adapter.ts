@@ -51,6 +51,7 @@ export function eventToShow(event: EventResponse): Show {
     title: event.title,
     artist: '',
     category: EVENT_CATEGORY_LABELS[event.category] ?? event.category,
+    categoryKey: event.category,
     venue: event.venue ?? '',
     city: event.city ?? '',
     country: event.country ?? '',

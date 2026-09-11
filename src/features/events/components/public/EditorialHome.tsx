@@ -3,12 +3,12 @@
 // AdBanner. Data comes straight from the SSR fetch; the old react-query hooks
 // (staleTime 5min) were dropped in favor of fresh-per-navigation server data.
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
 import { eventToShow } from '@/features/events/utils/event-adapter';
 import type { EventResponse, RecommendedEventsResponse } from '@/features/events';
 import { AdBanner } from '@/features/advertisements/components/AdBanner';
 import { Carousel } from '@/app/(public)/_components/Carousel/Carousel';
 import { ChannelsRail } from '@/app/(public)/_components/ChannelsRail/ChannelsRail';
+import { SectionHeader } from '@/shared/components/SectionHeader/SectionHeader';
 import type { ChannelListItem } from '@/features/channels';
 import { GenreGrid } from './editorial/GenreGrid';
 import { EditorialHero } from './editorial/EditorialHero';
@@ -49,16 +49,8 @@ export function EditorialHome({
 
       <div className={styles.inner}>
         {liveShows.length > 0 && (
-          <div className={styles.gridSection}>
-            <div className={styles.sectionHeader}>
-              <div>
-                <div className={styles.sectionEyebrow}>AGORA</div>
-                <h2 className={styles.sectionTitle}>Ao Vivo Agora</h2>
-              </div>
-              <Link href="/events" className={styles.sectionMore}>
-                VER TODOS →
-              </Link>
-            </div>
+          <section className={styles.gridSection} aria-labelledby="home-live-now-heading">
+            <SectionHeader title={t('liveNow')} titleId="home-live-now-heading" seeAllHref="/events" />
             <Carousel>
               {liveShows.map((show) => (
                 <div key={show.id} className={styles.recommendedItem}>
@@ -66,30 +58,22 @@ export function EditorialHome({
                 </div>
               ))}
             </Carousel>
-          </div>
+          </section>
         )}
 
         {initialChannels.length > 0 && (
-          <div className={styles.gridSection}>
+          <section className={styles.gridSection} aria-labelledby="home-channels-heading">
             <ChannelsRail channels={initialChannels} />
-          </div>
+          </section>
         )}
 
         {recommendedShows.length > 0 && (
-          <div className={styles.gridSection}>
-            <div className={styles.sectionHeader}>
-              <div>
-                <div className={styles.sectionEyebrow}>
-                  {isLoggedIn ? 'PARA VOCÊ' : 'DESTAQUES'}
-                </div>
-                <h2 className={styles.sectionTitle}>
-                  {isLoggedIn ? t('recommendedForYou') : t('trendingNow')}
-                </h2>
-              </div>
-              <Link href="/events" className={styles.sectionMore}>
-                VER TODOS →
-              </Link>
-            </div>
+          <section className={styles.gridSection} aria-labelledby="home-recommended-heading">
+            <SectionHeader
+              title={isLoggedIn ? t('recommendedForYou') : t('trendingNow')}
+              titleId="home-recommended-heading"
+              seeAllHref="/events"
+            />
             <Carousel>
               {recommendedShows.map((show) => (
                 <div key={show.id} className={styles.recommendedItem}>
@@ -97,20 +81,12 @@ export function EditorialHome({
                 </div>
               ))}
             </Carousel>
-          </div>
+          </section>
         )}
 
         {onDemandShows.length > 0 && (
-          <div className={styles.gridSection}>
-            <div className={styles.sectionHeader}>
-              <div>
-                <div className={styles.sectionEyebrow}>SOB DEMANDA</div>
-                <h2 className={styles.sectionTitle}>{t('replaysAvailable')}</h2>
-              </div>
-              <Link href="/events" className={styles.sectionMore}>
-                VER TODOS →
-              </Link>
-            </div>
+          <section className={styles.gridSection} aria-labelledby="home-replays-heading">
+            <SectionHeader title={t('replaysAvailable')} titleId="home-replays-heading" seeAllHref="/events" />
             <Carousel>
               {onDemandShows.map((show) => (
                 <div key={show.id} className={styles.recommendedItem}>
@@ -118,7 +94,7 @@ export function EditorialHome({
                 </div>
               ))}
             </Carousel>
-          </div>
+          </section>
         )}
 
         <div className={styles.adBannerWrapper}>

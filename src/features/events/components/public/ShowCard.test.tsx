@@ -65,3 +65,17 @@ describe('ShowCard compact', () => {
     expect(screen.getByText('Episódio 3')).toBeInTheDocument();
   });
 });
+
+describe('ShowCard category label', () => {
+  it('shows the category label for a real category', () => {
+    render(<ShowCard show={makeShow({ category: 'Rock', categoryKey: 'MUSIC' })} />);
+
+    expect(screen.getByText('ROCK')).toBeInTheDocument();
+  });
+
+  it('hides the category label when the category is OTHER', () => {
+    render(<ShowCard show={makeShow({ category: 'Outro', categoryKey: 'OTHER' })} />);
+
+    expect(screen.queryByText('OUTRO')).not.toBeInTheDocument();
+  });
+});
