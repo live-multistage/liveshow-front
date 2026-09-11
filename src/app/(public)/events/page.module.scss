@@ -318,6 +318,7 @@
 }
 
 .countLabel {
+  margin: 0;
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .08em;
@@ -395,11 +396,14 @@
 
 .cardGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  // Design: 6 compact poster cards per row on desktop (repeat(6) at the
+  // 1280 container). minmax(0,1fr) keeps long titles from blowing a column.
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
 
-  @media (max-width: 1023px) { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 639px)  { grid-template-columns: 1fr; }
+  @media (max-width: 1279px) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 899px)  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (max-width: 639px)  { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 }
 
 .cardList {

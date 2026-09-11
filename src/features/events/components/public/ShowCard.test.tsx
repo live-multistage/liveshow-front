@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ShowCard } from './ShowCard';
 import type { Show } from '../../types/show';
+import styles from './ShowCard.module.scss';
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
@@ -44,6 +45,23 @@ describe('ShowCard', () => {
   it('renders the show title', () => {
     render(<ShowCard show={makeShow()} />);
 
+    expect(screen.getByText('Episódio 3')).toBeInTheDocument();
+  });
+});
+
+describe('ShowCard compact', () => {
+  // Under vitest CSS modules yield class names but no real CSS, so the compact
+  // treatment (3/4 image, hidden tag chips, full-width CTA) can only be
+  // asserted through the class the component applies — read from the module
+  // so the test is independent of the class-name strategy.
+  it('applies the compact class only when size="compact"', () => {
+    const { container: base, unmount } = render(<ShowCard show={makeShow()} />);
+    expect(base.firstChild).not.toHaveClass(styles.cardCompact);
+    expect(screen.getByText('SHOW')).toBeInTheDocument();
+    unmount();
+
+    const { container } = render(<ShowCard show={makeShow()} size="compact" />);
+    expect(container.firstChild).toHaveClass(styles.cardCompact);
     expect(screen.getByText('Episódio 3')).toBeInTheDocument();
   });
 });

@@ -15,9 +15,13 @@ interface ShowCardProps {
   show: Show;
   purchased?: boolean;
   layout?: 'vertical' | 'horizontal';
+  // 'compact' = the dense 6-per-row poster card of the Programação grid:
+  // 3/4 image, tighter type, no tag chips, full-width CTA. Default is the
+  // wider card used by the home rails, artist page and my-list.
+  size?: 'default' | 'compact';
 }
 
-export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowCardProps) {
+export function ShowCard({ show, purchased = false, layout = 'vertical', size = 'default' }: ShowCardProps) {
   const t = useTranslations('showCard');
   const locale = useLocale();
   const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
@@ -38,7 +42,13 @@ export function ShowCard({ show, purchased = false, layout = 'vertical' }: ShowC
   const ctaHref = purchased || show.isLive ? `/live/${show.id}` : eventHref(show);
 
   return (
-    <div className={`${styles.card} ${layout === 'horizontal' ? styles.cardHorizontal : ''}`}>
+    <div
+      className={[
+        styles.card,
+        layout === 'horizontal' ? styles.cardHorizontal : '',
+        size === 'compact' ? styles.cardCompact : '',
+      ].join(' ')}
+    >
       <Link href={cardHref} className={styles.cardLink} aria-label={show.title}>
         <div className={styles.imageWrapper}>
           <Image

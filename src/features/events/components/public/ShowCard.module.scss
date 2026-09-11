@@ -320,3 +320,49 @@
   bottom: 12px;
   right: 12px;
 }
+
+// ── Compact (6-per-row Programação grid) ──────────────────────────
+// Nested overrides so they outrank the base rules regardless of order.
+.cardCompact {
+  & .imageWrapper { aspect-ratio: 3 / 4; }
+
+  & .content {
+    padding: 13px 13px 0;
+    gap: 9px;
+  }
+
+  & .cardTitle {
+    font-size: 13.5px;
+    letter-spacing: -.01em;
+    line-height: 1.2;
+  }
+
+  & .cardPrice { font-size: 12px; }
+
+  & .metaList {
+    font-size: 11px;
+    gap: 5px;
+  }
+
+  & .metaItem { gap: 6px; }
+
+  & .metaIcon {
+    width: 11px;
+    height: 11px;
+  }
+
+  // The design drops the SHOW/REPRISE tag row and stretches the CTA.
+  & .footerChips { display: none; }
+
+  & .cardFooter {
+    border-top: 0;
+    padding: 0 13px 13px;
+  }
+
+  & .btnCta {
+    width: 100%;
+    justify-content: center;
+    padding: 9px;
+    font-size: 10.5px;
+  }
+}

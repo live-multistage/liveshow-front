@@ -231,10 +231,10 @@ export function EventsListPageContent({ initialFirstPage }: { initialFirstPage?:
 
         {/* Count + view toggle */}
         <div className={styles.countRow}>
-          <div className={styles.countLabel}>
+          <h2 className={styles.countLabel}>
             <span className={styles.countNum}>{isLoading ? '—' : filtered.length}</span>
             {' SHOWS ENCONTRADOS'}
-          </div>
+          </h2>
           <div className={styles.viewToggle}>
             <button
               className={`${styles.viewBtn} ${view === 'grid' ? styles.viewBtnActive : ''}`}
@@ -283,7 +283,12 @@ export function EventsListPageContent({ initialFirstPage }: { initialFirstPage?:
         {!isLoading && !isError && filtered.length > 0 && (
           <div className={view === 'grid' ? styles.cardGrid : styles.cardList}>
             {filtered.map((show) => (
-              <ShowCard key={show.id} show={show} layout={view === 'list' ? 'horizontal' : 'vertical'} />
+              <ShowCard
+                key={show.id}
+                show={show}
+                layout={view === 'list' ? 'horizontal' : 'vertical'}
+                size={view === 'grid' ? 'compact' : 'default'}
+              />
             ))}
           </div>
         )}
