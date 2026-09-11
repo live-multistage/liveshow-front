@@ -38,8 +38,7 @@
     "wishlist": "Wishlist",
     "help": "Help",
     "search": "Search",
-    "organizers": "Become a partner",
-    "artists": "Artists"
+    "organizers": "Become a partner"
   },
   "auth": {
     "login": {
@@ -194,10 +193,7 @@
       "about": "About the Show",
       "availableCameras": "Available Cameras ({count})",
       "watching": "{count} watching",
-      "cameraViews": "{count} camera views",
-      "related": {
-        "title": "You might also like"
-      }
+      "cameraViews": "{count} camera views"
     },
     "status": {
       "PUBLISHED": "Coming Soon",
@@ -281,7 +277,6 @@
     }
   },
   "home": {
-    "headline": "Live shows in multiple camera angles — watch from anywhere",
     "loading": "Loading events...",
     "liveNow": "Live Now",
     "liveForYou": "Live for you",
@@ -457,10 +452,7 @@
       "series": "Programs",
       "platformFeatureFlags": "Feature Flags",
       "platformAdPartnerships": "Ad partnerships",
-      "platformOrganizerApplications": "Applications",
-      "platformArtistApplications": "Artist applications",
-      "artists": "Artists",
-      "artistsCatalog": "Artist Catalog"
+      "platformOrganizerApplications": "Applications"
     },
     "navMobile": {
       "overview": "Home",
@@ -473,8 +465,7 @@
       "platformEvents": "Events",
       "platformStreams": "Streams",
       "platformRevenue": "Revenue",
-      "channels": "Channels",
-      "artists": "Artists"
+      "channels": "Channels"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -689,20 +680,7 @@
     "checklistDate": "Date and time set",
     "checklistTicket": "Create at least 1 ticket type",
     "checklistDescription": "Add a description",
-    "descriptionEmpty": "No description. Add text for the event public page.",
-    "lineup": "In the event",
-    "lineupCount": "{count, plural, one {# artist} other {# artists}}",
-    "viewArtist": "View artist",
-    "schedule": {
-      "title": "Schedule",
-      "countBlocks": "{count, plural, one {# block} other {# blocks}}",
-      "empty": "Schedule coming soon",
-      "badgeArtist": "ARTIST",
-      "badgeSegment": "SEGMENT",
-      "stageLabel": "STAGE",
-      "stageAll": "ALL",
-      "live": "LIVE"
-    }
+    "descriptionEmpty": "No description. Add text for the event public page."
   },
   "createEvent": {
     "back": "Events",
@@ -714,8 +692,7 @@
       "production": "Production",
       "stream": "Stream",
       "tickets": "Tickets",
-      "images": "Images",
-      "schedule": "Schedule"
+      "images": "Images"
     },
     "nav": {
       "back": "Back",
@@ -801,40 +778,7 @@
       "ticketsEmpty": "No tickets configured yet"
     },
     "replayTicketDesc": "Access to the recording after the event",
-    "mainStreamTitle": "Main Broadcast",
-    "schedule": {
-      "stepLabel": "Schedule",
-      "title": "Schedule",
-      "subtitle": "Describe what happens at each time slot. Artist blocks pull from the confirmed lineup.",
-      "addBlock": "Add block",
-      "blockLabel": "Block",
-      "typeArtist": "Artist",
-      "typeSegment": "Segment",
-      "startLabel": "Start",
-      "endLabel": "End",
-      "endPlaceholder": "optional",
-      "artistLabel": "Artists (lineup)",
-      "artistPlaceholder": "Add from lineup…",
-      "stageLabel": "STAGE",
-      "noStage": "No stage",
-      "allStages": "All",
-      "segmentLabel": "Segment title",
-      "segmentPlaceholder": "Pre-show, Intermission…",
-      "descPlaceholder": "Short description (optional)",
-      "save": "Save schedule",
-      "saving": "Saving…",
-      "cancel": "Cancel",
-      "empty": "No blocks yet",
-      "dirty": "Unsaved changes",
-      "clean": "All saved",
-      "errStartRequired": "Enter a start time",
-      "errStartInvalid": "Invalid start time",
-      "errEndInvalid": "Invalid end time",
-      "errArtistRequired": "Select at least one artist",
-      "errSegmentRequired": "Enter the segment title",
-      "savedToast": "Schedule saved.",
-      "errorToast": "Could not save the schedule."
-    }
+    "mainStreamTitle": "Main Broadcast"
   },
   "dateTimeInput": {
     "invalidDate": "Invalid date. Use dd/mm/yyyy.",
@@ -2420,7 +2364,8 @@
       "title": "Stream your live event and sell tickets",
       "titleAccent": "in one place.",
       "subtitle": "Concerts, games, conferences, church services, plays, classes. You produce, showon.io handles streaming, ticketing, and payments.",
-      "cta": "Create my organization",
+      "cta": "I want to stream my event",
+      "ctaHint": "Takes 2 minutes. Your application goes through a quick review before approval.",
       "secondary": "See how it works ↓",
       "mock": {
         "live": "LIVE",
@@ -2467,12 +2412,12 @@
       "title": "From sign-up to your first event in four steps.",
       "steps": [
         {
-          "title": "Create your account and your organization",
-          "text": "Name, description, and logo. Takes two minutes."
+          "title": "Submit your application",
+          "text": "Account, organization name, and what you stream. Takes two minutes; review usually replies within a few days."
         },
         {
-          "title": "Wait for review",
-          "text": "Every organization goes through a quick review before publishing. You'll get an email."
+          "title": "Wait for approval",
+          "text": "Our team reviews your application; once approved, your organization is created and you'll get an email."
         },
         {
           "title": "Connect your payout account",
@@ -2484,13 +2429,13 @@
         }
       ],
       "visual": {
-        "newOrg": "NEW ORGANIZATION",
-        "logo": "Logo",
-        "logoHint": "PNG or SVG, up to 2 MB",
-        "nameLabel": "Organization name",
-        "nameValue": "Metropolitan Volleyball League",
-        "descLabel": "Description",
-        "descValue": "Official broadcasts of the league's games, with cameras on both courts.",
+        "formLabel": "APPLICATION",
+        "orgLabel": "Organization",
+        "orgValue": "Metropolitan Volleyball League",
+        "whatLabel": "What you stream",
+        "whatValue": "League volleyball games, two courts",
+        "siteLabel": "Website or social",
+        "siteValue": "instagram.com/metrovolleyball",
         "inReview": "IN REVIEW",
         "reviewOrg": "Metropolitan Volleyball League",
         "reviewText": "Your organization has been submitted. You'll get an email as soon as the review is done.",
@@ -2738,7 +2683,8 @@
     },
     "finalCta": {
       "title": "Ready for your next event?",
-      "cta": "Create my organization",
+      "cta": "I want to stream my event",
+      "ctaHint": "Takes 2 minutes. Your application goes through a quick review before approval.",
       "helpLink": "Still have questions? Talk to us",
       "watermark": "LIVE"
     }
@@ -2908,91 +2854,5 @@
     "unmuteUser": "Unmute {name}",
     "connecting": "Connecting…",
     "unavailable": "Chat is unavailable for you in this event"
-  },
-  "artists": {
-    "listTitle": "Artists",
-    "listSubtitle": "Discover the artists and acts streaming live on showon.io.",
-    "breadcrumbRoot": "ARTISTS",
-    "aboutLabel": "ABOUT THE ARTIST",
-    "eventsHeading": "Shows from this artist",
-    "eventsCount": "{count, plural, one {# show} other {# shows}}",
-    "liveNow": "LIVE NOW",
-    "follow": "Follow",
-    "seeShows": "See shows",
-    "socials": {
-      "instagram": "Instagram",
-      "youtube": "YouTube",
-      "x": "X",
-      "tiktok": "TikTok",
-      "site": "Official site"
-    },
-    "empty": {
-      "title": "No shows yet",
-      "description": "This artist hasn't announced any shows on the platform yet. Follow the profile to get notified as soon as the first date is set.",
-      "cta": "Follow artist"
-    },
-    "notFound": {
-      "title": "Artist not found",
-      "description": "This artist doesn't exist or is no longer available."
-    },
-    "dashboard": {
-      "profile": {
-        "name": "Name",
-        "slug": "Slug",
-        "bio": "Bio",
-        "avatar": "Profile photo",
-        "banner": "Banner",
-        "genres": "Genres",
-        "socialLinks": "Social links",
-        "status": "Status",
-        "save": "Save",
-        "cancel": "Cancel",
-        "create": "Create artist",
-        "edit": "Edit artist",
-        "delete": "Delete artist",
-        "deleteConfirm": "Are you sure you want to delete this artist profile? This action cannot be undone."
-      },
-      "invitations": {
-        "title": "Invitations",
-        "empty": "No invitations right now.",
-        "accept": "Accept",
-        "decline": "Decline",
-        "pending": "Pending",
-        "accepted": "Accepted",
-        "declined": "Declined"
-      },
-      "lineup": {
-        "title": "In the event",
-        "inviteCta": "Invite from catalog",
-        "searchPlaceholder": "Search artist by name...",
-        "statusPending": "Invite sent",
-        "statusAccepted": "Confirmed",
-        "statusDeclined": "Declined",
-        "remove": "Remove"
-      },
-      "catalog": {
-        "title": "Artists",
-        "newArtist": "New artist",
-        "empty": "No artists registered yet.",
-        "columns": {
-          "name": "Name",
-          "slug": "Slug",
-          "owner": "Owner",
-          "events": "Shows",
-          "status": "Status"
-        },
-        "noOwner": "no owner"
-      },
-      "toasts": {
-        "created": "Artist created successfully.",
-        "updated": "Artist updated successfully.",
-        "deleted": "Artist deleted successfully.",
-        "invited": "Invite sent successfully.",
-        "accepted": "Invitation accepted.",
-        "declined": "Invitation declined.",
-        "removed": "Artist removed from the lineup.",
-        "error": "Could not complete the action. Please try again."
-      }
-    }
   }
 }

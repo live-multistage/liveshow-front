@@ -43,7 +43,7 @@ test('M5 social login keys exist', () => {
 });
 
 test('organizers page keys exist', () => {
-  expect(messages.pt.organizersPage.hero.cta).toBe('Criar minha organização');
+  expect(messages.pt.organizersPage.hero.cta).toBe('Quero transmitir meu evento');
   expect(messages.pt.nav.organizers).toBe('Para organizadores');
   expect(messages.pt.organizersPage.faq.items.length).toBe(8);
 });

@@ -50,14 +50,17 @@ export function OrganizersHero({ applicationsOpen = true }: Props) {
               {t('hero.subtitle')}
             </p>
             <div className={styles.ctaRow} style={{ opacity: fade, transform: `translateY(${shiftUp}px)` }}>
-              <OrganizerCtaLink
-                size="lg"
-                withArrow={applicationsOpen}
-                disabled={!applicationsOpen}
-                disabledLabel={t('hero.ctaClosed')}
-              >
-                {t('hero.cta')}
-              </OrganizerCtaLink>
+              <div className={styles.ctaGroup}>
+                <OrganizerCtaLink
+                  size="lg"
+                  withArrow={applicationsOpen}
+                  disabled={!applicationsOpen}
+                  disabledLabel={t('hero.ctaClosed')}
+                >
+                  {t('hero.cta')}
+                </OrganizerCtaLink>
+                {applicationsOpen ? <p className={styles.ctaHint}>{t('hero.ctaHint')}</p> : null}
+              </div>
               <a
                 href="#como-funciona"
                 className={styles.secondaryLink}

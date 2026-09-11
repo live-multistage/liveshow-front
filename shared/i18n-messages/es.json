@@ -38,8 +38,7 @@
     "wishlist": "Favoritos",
     "help": "Ayuda",
     "search": "Buscar",
-    "organizers": "Sé un socio",
-    "artists": "Artistas"
+    "organizers": "Sé un socio"
   },
   "auth": {
     "login": {
@@ -194,10 +193,7 @@
       "about": "Sobre el Show",
       "availableCameras": "Cámaras Disponibles ({count})",
       "watching": "{count} viendo",
-      "cameraViews": "{count} vistas de cámara",
-      "related": {
-        "title": "También te puede interesar"
-      }
+      "cameraViews": "{count} vistas de cámara"
     },
     "status": {
       "PUBLISHED": "Próximamente",
@@ -281,7 +277,6 @@
     }
   },
   "home": {
-    "headline": "Shows en vivo con múltiples cámaras — míralos desde donde estés",
     "loading": "Cargando eventos...",
     "liveNow": "En Vivo Ahora",
     "liveForYou": "En vivo para ti",
@@ -457,10 +452,7 @@
       "series": "Programas",
       "platformFeatureFlags": "Feature Flags",
       "platformAdPartnerships": "Alianzas de anuncios",
-      "platformOrganizerApplications": "Candidaturas",
-      "platformArtistApplications": "Candidaturas de artistas",
-      "artists": "Artistas",
-      "artistsCatalog": "Catálogo de Artistas"
+      "platformOrganizerApplications": "Candidaturas"
     },
     "navMobile": {
       "overview": "Panel",
@@ -473,8 +465,7 @@
       "platformEvents": "Eventos",
       "platformStreams": "Streams",
       "platformRevenue": "Ingresos",
-      "channels": "Canales",
-      "artists": "Artistas"
+      "channels": "Canales"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -689,20 +680,7 @@
     "checklistDate": "Fecha y hora definidas",
     "checklistTicket": "Crear al menos 1 tipo de entrada",
     "checklistDescription": "Añadir descripción",
-    "descriptionEmpty": "Sin descripción. Añade un texto para la página pública del evento.",
-    "lineup": "En el evento",
-    "lineupCount": "{count, plural, one {# artista} other {# artistas}}",
-    "viewArtist": "Ver artista",
-    "schedule": {
-      "title": "Programación",
-      "countBlocks": "{count, plural, one {# bloque} other {# bloques}}",
-      "empty": "Programación próximamente",
-      "badgeArtist": "ARTISTA",
-      "badgeSegment": "SEGMENTO",
-      "stageLabel": "ESCENARIO",
-      "stageAll": "TODOS",
-      "live": "EN VIVO"
-    }
+    "descriptionEmpty": "Sin descripción. Añade un texto para la página pública del evento."
   },
   "createEvent": {
     "back": "Eventos",
@@ -714,8 +692,7 @@
       "production": "Producción",
       "stream": "Stream",
       "tickets": "Entradas",
-      "images": "Imágenes",
-      "schedule": "Programación"
+      "images": "Imágenes"
     },
     "nav": {
       "back": "Volver",
@@ -801,40 +778,7 @@
       "ticketsEmpty": "Aún no hay entradas configuradas"
     },
     "replayTicketDesc": "Acceso a la grabación después del evento",
-    "mainStreamTitle": "Transmisión Principal",
-    "schedule": {
-      "stepLabel": "Programación",
-      "title": "Programación",
-      "subtitle": "Describe qué pasa en cada horario. Los bloques de artista toman datos del lineup ya confirmado.",
-      "addBlock": "Agregar bloque",
-      "blockLabel": "Bloque",
-      "typeArtist": "Artista",
-      "typeSegment": "Segmento",
-      "startLabel": "Inicio",
-      "endLabel": "Fin",
-      "endPlaceholder": "opcional",
-      "artistLabel": "Artistas (lineup)",
-      "artistPlaceholder": "Agregar del lineup…",
-      "stageLabel": "ESCENARIO",
-      "noStage": "Sin escenario",
-      "allStages": "Todos",
-      "segmentLabel": "Título del segmento",
-      "segmentPlaceholder": "Pre-show, Intermedio…",
-      "descPlaceholder": "Descripción corta (opcional)",
-      "save": "Guardar programación",
-      "saving": "Guardando…",
-      "cancel": "Cancelar",
-      "empty": "Ningún bloque todavía",
-      "dirty": "Cambios sin guardar",
-      "clean": "Todo guardado",
-      "errStartRequired": "Ingresa el horario de inicio",
-      "errStartInvalid": "Horario de inicio inválido",
-      "errEndInvalid": "Horario de fin inválido",
-      "errArtistRequired": "Selecciona al menos un artista",
-      "errSegmentRequired": "Ingresa el título del segmento",
-      "savedToast": "Programación guardada.",
-      "errorToast": "No se pudo guardar la programación."
-    }
+    "mainStreamTitle": "Transmisión Principal"
   },
   "dateTimeInput": {
     "invalidDate": "Fecha inválida. Usa dd/mm/aaaa.",
@@ -2420,7 +2364,8 @@
       "title": "Transmite tu evento en vivo y vende entradas",
       "titleAccent": "en un solo lugar.",
       "subtitle": "Conciertos, partidos, conferencias, misas, obras, clases. Tú produces, showon.io se encarga de la transmisión, las entradas y el pago.",
-      "cta": "Crear mi organización",
+      "cta": "Quiero transmitir mi evento",
+      "ctaHint": "Toma 2 minutos. Tu candidatura pasa por una revisión rápida antes de la aprobación.",
       "secondary": "Ver cómo funciona ↓",
       "mock": {
         "live": "EN VIVO",
@@ -2467,12 +2412,12 @@
       "title": "Del registro a tu primer evento en cuatro pasos.",
       "steps": [
         {
-          "title": "Crea tu cuenta y tu organización",
-          "text": "Nombre, descripción y logo. Toma dos minutos."
+          "title": "Envía tu candidatura",
+          "text": "Cuenta, nombre de la organización y qué transmites. Toma dos minutos; la revisión suele responder en pocos días."
         },
         {
-          "title": "Espera la revisión",
-          "text": "Toda organización pasa por una revisión rápida antes de publicar. Te avisamos por correo."
+          "title": "Espera la aprobación",
+          "text": "Nuestro equipo revisa tu candidatura; una vez aprobada, se crea tu organización y te avisamos por correo."
         },
         {
           "title": "Conecta tu cuenta de cobro",
@@ -2484,13 +2429,13 @@
         }
       ],
       "visual": {
-        "newOrg": "NUEVA ORGANIZACIÓN",
-        "logo": "Logo",
-        "logoHint": "PNG o SVG, hasta 2 MB",
-        "nameLabel": "Nombre de la organización",
-        "nameValue": "Liga Metropolitana de Vóley",
-        "descLabel": "Descripción",
-        "descValue": "Transmisiones oficiales de los partidos de la liga, con cámaras en ambas canchas.",
+        "formLabel": "CANDIDATURA",
+        "orgLabel": "Organización",
+        "orgValue": "Liga Metropolitana de Vóley",
+        "whatLabel": "Qué transmites",
+        "whatValue": "Partidos de la liga de vóley, dos canchas",
+        "siteLabel": "Sitio o red social",
+        "siteValue": "instagram.com/ligametropolitana",
         "inReview": "EN REVISIÓN",
         "reviewOrg": "Liga Metropolitana de Vóley",
         "reviewText": "Tu organización fue enviada. Recibirás un correo en cuanto termine la revisión.",
@@ -2738,7 +2683,8 @@
     },
     "finalCta": {
       "title": "¿Listo para tu próximo evento?",
-      "cta": "Crear mi organización",
+      "cta": "Quiero transmitir mi evento",
+      "ctaHint": "Toma 2 minutos. Tu candidatura pasa por una revisión rápida antes de la aprobación.",
       "helpLink": "¿Aún tienes dudas? Habla con nosotros",
       "watermark": "EN VIVO"
     }
@@ -2908,91 +2854,5 @@
     "unmuteUser": "Reactivar {name}",
     "connecting": "Conectando…",
     "unavailable": "El chat no está disponible para ti en este evento"
-  },
-  "artists": {
-    "listTitle": "Artistas",
-    "listSubtitle": "Descubre a los artistas y atracciones que transmiten en vivo en showon.io.",
-    "breadcrumbRoot": "ARTISTAS",
-    "aboutLabel": "SOBRE EL ARTISTA",
-    "eventsHeading": "Shows de este artista",
-    "eventsCount": "{count, plural, one {# show} other {# shows}}",
-    "liveNow": "EN VIVO AHORA",
-    "follow": "Seguir",
-    "seeShows": "Ver shows",
-    "socials": {
-      "instagram": "Instagram",
-      "youtube": "YouTube",
-      "x": "X",
-      "tiktok": "TikTok",
-      "site": "Sitio oficial"
-    },
-    "empty": {
-      "title": "Aún no hay shows",
-      "description": "Este artista todavía no anunció shows en la plataforma. Sigue el perfil para enterarte en cuanto se confirme la primera fecha.",
-      "cta": "Seguir artista"
-    },
-    "notFound": {
-      "title": "Artista no encontrado",
-      "description": "Este artista no existe o ya no está disponible."
-    },
-    "dashboard": {
-      "profile": {
-        "name": "Nombre",
-        "slug": "Slug",
-        "bio": "Biografía",
-        "avatar": "Foto de perfil",
-        "banner": "Banner",
-        "genres": "Géneros",
-        "socialLinks": "Redes sociales",
-        "status": "Estado",
-        "save": "Guardar",
-        "cancel": "Cancelar",
-        "create": "Crear artista",
-        "edit": "Editar artista",
-        "delete": "Eliminar artista",
-        "deleteConfirm": "¿Seguro que deseas eliminar este perfil de artista? Esta acción no se puede deshacer."
-      },
-      "invitations": {
-        "title": "Invitaciones",
-        "empty": "No hay invitaciones por el momento.",
-        "accept": "Aceptar",
-        "decline": "Rechazar",
-        "pending": "Pendiente",
-        "accepted": "Aceptada",
-        "declined": "Rechazada"
-      },
-      "lineup": {
-        "title": "En el evento",
-        "inviteCta": "Invitar desde el catálogo",
-        "searchPlaceholder": "Buscar artista por nombre...",
-        "statusPending": "Invitación enviada",
-        "statusAccepted": "Confirmado",
-        "statusDeclined": "Rechazada",
-        "remove": "Quitar"
-      },
-      "catalog": {
-        "title": "Artistas",
-        "newArtist": "Nuevo artista",
-        "empty": "Aún no hay artistas registrados.",
-        "columns": {
-          "name": "Nombre",
-          "slug": "Slug",
-          "owner": "Dueño",
-          "events": "Shows",
-          "status": "Estado"
-        },
-        "noOwner": "sin dueño"
-      },
-      "toasts": {
-        "created": "Artista creado con éxito.",
-        "updated": "Artista actualizado con éxito.",
-        "deleted": "Artista eliminado con éxito.",
-        "invited": "Invitación enviada con éxito.",
-        "accepted": "Invitación aceptada.",
-        "declined": "Invitación rechazada.",
-        "removed": "Artista eliminado del line-up.",
-        "error": "No se pudo completar la acción. Inténtalo de nuevo."
-      }
-    }
   }
 }

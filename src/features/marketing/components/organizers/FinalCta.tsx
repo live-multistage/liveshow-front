@@ -29,6 +29,7 @@ export function FinalCta({ applicationsOpen = true }: Props) {
             >
               {t('finalCta.cta')}
             </OrganizerCtaLink>
+            {applicationsOpen ? <p className={styles.ctaHint}>{t('finalCta.ctaHint')}</p> : null}
             <Link href="/help" className={styles.helpLink}>
               {t('finalCta.helpLink')} →
             </Link>

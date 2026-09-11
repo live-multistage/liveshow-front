@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowRight, Check, Plus } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import { SectionHeader } from '../shared/SectionHeader';
 import styles from './HowItWorks.module.scss';
 
@@ -81,13 +81,13 @@ function useActiveStep(stepCount: number): [number, (index: number, el: HTMLDivE
 }
 
 interface VisualCopy {
-  newOrg: string;
-  logo: string;
-  logoHint: string;
-  nameLabel: string;
-  nameValue: string;
-  descLabel: string;
-  descValue: string;
+  formLabel: string;
+  orgLabel: string;
+  orgValue: string;
+  whatLabel: string;
+  whatValue: string;
+  siteLabel: string;
+  siteValue: string;
   inReview: string;
   reviewOrg: string;
   reviewText: string;
@@ -112,23 +112,16 @@ function StepScreen({ step, visual }: { step: number; visual: VisualCopy }) {
   if (step === 0) {
     return (
       <>
-        <div className={styles.screenLabel}>{visual.newOrg}</div>
-        <div className={styles.orgFormRow}>
-          <div className={styles.dropzone}>
-            <Plus size={22} strokeWidth={2} />
-          </div>
-          <div>
-            <div className={styles.fieldValue}>{visual.logo}</div>
-            <div className={styles.fieldHint}>{visual.logoHint}</div>
-          </div>
-        </div>
-        <div className={styles.fieldLabel}>{visual.nameLabel}</div>
+        <div className={styles.screenLabel}>{visual.formLabel}</div>
+        <div className={styles.fieldLabel}>{visual.orgLabel}</div>
         <div className={styles.inputFocused}>
-          {visual.nameValue}
+          {visual.orgValue}
           <span className={styles.caret} />
         </div>
-        <div className={styles.fieldLabel}>{visual.descLabel}</div>
-        <div className={styles.textarea}>{visual.descValue}</div>
+        <div className={styles.fieldLabel}>{visual.whatLabel}</div>
+        <div className={styles.textarea}>{visual.whatValue}</div>
+        <div className={styles.fieldLabel}>{visual.siteLabel}</div>
+        <div className={styles.fieldStatic}>{visual.siteValue}</div>
       </>
     );
   }
@@ -225,13 +218,13 @@ export function HowItWorks() {
   const [activeStep, setStepRef] = useActiveStep(steps.length);
 
   const visual: VisualCopy = {
-    newOrg: t('howItWorks.visual.newOrg'),
-    logo: t('howItWorks.visual.logo'),
-    logoHint: t('howItWorks.visual.logoHint'),
-    nameLabel: t('howItWorks.visual.nameLabel'),
-    nameValue: t('howItWorks.visual.nameValue'),
-    descLabel: t('howItWorks.visual.descLabel'),
-    descValue: t('howItWorks.visual.descValue'),
+    formLabel: t('howItWorks.visual.formLabel'),
+    orgLabel: t('howItWorks.visual.orgLabel'),
+    orgValue: t('howItWorks.visual.orgValue'),
+    whatLabel: t('howItWorks.visual.whatLabel'),
+    whatValue: t('howItWorks.visual.whatValue'),
+    siteLabel: t('howItWorks.visual.siteLabel'),
+    siteValue: t('howItWorks.visual.siteValue'),
     inReview: t('howItWorks.visual.inReview'),
     reviewOrg: t('howItWorks.visual.reviewOrg'),
     reviewText: t('howItWorks.visual.reviewText'),
