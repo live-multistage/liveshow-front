@@ -24,10 +24,10 @@ $ink:            #0a0a0b;
 // ── Borders & hover ───────────────────────────────────────────────
 $border:       #27272A;
 $bg-hover:     #1f1f23;
-$hairline:     rgba(255, 255, 255, 0.08);
+$border-hairline: rgba(255, 255, 255, 0.08);
 
 // ── Radius ────────────────────────────────────────────────────────
-$radius-card:  18px;
+$card-radius:  18px;
 
 // ── Feedback (stays red — never magenta) ──────────────────────────
 $error:        #F87171;
