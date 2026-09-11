@@ -45,7 +45,7 @@ export function EditorialHome({
   return (
     <div className={styles.page}>
 
-      {heroSlides.length > 0 && <EditorialHero slides={heroSlides} localeCode={localeCode} />}
+      {heroSlides.length > 0 && <EditorialHero slides={heroSlides} localeCode={localeCode} headline={t('headline')} />}
 
       <div className={styles.inner}>
         {liveShows.length > 0 && (
@@ -53,7 +53,7 @@ export function EditorialHome({
             <div className={styles.sectionHeader}>
               <div>
                 <div className={styles.sectionEyebrow}>AGORA</div>
-                <div className={styles.sectionTitle}>Ao Vivo Agora</div>
+                <h2 className={styles.sectionTitle}>Ao Vivo Agora</h2>
               </div>
               <Link href="/events" className={styles.sectionMore}>
                 VER TODOS →
@@ -82,9 +82,9 @@ export function EditorialHome({
                 <div className={styles.sectionEyebrow}>
                   {isLoggedIn ? 'PARA VOCÊ' : 'DESTAQUES'}
                 </div>
-                <div className={styles.sectionTitle}>
+                <h2 className={styles.sectionTitle}>
                   {isLoggedIn ? t('recommendedForYou') : t('trendingNow')}
-                </div>
+                </h2>
               </div>
               <Link href="/events" className={styles.sectionMore}>
                 VER TODOS →
@@ -105,7 +105,7 @@ export function EditorialHome({
             <div className={styles.sectionHeader}>
               <div>
                 <div className={styles.sectionEyebrow}>SOB DEMANDA</div>
-                <div className={styles.sectionTitle}>{t('replaysAvailable')}</div>
+                <h2 className={styles.sectionTitle}>{t('replaysAvailable')}</h2>
               </div>
               <Link href="/events" className={styles.sectionMore}>
                 VER TODOS →

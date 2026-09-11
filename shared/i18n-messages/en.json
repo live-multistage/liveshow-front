@@ -281,6 +281,7 @@
     }
   },
   "home": {
+    "headline": "Live shows in multiple camera angles — watch from anywhere",
     "loading": "Loading events...",
     "liveNow": "Live Now",
     "liveForYou": "Live for you",

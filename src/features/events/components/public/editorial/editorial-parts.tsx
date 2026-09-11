@@ -100,7 +100,7 @@ export function EditorialCard({ show, localeCode }: { show: Show; localeCode: st
         </div>
         <div className={styles.eventContent}>
           <div className={styles.eventHeader}>
-            <div className={styles.eventTitle}>{show.title}</div>
+            <h3 className={styles.eventTitle}>{show.title}</h3>
             <span className={`${styles.eventPrice} ${isFree ? styles.eventPriceFree : ''}`}>
               {priceLabel}
             </span>

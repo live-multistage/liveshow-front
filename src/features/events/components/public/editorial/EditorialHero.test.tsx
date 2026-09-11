@@ -334,3 +334,32 @@ describe('EditorialHero', () => {
     });
   });
 });
+
+// Document outline: the home has exactly one <h1> (the stable headline,
+// rendered once outside the slide track), and every slide title is an <h2> —
+// including hidden slides, which must not pose as top-level headings.
+describe('heading outline', () => {
+  it('renders the headline as the single h1 and slide titles as h2, across all slides', () => {
+    render(
+      <EditorialHero
+        slides={[slide1, slide2, slide3]}
+        localeCode="pt-BR"
+        headline="Shows ao vivo em múltiplas câmeras"
+      />,
+    );
+
+    const h1s = screen.getAllByRole('heading', { level: 1 });
+    expect(h1s).toHaveLength(1);
+    expect(h1s[0]).toHaveTextContent('Shows ao vivo em múltiplas câmeras');
+
+    const h2s = screen.getAllByRole('heading', { level: 2 });
+    expect(h2s.map((h) => h.textContent)).toEqual(['Slide One', 'Slide Two', 'Slide Three']);
+  });
+
+  it('renders no h1 at all when no headline is given (single-slide too)', () => {
+    render(<EditorialHero slides={[slide1]} localeCode="pt-BR" />);
+
+    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
+    expect(screen.getByRole('heading', { level: 2, name: 'Slide One' })).toBeInTheDocument();
+  });
+});

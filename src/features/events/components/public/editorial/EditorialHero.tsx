@@ -21,6 +21,12 @@ import styles from '../EditorialHomeContent.module.scss';
 interface Props {
   slides: Show[];
   localeCode: string;
+  // The home's single, stable <h1>. Rendered once, outside the slide track,
+  // so the carousel never rotates the page's top-level heading. Visually
+  // hidden: the design has no slot for a page headline over the hero (it
+  // collided with the overlaid navbar), so it lives in the accessibility
+  // tree and the document outline only.
+  headline?: string;
 }
 
 const AUTOPLAY_MS = 7000;
@@ -68,14 +74,12 @@ function HeroSlideMedia({
   );
 }
 
-function SlideContent({ show, active }: { show: Show; active: boolean }) {
+function SlideContent({ show }: { show: Show }) {
   const priceLabel = fmtPrice(show);
   const isFree = priceLabel === 'Grátis';
-  // Only the active slide's headline may be an <h1> — with multiple slides
-  // in the DOM at once (carousel), every one rendering <h1> would give the
-  // page multiple top-level headings even though only one is visible.
-  const TitleTag = active ? 'h1' : 'h2';
-
+  // Every slide title is an <h2>: the page's <h1> is the stable headline
+  // rendered once by EditorialHero, so a rotating carousel never changes the
+  // top-level heading and hidden slides never pose as page sections.
   return (
     <div className={styles.heroV2Content}>
       {show.isLive && (
@@ -85,7 +89,7 @@ function SlideContent({ show, active }: { show: Show; active: boolean }) {
         </span>
       )}
 
-      <TitleTag className={styles.heroV2Title}>{show.title}</TitleTag>
+      <h2 className={styles.heroV2Title}>{show.title}</h2>
 
       {show.viewers != null && (
         <div className={styles.heroV2Watching}>
@@ -134,7 +138,7 @@ function SlideContent({ show, active }: { show: Show; active: boolean }) {
   );
 }
 
-export function EditorialHero({ slides }: Props) {
+export function EditorialHero({ slides, headline }: Props) {
   const count = slides.length;
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -187,10 +191,11 @@ export function EditorialHero({ slides }: Props) {
   if (count === 1) {
     return (
       <div className={styles.heroV2}>
+        {headline && <h1 className={styles.visuallyHidden}>{headline}</h1>}
         <HeroSlideMedia show={slides[0]} active reducedMotion={reducedMotion} />
         <div className={styles.heroV2Glow} aria-hidden="true" />
         <div className={styles.heroV2Scrim} aria-hidden="true" />
-        <SlideContent show={slides[0]} active />
+        <SlideContent show={slides[0]} />
       </div>
     );
   }
@@ -242,6 +247,7 @@ export function EditorialHero({ slides }: Props) {
       onPointerUp={handlePointerUp}
       onClickCapture={handleClickCapture}
     >
+      {headline && <h1 className={styles.visuallyHidden}>{headline}</h1>}
       <div
         className={styles.heroV2Track}
         style={{
@@ -259,7 +265,7 @@ export function EditorialHero({ slides }: Props) {
             />
             <div className={styles.heroV2Glow} aria-hidden="true" />
             <div className={styles.heroV2Scrim} aria-hidden="true" />
-            <SlideContent show={show} active={i === index} />
+            <SlideContent show={show} />
           </div>
         ))}
       </div>

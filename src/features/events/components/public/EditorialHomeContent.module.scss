@@ -485,6 +485,8 @@
   font-weight: 800;
   letter-spacing: -.02em;
   color: #f4f4f5;
+  // Rendered as <h2> for the document outline — kill the UA heading margin.
+  margin: 0;
 }
 
 .sectionMore {
@@ -702,6 +704,8 @@
   font-weight: 700;
   line-height: 1.2;
   color: #f4f4f5;
+  // Rendered as <h3> (card title under its section <h2>) — no UA margin.
+  margin: 0;
   // Long titles must not desync card heights within a grid row (DESIGN.md
   // mandates truncation on cards).
   display: -webkit-box;
