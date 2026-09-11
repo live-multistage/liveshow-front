@@ -149,60 +149,45 @@ function KpiCard({ label, value, sub, iconBg, iconColor, iconPath, delta, deltaU
 
 // ─── Funnel Section ───────────────────────────────────────────────
 interface FunnelProps {
+  impressionCount: number;
   viewCount: number;
   cartAddCount: number;
+  checkoutCount: number;
   purchaseCount: number;
-  viewToCartRate: number | null;
-  cartToPurchaseRate: number | null;
   isLoading: boolean;
 }
 
-function FunnelSection({ viewCount, cartAddCount, purchaseCount, viewToCartRate, cartToPurchaseRate, isLoading }: FunnelProps) {
-  const totalRate = viewCount > 0 ? purchaseCount / viewCount : null;
+function fmtDrop(from: number, to: number): string | null {
+  if (from <= 0) return null;
+  return `${((1 - to / from) * 100).toFixed(1).replace('.', ',')}%`;
+}
 
-  // Compute bar heights relative to viewCount (max=100)
-  const cartPct = viewCount > 0 ? Math.max(8, Math.round((cartAddCount / viewCount) * 100)) : 0;
-  const purchasePct = viewCount > 0 ? Math.max(4, Math.round((purchaseCount / viewCount) * 100)) : 0;
-
-  // 4 steps matching design — INICIOU CHECKOUT not tracked yet
-  const steps = [
-    {
-      label: 'VISUALIZAÇÕES',
-      value: isLoading ? '…' : fmtCompact(viewCount),
-      rate: '100%',
-      heightPct: 100,
-      hasDrop: true,
-      drop: viewToCartRate !== null
-        ? `${((1 - viewToCartRate) * 100).toFixed(1).replace('.', ',')}%`
-        : null,
-    },
-    {
-      label: 'ADD AO CARRINHO',
-      value: isLoading ? '…' : fmtCompact(cartAddCount),
-      rate: fmtRate(viewToCartRate),
-      heightPct: cartPct,
-      hasDrop: true,
-      drop: cartToPurchaseRate !== null
-        ? `${((1 - cartToPurchaseRate) * 100).toFixed(1).replace('.', ',')}%`
-        : null,
-    },
-    {
-      label: 'INICIOU CHECKOUT',
-      value: '—',
-      rate: null,
-      heightPct: Math.max(purchasePct + 5, 10),
-      hasDrop: true,
-      drop: null,
-    },
-    {
-      label: 'COMPROU',
-      value: isLoading ? '…' : fmtCompact(purchaseCount),
-      rate: fmtRate(totalRate),
-      heightPct: purchasePct,
-      hasDrop: false,
-      drop: null,
-    },
+// Cold → warm → intent → purchase. Every step is a real counter now
+// (event.impression, event.viewed, ticket.cart_added, event.checkout_visited,
+// ticket.purchased); rates are relative to the first step, drops to the
+// previous one.
+function FunnelSection({ impressionCount, viewCount, cartAddCount, checkoutCount, purchaseCount, isLoading }: FunnelProps) {
+  const counts = [
+    { label: 'IMPRESSÕES', value: impressionCount },
+    { label: 'PÁGINA DO EVENTO', value: viewCount },
+    { label: 'ADD AO CARRINHO', value: cartAddCount },
+    { label: 'INICIOU CHECKOUT', value: checkoutCount },
+    { label: 'COMPROU', value: purchaseCount },
   ];
+  const top = counts[0].value;
+  const totalRate = top > 0 ? purchaseCount / top : null;
+
+  const steps = counts.map((step, i) => {
+    const next = counts[i + 1];
+    return {
+      label: step.label,
+      value: isLoading ? '…' : fmtCompact(step.value),
+      rate: i === 0 ? '100%' : fmtRate(top > 0 ? step.value / top : null),
+      heightPct: top > 0 ? Math.max(4, Math.round((step.value / top) * 100)) : 0,
+      hasDrop: !!next,
+      drop: next ? fmtDrop(step.value, next.value) : null,
+    };
+  });
 
   return (
     <div className={styles.card}>
@@ -221,7 +206,7 @@ function FunnelSection({ viewCount, cartAddCount, purchaseCount, viewToCartRate,
         </div>
       </div>
 
-      {/* 7-column grid: step arrow step arrow step arrow step */}
+      {/* 9-column grid: 5 steps interleaved with 4 arrows */}
       <div className={styles.funnelGrid}>
         {steps.map((step, i) => (
           <div key={step.label} style={{ display: 'contents' }}>
@@ -708,7 +693,7 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
   const { data: notificationBreakdown, isLoading: notificationsLoading } = useNotificationBreakdownQuery(eventId);
 
   const funnel = metrics?.funnel ?? {
-    viewCount: 0, uniqueViewCount: 0, cartAddCount: 0, purchaseCount: 0,
+    impressionCount: 0, viewCount: 0, uniqueViewCount: 0, cartAddCount: 0, checkoutCount: 0, purchaseCount: 0,
     viewToCartRate: null, cartToPurchaseRate: null, avgWatchSeconds: null, completionRate: null,
     cameraSwitchCount: 0,
   };
@@ -871,11 +856,11 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
 
       {/* Funnel */}
       <FunnelSection
+        impressionCount={funnel.impressionCount}
         viewCount={funnel.viewCount}
         cartAddCount={funnel.cartAddCount}
+        checkoutCount={funnel.checkoutCount}
         purchaseCount={funnel.purchaseCount}
-        viewToCartRate={funnel.viewToCartRate}
-        cartToPurchaseRate={funnel.cartToPurchaseRate}
         isLoading={metricsLoading}
       />
 

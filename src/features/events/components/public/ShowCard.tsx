@@ -7,6 +7,7 @@ import type { Show } from '../../types/show';
 import { formatPriceRange } from '../../utils/event-formatters';
 import { eventHref } from '../../utils/slug';
 import { WishlistButton } from '@/features/wishlist/components/WishlistButton';
+import { useTrackImpression } from '../../hooks/use-track-impression';
 import styles from './ShowCard.module.scss';
 
 const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
@@ -25,6 +26,7 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
   const t = useTranslations('showCard');
   const locale = useLocale();
   const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
+  const impressionRef = useTrackImpression<HTMLDivElement>(show.id);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + 'T00:00:00');
@@ -43,6 +45,7 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
 
   return (
     <div
+      ref={impressionRef}
       className={[
         styles.card,
         layout === 'horizontal' ? styles.cardHorizontal : '',

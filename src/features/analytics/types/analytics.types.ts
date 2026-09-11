@@ -1,7 +1,9 @@
 export interface EventMetricsFunnel {
+  impressionCount: number;
   viewCount: number;
   uniqueViewCount: number;
   cartAddCount: number;
+  checkoutCount: number;
   purchaseCount: number;
   viewToCartRate: number | null;
   cartToPurchaseRate: number | null;

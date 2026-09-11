@@ -14,6 +14,7 @@ import { normalizeError, type AppError } from '@/lib/http/errors';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
 import { BuyerDocumentField } from './BuyerDocumentField';
 import { AdBanner } from '@/features/advertisements';
+import { track } from '@/lib/analytics/analytics-client';
 import styles from './CheckoutPageContent.module.scss';
 import cartStyles from './CartCheckoutPageContent.module.scss';
 
@@ -44,6 +45,16 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
   }, [authLoading, isLoggedIn, router]);
 
   const items = cart?.items ?? [];
+
+  // Funnel step "iniciou checkout": once per event in the cart, per page open.
+  const trackedCheckout = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    for (const item of items) {
+      if (trackedCheckout.current.has(item.eventId)) continue;
+      trackedCheckout.current.add(item.eventId);
+      track({ eventType: 'event.checkout_visited', entityType: 'event', entityId: item.eventId, userId: user?.id });
+    }
+  }, [items, user?.id]);
   const totalAmount = cart?.totals.total ?? 0;
   // Cart is mono-currency (POST /cart/items rejects a mismatched currency),
   // so a single currency covers every line here.
