@@ -363,7 +363,12 @@ describe('heading outline', () => {
 });
 
 describe('inactive slide accessibility', () => {
-  it('marks only the inactive slides inert and aria-hidden; the active slide is neither', () => {
+  // `inert` is set imperatively (element.toggleAttribute), not via a JSX
+  // prop — React 19 (the runtime Next 15 actually ships) warns on any
+  // non-boolean `inert` prop value, so a console.error spy here is the
+  // regression guard for that warning, not just an accessibility check.
+  it('marks only the inactive slides inert and aria-hidden; the active slide is neither; no console warning', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const { container } = render(<EditorialHero slides={[slide1, slide2, slide3]} />);
 
     // className is a CSS module hash in real builds but a passthrough string
@@ -379,9 +384,13 @@ describe('inactive slide accessibility', () => {
     expect(slides[1]).toHaveAttribute('aria-hidden', 'true');
     expect(slides[2]).toHaveAttribute('inert');
     expect(slides[2]).toHaveAttribute('aria-hidden', 'true');
+
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
   });
 
-  it('moves inert/aria-hidden to the previously-active slide after navigation', () => {
+  it('moves inert/aria-hidden to the previously-active slide after navigation; no console warning', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const { container } = render(<EditorialHero slides={[slide1, slide2, slide3]} />);
     const track = container.querySelector('[class*="heroV2Track"]') as HTMLElement;
 
@@ -389,7 +398,12 @@ describe('inactive slide accessibility', () => {
 
     const slides = Array.from(track.children) as HTMLElement[];
     expect(slides[0]).toHaveAttribute('inert');
+    expect(slides[0]).toHaveAttribute('aria-hidden', 'true');
     expect(slides[1]).not.toHaveAttribute('inert');
+    expect(slides[1]).not.toHaveAttribute('aria-hidden');
+
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
   });
 });
 

@@ -10,7 +10,6 @@ import type {
   KeyboardEvent as ReactKeyboardEvent,
   MouseEvent as ReactMouseEvent,
   FocusEvent as ReactFocusEvent,
-  HTMLAttributes,
 } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -22,17 +21,6 @@ import styles from '../EditorialHomeContent.module.scss';
 
 interface Props {
   slides: Show[];
-}
-
-// Inactive slides are visually hidden and must not be reachable by keyboard,
-// screen reader, or find-in-page. `inert` removes them from the accessibility
-// tree and tab order; `aria-hidden` backs it up for the browsers/AT combos
-// that don't yet honor `inert` for this purpose. React (18.3, installed here)
-// only renders `inert` when given a string value, not the `boolean` its own
-// types declare — `'' as unknown as true` bridges that without an `any`.
-const INERT: true = '' as unknown as true;
-function inactiveSlideProps(isActive: boolean): HTMLAttributes<HTMLDivElement> {
-  return isActive ? {} : { inert: INERT, 'aria-hidden': true };
 }
 
 function isFreeShow(show: Show) {
@@ -162,6 +150,23 @@ export function EditorialHero({ slides }: Props) {
   const [videoPhaseById, setVideoPhaseById] = useState<Record<string, VideoPhase>>({});
   const draggedRef = useRef(false);
   const dragStartXRef = useRef(0);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // `inert` is set imperatively rather than as a JSX prop. React 19 (what
+  // Next 15 actually ships at runtime) treats `inert` as a real boolean
+  // attribute and warns on any non-boolean value ("Received an empty string
+  // for a boolean attribute `inert`"); this repo's installed react/@types
+  // (18.3, used by tsc and the vitest/jsdom suite) has no such special
+  // handling and silently drops a JSX `inert={true}` instead of rendering
+  // it. There is no prop value that is simultaneously correct under both
+  // runtimes, so `toggleAttribute` bypasses the JSX/React attribute layer
+  // entirely and is correct everywhere. `aria-hidden` stays a normal JSX
+  // prop below so SSR/pre-hydration markup still marks inactive slides.
+  useEffect(() => {
+    slideRefs.current.forEach((el, i) => {
+      el?.toggleAttribute('inert', i !== index);
+    });
+  }, [index, count]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return undefined;
@@ -270,8 +275,9 @@ export function EditorialHero({ slides }: Props) {
         {slides.map((show, i) => (
           <div
             key={show.id}
+            ref={(el) => { slideRefs.current[i] = el; }}
             className={styles.heroV2Slide}
-            {...inactiveSlideProps(i === index)}
+            aria-hidden={i !== index || undefined}
           >
             <HeroSlideMedia
               show={show}
