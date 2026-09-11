@@ -38,7 +38,8 @@
     "wishlist": "Wishlist",
     "help": "Help",
     "search": "Search",
-    "organizers": "Become a partner"
+    "organizers": "Become a partner",
+    "artists": "Artists"
   },
   "auth": {
     "login": {
@@ -278,7 +279,7 @@
   },
   "home": {
     "loading": "Loading events...",
-    "liveNow": "Live Now",
+    "liveNow": "Live now",
     "liveForYou": "Live for you",
     "findByGenre": "Find by\ncategory",
     "all": "All",
@@ -292,8 +293,22 @@
     "eyebrowNow": "NOW",
     "eyebrowForYou": "FOR YOU",
     "eyebrowOnDemand": "ON DEMAND",
-    "cameras": "{count} cameras",
-    "moreInfo": "+ INFO"
+    "cameras": "{count, plural, one {# camera} other {# cameras}}",
+    "moreInfo": "+ INFO",
+    "headline": "Live shows from multiple cameras — watch from anywhere",
+    "allShows": "Full lineup",
+    "filterByCategory": "Filter by category",
+    "moreGenres": "+{count} more",
+    "noShowsInCategory": "No events in this category yet — coming soon.",
+    "hero": {
+      "live": "Live",
+      "watching": "{count, number} watching now",
+      "watchNow": "Watch now",
+      "details": "Details",
+      "exploreEvent": "Explore event",
+      "tickets": "Tickets · {price}",
+      "goToSlide": "Go to slide {index} of {count}"
+    }
   },
   "language": {
     "select": "Language",
@@ -311,7 +326,8 @@
     "purchased": "Purchased",
     "replay": "Replay",
     "watch": "Watch",
-    "details": "See More"
+    "details": "See more",
+    "showTag": "Show"
   },
   "liveGate": {
     "checkingAccess": "Checking access",
@@ -418,7 +434,7 @@
     }
   },
   "carousel": {
-    "seeAll": "See all →",
+    "seeAll": "See all",
     "scrollLeft": "Scroll left",
     "scrollRight": "Scroll right"
   },
@@ -1051,7 +1067,10 @@
     "sponsored": "Sponsored",
     "skipIn": "Skip in {seconds}s",
     "skip": "Skip ad",
-    "continueWatching": "Continue watching"
+    "continueWatching": "Continue watching",
+    "learnMore": "Learn more",
+    "close": "Close ad",
+    "ariaLabel": "Ad: {title}"
   },
   "controlRoom": {
     "noCameraOnAir": "No camera on air",
@@ -2233,7 +2252,9 @@
       "free": "Free channel",
       "subscribed": "You subscribe to this channel",
       "subscription": "Subscription channel"
-    }
+    },
+    "watchNow": "Watch",
+    "viewSchedule": "View schedule"
   },
   "search": {
     "placeholder": "Search shows, artists, cities",

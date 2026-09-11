@@ -38,7 +38,8 @@
     "wishlist": "Favoritos",
     "help": "Ayuda",
     "search": "Buscar",
-    "organizers": "Sé un socio"
+    "organizers": "Sé un socio",
+    "artists": "Artistas"
   },
   "auth": {
     "login": {
@@ -278,7 +279,7 @@
   },
   "home": {
     "loading": "Cargando eventos...",
-    "liveNow": "En Vivo Ahora",
+    "liveNow": "En vivo ahora",
     "liveForYou": "En vivo para ti",
     "findByGenre": "Buscar por\ncategoría",
     "all": "Todos",
@@ -292,8 +293,22 @@
     "eyebrowNow": "AHORA",
     "eyebrowForYou": "PARA TI",
     "eyebrowOnDemand": "BAJO DEMANDA",
-    "cameras": "{count} cámaras",
-    "moreInfo": "+ INFO"
+    "cameras": "{count, plural, one {# cámara} other {# cámaras}}",
+    "moreInfo": "+ INFO",
+    "headline": "Shows en vivo con múltiples cámaras — míralos desde donde estés",
+    "allShows": "Toda la programación",
+    "filterByCategory": "Filtrar por categoría",
+    "moreGenres": "+{count} más",
+    "noShowsInCategory": "Aún no hay eventos en esta categoría — próximamente.",
+    "hero": {
+      "live": "En vivo",
+      "watching": "{count, number} viendo ahora",
+      "watchNow": "Ver ahora",
+      "details": "Detalles",
+      "exploreEvent": "Explorar evento",
+      "tickets": "Entradas · {price}",
+      "goToSlide": "Ir a la diapositiva {index} de {count}"
+    }
   },
   "language": {
     "select": "Idioma",
@@ -311,7 +326,8 @@
     "purchased": "Comprado",
     "replay": "Repetición",
     "watch": "Ver",
-    "details": "Ver Más"
+    "details": "Ver más",
+    "showTag": "Show"
   },
   "liveGate": {
     "checkingAccess": "Verificando acceso",
@@ -418,7 +434,7 @@
     }
   },
   "carousel": {
-    "seeAll": "Ver todos →",
+    "seeAll": "Ver todos",
     "scrollLeft": "Desplazar izquierda",
     "scrollRight": "Desplazar derecha"
   },
@@ -1051,7 +1067,10 @@
     "sponsored": "Patrocinado",
     "skipIn": "Saltar en {seconds}s",
     "skip": "Saltar anuncio",
-    "continueWatching": "Seguir viendo"
+    "continueWatching": "Seguir viendo",
+    "learnMore": "Más información",
+    "close": "Cerrar anuncio",
+    "ariaLabel": "Anuncio: {title}"
   },
   "controlRoom": {
     "noCameraOnAir": "Ninguna cámara al aire",
@@ -2233,7 +2252,9 @@
       "free": "Canal abierto",
       "subscribed": "Estás suscrito a este canal",
       "subscription": "Canal por suscripción"
-    }
+    },
+    "watchNow": "Ver",
+    "viewSchedule": "Ver programación"
   },
   "search": {
     "placeholder": "Buscar shows, artistas, ciudades",
