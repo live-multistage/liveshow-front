@@ -168,7 +168,10 @@
 
 .layout {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  // minmax(0, 1fr), not 1fr: a bare 1fr track can't shrink below the min-content
+  // width of what's inside it (long unbreakable text bubbles up as page-wide
+  // horizontal scroll — this is what fixed the ingest-credentials overflow).
+  grid-template-columns: 300px minmax(0, 1fr);
   gap: 18px;
   align-items: start;
 }
@@ -282,6 +285,7 @@
 .workspace {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .placeholder {
