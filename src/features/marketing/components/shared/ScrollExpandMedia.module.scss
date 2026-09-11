@@ -1,12 +1,10 @@
 @use '../../../../styles/_variables' as *;
 
+// Tall scroll container: the sticky inner pane pins for the whole scroll
+// range while --p (0→1) drives the expand animation below.
 .section {
   position: relative;
-  min-height: 100dvh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  min-height: 180vh;
 
   --w0: min(760px, 88vw);
   --w1: min(1180px, 95vw);
@@ -14,10 +12,27 @@
   --hint-factor: 150vw;
 
   @media (max-width: $md) {
+    min-height: 140vh;
     --w0: min(320px, 88vw);
     --media-top: 70%; // fallback until measured
     --hint-factor: 180vw;
   }
+}
+
+// Reduced motion renders fully expanded and static — no scroll-driven
+// animation, so the tall scroll runway serves no purpose.
+.reducedMotion {
+  min-height: 100dvh;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .background {

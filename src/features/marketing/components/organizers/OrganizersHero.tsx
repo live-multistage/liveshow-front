@@ -7,13 +7,8 @@ import { OrganizerCtaLink } from '../shared/OrganizerCtaLink';
 import { HeroPlayerMock } from './HeroPlayerMock';
 import styles from './OrganizersHero.module.scss';
 
-function goToHowItWorks(expand: () => void) {
-  expand();
-  // Wait for the expand state to flush before jumping — otherwise the
-  // scroll-lock effect fights the anchor navigation.
-  window.requestAnimationFrame(() => {
-    document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' });
-  });
+function goToHowItWorks() {
+  document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' });
 }
 
 interface Props {
@@ -37,7 +32,7 @@ export function OrganizersHero({ applicationsOpen = true }: Props) {
         </>
       }
       media={<HeroPlayerMock />}
-      overlay={({ progress, expand }) => {
+      overlay={({ progress }) => {
         const fade = Math.max(0, 1 - progress * 4);
         const shiftUp = -progress * 40;
 
@@ -68,7 +63,7 @@ export function OrganizersHero({ applicationsOpen = true }: Props) {
                 className={styles.secondaryLink}
                 onClick={(event) => {
                   event.preventDefault();
-                  goToHowItWorks(expand);
+                  goToHowItWorks();
                 }}
               >
                 {t('hero.secondary')}
