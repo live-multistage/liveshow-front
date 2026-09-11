@@ -12,7 +12,8 @@ import { ChannelsRail } from '@/app/(public)/_components/ChannelsRail/ChannelsRa
 import type { ChannelListItem } from '@/features/channels';
 import { GenreGrid } from './editorial/GenreGrid';
 import { EditorialHero } from './editorial/EditorialHero';
-import { LiveTicker, EditorialCard } from './editorial/editorial-parts';
+import { LiveTicker } from './editorial/editorial-parts';
+import { ShowCard } from './ShowCard';
 import styles from './EditorialHomeContent.module.scss';
 
 interface Props {
@@ -62,7 +63,7 @@ export function EditorialHome({
             <Carousel>
               {liveShows.map((show) => (
                 <div key={show.id} className={styles.recommendedItem}>
-                  <EditorialCard show={show} localeCode={localeCode} />
+                  <ShowCard show={show} size="compact" />
                 </div>
               ))}
             </Carousel>
@@ -93,7 +94,7 @@ export function EditorialHome({
             <Carousel>
               {recommendedShows.map((show) => (
                 <div key={show.id} className={styles.recommendedItem}>
-                  <EditorialCard show={show} localeCode={localeCode} />
+                  <ShowCard show={show} size="compact" />
                 </div>
               ))}
             </Carousel>
@@ -114,7 +115,7 @@ export function EditorialHome({
             <Carousel>
               {onDemandShows.map((show) => (
                 <div key={show.id} className={styles.recommendedItem}>
-                  <EditorialCard show={show} localeCode={localeCode} />
+                  <ShowCard show={show} size="compact" />
                 </div>
               ))}
             </Carousel>
@@ -125,7 +126,7 @@ export function EditorialHome({
           <AdBanner placement="FEED" className={styles.feedAd} />
         </div>
 
-        <GenreGrid shows={shows} localeCode={localeCode} />
+        <GenreGrid shows={shows} />
       </div>
     </div>
   );

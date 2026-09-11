@@ -3,12 +3,13 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Show } from '@/features/events/types/show';
-import { EditorialCard, GENRES_PREVIEW_COUNT } from './editorial-parts';
+import { GENRES_PREVIEW_COUNT } from './editorial-parts';
+import { ShowCard } from '../ShowCard';
 import styles from '../EditorialHomeContent.module.scss';
 
 // The only interactive island on the home: the genre filter + the grid it
 // drives. Everything above it (hero, rails, carousels) is server-rendered.
-export function GenreGrid({ shows, localeCode }: { shows: Show[]; localeCode: string }) {
+export function GenreGrid({ shows }: { shows: Show[] }) {
   const [activeGenre, setActiveGenre] = useState('Todos');
   const [genresExpanded, setGenresExpanded] = useState(false);
 
@@ -63,7 +64,7 @@ export function GenreGrid({ shows, localeCode }: { shows: Show[]; localeCode: st
       {filtered.length > 0 ? (
         <div className={styles.eventGrid}>
           {filtered.map((show) => (
-            <EditorialCard key={show.id} show={show} localeCode={localeCode} />
+            <ShowCard key={show.id} show={show} size="compact" />
           ))}
         </div>
       ) : (
