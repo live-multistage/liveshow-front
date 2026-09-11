@@ -20,13 +20,12 @@ interface Props {
   initialRecommended?: RecommendedEventsResponse;
   initialReplayCatalog?: RecommendedEventsResponse;
   initialChannels?: ChannelListItem[];
-  localeCode: string;
   isLoggedIn: boolean;
 }
 
 export function EditorialHome({
   initialEvents = [], initialRecommended, initialReplayCatalog, initialChannels = [],
-  localeCode, isLoggedIn,
+  isLoggedIn,
 }: Props) {
   const t = useTranslations('home');
   const shows = initialEvents.map(eventToShow);

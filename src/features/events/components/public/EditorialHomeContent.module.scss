@@ -1,15 +1,11 @@
 @use '../../../../styles/_variables' as *;
-
-@keyframes lsPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: .35; transform: scale(.7); }
-}
+@use '../../../../styles/_mixins' as *;
 
 // ── Page ──────────────────────────────────────────────────────────
 
 .page {
-  background: #08080a;
-  color: #f4f4f5;
+  background: $bg;
+  color: $text-primary;
   min-height: 100vh;
   overflow-x: clip; // safety net: no child may cause horizontal scroll on mobile
 }
@@ -28,7 +24,7 @@
 
   // Match the content gutter at each breakpoint — 40px here on a 390px screen
   // insets the ad past the cards it sits between.
-  @media (max-width: 767px) { padding: 0 20px; margin: -6px 0; }
+  @media (max-width: $md - 1) { padding: 0 20px; margin: -6px 0; }
 }
 
 // ── Inner layout ──────────────────────────────────────────────────
@@ -43,7 +39,7 @@
   margin: 0 0 8px;
   width: 100%;
 
-  @media (max-width: 767px) {
+  @media (max-width: $md - 1) {
     min-height: 520px;
   }
 }
@@ -115,7 +111,7 @@
 .heroV2Scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #08080a 0%, rgba(8, 8, 10, .75) 30%, rgba(8, 8, 10, .15) 55%, transparent 75%);
+  background: linear-gradient(90deg, $bg 0%, rgba(8, 8, 10, .75) 30%, rgba(8, 8, 10, .15) 55%, transparent 75%);
 }
 
 .heroV2Content {
@@ -134,37 +130,21 @@
   box-sizing: border-box;
   padding: 50px 40px;
 
-  @media (max-width: 767px) {
+  @media (max-width: $md - 1) {
     min-height: 420px;
     padding: 28px 20px;
   }
 }
 
 .heroV2Badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  @include live-badge(11px);
   width: fit-content;
-  background: rgba(255, 46, 158, .18);
-  border: 1px solid rgba(255, 46, 158, .5);
-  color: #ff8ec9;
-  font-family: var(--font-space-mono), 'Space Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
   letter-spacing: .14em;
-  padding: 6px 12px;
-  border-radius: 8px;
   margin-bottom: 22px;
-  text-transform: uppercase;
 }
 
 .heroV2BadgeDot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #ff2e9e;
-  flex-shrink: 0;
-  animation: lsPulse 1.4s ease-in-out infinite;
+  @include pulse-dot(5px);
 }
 
 .heroV2Title {
@@ -174,7 +154,7 @@
   letter-spacing: -.035em;
   line-height: .94;
   max-width: 640px;
-  color: #f4f4f5;
+  color: $text-primary;
   margin: 0 0 22px;
 }
 
@@ -183,15 +163,15 @@
   align-items: center;
   gap: 9px;
   font-size: 15px;
-  color: #d4d4da;
+  color: $text-secondary;
   margin-bottom: 14px;
 
-  svg { color: #ff2e9e; flex-shrink: 0; }
+  svg { color: $action; flex-shrink: 0; }
 }
 
 .heroV2WatchingCount {
   font-weight: 700;
-  color: #ff2e9e;
+  color: $action;
 }
 
 .heroV2Meta {
@@ -199,7 +179,7 @@
   align-items: center;
   gap: 12px;
   font-size: 14px;
-  color: #a5a5ad;
+  color: $text-secondary;
   margin-bottom: 32px;
   flex-wrap: wrap;
 }
@@ -208,7 +188,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #5f5f67;
+  background: $text-muted;
   flex-shrink: 0;
 }
 
@@ -223,8 +203,8 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  background: #ff2e9e;
-  color: #0a0a0b;
+  background: $action;
+  color: $ink;
   font-weight: 700;
   font-size: 14px;
   border: none;
@@ -243,7 +223,7 @@
   gap: 8px;
   background: rgba(20, 18, 24, .7);
   border: 1px solid rgba(255, 255, 255, .15);
-  color: #fff;
+  color: $text-primary;
   font-weight: 600;
   font-size: 14px;
   padding: 13px 22px;
@@ -276,7 +256,7 @@
 
   > * { pointer-events: auto; }
 
-  @media (max-width: 767px) {
+  @media (max-width: $md - 1) {
     bottom: 28px;
     padding: 0 20px;
   }
@@ -295,7 +275,7 @@
 }
 
 .heroV2DotActive {
-  background: #ff2e9e;
+  background: $action;
 }
 
 // ── Genre + Grid section ──────────────────────────────────────────
@@ -303,7 +283,7 @@
 .gridSection {
   padding: 16px 40px;
 
-  @media (max-width: 767px) {
+  @media (max-width: $md - 1) {
     padding: 12px 20px 24px;
   }
 }
@@ -317,7 +297,7 @@
 
   // On phones 6+ chips wrap into 3 stacked rows — a wall. Switch to a single
   // swipeable strip (the Netflix/streaming pattern) that stays one row tall.
-  @media (max-width: 767px) {
+  @media (max-width: $md - 1) {
     flex-wrap: nowrap;
     overflow-x: auto;
     scroll-snap-type: x proximity;
@@ -358,14 +338,16 @@
   width: calc((100% - 4 * 12px) / 5);
   display: flex;
 
-  @media (max-width: 1279px) { width: calc((100% - 3 * 12px) / 4); }
+  @media (max-width: $xl - 1) { width: calc((100% - 3 * 12px) / 4); }
+  // ponytail: no token; add one if reused
   @media (max-width: 899px)  { width: calc((100% - 2 * 12px) / 3); }
-  @media (max-width: 639px)  { width: calc((100% - 12px) / 2); }
+  @media (max-width: $sm - 1) { width: calc((100% - 12px) / 2); }
 
   > * {
     width: 100%;
   }
 
+  // ponytail: no token; add one if reused
   @media (max-width: 540px) {
     width: 260px;
   }
@@ -375,11 +357,12 @@
 .eventGrid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 
-  @media (max-width: 1279px) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: $xl - 1) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  // ponytail: no token; add one if reused
   @media (max-width: 899px)  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  @media (max-width: 639px)  { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: $sm - 1) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .emptyGrid {
@@ -402,7 +385,7 @@
 // ── Feed ad banner ────────────────────────────────────────────
 .feedAd {
   margin: 0;
-  border-radius: 16px;
+  border-radius: $card-radius;
   overflow: hidden;
   cursor: pointer;
 }

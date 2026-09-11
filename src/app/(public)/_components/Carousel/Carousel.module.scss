@@ -57,7 +57,10 @@
     background-color: rgba(3,3,3,0.95);
   }
 
-  .section:hover & { display: flex; }
+  .section:hover &,
+  .section:focus-within & { display: flex; }
+
+  @media (hover: none) { display: none; }
 }
 
 .arrowLeft  { left: 0.25rem; }

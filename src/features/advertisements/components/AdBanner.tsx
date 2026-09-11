@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { X, ArrowRight } from 'lucide-react';
 import styles from './AdBanner.module.scss';
 import { advertisementsService } from '../services/advertisements.service';
 import { SERVE_QUERY_CACHE } from '../queries/use-serve-ads';
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function AdBanner({ placement, className }: Props) {
+  const t = useTranslations('ads');
   const [dismissed, setDismissed] = useState(false);
   const impressionFired = useRef(false);
 
@@ -55,19 +57,22 @@ export function AdBanner({ placement, className }: Props) {
 
   const content = (
     <>
-      <span className={styles.sponsored}>PATROCINADO</span>
+      <span className={styles.sponsored}>{t('sponsored')}</span>
 
       <div className={styles.content}>
         <p className={styles.adTitle}>{ad.title}</p>
         {ad.destination && (
-          <span className={styles.cta}>SAIBA MAIS →</span>
+          <span className={styles.cta}>
+            {t('learnMore')}
+            <ArrowRight size={12} aria-hidden="true" />
+          </span>
         )}
       </div>
 
       <button
         className={styles.closeBtn}
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissed(true); }}
-        aria-label="Fechar anúncio"
+        aria-label={t('close')}
       >
         <X size={12} />
       </button>
@@ -81,7 +86,7 @@ export function AdBanner({ placement, className }: Props) {
         className={bannerClassName}
         style={{ background: bg }}
         onClick={handleClick}
-        aria-label={`Anúncio: ${ad.title}`}
+        aria-label={t('ariaLabel', { title: ad.title })}
       >
         {content}
       </Link>
@@ -97,7 +102,7 @@ export function AdBanner({ placement, className }: Props) {
         className={bannerClassName}
         style={{ background: bg }}
         onClick={handleClick}
-        aria-label={`Anúncio: ${ad.title}`}
+        aria-label={t('ariaLabel', { title: ad.title })}
       >
         {content}
       </a>
@@ -109,7 +114,7 @@ export function AdBanner({ placement, className }: Props) {
       className={bannerClassName}
       style={{ background: bg }}
       onClick={handleClick}
-      aria-label={`Anúncio: ${ad.title}`}
+      aria-label={t('ariaLabel', { title: ad.title })}
     >
       {content}
     </div>

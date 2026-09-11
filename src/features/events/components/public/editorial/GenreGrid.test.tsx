@@ -64,8 +64,8 @@ describe('GenreGrid', () => {
     );
 
     expect(screen.getByText('filterByCategory')).toBeInTheDocument();
-    expect(screen.getByText('Rock')).toBeInTheDocument();
-    expect(screen.getByText('Jazz')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Rock' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Jazz' })).toBeInTheDocument();
   });
 
   it('does not count OTHER as a real category', () => {
@@ -92,7 +92,7 @@ describe('GenreGrid', () => {
       <GenreGrid shows={[makeShow({ id: '1', category: 'Rock' }), makeShow({ id: '2', category: 'Jazz' })]} />,
     );
 
-    screen.getByText('Rock').click();
+    screen.getByRole('button', { name: 'Rock' }).click();
     rerender(<GenreGrid shows={[makeShow({ id: '2', category: 'Jazz' })]} />);
 
     expect(screen.getByText('noShowsInCategory')).toBeInTheDocument();
