@@ -1,8 +1,18 @@
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import { isLocale } from '@live-show/i18n-messages';
 import { tokenStore } from '@/lib/auth/token-store';
 import { getAttribution } from '@/lib/analytics/attribution';
 import { getAnalyticsConsent } from '@/lib/analytics/consent';
 import { generateRequestId } from './request-id';
+
+// The active UI locale, read from <html lang> (set server-side by the root
+// layout from next-intl's resolved locale — see src/i18n/request.ts). Only
+// meaningful in the browser; SSR/server callers of httpClient get undefined.
+export function getUiLocale(): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const lang = document.documentElement.lang;
+  return isLocale(lang) ? lang : undefined;
+}
 
 // Thrown when the silent refresh itself fails (bad/expired refresh cookie,
 // network error, non-2xx from /api/auth/refresh). Exported so callers that
@@ -56,6 +66,13 @@ export function applyInterceptors(client: AxiosInstance) {
 
     const token = tokenStore.get();
     if (token) req.headers.set('Authorization', `Bearer ${token}`);
+
+    // Lets account emails (verify/reset/signup-attempt) go out in the
+    // locale the user is actually browsing in, not the browser's language.
+    if (!req.headers.get('Accept-Language')) {
+      const locale = getUiLocale();
+      if (locale) req.headers.set('Accept-Language', locale);
+    }
 
     // LGPD: signal opt-out so server-side tracking (e.g. ticket.purchased on
     // checkout) is dropped for users who declined non-essential collection.

@@ -7,9 +7,13 @@ import { API_URL } from '../_cookies';
 // straight from the client) only for symmetry with login/refresh.
 export async function POST(req: NextRequest) {
   const body = await req.json();
+  const acceptLanguage = req.headers.get('accept-language');
   const upstream = await fetch(`${API_URL}/auth/register`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(acceptLanguage ? { 'Accept-Language': acceptLanguage } : {}),
+    },
     body: JSON.stringify(body),
   });
 
