@@ -23,7 +23,7 @@ describe('flagMeta', () => {
     });
   });
 
-  it('catalogs exactly the 17 backend keys', () => {
+  it('catalogs exactly the 18 backend keys', () => {
     expect(Object.keys(FLAG_CATALOG).sort()).toEqual(
       [
         'chat',
@@ -43,6 +43,7 @@ describe('flagMeta', () => {
         'coupons',
         'event_collaborations',
         'fiscal_emission',
+        'mailing',
       ].sort(),
     );
   });

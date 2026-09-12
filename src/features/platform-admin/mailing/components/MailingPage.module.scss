@@ -1,0 +1,45 @@
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.tab {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #8f8f97;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 4px 12px;
+  cursor: pointer;
+
+  &:hover { color: #c7c7cd; }
+  &:focus-visible { outline: 2px solid #ff2e9e; outline-offset: 2px; }
+
+  &[aria-selected='true'] {
+    color: #fff;
+    border-bottom-color: #ff2e9e;
+  }
+}
+
+.primary {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: #ff2e9e;
+  color: #0a0a0b;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover { background: #ff7ec2; }
+  &:focus-visible { outline: 2px solid #ff2e9e; outline-offset: 2px; }
+}
