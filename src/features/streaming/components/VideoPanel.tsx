@@ -41,10 +41,6 @@ interface VideoPanelProps {
   // their CPU/bandwidth. Cleared (→ auto/selectedLevel) the moment the panel
   // becomes the main view, which upshifts over a segment or two, no reload.
   lowQuality?: boolean;
-  // Real aspect ratio (videoWidth/videoHeight), reported once known and again
-  // on any resolution change. CameraGrid uses this to row-justify the grid —
-  // sizing here is entirely up to the wrapper it's rendered in.
-  onAspectRatioReady?: (cameraId: string, ratio: number) => void;
   // Controlled from LivePlayer's toolbar — one mute switch for every tile,
   // not a per-panel local toggle (there was no way to reach that from the
   // toolbar where AO VIVO/fullscreen live, so it was effectively hidden).
@@ -119,7 +115,6 @@ export function VideoPanel({
   onLevelsReady,
   selectedAudioCameraId,
   lowQuality = false,
-  onAspectRatioReady,
   muted,
   onMutedChange,
   onAutoplayBlocked,
@@ -172,25 +167,6 @@ export function VideoPanel({
       });
     },
   });
-
-  // Real dimensions from the video element itself — works whether hls.js or
-  // native HLS attached the source, and 'resize' also catches ABR quality
-  // switches that change resolution mid-stream.
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !onAspectRatioReady) return;
-    const report = () => {
-      if (video.videoWidth && video.videoHeight) {
-        onAspectRatioReady(camera.cameraId, video.videoWidth / video.videoHeight);
-      }
-    };
-    video.addEventListener('loadedmetadata', report);
-    video.addEventListener('resize', report);
-    return () => {
-      video.removeEventListener('loadedmetadata', report);
-      video.removeEventListener('resize', report);
-    };
-  }, [camera.cameraId, onAspectRatioReady]);
 
   useEffect(() => {
     if (videoRef.current) videoRef.current.muted = muted;

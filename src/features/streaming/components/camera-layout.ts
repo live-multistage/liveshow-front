@@ -1,12 +1,32 @@
 import type { CSSProperties } from 'react';
 import type { LiveCamera } from '../types/live.types';
-import { computeJustifiedRows, pickColumnCount } from './justified-grid';
 
 // Pure slot-layout engine for CameraGrid: given the stage size and the current
-// composition, decide each camera's ROLE and absolute rect. No React, no DOM —
-// unit-testable next to justified-grid.ts.
+// composition, decide each camera's ROLE and absolute rect. No React, no DOM.
+//
+// Every camera is treated as 16:9 — the four layouts are fixed shapes:
+//   1x1   solo            main fills the stage
+//   2x1   main + PiP      one other camera, floating bottom-right
+//   1x[2] main + rail     two (or three) other cameras stacked on the right
+//   2x2   grid            exactly four cameras, equal cells
 
 export type ViewMode = 'solo' | 'main-rail' | 'grid';
+
+export const ASPECT = 16 / 9;
+// Composition cap (Libras excluded): the four layouts stop at 2x2.
+export const MAX_ACTIVE_CAMERAS = 4;
+// Rail tiles are sized from the stage height; on a narrow (portrait) stage
+// that would eat the main view, so the rail never takes more than this.
+export const RAIL_MAX_W_RATIO = 0.35;
+
+// Which layout actually renders: one camera is always solo, and the 2x2 grid
+// only exists with four — with fewer, "grid" degrades to main + rail
+// (3 → 1x[2], 2 → PiP).
+export function resolveEffectiveMode(viewMode: ViewMode, compositionCount: number): ViewMode {
+  if (compositionCount <= 1) return 'solo';
+  if (viewMode === 'grid' && compositionCount < MAX_ACTIVE_CAMERAS) return 'main-rail';
+  return viewMode;
+}
 export type Role = 'main' | 'pip' | 'rail' | 'grid' | 'strip' | 'libras' | 'hidden';
 
 export interface Slot {
@@ -14,10 +34,8 @@ export interface Slot {
   style: CSSProperties;
 }
 
-// Layout constants (previously split across MainRailView/CameraRail/PipOverlay).
-export const RAIL_W = 240;
 export const PIP_W = 220;
-export const PIP_H = (PIP_W * 9) / 16;
+export const PIP_H = PIP_W / ASPECT;
 export const PIP_RIGHT = 16;
 export const PIP_BOTTOM = 88; // clears LivePlayer's floating bottom stack (5.5rem)
 export const GAP = 2;
@@ -37,8 +55,6 @@ export const HIDDEN_STYLE = { inset: 0, opacity: 0, pointerEvents: 'none', zInde
 
 export interface SlotLayoutParams {
   size: { width: number; height: number };
-  // Real video aspect ratios by cameraId, used to row-justify the grid.
-  aspectRatios: Record<string, number>;
   effectiveMode: ViewMode;
   // Every stage camera (drawer add-tiles come from the inactive ones).
   cameras: LiveCamera[];
@@ -51,9 +67,22 @@ export interface SlotLayoutParams {
   pickerOpen: boolean;
 }
 
+// 16:9 tile that fits `n` stacked copies in the stage height, capped to a
+// share of the width. Returns the tile and the block's vertical offset.
+function railTile(stageW: number, H: number, n: number) {
+  let tileH = Math.max(0, (H - (n - 1) * GAP) / n);
+  let tileW = tileH * ASPECT;
+  const maxW = stageW * RAIL_MAX_W_RATIO;
+  if (tileW > maxW) {
+    tileW = maxW;
+    tileH = tileW / ASPECT;
+  }
+  const blockH = tileH * n + (n - 1) * GAP;
+  return { tileW, tileH, top: Math.max(0, (H - blockH) / 2) };
+}
+
 export function computeSlotLayout({
   size,
-  aspectRatios,
   effectiveMode,
   cameras,
   activeCameraIds,
@@ -73,40 +102,38 @@ export function computeSlotLayout({
   const stageW = W - drawerInset;
 
   if (effectiveMode === 'grid') {
-    const cols = pickColumnCount(compositionCameras.length);
-    const rows = Math.max(1, Math.ceil(compositionCameras.length / cols));
-    const jrows = computeJustifiedRows(
-      compositionCameras.map((c) => c.cameraId), aspectRatios, cols, rows, stageW, H, GAP,
-    );
-    const totalH = jrows.reduce((a, r) => a + r.height, 0) + Math.max(0, jrows.length - 1) * GAP;
-    let y = Math.max(0, (H - totalH) / 2);
-    for (const row of jrows) {
-      let x = Math.max(0, (stageW - row.width) / 2);
-      for (const cell of row.cells) {
-        if (cell.cameraId) {
-          map.set(cell.cameraId, {
-            role: 'grid',
-            style: { left: x, top: y, width: cell.width, height: cell.height, zIndex: 0 },
-          });
-        }
-        x += cell.width + GAP;
-      }
-      y += row.height + GAP;
-    }
-    for (const c of compositionCameras) {
-      if (!map.has(c.cameraId)) {
+    // 2x2 of equal 16:9 cells, bound by whichever of width/height is tighter,
+    // block centered in the stage.
+    const cellW = Math.max(0, Math.min((stageW - GAP) / 2, ((H - GAP) / 2) * ASPECT));
+    const cellH = cellW / ASPECT;
+    const x0 = Math.max(0, (stageW - (cellW * 2 + GAP)) / 2);
+    const y0 = Math.max(0, (H - (cellH * 2 + GAP)) / 2);
+    compositionCameras.forEach((c, i) => {
+      if (i >= 4) {
         map.set(c.cameraId, { role: 'hidden', style: HIDDEN_STYLE });
+        return;
       }
-    }
+      map.set(c.cameraId, {
+        role: 'grid',
+        style: {
+          left: x0 + (i % 2) * (cellW + GAP),
+          top: y0 + Math.floor(i / 2) * (cellH + GAP),
+          width: cellW,
+          height: cellH,
+          zIndex: 0,
+        },
+      });
+    });
   } else {
     // solo / main-rail
     const railPresent = effectiveMode !== 'solo' && otherCameras.length >= 2;
     const pipPresent = effectiveMode !== 'solo' && otherCameras.length === 1;
+    const rail = railPresent ? railTile(stageW, H, otherCameras.length) : null;
 
     if (mainCamera) {
       map.set(mainCamera.cameraId, {
         role: 'main',
-        style: { left: 0, top: 0, right: drawerInset + (railPresent ? RAIL_W : 0), bottom: 0, zIndex: 0 },
+        style: { left: 0, top: 0, right: drawerInset + (rail ? rail.tileW + GAP : 0), bottom: 0, zIndex: 0 },
       });
     }
 
@@ -121,14 +148,12 @@ export function computeSlotLayout({
         role: 'pip',
         style: { right: PIP_RIGHT + drawerInset, bottom: pipBottom, width: PIP_W, height: PIP_H, zIndex: 21 },
       });
-    } else if (railPresent) {
-      const n = otherCameras.length;
-      const tileH = H > 0 ? (H - (n - 1) * GAP) / n : 0;
+    } else if (rail) {
       otherCameras.forEach((c, i) => {
         map.set(c.cameraId, {
           role: 'rail',
           style: {
-            right: drawerInset, top: i * (tileH + GAP), width: RAIL_W, height: tileH,
+            right: drawerInset, top: rail.top + i * (rail.tileH + GAP), width: rail.tileW, height: rail.tileH,
             zIndex: 1, visibility: H > 0 ? 'visible' : 'hidden',
           },
         });
@@ -157,7 +182,7 @@ export function computeSlotLayout({
   if (pickerOpen) {
     const inactive = cameras.filter((c) => !activeCameraIds.includes(c.cameraId));
     const tileW = DRAWER_W - DRAWER_PAD * 2;
-    const tileH = Math.round((tileW * 9) / 16);
+    const tileH = Math.round(tileW / ASPECT);
     const rowsBottom = DRAWER_HEADER_H + activeCameraIds.length * DRAWER_ROW_H;
     const avail = H - rowsBottom - DRAWER_BOTTOM;
     const maxTiles = H > 0 ? Math.max(1, Math.floor((avail + GAP) / (tileH + GAP))) : inactive.length;

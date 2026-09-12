@@ -1097,6 +1097,8 @@
     "viewModeSolo": "Solo",
     "viewModeMainRail": "Principal + carril",
     "viewModeGrid": "Cuadrícula",
+    "viewModeGridNeedsFour": "La cuadrícula necesita 4 cámaras",
+    "compositionFull": "Límite de 4 cámaras en la composición",
     "toggleChat": "Alternar chat",
     "share": "Compartir",
     "stages": "Escenarios",

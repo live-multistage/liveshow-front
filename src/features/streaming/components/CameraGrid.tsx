@@ -9,7 +9,7 @@ import { VideoPanel } from './VideoPanel';
 import type { QualityLevel } from './VideoPanel';
 import type { ClockSample } from '../hooks/use-clock-sync';
 import type { LiveSeekCommand, LiveWindow } from '../hooks/use-transport-controls';
-import { computeSlotLayout, HIDDEN_STYLE, DRAWER_W } from './camera-layout';
+import { computeSlotLayout, resolveEffectiveMode, HIDDEN_STYLE, DRAWER_W, MAX_ACTIVE_CAMERAS } from './camera-layout';
 import type { Role, ViewMode } from './camera-layout';
 import { CameraDrawer } from './CameraDrawer';
 import styles from './CameraGrid.module.scss';
@@ -94,7 +94,6 @@ export function CameraGrid({
   const t = useTranslations('player');
   const stageRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
-  const [aspectRatios, setAspectRatios] = useState<Record<string, number>>({});
   // Shared wall-clock: the primary panel writes its PROGRAM-DATE-TIME position
   // here; every other live panel corrects against it (see use-clock-sync).
   const clockRef = useRef<ClockSample | null>(null);
@@ -110,10 +109,6 @@ export function CameraGrid({
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-
-  const handleAspectRatioReady = (cameraId: string, ratio: number) => {
-    setAspectRatios((prev) => (prev[cameraId] === ratio ? prev : { ...prev, [cameraId]: ratio }));
-  };
 
   const cameraById = useMemo(() => new Map(cameras.map((c) => [c.cameraId, c])), [cameras]);
   const activeCameras = useMemo(
@@ -133,7 +128,8 @@ export function CameraGrid({
 
   const mainCamera =
     compositionCameras.find((c) => c.cameraId === mainCameraId) ?? compositionCameras[0] ?? null;
-  const effectiveMode: ViewMode = compositionCameras.length <= 1 ? 'solo' : viewMode;
+  const effectiveMode: ViewMode = resolveEffectiveMode(viewMode, compositionCameras.length);
+  const compositionFull = compositionCameras.length >= MAX_ACTIVE_CAMERAS;
   const otherCameras = mainCamera
     ? compositionCameras.filter((c) => c.cameraId !== mainCamera.cameraId)
     : [];
@@ -142,7 +138,6 @@ export function CameraGrid({
     () =>
       computeSlotLayout({
         size,
-        aspectRatios,
         effectiveMode,
         cameras,
         activeCameraIds,
@@ -152,7 +147,7 @@ export function CameraGrid({
         librasCamera,
         pickerOpen,
       }),
-    [effectiveMode, compositionCameras, librasCamera, otherCameras, mainCamera, size, aspectRatios, pickerOpen, cameras, activeCameraIds],
+    [effectiveMode, compositionCameras, librasCamera, otherCameras, mainCamera, size, pickerOpen, cameras, activeCameraIds],
   );
 
   const roleClass: Record<Role, string> = {
@@ -190,6 +185,7 @@ export function CameraGrid({
           activeCameraIds={activeCameraIds}
           librasCameraId={librasCameraId}
           effectiveMode={effectiveMode}
+          compositionCount={compositionCameras.length}
           onViewModeChange={onViewModeChange}
           onToggleCamera={onToggleCamera}
           onClose={onClosePicker}
@@ -202,8 +198,12 @@ export function CameraGrid({
         const clickable = role === 'pip' || role === 'rail' || role === 'grid';
 
         const isActiveCam = activeCameraIds.includes(cam.cameraId);
+        // Add-tile of an inactive camera while the composition is at the cap:
+        // shown, but inert, until the viewer removes one.
+        const stripDisabled = role === 'strip' && !isActiveCam && compositionFull;
 
         const onStripSelect = () => {
+          if (stripDisabled) return;
           if (!isActiveCam) onToggleCamera(cam.cameraId);
           onMainCameraChange(cam.cameraId);
         };
@@ -223,13 +223,15 @@ export function CameraGrid({
         return (
           <div
             key={cam.cameraId}
-            className={`${styles.slot} ${roleClass[role]}`}
+            className={`${styles.slot} ${roleClass[role]} ${stripDisabled ? styles.stripSlotDisabled : ''}`}
             style={slot.style}
             onClick={role === 'strip' ? onStripSelect : undefined}
             {...(role === 'strip'
               ? {
                   role: 'button' as const,
-                  tabIndex: 0,
+                  tabIndex: stripDisabled ? -1 : 0,
+                  'aria-disabled': stripDisabled,
+                  title: stripDisabled ? t('compositionFull') : undefined,
                   onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
@@ -266,7 +268,6 @@ export function CameraGrid({
               // on promote (low → full) flushes the buffer and stalls ~1s. Only
               // the camera-strip previews (never the playback source) go low.
               onLevelsReady={isPrimary ? onLevelsReady : undefined}
-              onAspectRatioReady={handleAspectRatioReady}
               mode={mode}
               paused={paused}
               positionMs={positionMs}
@@ -294,7 +295,7 @@ export function CameraGrid({
             />
             {role === 'strip' && (
               <>
-                <span className={styles.stripAdd}>{t('addCamera')}</span>
+                {!stripDisabled && <span className={styles.stripAdd}>{t('addCamera')}</span>}
                 <div className={styles.stripInfo}>
                   <p className={styles.stripName}>{cam.name}</p>
                   <p className={styles.stripAngle}>{cam.slug}</p>

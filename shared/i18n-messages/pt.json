@@ -1097,6 +1097,8 @@
     "viewModeSolo": "Solo",
     "viewModeMainRail": "Principal + trilha",
     "viewModeGrid": "Grade",
+    "viewModeGridNeedsFour": "Grade precisa de 4 câmeras",
+    "compositionFull": "Limite de 4 câmeras na composição",
     "toggleChat": "Alternar chat",
     "share": "Compartilhar",
     "stages": "Palcos",

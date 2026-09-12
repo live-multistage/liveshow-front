@@ -121,6 +121,15 @@
   }
 }
 
+.stripSlotDisabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+
+  &:hover {
+    border-color: transparent;
+  }
+}
+
 .stripBadge {
   position: absolute;
   top: 6px;
@@ -262,6 +271,13 @@
 
 .modeBtn {
   padding: 0.3rem 0.4rem;
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    background: none;
+    color: $muted;
+  }
   border-radius: 5px;
   background: none;
   border: none;
