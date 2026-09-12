@@ -532,7 +532,8 @@
       "platformOrganizerApplications": "Candidaturas",
       "platformArtistApplications": "Candidaturas de artistas",
       "artists": "Artistas",
-      "artistsCatalog": "Catálogo de Artistas"
+      "artistsCatalog": "Catálogo de Artistas",
+      "platformMailing": "Correos"
     },
     "navMobile": {
       "overview": "Panel",
@@ -1709,6 +1710,189 @@
         "saved": "Emisor actualizado.",
         "error": "No se pudo guardar.",
         "inactiveHint": "Mientras esté inactivo, los pedidos permanecen pendientes de emisión."
+      }
+    },
+    "mailing": {
+      "page": {
+        "group": "COMUNICACIÓN",
+        "title": "Correos",
+        "subtitle": "Plantillas y campañas enviadas a la base de usuarios.",
+        "tabTemplates": "Plantillas",
+        "tabCampaigns": "Campañas"
+      },
+      "category": {
+        "MARKETING": "Marketing",
+        "ANNOUNCEMENT": "Comunicado"
+      },
+      "common": {
+        "loading": "Cargando…",
+        "loadError": "No se pudo cargar. Inténtalo de nuevo.",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar"
+      },
+      "templates": {
+        "new": "Nueva plantilla",
+        "empty": "Aún no hay plantillas. Crea la primera.",
+        "colName": "Nombre",
+        "colCategory": "Categoría",
+        "colUpdated": "Actualizado",
+        "colTested": "Prueba",
+        "colActions": "Acciones",
+        "tested": "Probada",
+        "untested": "Sin probar",
+        "edit": "Editar",
+        "duplicate": "Duplicar",
+        "archive": "Archivar",
+        "archiveTitle": "¿Archivar plantilla?",
+        "archiveBody": "\"{name}\" sale de la lista y ya no se puede usar en nuevas campañas. Las campañas existentes no cambian.",
+        "actionError": "No se pudo completar la acción."
+      },
+      "editor": {
+        "back": "Volver a plantillas",
+        "newTitle": "Nueva plantilla",
+        "name": "Nombre interno",
+        "category": "Categoría",
+        "subject": "Asunto",
+        "preheader": "Preencabezado",
+        "language": "Idioma del diseño",
+        "languagePt": "Portugués",
+        "languageEn": "Inglés",
+        "languageEs": "Español",
+        "variableHint": "Usa {variable} en un título o texto para insertar el nombre.",
+        "addBlock": "Añadir bloque",
+        "blocksEmpty": "Añade bloques para armar el correo.",
+        "block": {
+          "heading": "Título",
+          "text": "Texto",
+          "image": "Imagen",
+          "button": "Botón",
+          "eventCard": "Tarjeta de evento",
+          "eventList": "Lista de eventos",
+          "divider": "Divisor"
+        },
+        "moveUp": "Mover arriba",
+        "moveDown": "Mover abajo",
+        "remove": "Quitar bloque",
+        "dragHandle": "Arrastra para reordenar",
+        "field": {
+          "text": "Texto",
+          "size": "Tamaño",
+          "sizeLg": "Grande",
+          "sizeMd": "Mediano",
+          "body": "Contenido",
+          "bodyHint": "Una línea en blanco separa párrafos. **negrita**, _cursiva_, [texto](https://…)",
+          "image": "Imagen",
+          "upload": "Subir imagen",
+          "uploading": "Subiendo…",
+          "uploadError": "Imagen no válida. Usa JPEG, PNG, WebP o GIF de hasta 5 MB.",
+          "alt": "Texto alternativo",
+          "href": "Enlace (https://)",
+          "label": "Etiqueta",
+          "event": "Evento",
+          "events": "Eventos (hasta 3)",
+          "badge": "Distintivo (opcional)",
+          "ctaLabel": "Texto del botón (opcional)",
+          "searchEvents": "Buscar eventos…",
+          "noEvents": "No se encontraron eventos.",
+          "removeEvent": "Quitar evento"
+        },
+        "preview": "Vista previa",
+        "previewDesktop": "Escritorio",
+        "previewMobile": "Móvil",
+        "previewTitle": "Vista previa del correo",
+        "previewError": "No se pudo generar la vista previa.",
+        "previewInvalid": "Corrige los campos marcados para ver la vista previa.",
+        "save": "Guardar",
+        "saving": "Guardando…",
+        "saved": "Guardado",
+        "saveError": "No se pudo guardar.",
+        "testSend": "Enviarme una prueba",
+        "testSending": "Enviando prueba…",
+        "testSent": "Prueba enviada a tu correo.",
+        "testError": "No se pudo enviar la prueba.",
+        "testThrottled": "Demasiadas pruebas seguidas. Espera unos minutos.",
+        "saveBeforeTest": "Guarda los cambios antes de enviar la prueba.",
+        "testedBadge": "Probada en esta versión",
+        "untestedBadge": "Sin probar en esta versión",
+        "unsavedConfirm": "Tienes cambios sin guardar. ¿Salir de todos modos?"
+      },
+      "campaigns": {
+        "new": "Nueva campaña",
+        "empty": "Aún no hay campañas.",
+        "colName": "Nombre",
+        "colTemplate": "Plantilla",
+        "colAudience": "Público",
+        "colStatus": "Estado",
+        "colProgress": "Progreso",
+        "colDate": "Fecha",
+        "progress": "{sent}/{total}",
+        "status": {
+          "DRAFT": "Borrador",
+          "SCHEDULED": "Programada",
+          "SENDING": "Enviando",
+          "SENT": "Enviada",
+          "CANCELLED": "Cancelada",
+          "FAILED": "Falló"
+        }
+      },
+      "audience": {
+        "typeLabel": "Público",
+        "type": {
+          "ALL_VERIFIED": "Todos los usuarios verificados",
+          "EVENT_BUYERS": "Compradores de un evento",
+          "EVENT_SAVERS": "Guardaron un evento (sin entrada)",
+          "CHANNEL_SUBSCRIBERS": "Suscriptores activos de un canal"
+        },
+        "country": "País (opcional)",
+        "countryAll": "Todos los países",
+        "channel": "Canal",
+        "channelPlaceholder": "Elige un canal",
+        "counting": "Calculando público…",
+        "summary": "{eligible} personas · {skipped} omitidas (opt-out) · ~{days} días en el plan actual",
+        "summaryOther": "{unverified} sin correo verificado · {deleted} cuentas eliminadas",
+        "countError": "No se pudo calcular el público."
+      },
+      "wizard": {
+        "title": "Nueva campaña",
+        "stepTemplate": "1 · Plantilla",
+        "stepAudience": "2 · Público",
+        "stepReview": "3 · Revisión",
+        "name": "Nombre de la campaña",
+        "template": "Plantilla",
+        "untestedFlag": "sin probar",
+        "next": "Continuar",
+        "back": "Volver",
+        "subject": "Asunto",
+        "sendNow": "Enviar ahora",
+        "schedule": "Programar",
+        "scheduleAt": "Fecha y hora (hora de Brasilia)",
+        "confirmTitle": "Confirmar envío",
+        "confirmNow": "La campaña se enviará a {count} personas. Esta acción no se puede deshacer.",
+        "confirmScheduled": "La campaña se enviará a {count} personas a partir de {date}.",
+        "confirmSend": "Confirmar y enviar",
+        "notTested": "Esta plantilla cambió desde la última prueba. Envíate una prueba antes de enviar.",
+        "openEditor": "Abrir editor",
+        "error": "No se pudo crear la campaña."
+      },
+      "detail": {
+        "back": "Volver a campañas",
+        "progress": "{sent} de {total} enviados",
+        "materializing": "Preparando la lista de destinatarios…",
+        "scheduledFor": "Programada para {date}",
+        "sent": "Enviados",
+        "pending": "En cola",
+        "failed": "Fallidos",
+        "skippedOptedOut": "Omitidos · opt-out",
+        "skippedUnverified": "Omitidos · sin verificar",
+        "skippedDeleted": "Omitidos · cuentas eliminadas",
+        "skippedCancelled": "Omitidos · cancelación",
+        "eta": "~{days} días restantes en el plan actual",
+        "dispatch": "Enviar campaña",
+        "cancel": "Cancelar campaña",
+        "cancelTitle": "¿Cancelar campaña?",
+        "cancelBody": "Nadie más recibirá esta campaña. Los correos ya enviados no se ven afectados.",
+        "cancelConfirm": "Cancelar campaña",
+        "dismiss": "Volver"
       }
     }
   },
@@ -3074,6 +3258,30 @@
         "removed": "Artista eliminado del line-up.",
         "error": "No se pudo completar la acción. Inténtalo de nuevo."
       }
+    }
+  },
+  "unsubscribe": {
+    "protectedBadge": "Enlace firmado y verificado",
+    "loading": {
+      "eyebrow": "Cancelando",
+      "title": "Cancelando tu suscripción…",
+      "message": "Solo un momento.",
+      "spinnerLabel": "Cancelando suscripción",
+      "action": "Espera…"
+    },
+    "success": {
+      "eyebrow": "Suscripción cancelada",
+      "title": "Listo",
+      "message": "Ya no recibirás correos promocionales.",
+      "primary": "Preferencias de correo",
+      "secondary": "Ir al inicio"
+    },
+    "invalid": {
+      "eyebrow": "Enlace inválido",
+      "title": "No se pudo cancelar",
+      "message": "Este enlace de cancelación no es válido. Puedes ajustar los correos que recibes en las preferencias de tu cuenta.",
+      "primary": "Preferencias de correo",
+      "secondary": "Ir al inicio"
     }
   }
 }

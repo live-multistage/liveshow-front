@@ -20,23 +20,20 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function VerifyEmailContent({ token }: VerifyEmailContentProps) {
   const t = useTranslations('auth.verifyEmail');
-  const { mutate } = useVerifyEmailMutation();
   const [state, setState] = useState<VerifyState>(token ? 'verifying' : 'invalid');
   const [resendOpen, setResendOpen] = useState(false);
   // Effects run twice under React Strict Mode in dev — guard against
   // verifying (and consuming) the token twice.
   const calledRef = useRef(false);
+  const { mutate } = useVerifyEmailMutation({
+    onSuccess: () => setState('success'),
+    onError: () => setState('invalid'),
+  });
 
   useEffect(() => {
     if (!token || calledRef.current) return;
     calledRef.current = true;
-    mutate(
-      { token },
-      {
-        onSuccess: () => setState('success'),
-        onError: () => setState('invalid'),
-      },
-    );
+    mutate({ token });
   }, [token, mutate]);
 
   if (state === 'verifying') {

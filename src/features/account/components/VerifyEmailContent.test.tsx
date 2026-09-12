@@ -44,12 +44,15 @@ describe('VerifyEmailContent', () => {
   });
 
   it('calls the API on mount and shows success with a sign-in link', async () => {
-    const mutate = vi.fn((_payload, opts?: { onSuccess?: () => void }) => opts?.onSuccess?.());
-    mockedVerify.mockReturnValue({ mutate, isPending: true, error: null } as never);
+    const mutate = vi.fn();
+    mockedVerify.mockImplementation((opts) => {
+      mutate.mockImplementation((payload) => opts?.onSuccess?.(undefined, payload, undefined, undefined as never));
+      return { mutate, isPending: true, error: null } as never;
+    });
 
     render(<VerifyEmailContent token="good-token" />);
 
-    expect(mutate).toHaveBeenCalledWith({ token: 'good-token' }, expect.objectContaining({ onSuccess: expect.any(Function) }));
+    expect(mutate).toHaveBeenCalledWith({ token: 'good-token' });
     await waitFor(() => expect(screen.getByRole('heading', { name: 'success.title' })).toBeInTheDocument());
     expect(screen.getByText('success.message')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'success.primary' })).toHaveAttribute('href', '/login');
@@ -66,8 +69,11 @@ describe('VerifyEmailContent', () => {
   });
 
   it('shows the expired card when the token is rejected', async () => {
-    const mutate = vi.fn((_payload, opts?: { onError?: () => void }) => opts?.onError?.());
-    mockedVerify.mockReturnValue({ mutate, isPending: false, error: null } as never);
+    const mutate = vi.fn();
+    mockedVerify.mockImplementation((opts) => {
+      mutate.mockImplementation((payload) => opts?.onError?.(new Error('nope') as never, payload, undefined, undefined as never));
+      return { mutate, isPending: false, error: null } as never;
+    });
 
     render(<VerifyEmailContent token="bad-token" />);
 

@@ -15,7 +15,8 @@ export type FeatureFlagKey =
   | 'coupons'
   | 'physical_tickets'
   | 'event_collaborations'
-  | 'fiscal_emission';
+  | 'fiscal_emission'
+  | 'mailing';
 
 export type FeatureFlags = Record<FeatureFlagKey, boolean>;
 
@@ -52,4 +53,6 @@ export const DEFAULT_FEATURE_FLAGS = {
   event_collaborations: false,
   // Ships off — fiscal document emission via PlugNotas.
   fiscal_emission: false,
+  // Ships off — admin email campaigns; enabled once MAILING_UNSUBSCRIBE_SECRET is set.
+  mailing: false,
 } satisfies Record<FeatureFlagKey, boolean>;
