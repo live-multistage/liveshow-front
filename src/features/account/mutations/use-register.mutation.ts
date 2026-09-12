@@ -2,6 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import type { AppError } from '@/lib/http/errors';
+import { getUiLocale } from '@/lib/http/interceptors';
 import type { RegisterRequest } from '../types/account.types';
 import type { RegisterResponse } from '@live-show/api-contracts';
 
@@ -14,9 +15,13 @@ import type { RegisterResponse } from '@live-show/api-contracts';
 export function useRegisterMutation() {
   return useMutation<RegisterResponse, AppError, RegisterRequest>({
     mutationFn: async (payload) => {
+      const locale = getUiLocale();
       const res = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(locale ? { 'Accept-Language': locale } : {}),
+        },
         body: JSON.stringify(payload),
       });
       const data = await res.json() as RegisterResponse & { message?: string; code?: string };
