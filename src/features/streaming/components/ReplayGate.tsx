@@ -11,6 +11,7 @@ import { useReplayAccessQuery, useReplayPlaybackQuery } from '../queries/live.qu
 import { LiveGateLoading } from './LiveGateLoading';
 import { ReplayComingSoon } from './ReplayComingSoon';
 import { ReplayPlayer } from './ReplayPlayer';
+import styles from './ReplayGate.module.scss';
 
 interface Props {
   eventId: string;
@@ -87,7 +88,7 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
 function ReplayNoAccess({ eventId, eventTitle }: { eventId: string; eventTitle: string }) {
   const t = useTranslations('liveGate');
   return (
-    <div style={{ padding: 40, textAlign: 'center' }}>
+    <div className={styles.noAccess}>
       <h2>{t('accessRequired')}</h2>
       <p>{t('needTicket', { title: eventTitle })}</p>
       <Link href={`/events/${eventId}`}>{t('viewTickets')}</Link>

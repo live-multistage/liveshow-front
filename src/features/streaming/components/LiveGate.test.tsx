@@ -119,10 +119,19 @@ describe('LiveGate — pre-roll ad gate', () => {
   });
 });
 
+const DEFAULT_PLAYBACK_DATA = {
+  live: true,
+  stages: [],
+  cameras: [],
+  primaryCameraId: 'cam-1',
+  librasCameraId: null,
+};
+
 describe('LiveGate — revoked access on playback refresh', () => {
   beforeEach(() => {
     prerollState.ad = null;
     prerollState.pending = false;
+    playbackState.data = DEFAULT_PLAYBACK_DATA;
   });
 
   it('unmounts the player and shows the no-access state on a 401 refresh', () => {
@@ -165,6 +174,30 @@ describe('LiveGate — revoked access on playback refresh', () => {
     playbackState.error = makeHttpError(500);
 
     render(<LiveGate eventId="evt-1" chatEnabled={false} />);
+
+    expect(screen.getByText('live-player-stub')).toBeInTheDocument();
+    expect(screen.queryByText('no-access-stub')).not.toBeInTheDocument();
+  });
+
+  it('shows the no-access state on a first-load 401/403 with no data yet', () => {
+    playbackState.error = makeHttpError(403);
+    playbackState.data = undefined;
+
+    render(<LiveGate eventId="evt-1" chatEnabled={false} />);
+
+    expect(screen.getByText('no-access-stub')).toBeInTheDocument();
+    expect(screen.queryByText('live-player-stub')).not.toBeInTheDocument();
+  });
+
+  it('re-mounts the player once a later refetch succeeds (error clears, data returns)', () => {
+    playbackState.error = makeHttpError(403);
+
+    const { rerender } = render(<LiveGate eventId="evt-1" chatEnabled={false} />);
+    expect(screen.getByText('no-access-stub')).toBeInTheDocument();
+
+    playbackState.error = undefined;
+    playbackState.data = DEFAULT_PLAYBACK_DATA;
+    rerender(<LiveGate eventId="evt-1" chatEnabled={false} />);
 
     expect(screen.getByText('live-player-stub')).toBeInTheDocument();
     expect(screen.queryByText('no-access-stub')).not.toBeInTheDocument();

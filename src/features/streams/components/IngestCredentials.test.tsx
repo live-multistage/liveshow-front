@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { IngestCredentials } from './IngestCredentials';
 
@@ -27,8 +27,21 @@ vi.mock('../mutations/ingest.mutations', () => ({
 }));
 
 describe('IngestCredentials', () => {
+  const originalClipboard = navigator.clipboard;
+
   beforeEach(() => {
     ingestUrl = LONG_URL;
+  });
+
+  afterEach(() => {
+    // The masking test replaces navigator.clipboard wholesale (jsdom doesn't
+    // implement it) — restore it so a later test file/suite in the same
+    // worker doesn't inherit this test's writeText mock.
+    Object.defineProperty(navigator, 'clipboard', {
+      value: originalClipboard,
+      writable: true,
+      configurable: true,
+    });
   });
 
   it('renders the full SRT URL (150+ chars) with a copy action, not truncated', () => {
