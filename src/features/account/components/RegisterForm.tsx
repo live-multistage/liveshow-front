@@ -20,6 +20,9 @@ interface RegisterFormProps {
 
 export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: RegisterFormProps) {
   const t = useTranslations('auth.register');
+  // Same choice mobile made: a resend failure reuses forgotPassword's
+  // generic error copy rather than adding a new key.
+  const tGeneric = useTranslations('auth.forgotPassword');
 
   const {
     control,
@@ -78,6 +81,7 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
             </Button>
 
             {resent && <p className={styles.footer}>{t('checkEmail.resent')}</p>}
+            {resend.isError && <p className={styles.fieldError}>{tGeneric('errors.GENERIC')}</p>}
 
             <p className={styles.footer}>
               <Link href="/login" className={styles.link}>{t('checkEmail.backToLogin')}</Link>

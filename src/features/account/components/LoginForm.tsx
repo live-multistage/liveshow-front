@@ -24,6 +24,9 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
   // Reused only for the resend-confirmation copy — identical wording to the
   // register check-email screen, so no new i18n key was added for it.
   const tRegister = useTranslations('auth.register');
+  // Same choice mobile made: a resend failure reuses forgotPassword's
+  // generic error copy rather than adding a new key.
+  const tGeneric = useTranslations('auth.forgotPassword');
 
   const {
     handleSubmit,
@@ -162,6 +165,7 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
                   {t('resendVerification')}
                 </Button>
                 {resent && <p className={styles.resendConfirm}>{tRegister('checkEmail.resent')}</p>}
+                {resend.isError && <p className={styles.fieldError}>{tGeneric('errors.GENERIC')}</p>}
               </div>
             )}
 

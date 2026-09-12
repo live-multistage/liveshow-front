@@ -5,7 +5,7 @@ interface ResetPasswordPageProps {
   searchParams: Promise<{ token?: string }>;
 }
 
-export const metadata: Metadata = { title: 'Redefinir senha' };
+export const metadata: Metadata = { title: 'Redefinir senha', referrer: 'no-referrer' };
 
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
   const { token } = await searchParams;

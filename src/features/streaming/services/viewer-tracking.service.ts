@@ -8,10 +8,13 @@ export const viewerTrackingService = {
       .then(() => {}, () => {});
   },
 
-  heartbeat(eventId: string, sessionId: string): Promise<void> {
+  heartbeat(eventId: string, sessionId: string): Promise<number> {
     return httpClient
       .post(`/events/${eventId}/viewers/heartbeat`, { sessionId })
-      .then(() => {}, () => {});
+      .then(
+        (res) => res.status,
+        (err) => err?.response?.status ?? 0,
+      );
   },
 
   leave(eventId: string, sessionId: string): Promise<void> {

@@ -1,8 +1,8 @@
 export function safeRedirect(url: string | undefined): string {
   if (!url) return '/';
 
-  // Reject control characters: tab, CR, LF in the raw input.
-  if (/[\t\r\n]/.test(url)) return '/';
+  // Reject all C0 controls and DEL (not just tab/CR/LF) in the raw input.
+  if (/[\x00-\x1f\x7f]/.test(url)) return '/';
 
   // Try to decode percent-encoding safely; malformed encoding → reject.
   let decoded: string;
@@ -13,7 +13,7 @@ export function safeRedirect(url: string | undefined): string {
   }
 
   // Reject control characters in the decoded form.
-  if (/[\t\r\n]/.test(decoded)) return '/';
+  if (/[\x00-\x1f\x7f]/.test(decoded)) return '/';
 
   // Reject protocol-relative (//) and backslash variant (/\).
   if (url[0] !== '/' || url[1] === '/' || url[1] === '\\') return '/';

@@ -64,4 +64,24 @@ describe('LoginForm — EMAIL_NOT_VERIFIED', () => {
       expect(screen.getByText('checkEmail.resent')).toBeInTheDocument();
     });
   });
+
+  it('shows a generic error when resend fails', () => {
+    mockedResend.mockReturnValue({ mutate: vi.fn(), isPending: false, isError: true, error: null } as never);
+    render(<LoginForm />);
+    expect(screen.getByText('errors.GENERIC')).toBeInTheDocument();
+  });
+});
+
+describe('LoginForm — TOO_MANY_ATTEMPTS', () => {
+  it('shows the throttle message from a 429', () => {
+    mockedLogin.mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+      error: { message: 'Too Many Requests', status: 429, code: 'TOO_MANY_ATTEMPTS' },
+    } as never);
+    mockedResend.mockReturnValue({ mutate: vi.fn(), isPending: false, error: null } as never);
+
+    render(<LoginForm />);
+    expect(screen.getByText('errors.TOO_MANY_ATTEMPTS')).toBeInTheDocument();
+  });
 });

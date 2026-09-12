@@ -61,7 +61,7 @@ describe('viewerTrackingService', () => {
 
   describe('heartbeat', () => {
     it('sends sessionId in the body', async () => {
-      const mockPost = vi.fn().mockResolvedValue({ data: {} });
+      const mockPost = vi.fn().mockResolvedValue({ data: {}, status: 200 });
       vi.mocked(httpClient.post).mockImplementation(mockPost);
 
       await viewerTrackingService.heartbeat('event123', 'session456');
@@ -71,7 +71,25 @@ describe('viewerTrackingService', () => {
       });
     });
 
-    it('silently ignores errors', async () => {
+    it('resolves to the response status on success', async () => {
+      const mockPost = vi.fn().mockResolvedValue({ data: {}, status: 200 });
+      vi.mocked(httpClient.post).mockImplementation(mockPost);
+
+      const status = await viewerTrackingService.heartbeat('event123', 'session456');
+
+      expect(status).toBe(200);
+    });
+
+    it('resolves to 404 instead of throwing when the session is gone', async () => {
+      const mockPost = vi.fn().mockRejectedValue({ response: { status: 404 } });
+      vi.mocked(httpClient.post).mockImplementation(mockPost);
+
+      const status = await viewerTrackingService.heartbeat('event123', 'session456');
+
+      expect(status).toBe(404);
+    });
+
+    it('does not throw on network errors', async () => {
       const mockPost = vi.fn().mockRejectedValue(new Error('Network error'));
       vi.mocked(httpClient.post).mockImplementation(mockPost);
 

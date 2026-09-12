@@ -75,9 +75,12 @@ export function useViewerTracking(
     const interval = setInterval(() => {
       for (const cameraId of joinedRef.current) {
         const sessionId = cameraSessionId(baseSessionId, cameraId);
-        viewerTrackingService.heartbeat(eventId, sessionId)
-          .then(() => {})
-          .catch(() => {});
+        viewerTrackingService.heartbeat(eventId, sessionId).then((status) => {
+          // session expired on server — re-join
+          if (status === 404) {
+            viewerTrackingService.join(eventId, sessionId, cameraId, baseSessionId);
+          }
+        });
       }
     }, HEARTBEAT_INTERVAL_MS);
 

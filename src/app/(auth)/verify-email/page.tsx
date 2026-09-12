@@ -5,7 +5,7 @@ interface VerifyEmailPageProps {
   searchParams: Promise<{ token?: string }>;
 }
 
-export const metadata: Metadata = { title: 'Confirmação de e-mail' };
+export const metadata: Metadata = { title: 'Confirmação de e-mail', referrer: 'no-referrer' };
 
 export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
   const { token } = await searchParams;

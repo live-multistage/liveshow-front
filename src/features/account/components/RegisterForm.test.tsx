@@ -63,4 +63,16 @@ describe('RegisterForm — email verification flow', () => {
       expect(screen.getByText('checkEmail.resent')).toBeInTheDocument();
     });
   });
+
+  it('shows a generic error when resend fails from the check-email state', async () => {
+    const mutate = vi.fn((_payload, opts?: { onSuccess?: () => void }) => opts?.onSuccess?.());
+    mockedRegister.mockReturnValue({ mutate, isPending: false, error: null } as never);
+    mockedResend.mockReturnValue({ mutate: vi.fn(), isPending: false, isError: true, error: null } as never);
+
+    render(<RegisterForm />);
+    fillAndSubmit();
+
+    await waitFor(() => screen.getByText('checkEmail.title'));
+    expect(screen.getByText('errors.GENERIC')).toBeInTheDocument();
+  });
 });

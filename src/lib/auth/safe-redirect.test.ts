@@ -79,6 +79,24 @@ describe('safeRedirect', () => {
     });
   });
 
+  describe('rejects other control characters', () => {
+    it('rejects /%00/evil (null byte escape)', () => {
+      expect(safeRedirect('/%00/evil')).toBe('/');
+    });
+
+    it('rejects path with raw ESC (\\x1b)', () => {
+      expect(safeRedirect('/path\x1bevil')).toBe('/');
+    });
+
+    it('rejects /%7f/evil (DEL escape)', () => {
+      expect(safeRedirect('/%7f/evil')).toBe('/');
+    });
+
+    it('rejects path with raw DEL (\\x7f)', () => {
+      expect(safeRedirect('/path\x7fevil')).toBe('/');
+    });
+  });
+
   describe('rejects percent-encoded variants', () => {
     it('rejects /%2F/evil (percent-encoded slash)', () => {
       expect(safeRedirect('/%2F/evil')).toBe('/');
