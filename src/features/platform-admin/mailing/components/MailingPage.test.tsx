@@ -66,6 +66,16 @@ describe('MailingPage', () => {
     expect(within(row).getByRole('link', { name: 'Outubro' })).toHaveAttribute('href', '/dashboard/platform/mailing/campaigns/c1');
   });
 
+  it('wires each tab to its panel with id/aria-controls/aria-labelledby', () => {
+    render(<MailingPage />);
+    const tab = screen.getByRole('tab', { name: 'page.tabTemplates' });
+    const panel = screen.getByRole('tabpanel');
+    expect(tab.id).toBeTruthy();
+    expect(panel.id).toBeTruthy();
+    expect(tab).toHaveAttribute('aria-controls', panel.id);
+    expect(panel).toHaveAttribute('aria-labelledby', tab.id);
+  });
+
   it('does not put the div-grid PlatformTable row classes on real table rows', () => {
     const { unmount } = render(<MailingPage />);
     const templateRow = screen.getByText('Promo outubro').closest('tr')!;

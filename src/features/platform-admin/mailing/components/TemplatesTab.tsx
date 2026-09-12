@@ -25,10 +25,18 @@ export function TemplatesTab() {
   if (isError) return <p className={tableStyles.empty}>{t('common.loadError')}</p>;
   if (!data || data.length === 0) return <p className={tableStyles.empty}>{t('templates.empty')}</p>;
 
+  const openArchiveDialog = (template: { id: string; name: string }) => {
+    setActionError(false);
+    setPendingArchive(template);
+  };
+
   const confirmArchive = () => {
     if (!pendingArchive) return;
     archive.mutate(pendingArchive.id, {
-      onSuccess: () => setPendingArchive(null),
+      onSuccess: () => {
+        setActionError(false);
+        setPendingArchive(null);
+      },
       onError: () => setActionError(true),
     });
   };
@@ -74,14 +82,17 @@ export function TemplatesTab() {
                         type="button"
                         className={tableStyles.actionBtn}
                         disabled={duplicate.isPending}
-                        onClick={() => duplicate.mutate(template.id, { onError: () => setActionError(true) })}
+                        onClick={() => duplicate.mutate(template.id, {
+                          onSuccess: () => setActionError(false),
+                          onError: () => setActionError(true),
+                        })}
                       >
                         {t('templates.duplicate')}
                       </button>
                       <button
                         type="button"
                         className={`${tableStyles.actionBtn} ${tableStyles.actionDanger}`}
-                        onClick={() => setPendingArchive({ id: template.id, name: template.name })}
+                        onClick={() => openArchiveDialog({ id: template.id, name: template.name })}
                       >
                         {t('templates.archive')}
                       </button>
@@ -94,7 +105,7 @@ export function TemplatesTab() {
         </table>
       </div>
 
-      {actionError && <p className={tableStyles.filterError}>{t('templates.actionError')}</p>}
+      {actionError && !pendingArchive && <p className={tableStyles.filterError}>{t('templates.actionError')}</p>}
 
       <Dialog open={pendingArchive !== null} onOpenChange={(open) => !open && setPendingArchive(null)}>
         <DialogContent>
@@ -102,6 +113,7 @@ export function TemplatesTab() {
             <DialogTitle>{t('templates.archiveTitle')}</DialogTitle>
             <DialogDescription>{t('templates.archiveBody', { name: pendingArchive?.name ?? '' })}</DialogDescription>
           </DialogHeader>
+          {actionError && <p role="alert" className={tableStyles.filterError}>{t('templates.actionError')}</p>}
           <DialogFooter>
             <Button variant="outline" onClick={() => setPendingArchive(null)}>{t('common.cancel')}</Button>
             <Button onClick={confirmArchive} disabled={archive.isPending}>{t('common.confirm')}</Button>

@@ -71,6 +71,15 @@ export function useCreateMailingCampaignMutation() {
   });
 }
 
+// A 409 means someone else changed the campaign's status between the page
+// load and this action; refetch it (and the list) so the UI shows the real
+// status instead of the stale one the mutate call was based on.
+function invalidateOnStaleConflict(qc: ReturnType<typeof useQueryClient>, error: AppError, id: string) {
+  if (error.status !== 409) return;
+  qc.invalidateQueries({ queryKey: mailingKeys.campaign(id) });
+  qc.invalidateQueries({ queryKey: mailingKeys.campaigns() });
+}
+
 export function useDispatchMailingCampaignMutation() {
   const qc = useQueryClient();
   return useMutation<MailingCampaignDetail, AppError, { id: string } & DispatchMailingCampaignRequest>({
@@ -79,6 +88,7 @@ export function useDispatchMailingCampaignMutation() {
       qc.setQueryData(mailingKeys.campaign(c.id), c);
       qc.invalidateQueries({ queryKey: mailingKeys.campaigns() });
     },
+    onError: (error, { id }) => invalidateOnStaleConflict(qc, error, id),
   });
 }
 
@@ -90,5 +100,6 @@ export function useCancelMailingCampaignMutation() {
       qc.setQueryData(mailingKeys.campaign(c.id), c);
       qc.invalidateQueries({ queryKey: mailingKeys.campaigns() });
     },
+    onError: (error, id) => invalidateOnStaleConflict(qc, error, id),
   });
 }

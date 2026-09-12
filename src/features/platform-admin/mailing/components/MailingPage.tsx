@@ -30,12 +30,23 @@ export function MailingPage() {
     >
       <div role="tablist" className={styles.tabs}>
         {(['templates', 'campaigns'] as const).map((key) => (
-          <button key={key} role="tab" type="button" aria-selected={tab === key} className={styles.tab} onClick={() => select(key)}>
+          <button
+            key={key}
+            id={`mailing-tab-${key}`}
+            role="tab"
+            type="button"
+            aria-selected={tab === key}
+            aria-controls={`mailing-tabpanel-${key}`}
+            className={styles.tab}
+            onClick={() => select(key)}
+          >
             {t(key === 'templates' ? 'page.tabTemplates' : 'page.tabCampaigns')}
           </button>
         ))}
       </div>
-      <div role="tabpanel">{tab === 'templates' ? <TemplatesTab /> : <CampaignsTab />}</div>
+      <div id={`mailing-tabpanel-${tab}`} role="tabpanel" aria-labelledby={`mailing-tab-${tab}`}>
+        {tab === 'templates' ? <TemplatesTab /> : <CampaignsTab />}
+      </div>
     </PlatformPageShell>
   );
 }

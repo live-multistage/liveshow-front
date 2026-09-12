@@ -56,7 +56,14 @@ function BlockRow({ index, count, type, summary, invalid, selected, onSelect, on
       <span ref={(node) => { drag(node); }} className={styles.handle} role="img" aria-label={t('editor.dragHandle')} title={t('editor.dragHandle')}>
         <GripVertical aria-hidden="true" />
       </span>
-      <button type="button" data-select className={styles.select} aria-pressed={selected} onClick={onSelect}>
+      <button
+        type="button"
+        data-select
+        className={styles.select}
+        aria-pressed={selected}
+        aria-invalid={invalid || undefined}
+        onClick={onSelect}
+      >
         <span className={styles.index} aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
         <span className={styles.type}>{t(`editor.block.${type}`)}</span>
         {summary && <span className={styles.summary}>{summary}</span>}
