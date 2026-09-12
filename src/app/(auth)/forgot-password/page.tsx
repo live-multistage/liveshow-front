@@ -1,13 +1,8 @@
 import type { Metadata } from 'next';
-import styles from './page.module.scss';
+import { ForgotPasswordForm } from '@/features/account';
 
 export const metadata: Metadata = { title: 'Recuperar senha' };
 
 export default function ForgotPasswordPage() {
-  return (
-    <div className={styles.page}>
-      <h1 className={styles.title}>Forgot Password</h1>
-      <p className={styles.subtitle}>Em breve</p>
-    </div>
-  );
+  return <ForgotPasswordForm />;
 }
