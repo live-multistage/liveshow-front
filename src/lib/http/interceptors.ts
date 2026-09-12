@@ -4,11 +4,6 @@ import { getAttribution } from '@/lib/analytics/attribution';
 import { getAnalyticsConsent } from '@/lib/analytics/consent';
 import { generateRequestId } from './request-id';
 
-// Reached when a 401 could not be refreshed — the session died mid-flow, so
-// carry where the user was and let login put them back. Auth pages are
-// excluded: bouncing /login back to /login is noise, not a destination.
-// `safeRedirect` guards the consuming side; this only ever builds a
-// same-origin path, never a full URL.
 // Thrown when the silent refresh itself fails (bad/expired refresh cookie,
 // network error, non-2xx from /api/auth/refresh). Exported so callers that
 // need to recognize "session is unrecoverably dead" — distinct from a
@@ -20,6 +15,11 @@ export class RefreshFailedError extends Error {
   }
 }
 
+// Reached when a 401 could not be refreshed — the session died mid-flow, so
+// carry where the user was and let login put them back. Auth pages are
+// excluded: bouncing /login back to /login is noise, not a destination.
+// `safeRedirect` guards the consuming side; this only ever builds a
+// same-origin path, never a full URL.
 function loginUrlPreservingLocation(): string {
   const { pathname, search } = window.location;
   if (pathname.startsWith('/login') || pathname.startsWith('/register')) return '/login';

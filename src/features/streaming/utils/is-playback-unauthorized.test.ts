@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { AxiosError, AxiosHeaders } from 'axios';
 import { RefreshFailedError } from '@/lib/http/interceptors';
 import { isPlaybackUnauthorized } from './is-playback-unauthorized';
@@ -11,6 +11,18 @@ function makeHttpError(status: number) {
 }
 
 describe('isPlaybackUnauthorized', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('does not log — unlike normalizeError, it must be safe to call on every render', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    isPlaybackUnauthorized(makeHttpError(401));
+    isPlaybackUnauthorized(new RefreshFailedError());
+    isPlaybackUnauthorized(makeHttpError(500));
+    expect(spy).not.toHaveBeenCalled();
+  });
+
   it('is true for a 401 AxiosError', () => {
     expect(isPlaybackUnauthorized(makeHttpError(401))).toBe(true);
   });
