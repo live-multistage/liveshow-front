@@ -1,0 +1,120 @@
+@use '../../../../styles/dashboard-forms' as *;
+
+.inspector {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-color: $accent-tint-border;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.index {
+  font-family: $mono;
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: $accent-bright;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.counter {
+  font-family: $mono;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: $text-muted;
+}
+
+.hint,
+.error {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.hint { color: $text-muted; }
+.error { color: $error; }
+
+// Mirrors the design-system Input (no textarea primitive exists yet).
+.textarea {
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background-color: $surface-dark;
+  color: $text-primary;
+  font: inherit;
+  font-size: .9375rem;
+  line-height: 1.55;
+  transition: border-color .15s, box-shadow .15s;
+
+  &::placeholder { color: $text-muted; }
+
+  &:focus-visible {
+    outline: none;
+    border-color: $action;
+    box-shadow: 0 0 0 3px rgba($action, .18);
+  }
+
+  &[aria-invalid='true'] { border-color: $error; }
+}
+
+.asset {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid $hairline;
+  background: $surface-dark;
+}
+
+.thumb {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.assetKey {
+  font-family: $mono;
+  font-size: 11px;
+  color: $text-secondary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
