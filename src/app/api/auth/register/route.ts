@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { API_URL, setAuthCookies } from '../_cookies';
+import { API_URL } from '../_cookies';
 
+// Registration never returns a session anymore — `201 { verificationRequired:
+// true }` for both a new and an already-registered email — so there are no
+// cookies to set here. Kept as a thin proxy (rather than calling the API
+// straight from the client) only for symmetry with login/refresh.
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const upstream = await fetch(`${API_URL}/auth/register`, {
@@ -10,9 +14,5 @@ export async function POST(req: NextRequest) {
   });
 
   const data = await upstream.json();
-  if (!upstream.ok) return NextResponse.json(data, { status: upstream.status });
-
-  const response = NextResponse.json({ accessToken: data.accessToken, user: data.user });
-  setAuthCookies(response, data.accessToken, data.refreshToken);
-  return response;
+  return NextResponse.json(data, { status: upstream.status });
 }
