@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { registerSchema, type RegisterFormValues } from '../schemas/register.schema';
 import { useRegisterMutation } from '../mutations/use-register.mutation';
+import { useResendVerificationMutation } from '../mutations/use-resend-verification.mutation';
 import { config } from '@/config';
 import { Button, Input, Label } from '@live-show/design-system';
 import { MarketingPanel } from './MarketingPanel';
@@ -20,7 +22,7 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
   const t = useTranslations('auth.register');
 
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormValues>({
@@ -28,10 +30,24 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
     defaultValues: { email: '', displayName: '', password: '', confirmPassword: '' },
   });
 
-  const { mutate, isPending, error } = useRegisterMutation(callbackUrl);
+  const { mutate, isPending, error } = useRegisterMutation();
+  const resend = useResendVerificationMutation();
+  // Held only in component state, never in the URL — the backend responds
+  // identically whether the email was new or already registered, so this is
+  // just what to show/resend-to, not proof an account was created.
+  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
+  const [resent, setResent] = useState(false);
 
   function onSubmit(values: RegisterFormValues) {
-    mutate({ email: values.email, displayName: values.displayName, password: values.password });
+    mutate(
+      { email: values.email, displayName: values.displayName, password: values.password },
+      { onSuccess: () => setSubmittedEmail(values.email) },
+    );
+  }
+
+  function onResend() {
+    if (!submittedEmail) return;
+    resend.mutate({ email: submittedEmail }, { onSuccess: () => setResent(true) });
   }
 
   // The backend returns 409 with a raw English "Email already in use" — map it
@@ -40,6 +56,37 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
   const errorMessage = error
     ? (error.status === 409 ? t('errors.EMAIL_EXISTS') : t('errors.GENERIC'))
     : null;
+
+  if (submittedEmail) {
+    return (
+      <div className={styles.root}>
+        <MarketingPanel />
+
+        <div className={styles.formPanel}>
+          <div className={styles.formCard}>
+            <h2 className={styles.formTitle}>{t('checkEmail.title')}</h2>
+            <p className={styles.formSubtitle}>{t('checkEmail.body', { email: submittedEmail })}</p>
+
+            <Button
+              type="button"
+              variant="outline"
+              className={styles.btnSubmit}
+              disabled={resend.isPending || resent}
+              onClick={onResend}
+            >
+              {t('checkEmail.resend')}
+            </Button>
+
+            {resent && <p className={styles.footer}>{t('checkEmail.resent')}</p>}
+
+            <p className={styles.footer}>
+              <Link href="/login" className={styles.link}>{t('checkEmail.backToLogin')}</Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.root}>
@@ -57,14 +104,20 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
                 <svg className={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 7 10-7" />
                 </svg>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder={t('emailPlaceholder')}
-                  disabled={isPending}
-                  autoComplete="email"
-                  className={styles.inputField}
-                  {...register('email')}
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field }) => (
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder={t('emailPlaceholder')}
+                      disabled={isPending}
+                      autoComplete="email"
+                      className={styles.inputField}
+                      {...field}
+                    />
+                  )}
                 />
               </div>
               {errors.email && <span className={styles.fieldError}>{errors.email.message}</span>}
@@ -76,14 +129,20 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
                 <svg className={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
                 </svg>
-                <Input
-                  id="displayName"
-                  type="text"
-                  placeholder={t('displayNamePlaceholder')}
-                  disabled={isPending}
-                  autoComplete="name"
-                  className={styles.inputField}
-                  {...register('displayName')}
+                <Controller
+                  control={control}
+                  name="displayName"
+                  render={({ field }) => (
+                    <Input
+                      id="displayName"
+                      type="text"
+                      placeholder={t('displayNamePlaceholder')}
+                      disabled={isPending}
+                      autoComplete="name"
+                      className={styles.inputField}
+                      {...field}
+                    />
+                  )}
                 />
               </div>
               {errors.displayName && <span className={styles.fieldError}>{errors.displayName.message}</span>}
@@ -95,14 +154,20 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
                 <svg className={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder={t('passwordPlaceholder')}
-                  disabled={isPending}
-                  autoComplete="new-password"
-                  className={styles.inputField}
-                  {...register('password')}
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({ field }) => (
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder={t('passwordPlaceholder')}
+                      disabled={isPending}
+                      autoComplete="new-password"
+                      className={styles.inputField}
+                      {...field}
+                    />
+                  )}
                 />
               </div>
               {errors.password && <span className={styles.fieldError}>{errors.password.message}</span>}
@@ -114,14 +179,20 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
                 <svg className={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder={t('confirmPasswordPlaceholder')}
-                  disabled={isPending}
-                  autoComplete="new-password"
-                  className={styles.inputField}
-                  {...register('confirmPassword')}
+                <Controller
+                  control={control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder={t('confirmPasswordPlaceholder')}
+                      disabled={isPending}
+                      autoComplete="new-password"
+                      className={styles.inputField}
+                      {...field}
+                    />
+                  )}
                 />
               </div>
               {errors.confirmPassword && <span className={styles.fieldError}>{errors.confirmPassword.message}</span>}

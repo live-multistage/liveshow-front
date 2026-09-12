@@ -1,41 +1,30 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
 import type { AppError } from '@/lib/http/errors';
-import { tokenStore } from '@/lib/auth/token-store';
-import { safeRedirect } from '@/lib/auth/safe-redirect';
-import { useAuthContextValue } from '../context/AuthProvider';
-import type { RegisterRequest, AuthUser } from '../types/account.types';
+import type { RegisterRequest } from '../types/account.types';
+import type { RegisterResponse } from '@live-show/api-contracts';
 
-interface RegisterResult {
-  accessToken: string;
-  user: AuthUser;
-}
-
-export function useRegisterMutation(callbackUrl?: string) {
-  const router = useRouter();
-  const { login } = useAuthContextValue();
-
-  return useMutation<RegisterResult, AppError, RegisterRequest>({
+/**
+ * Registration no longer signs the user in — the backend never issues a
+ * session (`201 { verificationRequired: true }` for both a new and an
+ * already-registered email). The caller shows a "check your email" state;
+ * nothing here touches tokenStore/localStorage/AuthProvider.
+ */
+export function useRegisterMutation() {
+  return useMutation<RegisterResponse, AppError, RegisterRequest>({
     mutationFn: async (payload) => {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await res.json() as RegisterResult & { message?: string };
+      const data = await res.json() as RegisterResponse & { message?: string; code?: string };
       if (!res.ok) {
-        const err: AppError = { message: data.message ?? 'Registration failed', status: res.status };
+        const err: AppError = { message: data.message ?? 'Registration failed', status: res.status, code: data.code };
         throw err;
       }
       return data;
-    },
-    onSuccess: (data) => {
-      tokenStore.set(data.accessToken);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      login(data.user);
-      router.push(safeRedirect(callbackUrl));
     },
   });
 }

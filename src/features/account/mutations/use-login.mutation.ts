@@ -24,9 +24,9 @@ export function useLoginMutation(callbackUrl?: string) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await res.json() as LoginResult & { message?: string };
+      const data = await res.json() as LoginResult & { message?: string; code?: string };
       if (!res.ok) {
-        const err: AppError = { message: data.message ?? 'Login failed', status: res.status };
+        const err: AppError = { message: data.message ?? 'Login failed', status: res.status, code: data.code };
         throw err;
       }
       return data;
