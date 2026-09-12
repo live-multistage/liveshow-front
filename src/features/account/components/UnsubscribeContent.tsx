@@ -9,15 +9,18 @@ type State = 'working' | 'success' | 'invalid';
 
 export function UnsubscribeContent({ token }: { token?: string }) {
   const t = useTranslations('unsubscribe');
-  const { mutate } = useUnsubscribeMutation();
   const [state, setState] = useState<State>(token ? 'working' : 'invalid');
   // StrictMode runs effects twice in dev; one POST is enough (it is idempotent anyway).
   const calledRef = useRef(false);
+  const { mutate } = useUnsubscribeMutation({
+    onSuccess: () => setState('success'),
+    onError: () => setState('invalid'),
+  });
 
   useEffect(() => {
     if (!token || calledRef.current) return;
     calledRef.current = true;
-    mutate(token, { onSuccess: () => setState('success'), onError: () => setState('invalid') });
+    mutate(token);
   }, [token, mutate]);
 
   if (state === 'working') {

@@ -23,19 +23,25 @@ describe('UnsubscribeContent', () => {
   });
 
   it('POSTs once (even under StrictMode) and shows success with a preferences link', async () => {
-    const mutate = vi.fn((_t: string, opts?: { onSuccess?: () => void }) => opts?.onSuccess?.());
-    mocked.mockReturnValue({ mutate } as never);
+    const mutate = vi.fn((_t: string) => {});
+    mocked.mockImplementation((opts) => {
+      mutate.mockImplementation((t: string) => opts?.onSuccess?.(undefined, t, undefined, undefined as never));
+      return { mutate } as never;
+    });
     render(<StrictMode><UnsubscribeContent token="tok" /></StrictMode>);
     await waitFor(() => expect(screen.getByRole('heading', { name: 'success.title' })).toBeInTheDocument());
     expect(mutate).toHaveBeenCalledTimes(1);
-    expect(mutate).toHaveBeenCalledWith('tok', expect.anything());
+    expect(mutate).toHaveBeenCalledWith('tok');
     expect(screen.getByRole('status')).toHaveTextContent('success.message');
     expect(screen.getByRole('link', { name: 'success.primary' })).toHaveAttribute('href', '/settings');
   });
 
   it('shows the invalid state on a rejected token', async () => {
-    const mutate = vi.fn((_t: string, opts?: { onError?: () => void }) => opts?.onError?.());
-    mocked.mockReturnValue({ mutate } as never);
+    const mutate = vi.fn((_t: string) => {});
+    mocked.mockImplementation((opts) => {
+      mutate.mockImplementation((t: string) => opts?.onError?.(new Error('nope') as never, t, undefined, undefined as never));
+      return { mutate } as never;
+    });
     render(<UnsubscribeContent token="bad" />);
     await waitFor(() => expect(screen.getByRole('heading', { name: 'invalid.title' })).toBeInTheDocument());
   });

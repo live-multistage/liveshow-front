@@ -1,11 +1,24 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
 import { accountService } from '../services/account.service';
 import { normalizeError, type AppError } from '@/lib/http/errors';
 
-/** Backend: 200 on success (idempotent), 400 TOKEN_INVALID, 404 while mailing is off. */
-export function useUnsubscribeMutation() {
+type UnsubscribeMutationOptions = Pick<
+  UseMutationOptions<void, AppError, string>,
+  'onSuccess' | 'onError'
+>;
+
+/**
+ * Backend: 200 on success (idempotent), 400 TOKEN_INVALID.
+ *
+ * Callbacks must be passed here (hook-level options) rather than to a
+ * per-call `mutate(vars, { onSuccess })`: under StrictMode's simulated
+ * unmount/remount, TanStack detaches the per-call observer and those
+ * callbacks never fire, while hook-level options live on the mutation
+ * itself and still run.
+ */
+export function useUnsubscribeMutation(options: UnsubscribeMutationOptions = {}) {
   return useMutation<void, AppError, string>({
     mutationFn: async (token) => {
       try {
@@ -14,5 +27,6 @@ export function useUnsubscribeMutation() {
         throw normalizeError(e);
       }
     },
+    ...options,
   });
 }
