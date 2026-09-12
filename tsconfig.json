@@ -15,14 +15,7 @@
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "paths": {
-      "@/*": ["./src/*"],
-      // node_modules/@live-show/api-contracts is a symlink shared with the
-      // main worktree (../../node_modules), so it still points at the main
-      // tree's shared/api-contracts — which lacks the p1/contracts additions
-      // (RegisterResponse, VerifyEmailRequest, emailOnlySchema, ...) until
-      // this branch merges. Override just this package to the copy actually
-      // checked out here. Safe to remove once merged.
-      "@live-show/api-contracts": ["./shared/api-contracts/src/index.ts"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
