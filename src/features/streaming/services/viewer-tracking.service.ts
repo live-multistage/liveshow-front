@@ -1,36 +1,45 @@
-import { config } from '@/config';
-
-const base = () => config.apiUrl;
+import { httpClient } from '@/lib/http/client';
+import { tokenStore } from '@/lib/auth/token-store';
 
 export const viewerTrackingService = {
-  join(eventId: string, sessionId: string, cameraId: string, visitId: string, userId?: string | null): Promise<void> {
-    return fetch(`${base()}/events/${eventId}/viewers/join`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, cameraId, visitId, userId: userId ?? undefined }),
-    }).then(() => {}, () => {});
+  join(eventId: string, sessionId: string, cameraId: string, visitId: string): Promise<void> {
+    return httpClient
+      .post(`/events/${eventId}/viewers/join`, { sessionId, cameraId, visitId })
+      .then(() => {}, () => {});
   },
 
-  heartbeat(eventId: string, sessionId: string): Promise<Response> {
-    return fetch(`${base()}/events/${eventId}/viewers/heartbeat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId }),
-    });
+  heartbeat(eventId: string, sessionId: string): Promise<void> {
+    return httpClient
+      .post(`/events/${eventId}/viewers/heartbeat`, { sessionId })
+      .then(() => {}, () => {});
   },
 
   leave(eventId: string, sessionId: string): Promise<void> {
-    return fetch(`${base()}/events/${eventId}/viewers/leave`, {
+    // Use keepalive to ensure the request completes even on page unload.
+    // Note: navigator.sendBeacon() cannot include custom headers (like
+    // Authorization), so we keep fetch with keepalive. Include the Bearer
+    // token from tokenStore if available; backend accepts anonymous leave
+    // where the event allows it (via OptionalJwtStrictGuard).
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const token = tokenStore.get();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    return fetch(`${httpClient.defaults.baseURL}/events/${eventId}/viewers/leave`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ sessionId }),
       keepalive: true,
     }).then(() => {}, () => {});
   },
 
   async getViewers(eventId: string): Promise<{ currentViewers: number; totalViews: number }> {
-    const res = await fetch(`${base()}/events/${eventId}/viewers`);
-    if (!res.ok) return { currentViewers: 0, totalViews: 0 };
-    return res.json();
+    try {
+      const res = await httpClient.get(`/events/${eventId}/viewers`);
+      return res.data;
+    } catch {
+      return { currentViewers: 0, totalViews: 0 };
+    }
   },
 };
