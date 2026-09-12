@@ -71,8 +71,10 @@
         "USER_BLOCKED": "Your account has been temporarily suspended. Please contact support.",
         "TOO_MANY_ATTEMPTS": "Too many login attempts. Please try again in a few minutes.",
         "GOOGLE_FAILED": "Couldn't continue with Google. Please try again.",
-        "GENERIC": "Could not sign in. Please try again."
-      }
+        "GENERIC": "Could not sign in. Please try again.",
+        "EMAIL_NOT_VERIFIED": "Confirm your email to sign in. We sent a link to your inbox."
+      },
+      "resendVerification": "Resend confirmation email"
     },
     "register": {
       "title": "Create account",
@@ -95,6 +97,13 @@
       "errors": {
         "EMAIL_EXISTS": "This email is already registered. Please sign in instead.",
         "GENERIC": "We couldn't create your account. Please try again."
+      },
+      "checkEmail": {
+        "title": "Confirm your email",
+        "body": "We sent a confirmation link to {email}. Open it to activate your account.",
+        "resend": "Resend email",
+        "resent": "If there's a pending account, a new email was sent.",
+        "backToLogin": "Back to sign in"
       }
     },
     "forgotPassword": {
@@ -102,7 +111,11 @@
       "subtitle": "Enter your email and we'll send you a recovery link.",
       "email": "Email",
       "submit": "Send link",
-      "backToLogin": "Back to login"
+      "backToLogin": "Back to login",
+      "sent": "If an account exists for that email, we sent a reset link.",
+      "errors": {
+        "GENERIC": "Couldn't send right now. Try again shortly."
+      }
     },
     "social": {
       "continueWithGoogle": "Continue with Google",
@@ -114,6 +127,25 @@
         "SOCIAL_LOGIN_DISABLED": "This sign-in method isn't available right now.",
         "SOCIAL_CANCELLED": "Sign-in cancelled.",
         "GENERIC": "We couldn't sign you in. Please try again."
+      }
+    },
+    "verifyEmail": {
+      "title": "Email confirmation",
+      "verifying": "Confirming…",
+      "success": "Email confirmed! You can sign in now.",
+      "invalid": "Invalid or expired link. Request a new confirmation email.",
+      "goToLogin": "Sign in"
+    },
+    "resetPassword": {
+      "title": "New password",
+      "password": "New password",
+      "confirmPassword": "Confirm new password",
+      "submit": "Save password",
+      "success": "Password changed. Sign in with your new password.",
+      "errors": {
+        "TOKEN_INVALID": "Invalid or expired link. Request a new one.",
+        "MISMATCH": "Passwords don't match.",
+        "GENERIC": "Couldn't reset. Try again."
       }
     }
   },
