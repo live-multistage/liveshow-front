@@ -139,7 +139,6 @@
 .heroV2Badge {
   @include live-badge(11px);
   width: fit-content;
-  letter-spacing: .14em;
   margin-bottom: 22px;
 }
 
@@ -388,12 +387,4 @@
   border-radius: $card-radius;
   overflow: hidden;
   cursor: pointer;
-}
-
-// ── Reduced motion ────────────────────────────────────────────
-// The looping marquee, pulsing live dots and expanding play-button ring run
-// forever — exactly what vestibular users need stopped. Keep the "live" signal
-// as a static dot; freeze the perpetual motion.
-@media (prefers-reduced-motion: reduce) {
-  .heroV2BadgeDot { animation: none; }
 }

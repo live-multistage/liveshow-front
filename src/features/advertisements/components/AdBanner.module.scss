@@ -16,6 +16,10 @@
     transform: translateY(-1px);
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    &:hover { transform: none; }
+  }
+
   &:focus-visible {
     outline: 2px solid $action;
     outline-offset: 2px;
@@ -107,8 +111,7 @@
 }
 
 .cta {
-  @include card-cta-tinted;
-  text-transform: uppercase;
+  @include card-cta-neutral;
   flex-shrink: 0;
 }
 

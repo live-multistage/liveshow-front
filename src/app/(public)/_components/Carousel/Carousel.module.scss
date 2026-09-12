@@ -57,10 +57,13 @@
     background-color: rgba(3,3,3,0.95);
   }
 
-  .section:hover &,
-  .section:focus-within & { display: flex; }
-
-  @media (hover: none) { display: none; }
+  // Touch devices report no hover: gate the reveal behind (hover: hover) so
+  // :focus-within alone (which a touch tap can trigger) never shows arrows
+  // that only make sense with a pointer.
+  @media (hover: hover) {
+    .section:hover &,
+    .section:focus-within & { display: flex; }
+  }
 }
 
 .arrowLeft  { left: 0.25rem; }

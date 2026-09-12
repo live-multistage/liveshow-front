@@ -36,7 +36,9 @@
 }
 
 // ── Card shell ──────────────────────────────────────────────────────
-// Shared surface for ShowCard, ChannelCard and the home feed AdBanner.
+// Shared surface for ShowCard and ChannelCard. The home feed AdBanner uses
+// $card-radius directly (no border/hover lift): an advertiser-chosen
+// background can't guarantee the hairline border or hover-border contrast.
 @mixin card-shell {
   background: $surface;
   border: 1px solid $border-hairline;
@@ -83,4 +85,15 @@
   color: $accent-text;
 
   &:hover { filter: none; background: rgba($action, .2); }
+}
+
+// A magenta-tinted CTA over an advertiser-chosen background can't guarantee
+// contrast, so the AdBanner CTA stays colour-neutral instead.
+@mixin card-cta-neutral {
+  @include card-cta;
+  background: rgba(255, 255, 255, .12);
+  color: $text-primary;
+  border: 1px solid rgba(255, 255, 255, .22);
+
+  &:hover { filter: none; background: rgba(255, 255, 255, .18); }
 }
