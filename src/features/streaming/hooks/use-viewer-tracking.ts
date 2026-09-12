@@ -34,7 +34,7 @@ export function useViewerTracking(
 
     for (const cameraId of current) {
       if (!joined.has(cameraId)) {
-        viewerTrackingService.join(eventId, cameraSessionId(baseSessionId, cameraId), cameraId, baseSessionId, userId);
+        viewerTrackingService.join(eventId, cameraSessionId(baseSessionId, cameraId), cameraId, baseSessionId);
         joined.add(cameraId);
         added.push(cameraId);
       }
@@ -76,12 +76,7 @@ export function useViewerTracking(
       for (const cameraId of joinedRef.current) {
         const sessionId = cameraSessionId(baseSessionId, cameraId);
         viewerTrackingService.heartbeat(eventId, sessionId)
-          .then((res) => {
-            if (res.status === 404) {
-              // session expired on server — re-join
-              viewerTrackingService.join(eventId, sessionId, cameraId, baseSessionId, userId);
-            }
-          })
+          .then(() => {})
           .catch(() => {});
       }
     }, HEARTBEAT_INTERVAL_MS);
