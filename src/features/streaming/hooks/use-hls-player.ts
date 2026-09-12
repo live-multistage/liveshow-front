@@ -361,14 +361,18 @@ export function useHlsPlayer({
             bearer: tokenStore.get(),
           })(xhr, url),
       }),
-      // Live STANDARD: every request (master, rendition manifest, segment,
-      // EXT-X-KEY) carries a `?pt` token baked in when its manifest was loaded;
-      // that token expires at 90s. Rewrite each outgoing URL's `pt` to the
-      // freshest token (refreshed every 5s poll via ptRef) so live playback
-      // never 403s at the token boundary. hls.js 1.6's xhr-loader runs
-      // xhrSetup BEFORE opening and only opens itself when `!xhr.readyState`,
-      // so opening here with the rewritten URL wins. LL path is left untouched
-      // (its token lifetime rides the existing LL→STANDARD fallback latch).
+      // Live STANDARD, direct mode (no CDN): every request (master, rendition
+      // manifest, segment, EXT-X-KEY) carries a `?pt` token baked in when its
+      // manifest was loaded; that token expires at 300s (R6). Rewrite each
+      // outgoing URL's `pt` to the freshest token (refreshed every 5s poll via
+      // ptRef) so live playback never 401/403s at the token boundary. With
+      // the CDN on, there's no `pt` at all — the Bunny directory token
+      // (withCdnSigningParams below) carries auth instead, since a `pt` in
+      // the URL would poison the CDN cache key and the Bunny token hash.
+      // hls.js 1.6's xhr-loader runs xhrSetup BEFORE opening and only opens
+      // itself when `!xhr.readyState`, so opening here with the rewritten URL
+      // wins. LL path is left untouched (its token lifetime rides the
+      // existing LL→STANDARD fallback latch).
       ...(mode === 'live' &&
         !hasLl && {
           xhrSetup: (xhr: XMLHttpRequest, url: string) => {

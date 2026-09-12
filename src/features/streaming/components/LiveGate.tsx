@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
+import { normalizeError } from '@/lib/http/errors';
 import { usePrerollGate } from '@/features/advertisements/hooks/use-preroll-gate';
 import { PreRollPlayer } from '@/features/advertisements/components/PreRollPlayer';
 import { useLiveAccessQuery, useLivePlaybackQuery } from '../queries/live.queries';
@@ -39,6 +40,16 @@ export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }
 
   if (playback.isLoading) {
     return <LiveGateLoading message={t('loadingStream')} eventTitle={eventTitle} />;
+  }
+
+  // react-query keeps the last-good `data` when a background refetch fails,
+  // so a revoked ticket / expired session would otherwise leave the player
+  // running on stale playback info forever (WEB-02). The 5s poll means a
+  // 401/403 here reflects the CURRENT entitlement, not a fluke — drop the
+  // player immediately instead of waiting for `data` to catch up (it won't).
+  const playbackErrorStatus = playback.error ? normalizeError(playback.error).status : null;
+  if (playbackErrorStatus === 401 || playbackErrorStatus === 403) {
+    return <LiveNoAccess eventId={eventId} eventTitle={eventTitle} isLoggedIn={isLoggedIn} />;
   }
 
   // Pre-live gating keys ONLY on the top-level `live` flag ("something is

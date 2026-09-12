@@ -1,6 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { AxiosError, AxiosHeaders } from 'axios';
 import { LiveGate } from './LiveGate';
+
+function makeHttpError(status: number) {
+  return new AxiosError('Request failed', undefined, { headers: new AxiosHeaders() } as never, undefined, {
+    status,
+    data: {},
+  } as never);
+}
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
@@ -15,7 +23,7 @@ vi.mock('@/features/account/hooks/use-auth', () => ({
 }));
 
 const accessState = { data: true, isLoading: false };
-const playbackState = {
+const playbackState: { data: unknown; isLoading: boolean; error: unknown } = {
   data: {
     live: true,
     stages: [],
@@ -24,6 +32,7 @@ const playbackState = {
     librasCameraId: null,
   },
   isLoading: false,
+  error: undefined,
 };
 vi.mock('../queries/live.queries', () => ({
   useLiveAccessQuery: () => accessState,
@@ -66,6 +75,7 @@ describe('LiveGate — pre-roll ad gate', () => {
     prerollState.pending = false;
     prerollState.markSeen = vi.fn();
     usePrerollGateMock.mockClear();
+    playbackState.error = undefined;
   });
 
   it('renders PreRollPlayer instead of LivePlayer when an ad is served', () => {
@@ -105,5 +115,39 @@ describe('LiveGate — pre-roll ad gate', () => {
     expect(usePrerollGateMock).toHaveBeenCalledWith('evt-1', false);
     expect(screen.getByText('live-player-stub')).toBeInTheDocument();
     expect(screen.queryByText('preroll-stub-finish')).not.toBeInTheDocument();
+  });
+});
+
+describe('LiveGate — revoked access on playback refresh', () => {
+  beforeEach(() => {
+    prerollState.ad = null;
+    prerollState.pending = false;
+  });
+
+  it('unmounts the player and shows the no-access state on a 401 refresh', () => {
+    playbackState.error = makeHttpError(401);
+
+    render(<LiveGate eventId="evt-1" chatEnabled={false} />);
+
+    expect(screen.getByText('no-access-stub')).toBeInTheDocument();
+    expect(screen.queryByText('live-player-stub')).not.toBeInTheDocument();
+  });
+
+  it('unmounts the player and shows the no-access state on a 403 refresh', () => {
+    playbackState.error = makeHttpError(403);
+
+    render(<LiveGate eventId="evt-1" chatEnabled={false} />);
+
+    expect(screen.getByText('no-access-stub')).toBeInTheDocument();
+    expect(screen.queryByText('live-player-stub')).not.toBeInTheDocument();
+  });
+
+  it('keeps the player mounted when there is no error', () => {
+    playbackState.error = undefined;
+
+    render(<LiveGate eventId="evt-1" chatEnabled={false} />);
+
+    expect(screen.getByText('live-player-stub')).toBeInTheDocument();
+    expect(screen.queryByText('no-access-stub')).not.toBeInTheDocument();
   });
 });

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
+import { normalizeError } from '@/lib/http/errors';
 import { usePrerollGate } from '@/features/advertisements/hooks/use-preroll-gate';
 import { PreRollPlayer } from '@/features/advertisements/components/PreRollPlayer';
 import { useReplayAccessQuery, useReplayPlaybackQuery } from '../queries/live.queries';
@@ -31,17 +32,20 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
   }
 
   if (!access.data) {
-    return (
-      <div style={{ padding: 40, textAlign: 'center' }}>
-        <h2>{t('accessRequired')}</h2>
-        <p>{t('needTicket', { title: eventTitle })}</p>
-        <Link href={`/events/${eventId}`}>{t('viewTickets')}</Link>
-      </div>
-    );
+    return <ReplayNoAccess eventId={eventId} eventTitle={eventTitle} />;
   }
 
   if (playback.isLoading) {
     return <LiveGateLoading message={t('checkingAccess')} />;
+  }
+
+  // react-query keeps the last-good `data` when a background refetch fails,
+  // so a revoked entitlement would otherwise leave the player running on
+  // stale playback info forever (WEB-02). Drop it on a 401/403 instead of
+  // waiting for `data` to catch up (it won't).
+  const playbackErrorStatus = playback.error ? normalizeError(playback.error).status : null;
+  if (playbackErrorStatus === 401 || playbackErrorStatus === 403) {
+    return <ReplayNoAccess eventId={eventId} eventTitle={eventTitle} />;
   }
 
   if (!playback.data?.available) {
@@ -76,5 +80,18 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
       timeline={playback.data.timeline}
       adsEnabled={adsEnabled}
     />
+  );
+}
+
+// Shared by "never had access" and "access refetch came back 401/403" — same
+// user-facing message either way: go get/renew a ticket.
+function ReplayNoAccess({ eventId, eventTitle }: { eventId: string; eventTitle: string }) {
+  const t = useTranslations('liveGate');
+  return (
+    <div style={{ padding: 40, textAlign: 'center' }}>
+      <h2>{t('accessRequired')}</h2>
+      <p>{t('needTicket', { title: eventTitle })}</p>
+      <Link href={`/events/${eventId}`}>{t('viewTickets')}</Link>
+    </div>
   );
 }
