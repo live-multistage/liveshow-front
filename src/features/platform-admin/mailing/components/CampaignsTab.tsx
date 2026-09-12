@@ -51,12 +51,17 @@ export function CampaignsTab() {
                     </span>
                   </td>
                   <td>
-                    <div className={styles.progress}>
-                      <progress value={campaign.sentCount} max={total || 1} />
-                      <span className={tableStyles.mono}>
-                        {t('campaigns.progress', { sent: campaign.sentCount, total })}
-                      </span>
-                    </div>
+                    {/* null until materialized: no bar, never 0/0. Counters can overshoot on retries, so clamp. */}
+                    {campaign.totalRecipients === null ? (
+                      <span className={tableStyles.mono}>{campaign.status === 'SENDING' ? t('detail.materializing') : '—'}</span>
+                    ) : (
+                      <div className={styles.progress}>
+                        <progress value={Math.min(campaign.sentCount, total)} max={total || 1} />
+                        <span className={tableStyles.mono}>
+                          {t('campaigns.progress', { sent: Math.min(campaign.sentCount, total), total })}
+                        </span>
+                      </div>
+                    )}
                   </td>
                   <td className={tableStyles.mono}>
                     {dateFormatter.format(new Date(campaign.scheduledAt ?? campaign.createdAt))}

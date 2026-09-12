@@ -1,0 +1,192 @@
+@use '../../../../styles/dashboard-forms' as *;
+
+// Shared chrome (back link, cards, notes, button focus) comes from TemplateEditorPage.module.scss.
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+// The current step is marked by weight and an underline, not by colour alone.
+.step {
+  @include mono-meta;
+  padding-bottom: 6px;
+  border-bottom: 2px solid transparent;
+
+  &[aria-current='step'] {
+    color: $text-primary;
+    font-weight: 700;
+    border-bottom-color: $action;
+  }
+}
+
+.wizard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.heading {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: $text-primary;
+
+  // Programmatic focus target on step change, not an interactive control.
+  &:focus { outline: none; }
+}
+
+.templates {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  @include mono-meta;
+  margin-bottom: 8px;
+  padding: 0;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 12px 14px;
+  border: 1px solid $hairline;
+  border-radius: 10px;
+  cursor: pointer;
+
+  input {
+    margin: 0;
+    accent-color: $action;
+  }
+
+  &:has(input:checked) {
+    border-color: $accent-selected-border;
+    background: $accent-tint;
+  }
+
+  &:has(input:focus-visible) {
+    outline: 2px solid $action;
+    outline-offset: 2px;
+  }
+}
+
+.optionName {
+  font-size: 14px;
+  color: $text-primary;
+}
+
+.optionMeta {
+  @include mono-meta;
+  margin-left: auto;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+
+  @media (max-width: $sm) { grid-template-columns: minmax(0, 1fr); }
+}
+
+.full { grid-column: 1 / -1; }
+
+.count {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &:empty { display: none; }
+}
+
+.summary {
+  margin: 0;
+  font-size: 14px;
+  color: $text-primary;
+}
+
+.muted {
+  margin: 0;
+  font-size: 13px;
+  color: $text-muted;
+}
+
+.fail {
+  margin: 0;
+  font-size: 13px;
+  color: $error;
+}
+
+// Review form beside the 600 px preview; one column below $xl (as in the editor).
+.review {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 664px);
+  gap: 24px;
+  align-items: start;
+
+  @media (max-width: $xl) { grid-template-columns: minmax(0, 1fr); }
+}
+
+.facts {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+
+  dt { @include mono-meta; }
+
+  dd {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: $text-primary;
+    overflow-wrap: anywhere;
+  }
+}
+
+.notice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+
+  p { margin: 0; }
+}
+
+.link {
+  color: $accent-bright;
+  font-size: 13px;
+
+  &:focus-visible {
+    outline: 2px solid $action;
+    outline-offset: 2px;
+  }
+}
+
+.sendActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.schedule {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
