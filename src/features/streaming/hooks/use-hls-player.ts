@@ -58,8 +58,10 @@ function withCdnSigningParams(url: string, params: [string, string][]): string {
   // child OUTSIDE that directory — an /api/origin/* rendition referenced by an
   // /api/packages/* signed master — makes the edge 403: the request path isn't
   // under token_path. Only children that actually fall under it inherit the
-  // signature; the unsigned /api/origin family (public by design, see the
-  // backend MediaUrlBuilder) must go through untouched.
+  // signature; /api/origin/* is never Bunny-signed (no token_path applies to
+  // it) but is NOT public — the backend's LiveMediaGuard still gates it on
+  // either the CDN edge's X-Origin-Key or a live `pt`, so it must go through
+  // untouched here rather than get a Bunny signature it was never issued.
   const tokenPath = params.find(([k]) => k === 'token_path')?.[1];
   if (tokenPath && !childUnderTokenPath(url, tokenPath)) return url;
   const q = url.indexOf('?');
@@ -372,8 +374,9 @@ export function useHlsPlayer({
       // the URL would poison the CDN cache key and the Bunny token hash.
       // hls.js 1.6's xhr-loader runs xhrSetup BEFORE opening and only opens
       // itself when `!xhr.readyState`, so opening here with the rewritten URL
-      // wins. LL path is left untouched (its token lifetime rides the
-      // existing LL→STANDARD fallback latch).
+      // wins. The LL path has its own xhrSetup branch below (mode === 'live'
+      // && hasLl) that rotates the MediaMTX `?token` from llPathRef the same
+      // way this one rotates `pt` — not left untouched.
       ...(mode === 'live' &&
         !hasLl && {
           xhrSetup: (xhr: XMLHttpRequest, url: string) => {
