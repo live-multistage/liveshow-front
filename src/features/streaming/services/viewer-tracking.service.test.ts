@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { viewerTrackingService } from './viewer-tracking.service';
 import { httpClient } from '@/lib/http/client';
+import { tokenStore } from '@/lib/auth/token-store';
 
 // Mock httpClient
 vi.mock('@/lib/http/client', () => ({
@@ -13,15 +14,16 @@ vi.mock('@/lib/http/client', () => ({
   },
 }));
 
+// Mock tokenStore
+vi.mock('@/lib/auth/token-store', () => ({
+  tokenStore: {
+    get: vi.fn(),
+  },
+}));
+
 describe('viewerTrackingService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Clear token from localStorage
-    localStorage.clear();
-  });
-
-  afterEach(() => {
-    localStorage.clear();
   });
 
   describe('join', () => {
@@ -80,6 +82,7 @@ describe('viewerTrackingService', () => {
 
   describe('leave', () => {
     it('sends sessionId in the body', async () => {
+      vi.mocked(tokenStore.get).mockReturnValue(null);
       const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(
         new Response('{}', { status: 200 }),
       );
@@ -89,9 +92,12 @@ describe('viewerTrackingService', () => {
       const call = fetchSpy.mock.calls[0];
       const body = JSON.parse(call[1]?.body as string);
       expect(body).toEqual({ sessionId: 'session456' });
+
+      fetchSpy.mockRestore();
     });
 
     it('does NOT send userId in the body', async () => {
+      vi.mocked(tokenStore.get).mockReturnValue(null);
       const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(
         new Response('{}', { status: 200 }),
       );
@@ -101,11 +107,12 @@ describe('viewerTrackingService', () => {
       const call = fetchSpy.mock.calls[0];
       const body = JSON.parse(call[1]?.body as string);
       expect(body).not.toHaveProperty('userId');
+
+      fetchSpy.mockRestore();
     });
 
-    it('includes Authorization header with stored token', async () => {
-      localStorage.setItem('token', 'test-access-token');
-
+    it('includes Authorization header with token from tokenStore', async () => {
+      vi.mocked(tokenStore.get).mockReturnValue('test-access-token');
       const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(
         new Response('{}', { status: 200 }),
       );
@@ -115,9 +122,12 @@ describe('viewerTrackingService', () => {
       const call = fetchSpy.mock.calls[0];
       const headers = call[1]?.headers as Record<string, string>;
       expect(headers['Authorization']).toBe('Bearer test-access-token');
+
+      fetchSpy.mockRestore();
     });
 
-    it('includes Authorization header with empty string if no token', async () => {
+    it('does NOT include Authorization header when tokenStore is empty', async () => {
+      vi.mocked(tokenStore.get).mockReturnValue(null);
       const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(
         new Response('{}', { status: 200 }),
       );
@@ -126,10 +136,13 @@ describe('viewerTrackingService', () => {
 
       const call = fetchSpy.mock.calls[0];
       const headers = call[1]?.headers as Record<string, string>;
-      expect(headers['Authorization']).toBe('Bearer ');
+      expect(headers['Authorization']).toBeUndefined();
+
+      fetchSpy.mockRestore();
     });
 
     it('uses keepalive flag for unload safety', async () => {
+      vi.mocked(tokenStore.get).mockReturnValue(null);
       const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(
         new Response('{}', { status: 200 }),
       );
@@ -138,13 +151,18 @@ describe('viewerTrackingService', () => {
 
       const call = fetchSpy.mock.calls[0];
       expect((call[1] as RequestInit).keepalive).toBe(true);
+
+      fetchSpy.mockRestore();
     });
 
     it('silently ignores errors', async () => {
+      vi.mocked(tokenStore.get).mockReturnValue(null);
       const fetchSpy = vi.spyOn(global, 'fetch').mockRejectedValue(new Error('Network error'));
 
       // Should not throw
       await viewerTrackingService.leave('event123', 'session456');
+
+      fetchSpy.mockRestore();
     });
   });
 

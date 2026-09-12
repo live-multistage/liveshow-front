@@ -1,4 +1,5 @@
 import { httpClient } from '@/lib/http/client';
+import { tokenStore } from '@/lib/auth/token-store';
 
 export const viewerTrackingService = {
   join(eventId: string, sessionId: string, cameraId: string, visitId: string): Promise<void> {
@@ -16,11 +17,18 @@ export const viewerTrackingService = {
   leave(eventId: string, sessionId: string): Promise<void> {
     // Use keepalive to ensure the request completes even on page unload.
     // Note: navigator.sendBeacon() cannot include custom headers (like
-    // Authorization), so we keep fetch with keepalive. The backend accepts
-    // anonymous leave only where the event allows it (via OptionalJwtStrictGuard).
+    // Authorization), so we keep fetch with keepalive. Include the Bearer
+    // token from tokenStore if available; backend accepts anonymous leave
+    // where the event allows it (via OptionalJwtStrictGuard).
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const token = tokenStore.get();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
     return fetch(`${httpClient.defaults.baseURL}/events/${eventId}/viewers/leave`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getTokenForKeepAlive()}` },
+      headers,
       body: JSON.stringify({ sessionId }),
       keepalive: true,
     }).then(() => {}, () => {});
@@ -35,13 +43,3 @@ export const viewerTrackingService = {
     }
   },
 };
-
-// Helper to extract token for keepalive requests where interceptors don't run.
-function getTokenForKeepAlive(): string {
-  try {
-    const stored = localStorage.getItem('token');
-    return stored || '';
-  } catch {
-    return '';
-  }
-}
