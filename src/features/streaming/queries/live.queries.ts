@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { streamingService } from '../services/streaming.service';
+import { isPlaybackUnauthorized } from '../utils/is-playback-unauthorized';
 
 export const LIVE_KEYS = {
   access: (eventId: string) => ['live', 'access', eventId] as const,
@@ -43,6 +44,10 @@ export function useLivePlaybackQuery(eventId: string, enabled: boolean) {
     staleTime: 4_500,
     refetchInterval: enabled ? 5000 : false,
     refetchIntervalInBackground: false,
+    // A 401/403 (or a dead refresh) is a deterministic "not entitled anymore"
+    // — retrying just delays LiveGate showing the no-access state. Anything
+    // else (network blip, 5xx) still gets react-query's normal 3 retries.
+    retry: (count, error) => !isPlaybackUnauthorized(error) && count < 3,
   });
 }
 
@@ -58,5 +63,8 @@ export function useReplayPlaybackQuery(eventId: string, enabled: boolean) {
     staleTime: 60_000,
     refetchInterval: 45 * 60_000,
     refetchIntervalInBackground: true,
+    // Same reasoning as useLivePlaybackQuery: a 401/403/dead-refresh means
+    // the entitlement is gone, not that the request hiccuped — don't retry.
+    retry: (count, error) => !isPlaybackUnauthorized(error) && count < 3,
   });
 }

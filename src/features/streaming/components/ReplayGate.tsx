@@ -4,12 +4,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
+import { isPlaybackUnauthorized } from '../utils/is-playback-unauthorized';
 import { usePrerollGate } from '@/features/advertisements/hooks/use-preroll-gate';
 import { PreRollPlayer } from '@/features/advertisements/components/PreRollPlayer';
 import { useReplayAccessQuery, useReplayPlaybackQuery } from '../queries/live.queries';
 import { LiveGateLoading } from './LiveGateLoading';
 import { ReplayComingSoon } from './ReplayComingSoon';
 import { ReplayPlayer } from './ReplayPlayer';
+import styles from './ReplayGate.module.scss';
 
 interface Props {
   eventId: string;
@@ -31,17 +33,19 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
   }
 
   if (!access.data) {
-    return (
-      <div style={{ padding: 40, textAlign: 'center' }}>
-        <h2>{t('accessRequired')}</h2>
-        <p>{t('needTicket', { title: eventTitle })}</p>
-        <Link href={`/events/${eventId}`}>{t('viewTickets')}</Link>
-      </div>
-    );
+    return <ReplayNoAccess eventId={eventId} eventTitle={eventTitle} />;
   }
 
   if (playback.isLoading) {
     return <LiveGateLoading message={t('checkingAccess')} />;
+  }
+
+  // react-query keeps the last-good `data` when a background refetch fails,
+  // so a revoked entitlement would otherwise leave the player running on
+  // stale playback info forever (WEB-02). Drop it on a 401/403 (or a failed
+  // silent token refresh) instead of waiting for `data` to catch up (it won't).
+  if (playback.error && isPlaybackUnauthorized(playback.error)) {
+    return <ReplayNoAccess eventId={eventId} eventTitle={eventTitle} />;
   }
 
   if (!playback.data?.available) {
@@ -76,5 +80,18 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
       timeline={playback.data.timeline}
       adsEnabled={adsEnabled}
     />
+  );
+}
+
+// Shared by "never had access" and "access refetch came back 401/403" — same
+// user-facing message either way: go get/renew a ticket.
+function ReplayNoAccess({ eventId, eventTitle }: { eventId: string; eventTitle: string }) {
+  const t = useTranslations('liveGate');
+  return (
+    <div className={styles.noAccess}>
+      <h2>{t('accessRequired')}</h2>
+      <p>{t('needTicket', { title: eventTitle })}</p>
+      <Link href={`/events/${eventId}`}>{t('viewTickets')}</Link>
+    </div>
   );
 }

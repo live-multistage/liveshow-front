@@ -4,6 +4,17 @@ import { getAttribution } from '@/lib/analytics/attribution';
 import { getAnalyticsConsent } from '@/lib/analytics/consent';
 import { generateRequestId } from './request-id';
 
+// Thrown when the silent refresh itself fails (bad/expired refresh cookie,
+// network error, non-2xx from /api/auth/refresh). Exported so callers that
+// need to recognize "session is unrecoverably dead" — distinct from a
+// same-request 401/403 — can key on the class instead of a string literal.
+export class RefreshFailedError extends Error {
+  constructor() {
+    super('refresh_failed');
+    this.name = 'RefreshFailedError';
+  }
+}
+
 // Reached when a 401 could not be refreshed — the session died mid-flow, so
 // carry where the user was and let login put them back. Auth pages are
 // excluded: bouncing /login back to /login is noise, not a destination.
@@ -89,7 +100,7 @@ export function applyInterceptors(client: AxiosInstance) {
 
       try {
         const res = await fetch('/api/auth/refresh', { method: 'POST' });
-        if (!res.ok) throw new Error('refresh_failed');
+        if (!res.ok) throw new RefreshFailedError();
 
         const data = await res.json() as { accessToken: string };
         tokenStore.set(data.accessToken);

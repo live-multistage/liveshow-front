@@ -23,10 +23,18 @@ vi.mock('@tanstack/react-query', async () => {
   };
 });
 
+import { AxiosError, AxiosHeaders } from 'axios';
 import { renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { useReplayPlaybackQuery } from './live.queries';
+import { useLivePlaybackQuery, useReplayPlaybackQuery } from './live.queries';
+
+function makeHttpError(status: number) {
+  return new AxiosError('Request failed', undefined, { headers: new AxiosHeaders() } as never, undefined, {
+    status,
+    data: {},
+  } as never);
+}
 
 function makeWrapper() {
   const queryClient = new QueryClient({
@@ -51,5 +59,35 @@ describe('useReplayPlaybackQuery', () => {
         refetchIntervalInBackground: true,
       }),
     );
+  });
+
+  it('does not retry a 401/403 (already unauthorized — no point retrying), but retries other errors', () => {
+    const { wrapper } = makeWrapper();
+
+    renderHook(() => useReplayPlaybackQuery('my-event', true), { wrapper });
+
+    const { retry } = useQuerySpy.mock.calls.at(-1)![0] as {
+      retry: (count: number, error: unknown) => boolean;
+    };
+    expect(retry(0, makeHttpError(401))).toBe(false);
+    expect(retry(0, makeHttpError(403))).toBe(false);
+    expect(retry(0, makeHttpError(500))).toBe(true);
+    expect(retry(3, makeHttpError(500))).toBe(false); // still caps at 3
+  });
+});
+
+describe('useLivePlaybackQuery', () => {
+  it('does not retry a 401/403, but retries other errors up to 3 times', () => {
+    const { wrapper } = makeWrapper();
+
+    renderHook(() => useLivePlaybackQuery('my-event', true), { wrapper });
+
+    const { retry } = useQuerySpy.mock.calls.at(-1)![0] as {
+      retry: (count: number, error: unknown) => boolean;
+    };
+    expect(retry(0, makeHttpError(401))).toBe(false);
+    expect(retry(0, makeHttpError(403))).toBe(false);
+    expect(retry(0, makeHttpError(500))).toBe(true);
+    expect(retry(3, makeHttpError(500))).toBe(false);
   });
 });

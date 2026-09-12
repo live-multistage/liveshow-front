@@ -4,17 +4,32 @@ import { useState, useEffect, useRef } from 'react';
 import { Copy, Check, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useCameraIngestQuery } from '../queries/ingest.queries';
 import { useRegenerateCameraKeyMutation } from '../mutations/ingest.mutations';
+import { maskPublishSecret } from '../utils/mask-publish-secret';
 import styles from './IngestCredentials.module.scss';
 
 interface Props {
   cameraId: string;
 }
 
-function CopyField({ label, value, secret }: { label: string; value: string; secret?: boolean }) {
+function CopyField({
+  label,
+  value,
+  displayValue,
+  secret,
+}: {
+  label: string;
+  value: string;
+  // What to render — defaults to `value`. Lets a field mask part of its
+  // content (e.g. the publish secret inside the ingest URL) while `copy()`
+  // below still writes the untouched `value` to the clipboard.
+  displayValue?: string;
+  secret?: boolean;
+}) {
   const [copied, setCopied] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const shown = secret && !revealed ? '•'.repeat(Math.min(value.length, 24)) : value;
+  const base = displayValue ?? value;
+  const shown = secret && !revealed ? '•'.repeat(Math.min(base.length, 24)) : base;
 
   useEffect(() => () => { if (copiedTimer.current) clearTimeout(copiedTimer.current); }, []);
 
@@ -64,7 +79,11 @@ export function IngestCredentials({ cameraId }: Props) {
           {isError && <p className={styles.error}>Falha ao carregar credenciais.</p>}
           {data && (
             <>
-              <CopyField label="Servidor (SRT URL)" value={data.ingest.url} />
+              <CopyField
+                label="Servidor (SRT URL)"
+                value={data.ingest.url}
+                displayValue={maskPublishSecret(data.ingest.url)}
+              />
               <CopyField label="Stream Key" value={data.streamKey} secret />
               <div className={styles.meta}>
                 <span>Host: {data.ingest.host}:{data.ingest.port}</span>

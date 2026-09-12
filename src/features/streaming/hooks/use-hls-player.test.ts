@@ -282,11 +282,36 @@ describe('useHlsPlayer — signed-URL token refresh (live standard)', () => {
     expect(xhr.open).toHaveBeenCalledWith('GET', 'https://x/seg?pt=t2', true);
   });
 
-  it('does not add xhrSetup on the LL path (left untouched)', () => {
-    renderPlayer(cam({ llPath: '/ll/sk-1/index.m3u8?token=t1' }));
-    // hasLl true → LL tuning, no live-standard pt rewrite
+  it('LL path: xhrSetup rewrites an outgoing request token to the current llPath token', () => {
+    renderPlayer(cam({ llPath: '/ll/sk-1/index.m3u8?token=CURRENT' }));
+    // hasLl true → LL tuning, and its own (llPathRef-backed) token rewrite
     expect(h.instances[0].config.lowLatencyMode).toBe(true);
-    expect(h.instances[0].config.xhrSetup).toBeUndefined();
+    const xhrSetup = h.instances[0].config.xhrSetup as (
+      xhr: XMLHttpRequest,
+      url: string,
+    ) => void;
+    expect(xhrSetup).toBeTypeOf('function');
+    const xhr = { open: vi.fn() } as unknown as XMLHttpRequest;
+    xhrSetup(xhr, 'https://cdn.example/ll/sk-1/seg_0.ts?token=STALE');
+    expect(xhr.open).toHaveBeenCalledWith(
+      'GET',
+      'https://cdn.example/ll/sk-1/seg_0.ts?token=CURRENT',
+      true,
+    );
+  });
+
+  it('LL path: xhrSetup uses the freshest llPath token after a poll refresh, without rebuilding', () => {
+    const { rerender } = renderPlayer(cam({ llPath: '/ll/sk-1/index.m3u8?token=t1' }));
+    rerender({ camera: cam({ llPath: '/ll/sk-1/index.m3u8?token=t2' }) });
+    expect(h.instances).toHaveLength(1); // token-only llPath change must NOT rebuild
+    expect(h.instances[0].destroy).not.toHaveBeenCalled();
+    const xhrSetup = h.instances[0].config.xhrSetup as (
+      xhr: XMLHttpRequest,
+      url: string,
+    ) => void;
+    const xhr = { open: vi.fn() } as unknown as XMLHttpRequest;
+    xhrSetup(xhr, '/ll/sk-1/seg_0.ts?token=old');
+    expect(xhr.open).toHaveBeenCalledWith('GET', '/ll/sk-1/seg_0.ts?token=t2', true);
   });
 
   it('xhrSetup propagates a CDN manifest URL\'s Bunny params onto a child UNDER token_path', () => {
@@ -354,7 +379,7 @@ describe('useHlsPlayer — signed-URL token refresh (live standard)', () => {
 // ── native HLS (iOS Safari) live token refresh ──────────────────────────────
 // No hls.js instance exists on this path (Hls.isSupported() is false), so
 // there is no xhrSetup to rewrite `pt`. The hook instead re-points video.src
-// on a ~60s interval, well under the 90s token TTL.
+// on a ~240s interval, well under the 300s token TTL.
 function renderNativePlayer(camera: LiveCamera, mode: 'live' | 'replay' = 'live') {
   const video = document.createElement('video');
   video.canPlayType = vi.fn(() => 'maybe') as HTMLVideoElement['canPlayType'];
@@ -379,20 +404,20 @@ describe('useHlsPlayer — native HLS (iOS Safari) live token refresh', () => {
     h.MockHls.isSupported = () => true;
   });
 
-  it('re-points video.src to the fresh token after ~60s when it changed', () => {
+  it('re-points video.src to the fresh token after ~240s when it changed', () => {
     const { rerender, video } = renderNativePlayer(
       cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=t1' }),
     );
     expect(video.src).toContain('pt=t1');
     rerender({ camera: cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=t2' }) });
-    vi.advanceTimersByTime(60_000);
+    vi.advanceTimersByTime(240_000);
     expect(video.src).toContain('pt=t2');
   });
 
   it('does NOT reassign src when the token is unchanged', () => {
     const { video } = renderNativePlayer(cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=t1' }));
     const before = video.src;
-    vi.advanceTimersByTime(60_000);
+    vi.advanceTimersByTime(240_000);
     expect(video.src).toBe(before);
   });
 

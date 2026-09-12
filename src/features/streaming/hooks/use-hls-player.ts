@@ -58,8 +58,10 @@ function withCdnSigningParams(url: string, params: [string, string][]): string {
   // child OUTSIDE that directory — an /api/origin/* rendition referenced by an
   // /api/packages/* signed master — makes the edge 403: the request path isn't
   // under token_path. Only children that actually fall under it inherit the
-  // signature; the unsigned /api/origin family (public by design, see the
-  // backend MediaUrlBuilder) must go through untouched.
+  // signature; /api/origin/* is never Bunny-signed (no token_path applies to
+  // it) but is NOT public — the backend's LiveMediaGuard still gates it on
+  // either the CDN edge's X-Origin-Key or a live `pt`, so it must go through
+  // untouched here rather than get a Bunny signature it was never issued.
   const tokenPath = params.find(([k]) => k === 'token_path')?.[1];
   if (tokenPath && !childUnderTokenPath(url, tokenPath)) return url;
   const q = url.indexOf('?');
@@ -208,12 +210,12 @@ export function useHlsPlayer({
   const selectedLevelRef = useRef(selectedLevel);
   selectedLevelRef.current = selectedLevel;
   // llPath carries a fresh ?token= on every 5s playback poll — a new string
-  // each time. The build effect must NOT depend on it (that rebuilt the
-  // player every poll); it depends on the stable hasLl boolean below and
-  // reads the current URL through this ref at build time. Token refreshes
-  // therefore apply on the next legitimate rebuild only; if the in-flight
-  // token expires mid-session (1h TTL), the resulting fatal error lands on
-  // the existing fallback latch — viewer degrades to STANDARD, by design.
+  // each time. The build effect must NOT depend on it (that would rebuild
+  // the player every poll); it depends on the stable hasLl boolean below.
+  // Token freshness instead rides per-request: the LL xhrSetup below reads
+  // this ref on every outgoing hls.js request and rewrites the token to
+  // whatever the latest poll produced — the same trick ptRef uses for the
+  // STANDARD path — so a session outliving one token's TTL never 403s.
   const llPathRef = useRef(camera.llPath);
   llPathRef.current = camera.llPath;
   // Read by the AUDIO_TRACKS_UPDATED handler below — tracks arrive after the
@@ -300,15 +302,16 @@ export function useHlsPlayer({
           video.addEventListener('loadedmetadata', seekLive);
           // ponytail: Safari native HLS has no request hook — it can't rewrite
           // `pt` per request like hls.js's xhrSetup above, so the token baked
-          // into video.src at load still expires at 90s here. Re-point src to
-          // the freshest token (srcRef, updated every 5s poll) at a cadence
-          // safely under that TTL; the reassignment triggers Safari's native
-          // reload, and the loadedmetadata listener above re-seeks to the live
-          // edge and resumes playback — reusing the same recovery path as the
-          // initial load. Costs a brief native stutter every ~60s, far gentler
-          // than rebuilding the whole player every 5s (the old approach).
+          // into video.src at load still expires at 300s (R6) here. Re-point
+          // src to the freshest token (srcRef, updated every 5s poll) at a
+          // cadence safely under that TTL; the reassignment triggers Safari's
+          // native reload, and the loadedmetadata listener above re-seeks to
+          // the live edge and resumes playback — reusing the same recovery
+          // path as the initial load. The reload also yanks a DVR-scrubbed
+          // viewer back to the live edge, so the interval stays as long as
+          // the TTL safely allows rather than tightening it further.
           let lastNativeSrc = srcRef.current;
-          const REFRESH_MS = 60_000;
+          const REFRESH_MS = 240_000;
           const refresh = setInterval(() => {
             if (srcRef.current && srcRef.current !== lastNativeSrc) {
               lastNativeSrc = srcRef.current;
@@ -361,14 +364,19 @@ export function useHlsPlayer({
             bearer: tokenStore.get(),
           })(xhr, url),
       }),
-      // Live STANDARD: every request (master, rendition manifest, segment,
-      // EXT-X-KEY) carries a `?pt` token baked in when its manifest was loaded;
-      // that token expires at 90s. Rewrite each outgoing URL's `pt` to the
-      // freshest token (refreshed every 5s poll via ptRef) so live playback
-      // never 403s at the token boundary. hls.js 1.6's xhr-loader runs
-      // xhrSetup BEFORE opening and only opens itself when `!xhr.readyState`,
-      // so opening here with the rewritten URL wins. LL path is left untouched
-      // (its token lifetime rides the existing LL→STANDARD fallback latch).
+      // Live STANDARD, direct mode (no CDN): every request (master, rendition
+      // manifest, segment, EXT-X-KEY) carries a `?pt` token baked in when its
+      // manifest was loaded; that token expires at 300s (R6). Rewrite each
+      // outgoing URL's `pt` to the freshest token (refreshed every 5s poll via
+      // ptRef) so live playback never 401/403s at the token boundary. With
+      // the CDN on, there's no `pt` at all — the Bunny directory token
+      // (withCdnSigningParams below) carries auth instead, since a `pt` in
+      // the URL would poison the CDN cache key and the Bunny token hash.
+      // hls.js 1.6's xhr-loader runs xhrSetup BEFORE opening and only opens
+      // itself when `!xhr.readyState`, so opening here with the rewritten URL
+      // wins. The LL path has its own xhrSetup branch below (mode === 'live'
+      // && hasLl) that rotates the MediaMTX `?token` from llPathRef the same
+      // way this one rotates `pt` — not left untouched.
       ...(mode === 'live' &&
         !hasLl && {
           xhrSetup: (xhr: XMLHttpRequest, url: string) => {
@@ -378,6 +386,21 @@ export function useHlsPlayer({
             // be copied onto them explicitly or they 403 at the edge.
             const withCdn = withCdnSigningParams(url, cdnSigningParams(srcRef.current ?? ''));
             const next = replacePtParam(withCdn, ptRef.current);
+            if (next !== url) xhr.open('GET', next, true);
+          },
+        }),
+      // LL-HLS (LOW events): the MediaMTX-signed `?token` currently lives 1h
+      // (R6 will shorten it once the backend rotates it faster), but the
+      // player session can outlive even a short TTL — rewrite every
+      // outgoing request's token to whatever the latest 5s poll produced via
+      // llPathRef, the same per-request rotation the STANDARD branch above
+      // does with ptRef. Without this the fallback latch was doing double
+      // duty as an expiry handler: a token-expiry 403 looked identical to a
+      // dead LL origin and silently demoted the viewer to STANDARD.
+      ...(mode === 'live' &&
+        hasLl && {
+          xhrSetup: (xhr: XMLHttpRequest, url: string) => {
+            const next = replacePtParam(url, extractPt(llPathRef.current ?? ''));
             if (next !== url) xhr.open('GET', next, true);
           },
         }),
