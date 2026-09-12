@@ -35,3 +35,5 @@ export * from './subscriptions/types';
 export * from './fiscal/types';
 export * from './fiscal/document';
 export * from './chat/types';
+export * from './mailing/types';
+export * from './mailing/schemas';

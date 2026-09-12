@@ -20,6 +20,7 @@ const ALL_KEYS: FeatureFlagKey[] = [
   'physical_tickets',
   'event_collaborations',
   'fiscal_emission',
+  'mailing',
 ];
 
 test('DEFAULT_FEATURE_FLAGS covers every FeatureFlagKey', () => {

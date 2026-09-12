@@ -532,7 +532,8 @@
       "platformOrganizerApplications": "Applications",
       "platformArtistApplications": "Artist applications",
       "artists": "Artists",
-      "artistsCatalog": "Artist Catalog"
+      "artistsCatalog": "Artist Catalog",
+      "platformMailing": "Emails"
     },
     "navMobile": {
       "overview": "Home",
@@ -1709,6 +1710,189 @@
         "saved": "Issuer updated.",
         "error": "Could not save.",
         "inactiveHint": "While inactive, orders remain pending issuance."
+      }
+    },
+    "mailing": {
+      "page": {
+        "group": "COMMUNICATION",
+        "title": "Emails",
+        "subtitle": "Templates and campaigns sent to the user base.",
+        "tabTemplates": "Templates",
+        "tabCampaigns": "Campaigns"
+      },
+      "category": {
+        "MARKETING": "Marketing",
+        "ANNOUNCEMENT": "Announcement"
+      },
+      "common": {
+        "loading": "Loading…",
+        "loadError": "Couldn't load. Try again.",
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "templates": {
+        "new": "New template",
+        "empty": "No templates yet. Create the first one.",
+        "colName": "Name",
+        "colCategory": "Category",
+        "colUpdated": "Updated",
+        "colTested": "Test",
+        "colActions": "Actions",
+        "tested": "Tested",
+        "untested": "Not tested",
+        "edit": "Edit",
+        "duplicate": "Duplicate",
+        "archive": "Archive",
+        "archiveTitle": "Archive template?",
+        "archiveBody": "\"{name}\" leaves the list and can't be used in new campaigns. Existing campaigns don't change.",
+        "actionError": "Couldn't complete the action."
+      },
+      "editor": {
+        "back": "Back to templates",
+        "newTitle": "New template",
+        "name": "Internal name",
+        "category": "Category",
+        "subject": "Subject",
+        "preheader": "Preheader",
+        "language": "Layout language",
+        "languagePt": "Portuguese",
+        "languageEn": "English",
+        "languageEs": "Spanish",
+        "variableHint": "Use {variable} in a heading or text to insert the first name.",
+        "addBlock": "Add block",
+        "blocksEmpty": "Add blocks to build the email.",
+        "block": {
+          "heading": "Heading",
+          "text": "Text",
+          "image": "Image",
+          "button": "Button",
+          "eventCard": "Event card",
+          "eventList": "Event list",
+          "divider": "Divider"
+        },
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "remove": "Remove block",
+        "dragHandle": "Drag to reorder",
+        "field": {
+          "text": "Text",
+          "size": "Size",
+          "sizeLg": "Large",
+          "sizeMd": "Medium",
+          "body": "Content",
+          "bodyHint": "A blank line starts a new paragraph. **bold**, _italic_, [text](https://…)",
+          "image": "Image",
+          "upload": "Upload image",
+          "uploading": "Uploading…",
+          "uploadError": "Invalid image. Use JPEG, PNG, WebP or GIF up to 5 MB.",
+          "alt": "Alt text",
+          "href": "Link (https://)",
+          "label": "Label",
+          "event": "Event",
+          "events": "Events (up to 3)",
+          "badge": "Badge (optional)",
+          "ctaLabel": "Button text (optional)",
+          "searchEvents": "Search events…",
+          "noEvents": "No events found.",
+          "removeEvent": "Remove event"
+        },
+        "preview": "Preview",
+        "previewDesktop": "Desktop",
+        "previewMobile": "Mobile",
+        "previewTitle": "Email preview",
+        "previewError": "Couldn't render the preview.",
+        "previewInvalid": "Fix the highlighted fields to see the preview.",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Saved",
+        "saveError": "Couldn't save.",
+        "testSend": "Send test to me",
+        "testSending": "Sending test…",
+        "testSent": "Test sent to your email.",
+        "testError": "Couldn't send the test.",
+        "testThrottled": "Too many tests in a row. Wait a few minutes.",
+        "saveBeforeTest": "Save your changes before sending a test.",
+        "testedBadge": "Tested in this version",
+        "untestedBadge": "Not tested in this version",
+        "unsavedConfirm": "You have unsaved changes. Leave anyway?"
+      },
+      "campaigns": {
+        "new": "New campaign",
+        "empty": "No campaigns yet.",
+        "colName": "Name",
+        "colTemplate": "Template",
+        "colAudience": "Audience",
+        "colStatus": "Status",
+        "colProgress": "Progress",
+        "colDate": "Date",
+        "progress": "{sent}/{total}",
+        "status": {
+          "DRAFT": "Draft",
+          "SCHEDULED": "Scheduled",
+          "SENDING": "Sending",
+          "SENT": "Sent",
+          "CANCELLED": "Cancelled",
+          "FAILED": "Failed"
+        }
+      },
+      "audience": {
+        "typeLabel": "Audience",
+        "type": {
+          "ALL_VERIFIED": "All verified users",
+          "EVENT_BUYERS": "Buyers of an event",
+          "EVENT_SAVERS": "Saved an event (no ticket)",
+          "CHANNEL_SUBSCRIBERS": "Active subscribers of a channel"
+        },
+        "country": "Country (optional)",
+        "countryAll": "All countries",
+        "channel": "Channel",
+        "channelPlaceholder": "Choose a channel",
+        "counting": "Counting audience…",
+        "summary": "{eligible} people · {skipped} skipped (opt-out) · ~{days} days on the current plan",
+        "summaryOther": "{unverified} unverified email · {deleted} deleted accounts",
+        "countError": "Couldn't count the audience."
+      },
+      "wizard": {
+        "title": "New campaign",
+        "stepTemplate": "1 · Template",
+        "stepAudience": "2 · Audience",
+        "stepReview": "3 · Review",
+        "name": "Campaign name",
+        "template": "Template",
+        "untestedFlag": "not tested",
+        "next": "Continue",
+        "back": "Back",
+        "subject": "Subject",
+        "sendNow": "Send now",
+        "schedule": "Schedule",
+        "scheduleAt": "Date and time (Brasília time)",
+        "confirmTitle": "Confirm send",
+        "confirmNow": "The campaign will go to {count} people. This can't be undone.",
+        "confirmScheduled": "The campaign will go to {count} people starting {date}.",
+        "confirmSend": "Confirm and send",
+        "notTested": "This template changed since its last test. Send yourself a test before dispatching.",
+        "openEditor": "Open editor",
+        "error": "Couldn't create the campaign."
+      },
+      "detail": {
+        "back": "Back to campaigns",
+        "progress": "{sent} of {total} sent",
+        "materializing": "Preparing the recipient list…",
+        "scheduledFor": "Scheduled for {date}",
+        "sent": "Sent",
+        "pending": "Queued",
+        "failed": "Failed",
+        "skippedOptedOut": "Skipped · opt-out",
+        "skippedUnverified": "Skipped · unverified",
+        "skippedDeleted": "Skipped · deleted accounts",
+        "skippedCancelled": "Skipped · cancelled",
+        "eta": "~{days} days left on the current plan",
+        "dispatch": "Send campaign",
+        "cancel": "Cancel campaign",
+        "cancelTitle": "Cancel campaign?",
+        "cancelBody": "Nobody else will receive this campaign. Emails already sent are not affected.",
+        "cancelConfirm": "Cancel campaign",
+        "dismiss": "Back"
       }
     }
   },
@@ -3074,6 +3258,30 @@
         "removed": "Artist removed from the lineup.",
         "error": "Could not complete the action. Please try again."
       }
+    }
+  },
+  "unsubscribe": {
+    "protectedBadge": "Signed and verified link",
+    "loading": {
+      "eyebrow": "Unsubscribing",
+      "title": "Unsubscribing you…",
+      "message": "Just a moment.",
+      "spinnerLabel": "Unsubscribing",
+      "action": "Please wait…"
+    },
+    "success": {
+      "eyebrow": "Unsubscribed",
+      "title": "Done",
+      "message": "You won't receive promotional emails anymore.",
+      "primary": "Email preferences",
+      "secondary": "Go to home"
+    },
+    "invalid": {
+      "eyebrow": "Invalid link",
+      "title": "Couldn't unsubscribe",
+      "message": "This unsubscribe link isn't valid. You can adjust which emails you get in your account preferences.",
+      "primary": "Email preferences",
+      "secondary": "Go to home"
     }
   }
 }
