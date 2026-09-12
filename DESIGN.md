@@ -12,7 +12,7 @@ Bold, energetic live-streaming brand. Near-black canvas, electric magenta accent
 |---|---|
 | **Personality** | Energetic, broadcast, live-event hype. Dark, cinematic, confident. |
 | **Logomark** | 5-bar audio waveform (rounded bars) + `LIVESHOW` wordmark in Space Mono, `letter-spacing: .18em`. A panel badge may follow it (`ADS`, `Studio`, `ADMIN`). |
-| **Voice** | Portuguese-first (PT-BR). Short mono labels visually uppercased (`Ao Vivo`, `Em Destaque`, `Ver todos`). |
+| **Voice** | Portuguese-first (PT-BR). Short mono labels visually uppercased (`Ao vivo`, `Em destaque`, `Ver todos`). |
 
 **Caixa alta rule:** i18n copy is authored in sentence case; visual uppercase comes from CSS `text-transform: uppercase`, never a literal uppercase string or `.toUpperCase()` in code. Eyebrows are never headings — they're decorative/contextual labels above a real `<h2>`/`<h3>`.
 
@@ -85,7 +85,7 @@ Approx scale: page title 24–32 / 700–800 · card title 13.5–18 / 700 · bo
 
 ## 4. Spacing, radius, elevation
 
-- **Radius:** base `--radius: 0.5rem` (8px) for design-system primitives (inputs/buttons ~`6–8px`, small badges `6–8px`, pills `999px`). **Cards use `$card-radius` (18px)** — the shared shell for ShowCard, ChannelCard and the home feed AdBanner (`card-shell` mixin in `src/styles/_mixins.scss`).
+- **Radius:** base `--radius: 0.5rem` (8px) for design-system primitives (inputs/buttons ~`6–8px`, small badges `6–8px`, pills `999px`). **Cards use `$card-radius` (18px)** — the shared shell for ShowCard and ChannelCard (`card-shell` mixin in `src/styles/_mixins.scss`). The home feed AdBanner also uses `$card-radius` directly (no `card-shell`: an advertiser-chosen background can't guarantee the hairline border or hover-border contrast the mixin assumes).
 - **Padding:** cards `18–24px` · nav/section `26–40px` · page content `2rem`, capped at `max-width: 1200px` (narrower forms `~640px`).
 - **Grid gaps:** `12–18px` (home rails and grids use `12px` uniformly across breakpoints).
 - **Elevation:** flat on dark — depth is the `1px` hairline border (+ optional off-corner magenta radial glow on KPI cards), not drop shadows.
@@ -100,7 +100,8 @@ Approx scale: page title 24–32 / 700–800 · card title 13.5–18 / 700 · bo
 | `live-badge($font-size: 10px)` | Solid-magenta pill, `$ink` text, Space Mono 700, uppercase. Used by ShowCard, ChannelCard (on-air) and the hero badge. |
 | `pulse-dot($size: 5px, $color: $ink)` | The pulsing dot inside a live badge — single `ls-pulse` keyframe, animation disabled under `prefers-reduced-motion`. |
 | `card-cta` | Unified card CTA: magenta solid, `$ink` text, Space Mono 11px/700 uppercase `.06em`, `9px` radius. |
-| `card-cta-tinted` | Same shape, tinted: `$action-bg` background + `$accent-text` text (ChannelCard off-air CTA, AdBanner CTA). |
+| `card-cta-tinted` | Same shape, tinted: `$action-bg` background + `$accent-text` text (ChannelCard off-air CTA). |
+| `card-cta-neutral` | Same shape, colour-neutral: translucent white background + `$text-primary` text (AdBanner CTA — a magenta tint over an advertiser-chosen background can't guarantee contrast). |
 
 ---
 
@@ -111,8 +112,8 @@ Prefer the shared primitives before hand-rolling: **`@live-show/design-system`**
 - **Button (primary):** `--primary` magenta fill, `--primary-foreground` ink text, weight 700, pill/`--radius`. **Secondary:** faint white fill + hairline. **Ghost/mono:** transparent, hairline, Space Mono uppercase.
 - **Chip (toggle):** pill, Space Mono uppercase. Active = magenta fill + ink text; inactive = `rgba(255,255,255,.04)` fill + `$text-secondary` + `rgba(255,255,255,.1)` border.
 - **Badge / status pill:** tinted by state, matching `1px` border, Space Mono `10px/700` uppercase, `nowrap`. Live → magenta tint + pulsing dot · Scheduled → violet tint · neutral → white-5%.
-- **Card:** shared `card-shell` mixin — `$surface` bg, `$border-hairline`, `$card-radius` (18px); hover → magenta border (`rgba($action,.34)`) + `translateY(-3px)`. Used by ShowCard, ChannelCard and the feed AdBanner. Dashboard/KPI cards keep their own `~10px` radius and off-corner radial glow (not yet unified onto the shell).
-- **Card CTA:** one visual language via `card-cta` (solid magenta, primary action — "watch", "watch now") and `card-cta-tinted` (tinted magenta, secondary action — "view schedule", "learn more").
+- **Card:** shared `card-shell` mixin — `$surface` bg, `$border-hairline`, `$card-radius` (18px); hover → magenta border (`rgba($action,.34)`) + `translateY(-3px)`. Used by ShowCard and ChannelCard. The feed AdBanner shares only the `$card-radius` value, not the mixin. Dashboard/KPI cards keep their own `~10px` radius and off-corner radial glow (not yet unified onto the shell).
+- **Card CTA:** one visual language via `card-cta` (solid magenta, primary action — "watch", "watch now"), `card-cta-tinted` (tinted magenta, secondary action — "view schedule", "learn more") and `card-cta-neutral` (colour-neutral, for the AdBanner CTA over an unpredictable advertiser background).
 - **SectionHeader:** shared title + optional "see all" link component for home rails (`src/shared/components/SectionHeader`). `eyebrow` is optional — only sections whose eyebrow actually conveys information (e.g. Channels: "TV linear · 24h" + on-air count) show one; purely decorative eyebrows were removed.
 - **Charts:** inline SVG area charts — smooth path, per-chart `linearGradient` fill, `rgba(255,255,255,.06)` gridlines, Space Mono `9px` ticks, one `--chart-*` series color per card.
 - **Sidebar (admin/dashboard):** `256px`, `--sidebar #0b0b0d`, `rgba(255,255,255,.07)` right border, `26px 18px` padding, `34px` gaps. Waveform + Space Mono wordmark (+ optional panel badge) at top. Nav items `12px` radius; **active** = `rgba(255,46,158,.1)` fill + `rgba(255,46,158,.32)` border + white text/magenta icon. User block pinned bottom.
