@@ -100,6 +100,8 @@
       },
       "checkEmail": {
         "title": "Confirme seu e-mail",
+        "eyebrow": "Verifique seu e-mail",
+        "message": "Enviamos um link de confirmação para o endereço abaixo. Abra-o para ativar sua conta.",
         "body": "Enviamos um link de confirmação para {email}. Abra o e-mail para ativar sua conta.",
         "resend": "Reenviar e-mail",
         "resent": "Se houver uma conta pendente, um novo e-mail foi enviado.",
@@ -130,10 +132,34 @@
       }
     },
     "verifyEmail": {
-      "title": "Confirmação de e-mail",
-      "verifying": "Confirmando…",
-      "success": "E-mail confirmado! Você já pode entrar.",
-      "invalid": "Link inválido ou expirado. Peça um novo e-mail de confirmação.",
+      "protectedBadge": "Confirmação protegida por criptografia",
+      "loading": {
+        "eyebrow": "Confirmando",
+        "title": "Confirmando seu e-mail…",
+        "message": "Aguarde só um instante enquanto validamos seu link de confirmação.",
+        "action": "Aguarde…",
+        "spinnerLabel": "Confirmando seu e-mail"
+      },
+      "success": {
+        "eyebrow": "E-mail confirmado",
+        "title": "Tudo certo!",
+        "message": "Seu e-mail foi confirmado com sucesso. Sua conta está ativa e pronta para assistir shows ao vivo.",
+        "primary": "Entrar na minha conta",
+        "secondary": "Explorar a programação"
+      },
+      "expired": {
+        "eyebrow": "Link expirado",
+        "title": "Link inválido ou expirado",
+        "message": "Este link de confirmação não é mais válido. Peça um novo e-mail de confirmação para ativar sua conta.",
+        "primary": "Reenviar confirmação",
+        "secondary": "Voltar para entrar",
+        "footer": "Já confirmou seu e-mail?",
+        "footerLink": "Entrar",
+        "emailLabel": "Seu e-mail",
+        "emailPlaceholder": "voce@email.com",
+        "submit": "Enviar novo link",
+        "invalidEmail": "Informe um e-mail válido."
+      },
       "goToLogin": "Entrar"
     },
     "resetPassword": {

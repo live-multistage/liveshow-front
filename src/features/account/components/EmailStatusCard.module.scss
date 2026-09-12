@@ -1,0 +1,405 @@
+@use 'sass:map';
+@use '../../../styles/_variables' as *;
+
+// Design-only values with no global token equivalent. Kept local (prefixed)
+// so they can't collide with names from _variables.
+$esc-pink-link:      #ff5fb4;
+$esc-violet-glow:    rgba(155, 123, 255, 0.22);
+$esc-surface-raised: #131316;
+$esc-surface-hover:  #18181b;
+$esc-text-body:      #e4e4e7;
+$esc-text-footer:    #8f8f97; // design uses #6f6f77 for the badge; lifted for 4.5:1 on $bg
+$esc-font-display:   var(--font-archivo), 'Archivo', sans-serif;
+$esc-font-mono:      var(--font-space-mono), 'Space Mono', monospace;
+$esc-ease-pop:       cubic-bezier(0.4, 0, 0.2, 1);
+
+// Per-state colors (glow, medallion, ring, eyebrow/icon) from the design's state table.
+$esc-states: (
+  success: (
+    glow: rgba(74, 222, 128, 0.18),
+    bg: rgba(74, 222, 128, 0.1),
+    border: rgba(74, 222, 128, 0.3),
+    ring: rgba(74, 222, 128, 0.4),
+    tone: $success-light,
+  ),
+  expired: (
+    glow: rgba(248, 113, 113, 0.16),
+    bg: rgba(248, 113, 113, 0.1),
+    border: rgba(248, 113, 113, 0.3),
+    ring: rgba(248, 113, 113, 0.4),
+    tone: $error,
+  ),
+  pending: (
+    glow: rgba(255, 46, 158, 0.24),
+    bg: rgba(255, 46, 158, 0.1),
+    border: rgba(255, 46, 158, 0.32),
+    ring: rgba(255, 46, 158, 0.42),
+    tone: $accent-text,
+  ),
+  loading: (
+    glow: rgba(255, 46, 158, 0.2),
+    bg: rgba(255, 46, 158, 0.06),
+    border: $border-hairline,
+    ring: rgba(255, 46, 158, 0.28),
+    tone: $accent-text,
+  ),
+);
+
+@each $name, $s in $esc-states {
+  .#{$name} {
+    --esc-glow: #{map.get($s, glow)};
+    --esc-icon-bg: #{map.get($s, bg)};
+    --esc-icon-border: #{map.get($s, border)};
+    --esc-ring: #{map.get($s, ring)};
+    --esc-tone: #{map.get($s, tone)};
+  }
+}
+
+// The pending icon is the lighter link pink, not the eyebrow pink.
+.pending .icon { color: $esc-pink-link; }
+
+// ── Page ──────────────────────────────────────────────────────────
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  // The glows overflow the viewport on purpose; without this they add a scrollbar.
+  overflow: hidden;
+  background: $bg;
+  color: $text-primary;
+  font-family: $esc-font-display;
+
+  @media (max-width: $sm) {
+    padding: 40px 16px;
+  }
+}
+
+.glowTop,
+.glowBottom,
+.scanlines {
+  position: absolute;
+  pointer-events: none;
+}
+
+.glowTop,
+.glowBottom {
+  border-radius: 50%;
+}
+
+.glowTop {
+  top: -220px;
+  left: 50%;
+  width: 640px;
+  height: 640px;
+  transform: translateX(-60%);
+  background: radial-gradient(circle, var(--esc-glow), transparent 65%);
+  transition: background 0.4s;
+}
+
+.glowBottom {
+  bottom: -260px;
+  right: -140px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, $esc-violet-glow, transparent 65%);
+}
+
+.scanlines {
+  inset: 0;
+  background: repeating-linear-gradient(transparent 0 40px, rgba(255, 255, 255, 0.02) 40px 41px);
+}
+
+// ── Logo ──────────────────────────────────────────────────────────
+
+.logo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 40px;
+  color: $text-primary;
+  text-decoration: none;
+  border-radius: 8px;
+
+  &:focus-visible {
+    outline: 2px solid $action;
+    outline-offset: 4px;
+  }
+}
+
+.logoWordmark {
+  font-family: $esc-font-mono;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: $text-primary;
+}
+
+// ── Card ──────────────────────────────────────────────────────────
+
+.card {
+  position: relative;
+  width: 100%;
+  max-width: 452px;
+  padding: 44px 40px 36px;
+  background: $surface;
+  border: 1px solid $border-hairline;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+
+  @media (max-width: $sm) {
+    padding: 32px 24px;
+  }
+}
+
+.medallion {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 26px;
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--esc-ring);
+  animation: escRing 2.4s ease-out infinite;
+}
+
+.icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--esc-icon-bg);
+  border: 1px solid var(--esc-icon-border);
+  color: var(--esc-tone);
+  animation: escPop 0.4s $esc-ease-pop both;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 46, 158, 0.18);
+  border-top-color: $action;
+  animation: escSpin 0.7s linear infinite;
+}
+
+// ── Copy ──────────────────────────────────────────────────────────
+
+.eyebrow {
+  margin: 0 0 14px;
+  font-family: $esc-font-mono;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--esc-tone);
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+  text-wrap: balance;
+  color: $text-primary;
+}
+
+.message {
+  max-width: 34ch;
+  margin: 0 auto 30px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: $text-secondary;
+  text-wrap: pretty;
+}
+
+.emailPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 100%;
+  margin: -16px auto 28px;
+  padding: 8px 16px;
+  background: $esc-surface-raised;
+  border: 1px solid $border-hairline;
+  border-radius: 999px;
+  font-family: $esc-font-mono;
+  font-size: 13px;
+  color: $esc-text-body;
+
+  svg {
+    flex-shrink: 0;
+    color: $esc-pink-link;
+  }
+}
+
+.emailText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ── Actions ───────────────────────────────────────────────────────
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.primary,
+.secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border-radius: 13px;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s, background-color 0.15s, border-color 0.15s, color 0.15s;
+
+  &:focus-visible {
+    outline: 2px solid $action;
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.primary {
+  gap: 9px;
+  padding: 15px;
+  background: $action;
+  border: 0;
+  color: $ink;
+  font-size: 15px;
+  font-weight: 700;
+
+  &:hover:not(:disabled) {
+    color: $ink;
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+  }
+}
+
+.secondary {
+  gap: 8px;
+  padding: 13px;
+  background: $esc-surface-raised;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: $text-primary;
+  font-size: 14px;
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: $esc-surface-hover;
+    border-color: rgba(255, 255, 255, 0.22);
+    color: $text-primary;
+  }
+}
+
+// ── Footer ────────────────────────────────────────────────────────
+
+.footer {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 13.5px;
+  color: $esc-text-footer;
+
+  a,
+  button {
+    padding: 0;
+    background: none;
+    border: 0;
+    font: inherit;
+    font-weight: 600;
+    color: $esc-pink-link;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover:not(:disabled) { color: $action; }
+
+    &:disabled {
+      color: $esc-text-footer;
+      cursor: default;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $action;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+  }
+
+  p { margin: 0; }
+  p + p { margin-top: 8px; }
+}
+
+// ── Protected badge ───────────────────────────────────────────────
+
+.badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 32px 0 0;
+  font-family: $esc-font-mono;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: $esc-text-footer;
+
+  svg { flex-shrink: 0; }
+}
+
+// ── Motion ────────────────────────────────────────────────────────
+
+@keyframes escRing {
+  0% { transform: scale(0.85); opacity: 0.55; }
+  70% { transform: scale(1.35); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes escPop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes escSpin {
+  to { transform: rotate(360deg); }
+}
+
+// No pulsing ring or pop for reduced motion; the spinner keeps turning slowly
+// because it's the only cue that work is still in progress.
+@media (prefers-reduced-motion: reduce) {
+  .ring { animation: none; opacity: 0; }
+  .icon { animation: none; }
+  .spinner { animation-duration: 2s; }
+  .glowTop { transition: none; }
+
+  .primary:hover:not(:disabled) { transform: none; }
+}
