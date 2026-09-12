@@ -305,7 +305,7 @@
     "noShowsInCategory": "Aún no hay eventos en esta categoría — próximamente.",
     "hero": {
       "live": "En vivo",
-      "watching": "{count, number} viendo ahora",
+      "watching": "<strong>{count, number}</strong> viendo ahora",
       "watchNow": "Ver ahora",
       "details": "Detalles",
       "exploreEvent": "Explorar evento",

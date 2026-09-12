@@ -100,7 +100,12 @@ function SlideContent({ show }: { show: Show }) {
             <path d="M7 12a5 5 0 0 1 10 0" />
             <circle cx="12" cy="12" r="1.6" fill="currentColor" />
           </svg>
-          <span className={styles.heroV2WatchingCount}>{t('watching', { count: show.viewers })}</span>
+          <span>
+            {t.rich('watching', {
+              count: show.viewers,
+              strong: (chunks) => <span className={styles.heroV2WatchingCount}>{chunks}</span>,
+            })}
+          </span>
         </div>
       )}
 
@@ -150,30 +155,12 @@ export function EditorialHero({ slides }: Props) {
   const [videoPhaseById, setVideoPhaseById] = useState<Record<string, VideoPhase>>({});
   const draggedRef = useRef(false);
   const dragStartXRef = useRef(0);
-  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // `inert` is set imperatively rather than as a JSX prop. React 19 (what
-  // Next 15 actually ships at runtime) treats `inert` as a real boolean
-  // attribute and warns on any non-boolean value ("Received an empty string
-  // for a boolean attribute `inert`"); this repo's installed react/@types
-  // (18.3, used by tsc and the vitest/jsdom suite) has no such special
-  // handling and silently drops a JSX `inert={true}` instead of rendering
-  // it. There is no prop value that is simultaneously correct under both
-  // runtimes, so `toggleAttribute` bypasses the JSX/React attribute layer
-  // entirely and is correct everywhere. `aria-hidden` stays a normal JSX
-  // prop below so SSR/pre-hydration markup still marks inactive slides.
-  //
-  // Applied from the ref callback itself, not a useEffect keyed on
-  // [index, count]: `heroSlides` is recomputed on every parent render from
-  // live event data, so a show going live/ending can swap the Show at a
-  // given index while count and index stay the same. React then mounts a
-  // *new* DOM node under the same `key={show.id}` position, which a
-  // `[index, count]`-keyed effect never revisits — that node would be
-  // missing `inert` until the next navigation. An inline arrow-function ref
-  // gets a new identity every render, so React calls it (with the live
-  // element) on every render, not just on mount/unmount — it self-heals
-  // regardless of whether the DOM node is new or reused, so no separate
-  // effect is needed to keep it in sync.
+  // `inert` is set imperatively (toggleAttribute), not as a JSX prop: React 19
+  // (what Next 15 ships at runtime) treats it as a real boolean attribute,
+  // but this repo's react/@types (18.3, used by tsc/vitest) has no such
+  // handling and silently drops a JSX `inert={true}` — no prop value works
+  // under both runtimes.
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return undefined;
@@ -282,10 +269,7 @@ export function EditorialHero({ slides }: Props) {
         {slides.map((show, i) => (
           <div
             key={show.id}
-            ref={(el) => {
-              slideRefs.current[i] = el;
-              el?.toggleAttribute('inert', i !== index);
-            }}
+            ref={(el) => { el?.toggleAttribute('inert', i !== index); }}
             className={styles.heroV2Slide}
             aria-hidden={i !== index || undefined}
           >
@@ -302,7 +286,10 @@ export function EditorialHero({ slides }: Props) {
         ))}
       </div>
 
-      <div aria-live="polite" className={styles.visuallyHidden}>
+      <div
+        aria-live={paused || reducedMotion ? 'polite' : 'off'}
+        className={styles.visuallyHidden}
+      >
         {slides[index].title}
       </div>
 

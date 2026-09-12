@@ -87,14 +87,29 @@ describe('GenreGrid', () => {
     expect(screen.getByText('noShows')).toBeInTheDocument();
   });
 
-  it('shows the category empty state when the selected category no longer has shows', () => {
+  it('falls back to "all" instead of a stuck empty state when the active category disappears entirely', () => {
     const { rerender } = render(
-      <GenreGrid shows={[makeShow({ id: '1', category: 'Rock' }), makeShow({ id: '2', category: 'Jazz' })]} />,
+      <GenreGrid
+        shows={[
+          makeShow({ id: '1', category: 'Rock' }),
+          makeShow({ id: '2', category: 'Jazz' }),
+          makeShow({ id: '3', category: 'Pop' }),
+        ]}
+      />,
     );
 
     screen.getByRole('button', { name: 'Rock' }).click();
-    rerender(<GenreGrid shows={[makeShow({ id: '2', category: 'Jazz' })]} />);
+    // Rock no longer exists in the next render (Jazz/Pop remain, so the
+    // chip row itself stays visible) — the filter must not stay stuck on a
+    // vanished category and show its empty state forever.
+    rerender(
+      <GenreGrid
+        shows={[makeShow({ id: '2', category: 'Jazz' }), makeShow({ id: '3', category: 'Pop' })]}
+      />,
+    );
 
-    expect(screen.getByText('noShowsInCategory')).toBeInTheDocument();
+    expect(screen.queryByText('noShowsInCategory')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Rock' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'all' })).toBeInTheDocument();
   });
 });

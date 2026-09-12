@@ -27,9 +27,14 @@ export function GenreGrid({ shows }: { shows: Show[] }) {
     [shows],
   );
 
+  // The active genre may no longer exist (its shows sold out / were filtered
+  // out server-side on a fresh render) — fall back to "all" instead of
+  // showing a stuck empty state for a category the chip row no longer lists.
+  const effectiveGenre = genres.includes(activeGenre) ? activeGenre : ALL_KEY;
+
   const filtered = useMemo(
-    () => (activeGenre === ALL_KEY ? shows : shows.filter((s) => s.category === activeGenre)),
-    [shows, activeGenre],
+    () => (effectiveGenre === ALL_KEY ? shows : shows.filter((s) => s.category === effectiveGenre)),
+    [shows, effectiveGenre],
   );
 
   return (
@@ -40,7 +45,7 @@ export function GenreGrid({ shows }: { shows: Show[] }) {
         <div className={styles.genreRow}>
           <span className={styles.genreLabel}>{t('filterByCategory')}</span>
           <Chip
-            variant={activeGenre === ALL_KEY ? 'active' : 'default'}
+            variant={effectiveGenre === ALL_KEY ? 'active' : 'default'}
             className={styles.genreChipTouch}
             onClick={() => setActiveGenre(ALL_KEY)}
           >
@@ -50,11 +55,11 @@ export function GenreGrid({ shows }: { shows: Show[] }) {
               The active genre always stays visible even when collapsed. */}
           {(genresExpanded
             ? genres
-            : genres.filter((g, i) => i < GENRES_PREVIEW_COUNT || g === activeGenre)
+            : genres.filter((g, i) => i < GENRES_PREVIEW_COUNT || g === effectiveGenre)
           ).map((g) => (
             <Chip
               key={g}
-              variant={g === activeGenre ? 'active' : 'default'}
+              variant={g === effectiveGenre ? 'active' : 'default'}
               className={styles.genreChipTouch}
               onClick={() => setActiveGenre(g)}
             >
@@ -81,7 +86,7 @@ export function GenreGrid({ shows }: { shows: Show[] }) {
         </div>
       ) : (
         <div className={styles.emptyGrid}>
-          {activeGenre === ALL_KEY ? t('noShows') : t('noShowsInCategory')}
+          {effectiveGenre === ALL_KEY ? t('noShows') : t('noShowsInCategory')}
         </div>
       )}
     </section>
