@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { loginSchema, registerSchema, socialLoginSchema } from './schemas';
+import { loginSchema, registerSchema, socialLoginSchema, emailOnlySchema, resetPasswordSchema } from './schemas';
 
 test('login requires email and any non-empty password', () => {
   expect(loginSchema.safeParse({ email: 'a@b.co', password: 'x' }).success).toBe(true);
@@ -46,4 +46,22 @@ test('social login carries the Apple-only fields as optional', () => {
 // Mirrors loginSchema: the app always wants a long-lived session on a phone.
 test('social login defaults rememberMe to true', () => {
   expect(socialLoginSchema.parse({ provider: 'GOOGLE', idToken: 'tok' }).rememberMe).toBe(true);
+});
+
+test('email-only accepts a valid email and rejects invalid or missing', () => {
+  expect(emailOnlySchema.safeParse({ email: 'a@b.co' }).success).toBe(true);
+  expect(emailOnlySchema.safeParse({ email: 'invalid' }).success).toBe(false);
+  expect(emailOnlySchema.safeParse({ email: '' }).success).toBe(false);
+  expect(emailOnlySchema.safeParse({}).success).toBe(false);
+});
+
+test('reset-password enforces min password, confirmation match, and token presence', () => {
+  const base = { token: 'abc123', password: '12345678', confirmPassword: '12345678' };
+  expect(resetPasswordSchema.safeParse(base).success).toBe(true);
+  expect(resetPasswordSchema.safeParse({ ...base, password: '1234567', confirmPassword: '1234567' }).success).toBe(false);
+  expect(resetPasswordSchema.safeParse({ ...base, token: '' }).success).toBe(false);
+  expect(resetPasswordSchema.safeParse({ ...base, token: undefined }).success).toBe(false);
+  const mismatch = resetPasswordSchema.safeParse({ ...base, confirmPassword: 'other' });
+  expect(mismatch.success).toBe(false);
+  if (!mismatch.success) expect(mismatch.error.issues[0]?.path).toEqual(['confirmPassword']);
 });
