@@ -30,6 +30,7 @@ test('the six newly seeded flags default to true, the two beta flags default to 
   expect(DEFAULT_FEATURE_FLAGS.ads_delivery).toBe(true);
   expect(DEFAULT_FEATURE_FLAGS.ad_revenue_share).toBe(true);
   expect(DEFAULT_FEATURE_FLAGS.organizer_applications).toBe(true);
+  expect(DEFAULT_FEATURE_FLAGS.artist_applications).toBe(true);
   expect(DEFAULT_FEATURE_FLAGS.social_login).toBe(true);
   expect(DEFAULT_FEATURE_FLAGS.low_latency_mode).toBe(true);
   expect(DEFAULT_FEATURE_FLAGS.coupons).toBe(true);

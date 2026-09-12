@@ -1097,8 +1097,6 @@
     "viewModeSolo": "Solo",
     "viewModeMainRail": "Principal + carril",
     "viewModeGrid": "Cuadrícula",
-    "viewModeGridNeedsFour": "La cuadrícula necesita 4 cámaras",
-    "compositionFull": "Límite de 4 cámaras en la composición",
     "toggleChat": "Alternar chat",
     "share": "Compartir",
     "stages": "Escenarios",
@@ -1117,7 +1115,9 @@
       "body": "Necesitas una entrada para ver.",
       "cta": "Ver entradas",
       "login": "Iniciar sesión"
-    }
+    },
+    "compositionFull": "Límite de 4 cámaras en la composición",
+    "viewModeGridNeedsFour": "La cuadrícula necesita 4 cámaras"
   },
   "ads": {
     "sponsored": "Patrocinado",
@@ -2938,7 +2938,7 @@
     "breadcrumbRoot": "ARTISTAS",
     "aboutLabel": "SOBRE EL ARTISTA",
     "eventsHeading": "Shows de este artista",
-    "eventsCount": "{count, plural, one {# show} other {# shows}}",
+    "eventsCount": "{count, plural, one {# evento} other {# eventos}}",
     "liveNow": "EN VIVO AHORA",
     "follow": "Seguir",
     "seeShows": "Ver shows",

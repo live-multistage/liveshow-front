@@ -1097,8 +1097,6 @@
     "viewModeSolo": "Solo",
     "viewModeMainRail": "Main + rail",
     "viewModeGrid": "Grid",
-    "viewModeGridNeedsFour": "Grid needs 4 cameras",
-    "compositionFull": "Composition is limited to 4 cameras",
     "toggleChat": "Toggle chat",
     "share": "Share",
     "stages": "Stages",
@@ -1117,7 +1115,9 @@
       "body": "You need a ticket to watch.",
       "cta": "See tickets",
       "login": "Sign in"
-    }
+    },
+    "compositionFull": "Composition is limited to 4 cameras",
+    "viewModeGridNeedsFour": "Grid needs 4 cameras"
   },
   "ads": {
     "sponsored": "Sponsored",
@@ -2938,7 +2938,7 @@
     "breadcrumbRoot": "ARTISTS",
     "aboutLabel": "ABOUT THE ARTIST",
     "eventsHeading": "Shows from this artist",
-    "eventsCount": "{count, plural, one {# show} other {# shows}}",
+    "eventsCount": "{count, plural, one {# event} other {# events}}",
     "liveNow": "LIVE NOW",
     "follow": "Follow",
     "seeShows": "See shows",

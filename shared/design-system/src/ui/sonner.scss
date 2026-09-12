@@ -1,0 +1,92 @@
+@use '../styles/_variables' as *;
+
+/* Liveshow toast — restyle of sonner's default toast: a plain card with a
+   variant-coloured icon, title, body and dismiss X. All styling hooks into
+   sonner's own data-attributes so every existing `toast.*` call site keeps
+   working. Variant is driven by [data-type]; the "live" state opts in via
+   .ls-live (see use-notifications-stream). */
+
+[data-sonner-toaster] {
+  font-family: inherit;
+}
+
+[data-sonner-toaster] [data-sonner-toast] {
+  --ls-accent: #{$text-primary};
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 1rem;
+  color: $text-primary;
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Variants ──────────────────────────────────────────────────── */
+[data-sonner-toaster] [data-sonner-toast][data-type='success'] { --ls-accent: #{$success-light}; }
+[data-sonner-toaster] [data-sonner-toast][data-type='info']    { --ls-accent: #{$text-primary}; }
+[data-sonner-toaster] [data-sonner-toast][data-type='warning'] { --ls-accent: #{$warning}; }
+[data-sonner-toaster] [data-sonner-toast][data-type='error']   { --ls-accent: #{$error}; }
+[data-sonner-toaster] [data-sonner-toast].ls-live              { --ls-accent: #{$action}; }
+
+/* ── Icon ──────────────────────────────────────────────────────── */
+[data-sonner-toaster] [data-sonner-toast] [data-icon] {
+  order: 1;
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  flex: none;
+  color: var(--ls-accent);
+}
+[data-sonner-toaster] [data-sonner-toast] [data-icon] > svg {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+}
+
+/* ── Content ───────────────────────────────────────────────────── */
+[data-sonner-toaster] [data-sonner-toast] [data-content] {
+  order: 2;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+[data-sonner-toaster] [data-sonner-toast] [data-title] {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: $text-primary;
+}
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: $text-secondary;
+}
+
+/* ── Close button ──────────────────────────────────────────────── */
+[data-sonner-toaster] [data-sonner-toast] [data-close-button] {
+  order: 3;
+  position: static;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex: none;
+  transform: none;
+  background: transparent;
+  border: none;
+  color: $text-muted;
+  transition: color 0.15s ease;
+}
+[data-sonner-toaster] [data-sonner-toast] [data-close-button]:hover {
+  color: $text-primary;
+  background: transparent;
+}
+[data-sonner-toaster] [data-sonner-toast] [data-close-button] > svg {
+  width: 16px;
+  height: 16px;
+}

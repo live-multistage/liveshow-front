@@ -1097,8 +1097,6 @@
     "viewModeSolo": "Solo",
     "viewModeMainRail": "Principal + trilha",
     "viewModeGrid": "Grade",
-    "viewModeGridNeedsFour": "Grade precisa de 4 câmeras",
-    "compositionFull": "Limite de 4 câmeras na composição",
     "toggleChat": "Alternar chat",
     "share": "Compartilhar",
     "stages": "Palcos",
@@ -1117,7 +1115,9 @@
       "body": "Você precisa de um ingresso para assistir.",
       "cta": "Ver ingressos",
       "login": "Entrar"
-    }
+    },
+    "compositionFull": "Limite de 4 câmeras na composição",
+    "viewModeGridNeedsFour": "Grade precisa de 4 câmeras"
   },
   "ads": {
     "sponsored": "Patrocinado",
@@ -2938,7 +2938,7 @@
     "breadcrumbRoot": "ARTISTAS",
     "aboutLabel": "SOBRE O ARTISTA",
     "eventsHeading": "Shows deste artista",
-    "eventsCount": "{count, plural, one {# show} other {# shows}}",
+    "eventsCount": "{count, plural, one {# evento} other {# eventos}}",
     "liveNow": "AO VIVO AGORA",
     "follow": "Seguir",
     "seeShows": "Ver shows",
