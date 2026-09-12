@@ -48,3 +48,26 @@ export const socialLoginSchema = z.object({
 });
 
 export type SocialLoginValues = z.infer<typeof socialLoginSchema>;
+
+export const emailOnlySchema = z.object({
+  email: z
+    .string()
+    .min(1, 'Informe seu e-mail.')
+    .email('Informe um e-mail válido.')
+    .max(255),
+});
+
+export type EmailOnlyFormValues = z.infer<typeof emailOnlySchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, 'Token é obrigatório.'),
+    password: z.string().min(8, 'A senha deve ter pelo menos 8 caracteres.'),
+    confirmPassword: z.string().min(1, 'Confirme sua senha.'),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'As senhas não coincidem.',
+    path: ['confirmPassword'],
+  });
+
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
