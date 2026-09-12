@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { loginSchema, type LoginFormValues } from '../schemas/login.schema';
 import { useLoginMutation } from '../mutations/use-login.mutation';
+import { useResendVerificationMutation } from '../mutations/use-resend-verification.mutation';
 import { config } from '@/config';
 import { Button, Checkbox, Input, Label } from '@live-show/design-system';
 import { MarketingPanel } from './MarketingPanel';
@@ -19,11 +21,17 @@ interface LoginFormProps {
 
 export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }: LoginFormProps) {
   const t = useTranslations('auth.login');
+  // Reused only for the resend-confirmation copy — identical wording to the
+  // register check-email screen, so no new i18n key was added for it.
+  const tRegister = useTranslations('auth.register');
+  // Same choice mobile made: a resend failure reuses forgotPassword's
+  // generic error copy rather than adding a new key.
+  const tGeneric = useTranslations('auth.forgotPassword');
 
   const {
-    register,
     handleSubmit,
     control,
+    watch,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -31,9 +39,20 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
   });
 
   const { mutate, isPending, error } = useLoginMutation(callbackUrl);
+  const resend = useResendVerificationMutation();
+  const [resent, setResent] = useState(false);
+  const typedEmail = watch('email');
 
   function onSubmit(payload: LoginFormValues) {
+    setResent(false);
     mutate({ email: payload.email, password: payload.password, rememberMe: payload.rememberMe });
+  }
+
+  // Reads the email straight from the form, not from a separate "last
+  // submitted" copy — the user can resend without submitting again.
+  function onResend() {
+    if (!typedEmail) return;
+    resend.mutate({ email: typedEmail }, { onSuccess: () => setResent(true) });
   }
 
   const getErrorMessage = (code: string) =>
@@ -41,8 +60,10 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
       INVALID_CREDENTIALS: t('errors.INVALID_CREDENTIALS'),
       USER_BLOCKED: t('errors.USER_BLOCKED'),
       TOO_MANY_ATTEMPTS: t('errors.TOO_MANY_ATTEMPTS'),
+      EMAIL_NOT_VERIFIED: t('errors.EMAIL_NOT_VERIFIED'),
     })[code] ?? undefined;
 
+  const isEmailNotVerified = error?.code === 'EMAIL_NOT_VERIFIED';
   const errorMessage = error ? (getErrorMessage(error.code ?? '') ?? error.message) : null;
   const oauthErrorMessage = oauthError ? t('errors.GOOGLE_FAILED') : null;
 
@@ -62,14 +83,20 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
                 <svg className={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 7 10-7" />
                 </svg>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder={t('emailPlaceholder')}
-                  disabled={isPending}
-                  autoComplete="email"
-                  className={styles.inputField}
-                  {...register('email')}
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field }) => (
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder={t('emailPlaceholder')}
+                      disabled={isPending}
+                      autoComplete="email"
+                      className={styles.inputField}
+                      {...field}
+                    />
+                  )}
                 />
               </div>
               {errors.email && <span className={styles.fieldError}>{errors.email.message}</span>}
@@ -81,14 +108,20 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
                 <svg className={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder={t('passwordPlaceholder')}
-                  disabled={isPending}
-                  autoComplete="current-password"
-                  className={styles.inputField}
-                  {...register('password')}
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({ field }) => (
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder={t('passwordPlaceholder')}
+                      disabled={isPending}
+                      autoComplete="current-password"
+                      className={styles.inputField}
+                      {...field}
+                    />
+                  )}
                 />
               </div>
               {errors.password && <span className={styles.fieldError}>{errors.password.message}</span>}
@@ -119,6 +152,21 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
 
             {(errorMessage || oauthErrorMessage) && (
               <p className={styles.errorBanner}>{errorMessage ?? oauthErrorMessage}</p>
+            )}
+
+            {isEmailNotVerified && (
+              <div className={styles.resendRow}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={resend.isPending || resent}
+                  onClick={onResend}
+                >
+                  {t('resendVerification')}
+                </Button>
+                {resent && <p className={styles.resendConfirm}>{tRegister('checkEmail.resent')}</p>}
+                {resend.isError && <p className={styles.fieldError}>{tGeneric('errors.GENERIC')}</p>}
+              </div>
             )}
 
             <Button

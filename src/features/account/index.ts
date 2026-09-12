@@ -1,9 +1,16 @@
 export { RegisterForm } from './components/RegisterForm';
 export { LoginForm } from './components/LoginForm';
+export { ForgotPasswordForm } from './components/ForgotPasswordForm';
+export { ResetPasswordForm } from './components/ResetPasswordForm';
+export { VerifyEmailContent } from './components/VerifyEmailContent';
 export { AccountPageContent } from './components/AccountPageContent';
 export { SettingsPageContent } from './components/SettingsPageContent';
 export { useRegisterMutation } from './mutations/use-register.mutation';
 export { useLoginMutation } from './mutations/use-login.mutation';
+export { useResendVerificationMutation } from './mutations/use-resend-verification.mutation';
+export { useForgotPasswordMutation } from './mutations/use-forgot-password.mutation';
+export { useResetPasswordMutation } from './mutations/use-reset-password.mutation';
+export { useVerifyEmailMutation } from './mutations/use-verify-email.mutation';
 export { useUpdateProfileMutation } from './mutations/update-profile.mutation';
 export { useAuth } from './hooks/use-auth';
 export { useAuthCheck } from './hooks/use-auth-check';

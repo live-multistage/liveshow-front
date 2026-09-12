@@ -7,6 +7,25 @@ export interface RegisterRequest {
   password: string;
 }
 
+export interface RegisterResponse {
+  verificationRequired: true;
+}
+
+export interface VerifyEmailRequest {
+  token: string;
+}
+
+export interface EmailOnlyRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+}
+
+export type AuthFlowErrorCode = 'EMAIL_NOT_VERIFIED' | 'TOKEN_INVALID';
+
 export interface LoginRequest {
   email: string;
   password: string;

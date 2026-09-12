@@ -71,8 +71,10 @@
         "USER_BLOCKED": "Sua conta foi temporariamente suspensa. Entre em contato com o suporte.",
         "TOO_MANY_ATTEMPTS": "Muitas tentativas de login. Tente novamente em alguns minutos.",
         "GOOGLE_FAILED": "Não foi possível continuar com o Google. Tente novamente.",
-        "GENERIC": "Não foi possível entrar. Tente novamente."
-      }
+        "GENERIC": "Não foi possível entrar. Tente novamente.",
+        "EMAIL_NOT_VERIFIED": "Confirme seu e-mail para entrar. Enviamos um link para sua caixa de entrada."
+      },
+      "resendVerification": "Reenviar e-mail de confirmação"
     },
     "register": {
       "title": "Criar conta",
@@ -95,6 +97,13 @@
       "errors": {
         "EMAIL_EXISTS": "Este e-mail já está cadastrado. Faça login para continuar.",
         "GENERIC": "Não foi possível criar sua conta. Tente novamente."
+      },
+      "checkEmail": {
+        "title": "Confirme seu e-mail",
+        "body": "Enviamos um link de confirmação para {email}. Abra o e-mail para ativar sua conta.",
+        "resend": "Reenviar e-mail",
+        "resent": "Se houver uma conta pendente, um novo e-mail foi enviado.",
+        "backToLogin": "Voltar para o login"
       }
     },
     "forgotPassword": {
@@ -102,7 +111,11 @@
       "subtitle": "Digite seu e-mail e enviaremos um link de recuperação.",
       "email": "E-mail",
       "submit": "Enviar link",
-      "backToLogin": "Voltar ao login"
+      "backToLogin": "Voltar ao login",
+      "sent": "Se houver uma conta com esse e-mail, enviamos um link para redefinir a senha.",
+      "errors": {
+        "GENERIC": "Não foi possível enviar agora. Tente de novo em instantes."
+      }
     },
     "social": {
       "continueWithGoogle": "Continuar com Google",
@@ -114,6 +127,25 @@
         "SOCIAL_LOGIN_DISABLED": "Este login não está disponível no momento.",
         "SOCIAL_CANCELLED": "Login cancelado.",
         "GENERIC": "Não foi possível entrar. Tente novamente."
+      }
+    },
+    "verifyEmail": {
+      "title": "Confirmação de e-mail",
+      "verifying": "Confirmando…",
+      "success": "E-mail confirmado! Você já pode entrar.",
+      "invalid": "Link inválido ou expirado. Peça um novo e-mail de confirmação.",
+      "goToLogin": "Entrar"
+    },
+    "resetPassword": {
+      "title": "Nova senha",
+      "password": "Nova senha",
+      "confirmPassword": "Confirmar nova senha",
+      "submit": "Salvar senha",
+      "success": "Senha alterada. Entre com a nova senha.",
+      "errors": {
+        "TOKEN_INVALID": "Link inválido ou expirado. Peça um novo.",
+        "MISMATCH": "As senhas não conferem.",
+        "GENERIC": "Não foi possível redefinir. Tente de novo."
       }
     }
   },

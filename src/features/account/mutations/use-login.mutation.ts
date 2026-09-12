@@ -24,9 +24,12 @@ export function useLoginMutation(callbackUrl?: string) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await res.json() as LoginResult & { message?: string };
+      const data = await res.json() as LoginResult & { message?: string; code?: string };
       if (!res.ok) {
-        const err: AppError = { message: data.message ?? 'Login failed', status: res.status };
+        // A 429 from the rate limiter has no JSON `code` of its own — map it
+        // to the same key mobile uses so the UI never shows a raw message.
+        const code = data.code ?? (res.status === 429 ? 'TOO_MANY_ATTEMPTS' : undefined);
+        const err: AppError = { message: data.message ?? 'Login failed', status: res.status, code };
         throw err;
       }
       return data;

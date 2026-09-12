@@ -71,8 +71,10 @@
         "USER_BLOCKED": "Tu cuenta ha sido suspendida temporalmente. Contacta con soporte.",
         "TOO_MANY_ATTEMPTS": "Demasiados intentos de inicio de sesión. Inténtalo de nuevo en unos minutos.",
         "GOOGLE_FAILED": "No se pudo continuar con Google. Inténtalo de nuevo.",
-        "GENERIC": "No se pudo iniciar sesión. Inténtalo de nuevo."
-      }
+        "GENERIC": "No se pudo iniciar sesión. Inténtalo de nuevo.",
+        "EMAIL_NOT_VERIFIED": "Confirma tu correo para entrar. Enviamos un enlace a tu bandeja de entrada."
+      },
+      "resendVerification": "Reenviar correo de confirmación"
     },
     "register": {
       "title": "Crear cuenta",
@@ -95,6 +97,13 @@
       "errors": {
         "EMAIL_EXISTS": "Este correo ya está registrado. Inicia sesión para continuar.",
         "GENERIC": "No pudimos crear tu cuenta. Inténtalo de nuevo."
+      },
+      "checkEmail": {
+        "title": "Confirma tu correo",
+        "body": "Enviamos un enlace de confirmación a {email}. Ábrelo para activar tu cuenta.",
+        "resend": "Reenviar correo",
+        "resent": "Si hay una cuenta pendiente, se envió un nuevo correo.",
+        "backToLogin": "Volver al inicio de sesión"
       }
     },
     "forgotPassword": {
@@ -102,7 +111,11 @@
       "subtitle": "Ingresa tu correo y te enviaremos un enlace de recuperación.",
       "email": "Correo electrónico",
       "submit": "Enviar enlace",
-      "backToLogin": "Volver al inicio de sesión"
+      "backToLogin": "Volver al inicio de sesión",
+      "sent": "Si existe una cuenta con ese correo, enviamos un enlace para restablecer la contraseña.",
+      "errors": {
+        "GENERIC": "No se pudo enviar ahora. Inténtalo de nuevo en un momento."
+      }
     },
     "social": {
       "continueWithGoogle": "Continuar con Google",
@@ -114,6 +127,25 @@
         "SOCIAL_LOGIN_DISABLED": "Este método de inicio de sesión no está disponible ahora.",
         "SOCIAL_CANCELLED": "Inicio de sesión cancelado.",
         "GENERIC": "No pudimos iniciar tu sesión. Inténtalo de nuevo."
+      }
+    },
+    "verifyEmail": {
+      "title": "Confirmación de correo",
+      "verifying": "Confirmando…",
+      "success": "¡Correo confirmado! Ya puedes entrar.",
+      "invalid": "Enlace inválido o vencido. Solicita un nuevo correo de confirmación.",
+      "goToLogin": "Entrar"
+    },
+    "resetPassword": {
+      "title": "Nueva contraseña",
+      "password": "Nueva contraseña",
+      "confirmPassword": "Confirmar nueva contraseña",
+      "submit": "Guardar contraseña",
+      "success": "Contraseña cambiada. Entra con tu nueva contraseña.",
+      "errors": {
+        "TOKEN_INVALID": "Enlace inválido o vencido. Solicita uno nuevo.",
+        "MISMATCH": "Las contraseñas no coinciden.",
+        "GENERIC": "No se pudo restablecer. Inténtalo de nuevo."
       }
     }
   },

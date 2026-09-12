@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
-import styles from './page.module.scss';
+import { ResetPasswordForm } from '@/features/account';
 
-export const metadata: Metadata = { title: 'Redefinir senha' };
+interface ResetPasswordPageProps {
+  searchParams: Promise<{ token?: string }>;
+}
 
-export default function ResetPasswordPage() {
-  return (
-    <div className={styles.page}>
-      <h1 className={styles.title}>Reset Password</h1>
-      <p className={styles.subtitle}>Em breve</p>
-    </div>
-  );
+export const metadata: Metadata = { title: 'Redefinir senha', referrer: 'no-referrer' };
+
+export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
+  const { token } = await searchParams;
+  return <ResetPasswordForm token={token} />;
 }
