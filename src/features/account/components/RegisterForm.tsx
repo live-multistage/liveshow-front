@@ -11,6 +11,7 @@ import { useResendVerificationMutation } from '../mutations/use-resend-verificat
 import { config } from '@/config';
 import { Button, Input, Label } from '@live-show/design-system';
 import { MarketingPanel } from './MarketingPanel';
+import { EmailStatusCard } from './EmailStatusCard';
 import styles from './RegisterForm.module.scss';
 
 interface RegisterFormProps {
@@ -23,6 +24,7 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
   // Same choice mobile made: a resend failure reuses forgotPassword's
   // generic error copy rather than adding a new key.
   const tGeneric = useTranslations('auth.forgotPassword');
+  const tVerifyEmail = useTranslations('auth.verifyEmail');
 
   const {
     control,
@@ -61,34 +63,27 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
     : null;
 
   if (submittedEmail) {
+    // The design's primary is "open mail app", but the web has no universal
+    // inbox link — `mailto:` opens a blank compose window — so resending is
+    // the primary action here instead.
+    const resendStatus = resent || resend.isError;
     return (
-      <div className={styles.root}>
-        <MarketingPanel />
-
-        <div className={styles.formPanel}>
-          <div className={styles.formCard}>
-            <h2 className={styles.formTitle}>{t('checkEmail.title')}</h2>
-            <p className={styles.formSubtitle}>{t('checkEmail.body', { email: submittedEmail })}</p>
-
-            <Button
-              type="button"
-              variant="outline"
-              className={styles.btnSubmit}
-              disabled={resend.isPending || resent}
-              onClick={onResend}
-            >
-              {t('checkEmail.resend')}
-            </Button>
-
-            {resent && <p className={styles.footer}>{t('checkEmail.resent')}</p>}
-            {resend.isError && <p className={styles.fieldError}>{tGeneric('errors.GENERIC')}</p>}
-
-            <p className={styles.footer}>
-              <Link href="/login" className={styles.link}>{t('checkEmail.backToLogin')}</Link>
-            </p>
-          </div>
-        </div>
-      </div>
+      <EmailStatusCard
+        variant="pending"
+        eyebrow={t('checkEmail.eyebrow')}
+        title={t('checkEmail.title')}
+        message={t('checkEmail.message')}
+        email={submittedEmail}
+        primaryAction={{ label: t('checkEmail.resend'), onClick: onResend, disabled: resend.isPending || resent }}
+        secondaryAction={{ label: t('checkEmail.backToLogin'), href: '/login' }}
+        protectedLabel={tVerifyEmail('protectedBadge')}
+        footer={resendStatus ? (
+          <>
+            {resent && <p role="status">{t('checkEmail.resent')}</p>}
+            {resend.isError && <p role="alert">{tGeneric('errors.GENERIC')}</p>}
+          </>
+        ) : undefined}
+      />
     );
   }
 

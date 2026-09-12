@@ -39,7 +39,9 @@ describe('RegisterForm — email verification flow', () => {
     await waitFor(() => {
       expect(screen.getByText('checkEmail.title')).toBeInTheDocument();
     });
-    expect(screen.getByText(/checkEmail\.body/)).toHaveTextContent('jane@example.com');
+    expect(screen.getByText('checkEmail.message')).toBeInTheDocument();
+    expect(screen.getByText('jane@example.com')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'checkEmail.backToLogin' })).toHaveAttribute('href', '/login');
     expect(screen.queryByText('title')).not.toBeInTheDocument();
   });
 
@@ -62,6 +64,7 @@ describe('RegisterForm — email verification flow', () => {
     await waitFor(() => {
       expect(screen.getByText('checkEmail.resent')).toBeInTheDocument();
     });
+    expect(screen.getByRole('button', { name: 'checkEmail.resend' })).toBeDisabled();
   });
 
   it('shows a generic error when resend fails from the check-email state', async () => {

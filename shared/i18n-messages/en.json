@@ -100,6 +100,8 @@
       },
       "checkEmail": {
         "title": "Confirm your email",
+        "eyebrow": "Check your email",
+        "message": "We sent a confirmation link to the address below. Open it to activate your account.",
         "body": "We sent a confirmation link to {email}. Open it to activate your account.",
         "resend": "Resend email",
         "resent": "If there's a pending account, a new email was sent.",
@@ -130,10 +132,34 @@
       }
     },
     "verifyEmail": {
-      "title": "Email confirmation",
-      "verifying": "Confirming…",
-      "success": "Email confirmed! You can sign in now.",
-      "invalid": "Invalid or expired link. Request a new confirmation email.",
+      "protectedBadge": "Confirmation protected by encryption",
+      "loading": {
+        "eyebrow": "Confirming",
+        "title": "Confirming your email…",
+        "message": "Hang on a moment while we validate your confirmation link.",
+        "action": "Please wait…",
+        "spinnerLabel": "Confirming your email"
+      },
+      "success": {
+        "eyebrow": "Email confirmed",
+        "title": "All set!",
+        "message": "Your email has been confirmed. Your account is active and ready to watch live shows.",
+        "primary": "Sign in to my account",
+        "secondary": "Explore the schedule"
+      },
+      "expired": {
+        "eyebrow": "Link expired",
+        "title": "Invalid or expired link",
+        "message": "This confirmation link is no longer valid. Request a new confirmation email to activate your account.",
+        "primary": "Resend confirmation",
+        "secondary": "Back to sign in",
+        "footer": "Already confirmed your email?",
+        "footerLink": "Sign in",
+        "emailLabel": "Your email",
+        "emailPlaceholder": "you@email.com",
+        "submit": "Send new link",
+        "invalidEmail": "Enter a valid email."
+      },
       "goToLogin": "Sign in"
     },
     "resetPassword": {

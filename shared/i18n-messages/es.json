@@ -100,6 +100,8 @@
       },
       "checkEmail": {
         "title": "Confirma tu correo",
+        "eyebrow": "Revisa tu correo",
+        "message": "Enviamos un enlace de confirmación a la dirección de abajo. Ábrelo para activar tu cuenta.",
         "body": "Enviamos un enlace de confirmación a {email}. Ábrelo para activar tu cuenta.",
         "resend": "Reenviar correo",
         "resent": "Si hay una cuenta pendiente, se envió un nuevo correo.",
@@ -130,10 +132,34 @@
       }
     },
     "verifyEmail": {
-      "title": "Confirmación de correo",
-      "verifying": "Confirmando…",
-      "success": "¡Correo confirmado! Ya puedes entrar.",
-      "invalid": "Enlace inválido o vencido. Solicita un nuevo correo de confirmación.",
+      "protectedBadge": "Confirmación protegida con cifrado",
+      "loading": {
+        "eyebrow": "Confirmando",
+        "title": "Confirmando tu correo…",
+        "message": "Espera un momento mientras validamos tu enlace de confirmación.",
+        "action": "Espera…",
+        "spinnerLabel": "Confirmando tu correo"
+      },
+      "success": {
+        "eyebrow": "Correo confirmado",
+        "title": "¡Todo listo!",
+        "message": "Tu correo fue confirmado con éxito. Tu cuenta está activa y lista para ver shows en vivo.",
+        "primary": "Entrar a mi cuenta",
+        "secondary": "Explorar la programación"
+      },
+      "expired": {
+        "eyebrow": "Enlace vencido",
+        "title": "Enlace inválido o vencido",
+        "message": "Este enlace de confirmación ya no es válido. Solicita un nuevo correo de confirmación para activar tu cuenta.",
+        "primary": "Reenviar confirmación",
+        "secondary": "Volver a iniciar sesión",
+        "footer": "¿Ya confirmaste tu correo?",
+        "footerLink": "Entrar",
+        "emailLabel": "Tu correo",
+        "emailPlaceholder": "tu@correo.com",
+        "submit": "Enviar nuevo enlace",
+        "invalidEmail": "Ingresa un correo válido."
+      },
       "goToLogin": "Entrar"
     },
     "resetPassword": {
