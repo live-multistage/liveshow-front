@@ -3,6 +3,7 @@ export { LoginForm } from './components/LoginForm';
 export { ForgotPasswordForm } from './components/ForgotPasswordForm';
 export { ResetPasswordForm } from './components/ResetPasswordForm';
 export { VerifyEmailContent } from './components/VerifyEmailContent';
+export { UnsubscribeContent } from './components/UnsubscribeContent';
 export { AccountPageContent } from './components/AccountPageContent';
 export { SettingsPageContent } from './components/SettingsPageContent';
 export { useRegisterMutation } from './mutations/use-register.mutation';

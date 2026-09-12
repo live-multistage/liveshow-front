@@ -15,7 +15,10 @@
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@live-show/api-contracts": ["./shared/api-contracts/src/index.ts"],
+      "@live-show/i18n-messages": ["./shared/i18n-messages/index.ts"],
+      "@live-show/design-system": ["./shared/design-system/src/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
