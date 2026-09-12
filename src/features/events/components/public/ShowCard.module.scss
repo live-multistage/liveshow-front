@@ -1,27 +1,20 @@
-@keyframes lsPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: .35; transform: scale(.7); }
-}
+@use '../../../../styles/_variables' as *;
+@use '../../../../styles/_mixins' as *;
 
 // ── Card ──────────────────────────────────────────────────────────
 
 .card {
+  @include card-shell;
   display: flex;
   flex-direction: column;
-  background: #101013;
-  border: 1px solid rgba(255, 255, 255, .08);
-  border-radius: 18px;
-  overflow: hidden;
-  transition: transform .18s ease, border-color .18s ease;
   height: 100%;
-
-  &:hover {
-    transform: translateY(-3px);
-    border-color: rgba(255, 46, 158, .34);
-  }
 
   &:hover .image {
     transform: scale(1.03);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:hover .image { transform: none; }
   }
 }
 
@@ -56,7 +49,7 @@
     top: 0;
     bottom: 0;
     width: 200px;
-    border-radius: 18px 0 0 18px;
+    border-radius: $card-radius 0 0 $card-radius;
     aspect-ratio: unset;
   }
 
@@ -101,29 +94,14 @@
 // ── Badges ────────────────────────────────────────────────────────
 
 .liveBadge {
+  @include live-badge;
   position: absolute;
   top: 12px;
   left: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #ff2e9e;
-  color: #0a0a0b;
-  font-family: var(--font-space-mono), 'Space Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  padding: 5px 10px;
-  border-radius: 999px;
 }
 
 .liveDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #0a0a0b;
-  flex-shrink: 0;
-  animation: lsPulse 1.4s infinite;
+  @include pulse-dot(6px);
 }
 
 .replayBadge {
@@ -136,11 +114,12 @@
   background: rgba(8, 8, 10, .65);
   backdrop-filter: blur(6px);
   border: 1px solid rgba(255, 46, 158, .4);
-  color: #ff8ec9;
+  color: $accent-text;
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;
+  text-transform: uppercase;
   padding: 5px 10px;
   border-radius: 999px;
 }
@@ -151,8 +130,8 @@
   left: 12px;
   display: inline-flex;
   align-items: center;
-  background: #16a34a;
-  color: #fff;
+  background: $success;
+  color: $text-primary;
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
@@ -171,7 +150,7 @@
   background: rgba(8, 8, 10, .65);
   backdrop-filter: blur(6px);
   border: 1px solid rgba(255, 255, 255, .14);
-  color: #fff;
+  color: $text-primary;
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
@@ -188,6 +167,7 @@
   font-weight: 700;
   letter-spacing: .1em;
   color: rgba(255, 255, 255, .8);
+  text-transform: uppercase;
 }
 
 // ── Content ───────────────────────────────────────────────────────
@@ -211,7 +191,7 @@
   font-weight: 700;
   letter-spacing: -.015em;
   line-height: 1.25;
-  color: #f4f4f5;
+  color: $text-primary;
   font-family: var(--font-archivo), 'Archivo', sans-serif;
   overflow: hidden;
   display: -webkit-box;
@@ -223,7 +203,7 @@
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-weight: 700;
   font-size: 14px;
-  color: #ff2e9e;
+  color: $price;
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -235,7 +215,7 @@
   flex-direction: column;
   gap: 8px;
   font-size: 13px;
-  color: #9a9aa2;
+  color: $text-secondary;
 }
 
 .metaItem {
@@ -252,6 +232,7 @@
 
 .metaIcon {
   flex-shrink: 0;
+  color: $accent-text;
 }
 
 // ── Footer ────────────────────────────────────────────────────────
@@ -272,10 +253,11 @@
 
 .chipTag {
   font-family: var(--font-space-mono), 'Space Mono', monospace;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: .1em;
-  color: #b9b9c0;
+  text-transform: uppercase;
+  color: $text-secondary;
   background: rgba(255, 255, 255, .05);
   border: 1px solid rgba(255, 255, 255, .1);
   padding: 4px 8px;
@@ -284,10 +266,11 @@
 
 .chipTagReplay {
   font-family: var(--font-space-mono), 'Space Mono', monospace;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: .1em;
-  color: #ff8ec9;
+  text-transform: uppercase;
+  color: $accent-text;
   background: rgba(255, 46, 158, .1);
   border: 1px solid rgba(255, 46, 158, .3);
   padding: 4px 8px;
@@ -295,24 +278,7 @@
 }
 
 .btnCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: #ff2e9e;
-  color: #0a0a0b;
-  font-family: var(--font-space-mono), 'Space Mono', monospace;
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: .06em;
-  border: none;
-  padding: 9px 14px;
-  border-radius: 9px;
-  cursor: pointer;
-  transition: filter .15s;
-  white-space: nowrap;
-  text-decoration: none;
-
-  &:hover { filter: brightness(1.08); }
+  @include card-cta;
 }
 
 .wishlistButton {

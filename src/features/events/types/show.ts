@@ -5,6 +5,9 @@ export interface Show {
   title: string;
   artist: string;
   category: string;
+  /** Raw EventCategory enum value (e.g. "OTHER"), when known — used for
+   *  category rules that must not depend on the translated label. */
+  categoryKey?: string;
   venue: string;
   city: string;
   country: string;

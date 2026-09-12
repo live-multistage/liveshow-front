@@ -1,4 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { createTranslator } from 'use-intl';
+import { messages } from '@live-show/i18n-messages';
+
+// Real ICU translator over the pt catalog (not a key-echo stub): the hero's
+// plural ("1 câmera" / "3 câmeras") and interpolated strings can only be
+// asserted meaningfully against actual message templates.
+vi.mock('next-intl', () => ({
+  useTranslations: (namespace?: string) =>
+    createTranslator({ locale: 'pt', messages: messages.pt, namespace: namespace as never }),
+}));
 vi.mock('next/link', () => ({
   default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
     <a href={href} {...rest}>
@@ -78,14 +88,14 @@ describe('EditorialHero', () => {
 
   describe('multi-slide', () => {
     it('renders one dot per slide and shows the first slide title', () => {
-      render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
+      render(<EditorialHero slides={[slide1, slide2, slide3]} />);
 
       expect(screen.getAllByRole('button', { name: /Ir para o slide/i })).toHaveLength(3);
-      expect(screen.getByRole('heading', { name: 'Slide One' })).toBeInTheDocument();
+      expect(screen.getAllByText('Slide One').length).toBeGreaterThan(0);
     });
 
     it('clicking a dot switches the active slide', () => {
-      render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
+      render(<EditorialHero slides={[slide1, slide2, slide3]} />);
 
       const dot2 = screen.getByRole('button', { name: /Ir para o slide 2 de 3/i });
       fireEvent.click(dot2);
@@ -94,7 +104,7 @@ describe('EditorialHero', () => {
     });
 
     it('advances automatically after 7s', () => {
-      render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
+      render(<EditorialHero slides={[slide1, slide2, slide3]} />);
 
       const dot2 = screen.getByRole('button', { name: /Ir para o slide 2 de 3/i });
       expect(dot2).toHaveAttribute('aria-current', 'false');
@@ -105,7 +115,7 @@ describe('EditorialHero', () => {
     });
 
     it('pauses autoplay on hover', () => {
-      const { container } = render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
+      const { container } = render(<EditorialHero slides={[slide1, slide2, slide3]} />);
 
       const hero = container.firstChild as HTMLElement;
       fireEvent.mouseEnter(hero);
@@ -117,7 +127,7 @@ describe('EditorialHero', () => {
     });
 
     it('resets the autoplay dwell window on manual navigation', () => {
-      render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
+      render(<EditorialHero slides={[slide1, slide2, slide3]} />);
 
       act(() => vi.advanceTimersByTime(4000));
 
@@ -138,7 +148,7 @@ describe('EditorialHero', () => {
 
   describe('single-slide', () => {
     it('renders no dot buttons and does not autoplay', () => {
-      render(<EditorialHero slides={[slide1]} localeCode="pt-BR" />);
+      render(<EditorialHero slides={[slide1]} />);
 
       expect(screen.queryAllByRole('button', { name: /Ir para o slide/i })).toHaveLength(0);
       expect(screen.getByText('Slide One')).toBeInTheDocument();
@@ -162,7 +172,7 @@ describe('EditorialHero', () => {
         dispatchEvent: () => false,
       }));
 
-      render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
+      render(<EditorialHero slides={[slide1, slide2, slide3]} />);
 
       act(() => vi.advanceTimersByTime(7000));
 
@@ -176,7 +186,7 @@ describe('EditorialHero', () => {
     const teaserSlide = makeShow({ id: 't1', title: 'Teaser Slide', teaserVideoUrl: teaserUrl });
 
     it('renders a video element on top of the poster when teaserVideoUrl is set', () => {
-      const { container } = render(<EditorialHero slides={[teaserSlide, slide2, slide3]} localeCode="pt-BR" />);
+      const { container } = render(<EditorialHero slides={[teaserSlide, slide2, slide3]} />);
 
       const video = container.querySelector('video');
       expect(video).not.toBeNull();
@@ -192,14 +202,14 @@ describe('EditorialHero', () => {
     });
 
     it('renders image-only, unchanged, when teaserVideoUrl is absent', () => {
-      const { container } = render(<EditorialHero slides={[slide1, slide2, slide3]} localeCode="pt-BR" />);
+      const { container } = render(<EditorialHero slides={[slide1, slide2, slide3]} />);
 
       expect(container.querySelector('video')).toBeNull();
       expect(screen.getByAltText('Slide One')).toBeInTheDocument();
     });
 
     it('renders a video for a teaser on the single-slide (no-carousel) path too', () => {
-      const { container } = render(<EditorialHero slides={[teaserSlide]} localeCode="pt-BR" />);
+      const { container } = render(<EditorialHero slides={[teaserSlide]} />);
 
       const video = container.querySelector('video');
       expect(video).not.toBeNull();
@@ -207,7 +217,7 @@ describe('EditorialHero', () => {
     });
 
     it('pauses and resets the video when its slide becomes inactive', () => {
-      const { container } = render(<EditorialHero slides={[teaserSlide, slide2, slide3]} localeCode="pt-BR" />);
+      const { container } = render(<EditorialHero slides={[teaserSlide, slide2, slide3]} />);
 
       const video = container.querySelector('video') as HTMLVideoElement;
       video.currentTime = 12;
@@ -222,7 +232,7 @@ describe('EditorialHero', () => {
     });
 
     it('shows the poster until the video reports loadeddata, then swaps to playing', () => {
-      const { container } = render(<EditorialHero slides={[teaserSlide]} localeCode="pt-BR" />);
+      const { container } = render(<EditorialHero slides={[teaserSlide]} />);
 
       const video = container.querySelector('video') as HTMLVideoElement;
       expect(video.className).not.toMatch(/VideoVisible/);
@@ -234,7 +244,7 @@ describe('EditorialHero', () => {
 
     it('falls back to the static image (no video) if the teaser errors, without throwing', () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      const { container } = render(<EditorialHero slides={[teaserSlide]} localeCode="pt-BR" />);
+      const { container } = render(<EditorialHero slides={[teaserSlide]} />);
 
       const video = container.querySelector('video') as HTMLVideoElement;
       fireEvent.error(video);
@@ -248,7 +258,7 @@ describe('EditorialHero', () => {
     });
 
     it('uses the default 7s dwell while the teaser is still on its poster', () => {
-      render(<EditorialHero slides={[teaserSlide, slide2]} localeCode="pt-BR" />);
+      render(<EditorialHero slides={[teaserSlide, slide2]} />);
 
       const dot2 = screen.getByRole('button', { name: /Ir para o slide 2 de 2/i });
       act(() => vi.advanceTimersByTime(7000));
@@ -257,7 +267,7 @@ describe('EditorialHero', () => {
     });
 
     it('extends the dwell to ~35s while the teaser is actively playing', () => {
-      const { container } = render(<EditorialHero slides={[teaserSlide, slide2]} localeCode="pt-BR" />);
+      const { container } = render(<EditorialHero slides={[teaserSlide, slide2]} />);
 
       const video = container.querySelector('video') as HTMLVideoElement;
       act(() => fireEvent.loadedData(video));
@@ -273,7 +283,7 @@ describe('EditorialHero', () => {
 
     it('shortens the dwell to ~15s when the teaser fails and falls back to the image', () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      const { container } = render(<EditorialHero slides={[teaserSlide, slide2]} localeCode="pt-BR" />);
+      const { container } = render(<EditorialHero slides={[teaserSlide, slide2]} />);
 
       const video = container.querySelector('video') as HTMLVideoElement;
       act(() => fireEvent.error(video));
@@ -301,7 +311,7 @@ describe('EditorialHero', () => {
         dispatchEvent: () => false,
       }));
 
-      const { container } = render(<EditorialHero slides={[teaserSlide, slide2, slide3]} localeCode="pt-BR" />);
+      const { container } = render(<EditorialHero slides={[teaserSlide, slide2, slide3]} />);
 
       expect(container.querySelector('video')).toBeNull();
       expect(screen.getByAltText('Teaser Slide')).toBeInTheDocument();
@@ -313,13 +323,13 @@ describe('EditorialHero', () => {
     // <video autoPlay> for everyone, reduced-motion users included.
     // renderToString never runs effects, so it reproduces exactly that pass.
     it('never includes a <video> element in the pre-effect (SSR-equivalent) markup', () => {
-      const html = renderToString(<EditorialHero slides={[teaserSlide, slide2, slide3]} localeCode="pt-BR" />);
+      const html = renderToString(<EditorialHero slides={[teaserSlide, slide2, slide3]} />);
 
       expect(html).not.toContain('<video');
     });
 
     it('only preloads the active slide; inactive slides use preload="none"', () => {
-      const { container } = render(<EditorialHero slides={[teaserSlide, slide2, slide3]} localeCode="pt-BR" />);
+      const { container } = render(<EditorialHero slides={[teaserSlide, slide2, slide3]} />);
 
       const activeVideo = container.querySelector('video') as HTMLVideoElement;
       expect(activeVideo).toHaveAttribute('preload', 'metadata');
@@ -335,31 +345,141 @@ describe('EditorialHero', () => {
   });
 });
 
-// Document outline: the home has exactly one <h1> (the stable headline,
-// rendered once outside the slide track), and every slide title is an <h2> —
-// including hidden slides, which must not pose as top-level headings.
+// Document outline: EditorialHero owns no heading at all. The page's single
+// <h1> is rendered once by EditorialHome (outside the slide track), and each
+// slide title is a plain <p> — a rotating carousel never changes the
+// document outline and hidden slides never pose as sections.
 describe('heading outline', () => {
-  it('renders the headline as the single h1 and slide titles as h2, across all slides', () => {
-    render(
-      <EditorialHero
-        slides={[slide1, slide2, slide3]}
-        localeCode="pt-BR"
-        headline="Shows ao vivo em múltiplas câmeras"
-      />,
-    );
+  it('renders no h1/h2 inside the hero, in single- or multi-slide mode', () => {
+    const { unmount } = render(<EditorialHero slides={[slide1, slide2, slide3]} />);
+    expect(screen.queryByRole('heading')).toBeNull();
+    expect(screen.getAllByText('Slide One').length).toBeGreaterThan(0);
+    unmount();
 
-    const h1s = screen.getAllByRole('heading', { level: 1 });
-    expect(h1s).toHaveLength(1);
-    expect(h1s[0]).toHaveTextContent('Shows ao vivo em múltiplas câmeras');
+    render(<EditorialHero slides={[slide1]} />);
+    expect(screen.queryByRole('heading')).toBeNull();
+    expect(screen.getByText('Slide One')).toBeInTheDocument();
+  });
+});
 
-    const h2s = screen.getAllByRole('heading', { level: 2 });
-    expect(h2s.map((h) => h.textContent)).toEqual(['Slide One', 'Slide Two', 'Slide Three']);
+describe('inactive slide accessibility', () => {
+  // `inert` is set imperatively (element.toggleAttribute), not via a JSX
+  // prop — React 19 (the runtime Next 15 actually ships) warns on any
+  // non-boolean `inert` prop value, so a console.error spy here is the
+  // regression guard for that warning, not just an accessibility check.
+  it('marks only the inactive slides inert and aria-hidden; the active slide is neither; no console warning', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { container } = render(<EditorialHero slides={[slide1, slide2, slide3]} />);
+
+    // className is a CSS module hash in real builds but a passthrough string
+    // in this test setup; select via the slide track's direct children
+    // instead, which is layout-agnostic either way.
+    const track = container.querySelector('[class*="heroV2Track"]') as HTMLElement;
+    const slides = Array.from(track.children) as HTMLElement[];
+    expect(slides).toHaveLength(3);
+
+    expect(slides[0]).not.toHaveAttribute('inert');
+    expect(slides[0]).not.toHaveAttribute('aria-hidden');
+    expect(slides[1]).toHaveAttribute('inert');
+    expect(slides[1]).toHaveAttribute('aria-hidden', 'true');
+    expect(slides[2]).toHaveAttribute('inert');
+    expect(slides[2]).toHaveAttribute('aria-hidden', 'true');
+
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
   });
 
-  it('renders no h1 at all when no headline is given (single-slide too)', () => {
-    render(<EditorialHero slides={[slide1]} localeCode="pt-BR" />);
+  it('moves inert/aria-hidden to the previously-active slide after navigation; no console warning', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { container } = render(<EditorialHero slides={[slide1, slide2, slide3]} />);
+    const track = container.querySelector('[class*="heroV2Track"]') as HTMLElement;
 
-    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
-    expect(screen.getByRole('heading', { level: 2, name: 'Slide One' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Ir para o slide 2 de 3/i }));
+
+    const slides = Array.from(track.children) as HTMLElement[];
+    expect(slides[0]).toHaveAttribute('inert');
+    expect(slides[0]).toHaveAttribute('aria-hidden', 'true');
+    expect(slides[1]).not.toHaveAttribute('inert');
+    expect(slides[1]).not.toHaveAttribute('aria-hidden');
+
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+
+  // Regression: an earlier version applied `inert` from a useEffect keyed on
+  // [index, count]. `heroSlides` is recomputed from live event data on every
+  // parent render, so a show going live/ending can swap the Show at a given
+  // index while count and index stay the same — React then mounts a *new*
+  // DOM node (new `key={show.id}`) at that position, which an
+  // [index, count]-effect never revisits, leaving it missing `inert`.
+  it('keeps inert correct when the slides swap (new keys) at the same index and count', () => {
+    const { container, rerender } = render(<EditorialHero slides={[slide1, slide2, slide3]} />);
+
+    const slideD = makeShow({ id: 'd', title: 'Slide D' });
+    const slideE = makeShow({ id: 'e', title: 'Slide E' });
+    const slideF = makeShow({ id: 'f', title: 'Slide F' });
+    rerender(<EditorialHero slides={[slideD, slideE, slideF]} />);
+
+    const track = container.querySelector('[class*="heroV2Track"]') as HTMLElement;
+    const slides = Array.from(track.children) as HTMLElement[];
+    expect(slides).toHaveLength(3);
+
+    expect(slides[0]).not.toHaveAttribute('inert');
+    expect(slides[1]).toHaveAttribute('inert');
+    expect(slides[2]).toHaveAttribute('inert');
+  });
+});
+
+describe('i18n: cameras count plural', () => {
+  it('renders singular for 1 camera and plural for 3 cameras', () => {
+    const oneCam = makeShow({ id: 'one-cam', cameras: [cameras[0]] });
+    const threeCams = makeShow({
+      id: 'three-cam',
+      cameras: [cameras[0], cameras[0], cameras[0]],
+    });
+
+    const { unmount } = render(<EditorialHero slides={[oneCam]} />);
+    expect(screen.getByText('1 câmera')).toBeInTheDocument();
+    unmount();
+
+    render(<EditorialHero slides={[threeCams]} />);
+    expect(screen.getByText('3 câmeras')).toBeInTheDocument();
+  });
+});
+
+describe('i18n: dot aria-label', () => {
+  it('formats the dot aria-label from the goToSlide message', () => {
+    render(<EditorialHero slides={[slide1, slide2, slide3]} />);
+
+    expect(screen.getByRole('button', { name: 'Ir para o slide 1 de 3' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ir para o slide 3 de 3' })).toBeInTheDocument();
+  });
+});
+
+describe('i18n: free vs paid CTA', () => {
+  it('shows "Explorar evento" for a numerically-free, non-live show', () => {
+    const freeShow = makeShow({ id: 'free-1', isLive: false, price: 0 });
+    render(<EditorialHero slides={[freeShow]} />);
+
+    expect(screen.getByRole('link', { name: 'Explorar evento' })).toBeInTheDocument();
+  });
+
+  it('shows "Explorar evento" for a free priceRange (min and max both 0)', () => {
+    const freeShow = makeShow({
+      id: 'free-2',
+      isLive: false,
+      price: 0,
+      priceRange: { min: 0, max: 0 },
+    });
+    render(<EditorialHero slides={[freeShow]} />);
+
+    expect(screen.getByRole('link', { name: 'Explorar evento' })).toBeInTheDocument();
+  });
+
+  it('shows "Ingressos · <price>" for a paid, non-live show', () => {
+    const paidShow = makeShow({ id: 'paid-1', isLive: false, price: 50 });
+    render(<EditorialHero slides={[paidShow]} />);
+
+    expect(screen.getByRole('link', { name: /Ingressos ·/ })).toBeInTheDocument();
   });
 });

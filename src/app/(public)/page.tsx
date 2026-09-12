@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import { getLocale } from 'next-intl/server';
 import { EditorialHome } from '@/features/events/components/public/EditorialHome';
-import { LOCALE_CODE } from '@/features/events/components/public/editorial/editorial-parts';
 import { fetchFeed } from '@/features/events/queries/get-feed.server';
 import { fetchRecommendedEvents } from '@/features/events/queries/get-recommended-events.server';
 import { fetchReplayCatalog } from '@/features/events/queries/get-replay-catalog.server';
@@ -25,13 +23,12 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const [flags, initialEvents, initialRecommended, initialReplayCatalog, locale, isLoggedIn] =
+  const [flags, initialEvents, initialRecommended, initialReplayCatalog, isLoggedIn] =
     await Promise.all([
       fetchFeatureFlags(),
       fetchFeed(),
       fetchRecommendedEvents(),
       fetchReplayCatalog(),
-      getLocale(),
       getInitialIsLoggedIn(),
     ]);
   // The channels rail skips its fetch entirely when the flag is off — it
@@ -43,7 +40,6 @@ export default async function Home() {
       initialRecommended={initialRecommended}
       initialReplayCatalog={initialReplayCatalog}
       initialChannels={initialChannels}
-      localeCode={LOCALE_CODE[locale] ?? 'pt-BR'}
       isLoggedIn={isLoggedIn}
     />
   );

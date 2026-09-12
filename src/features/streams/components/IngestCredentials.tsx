@@ -33,7 +33,7 @@ function CopyField({ label, value, secret }: { label: string; value: string; sec
     <div className={styles.field}>
       <span className={styles.fieldLabel}>{label}</span>
       <div className={styles.fieldRow}>
-        <code className={styles.fieldValue}>{shown}</code>
+        <code className={`${styles.fieldValue} ${secret ? styles.fieldValueSecret : ''}`}>{shown}</code>
         {secret && (
           <button className={styles.iconBtn} onClick={() => setRevealed((r) => !r)} title={revealed ? 'Ocultar' : 'Revelar'}>
             {revealed ? <EyeOff size={13} /> : <Eye size={13} />}

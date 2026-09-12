@@ -38,7 +38,8 @@
     "wishlist": "Wishlist",
     "help": "Help",
     "search": "Search",
-    "organizers": "Become a partner"
+    "organizers": "Become a partner",
+    "artists": "Artists"
   },
   "auth": {
     "login": {
@@ -193,7 +194,10 @@
       "about": "About the Show",
       "availableCameras": "Available Cameras ({count})",
       "watching": "{count} watching",
-      "cameraViews": "{count} camera views"
+      "cameraViews": "{count} camera views",
+      "related": {
+        "title": "You might also like"
+      }
     },
     "status": {
       "PUBLISHED": "Coming Soon",
@@ -278,7 +282,7 @@
   },
   "home": {
     "loading": "Loading events...",
-    "liveNow": "Live Now",
+    "liveNow": "Live now",
     "liveForYou": "Live for you",
     "findByGenre": "Find by\ncategory",
     "all": "All",
@@ -292,8 +296,22 @@
     "eyebrowNow": "NOW",
     "eyebrowForYou": "FOR YOU",
     "eyebrowOnDemand": "ON DEMAND",
-    "cameras": "{count} cameras",
-    "moreInfo": "+ INFO"
+    "cameras": "{count, plural, one {# camera} other {# cameras}}",
+    "moreInfo": "+ INFO",
+    "headline": "Live shows from multiple cameras — watch from anywhere",
+    "allShows": "Full lineup",
+    "filterByCategory": "Filter by category",
+    "moreGenres": "+{count} more",
+    "noShowsInCategory": "No events in this category yet — coming soon.",
+    "hero": {
+      "live": "Live",
+      "watching": "<strong>{count, number}</strong> watching now",
+      "watchNow": "Watch now",
+      "details": "Details",
+      "exploreEvent": "Explore event",
+      "tickets": "Tickets · {price}",
+      "goToSlide": "Go to slide {index} of {count}"
+    }
   },
   "language": {
     "select": "Language",
@@ -311,7 +329,8 @@
     "purchased": "Purchased",
     "replay": "Replay",
     "watch": "Watch",
-    "details": "See More"
+    "details": "See more",
+    "showTag": "Show"
   },
   "liveGate": {
     "checkingAccess": "Checking access",
@@ -418,7 +437,7 @@
     }
   },
   "carousel": {
-    "seeAll": "See all →",
+    "seeAll": "See all",
     "scrollLeft": "Scroll left",
     "scrollRight": "Scroll right"
   },
@@ -452,7 +471,10 @@
       "series": "Programs",
       "platformFeatureFlags": "Feature Flags",
       "platformAdPartnerships": "Ad partnerships",
-      "platformOrganizerApplications": "Applications"
+      "platformOrganizerApplications": "Applications",
+      "platformArtistApplications": "Artist applications",
+      "artists": "Artists",
+      "artistsCatalog": "Artist Catalog"
     },
     "navMobile": {
       "overview": "Home",
@@ -465,7 +487,8 @@
       "platformEvents": "Events",
       "platformStreams": "Streams",
       "platformRevenue": "Revenue",
-      "channels": "Channels"
+      "channels": "Channels",
+      "artists": "Artists"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -680,7 +703,20 @@
     "checklistDate": "Date and time set",
     "checklistTicket": "Create at least 1 ticket type",
     "checklistDescription": "Add a description",
-    "descriptionEmpty": "No description. Add text for the event public page."
+    "descriptionEmpty": "No description. Add text for the event public page.",
+    "lineup": "In the event",
+    "lineupCount": "{count, plural, one {# artist} other {# artists}}",
+    "viewArtist": "View artist",
+    "schedule": {
+      "title": "Schedule",
+      "countBlocks": "{count, plural, one {# block} other {# blocks}}",
+      "empty": "Schedule coming soon",
+      "badgeArtist": "ARTIST",
+      "badgeSegment": "SEGMENT",
+      "stageLabel": "STAGE",
+      "stageAll": "ALL",
+      "live": "LIVE"
+    }
   },
   "createEvent": {
     "back": "Events",
@@ -692,7 +728,8 @@
       "production": "Production",
       "stream": "Stream",
       "tickets": "Tickets",
-      "images": "Images"
+      "images": "Images",
+      "schedule": "Schedule"
     },
     "nav": {
       "back": "Back",
@@ -778,7 +815,40 @@
       "ticketsEmpty": "No tickets configured yet"
     },
     "replayTicketDesc": "Access to the recording after the event",
-    "mainStreamTitle": "Main Broadcast"
+    "mainStreamTitle": "Main Broadcast",
+    "schedule": {
+      "stepLabel": "Schedule",
+      "title": "Schedule",
+      "subtitle": "Describe what happens at each time slot. Artist blocks pull from the confirmed lineup.",
+      "addBlock": "Add block",
+      "blockLabel": "Block",
+      "typeArtist": "Artist",
+      "typeSegment": "Segment",
+      "startLabel": "Start",
+      "endLabel": "End",
+      "endPlaceholder": "optional",
+      "artistLabel": "Artists (lineup)",
+      "artistPlaceholder": "Add from lineup…",
+      "stageLabel": "STAGE",
+      "noStage": "No stage",
+      "allStages": "All",
+      "segmentLabel": "Segment title",
+      "segmentPlaceholder": "Pre-show, Intermission…",
+      "descPlaceholder": "Short description (optional)",
+      "save": "Save schedule",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "empty": "No blocks yet",
+      "dirty": "Unsaved changes",
+      "clean": "All saved",
+      "errStartRequired": "Enter a start time",
+      "errStartInvalid": "Invalid start time",
+      "errEndInvalid": "Invalid end time",
+      "errArtistRequired": "Select at least one artist",
+      "errSegmentRequired": "Enter the segment title",
+      "savedToast": "Schedule saved.",
+      "errorToast": "Could not save the schedule."
+    }
   },
   "dateTimeInput": {
     "invalidDate": "Invalid date. Use dd/mm/yyyy.",
@@ -1027,6 +1097,8 @@
     "viewModeSolo": "Solo",
     "viewModeMainRail": "Main + rail",
     "viewModeGrid": "Grid",
+    "viewModeGridNeedsFour": "Grid needs 4 cameras",
+    "compositionFull": "Composition is limited to 4 cameras",
     "toggleChat": "Toggle chat",
     "share": "Share",
     "stages": "Stages",
@@ -1051,7 +1123,10 @@
     "sponsored": "Sponsored",
     "skipIn": "Skip in {seconds}s",
     "skip": "Skip ad",
-    "continueWatching": "Continue watching"
+    "continueWatching": "Continue watching",
+    "learnMore": "Learn more",
+    "close": "Close ad",
+    "ariaLabel": "Ad: {title}"
   },
   "controlRoom": {
     "noCameraOnAir": "No camera on air",
@@ -2233,7 +2308,9 @@
       "free": "Free channel",
       "subscribed": "You subscribe to this channel",
       "subscription": "Subscription channel"
-    }
+    },
+    "watchNow": "Watch",
+    "viewSchedule": "View schedule"
   },
   "search": {
     "placeholder": "Search shows, artists, cities",
@@ -2854,5 +2931,91 @@
     "unmuteUser": "Unmute {name}",
     "connecting": "Connecting…",
     "unavailable": "Chat is unavailable for you in this event"
+  },
+  "artists": {
+    "listTitle": "Artists",
+    "listSubtitle": "Discover the artists and acts streaming live on showon.io.",
+    "breadcrumbRoot": "ARTISTS",
+    "aboutLabel": "ABOUT THE ARTIST",
+    "eventsHeading": "Shows from this artist",
+    "eventsCount": "{count, plural, one {# show} other {# shows}}",
+    "liveNow": "LIVE NOW",
+    "follow": "Follow",
+    "seeShows": "See shows",
+    "socials": {
+      "instagram": "Instagram",
+      "youtube": "YouTube",
+      "x": "X",
+      "tiktok": "TikTok",
+      "site": "Official site"
+    },
+    "empty": {
+      "title": "No shows yet",
+      "description": "This artist hasn't announced any shows on the platform yet. Follow the profile to get notified as soon as the first date is set.",
+      "cta": "Follow artist"
+    },
+    "notFound": {
+      "title": "Artist not found",
+      "description": "This artist doesn't exist or is no longer available."
+    },
+    "dashboard": {
+      "profile": {
+        "name": "Name",
+        "slug": "Slug",
+        "bio": "Bio",
+        "avatar": "Profile photo",
+        "banner": "Banner",
+        "genres": "Genres",
+        "socialLinks": "Social links",
+        "status": "Status",
+        "save": "Save",
+        "cancel": "Cancel",
+        "create": "Create artist",
+        "edit": "Edit artist",
+        "delete": "Delete artist",
+        "deleteConfirm": "Are you sure you want to delete this artist profile? This action cannot be undone."
+      },
+      "invitations": {
+        "title": "Invitations",
+        "empty": "No invitations right now.",
+        "accept": "Accept",
+        "decline": "Decline",
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "declined": "Declined"
+      },
+      "lineup": {
+        "title": "In the event",
+        "inviteCta": "Invite from catalog",
+        "searchPlaceholder": "Search artist by name...",
+        "statusPending": "Invite sent",
+        "statusAccepted": "Confirmed",
+        "statusDeclined": "Declined",
+        "remove": "Remove"
+      },
+      "catalog": {
+        "title": "Artists",
+        "newArtist": "New artist",
+        "empty": "No artists registered yet.",
+        "columns": {
+          "name": "Name",
+          "slug": "Slug",
+          "owner": "Owner",
+          "events": "Shows",
+          "status": "Status"
+        },
+        "noOwner": "no owner"
+      },
+      "toasts": {
+        "created": "Artist created successfully.",
+        "updated": "Artist updated successfully.",
+        "deleted": "Artist deleted successfully.",
+        "invited": "Invite sent successfully.",
+        "accepted": "Invitation accepted.",
+        "declined": "Invitation declined.",
+        "removed": "Artist removed from the lineup.",
+        "error": "Could not complete the action. Please try again."
+      }
+    }
   }
 }

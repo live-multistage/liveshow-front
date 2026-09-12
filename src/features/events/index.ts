@@ -1,7 +1,6 @@
 export { ShowCard } from './components/public/ShowCard';
 export { EventsListPageContent } from './components/public/EventsListPageContent';
 export { EventDetailPageContent } from './components/public/EventDetailPageContent';
-export { HomePageContent } from './components/public/HomePageContent';
 export { EditorialHome } from './components/public/EditorialHome';
 
 export { CreateEventForm } from './components/dashboard/CreateEventForm';

@@ -12,6 +12,7 @@ import type {
   FocusEvent as ReactFocusEvent,
 } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { Show } from '@/features/events/types/show';
 import { MediaWithTeaserVideo, type TeaserVideoPhase } from '@/shared/components/MediaWithTeaserVideo';
 import { onImgError } from './SmartImage';
@@ -20,13 +21,12 @@ import styles from '../EditorialHomeContent.module.scss';
 
 interface Props {
   slides: Show[];
-  localeCode: string;
-  // The home's single, stable <h1>. Rendered once, outside the slide track,
-  // so the carousel never rotates the page's top-level heading. Visually
-  // hidden: the design has no slot for a page headline over the hero (it
-  // collided with the overlaid navbar), so it lives in the accessibility
-  // tree and the document outline only.
-  headline?: string;
+}
+
+function isFreeShow(show: Show) {
+  return show.priceRange
+    ? show.priceRange.min === 0 && show.priceRange.max === 0
+    : show.price === 0;
 }
 
 const AUTOPLAY_MS = 7000;
@@ -75,21 +75,23 @@ function HeroSlideMedia({
 }
 
 function SlideContent({ show }: { show: Show }) {
+  const t = useTranslations('home.hero');
+  const tCameras = useTranslations('home');
   const priceLabel = fmtPrice(show);
-  const isFree = priceLabel === 'Grátis';
-  // Every slide title is an <h2>: the page's <h1> is the stable headline
-  // rendered once by EditorialHero, so a rotating carousel never changes the
-  // top-level heading and hidden slides never pose as page sections.
+  const isFree = isFreeShow(show);
+  // The slide title is a <p>, not a heading: the page's <h1> is the stable
+  // headline rendered once by EditorialHome, so a rotating carousel never
+  // changes the document outline and hidden slides never pose as sections.
   return (
     <div className={styles.heroV2Content}>
       {show.isLive && (
         <span className={styles.heroV2Badge}>
           <span className={styles.heroV2BadgeDot} aria-hidden="true" />
-          AO VIVO
+          {t('live')}
         </span>
       )}
 
-      <h2 className={styles.heroV2Title}>{show.title}</h2>
+      <p className={styles.heroV2Title}>{show.title}</p>
 
       {show.viewers != null && (
         <div className={styles.heroV2Watching}>
@@ -98,8 +100,12 @@ function SlideContent({ show }: { show: Show }) {
             <path d="M7 12a5 5 0 0 1 10 0" />
             <circle cx="12" cy="12" r="1.6" fill="currentColor" />
           </svg>
-          <span className={styles.heroV2WatchingCount}>{show.viewers.toLocaleString('pt-BR')}</span>
-          {' '}assistindo agora
+          <span>
+            {t.rich('watching', {
+              count: show.viewers,
+              strong: (chunks) => <span className={styles.heroV2WatchingCount}>{chunks}</span>,
+            })}
+          </span>
         </div>
       )}
 
@@ -108,7 +114,7 @@ function SlideContent({ show }: { show: Show }) {
         <span className={styles.heroV2MetaDot} aria-hidden="true" />
         <span>{show.city}</span>
         <span className={styles.heroV2MetaDot} aria-hidden="true" />
-        <span>{show.cameras.length} câmeras</span>
+        <span>{tCameras('cameras', { count: show.cameras.length })}</span>
       </div>
 
       <div className={styles.heroV2Actions}>
@@ -118,19 +124,19 @@ function SlideContent({ show }: { show: Show }) {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M8 5v14l11-7z" />
               </svg>
-              Assistir agora
+              {t('watchNow')}
             </Link>
             <Link href={infoHref(show)} className={styles.heroV2SecondaryBtn}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 16v-4M12 8h.01" />
               </svg>
-              Detalhes
+              {t('details')}
             </Link>
           </>
         ) : (
           <Link href={infoHref(show)} className={styles.heroV2PrimaryBtn}>
-            {isFree ? 'Explorar evento' : `Ingressos · ${priceLabel}`}
+            {isFree ? t('exploreEvent') : t('tickets', { price: priceLabel })}
           </Link>
         )}
       </div>
@@ -138,7 +144,8 @@ function SlideContent({ show }: { show: Show }) {
   );
 }
 
-export function EditorialHero({ slides, headline }: Props) {
+export function EditorialHero({ slides }: Props) {
+  const t = useTranslations('home.hero');
   const count = slides.length;
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -148,6 +155,12 @@ export function EditorialHero({ slides, headline }: Props) {
   const [videoPhaseById, setVideoPhaseById] = useState<Record<string, VideoPhase>>({});
   const draggedRef = useRef(false);
   const dragStartXRef = useRef(0);
+
+  // `inert` is set imperatively (toggleAttribute), not as a JSX prop: React 19
+  // (what Next 15 ships at runtime) treats it as a real boolean attribute,
+  // but this repo's react/@types (18.3, used by tsc/vitest) has no such
+  // handling and silently drops a JSX `inert={true}` — no prop value works
+  // under both runtimes.
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return undefined;
@@ -191,7 +204,6 @@ export function EditorialHero({ slides, headline }: Props) {
   if (count === 1) {
     return (
       <div className={styles.heroV2}>
-        {headline && <h1 className={styles.visuallyHidden}>{headline}</h1>}
         <HeroSlideMedia show={slides[0]} active reducedMotion={reducedMotion} />
         <div className={styles.heroV2Glow} aria-hidden="true" />
         <div className={styles.heroV2Scrim} aria-hidden="true" />
@@ -247,7 +259,6 @@ export function EditorialHero({ slides, headline }: Props) {
       onPointerUp={handlePointerUp}
       onClickCapture={handleClickCapture}
     >
-      {headline && <h1 className={styles.visuallyHidden}>{headline}</h1>}
       <div
         className={styles.heroV2Track}
         style={{
@@ -256,7 +267,12 @@ export function EditorialHero({ slides, headline }: Props) {
         }}
       >
         {slides.map((show, i) => (
-          <div key={show.id} className={styles.heroV2Slide}>
+          <div
+            key={show.id}
+            ref={(el) => { el?.toggleAttribute('inert', i !== index); }}
+            className={styles.heroV2Slide}
+            aria-hidden={i !== index || undefined}
+          >
             <HeroSlideMedia
               show={show}
               active={i === index}
@@ -270,7 +286,10 @@ export function EditorialHero({ slides, headline }: Props) {
         ))}
       </div>
 
-      <div aria-live="polite" className={styles.visuallyHidden}>
+      <div
+        aria-live={paused || reducedMotion ? 'polite' : 'off'}
+        className={styles.visuallyHidden}
+      >
         {slides[index].title}
       </div>
 
@@ -279,8 +298,8 @@ export function EditorialHero({ slides, headline }: Props) {
           <button
             key={show.id}
             type="button"
-            className={i === index ? styles.heroV2DotActive : styles.heroV2Dot}
-            aria-label={`Ir para o slide ${i + 1} de ${count}`}
+            className={`${styles.heroV2Dot} ${i === index ? styles.heroV2DotActive : ''}`}
+            aria-label={t('goToSlide', { index: i + 1, count })}
             aria-current={i === index}
             onClick={() => goTo(i)}
           />

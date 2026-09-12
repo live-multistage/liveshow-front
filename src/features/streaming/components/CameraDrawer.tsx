@@ -4,7 +4,7 @@ import { X, Square, PanelRight, LayoutGrid, Minus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { LiveCamera } from '../types/live.types';
 import type { ViewMode } from './camera-layout';
-import { DRAWER_W, DRAWER_BOTTOM } from './camera-layout';
+import { DRAWER_W, DRAWER_BOTTOM, MAX_ACTIVE_CAMERAS } from './camera-layout';
 import styles from './CameraGrid.module.scss';
 
 const MODES: { id: ViewMode; labelKey: string; icon: typeof Square }[] = [
@@ -19,6 +19,8 @@ interface CameraDrawerProps {
   // NBR 15290 — the Libras window row is shown but never removable.
   librasCameraId: string | null;
   effectiveMode: ViewMode;
+  // Active cameras minus Libras — the 2x2 grid needs all four.
+  compositionCount: number;
   onViewModeChange: (mode: ViewMode) => void;
   onToggleCamera: (cameraId: string) => void;
   onClose: () => void;
@@ -33,6 +35,7 @@ export function CameraDrawer({
   activeCameraIds,
   librasCameraId,
   effectiveMode,
+  compositionCount,
   onViewModeChange,
   onToggleCamera,
   onClose,
@@ -49,18 +52,22 @@ export function CameraDrawer({
         <div className={styles.drawerActions}>
           {activeCameraIds.length > 1 && (
             <div className={styles.drawerModes}>
-              {MODES.map(({ id, labelKey, icon: Icon }) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => onViewModeChange(id)}
-                  title={t(labelKey)}
-                  aria-label={t(labelKey)}
-                  className={`${styles.modeBtn} ${effectiveMode === id ? styles.modeBtnActive : ''}`}
-                >
-                  <Icon size={14} />
-                </button>
-              ))}
+              {MODES.map(({ id, labelKey, icon: Icon }) => {
+                const gridLocked = id === 'grid' && compositionCount < MAX_ACTIVE_CAMERAS;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => onViewModeChange(id)}
+                    disabled={gridLocked}
+                    title={gridLocked ? t('viewModeGridNeedsFour') : t(labelKey)}
+                    aria-label={t(labelKey)}
+                    className={`${styles.modeBtn} ${effectiveMode === id ? styles.modeBtnActive : ''}`}
+                  >
+                    <Icon size={14} />
+                  </button>
+                );
+              })}
             </div>
           )}
           <button

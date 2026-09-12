@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { MAX_ACTIVE_CAMERAS } from '../components/camera-layout';
 
 interface UseCameraSelectionOptions {
   initialActiveIds?: string[] | (() => string[]);
@@ -25,6 +26,10 @@ export function useCameraSelection({ initialActiveIds, librasCameraId = null, on
       ? mainCameraId
       : (activeCameraIds[0] ?? null);
 
+  // Libras is pinned outside the composition, so it does not count.
+  const compositionCount = activeCameraIds.filter((id) => id !== librasCameraId).length;
+  const isFull = compositionCount >= MAX_ACTIVE_CAMERAS;
+
   const toggleCamera = (cameraId: string) => {
     if (cameraId === librasCameraId) return;
     if (activeCameraIds.includes(cameraId)) {
@@ -33,7 +38,7 @@ export function useCameraSelection({ initialActiveIds, librasCameraId = null, on
         setActiveCameraIds(activeCameraIds.filter((id) => id !== cameraId));
         if (cameraId === effectiveMainCameraId) onMainDeselected?.();
       }
-    } else {
+    } else if (!isFull) {
       setActiveCameraIds([...activeCameraIds, cameraId]);
     }
   };
@@ -44,6 +49,7 @@ export function useCameraSelection({ initialActiveIds, librasCameraId = null, on
     mainCameraId,
     setMainCameraId,
     effectiveMainCameraId,
+    isFull,
     toggleCamera,
   };
 }

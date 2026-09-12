@@ -66,14 +66,14 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
           {show.isLive ? (
             <div className={styles.liveBadge}>
               <span className={styles.liveDot} />
-              AO VIVO
+              {t('live')}
             </div>
           ) : show.hasReplay ? (
             <div className={styles.replayBadge}>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
                 <path d="M3 12a9 9 0 1 1 3 6.7M3 21v-5h5" />
               </svg>
-              REPRISE
+              {t('replay')}
             </div>
           ) : null}
 
@@ -88,8 +88,8 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
             {show.cameras.length}
           </span>
 
-          {show.category && (
-            <span className={styles.genreLabel}>{show.category.toUpperCase()}</span>
+          {show.category && show.categoryKey !== 'OTHER' && (
+            <span className={styles.genreLabel}>{show.category}</span>
           )}
 
           <WishlistButton eventId={show.id} variant="overlay" className={styles.wishlistButton} />
@@ -102,14 +102,18 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
           </div>
 
           <div className={styles.metaList}>
+            {[show.venue, show.city].filter(Boolean).join(' · ') && (
+              <span className={styles.metaItem}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.metaIcon}>
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="2.6" />
+                </svg>
+                <span className={styles.metaItemTruncate}>
+                  {[show.venue, show.city].filter(Boolean).join(' · ')}
+                </span>
+              </span>
+            )}
             <span className={styles.metaItem}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ff5fb4" strokeWidth="2" className={styles.metaIcon}>
-                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="2.6" />
-              </svg>
-              <span className={styles.metaItemTruncate}>{show.venue} · {show.city}</span>
-            </span>
-            <span className={styles.metaItem}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ff5fb4" strokeWidth="2" className={styles.metaIcon}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.metaIcon}>
                 <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" />
               </svg>
               {formatDate(show.date)} · {show.time}
@@ -126,8 +130,8 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
               ))
             : (
               <>
-                <span className={styles.chipTag}>SHOW</span>
-                {show.hasReplay && <span className={styles.chipTagReplay}>REPRISE</span>}
+                <span className={styles.chipTag}>{t('showTag')}</span>
+                {show.hasReplay && <span className={styles.chipTagReplay}>{t('replay')}</span>}
               </>
             )
           }
