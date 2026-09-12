@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
-import { normalizeError } from '@/lib/http/errors';
+import { isPlaybackUnauthorized } from '../utils/is-playback-unauthorized';
 import { usePrerollGate } from '@/features/advertisements/hooks/use-preroll-gate';
 import { PreRollPlayer } from '@/features/advertisements/components/PreRollPlayer';
 import { useReplayAccessQuery, useReplayPlaybackQuery } from '../queries/live.queries';
@@ -41,10 +41,9 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
 
   // react-query keeps the last-good `data` when a background refetch fails,
   // so a revoked entitlement would otherwise leave the player running on
-  // stale playback info forever (WEB-02). Drop it on a 401/403 instead of
-  // waiting for `data` to catch up (it won't).
-  const playbackErrorStatus = playback.error ? normalizeError(playback.error).status : null;
-  if (playbackErrorStatus === 401 || playbackErrorStatus === 403) {
+  // stale playback info forever (WEB-02). Drop it on a 401/403 (or a failed
+  // silent token refresh) instead of waiting for `data` to catch up (it won't).
+  if (playback.error && isPlaybackUnauthorized(playback.error)) {
     return <ReplayNoAccess eventId={eventId} eventTitle={eventTitle} />;
   }
 

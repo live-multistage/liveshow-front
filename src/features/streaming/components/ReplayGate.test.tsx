@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { AxiosError, AxiosHeaders } from 'axios';
+import { RefreshFailedError } from '@/lib/http/interceptors';
 import { ReplayGate } from './ReplayGate';
 
 function makeHttpError(status: number) {
@@ -89,6 +90,24 @@ describe('ReplayGate — revoked access on playback refresh', () => {
 
   it('keeps the player mounted when there is no error', () => {
     playbackState.error = undefined;
+
+    render(<ReplayGate eventId="evt-1" eventTitle="Show" />);
+
+    expect(screen.getByText('replay-player-stub')).toBeInTheDocument();
+    expect(screen.queryByText('accessRequired')).not.toBeInTheDocument();
+  });
+
+  it('unmounts the player and shows the no-access state when the silent token refresh fails', () => {
+    playbackState.error = new RefreshFailedError();
+
+    render(<ReplayGate eventId="evt-1" eventTitle="Show" />);
+
+    expect(screen.getByText('accessRequired')).toBeInTheDocument();
+    expect(screen.queryByText('replay-player-stub')).not.toBeInTheDocument();
+  });
+
+  it('keeps the player mounted on an unrelated 500 error', () => {
+    playbackState.error = makeHttpError(500);
 
     render(<ReplayGate eventId="evt-1" eventTitle="Show" />);
 
