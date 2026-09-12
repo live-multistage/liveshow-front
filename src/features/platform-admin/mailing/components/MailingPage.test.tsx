@@ -12,6 +12,7 @@ import userEvent from '@testing-library/user-event';
 import { MailingPage } from './MailingPage';
 import { useMailingCampaignsQuery, useMailingTemplatesQuery } from '../queries/mailing.queries';
 import { useArchiveMailingTemplateMutation, useDuplicateMailingTemplateMutation } from '../mutations/mailing.mutations';
+import tableStyles from '../../components/PlatformTable.module.scss';
 
 const templates = [
   { id: 't1', name: 'Promo outubro', category: 'MARKETING', language: 'pt', version: 3, lastTestedVersion: 3, updatedAt: '2026-09-10T12:00:00Z' },
@@ -63,5 +64,19 @@ describe('MailingPage', () => {
     expect(within(row).getByText('campaigns.status.SENDING')).toBeInTheDocument();
     expect(within(row).getByText('campaigns.progress {"sent":60,"total":850}')).toBeInTheDocument();
     expect(within(row).getByRole('link', { name: 'Outubro' })).toHaveAttribute('href', '/dashboard/platform/mailing/campaigns/c1');
+  });
+
+  it('does not put the div-grid PlatformTable row classes on real table rows', () => {
+    const { unmount } = render(<MailingPage />);
+    const templateRow = screen.getByText('Promo outubro').closest('tr')!;
+    expect(templateRow).not.toHaveClass(tableStyles.row);
+    expect(templateRow).not.toHaveClass(tableStyles.head);
+    unmount();
+
+    search = new URLSearchParams('tab=campaigns');
+    render(<MailingPage />);
+    const campaignRow = screen.getByText('Outubro').closest('tr')!;
+    expect(campaignRow).not.toHaveClass(tableStyles.row);
+    expect(campaignRow).not.toHaveClass(tableStyles.head);
   });
 });

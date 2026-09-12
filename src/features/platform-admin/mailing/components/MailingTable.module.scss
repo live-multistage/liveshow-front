@@ -1,7 +1,12 @@
 .table {
   width: 100%;
   border-collapse: collapse;
+}
 
+// Header <tr>. Table rows must stay `display: table-row` (the default) so
+// column widths align with <tbody> — PlatformTable.module.scss's `.head`/
+// `.row` are `display: grid` for div-based layouts and break real <table>s.
+.headRow {
   th {
     text-align: left;
     padding: 4px 10px 12px;
@@ -12,7 +17,10 @@
     color: #7d7d85;
     text-transform: uppercase;
   }
+}
 
+// Body <tr>.
+.bodyRow {
   td {
     padding: 12px 10px;
     border-top: 1px solid rgba(255, 255, 255, .06);

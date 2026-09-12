@@ -38,7 +38,7 @@ export function TemplatesTab() {
       <div className={tableStyles.scroll}>
         <table className={styles.table}>
           <thead>
-            <tr className={tableStyles.head}>
+            <tr className={styles.headRow}>
               <th>{t('templates.colName')}</th>
               <th>{t('templates.colCategory')}</th>
               <th>{t('templates.colUpdated')}</th>
@@ -50,7 +50,7 @@ export function TemplatesTab() {
             {data.map((template) => {
               const tested = template.lastTestedVersion === template.version;
               return (
-                <tr key={template.id} className={tableStyles.row}>
+                <tr key={template.id} className={styles.bodyRow}>
                   <td>
                     <Link className={tableStyles.primary} href={`/dashboard/platform/mailing/templates/${template.id}`}>
                       {template.name}

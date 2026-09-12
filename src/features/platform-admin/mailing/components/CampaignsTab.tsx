@@ -21,7 +21,7 @@ export function CampaignsTab() {
       <div className={tableStyles.scroll}>
         <table className={styles.table}>
           <thead>
-            <tr className={tableStyles.head}>
+            <tr className={styles.headRow}>
               <th>{t('campaigns.colName')}</th>
               <th>{t('campaigns.colTemplate')}</th>
               <th>{t('campaigns.colAudience')}</th>
@@ -34,7 +34,7 @@ export function CampaignsTab() {
             {data.map((campaign) => {
               const total = campaign.totalRecipients ?? 0;
               return (
-                <tr key={campaign.id} className={tableStyles.row}>
+                <tr key={campaign.id} className={styles.bodyRow}>
                   <td>
                     <Link className={tableStyles.primary} href={`/dashboard/platform/mailing/campaigns/${campaign.id}`}>
                       {campaign.name}
