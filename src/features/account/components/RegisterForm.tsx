@@ -9,7 +9,7 @@ import { registerSchema, type RegisterFormValues } from '../schemas/register.sch
 import { useRegisterMutation } from '../mutations/use-register.mutation';
 import { useResendVerificationMutation } from '../mutations/use-resend-verification.mutation';
 import { config } from '@/config';
-import { Button, Input, Label } from '@live-show/design-system';
+import { Button, Checkbox, Input, Label } from '@live-show/design-system';
 import { MarketingPanel } from './MarketingPanel';
 import { EmailStatusCard } from './EmailStatusCard';
 import styles from './RegisterForm.module.scss';
@@ -25,6 +25,7 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
   // generic error copy rather than adding a new key.
   const tGeneric = useTranslations('auth.forgotPassword');
   const tVerifyEmail = useTranslations('auth.verifyEmail');
+  const tAuth = useTranslations('auth');
 
   const {
     control,
@@ -32,7 +33,14 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
     formState: { errors },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { email: '', displayName: '', password: '', confirmPassword: '' },
+    defaultValues: {
+      email: '',
+      displayName: '',
+      password: '',
+      confirmPassword: '',
+      acceptTerms: false,
+      marketingOptIn: false,
+    },
   });
 
   const { mutate, isPending, error } = useRegisterMutation();
@@ -45,7 +53,13 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
 
   function onSubmit(values: RegisterFormValues) {
     mutate(
-      { email: values.email, displayName: values.displayName, password: values.password },
+      {
+        email: values.email,
+        displayName: values.displayName,
+        password: values.password,
+        acceptTerms: values.acceptTerms,
+        marketingOptIn: values.marketingOptIn,
+      },
       { onSuccess: () => setSubmittedEmail(values.email) },
     );
   }
@@ -197,6 +211,62 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
               {errors.confirmPassword && <span className={styles.fieldError}>{errors.confirmPassword.message}</span>}
             </div>
 
+            <div className={styles.field}>
+              <div className={styles.checkboxRow}>
+                <Controller
+                  control={control}
+                  name="acceptTerms"
+                  render={({ field }) => (
+                    <Checkbox
+                      id="acceptTerms"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isPending}
+                      aria-invalid={!!errors.acceptTerms}
+                      aria-describedby={errors.acceptTerms ? 'acceptTerms-error' : undefined}
+                    />
+                  )}
+                />
+                <Label htmlFor="acceptTerms" className={styles.checkboxLabel}>
+                  {t.rich('acceptTerms', {
+                    terms: (chunks) => (
+                      <Link href="/termos" target="_blank" rel="noopener noreferrer" className={styles.link}>
+                        {chunks}
+                      </Link>
+                    ),
+                    privacy: (chunks) => (
+                      <Link href="/privacidade" target="_blank" rel="noopener noreferrer" className={styles.link}>
+                        {chunks}
+                      </Link>
+                    ),
+                  })}
+                </Label>
+              </div>
+              {errors.acceptTerms && (
+                <span id="acceptTerms-error" className={styles.fieldError}>
+                  {t('errors.TERMS_REQUIRED')}
+                </span>
+              )}
+            </div>
+
+            <div className={styles.checkboxRow}>
+              <Controller
+                control={control}
+                name="marketingOptIn"
+                render={({ field }) => (
+                  <Checkbox
+                    id="marketingOptIn"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={isPending}
+                  />
+                )}
+              />
+              <Label htmlFor="marketingOptIn" className={styles.checkboxLabel}>
+                {t('marketingOptIn')}
+              </Label>
+            </div>
+
             {errorMessage && <p className={styles.errorBanner}>{errorMessage}</p>}
 
             <Button
@@ -235,6 +305,21 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
                   </a>
                 </Button>
               </div>
+
+              <p className={styles.socialConsent}>
+                {tAuth.rich('socialConsent', {
+                  terms: (chunks) => (
+                    <Link href="/termos" target="_blank" rel="noopener noreferrer" className={styles.link}>
+                      {chunks}
+                    </Link>
+                  ),
+                  privacy: (chunks) => (
+                    <Link href="/privacidade" target="_blank" rel="noopener noreferrer" className={styles.link}>
+                      {chunks}
+                    </Link>
+                  ),
+                })}
+              </p>
             </>
           )}
 

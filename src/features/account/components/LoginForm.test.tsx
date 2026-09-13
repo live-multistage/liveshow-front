@@ -1,4 +1,6 @@
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('next-intl', () => ({
+  useTranslations: () => Object.assign((key: string) => key, { rich: (key: string) => key }),
+}));
 vi.mock('../mutations/use-login.mutation', () => ({ useLoginMutation: vi.fn() }));
 vi.mock('../mutations/use-resend-verification.mutation', () => ({ useResendVerificationMutation: vi.fn() }));
 vi.mock('./MarketingPanel', () => ({ MarketingPanel: () => <div>marketing-panel-stub</div> }));

@@ -97,6 +97,21 @@
   color: #ff5fb4;
 }
 
+// ── Checkbox rows ─────────────────────────────────────────────────
+
+.checkboxRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.checkboxLabel {
+  font-size: 13.5px !important;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, .65) !important;
+  cursor: pointer;
+}
+
 // ── Error banner ──────────────────────────────────────────────────
 
 .errorBanner {
@@ -163,6 +178,17 @@
   font-family: var(--font-archivo), 'Archivo', sans-serif !important;
   font-size: 13.5px !important;
   font-weight: 600 !important;
+}
+
+// ── Social consent ────────────────────────────────────────────────
+
+.socialConsent {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  // #9a9aa2 on #101013/#08080a ≈ 7.4:1 contrast — passes WCAG AA for body text.
+  color: #9a9aa2;
+  text-align: center;
 }
 
 // ── Security footer ───────────────────────────────────────────────

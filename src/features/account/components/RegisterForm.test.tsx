@@ -1,6 +1,10 @@
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string, values?: Record<string, unknown>) =>
-    values ? `${key}:${Object.values(values).join(',')}` : key,
+  useTranslations: () =>
+    Object.assign(
+      (key: string, values?: Record<string, unknown>) =>
+        values ? `${key}:${Object.values(values).join(',')}` : key,
+      { rich: (key: string) => key },
+    ),
 }));
 vi.mock('./MarketingPanel', () => ({ MarketingPanel: () => <div>marketing-panel-stub</div> }));
 
@@ -21,6 +25,7 @@ function fillAndSubmit() {
   fireEvent.change(screen.getByLabelText('displayName'), { target: { value: 'Jane Doe' } });
   fireEvent.change(screen.getByLabelText('password'), { target: { value: 'password123' } });
   fireEvent.change(screen.getByLabelText('confirmPassword'), { target: { value: 'password123' } });
+  fireEvent.click(screen.getByRole('checkbox', { name: 'acceptTerms' }));
   fireEvent.click(screen.getByText('submit'));
 }
 
@@ -77,5 +82,70 @@ describe('RegisterForm — email verification flow', () => {
 
     await waitFor(() => screen.getByText('checkEmail.title'));
     expect(screen.getByText('errors.GENERIC')).toBeInTheDocument();
+  });
+});
+
+describe('RegisterForm — terms consent', () => {
+  beforeEach(() => {
+    mockedResend.mockReturnValue({ mutate: vi.fn(), isPending: false, error: null } as never);
+  });
+
+  it('does not submit and shows an error when terms are not accepted', async () => {
+    const mutate = vi.fn();
+    mockedRegister.mockReturnValue({ mutate, isPending: false, error: null } as never);
+
+    render(<RegisterForm />);
+    fireEvent.change(screen.getByLabelText('email'), { target: { value: 'jane@example.com' } });
+    fireEvent.change(screen.getByLabelText('displayName'), { target: { value: 'Jane Doe' } });
+    fireEvent.change(screen.getByLabelText('password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByLabelText('confirmPassword'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByText('submit'));
+
+    await waitFor(() => {
+      expect(screen.getByText('errors.TERMS_REQUIRED')).toBeInTheDocument();
+    });
+    expect(mutate).not.toHaveBeenCalled();
+  });
+
+  it('submits with acceptTerms true and marketingOptIn false by default', async () => {
+    const mutate = vi.fn();
+    mockedRegister.mockReturnValue({ mutate, isPending: false, error: null } as never);
+
+    render(<RegisterForm />);
+    fillAndSubmit();
+
+    await waitFor(() => {
+      expect(mutate).toHaveBeenCalledWith(
+        {
+          email: 'jane@example.com',
+          displayName: 'Jane Doe',
+          password: 'password123',
+          acceptTerms: true,
+          marketingOptIn: false,
+        },
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      );
+    });
+  });
+
+  it('submits with marketingOptIn true when the opt-in checkbox is checked', async () => {
+    const mutate = vi.fn();
+    mockedRegister.mockReturnValue({ mutate, isPending: false, error: null } as never);
+
+    render(<RegisterForm />);
+    fireEvent.change(screen.getByLabelText('email'), { target: { value: 'jane@example.com' } });
+    fireEvent.change(screen.getByLabelText('displayName'), { target: { value: 'Jane Doe' } });
+    fireEvent.change(screen.getByLabelText('password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByLabelText('confirmPassword'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('checkbox', { name: 'acceptTerms' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'marketingOptIn' }));
+    fireEvent.click(screen.getByText('submit'));
+
+    await waitFor(() => {
+      expect(mutate).toHaveBeenCalledWith(
+        expect.objectContaining({ acceptTerms: true, marketingOptIn: true }),
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      );
+    });
   });
 });

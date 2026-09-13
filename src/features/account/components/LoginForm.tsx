@@ -27,6 +27,7 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
   // Same choice mobile made: a resend failure reuses forgotPassword's
   // generic error copy rather than adding a new key.
   const tGeneric = useTranslations('auth.forgotPassword');
+  const tAuth = useTranslations('auth');
 
   const {
     handleSubmit,
@@ -205,6 +206,21 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
                   </a>
                 </Button>
               </div>
+
+              <p className={styles.socialConsent}>
+                {tAuth.rich('socialConsent', {
+                  terms: (chunks) => (
+                    <Link href="/termos" target="_blank" rel="noopener noreferrer" className={styles.link}>
+                      {chunks}
+                    </Link>
+                  ),
+                  privacy: (chunks) => (
+                    <Link href="/privacidade" target="_blank" rel="noopener noreferrer" className={styles.link}>
+                      {chunks}
+                    </Link>
+                  ),
+                })}
+              </p>
             </>
           )}
 

@@ -209,6 +209,17 @@
   font-weight: 600 !important;
 }
 
+// ── Social consent ────────────────────────────────────────────────
+
+.socialConsent {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  // #9a9aa2 on #101013/#08080a ≈ 7.4:1 contrast — passes WCAG AA for body text.
+  color: #9a9aa2;
+  text-align: center;
+}
+
 // ── Security footer ───────────────────────────────────────────────
 
 .securityFooter {
