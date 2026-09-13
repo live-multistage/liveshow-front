@@ -9,7 +9,8 @@ const CONTACT_EMAIL = 'privacidade@showon.io';
 
 /** Rodapé de todas as páginas com Navbar. */
 const LINKS = [
-  { key: 'terms', href: '/privacidade' },
+  { key: 'terms', href: '/termos' },
+  { key: 'privacy', href: '/privacidade' },
   { key: 'contact', href: `mailto:${CONTACT_EMAIL}` },
   { key: 'organizers', href: '/be-partner' },
   { key: 'about', href: '/about' },

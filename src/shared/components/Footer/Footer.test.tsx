@@ -21,9 +21,10 @@ describe('Footer', () => {
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
   });
 
-  it('links terms to the privacy page that actually exists', () => {
+  it('links terms and privacy to their own pages', () => {
     render(<Footer />);
-    expect(screen.getByRole('link', { name: 'terms' })).toHaveAttribute('href', '/privacidade');
+    expect(screen.getByRole('link', { name: 'terms' })).toHaveAttribute('href', '/termos');
+    expect(screen.getByRole('link', { name: 'privacy' })).toHaveAttribute('href', '/privacidade');
   });
 
   /**

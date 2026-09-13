@@ -125,6 +125,7 @@ export function ForgotPasswordForm() {
             {t('protected')}
           </p>
           <nav className={styles.legal}>
+            <Link href="/termos">{t('terms')}</Link>
             <Link href="/privacidade">{t('privacy')}</Link>
             <Link href="/help">{t('help')}</Link>
           </nav>

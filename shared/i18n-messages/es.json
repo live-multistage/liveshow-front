@@ -144,7 +144,8 @@
         "expiresValue": "60 min",
         "singleUseLabel": "Enlace",
         "singleUseValue": "Uso único"
-      }
+      },
+      "terms": "Términos"
     },
     "social": {
       "continueWithGoogle": "Continuar con Google",
@@ -2194,12 +2195,13 @@
     "ticketHelpLink": "Revisa tu lista"
   },
   "footer": {
-    "terms": "Términos y privacidad",
+    "terms": "Términos de Uso",
     "contact": "Contáctanos",
     "help": "Ayuda",
     "copyright": "© {year} showon.io. Todos los derechos reservados.",
     "organizers": "Sé un socio",
-    "about": "Sobre nosotros"
+    "about": "Sobre nosotros",
+    "privacy": "Privacidad"
   },
   "help": {
     "metaTitle": "Ayuda",
