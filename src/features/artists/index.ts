@@ -5,6 +5,7 @@ export { ArtistApplicationContent } from './pages/ArtistApplicationPage';
 
 // Components
 export { ArtistCard } from './components/ArtistCard';
+export { ArtistInsightSummary } from './components/ArtistInsightSummary';
 
 // Hooks (queries)
 export {

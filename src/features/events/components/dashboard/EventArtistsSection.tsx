@@ -8,7 +8,9 @@ import {
   useArtists,
   useInviteArtistMutation,
   useRemoveArtistFromEventMutation,
+  useArtistInsights,
   ExternalArtistSearchModal,
+  ArtistInsightSummary,
   type LineupInvitationStatus,
 } from '@/features/artists';
 import { Button } from '@/shared/components/Button';
@@ -55,6 +57,13 @@ export function EventArtistsSection({ eventId, readOnly = false }: Props) {
       )
     : [];
 
+  // One insights request per render of the two lists (search results + lineup).
+  const { data: insights } = useArtistInsights([
+    ...searchResults.map((artist) => artist.id),
+    ...lineup.map((item) => item.artist.id),
+  ]);
+  const insightById = new Map((insights ?? []).map((insight) => [insight.artistId, insight]));
+
   function handleInvite(artistId: string) {
     inviteMutation.mutate(artistId);
     setQuery('');
@@ -97,6 +106,7 @@ export function EventArtistsSection({ eventId, readOnly = false }: Props) {
                     </span>
                   )}
                   <span>{artist.name}</span>
+                  <ArtistInsightSummary insight={insightById.get(artist.id)} />
                   <span className={styles.resultCta}>{t('dashboard.lineup.inviteCta')}</span>
                 </button>
               ))}
@@ -144,6 +154,7 @@ export function EventArtistsSection({ eventId, readOnly = false }: Props) {
               </span>
             )}
             <span className={styles.artistName}>{artist.name}</span>
+            <ArtistInsightSummary insight={insightById.get(artist.id)} />
             <span className={`${styles.chip} ${styles[STATUS_CLASS[status]]}`}>
               {status === 'INVITED' && t('dashboard.lineup.statusPending')}
               {status === 'ACCEPTED' && t('dashboard.lineup.statusAccepted')}
