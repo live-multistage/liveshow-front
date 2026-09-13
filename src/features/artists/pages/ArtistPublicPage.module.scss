@@ -1,3 +1,5 @@
+@use '../../../styles/_variables' as *;
+
 @keyframes arPulse {
   0%, 100% { opacity: 1; }
   50%       { opacity: .3; }
@@ -181,6 +183,22 @@
   border-radius: 50%;
   background: #ff2e9e;
   animation: arPulse 1.3s infinite;
+}
+
+.trendingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-space-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: $accent-text;
+  background: $action-bg;
+  border-color: $action-dim;
+  border-radius: 999px;
+  padding: 6px 12px;
 }
 
 .metaLine {

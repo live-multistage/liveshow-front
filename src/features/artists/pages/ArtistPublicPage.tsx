@@ -2,13 +2,15 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Calendar, Ticket, User } from 'lucide-react';
+import { Calendar, Flame, Ticket, User } from 'lucide-react';
 import { useArtist, useArtistEvents } from '../hooks/use-artists';
 import { ShowCard } from '@/features/events/components/public/ShowCard';
 import { eventToShow } from '@/features/events/utils/event-adapter';
-import { Skeleton } from '@live-show/design-system';
+import { Badge, Skeleton } from '@live-show/design-system';
 import { FollowButton } from '@/features/follows';
 import { SOCIAL_ICONS } from '../components/SocialIcons';
+import { useAuth } from '@/features/account/hooks/use-auth';
+import { useTrackArtistView } from '../hooks/use-track-artist-view';
 import styles from './ArtistPublicPage.module.scss';
 
 interface Props {
@@ -30,6 +32,9 @@ export function ArtistPublicPage({ slugOrId }: Props) {
 
   const { data: artist, isLoading: artistLoading, isError } = useArtist(slugOrId);
   const { data: eventsPage, isLoading: eventsLoading } = useArtistEvents(slugOrId);
+
+  const { user } = useAuth();
+  useTrackArtistView(artist?.id, user?.id);
 
   const events = eventsPage?.items ?? [];
   const shows = events.map(eventToShow);
@@ -104,6 +109,12 @@ export function ArtistPublicPage({ slugOrId }: Props) {
                     <span className={styles.liveDot} />
                     {t('liveNow')}
                   </span>
+                )}
+                {artist.badges?.includes('TRENDING') && (
+                  <Badge variant="outline" className={styles.trendingBadge}>
+                    <Flame size={12} aria-hidden />
+                    {t('badges.trending')}
+                  </Badge>
                 )}
               </div>
 
