@@ -110,13 +110,37 @@
     },
     "forgotPassword": {
       "title": "¿Olvidaste tu contraseña?",
-      "subtitle": "Ingresa tu correo y te enviaremos un enlace de recuperación.",
+      "subtitle": "Ingresa el correo de tu cuenta y te enviaremos un enlace para restablecer la contraseña.",
       "email": "Correo electrónico",
-      "submit": "Enviar enlace",
+      "submit": "Enviar enlace de recuperación",
       "backToLogin": "Volver al inicio de sesión",
-      "sent": "Si existe una cuenta con ese correo, enviamos un enlace para restablecer la contraseña.",
+      "sent": "Si existe una cuenta asociada a esta dirección, recibirás un enlace para restablecer tu contraseña en instantes.",
       "errors": {
         "GENERIC": "No se pudo enviar ahora. Inténtalo de nuevo en un momento."
+      },
+      "eyebrow": "Recuperar · Contraseña",
+      "emailPlaceholder": "tu@correo.com",
+      "remembered": "¿Recordaste tu contraseña?",
+      "sentEyebrow": "Enlace enviado",
+      "sentTitle": "Revisa tu correo",
+      "notReceived": "¿No lo recibiste?",
+      "resend": "Reenviar enlace",
+      "resent": "Te enviamos un nuevo enlace.",
+      "protected": "Recuperación protegida con cifrado",
+      "privacy": "Privacidad",
+      "help": "Ayuda",
+      "aside": {
+        "badge": "Recuperación de acceso",
+        "title": "Vamos a recuperar <accent>tu cuenta.</accent>",
+        "description": "Te enviamos un enlace seguro a tu correo. En pocos clics vuelves a ver tus shows en vivo.",
+        "howItWorks": "Cómo funciona",
+        "step1": "Ingresa el correo de tu cuenta",
+        "step2": "Abre el enlace que te enviamos por correo",
+        "step3": "Define una nueva contraseña y vuelve a ver",
+        "expiresLabel": "Expira en",
+        "expiresValue": "60 min",
+        "singleUseLabel": "Enlace",
+        "singleUseValue": "Uso único"
       }
     },
     "social": {

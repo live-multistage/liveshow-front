@@ -110,13 +110,37 @@
     },
     "forgotPassword": {
       "title": "Forgot your password?",
-      "subtitle": "Enter your email and we'll send you a recovery link.",
+      "subtitle": "Enter your account email and we'll send you a link to reset your password.",
       "email": "Email",
-      "submit": "Send link",
+      "submit": "Send recovery link",
       "backToLogin": "Back to login",
-      "sent": "If an account exists for that email, we sent a reset link.",
+      "sent": "If an account exists for this address, you'll receive a link to reset your password shortly.",
       "errors": {
         "GENERIC": "Couldn't send right now. Try again shortly."
+      },
+      "eyebrow": "Recover · Password",
+      "emailPlaceholder": "you@email.com",
+      "remembered": "Remembered your password?",
+      "sentEyebrow": "Link sent",
+      "sentTitle": "Check your email",
+      "notReceived": "Didn't get it?",
+      "resend": "Resend link",
+      "resent": "We sent a new link.",
+      "protected": "Recovery protected by encryption",
+      "privacy": "Privacy",
+      "help": "Help",
+      "aside": {
+        "badge": "Account recovery",
+        "title": "Let's recover <accent>your account.</accent>",
+        "description": "We'll send a secure link to your email. A few clicks and you're back to watching live shows.",
+        "howItWorks": "How it works",
+        "step1": "Enter your account email",
+        "step2": "Open the link we emailed you",
+        "step3": "Set a new password and get back to watching",
+        "expiresLabel": "Expires in",
+        "expiresValue": "60 min",
+        "singleUseLabel": "Link",
+        "singleUseValue": "Single use"
       }
     },
     "social": {

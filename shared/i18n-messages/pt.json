@@ -110,13 +110,37 @@
     },
     "forgotPassword": {
       "title": "Esqueceu a senha?",
-      "subtitle": "Digite seu e-mail e enviaremos um link de recuperação.",
+      "subtitle": "Digite o e-mail da sua conta e enviaremos um link para redefinir a senha.",
       "email": "E-mail",
-      "submit": "Enviar link",
+      "submit": "Enviar link de recuperação",
       "backToLogin": "Voltar ao login",
-      "sent": "Se houver uma conta com esse e-mail, enviamos um link para redefinir a senha.",
+      "sent": "Se existir uma conta associada a este endereço, você receberá um link para redefinir sua senha em instantes.",
       "errors": {
         "GENERIC": "Não foi possível enviar agora. Tente de novo em instantes."
+      },
+      "eyebrow": "Recuperar · Senha",
+      "emailPlaceholder": "seu@email.com",
+      "remembered": "Lembrou a senha?",
+      "sentEyebrow": "Link enviado",
+      "sentTitle": "Confira seu e-mail",
+      "notReceived": "Não recebeu?",
+      "resend": "Reenviar link",
+      "resent": "Enviamos um novo link.",
+      "protected": "Recuperação protegida por criptografia",
+      "privacy": "Privacidade",
+      "help": "Ajuda",
+      "aside": {
+        "badge": "Recuperação de acesso",
+        "title": "Vamos recuperar <accent>sua conta.</accent>",
+        "description": "Enviamos um link seguro para o seu e-mail. Em poucos cliques você volta a assistir seus shows ao vivo.",
+        "howItWorks": "Como funciona",
+        "step1": "Digite o e-mail da sua conta",
+        "step2": "Abra o link que enviamos por e-mail",
+        "step3": "Defina uma nova senha e volte a assistir",
+        "expiresLabel": "Expira em",
+        "expiresValue": "60 min",
+        "singleUseLabel": "Link",
+        "singleUseValue": "Uso único"
       }
     },
     "social": {
