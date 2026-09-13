@@ -5,6 +5,10 @@ export interface RegisterRequest {
   email: string;
   displayName: string;
   password: string;
+  /** Must be true; the server stamps the current terms version and timestamp. */
+  acceptTerms: boolean;
+  /** Email marketing opt-in (NEWS_PROMOS). Absent means false. */
+  marketingOptIn?: boolean;
 }
 
 export interface RegisterResponse {

@@ -96,7 +96,8 @@
       "signIn": "Sign in",
       "errors": {
         "EMAIL_EXISTS": "This email is already registered. Please sign in instead.",
-        "GENERIC": "We couldn't create your account. Please try again."
+        "GENERIC": "We couldn't create your account. Please try again.",
+        "TERMS_REQUIRED": "You need to accept the Terms of Use and the Privacy Policy to create an account."
       },
       "checkEmail": {
         "title": "Confirm your email",
@@ -106,7 +107,9 @@
         "resend": "Resend email",
         "resent": "If there's a pending account, a new email was sent.",
         "backToLogin": "Back to sign in"
-      }
+      },
+      "acceptTerms": "I have read and agree to the <terms>Terms of Use</terms> and the <privacy>Privacy Policy</privacy>.",
+      "marketingOptIn": "Send me news, shows and promotions by email."
     },
     "forgotPassword": {
       "title": "Forgot your password?",
@@ -197,7 +200,8 @@
         "MISMATCH": "Passwords don't match.",
         "GENERIC": "Couldn't reset. Try again."
       }
-    }
+    },
+    "socialConsent": "By continuing with Google or Apple, you agree to the <terms>Terms of Use</terms> and the <privacy>Privacy Policy</privacy>."
   },
   "cart": {
     "title": "Cart",
@@ -3332,7 +3336,19 @@
         "statusPending": "Invite sent",
         "statusAccepted": "Confirmed",
         "statusDeclined": "Declined",
-        "remove": "Remove"
+        "remove": "Remove",
+        "insight": {
+          "score": "Score {score}",
+          "trendUp": "Rising",
+          "trendFlat": "Stable",
+          "trendDown": "Falling",
+          "followers": "Followers",
+          "deezerFans": "Deezer fans",
+          "events": "Events",
+          "avgPurchases": "Avg purchases/event",
+          "updatedAt": "Updated",
+          "noData": "No data yet"
+        }
       },
       "catalog": {
         "title": "Artists",
@@ -3357,6 +3373,9 @@
         "removed": "Artist removed from the lineup.",
         "error": "Could not complete the action. Please try again."
       }
+    },
+    "badges": {
+      "trending": "Trending"
     }
   },
   "follows": {

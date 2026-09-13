@@ -13,12 +13,26 @@ test('login defaults rememberMe to true', () => {
 });
 
 test('register enforces min password and confirmation match', () => {
-  const base = { email: 'a@b.co', displayName: 'Ana', password: '12345678', confirmPassword: '12345678' };
+  const base = { email: 'a@b.co', displayName: 'Ana', password: '12345678', confirmPassword: '12345678', acceptTerms: true };
   expect(registerSchema.safeParse(base).success).toBe(true);
   expect(registerSchema.safeParse({ ...base, password: '1234567', confirmPassword: '1234567' }).success).toBe(false);
   const mismatch = registerSchema.safeParse({ ...base, confirmPassword: 'other' });
   expect(mismatch.success).toBe(false);
   if (!mismatch.success) expect(mismatch.error.issues[0]?.path).toEqual(['confirmPassword']);
+});
+
+test('register requires accepting the terms', () => {
+  const base = { email: 'a@b.co', displayName: 'Ana', password: '12345678', confirmPassword: '12345678' };
+  const unchecked = registerSchema.safeParse({ ...base, acceptTerms: false });
+  expect(unchecked.success).toBe(false);
+  if (!unchecked.success) expect(unchecked.error.issues[0]?.path).toEqual(['acceptTerms']);
+  expect(registerSchema.safeParse(base).success).toBe(false);
+});
+
+test('register marketing opt-in defaults to false and passes through when checked', () => {
+  const base = { email: 'a@b.co', displayName: 'Ana', password: '12345678', confirmPassword: '12345678', acceptTerms: true };
+  expect(registerSchema.parse(base).marketingOptIn).toBe(false);
+  expect(registerSchema.parse({ ...base, marketingOptIn: true }).marketingOptIn).toBe(true);
 });
 
 test('social login accepts the two providers and nothing else', () => {

@@ -28,6 +28,13 @@ export const registerSchema = z
       .max(100, 'O nome deve ter no máximo 100 caracteres.'),
     password: z.string().min(8, 'A senha deve ter pelo menos 8 caracteres.'),
     confirmPassword: z.string().min(1, 'Confirme sua senha.'),
+    // boolean + refine (not literal(true)) so forms can start unchecked; the
+    // server rejects anything but true as well.
+    acceptTerms: z
+      .boolean()
+      .refine((v) => v, 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.'),
+    // Explicit opt-in (LGPD): unchecked means no marketing e-mail.
+    marketingOptIn: z.boolean().default(false),
   })
   .refine((d) => d.password === d.confirmPassword, {
     message: 'As senhas não coincidem.',

@@ -96,7 +96,8 @@
       "signIn": "Iniciar sesión",
       "errors": {
         "EMAIL_EXISTS": "Este correo ya está registrado. Inicia sesión para continuar.",
-        "GENERIC": "No pudimos crear tu cuenta. Inténtalo de nuevo."
+        "GENERIC": "No pudimos crear tu cuenta. Inténtalo de nuevo.",
+        "TERMS_REQUIRED": "Debes aceptar los Términos de Uso y la Política de Privacidad para crear la cuenta."
       },
       "checkEmail": {
         "title": "Confirma tu correo",
@@ -106,7 +107,9 @@
         "resend": "Reenviar correo",
         "resent": "Si hay una cuenta pendiente, se envió un nuevo correo.",
         "backToLogin": "Volver al inicio de sesión"
-      }
+      },
+      "acceptTerms": "He leído y acepto los <terms>Términos de Uso</terms> y la <privacy>Política de Privacidad</privacy>.",
+      "marketingOptIn": "Quiero recibir novedades, shows y promociones por correo."
     },
     "forgotPassword": {
       "title": "¿Olvidaste tu contraseña?",
@@ -197,7 +200,8 @@
         "MISMATCH": "Las contraseñas no coinciden.",
         "GENERIC": "No se pudo restablecer. Inténtalo de nuevo."
       }
-    }
+    },
+    "socialConsent": "Al continuar con Google o Apple, aceptas los <terms>Términos de Uso</terms> y la <privacy>Política de Privacidad</privacy>."
   },
   "cart": {
     "title": "Carrito",
@@ -3332,7 +3336,19 @@
         "statusPending": "Invitación enviada",
         "statusAccepted": "Confirmado",
         "statusDeclined": "Rechazada",
-        "remove": "Quitar"
+        "remove": "Quitar",
+        "insight": {
+          "score": "Score {score}",
+          "trendUp": "En alza",
+          "trendFlat": "Estable",
+          "trendDown": "En baja",
+          "followers": "Seguidores",
+          "deezerFans": "Fans en Deezer",
+          "events": "Eventos",
+          "avgPurchases": "Compras prom./evento",
+          "updatedAt": "Actualizado",
+          "noData": "Sin datos aún"
+        }
       },
       "catalog": {
         "title": "Artistas",
@@ -3357,6 +3373,9 @@
         "removed": "Artista eliminado del line-up.",
         "error": "No se pudo completar la acción. Inténtalo de nuevo."
       }
+    },
+    "badges": {
+      "trending": "En tendencia"
     }
   },
   "follows": {
