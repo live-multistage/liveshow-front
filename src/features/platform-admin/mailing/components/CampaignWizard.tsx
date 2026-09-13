@@ -15,6 +15,7 @@ import { useAudienceCountQuery, useMailingTemplateQuery, useMailingTemplatesQuer
 import { useCreateMailingCampaignMutation, useDispatchMailingCampaignMutation } from '../mutations/mailing.mutations';
 import { useDebouncedPreview } from '../hooks/use-debounced-preview';
 import { AudienceFields } from './AudienceFields';
+import { describeAudience } from '../utils/describe-audience';
 import { Field } from './BlockInspector';
 import { DispatchConfirmDialog } from './DispatchConfirmDialog';
 import { PreviewPane } from './PreviewPane';
@@ -178,7 +179,7 @@ export function CampaignWizard({ initialTemplateId }: { initialTemplateId?: stri
                 <div><dt>{t('wizard.subject')}</dt><dd>{template?.subject ?? t('common.loading')}</dd></div>
                 <div>
                   <dt>{t('audience.typeLabel')}</dt>
-                  <dd>{t(`audience.type.${audience.type}`)}{audience.country ? ` · ${audience.country}` : ''}</dd>
+                  <dd>{describeAudience(audience, t)}</dd>
                 </div>
               </dl>
 

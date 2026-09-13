@@ -2,24 +2,37 @@
 
 import { useId } from 'react';
 import { useTranslations } from 'next-intl';
+import { Input } from '@live-show/design-system';
 import {
-  CustomSelect, CustomSelectContent, CustomSelectItem, CustomSelectTrigger, CustomSelectValue, Input,
-} from '@live-show/design-system';
-import {
-  mailingAudienceSchema, type AudienceCountResponse, type MailingAudience, type MailingAudienceType, type MailingCategory,
+  MAILING_APPLICATION_KINDS, MAILING_APPLICATION_STATUSES, MAILING_AUDIENCE_GROUPS, MAILING_AUDIENCE_SPECS,
+  MAILING_EVENT_CATEGORIES, mailingAudienceSchema,
+  type AudienceCountResponse, type MailingAudience, type MailingAudienceType, type MailingCategory,
 } from '@live-show/api-contracts';
-import { useChannelsQuery } from '@/features/channels';
 import { ChoiceSelect, Field, fieldA11y } from './BlockInspector';
-import { EventPicker } from './EventPicker';
+import { AudienceParamField } from './AudienceParamField';
 import styles from './CampaignWizard.module.scss';
 
-const TYPES: MailingAudienceType[] = ['ALL_VERIFIED', 'EVENT_BUYERS', 'EVENT_SAVERS', 'CHANNEL_SUBSCRIBERS'];
-
-function emptyAudience(type: MailingAudienceType): MailingAudience {
-  if (type === 'ALL_VERIFIED') return { type };
-  if (type === 'CHANNEL_SUBSCRIBERS') return { type, channelId: '' };
-  return { type, eventId: '' };
+/** Builds a fresh audience for `type`: int params get their spec default, optional params are omitted. */
+export function emptyAudience(type: MailingAudienceType): MailingAudience {
+  const spec = MAILING_AUDIENCE_SPECS[type];
+  const audience: Record<string, unknown> = { type };
+  for (const [key, paramSpec] of Object.entries(spec)) {
+    if (paramSpec.optional) continue;
+    if (paramSpec.kind === 'int') audience[key] = paramSpec.default ?? paramSpec.min ?? 0;
+    else if (paramSpec.kind === 'eventCategory') audience[key] = MAILING_EVENT_CATEGORIES[0];
+    else if (paramSpec.kind === 'applicationKind') audience[key] = MAILING_APPLICATION_KINDS[0];
+    else if (paramSpec.kind === 'applicationStatus') audience[key] = MAILING_APPLICATION_STATUSES[0];
+    else audience[key] = '';
+  }
+  return audience as MailingAudience;
 }
+
+// ChoiceSelect (a flat CustomSelect) can't render group headers, so each option is
+// prefixed with its group label instead.
+const TYPE_OPTIONS = MAILING_AUDIENCE_GROUPS.flatMap((group) => group.types.map((type) => ({ type, groupId: group.id })));
+
+// Widgets that need their own row (search pickers), vs. compact controls sharing the grid.
+const FULL_WIDTH_KINDS = new Set(['eventId', 'organizationId', 'artistId']);
 
 interface Props {
   value: MailingAudience;
@@ -32,10 +45,10 @@ export function AudienceFields({ value, onChange, count }: Props) {
   const t = useTranslations('platformAdmin.mailing');
   const uid = useId();
   const id = (key: string) => `${uid}-${key}`;
-  const channels = useChannelsQuery({ enabled: value.type === 'CHANNEL_SUBSCRIBERS' });
-  const countryError = value.country === undefined
-    ? undefined
-    : mailingAudienceSchema.safeParse(value).error?.issues.find((issue) => issue.path[0] === 'country')?.message;
+  const parsed = mailingAudienceSchema.safeParse(value);
+  const errorFor = (key: string) => parsed.error?.issues.find((issue) => issue.path[0] === key)?.message;
+  const countryError = value.country === undefined ? undefined : errorFor('country');
+  const spec = MAILING_AUDIENCE_SPECS[value.type];
 
   // R15: ISO-2 uppercase; an empty field drops the key (= every country).
   const setCountry = (raw: string) => {
@@ -50,36 +63,23 @@ export function AudienceFields({ value, onChange, count }: Props) {
         <ChoiceSelect
           id={id('type')}
           value={value.type}
-          onChange={(type) => type !== value.type && onChange(emptyAudience(type as MailingAudienceType))}
-          options={TYPES.map((type) => ({ value: type, label: t(`audience.type.${type}`) }))}
+          onChange={(type) => {
+            if (type === value.type) return;
+            const next = emptyAudience(type as MailingAudienceType);
+            onChange(value.country ? ({ ...next, country: value.country } as MailingAudience) : next);
+          }}
+          options={TYPE_OPTIONS.map(({ type, groupId }) => ({
+            value: type,
+            label: `${t(`audience.group.${groupId}`)} — ${t(`audience.type.${type}`)}`,
+          }))}
         />
       </Field>
 
-      {(value.type === 'EVENT_BUYERS' || value.type === 'EVENT_SAVERS') && (
-        <div className={styles.full}>
-          <EventPicker
-            max={1}
-            value={value.eventId ? [value.eventId] : []}
-            onChange={(ids) => onChange({ ...value, eventId: ids[0] ?? '' })}
-          />
+      {Object.entries(spec).map(([key, paramSpec]) => (
+        <div key={key} className={FULL_WIDTH_KINDS.has(paramSpec.kind) ? styles.full : undefined}>
+          <AudienceParamField paramKey={key} spec={paramSpec} value={value} onChange={onChange} id={id(key)} error={errorFor(key)} />
         </div>
-      )}
-
-      {value.type === 'CHANNEL_SUBSCRIBERS' && (
-        <Field id={id('channel')} label={t('audience.channel')}>
-          {/* Primitives, not SimpleCustomSelect: its trigger takes no id, so the <Label> could not name it. */}
-          <CustomSelect value={value.channelId || undefined} onValueChange={(channelId) => channelId && onChange({ ...value, channelId })}>
-            <CustomSelectTrigger id={id('channel')}>
-              <CustomSelectValue placeholder={t('audience.channelPlaceholder')} />
-            </CustomSelectTrigger>
-            <CustomSelectContent>
-              {(channels.data ?? []).map((channel) => (
-                <CustomSelectItem key={channel.id} value={channel.id}>{channel.name}</CustomSelectItem>
-              ))}
-            </CustomSelectContent>
-          </CustomSelect>
-        </Field>
-      )}
+      ))}
 
       <Field id={id('country')} label={t('audience.country')} error={countryError}>
         <Input

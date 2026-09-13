@@ -11,6 +11,7 @@ import type { MailingCampaignStatus } from '@live-show/api-contracts';
 import { PlatformPageShell } from '../../components/PlatformPageShell';
 import { useAudienceCountQuery, useMailingCampaignQuery } from '../queries/mailing.queries';
 import { useCancelMailingCampaignMutation, useDispatchMailingCampaignMutation } from '../mutations/mailing.mutations';
+import { describeAudience } from '../utils/describe-audience';
 import { DispatchConfirmDialog } from './DispatchConfirmDialog';
 import tableStyles from '../../components/PlatformTable.module.scss';
 import mailingStyles from './MailingTable.module.scss';
@@ -101,7 +102,7 @@ export function CampaignDetailPage({ campaignId }: { campaignId: string }) {
             <div><dt>{t('wizard.subject')}</dt><dd>{campaign.subject}</dd></div>
             <div>
               <dt>{t('campaigns.colAudience')}</dt>
-              <dd>{t(`audience.type.${audience.type}`)}{audience.country ? ` · ${audience.country}` : ''}</dd>
+              <dd>{describeAudience(audience, t)}</dd>
             </div>
           </dl>
           {status === 'SCHEDULED' && campaign.scheduledAt && (
