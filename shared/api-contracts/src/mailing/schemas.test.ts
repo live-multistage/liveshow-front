@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { MAILING_AUDIENCE_TYPES } from './types';
 import {
   isHttpsUrl,
   mailingAudienceSchema,
@@ -73,6 +74,95 @@ describe('mailingAudienceSchema', () => {
     [{ type: 'EVERYONE' }, false],
   ])('%j → %s', (input, valid) => {
     expect(mailingAudienceSchema.safeParse(input).success).toBe(valid);
+  });
+});
+
+describe('mailingAudienceSchema — new audience types', () => {
+  it.each<[unknown, boolean]>([
+    [{ type: 'EVENT_BUYERS_NOT_WATCHED', eventId: U1 }, true],
+    [{ type: 'EVENT_BUYERS_NOT_WATCHED' }, false],
+    [{ type: 'ORG_BUYERS', organizationId: U1 }, true],
+    [{ type: 'ORG_BUYERS' }, false],
+    [{ type: 'ARTIST_BUYERS', artistId: U1 }, true],
+    [{ type: 'ARTIST_BUYERS' }, false],
+    [{ type: 'CATEGORY_BUYERS', eventCategory: 'MUSIC' }, true],
+    [{ type: 'CATEGORY_BUYERS', eventCategory: 'NOT_A_CATEGORY' }, false],
+    [{ type: 'ABANDONED_CARTS', olderThanHours: 24 }, true],
+    [{ type: 'ABANDONED_CARTS', olderThanHours: 0 }, false],
+    [{ type: 'ABANDONED_CARTS', olderThanHours: 721 }, false],
+    [{ type: 'PENDING_ORDERS', olderThanHours: 1 }, true],
+    [{ type: 'PENDING_ORDERS', olderThanHours: 169 }, false],
+    [{ type: 'COUPON_USERS', couponCode: 'PROMO10' }, true],
+    [{ type: 'COUPON_USERS', couponCode: '' }, false],
+    [{ type: 'COUPON_USERS', couponCode: 'x'.repeat(65) }, false],
+    [{ type: 'REFUNDED_BUYERS' }, true],
+    [{ type: 'REFUNDED_BUYERS', eventId: U1 }, false],
+    [{ type: 'NEVER_PURCHASED', minAccountAgeDays: 30 }, true],
+    [{ type: 'NEVER_PURCHASED', minAccountAgeDays: -1 }, false],
+    [{ type: 'NEVER_PURCHASED', minAccountAgeDays: 3651 }, false],
+    [{ type: 'REPEAT_BUYERS', minEvents: 3 }, true],
+    [{ type: 'REPEAT_BUYERS', minEvents: 1 }, false],
+    [{ type: 'REPEAT_BUYERS', minEvents: 101 }, false],
+    [{ type: 'INACTIVE_USERS', days: 60 }, true],
+    [{ type: 'INACTIVE_USERS', days: 6 }, false],
+    [{ type: 'CHANNEL_EXPIRING', withinDays: 7 }, true],
+    [{ type: 'CHANNEL_EXPIRING', channelId: U1, withinDays: 7 }, true],
+    [{ type: 'CHANNEL_EXPIRING', withinDays: 91 }, false],
+    [{ type: 'CHANNEL_CHURNED' }, true],
+    [{ type: 'CHANNEL_CHURNED', channelId: U1 }, true],
+    [{ type: 'FREE_ONLY_VIEWERS' }, true],
+    [{ type: 'APP_USERS' }, true],
+    [{ type: 'NO_APP_USERS' }, true],
+    [{ type: 'ORG_MEMBERS' }, true],
+    [{ type: 'ORG_MEMBERS', organizationId: U1 }, true],
+    [{ type: 'ORG_MEMBERS_INACTIVE', days: 60 }, true],
+    [{ type: 'ORG_MEMBERS_INACTIVE', days: 731 }, false],
+    [{ type: 'APPLICANTS', applicationKind: 'ORGANIZER', applicationStatus: 'PENDING' }, true],
+    [{ type: 'APPLICANTS', applicationKind: 'ARTIST', applicationStatus: 'APPROVED' }, true],
+    [{ type: 'APPLICANTS', applicationKind: 'NOT_A_KIND', applicationStatus: 'PENDING' }, false],
+    [{ type: 'APPLICANTS', applicationKind: 'ARTIST' }, false],
+    [{ type: 'ADVERTISERS' }, true],
+    [{ type: 'ARTIST_OWNERS' }, true],
+    [{ type: 'ARTIST_FOLLOWERS', artistId: U1 }, true],
+    [{ type: 'ARTIST_FOLLOWERS' }, false],
+    [{ type: 'ORG_FOLLOWERS', organizationId: U1 }, true],
+    [{ type: 'ORG_FOLLOWERS' }, false],
+  ])('%j → %s', (input, valid) => {
+    expect(mailingAudienceSchema.safeParse(input).success).toBe(valid);
+  });
+});
+
+describe('MAILING_AUDIENCE_TYPES pin list', () => {
+  it('matches the plan list exactly, in order', () => {
+    expect(MAILING_AUDIENCE_TYPES).toEqual([
+      'ALL_VERIFIED',
+      'EVENT_BUYERS',
+      'EVENT_SAVERS',
+      'CHANNEL_SUBSCRIBERS',
+      'EVENT_BUYERS_NOT_WATCHED',
+      'ORG_BUYERS',
+      'ARTIST_BUYERS',
+      'CATEGORY_BUYERS',
+      'ABANDONED_CARTS',
+      'PENDING_ORDERS',
+      'COUPON_USERS',
+      'REFUNDED_BUYERS',
+      'NEVER_PURCHASED',
+      'REPEAT_BUYERS',
+      'INACTIVE_USERS',
+      'CHANNEL_EXPIRING',
+      'CHANNEL_CHURNED',
+      'FREE_ONLY_VIEWERS',
+      'APP_USERS',
+      'NO_APP_USERS',
+      'ORG_MEMBERS',
+      'ORG_MEMBERS_INACTIVE',
+      'APPLICANTS',
+      'ADVERTISERS',
+      'ARTIST_OWNERS',
+      'ARTIST_FOLLOWERS',
+      'ORG_FOLLOWERS',
+    ]);
   });
 });
 

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Building2, Calendar, Radio } from 'lucide-react';
 import { useOrganizationBySlug, useOrganizationEvents } from '../hooks/use-organizations';
 import { OrganizationPublicEventCard } from '../components/OrganizationPublicEventCard';
+import { FollowButton } from '@/features/follows';
 import styles from './OrganizationPublicPage.module.scss';
 
 type Tab = 'upcoming' | 'past';
@@ -86,6 +87,12 @@ export function OrganizationPublicPage({ slug }: Props) {
             <h1 className={styles.orgName}>{org.name}</h1>
             <p className={styles.orgSlug}>@{org.slug}</p>
           </div>
+          <FollowButton
+            targetType="ORGANIZATION"
+            targetId={org.id}
+            showCount
+            className={styles.followAction}
+          />
         </div>
 
         <div className={styles.body}>

@@ -28,6 +28,7 @@ export * from './playback-progress/types';
 export * from './tickets/types';
 export * from './tickets/group';
 export * from './wishlist/types';
+export * from './follows/types';
 export * from './notifications/types';
 export * from './notifications/safe-link';
 export * from './notifications/preference-map';

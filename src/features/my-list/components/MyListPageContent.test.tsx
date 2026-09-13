@@ -47,6 +47,12 @@ vi.mock('@/shared/components/EmptyStatePanel/EmptyStatePanel', () => ({
   ),
 }));
 
+// FollowingList tem suíte própria; aqui só verificamos que a aba "Seguindo"
+// alterna para ela e some com a lista de eventos.
+vi.mock('@/features/follows', () => ({
+  FollowingList: () => <div data-testid="following-list" />,
+}));
+
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MyListPageContent } from './MyListPageContent';
 import type { AccessibleEvent } from '../types/my-list.types';
@@ -186,6 +192,30 @@ describe('MyListPageContent', () => {
 
     expect(screen.getByText('noResults')).toBeInTheDocument();
     expect(screen.queryByTestId('empty-panel')).not.toBeInTheDocument();
+  });
+
+  it('switches to the following tab and hides the events view', () => {
+    state({ data: [EVENT] });
+    render(<MyListPageContent />);
+
+    expect(screen.getByText('Rock in Rio')).toBeInTheDocument();
+    expect(screen.queryByTestId('following-list')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'tab' }));
+
+    expect(screen.getByTestId('following-list')).toBeInTheDocument();
+    expect(screen.queryByText('Rock in Rio')).not.toBeInTheDocument();
+  });
+
+  it('hides the search box on the following tab', () => {
+    state({ data: [EVENT] });
+    render(<MyListPageContent />);
+
+    expect(screen.getByRole('searchbox')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'tab' }));
+
+    expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
   });
 
   it('lets the user retry after a failure', () => {

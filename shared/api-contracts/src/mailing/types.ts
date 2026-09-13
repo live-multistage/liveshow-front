@@ -1,3 +1,5 @@
+import type { EventCategory } from '../events/types';
+
 export type MailingCategory = 'MARKETING' | 'ANNOUNCEMENT';
 export type MailingLanguage = 'pt' | 'en' | 'es';
 
@@ -78,13 +80,190 @@ export interface MailingAssetResponse {
   url: string;
 }
 
-export type MailingAudienceType = 'ALL_VERIFIED' | 'EVENT_BUYERS' | 'EVENT_SAVERS' | 'CHANNEL_SUBSCRIBERS';
+export type MailingAudienceType =
+  | 'ALL_VERIFIED'
+  | 'EVENT_BUYERS'
+  | 'EVENT_SAVERS'
+  | 'CHANNEL_SUBSCRIBERS'
+  | 'EVENT_BUYERS_NOT_WATCHED'
+  | 'ORG_BUYERS'
+  | 'ARTIST_BUYERS'
+  | 'CATEGORY_BUYERS'
+  | 'ABANDONED_CARTS'
+  | 'PENDING_ORDERS'
+  | 'COUPON_USERS'
+  | 'REFUNDED_BUYERS'
+  | 'NEVER_PURCHASED'
+  | 'REPEAT_BUYERS'
+  | 'INACTIVE_USERS'
+  | 'CHANNEL_EXPIRING'
+  | 'CHANNEL_CHURNED'
+  | 'FREE_ONLY_VIEWERS'
+  | 'APP_USERS'
+  | 'NO_APP_USERS'
+  | 'ORG_MEMBERS'
+  | 'ORG_MEMBERS_INACTIVE'
+  | 'APPLICANTS'
+  | 'ADVERTISERS'
+  | 'ARTIST_OWNERS'
+  | 'ARTIST_FOLLOWERS'
+  | 'ORG_FOLLOWERS';
+
+export const MAILING_AUDIENCE_TYPES: MailingAudienceType[] = [
+  'ALL_VERIFIED',
+  'EVENT_BUYERS',
+  'EVENT_SAVERS',
+  'CHANNEL_SUBSCRIBERS',
+  'EVENT_BUYERS_NOT_WATCHED',
+  'ORG_BUYERS',
+  'ARTIST_BUYERS',
+  'CATEGORY_BUYERS',
+  'ABANDONED_CARTS',
+  'PENDING_ORDERS',
+  'COUPON_USERS',
+  'REFUNDED_BUYERS',
+  'NEVER_PURCHASED',
+  'REPEAT_BUYERS',
+  'INACTIVE_USERS',
+  'CHANNEL_EXPIRING',
+  'CHANNEL_CHURNED',
+  'FREE_ONLY_VIEWERS',
+  'APP_USERS',
+  'NO_APP_USERS',
+  'ORG_MEMBERS',
+  'ORG_MEMBERS_INACTIVE',
+  'APPLICANTS',
+  'ADVERTISERS',
+  'ARTIST_OWNERS',
+  'ARTIST_FOLLOWERS',
+  'ORG_FOLLOWERS',
+];
+
+export const MAILING_AUDIENCE_GROUPS: Array<{
+  id: 'core' | 'event' | 'funnel' | 'engagement' | 'b2b' | 'follows';
+  types: MailingAudienceType[];
+}> = [
+  { id: 'core', types: ['ALL_VERIFIED'] },
+  {
+    id: 'event',
+    types: ['EVENT_BUYERS', 'EVENT_SAVERS', 'EVENT_BUYERS_NOT_WATCHED', 'ORG_BUYERS', 'ARTIST_BUYERS', 'CATEGORY_BUYERS'],
+  },
+  {
+    id: 'funnel',
+    types: ['ABANDONED_CARTS', 'PENDING_ORDERS', 'COUPON_USERS', 'REFUNDED_BUYERS', 'NEVER_PURCHASED', 'REPEAT_BUYERS'],
+  },
+  {
+    id: 'engagement',
+    types: [
+      'CHANNEL_SUBSCRIBERS',
+      'INACTIVE_USERS',
+      'CHANNEL_EXPIRING',
+      'CHANNEL_CHURNED',
+      'FREE_ONLY_VIEWERS',
+      'APP_USERS',
+      'NO_APP_USERS',
+    ],
+  },
+  { id: 'b2b', types: ['ORG_MEMBERS', 'ORG_MEMBERS_INACTIVE', 'APPLICANTS', 'ADVERTISERS', 'ARTIST_OWNERS'] },
+  { id: 'follows', types: ['ARTIST_FOLLOWERS', 'ORG_FOLLOWERS'] },
+];
+
+// Kept in sync with events/types.ts EventCategory; a copy because this table
+// is generic over string enums and importing the union type is enough,
+// re-declaring the value array keeps this module self-contained for the
+// audience spec table below.
+export const MAILING_EVENT_CATEGORIES: EventCategory[] = [
+  'MUSIC', 'COMEDY', 'THEATER', 'DANCE', 'SPORTS',
+  'FOOTBALL', 'MOTORSPORT', 'CORPORATE',
+  'TALK', 'RELIGIOUS', 'EDUCATION', 'OTHER',
+];
+
+export const MAILING_APPLICATION_KINDS = ['ORGANIZER', 'ARTIST'] as const;
+export type MailingApplicationKind = (typeof MAILING_APPLICATION_KINDS)[number];
+
+export const MAILING_APPLICATION_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;
+export type MailingApplicationStatus = (typeof MAILING_APPLICATION_STATUSES)[number];
+
+export type MailingAudienceParamKind =
+  | 'eventId'
+  | 'channelId'
+  | 'organizationId'
+  | 'artistId'
+  | 'couponCode'
+  | 'eventCategory'
+  | 'applicationKind'
+  | 'applicationStatus'
+  | 'int';
+
+export interface MailingAudienceParamSpec {
+  kind: MailingAudienceParamKind;
+  optional?: boolean;
+  min?: number;
+  max?: number;
+  default?: number;
+}
+
+export const MAILING_AUDIENCE_SPECS: Record<MailingAudienceType, Record<string, MailingAudienceParamSpec>> = {
+  ALL_VERIFIED: {},
+  EVENT_BUYERS: { eventId: { kind: 'eventId' } },
+  EVENT_SAVERS: { eventId: { kind: 'eventId' } },
+  CHANNEL_SUBSCRIBERS: { channelId: { kind: 'channelId' } },
+  EVENT_BUYERS_NOT_WATCHED: { eventId: { kind: 'eventId' } },
+  ORG_BUYERS: { organizationId: { kind: 'organizationId' } },
+  ARTIST_BUYERS: { artistId: { kind: 'artistId' } },
+  CATEGORY_BUYERS: { eventCategory: { kind: 'eventCategory' } },
+  ABANDONED_CARTS: { olderThanHours: { kind: 'int', min: 1, max: 720, default: 24 } },
+  PENDING_ORDERS: { olderThanHours: { kind: 'int', min: 1, max: 168, default: 1 } },
+  COUPON_USERS: { couponCode: { kind: 'couponCode' } },
+  REFUNDED_BUYERS: {},
+  NEVER_PURCHASED: { minAccountAgeDays: { kind: 'int', min: 0, max: 3650, default: 30 } },
+  REPEAT_BUYERS: { minEvents: { kind: 'int', min: 2, max: 100, default: 3 } },
+  INACTIVE_USERS: { days: { kind: 'int', min: 7, max: 730, default: 60 } },
+  CHANNEL_EXPIRING: {
+    channelId: { kind: 'channelId', optional: true },
+    withinDays: { kind: 'int', min: 1, max: 90, default: 7 },
+  },
+  CHANNEL_CHURNED: { channelId: { kind: 'channelId', optional: true } },
+  FREE_ONLY_VIEWERS: {},
+  APP_USERS: {},
+  NO_APP_USERS: {},
+  ORG_MEMBERS: { organizationId: { kind: 'organizationId', optional: true } },
+  ORG_MEMBERS_INACTIVE: { days: { kind: 'int', min: 7, max: 730, default: 60 } },
+  APPLICANTS: { applicationKind: { kind: 'applicationKind' }, applicationStatus: { kind: 'applicationStatus' } },
+  ADVERTISERS: {},
+  ARTIST_OWNERS: {},
+  ARTIST_FOLLOWERS: { artistId: { kind: 'artistId' } },
+  ORG_FOLLOWERS: { organizationId: { kind: 'organizationId' } },
+};
 
 export type MailingAudience =
   | { type: 'ALL_VERIFIED'; country?: string }
   | { type: 'EVENT_BUYERS'; eventId: string; country?: string }
   | { type: 'EVENT_SAVERS'; eventId: string; country?: string }
-  | { type: 'CHANNEL_SUBSCRIBERS'; channelId: string; country?: string };
+  | { type: 'CHANNEL_SUBSCRIBERS'; channelId: string; country?: string }
+  | { type: 'EVENT_BUYERS_NOT_WATCHED'; eventId: string; country?: string }
+  | { type: 'ORG_BUYERS'; organizationId: string; country?: string }
+  | { type: 'ARTIST_BUYERS'; artistId: string; country?: string }
+  | { type: 'CATEGORY_BUYERS'; eventCategory: EventCategory; country?: string }
+  | { type: 'ABANDONED_CARTS'; olderThanHours: number; country?: string }
+  | { type: 'PENDING_ORDERS'; olderThanHours: number; country?: string }
+  | { type: 'COUPON_USERS'; couponCode: string; country?: string }
+  | { type: 'REFUNDED_BUYERS'; country?: string }
+  | { type: 'NEVER_PURCHASED'; minAccountAgeDays: number; country?: string }
+  | { type: 'REPEAT_BUYERS'; minEvents: number; country?: string }
+  | { type: 'INACTIVE_USERS'; days: number; country?: string }
+  | { type: 'CHANNEL_EXPIRING'; channelId?: string; withinDays: number; country?: string }
+  | { type: 'CHANNEL_CHURNED'; channelId?: string; country?: string }
+  | { type: 'FREE_ONLY_VIEWERS'; country?: string }
+  | { type: 'APP_USERS'; country?: string }
+  | { type: 'NO_APP_USERS'; country?: string }
+  | { type: 'ORG_MEMBERS'; organizationId?: string; country?: string }
+  | { type: 'ORG_MEMBERS_INACTIVE'; days: number; country?: string }
+  | { type: 'APPLICANTS'; applicationKind: MailingApplicationKind; applicationStatus: MailingApplicationStatus; country?: string }
+  | { type: 'ADVERTISERS'; country?: string }
+  | { type: 'ARTIST_OWNERS'; country?: string }
+  | { type: 'ARTIST_FOLLOWERS'; artistId: string; country?: string }
+  | { type: 'ORG_FOLLOWERS'; organizationId: string; country?: string };
 
 export interface AudienceCountRequest {
   audience: MailingAudience;

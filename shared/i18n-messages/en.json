@@ -1865,7 +1865,30 @@
           "ALL_VERIFIED": "All verified users",
           "EVENT_BUYERS": "Buyers of an event",
           "EVENT_SAVERS": "Saved an event (no ticket)",
-          "CHANNEL_SUBSCRIBERS": "Active subscribers of a channel"
+          "CHANNEL_SUBSCRIBERS": "Active subscribers of a channel",
+          "EVENT_BUYERS_NOT_WATCHED": "Buyers who haven't watched an event",
+          "ORG_BUYERS": "Buyers of any event from an organization",
+          "ARTIST_BUYERS": "Buyers of an artist's events",
+          "CATEGORY_BUYERS": "Buyers by event category",
+          "ABANDONED_CARTS": "Abandoned carts",
+          "PENDING_ORDERS": "Pending orders",
+          "COUPON_USERS": "Used a coupon",
+          "REFUNDED_BUYERS": "Refunded buyers",
+          "NEVER_PURCHASED": "Never purchased",
+          "REPEAT_BUYERS": "Repeat buyers",
+          "INACTIVE_USERS": "Inactive users",
+          "CHANNEL_EXPIRING": "Channel subscriptions expiring soon",
+          "CHANNEL_CHURNED": "Cancelled channel subscriptions",
+          "FREE_ONLY_VIEWERS": "Watched free content only",
+          "APP_USERS": "App users",
+          "NO_APP_USERS": "No app installed",
+          "ORG_MEMBERS": "Members of an organization",
+          "ORG_MEMBERS_INACTIVE": "Inactive organizations (owners/admins)",
+          "APPLICANTS": "Organizer/artist applicants",
+          "ADVERTISERS": "Advertisers",
+          "ARTIST_OWNERS": "Artist profile owners",
+          "ARTIST_FOLLOWERS": "Followers of an artist",
+          "ORG_FOLLOWERS": "Followers of an organization"
         },
         "country": "Country (optional)",
         "countryAll": "All countries",
@@ -1874,7 +1897,59 @@
         "counting": "Counting audience…",
         "summary": "{eligible} people · {skipped} skipped (opt-out) · ~{days} days on the current plan",
         "summaryOther": "{unverified} unverified email · {deleted} deleted accounts",
-        "countError": "Couldn't count the audience."
+        "countError": "Couldn't count the audience.",
+        "group": {
+          "core": "General",
+          "event": "Event",
+          "funnel": "Purchase funnel",
+          "engagement": "Engagement",
+          "b2b": "Organizers & partners",
+          "follows": "Follows"
+        },
+        "param": {
+          "eventId": "Event",
+          "channelId": "Channel",
+          "organizationId": "Organization",
+          "artistId": "Artist",
+          "couponCode": "Coupon code",
+          "eventCategory": "Event category",
+          "applicationKind": "Application type",
+          "applicationStatus": "Application status",
+          "olderThanHours": "Older than (hours)",
+          "minAccountAgeDays": "Minimum account age (days)",
+          "minEvents": "Minimum events",
+          "days": "Days",
+          "withinDays": "Within (days)"
+        },
+        "anyChannel": "Any channel",
+        "anyOrganization": "Any organization",
+        "organizationPlaceholder": "Choose an organization",
+        "artistPlaceholder": "Choose an artist",
+        "searchOrganization": "Search organization",
+        "searchArtist": "Search artist",
+        "eventCategory": {
+          "MUSIC": "Music",
+          "COMEDY": "Comedy",
+          "THEATER": "Theater",
+          "DANCE": "Dance",
+          "SPORTS": "Sports",
+          "FOOTBALL": "Football",
+          "MOTORSPORT": "Motorsport",
+          "CORPORATE": "Corporate",
+          "TALK": "Talk",
+          "RELIGIOUS": "Religious",
+          "EDUCATION": "Education",
+          "OTHER": "Other"
+        },
+        "applicationKind": {
+          "ORGANIZER": "Organizer",
+          "ARTIST": "Artist"
+        },
+        "applicationStatus": {
+          "PENDING": "Pending",
+          "APPROVED": "Approved",
+          "REJECTED": "Rejected"
+        }
       },
       "wizard": {
         "title": "New campaign",
@@ -3283,6 +3358,18 @@
         "error": "Could not complete the action. Please try again."
       }
     }
+  },
+  "follows": {
+    "follow": "Follow",
+    "following": "Following",
+    "unfollow": "Unfollow",
+    "followersCount": "{count, plural, one {# follower} other {# followers}}",
+    "loginToFollow": "Log in to follow",
+    "tab": "Following",
+    "emptyTitle": "You're not following anyone yet",
+    "emptyDescription": "Follow artists and organizations to see their updates here.",
+    "artists": "Artists",
+    "organizations": "Organizations"
   },
   "unsubscribe": {
     "protectedBadge": "Signed and verified link",

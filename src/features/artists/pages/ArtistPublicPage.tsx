@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Calendar, Heart, Ticket, User } from 'lucide-react';
+import { Calendar, Ticket, User } from 'lucide-react';
 import { useArtist, useArtistEvents } from '../hooks/use-artists';
 import { ShowCard } from '@/features/events/components/public/ShowCard';
 import { eventToShow } from '@/features/events/utils/event-adapter';
 import { Skeleton } from '@live-show/design-system';
+import { FollowButton } from '@/features/follows';
 import { SOCIAL_ICONS } from '../components/SocialIcons';
 import styles from './ArtistPublicPage.module.scss';
 
@@ -133,12 +134,7 @@ export function ArtistPublicPage({ slugOrId }: Props) {
 
         <div className={styles.heroBottom}>
           <div className={styles.actionsRow}>
-            {/* ponytail: no follow backend yet — visual only, disabled. Wire to
-                a real follow mutation when one exists for artists. */}
-            <button type="button" className={styles.followButton} disabled>
-              <Heart size={15} />
-              {t('follow')}
-            </button>
+            <FollowButton targetType="ARTIST" targetId={artist.id} showCount />
             <a href="#events" className={styles.seeShowsButton}>
               <Ticket size={15} />
               {t('seeShows')}
@@ -192,10 +188,7 @@ export function ArtistPublicPage({ slugOrId }: Props) {
             </div>
             <p className={styles.emptyTitle}>{t('empty.title')}</p>
             <p className={styles.emptyDescription}>{t('empty.description')}</p>
-            <button type="button" className={styles.followButton} disabled>
-              <Heart size={15} />
-              {t('empty.cta')}
-            </button>
+            <FollowButton targetType="ARTIST" targetId={artist.id} />
           </div>
         ) : (
           <div className={styles.eventsGrid}>

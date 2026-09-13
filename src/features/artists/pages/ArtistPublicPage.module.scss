@@ -235,28 +235,6 @@
   flex-wrap: wrap;
 }
 
-.followButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #ff2e9e;
-  color: #0a0a0b;
-  border: none;
-  border-radius: 10px;
-  padding: 12px 22px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: filter .15s ease;
-
-  &:hover { filter: brightness(1.08); }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: .55;
-    filter: none;
-  }
-}
 
 .seeShowsButton {
   display: inline-flex;

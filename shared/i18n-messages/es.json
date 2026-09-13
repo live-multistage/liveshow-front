@@ -1865,7 +1865,30 @@
           "ALL_VERIFIED": "Todos los usuarios verificados",
           "EVENT_BUYERS": "Compradores de un evento",
           "EVENT_SAVERS": "Guardaron un evento (sin entrada)",
-          "CHANNEL_SUBSCRIBERS": "Suscriptores activos de un canal"
+          "CHANNEL_SUBSCRIBERS": "Suscriptores activos de un canal",
+          "EVENT_BUYERS_NOT_WATCHED": "Compradores que no vieron un evento",
+          "ORG_BUYERS": "Compradores de cualquier evento de una organización",
+          "ARTIST_BUYERS": "Compradores de eventos de un artista",
+          "CATEGORY_BUYERS": "Compradores por categoría de evento",
+          "ABANDONED_CARTS": "Carritos abandonados",
+          "PENDING_ORDERS": "Pedidos pendientes",
+          "COUPON_USERS": "Usaron un cupón",
+          "REFUNDED_BUYERS": "Compradores reembolsados",
+          "NEVER_PURCHASED": "Nunca compraron",
+          "REPEAT_BUYERS": "Compradores recurrentes",
+          "INACTIVE_USERS": "Usuarios inactivos",
+          "CHANNEL_EXPIRING": "Suscripciones de canal por vencer",
+          "CHANNEL_CHURNED": "Suscripciones de canal canceladas",
+          "FREE_ONLY_VIEWERS": "Solo vieron contenido gratuito",
+          "APP_USERS": "Usuarios de la app",
+          "NO_APP_USERS": "Sin la app instalada",
+          "ORG_MEMBERS": "Miembros de una organización",
+          "ORG_MEMBERS_INACTIVE": "Organizaciones inactivas (dueños/admins)",
+          "APPLICANTS": "Candidatos a organizador/artista",
+          "ADVERTISERS": "Anunciantes",
+          "ARTIST_OWNERS": "Dueños de perfil de artista",
+          "ARTIST_FOLLOWERS": "Seguidores de un artista",
+          "ORG_FOLLOWERS": "Seguidores de una organización"
         },
         "country": "País (opcional)",
         "countryAll": "Todos los países",
@@ -1874,7 +1897,59 @@
         "counting": "Calculando público…",
         "summary": "{eligible} personas · {skipped} omitidas (opt-out) · ~{days} días en el plan actual",
         "summaryOther": "{unverified} sin correo verificado · {deleted} cuentas eliminadas",
-        "countError": "No se pudo calcular el público."
+        "countError": "No se pudo calcular el público.",
+        "group": {
+          "core": "General",
+          "event": "Evento",
+          "funnel": "Embudo de compra",
+          "engagement": "Interacción",
+          "b2b": "Organizadores y socios",
+          "follows": "Seguidores"
+        },
+        "param": {
+          "eventId": "Evento",
+          "channelId": "Canal",
+          "organizationId": "Organización",
+          "artistId": "Artista",
+          "couponCode": "Código del cupón",
+          "eventCategory": "Categoría del evento",
+          "applicationKind": "Tipo de solicitud",
+          "applicationStatus": "Estado de la solicitud",
+          "olderThanHours": "Más antiguo que (horas)",
+          "minAccountAgeDays": "Antigüedad mínima de la cuenta (días)",
+          "minEvents": "Mínimo de eventos",
+          "days": "Días",
+          "withinDays": "Dentro de (días)"
+        },
+        "anyChannel": "Cualquier canal",
+        "anyOrganization": "Cualquier organización",
+        "organizationPlaceholder": "Elige una organización",
+        "artistPlaceholder": "Elige un artista",
+        "searchOrganization": "Buscar organización",
+        "searchArtist": "Buscar artista",
+        "eventCategory": {
+          "MUSIC": "Música",
+          "COMEDY": "Comedia",
+          "THEATER": "Teatro",
+          "DANCE": "Danza",
+          "SPORTS": "Deportes",
+          "FOOTBALL": "Fútbol",
+          "MOTORSPORT": "Automovilismo",
+          "CORPORATE": "Corporativo",
+          "TALK": "Charla",
+          "RELIGIOUS": "Religioso",
+          "EDUCATION": "Educación",
+          "OTHER": "Otro"
+        },
+        "applicationKind": {
+          "ORGANIZER": "Organizador",
+          "ARTIST": "Artista"
+        },
+        "applicationStatus": {
+          "PENDING": "Pendiente",
+          "APPROVED": "Aprobado",
+          "REJECTED": "Rechazado"
+        }
       },
       "wizard": {
         "title": "Nueva campaña",
@@ -3283,6 +3358,18 @@
         "error": "No se pudo completar la acción. Inténtalo de nuevo."
       }
     }
+  },
+  "follows": {
+    "follow": "Seguir",
+    "following": "Siguiendo",
+    "unfollow": "Dejar de seguir",
+    "followersCount": "{count, plural, one {# seguidor} other {# seguidores}}",
+    "loginToFollow": "Inicia sesión para seguir",
+    "tab": "Siguiendo",
+    "emptyTitle": "Todavía no sigues a nadie",
+    "emptyDescription": "Sigue artistas y organizaciones para ver sus novedades aquí.",
+    "artists": "Artistas",
+    "organizations": "Organizaciones"
   },
   "unsubscribe": {
     "protectedBadge": "Enlace firmado y verificado",

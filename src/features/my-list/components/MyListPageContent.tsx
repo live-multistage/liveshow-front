@@ -9,6 +9,7 @@ import { useAuth } from '@/features/account/hooks/use-auth';
 import { usePlaybackProgressQuery } from '@/features/playback-progress';
 import { ShowCard, eventToShow, useRecommendedEventsQuery } from '@/features/events';
 import { EmptyStatePanel } from '@/shared/components/EmptyStatePanel/EmptyStatePanel';
+import { FollowingList } from '@/features/follows';
 import { useAccessibleEventsQuery } from '../queries/get-accessible-events';
 import {
   MY_LIST_FILTERS,
@@ -23,10 +24,14 @@ import { ReplayCard } from './ReplayCard';
 import { MyListEmptyIllustration } from './MyListEmptyIllustration';
 import styles from './MyListPageContent.module.scss';
 
+type MyListView = 'events' | 'following';
+
 export function MyListPageContent() {
   const t = useTranslations('myList');
+  const tFollows = useTranslations('follows');
   const { data: events, isLoading, isError, refetch } = useAccessibleEventsQuery();
 
+  const [view, setView] = useState<MyListView>('events');
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<MyListFilter>('all');
 
@@ -61,7 +66,7 @@ export function MyListPageContent() {
           </p>
         </div>
 
-        {hasEvents && (
+        {hasEvents && view === 'events' && (
           <div className={styles.search}>
             <Search size={15} aria-hidden="true" />
             <input
@@ -76,7 +81,28 @@ export function MyListPageContent() {
         )}
       </div>
 
-      {!isLoading && !isError && (
+      <div className={styles.viewTabs} role="group" aria-label={t('title')}>
+        <Chip
+          variant={view === 'events' ? 'active' : 'default'}
+          aria-pressed={view === 'events'}
+          onClick={() => setView('events')}
+        >
+          {t('title')}
+        </Chip>
+        <Chip
+          variant={view === 'following' ? 'active' : 'default'}
+          aria-pressed={view === 'following'}
+          onClick={() => setView('following')}
+        >
+          {tFollows('tab')}
+        </Chip>
+      </div>
+
+      {view === 'following' && <FollowingList />}
+
+      {view === 'events' && (
+        <>
+          {!isLoading && !isError && (
         <div className={styles.filters} role="group" aria-label={t('filtersLabel')}>
           {MY_LIST_FILTERS.map((key) => (
             <Chip
@@ -231,6 +257,8 @@ export function MyListPageContent() {
               </p>
             </div>
           )}
+        </>
+      )}
         </>
       )}
     </main>

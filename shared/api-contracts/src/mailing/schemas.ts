@@ -1,5 +1,15 @@
 import { z } from 'zod';
-import { MAILING_LIMITS as L, type MailingTextBlock, type MailingTextRun } from './types';
+import {
+  MAILING_APPLICATION_KINDS,
+  MAILING_APPLICATION_STATUSES,
+  MAILING_AUDIENCE_SPECS,
+  MAILING_AUDIENCE_TYPES,
+  MAILING_EVENT_CATEGORIES,
+  MAILING_LIMITS as L,
+  type MailingAudienceParamSpec,
+  type MailingTextBlock,
+  type MailingTextRun,
+} from './types';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const MAILING_ASSET_KEY =
@@ -72,12 +82,43 @@ const draftShape = z
 export const mailingTemplateDraftSchema = draftShape;
 export const mailingPreviewRequestSchema = draftShape.omit({ name: true });
 
-export const mailingAudienceSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('ALL_VERIFIED'), country: country.optional() }).strict(),
-  z.object({ type: z.literal('EVENT_BUYERS'), eventId: uuid, country: country.optional() }).strict(),
-  z.object({ type: z.literal('EVENT_SAVERS'), eventId: uuid, country: country.optional() }).strict(),
-  z.object({ type: z.literal('CHANNEL_SUBSCRIBERS'), channelId: uuid, country: country.optional() }).strict(),
-]);
+function audienceParamSchema(spec: MailingAudienceParamSpec): z.ZodTypeAny {
+  let base: z.ZodTypeAny;
+  switch (spec.kind) {
+    case 'eventId':
+    case 'channelId':
+    case 'organizationId':
+    case 'artistId':
+      base = uuid;
+      break;
+    case 'couponCode':
+      base = z.string().min(1, 'Obrigatório.').max(64, 'Máximo de 64 caracteres.');
+      break;
+    case 'eventCategory':
+      base = z.enum(MAILING_EVENT_CATEGORIES as [string, ...string[]]);
+      break;
+    case 'applicationKind':
+      base = z.enum(MAILING_APPLICATION_KINDS);
+      break;
+    case 'applicationStatus':
+      base = z.enum(MAILING_APPLICATION_STATUSES);
+      break;
+    case 'int':
+      base = z.number().int().min(spec.min ?? Number.MIN_SAFE_INTEGER).max(spec.max ?? Number.MAX_SAFE_INTEGER);
+      break;
+  }
+  return spec.optional ? base.optional() : base;
+}
+
+const mailingAudienceVariants = MAILING_AUDIENCE_TYPES.map((type) => {
+  const shape: Record<string, z.ZodTypeAny> = { type: z.literal(type), country: country.optional() };
+  for (const [param, spec] of Object.entries(MAILING_AUDIENCE_SPECS[type])) {
+    shape[param] = audienceParamSchema(spec);
+  }
+  return z.object(shape).strict();
+}) as unknown as [z.AnyZodObject, ...z.AnyZodObject[]];
+
+export const mailingAudienceSchema = z.discriminatedUnion('type', mailingAudienceVariants);
 
 export const createMailingCampaignSchema = z
   .object({

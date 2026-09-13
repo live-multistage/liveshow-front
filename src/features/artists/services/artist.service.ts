@@ -47,6 +47,12 @@ export const artistService = {
     return data;
   },
 
+  /** Name search for pickers (mailing audience, etc). Backend: GET /artists?q=. */
+  search: async (q: string): Promise<ArtistListItem[]> => {
+    const { data } = await httpClient.get<{ items: ArtistListItem[] }>('/artists', { params: { q } });
+    return data.items;
+  },
+
   /** Platform-admin catalog — every status, plus owner id. Admin only. */
   listAdmin: async (page = 1, pageSize = 50): Promise<{ items: AdminArtistListItem[]; total: number }> => {
     const { data } = await httpClient.get<{ items: AdminArtistListItem[]; total: number }>('/artists/admin', {
