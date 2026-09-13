@@ -16,6 +16,7 @@ export {
   useArtistInvitations,
   useEventLineup,
   useExternalArtistSearch,
+  useArtistInsights,
   artistKey,
   artistEventsKey,
   ARTISTS_LIST_KEY,
@@ -24,6 +25,8 @@ export {
   artistInvitationsKey,
   eventLineupKey,
   externalArtistSearchKey,
+  artistInsightsKey,
+  MAX_INSIGHT_IDS,
 } from './hooks/use-artists';
 
 // Mutations
@@ -70,4 +73,7 @@ export type {
   ArtistInvitationItem,
   ExternalArtistCandidate,
   SearchExternalArtistsResponse,
+  ArtistInsight,
+  ArtistBadge,
+  ArtistTrend,
 } from '@live-show/api-contracts';

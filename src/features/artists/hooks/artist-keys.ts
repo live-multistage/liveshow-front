@@ -10,3 +10,5 @@ export const adminArtistsKey = (page = 1) => ['artists', 'admin', page] as const
 export const artistInvitationsKey = (artistId: string) => ['artists', artistId, 'invitations'] as const;
 export const eventLineupKey = (eventId: string) => ['artists', 'lineup', eventId] as const;
 export const externalArtistSearchKey = (q: string) => ['artists', 'external-search', q] as const;
+// Sorted so the same set of artists shares a cache entry regardless of order.
+export const artistInsightsKey = (ids: string[]) => ['artists', 'insights', [...ids].sort().join(',')] as const;

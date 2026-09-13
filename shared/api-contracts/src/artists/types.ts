@@ -20,6 +20,9 @@ export interface ArtistResponse extends ArtistListItem {
   // an admin-created profile can sit unclaimed until the artist signs up).
   ownerUserId?: string | null;
   status: ArtistStatus;
+  // Derived public badges. The numeric artist score is never public.
+  // Optional so a web build tolerates an API that has not shipped it yet.
+  badges?: ArtistBadge[];
   // Present only for a stub created via the external-enrichment flow
   // (undefined for every manual/pre-existing artist).
   source?: 'spotify' | 'wikidata';
@@ -88,4 +91,25 @@ export interface ArtistInvitationItem {
   event: PaginatedEventsResponse['items'][number];
   status: LineupInvitationStatus;
   invitedByOrgId?: string;
+}
+
+export type ArtistBadge = 'TRENDING';
+
+export type ArtistTrend = 'UP' | 'FLAT' | 'DOWN';
+
+// GET /artists/insights?ids=… — organizer/admin lineup insight.
+export interface ArtistInsight {
+  artistId: string;
+  score: number; // 0–100
+  momentumScore: number; // 0–100
+  trend: ArtistTrend;
+  followers: number;
+  deezerFans: number | null;
+  eventsCount: number;
+  avgPurchasesPerEvent: number | null;
+  updatedAt: string | null; // null = not scored yet
+}
+
+export interface GetArtistInsightsResponse {
+  items: ArtistInsight[];
 }

@@ -9,6 +9,8 @@ import type {
   ArtistStatus,
   SearchExternalArtistsResponse,
   CreateArtistFromExternalRequest,
+  ArtistInsight,
+  GetArtistInsightsResponse,
 } from '@live-show/api-contracts';
 
 export interface CreateArtistRequest {
@@ -92,6 +94,14 @@ export const artistService = {
   getEventLineup: async (eventId: string): Promise<EventLineupItem[]> => {
     const { data } = await httpClient.get<EventLineupItem[]>(`/artists/lineup/${eventId}`);
     return data;
+  },
+
+  /** Organizer/admin lineup insight (score, momentum, supporting numbers). Max 50 ids. */
+  getInsights: async (ids: string[]): Promise<ArtistInsight[]> => {
+    const { data } = await httpClient.get<GetArtistInsightsResponse>('/artists/insights', {
+      params: { ids: ids.join(',') },
+    });
+    return data.items;
   },
 
   invite: async (artistId: string, eventId: string): Promise<void> => {

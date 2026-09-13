@@ -13,6 +13,7 @@ export {
   artistInvitationsKey,
   eventLineupKey,
   externalArtistSearchKey,
+  artistInsightsKey,
 } from './artist-keys';
 import {
   artistKey,
@@ -23,6 +24,7 @@ import {
   artistInvitationsKey,
   eventLineupKey,
   externalArtistSearchKey,
+  artistInsightsKey,
 } from './artist-keys';
 
 /** Accepts UUID or slug. */
@@ -91,5 +93,26 @@ export function useExternalArtistSearch(query: string) {
     queryKey: externalArtistSearchKey(query),
     queryFn: () => artistService.searchExternal(query),
     enabled: query.trim().length >= 2,
+  });
+}
+
+/** Mirrors the backend cap on GET /artists/insights. */
+export const MAX_INSIGHT_IDS = 50;
+
+// Scores change once a day — no point refetching on every focus/mount.
+const INSIGHTS_STALE_MS = 5 * 60_000;
+
+/**
+ * Lineup insight for the organizer UI. Errors (403 for a viewer without the
+ * organizer role, network) are not retried; consumers simply render nothing.
+ */
+export function useArtistInsights(ids: string[]) {
+  const uniqueIds = [...new Set(ids)].slice(0, MAX_INSIGHT_IDS);
+  return useQuery({
+    queryKey: artistInsightsKey(uniqueIds),
+    queryFn: () => artistService.getInsights(uniqueIds),
+    enabled: uniqueIds.length > 0,
+    staleTime: INSIGHTS_STALE_MS,
+    retry: false,
   });
 }
