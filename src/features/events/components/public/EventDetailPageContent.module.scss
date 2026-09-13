@@ -486,8 +486,9 @@
 .heroFullScrim {
   position: absolute;
   inset: 0;
+  // Top: black fade (was a pink radial) so the navbar stays legible over bright art.
   background:
-    radial-gradient(ellipse at 70% 20%, rgba(255, 46, 158, .22), transparent 55%),
+    linear-gradient(to bottom, rgba(8, 8, 10, .7) 0%, rgba(8, 8, 10, .25) 22%, transparent 40%),
     linear-gradient(to top, #08080a 4%, rgba(8, 8, 10, .55) 40%, transparent 75%);
   pointer-events: none;
 }
