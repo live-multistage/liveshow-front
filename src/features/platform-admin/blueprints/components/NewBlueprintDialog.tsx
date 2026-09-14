@@ -6,6 +6,7 @@ import {
   Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label,
 } from '@live-show/design-system';
 import type { AppError } from '@/lib/http/errors';
+import { blueprintErrorMessage } from '../errorMessage';
 import { useCreateBlueprintMutation } from '../mutations/blueprints.mutations';
 import styles from './NewBlueprintDialog.module.scss';
 
@@ -37,7 +38,7 @@ export function NewBlueprintDialog({ open, onOpenChange, onCreated }: Props) {
       { name: name.trim(), description: description.trim() || undefined },
       {
         onSuccess: (summary) => { reset(); onOpenChange(false); onCreated(summary.id); },
-        onError: (err: AppError) => setError(t(`errors.${err.code ?? 'GENERIC'}`)),
+        onError: (err: AppError) => setError(blueprintErrorMessage(t, err.code)),
       },
     );
   }

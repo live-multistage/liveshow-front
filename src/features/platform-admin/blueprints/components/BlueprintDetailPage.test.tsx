@@ -2,6 +2,7 @@ vi.mock('next-intl', () => ({
   useTranslations: () => {
     const t = (key: string, values?: Record<string, unknown>) => (values ? `${key}:${JSON.stringify(values)}` : key);
     t.rich = (key: string) => key;
+    t.has = (key: string) => key !== 'errors.SOME_UNKNOWN_CODE';
     return t;
   },
 }));
@@ -110,12 +111,28 @@ describe('BlueprintDetailPage', () => {
     expect(toastSuccess).toHaveBeenCalledWith('detail.copied');
   });
 
-  it('duplicates the active version as a new draft', async () => {
+  it('duplicates the active version as a new draft and toasts success', async () => {
+    duplicate.mockImplementation((_data, options) => options?.onSuccess?.());
     mockDetail(detail({ activeVersionId: 'v1' }));
     render(<BlueprintDetailPage id="b1" />);
     await userEvent.click(screen.getByRole('button', { name: 'detail.moreActions' }));
     await userEvent.click(await screen.findByText('detail.duplicate'));
     expect(duplicate).toHaveBeenCalledWith({ id: 'b1', graph }, expect.anything());
+    expect(toastSuccess).toHaveBeenCalledWith('detail.duplicated');
+  });
+
+  it('shows GENERIC for an error code with no i18n entry, and clears it on a later success', async () => {
+    deactivate.mockImplementationOnce((_data, options) => options?.onError?.({ code: 'SOME_UNKNOWN_CODE' }));
+    mockDetail(detail({ status: 'ACTIVE' }));
+    render(<BlueprintDetailPage id="b1" />);
+    await userEvent.click(screen.getByRole('button', { name: 'detail.deactivate' }));
+    await userEvent.click(screen.getByRole('button', { name: 'detail.deactivate' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('errors.GENERIC');
+
+    duplicate.mockImplementation((_data, options) => options?.onSuccess?.());
+    await userEvent.click(screen.getByRole('button', { name: 'detail.moreActions' }));
+    await userEvent.click(await screen.findByText('detail.duplicate'));
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('opens the import dialog from the menu', async () => {

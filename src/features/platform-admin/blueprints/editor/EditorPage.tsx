@@ -10,6 +10,7 @@ import { ReactFlowProvider } from '@xyflow/react';
 import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@live-show/design-system';
 import type { BlueprintCatalogEntry, BlueprintVersionDto } from '@live-show/api-contracts';
 import type { AppError } from '@/lib/http/errors';
+import { blueprintErrorMessage } from '../errorMessage';
 import { useBlueprintCatalogQuery, useBlueprintQuery } from '../queries/blueprints.queries';
 import { usePublishBlueprintVersionMutation, useSaveBlueprintVersionMutation } from '../mutations/blueprints.mutations';
 import { Canvas } from './Canvas';
@@ -87,7 +88,7 @@ export function EditorPage({ id, versionId, nodeId }: Props) {
     setFocus((f) => ({ id: target, seq: (f?.seq ?? 0) + 1 }));
   }, [dispatch]);
 
-  const errorMessage = (err: AppError) => (err.code && t.has(`errors.${err.code}`) ? t(`errors.${err.code}`) : t('errors.GENERIC'));
+  const errorMessage = (err: AppError) => blueprintErrorMessage(t, err.code);
 
   function onSave(via: 'validate' | 'save') {
     const revision = state.revision;

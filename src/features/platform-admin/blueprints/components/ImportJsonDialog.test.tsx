@@ -1,4 +1,10 @@
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('next-intl', () => ({
+  useTranslations: () => {
+    const t = (key: string) => key;
+    t.has = (key: string) => key === 'errors.BLUEPRINT_NOT_FOUND';
+    return t;
+  },
+}));
 vi.mock('../mutations/blueprints.mutations', () => ({ useSaveBlueprintVersionMutation: vi.fn() }));
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -32,5 +38,25 @@ describe('ImportJsonDialog', () => {
     await userEvent.click(screen.getByRole('button', { name: 'detail.importSubmit' }));
     expect(save).toHaveBeenCalledWith({ id: 'b1', graph }, expect.anything());
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it.each([['[]', '[]'], ['123', '123'], ['null', 'null']])('rejects valid-but-non-object JSON (%s) without calling the mutation', async (_label, json) => {
+    render(<ImportJsonDialog blueprintId="b1" open onOpenChange={onOpenChange} />);
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: json } });
+    await userEvent.click(screen.getByRole('button', { name: 'detail.importSubmit' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('detail.invalidJson');
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  it('shows the mapped message for a known error code, and GENERIC for an unmapped one', async () => {
+    save.mockImplementation((_data, options) => options?.onError?.({ code: 'BLUEPRINT_NOT_FOUND' }));
+    render(<ImportJsonDialog blueprintId="b1" open onOpenChange={onOpenChange} />);
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: JSON.stringify(graph) } });
+    await userEvent.click(screen.getByRole('button', { name: 'detail.importSubmit' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('errors.BLUEPRINT_NOT_FOUND');
+
+    save.mockImplementation((_data, options) => options?.onError?.({ code: 'SOME_UNKNOWN_CODE' }));
+    await userEvent.click(screen.getByRole('button', { name: 'detail.importSubmit' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('errors.GENERIC');
   });
 });

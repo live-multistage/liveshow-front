@@ -1,4 +1,10 @@
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('next-intl', () => ({
+  useTranslations: () => {
+    const t = (key: string) => key;
+    t.has = (key: string) => key === 'errors.GENERIC' || key === 'errors.BLUEPRINT_NOT_FOUND';
+    return t;
+  },
+}));
 vi.mock('../mutations/blueprints.mutations', () => ({ useCreateBlueprintMutation: vi.fn() }));
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -37,6 +43,14 @@ describe('NewBlueprintDialog', () => {
 
   it('shows the mapped error on failure', async () => {
     create.mockImplementation((_data, options) => options?.onError?.({ message: 'x', status: 500, code: 'GENERIC' }));
+    render(<NewBlueprintDialog open onOpenChange={onOpenChange} onCreated={onCreated} />);
+    await userEvent.type(screen.getByLabelText('name'), 'Falha');
+    await userEvent.click(screen.getByRole('button', { name: 'create' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('errors.GENERIC');
+  });
+
+  it('falls back to GENERIC for a code with no i18n entry', async () => {
+    create.mockImplementation((_data, options) => options?.onError?.({ message: 'x', status: 500, code: 'SOME_UNKNOWN_CODE' }));
     render(<NewBlueprintDialog open onOpenChange={onOpenChange} onCreated={onCreated} />);
     await userEvent.type(screen.getByLabelText('name'), 'Falha');
     await userEvent.click(screen.getByRole('button', { name: 'create' }));

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { AlertTriangle } from 'lucide-react';
 import type { BlueprintVersionDto } from '@live-show/api-contracts';
+import { blueprintErrorMessage } from '../errorMessage';
 import styles from './AnalysisCard.module.scss';
 
 // Design B1 right column: analysis of the newest version, each error linking
@@ -25,10 +26,13 @@ export function AnalysisCard({ blueprintId, version }: { blueprintId: string; ve
               <div className={styles.body}>
                 <div className={styles.headline}>
                   {e.nodeId && <span className={styles.node}>{e.nodeId}</span>}
-                  {t(`errors.${e.code}`)}
+                  {blueprintErrorMessage(t, e.code)}
                 </div>
                 <div className={styles.detail}>{e.message}</div>
-                <Link className={styles.link} href={`/dashboard/platform/blueprints/${blueprintId}/editor?version=${version.id}${e.nodeId ? `&node=${e.nodeId}` : ''}`}>
+                <Link
+                  className={styles.link}
+                  href={`/dashboard/platform/blueprints/${encodeURIComponent(blueprintId)}/editor?${new URLSearchParams({ version: version.id, ...(e.nodeId ? { node: e.nodeId } : {}) })}`}
+                >
                   {t('detail.viewInEditor')}
                 </Link>
               </div>

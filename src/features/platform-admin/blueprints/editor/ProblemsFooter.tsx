@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { BlueprintAnalysisError } from '@live-show/api-contracts';
+import { blueprintErrorMessage } from '../errorMessage';
 import styles from './EditorPage.module.scss';
 
 interface Props {
@@ -17,7 +18,7 @@ interface Props {
 export function ProblemsFooter({ errors, open, onToggle, onSelectNode }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
   if (errors.length === 0) return null;
-  const title = (code: string) => (t.has(`errors.${code}`) ? t(`errors.${code}`) : t('errors.GENERIC'));
+  const title = (code: string) => blueprintErrorMessage(t, code);
 
   return (
     <footer className={styles.problems}>

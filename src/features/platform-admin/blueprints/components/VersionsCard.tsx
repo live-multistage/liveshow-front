@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import type { BlueprintDetail } from '@live-show/api-contracts';
 import type { AppError } from '@/lib/http/errors';
+import { blueprintErrorMessage } from '../errorMessage';
 import { useActivateBlueprintMutation, usePublishBlueprintVersionMutation } from '../mutations/blueprints.mutations';
 import styles from './VersionsCard.module.scss';
 
@@ -21,9 +22,10 @@ const STATE_CLASS: Record<'draft' | 'published' | 'active', string> = {
 // draft still has analysis errors).
 export function VersionsCard({ blueprint, onError }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
+  const format = useFormatter();
   const publish = usePublishBlueprintVersionMutation();
   const activate = useActivateBlueprintMutation();
-  const onErr = { onError: (err: AppError) => onError(t(`errors.${err.code ?? 'GENERIC'}`)) };
+  const onErr = { onError: (err: AppError) => onError(blueprintErrorMessage(t, err.code)) };
 
   return (
     <div className={styles.card}>
@@ -38,7 +40,7 @@ export function VersionsCard({ blueprint, onError }: Props) {
               <div className={styles.info}>
                 <span className={`${styles.statePill} ${STATE_CLASS[state]}`}>{t(`detail.${state}`)}</span>
                 <div className={styles.meta}>
-                  {v.publishedAt ? new Date(v.publishedAt).toLocaleDateString('pt-BR') : '—'}
+                  {v.publishedAt ? format.dateTime(new Date(v.publishedAt), { dateStyle: 'short' }) : '—'}
                   {' · '}
                   <span className={v.analysis.ok ? styles.ok : styles.errorCount}>
                     {v.analysis.ok ? t('detail.versionNoErrors') : t('detail.versionErrorCount', { count: v.analysis.errors.length })}

@@ -11,6 +11,7 @@ import {
 } from '@live-show/design-system';
 import type { BlueprintRunDto } from '@live-show/api-contracts';
 import type { AppError } from '@/lib/http/errors';
+import { blueprintErrorMessage } from '../errorMessage';
 import { PlatformPageShell } from '../../components/PlatformPageShell';
 import tableStyles from '../../components/PlatformTable.module.scss';
 import { useBlueprintQuery } from '../queries/blueprints.queries';
@@ -62,9 +63,10 @@ export function BlueprintDetailPage({ id, blueprintsEnabled = true }: Props) {
       {
         onSuccess: ({ cancelledRuns }) => {
           setConfirmDeactivate(false);
+          setMessage(null);
           toast.success(t('detail.deactivatedToast', { count: cancelledRuns }));
         },
-        onError: (err: AppError) => { setConfirmDeactivate(false); setMessage(t(`errors.${err.code ?? 'GENERIC'}`)); },
+        onError: (err: AppError) => { setConfirmDeactivate(false); setMessage(blueprintErrorMessage(t, err.code)); },
       },
     );
   }
@@ -83,7 +85,10 @@ export function BlueprintDetailPage({ id, blueprintsEnabled = true }: Props) {
     if (!activeVersion) return;
     duplicate.mutate(
       { id, graph: activeVersion.graph },
-      { onError: (err: AppError) => setMessage(t(`errors.${err.code ?? 'GENERIC'}`)) },
+      {
+        onSuccess: () => { setMessage(null); toast.success(t('detail.duplicated')); },
+        onError: (err: AppError) => setMessage(blueprintErrorMessage(t, err.code)),
+      },
     );
   }
 

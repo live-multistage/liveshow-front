@@ -1,4 +1,11 @@
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string, values?: Record<string, unknown>) => (values ? `${key}:${JSON.stringify(values)}` : key) }));
+vi.mock('next-intl', () => ({
+  useTranslations: () => {
+    const t = (key: string, values?: Record<string, unknown>) => (values ? `${key}:${JSON.stringify(values)}` : key);
+    t.has = () => true;
+    return t;
+  },
+  useFormatter: () => ({ dateTime: (d: Date) => d.toISOString().slice(0, 10) }),
+}));
 vi.mock('next/link', () => ({ default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a> }));
 vi.mock('../mutations/blueprints.mutations', () => ({ usePublishBlueprintVersionMutation: vi.fn(), useActivateBlueprintMutation: vi.fn() }));
 

@@ -6,6 +6,7 @@ import { AlertCircle } from 'lucide-react';
 import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@live-show/design-system';
 import type { BlueprintGraph } from '@live-show/api-contracts';
 import type { AppError } from '@/lib/http/errors';
+import { blueprintErrorMessage } from '../errorMessage';
 import { useSaveBlueprintVersionMutation } from '../mutations/blueprints.mutations';
 import styles from './ImportJsonDialog.module.scss';
 
@@ -23,19 +24,25 @@ export function ImportJsonDialog({ blueprintId, open, onOpenChange }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   function onSubmit() {
-    let graph: BlueprintGraph;
+    let parsed: unknown;
     try {
-      graph = JSON.parse(json) as BlueprintGraph;
+      parsed = JSON.parse(json);
     } catch {
+      setError(t('detail.invalidJson'));
+      return;
+    }
+    // The backend requires a graph object (@IsObject); reject an array/scalar/null
+    // client-side instead of round-tripping to a 400 that shows GENERIC.
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
       setError(t('detail.invalidJson'));
       return;
     }
     setError(null);
     save.mutate(
-      { id: blueprintId, graph },
+      { id: blueprintId, graph: parsed as BlueprintGraph },
       {
         onSuccess: () => { setJson(''); onOpenChange(false); },
-        onError: (err: AppError) => setError(t(`errors.${err.code ?? 'GENERIC'}`)),
+        onError: (err: AppError) => setError(blueprintErrorMessage(t, err.code)),
       },
     );
   }

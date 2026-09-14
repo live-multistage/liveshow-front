@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { AlertTriangle, Check, Copy, Trash2 } from 'lucide-react';
 import type { BlueprintAnalysisError, BlueprintCatalogEntry } from '@live-show/api-contracts';
 import { Button, Input, cn } from '@live-show/design-system';
+import { blueprintErrorMessage } from '../errorMessage';
 import { ConfigField } from './fields/ConfigField';
 import { NodeIcon, kindClass } from './nodeVisuals';
 import { availableFields, catalogKey, type EditorAction, type EditorState } from './useEditorGraph';
@@ -40,7 +41,7 @@ export function Inspector({ state, dispatch, catalog, errors, readOnly }: Props)
     const target = state.nodes.find((n) => n.id === id);
     return (target && catalog.get(catalogKey(target.node, target.version))?.label) ?? id;
   };
-  const errorTitle = (code: string) => (t.has(`errors.${code}`) ? t(`errors.${code}`) : t('errors.GENERIC'));
+  const errorTitle = (code: string) => blueprintErrorMessage(t, code);
 
   return (
     <aside className={cn(styles.panel, kindClass(entry?.kind), readOnly && styles.readOnly)} aria-label={t('editor.inspector.title')}>
@@ -57,7 +58,7 @@ export function Inspector({ state, dispatch, catalog, errors, readOnly }: Props)
         {entry
           ? Object.entries(entry.config).map(([name, spec]) => (
             <ConfigField
-              key={`${node.id}:${name}`}
+              key={`${state.loadId}:${node.id}:${name}`}
               nodeId={node.id}
               entry={entry}
               name={name}

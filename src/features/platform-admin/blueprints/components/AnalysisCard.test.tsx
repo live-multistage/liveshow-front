@@ -1,4 +1,10 @@
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('next-intl', () => ({
+  useTranslations: () => {
+    const t = (key: string) => key;
+    t.has = () => true;
+    return t;
+  },
+}));
 vi.mock('next/link', () => ({ default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a> }));
 
 import { describe, expect, it, vi } from 'vitest';
