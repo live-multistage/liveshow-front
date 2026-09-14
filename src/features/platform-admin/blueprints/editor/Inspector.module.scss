@@ -44,6 +44,23 @@ $field-border: rgba(255, 255, 255, .1);
 
 .idInput { width: 64px; height: 28px; padding: 4px 8px; font-family: $mono; font-size: 11px; color: var(--kind-color); background: $field-bg; }
 
+// Guided tutorial pulse (design §A "destaque do alvo") — wraps whichever
+// field markup the current step wants filled, regardless of its own layout.
+@keyframes bpHi {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 46, 158, .5); border-color: #ff2e9e; }
+  50% { box-shadow: 0 0 0 5px rgba(255, 46, 158, 0); border-color: #ff5fb4; }
+}
+
+.tourHighlight {
+  border: 1.5px solid #ff2e9e;
+  border-radius: 8px;
+  padding: 6px;
+  margin: -6px -6px 10px;
+  animation: bpHi 1.6s infinite;
+
+  @media (prefers-reduced-motion: reduce) { animation: none; }
+}
+
 // ── Fields ──────────────────────────────────────────────────────────────────
 .field { margin-bottom: 16px; display: flex; flex-direction: column; gap: 7px; }
 .labelRow { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }

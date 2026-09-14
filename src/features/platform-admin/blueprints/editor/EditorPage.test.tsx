@@ -12,7 +12,7 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push, replace }) }));
 vi.mock('sonner', () => ({ toast: { success: toastSuccess, error: toastError } }));
 
 vi.mock('../queries/blueprints.queries', () => ({ useBlueprintQuery: vi.fn(), useBlueprintCatalogQuery: vi.fn() }));
-vi.mock('../mutations/blueprints.mutations', () => ({ useSaveBlueprintVersionMutation: vi.fn(), usePublishBlueprintVersionMutation: vi.fn() }));
+vi.mock('../mutations/blueprints.mutations', () => ({ useSaveBlueprintVersionMutation: vi.fn(), usePublishBlueprintVersionMutation: vi.fn(), useActivateBlueprintMutation: vi.fn() }));
 // React Flow needs real layout; the canvas is exercised through the reducer tests.
 vi.mock('./Canvas', () => ({
   Canvas: ({ state, focus }: { state: { nodes: unknown[] }; focus: { id: string } | null }) => (
@@ -29,7 +29,7 @@ import buyers from './__fixtures__/reminder-buyers.json';
 import { CATALOG } from './__fixtures__/catalog';
 import { EditorPage } from './EditorPage';
 import { useBlueprintCatalogQuery, useBlueprintQuery } from '../queries/blueprints.queries';
-import { usePublishBlueprintVersionMutation, useSaveBlueprintVersionMutation } from '../mutations/blueprints.mutations';
+import { useActivateBlueprintMutation, usePublishBlueprintVersionMutation, useSaveBlueprintVersionMutation } from '../mutations/blueprints.mutations';
 
 const graph = buyers as BlueprintGraph;
 const save = vi.fn();
@@ -57,6 +57,7 @@ beforeEach(() => {
   vi.mocked(useBlueprintCatalogQuery).mockReturnValue({ data: CATALOG, isLoading: false, isError: false } as never);
   vi.mocked(useSaveBlueprintVersionMutation).mockReturnValue({ mutate: save, isPending: false } as never);
   vi.mocked(usePublishBlueprintVersionMutation).mockReturnValue({ mutate: publish, isPending: false } as never);
+  vi.mocked(useActivateBlueprintMutation).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
 });
 
 describe('EditorPage', () => {

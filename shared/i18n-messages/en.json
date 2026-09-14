@@ -2378,6 +2378,95 @@
           "category": "Category: {category}",
           "notFound": "Template not found: {id}"
         }
+      },
+      "tour": {
+        "entry": "Tutorial",
+        "draftName": "Tutorial — 24h reminder",
+        "draftDescription": "Created by the guided tutorial.",
+        "emptyLink": "Take the tutorial →",
+        "toolbarChip": "Tutorial · step {n}/9",
+        "stepLabel": "STEP {n}/9",
+        "whatToFill": "WHAT TO FILL IN",
+        "next": "Next",
+        "previous": "Previous",
+        "doForMe": "Do it for me",
+        "skip": "Skip tutorial",
+        "viewRuns": "View runs",
+        "activate": "Activate",
+        "close": "Close",
+        "viewReplay": "See how it runs →",
+        "hint": "Almost there — {hint}",
+        "resumedToast": "Tutorial resumed at step {n}",
+        "smallScreen": {
+          "title": "Open on a larger screen",
+          "body": "The editor and the tutorial need at least 1280px of width.",
+          "confirm": "Got it"
+        },
+        "completion": {
+          "activeTitle": "Your first blueprint is live",
+          "activeSub": "9/9 steps completed.",
+          "learnedLabel": "WHAT YOU LEARNED",
+          "learned": {
+            "0": "Execution is a single line starting from the trigger",
+            "1": "References are {{node.field}} and only look upward",
+            "2": "Every port has an arrow and everything ends at End"
+          },
+          "pendingTitle": "Published — activate whenever you're ready",
+          "pendingSub": "Activate it whenever you want it to start reminding.",
+          "stepsLabel": "STEPS"
+        },
+        "steps": {
+          "0": {
+            "title": "How a blueprint runs",
+            "body": "The engine doesn't pull data \"backwards\": it starts at the trigger and runs one node at a time, following the arrows. Each node publishes outputs ({{t.userId}}) that the following ones read. Named ports branch; every port needs an arrow and everything ends at End."
+          },
+          "1": {
+            "title": "Add the trigger",
+            "body": "Drag Saved an event (wishlist.itemAdded) onto the canvas. In the inspector, fill dedupeKey with saved-24h:{{t.eventId}}:{{t.userId}}.",
+            "checklist": "The wishlist.itemAdded node exists and dedupeKey is filled in.",
+            "hint": "dedupeKey prevents two runs for the same user/event pair."
+          },
+          "2": {
+            "title": "Wait 24 hours",
+            "body": "Drag Wait (core.delay), connect the trigger to it and set duration = 24h (use 2m to test in the lab).",
+            "checklist": "Node added, t→d edge connected, and a valid duration.",
+            "hint": "It's \"Wait\", not \"Wait until\": you want 24h after the save, not before the event."
+          },
+          "3": {
+            "title": "Still saved?",
+            "body": "Drag Still saved?, connect it after Wait, fill userId = {{t.userId}} and eventId = {{t.eventId}} through the variable picker.",
+            "checklist": "Node added, edge connected, and both fields referencing the trigger.",
+            "hint": "The picker only shows what's above it in the line; userId comes from the trigger (t), not from Wait."
+          },
+          "4": {
+            "title": "Has a ticket?",
+            "body": "Drag Has ticket? and fill the same two fields. If they bought in the last 24h, there's no point reminding them.",
+            "checklist": "Node added, edge connected, and both fields referencing the trigger."
+          },
+          "5": {
+            "title": "Event data",
+            "body": "Drag Event by id, eventId = {{t.eventId}}. It publishes title, slug, status and date — public data only.",
+            "checklist": "Node added, edge connected, and eventId referencing the trigger."
+          },
+          "6": {
+            "title": "Decide",
+            "body": "Drag Condition, connect it after Event by id and build: {{s.saved}} = true and {{a.hasAccess}} = false and {{e.status}} = PUBLISHED and {{e.startsAt}} > now.",
+            "checklist": "Node added, edge connected, and the four rules built.",
+            "hint": "The condition has two ports: if true and if false. Both need an arrow."
+          },
+          "7": {
+            "title": "Notify and end it",
+            "body": "Drag In-app notification connected on if true: recipient {{t.userId}}, title Still thinking about {{e.title}}?, link /events/{{e.slug}}. Connect the notification to an End, and if false to another End.",
+            "checklist": "Notification filled in, connected on if true to an End, and if false connected to another End.",
+            "hint": "A port with no arrow is a Validate error (PORT_EDGES). Connect \"if false\" to an End."
+          },
+          "8": {
+            "title": "Validate, publish, activate",
+            "body": "Click Validate (0 problems), Publish and Activate. To watch it run, save an event with another user and follow it in Recent runs: the run stays waiting with \"wakes up in 24h\".",
+            "checklist": "Analysis with no errors and the version published (and activated, when applicable).",
+            "hint": "Validate flagged problems; click each one to jump to the node."
+          }
+        }
       }
     }
   },

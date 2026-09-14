@@ -31,12 +31,14 @@ interface Props {
   readOnly: boolean;
   /** A new object re-centers the canvas on that node (PROBLEMAS footer, ?node=). */
   focus: { id: string; seq: number } | null;
+  /** Guided tour (design §A): pulses the card of the step's target node. */
+  highlightNodeId?: string;
 }
 
 // React Flow is driven from the editor reducer: every change is dispatched
 // and the nodes/edges are re-derived. Only measured sizes stay local, because
 // React Flow keeps a node hidden until its user object carries `measured`.
-export function Canvas({ state, dispatch, catalog, errorCounts, readOnly, focus }: Props) {
+export function Canvas({ state, dispatch, catalog, errorCounts, readOnly, focus, highlightNodeId }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
   const locale = useLocale();
   const { screenToFlowPosition, setCenter } = useReactFlow();
@@ -82,10 +84,11 @@ export function Canvas({ state, dispatch, catalog, errorCounts, readOnly, focus 
                   : undefined,
           subMuted: n.node === 'core.forEach' && !forEachItems,
           errorConnected: state.edges.some((e) => e.from === n.id && e.port === 'error'),
+          tourHighlight: n.id === highlightNodeId,
         },
       };
     });
-  }, [state.nodes, state.selectedId, measured, catalog, errorCounts, summarizeWait, state.edges, t]);
+  }, [state.nodes, state.selectedId, measured, catalog, errorCounts, summarizeWait, state.edges, t, highlightNodeId]);
 
   // "next" edges (the single-output "then" wire of a call action) carry no
   // label per design; true/false/error do, falling back to the raw port name

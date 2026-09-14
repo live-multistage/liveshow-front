@@ -108,6 +108,19 @@ $error-border: rgba(255, 77, 77, .6);
 .hasError { border: 1.5px solid $error-border; }
 .unknown { border: 1.5px dashed rgba(255, 255, 255, .25); background: #0c0c0e; color: #8f8f97; }
 
+// Guided tutorial pulse (design §A "destaque do alvo").
+@keyframes bpHi {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 46, 158, .5); border-color: #ff2e9e; }
+  50% { box-shadow: 0 0 0 5px rgba(255, 46, 158, 0); border-color: #ff5fb4; }
+}
+
+.tourHighlight {
+  border: 1.5px solid #ff2e9e;
+  animation: bpHi 1.6s infinite;
+
+  @media (prefers-reduced-motion: reduce) { animation: none; }
+}
+
 .stripe { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--kind-color); border-radius: 12px 0 0 12px; }
 
 .icon {

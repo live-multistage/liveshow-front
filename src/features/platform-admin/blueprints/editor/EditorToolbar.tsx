@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, Check, Clock, Loader2 } from 'lucide-react';
 import { Button, Tooltip, TooltipContent, TooltipTrigger, cn } from '@live-show/design-system';
 import styles from './EditorPage.module.scss';
 
@@ -19,6 +19,8 @@ interface Props {
   duplicating: boolean;
   /** Why Publicar is disabled (tooltip), or null when it can publish. */
   publishBlockedReason: string | null;
+  /** Guided tour chip (design §A "Tutorial · passo {n}/9"), highlighted at step 8. */
+  tourChip?: { n: number; highlighted: boolean };
   onBack(): void;
   onSave(via: 'validate' | 'save'): void;
   onPublish(): void;
@@ -42,6 +44,12 @@ export function EditorToolbar(p: Props) {
           <h1 className={styles.title}>{p.name}</h1>
           <span className={cn(styles.badge, styles[`badge_${p.tone}`])}>{p.badge}</span>
           {p.errorCount > 0 && <span className={styles.errorCount}>{t('detail.versionErrorCount', { count: p.errorCount })}</span>}
+          {p.tourChip && (
+            <span className={cn(styles.tourChip, p.tourChip.highlighted && styles.tourChipHi)}>
+              <Clock size={12} aria-hidden />
+              {t('tour.toolbarChip', { n: p.tourChip.n })}
+            </span>
+          )}
         </div>
         <div className={styles.summary}>{p.summary}</div>
       </div>

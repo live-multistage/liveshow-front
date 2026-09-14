@@ -51,11 +51,13 @@ function refPointsTo(value: unknown, nodeId: string, field: string): boolean {
   return !!ref && ref.nodeId === nodeId && ref.field === field && ref.path.length === 0;
 }
 
-const CHAIN_STEP2 = ['wishlist.itemAdded', 'core.delay'];
-const CHAIN_STEP3 = [...CHAIN_STEP2, 'wishlist.stillSaved'];
-const CHAIN_STEP4 = [...CHAIN_STEP3, 'ticketing.hasAccess'];
-const CHAIN_STEP5 = [...CHAIN_STEP4, 'events.byId'];
-const CHAIN_STEP6 = [...CHAIN_STEP5, 'core.condition'];
+// Exported so the tour UI can locate a step's target node/field without
+// re-deriving the chain shape.
+export const CHAIN_STEP2 = ['wishlist.itemAdded', 'core.delay'];
+export const CHAIN_STEP3 = [...CHAIN_STEP2, 'wishlist.stillSaved'];
+export const CHAIN_STEP4 = [...CHAIN_STEP3, 'ticketing.hasAccess'];
+export const CHAIN_STEP5 = [...CHAIN_STEP4, 'events.byId'];
+export const CHAIN_STEP6 = [...CHAIN_STEP5, 'core.condition'];
 
 // --- autoApply helpers (used only by "Fazer por mim") --------------------
 

@@ -22,12 +22,14 @@ interface Props {
   catalog: Map<string, BlueprintCatalogEntry>;
   errors: BlueprintAnalysisError[];
   readOnly: boolean;
+  /** Guided tour (design §A): pulses the field the current step wants filled. */
+  highlightField?: { nodeId: string; name: string };
 }
 
 // Right panel (design C1/C2): header with editable id, fields generated from
 // the node's config schema, condition outputs, this node's problems, and
 // Duplicar / Excluir. Read-only disables every control via the fieldset.
-export function Inspector({ state, dispatch, catalog, errors, readOnly }: Props) {
+export function Inspector({ state, dispatch, catalog, errors, readOnly, highlightField }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
   const node = state.nodes.find((n) => n.id === state.selectedId);
 
@@ -66,17 +68,21 @@ export function Inspector({ state, dispatch, catalog, errors, readOnly }: Props)
 
         {entry
           ? Object.entries(entry.config).map(([name, spec]) => (
-            <ConfigField
+            <div
               key={`${state.loadId}:${node.id}:${name}`}
-              nodeId={node.id}
-              entry={entry}
-              name={name}
-              spec={spec}
-              value={node.config[name]}
-              nodeConfig={node.config}
-              fields={fields}
-              onChange={(value) => dispatch({ type: 'setConfig', id: node.id, field: name, value })}
-            />
+              className={cn(highlightField?.nodeId === node.id && highlightField.name === name && styles.tourHighlight)}
+            >
+              <ConfigField
+                nodeId={node.id}
+                entry={entry}
+                name={name}
+                spec={spec}
+                value={node.config[name]}
+                nodeConfig={node.config}
+                fields={fields}
+                onChange={(value) => dispatch({ type: 'setConfig', id: node.id, field: name, value })}
+              />
+            </div>
           ))
           : <p className={styles.muted}>{t('editor.inspector.unavailableHint')}</p>}
 

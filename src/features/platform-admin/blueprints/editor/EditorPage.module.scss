@@ -63,6 +63,10 @@ $mono: var(--font-space-mono), 'Space Mono', monospace;
 
 .body { flex: 1; min-height: 0; display: flex; gap: 14px; padding: 14px 22px 18px; }
 
+// Wraps the canvas so the guided tutorial panel (design §A) can anchor to its
+// bottom-right corner without disturbing the flex sizing Canvas.tsx expects.
+.canvasWrap { flex: 1; min-width: 0; position: relative; display: flex; }
+
 // ── PROBLEMAS footer (C2) ───────────────────────────────────────────────────
 .problems { flex: none; border-top: 1px solid rgba(255, 77, 77, .25); background: #0c0709; }
 
@@ -105,3 +109,29 @@ $mono: var(--font-space-mono), 'Space Mono', monospace;
 .smallLink { color: $accent-text; text-decoration: none; &:hover { text-decoration: underline; } }
 
 .dialogBody { margin: 0; color: $text-secondary; font-size: 14px; }
+
+// ── Guided tutorial (design §A): toolbar chip, next to name/badge ──────────
+.tourChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: $mono;
+  font-size: 11px;
+  color: $accent-text;
+  background: rgba(255, 46, 158, .1);
+  border: 1px solid rgba(255, 46, 158, .4);
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+@keyframes bpHi {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 46, 158, .5); border-color: #ff2e9e; }
+  50% { box-shadow: 0 0 0 5px rgba(255, 46, 158, 0); border-color: #ff5fb4; }
+}
+
+.tourChipHi {
+  animation: bpHi 1.6s infinite;
+
+  @media (prefers-reduced-motion: reduce) { animation: none; }
+}

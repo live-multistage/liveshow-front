@@ -23,6 +23,8 @@ export interface CardData extends Record<string, unknown> {
   subMuted?: boolean;
   /** Whether an edge already leaves this node's `error` port (D1: dashed ring at 100% opacity once wired). */
   errorConnected?: boolean;
+  /** Guided tour (design §A): pulsing border while this is the step's target node. */
+  tourHighlight?: boolean;
 }
 export type CardNode = Node<CardData, 'blueprint'>;
 
@@ -33,7 +35,7 @@ export type CardNode = Node<CardData, 'blueprint'>;
 // missing from the catalog renders as the grey dashed "Nó indisponível".
 function BlueprintNodeCardImpl({ data, selected }: NodeProps<CardNode>) {
   const t = useTranslations('platformAdmin.blueprints');
-  const { instance, entry, errorCount, sub, subMuted, errorConnected } = data;
+  const { instance, entry, errorCount, sub, subMuted, errorConnected, tourHighlight } = data;
   const ports = entry ? portsOfNode(entry, instance.config) : null;
   // `ports === null` means the catalog gave no static/dynamic list (an unknown
   // node, or one that only ever has a single unnamed "next" handle); every
@@ -56,6 +58,7 @@ function BlueprintNodeCardImpl({ data, selected }: NodeProps<CardNode>) {
         errorCount > 0 && styles.hasError,
         !entry && styles.unknown,
         stacked && styles.stacked,
+        tourHighlight && styles.tourHighlight,
       )}
       style={{ '--card-ports': rightPorts.length } as CSSProperties}
     >

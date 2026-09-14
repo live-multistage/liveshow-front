@@ -11,5 +11,6 @@ const single = (v: string | string[] | undefined) => (typeof v === 'string' && v
 export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<SearchParams> }) {
   const { id } = await params;
   const query = await searchParams;
-  return <EditorPage id={id} versionId={single(query.version)} nodeId={single(query.node)} />;
+  const tour = single(query.tour);
+  return <EditorPage id={id} versionId={single(query.version)} nodeId={single(query.node)} tour={tour === 'first' ? 'first' : undefined} />;
 }

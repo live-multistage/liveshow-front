@@ -18,7 +18,7 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push, replace }) }));
 vi.mock('sonner', () => ({ toast: { success: toastSuccess, error: toastError } }));
 
 vi.mock('../queries/blueprints.queries', () => ({ useBlueprintQuery: vi.fn(), useBlueprintCatalogQuery: vi.fn() }));
-vi.mock('../mutations/blueprints.mutations', () => ({ useSaveBlueprintVersionMutation: vi.fn(), usePublishBlueprintVersionMutation: vi.fn() }));
+vi.mock('../mutations/blueprints.mutations', () => ({ useSaveBlueprintVersionMutation: vi.fn(), usePublishBlueprintVersionMutation: vi.fn(), useActivateBlueprintMutation: vi.fn() }));
 
 const secretsData = vi.fn();
 vi.mock('../queries/blueprint-secrets.queries', () => ({ useBlueprintSecretsQuery: () => secretsData() }));
@@ -33,7 +33,7 @@ import { CATALOG, CATALOG_MAP } from './__fixtures__/catalog';
 import { EditorPage } from './EditorPage';
 import { availableFields, graphToState, stateToGraph } from './useEditorGraph';
 import { useBlueprintCatalogQuery, useBlueprintQuery } from '../queries/blueprints.queries';
-import { usePublishBlueprintVersionMutation, useSaveBlueprintVersionMutation } from '../mutations/blueprints.mutations';
+import { useActivateBlueprintMutation, usePublishBlueprintVersionMutation, useSaveBlueprintVersionMutation } from '../mutations/blueprints.mutations';
 
 const graph = reminderFollowers as BlueprintGraph;
 
@@ -66,6 +66,7 @@ beforeEach(() => {
   vi.mocked(useBlueprintCatalogQuery).mockReturnValue({ data: CATALOG, isLoading: false, isError: false } as never);
   vi.mocked(useSaveBlueprintVersionMutation).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
   vi.mocked(usePublishBlueprintVersionMutation).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
+  vi.mocked(useActivateBlueprintMutation).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
   secretsData.mockReturnValue({ data: [] });
 });
 

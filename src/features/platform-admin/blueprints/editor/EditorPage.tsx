@@ -12,14 +12,20 @@ import type { BlueprintCatalogEntry, BlueprintVersionDto } from '@live-show/api-
 import type { AppError } from '@/lib/http/errors';
 import { blueprintErrorMessage } from '../errorMessage';
 import { useBlueprintCatalogQuery, useBlueprintQuery } from '../queries/blueprints.queries';
-import { usePublishBlueprintVersionMutation, useSaveBlueprintVersionMutation } from '../mutations/blueprints.mutations';
+import {
+  useActivateBlueprintMutation, usePublishBlueprintVersionMutation, useSaveBlueprintVersionMutation,
+} from '../mutations/blueprints.mutations';
 import { Canvas } from './Canvas';
 import { EditorToolbar, type BadgeTone } from './EditorToolbar';
 import { Inspector } from './Inspector';
 import { Palette } from './Palette';
 import { ProblemsFooter } from './ProblemsFooter';
 import { useWideScreen } from './useWideScreen';
-import { catalogKey, errorCountByNode, useEditorGraph } from './useEditorGraph';
+import { catalogKey, errorCountByNode, stateToGraph, useEditorGraph } from './useEditorGraph';
+import { tourHighlight } from './tour/highlightTarget';
+import { TOUR_STEPS } from './tour/tourSteps';
+import { TourPanel } from './tour/TourPanel';
+import { useTour } from './tour/useTour';
 import styles from './EditorPage.module.scss';
 
 interface Props {
@@ -28,12 +34,14 @@ interface Props {
   versionId?: string;
   /** `?node=` — selected and centered on load (run drawer, analysis links). */
   nodeId?: string;
+  /** `?tour=first` — opens the guided "lembrete 24h" tutorial (design §A). */
+  tour?: 'first';
 }
 
 // Design group C. "Validar" and "Salvar rascunho" both POST a new version
 // (stage 1 has no dry-run analyze endpoint) and show the returned analysis;
 // "Publicar" publishes the draft saved last, only when it is clean and saved.
-export function EditorPage({ id, versionId, nodeId }: Props) {
+export function EditorPage({ id, versionId, nodeId, tour: tourMode }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
   const router = useRouter();
   const wide = useWideScreen();
@@ -41,6 +49,7 @@ export function EditorPage({ id, versionId, nodeId }: Props) {
   const catalogQuery = useBlueprintCatalogQuery();
   const save = useSaveBlueprintVersionMutation();
   const publish = usePublishBlueprintVersionMutation();
+  const activate = useActivateBlueprintMutation();
   const { state, dispatch, graph, dirty } = useEditorGraph();
   const [loadedKey, setLoadedKey] = useState<string | null>(null);
   const [baseId, setBaseId] = useState<string | null>(null);
@@ -82,6 +91,28 @@ export function EditorPage({ id, versionId, nodeId }: Props) {
   const errors = useMemo(() => current?.analysis.errors ?? [], [current]);
   const errorCounts = useMemo(() => errorCountByNode(errors), [errors]);
   const readOnly = !!versionId && !!base?.publishedAt;
+
+  // Guided tour (design §A): analysisOk is null (not "failing") until this
+  // session's dirty-free draft has actually been through Validar/Salvar.
+  const analysisOk = !current || dirty ? null : errors.length === 0;
+  const published = !!current?.publishedAt;
+  const tourActive = !!current && detail.data?.activeVersionId === current.id;
+  const tourState = useTour({
+    enabled: tourMode === 'first' && !readOnly, state, analysisOk, published, active: tourActive, blueprintId: id,
+  });
+  const highlight = tourState.visible && tourState.step < 8 ? tourHighlight(tourState.step, state) : {};
+
+  function onDoForMe() {
+    const apply = TOUR_STEPS[tourState.step].autoApply;
+    if (!apply) return;
+    dispatch({ type: 'load', graph: stateToGraph(apply(state)) });
+    tourState.advanceAfterAutoApply();
+  }
+
+  function onTourActivate() {
+    if (!current) return;
+    activate.mutate({ id, versionId: current.id }, { onError: (err) => toast.error(errorMessage(err)) });
+  }
 
   const focusNode = useCallback((target: string) => {
     dispatch({ type: 'select', id: target });
@@ -181,6 +212,7 @@ export function EditorPage({ id, versionId, nodeId }: Props) {
         onSave={onSave}
         onPublish={onPublish}
         onDuplicate={onDuplicate}
+        tourChip={tourState.visible ? { n: tourState.step + 1, highlighted: tourState.step === 8 } : undefined}
       />
       {readOnly && (
         <div className={styles.readOnlyBanner} role="status">
@@ -194,14 +226,34 @@ export function EditorPage({ id, versionId, nodeId }: Props) {
           loading={catalogQuery.isLoading}
           disabled={readOnly}
           highlightTriggers={state.nodes.length === 0}
+          highlightKey={highlight.paletteKey}
           onAdd={(entry) => dispatch({ type: 'add', entry })}
         />
-        {catalogQuery.data ? (
-          <ReactFlowProvider>
-            <Canvas state={state} dispatch={dispatch} catalog={catalog} errorCounts={errorCounts} readOnly={readOnly} focus={focus} />
-          </ReactFlowProvider>
-        ) : <div className={styles.canvasLoading} />}
-        <Inspector state={state} dispatch={dispatch} catalog={catalog} errors={errors} readOnly={readOnly} />
+        <div className={styles.canvasWrap}>
+          {catalogQuery.data ? (
+            <ReactFlowProvider>
+              <Canvas
+                state={state}
+                dispatch={dispatch}
+                catalog={catalog}
+                errorCounts={errorCounts}
+                readOnly={readOnly}
+                focus={focus}
+                highlightNodeId={highlight.nodeId}
+              />
+            </ReactFlowProvider>
+          ) : <div className={styles.canvasLoading} />}
+          <TourPanel
+            tour={tourState}
+            catalog={catalog}
+            blueprintId={id}
+            active={tourActive}
+            onDoForMe={onDoForMe}
+            onActivate={onTourActivate}
+            activating={activate.isPending}
+          />
+        </div>
+        <Inspector state={state} dispatch={dispatch} catalog={catalog} errors={errors} readOnly={readOnly} highlightField={highlight.field} />
       </div>
       <ProblemsFooter errors={errors} open={footerOpen} onToggle={() => setFooterOpen((o) => !o)} onSelectNode={focusNode} />
 

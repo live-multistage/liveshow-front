@@ -17,12 +17,14 @@ interface Props {
   loading: boolean;
   disabled: boolean;
   highlightTriggers: boolean;
+  /** Guided tour (design §A): pulses the palette item for the step's node key. */
+  highlightKey?: string;
   onAdd(entry: BlueprintCatalogEntry): void;
 }
 
 // "ADICIONAR NÓ": catalog grouped Gatilhos/Dados/Controle/Ações. Click adds
 // the node; dragging drops it where released on the canvas.
-export function Palette({ catalog, loading, disabled, highlightTriggers, onAdd }: Props) {
+export function Palette({ catalog, loading, disabled, highlightTriggers, highlightKey, onAdd }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
   const [query, setQuery] = useState('');
 
@@ -58,7 +60,12 @@ export function Palette({ catalog, loading, disabled, highlightTriggers, onAdd }
               <li key={catalogKey(e.key, e.version)}>
                 <button
                   type="button"
-                  className={cn(styles.item, kindClass(e.kind), highlightTriggers && e.kind === 'trigger' && styles.highlight)}
+                  className={cn(
+                    styles.item,
+                    kindClass(e.kind),
+                    highlightTriggers && e.kind === 'trigger' && styles.highlight,
+                    highlightKey === e.key && styles.tourHighlight,
+                  )}
                   disabled={disabled}
                   draggable={!disabled}
                   onDragStart={(ev) => {
