@@ -14,6 +14,11 @@ $error-border: rgba(255, 77, 77, .6);
   overflow: hidden;
 
   :global(.react-flow) { background: transparent; }
+  // reset.scss caps every svg at max-width: 100%; React Flow draws each edge as
+  // an <svg> inside a zero-width .react-flow__edges div, so the cap made every
+  // edge 0px wide (SVG disables rendering at width 0) — connections looked
+  // like they never happened.
+  :global(.react-flow__edges svg) { max-width: none; }
   :global(.react-flow__edge-path) { stroke: rgba(255, 255, 255, .35); stroke-width: 1.5; }
   :global(.react-flow__edge.selected .react-flow__edge-path) { stroke: $action; }
   :global(.react-flow__connection-path) { stroke: $action; stroke-width: 1.5; }
