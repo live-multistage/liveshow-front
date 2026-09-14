@@ -2133,7 +2133,9 @@
         "VERSION_NOT_FOUND": "Versão não encontrada",
         "PORT_EDGES": "Cada porta precisa de exatamente uma ligação (a porta erro é opcional)",
         "SECRET_NOT_ALLOWED": "Segredos só podem ser usados em URL e headers da Requisição HTTP",
-        "JSON_PATH": "Não dá para ler dentro de um JSON aqui — use Transformar"
+        "JSON_PATH": "Não dá para ler dentro de um JSON aqui — use Transformar",
+        "SWITCH_CASES": "Casos do Escolher inválidos: cada caso precisa de um valor do mesmo tipo e uma porta única",
+        "FOREACH_DEPTH": "Para cada aninhado além do limite (máx. 2 níveis)"
       },
       "group": "OPERACIONAL",
       "errorState": "Não foi possível carregar os blueprints.",
@@ -2295,7 +2297,10 @@
             "errValue": "Informe um valor",
             "errPort": "Porta inválida (letras, números, - e _)",
             "errDuplicate": "Porta repetida",
-            "errReserved": "\"padrão\" é reservada"
+            "errReserved": "\"padrão\" é reservada",
+            "true": "verdadeiro",
+            "false": "falso",
+            "errNumber": "Informe um número"
           }
         },
         "classification": {

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import type { BlueprintCatalogEntry, BlueprintConfigField, BlueprintKeyValue } from '@live-show/api-contracts';
 import { Input } from '@live-show/design-system';
 import { ChoiceSelect } from '../../../mailing/components/BlockInspector';
+import { parseRef } from '../expr-builders';
 import type { AvailableField } from '../useEditorGraph';
 import { isList, sameType, typeLabel } from '../field-types';
 import { BooleanField } from './BooleanField';
@@ -27,12 +28,14 @@ interface Props {
   spec: BlueprintConfigField;
   value: unknown;
   fields: AvailableField[];
+  /** The node's full config — only consulted for sibling lookups, e.g. core.switch's `cases` needs `config.value`'s resolved type. */
+  nodeConfig?: Record<string, unknown>;
   onChange(value: unknown): void;
 }
 
 // One inspector field generated from the catalog entry's config schema.
 // Empty strings are stored as "absent" so `required` reports them.
-export function ConfigField({ nodeId, entry, name, spec, value, fields, onChange }: Props) {
+export function ConfigField({ nodeId, entry, name, spec, value, fields, nodeConfig, onChange }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
   const id = `bp-${nodeId}-${name}`;
   const text = typeof value === 'string' ? value : '';
@@ -136,16 +139,22 @@ export function ConfigField({ nodeId, entry, name, spec, value, fields, onChange
     case 'secret':
       control = <SecretSelect id={id} value={text} onChange={setText} />;
       break;
-    case 'cases':
+    case 'cases': {
+      const ref = parseRef(nodeConfig?.value);
+      const valueType = ref
+        ? fields.find((f) => f.nodeId === ref.nodeId && f.field === ref.field && f.path.join('.') === ref.path.join('.'))?.out.type
+        : undefined;
       return (
         <CasesBuilder
           id={id}
           label={spec.description}
           value={value}
           maxCases={spec.maxCases}
+          valueType={valueType}
           onChange={onChange}
         />
       );
+    }
   }
 
   return (

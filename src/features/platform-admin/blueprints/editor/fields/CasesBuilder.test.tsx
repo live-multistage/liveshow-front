@@ -6,11 +6,17 @@ vi.mock('next-intl', () => ({
   },
 }));
 
-import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { BlueprintSwitchCase } from '@live-show/api-contracts';
 import { CasesBuilder } from './CasesBuilder';
+
+beforeAll(() => {
+  window.HTMLElement.prototype.hasPointerCapture = vi.fn().mockReturnValue(false);
+  window.HTMLElement.prototype.releasePointerCapture = vi.fn();
+  window.HTMLElement.prototype.scrollIntoView = vi.fn();
+});
 
 const CASES: BlueprintSwitchCase[] = [
   { match: 'published', port: 'published' },
@@ -65,5 +71,46 @@ describe('CasesBuilder', () => {
     render(<CasesBuilder id="c" label="Casos" value={invalid} maxCases={12} onChange={vi.fn()} />);
 
     expect(screen.getByText('editor.fields.cases.errValue')).toBeInTheDocument();
+  });
+});
+
+describe('CasesBuilder — typed value (matchesCase compares strictly typed)', () => {
+  it('numeric valueType: typing a number stores it as a number', () => {
+    const onChange = vi.fn();
+    const numeric: BlueprintSwitchCase[] = [{ match: 0, port: 'small' }];
+    render(<CasesBuilder id="c" label="Casos" value={numeric} maxCases={12} valueType="number" onChange={onChange} />);
+
+    // 0 is a valid match, not "empty" — no errValue for it.
+    expect(screen.queryByText('editor.fields.cases.errValue')).not.toBeInTheDocument();
+    expect(screen.getByDisplayValue('0')).toBeInTheDocument();
+
+    const valueInput = screen.getByLabelText('editor.fields.cases.value');
+    fireEvent.change(valueInput, { target: { value: '12' } });
+    expect(onChange).toHaveBeenCalledWith([{ match: 12, port: 'small' }]);
+  });
+
+  it('numeric valueType: a non-numeric value keeps the raw string and shows errNumber', () => {
+    const onChange = vi.fn();
+    const numeric: BlueprintSwitchCase[] = [{ match: 'abc', port: 'small' }];
+    render(<CasesBuilder id="c" label="Casos" value={numeric} maxCases={12} valueType="number" onChange={onChange} />);
+
+    expect(screen.getByText('editor.fields.cases.errNumber')).toBeInTheDocument();
+
+    const valueInput = screen.getByLabelText('editor.fields.cases.value');
+    fireEvent.change(valueInput, { target: { value: 'still-abc' } });
+    expect(onChange).toHaveBeenCalledWith([{ match: 'still-abc', port: 'small' }]);
+  });
+
+  it('boolean valueType: renders a select and emits a real boolean', async () => {
+    const onChange = vi.fn();
+    const boolCase: BlueprintSwitchCase[] = [{ match: false, port: 'small' }];
+    render(<CasesBuilder id="c" label="Casos" value={boolCase} maxCases={12} valueType="boolean" onChange={onChange} />);
+
+    // false is a valid match, not "empty".
+    expect(screen.queryByText('editor.fields.cases.errValue')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.click(screen.getByRole('option', { name: 'editor.fields.cases.true' }));
+    expect(onChange).toHaveBeenCalledWith([{ match: true, port: 'small' }]);
   });
 });

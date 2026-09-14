@@ -69,6 +69,7 @@ export function Inspector({ state, dispatch, catalog, errors, readOnly }: Props)
               name={name}
               spec={spec}
               value={node.config[name]}
+              nodeConfig={node.config}
               fields={fields}
               onChange={(value) => dispatch({ type: 'setConfig', id: node.id, field: name, value })}
             />

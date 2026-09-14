@@ -2133,7 +2133,9 @@
         "VERSION_NOT_FOUND": "Version not found",
         "PORT_EDGES": "Each port needs exactly one connection (the error port is optional)",
         "SECRET_NOT_ALLOWED": "Secrets can only be used in the HTTP Request's URL and headers",
-        "JSON_PATH": "Can't read inside a JSON here — use Transform"
+        "JSON_PATH": "Can't read inside a JSON here — use Transform",
+        "SWITCH_CASES": "Invalid switch cases: each case needs a value of the same type and a unique port",
+        "FOREACH_DEPTH": "Nested for-each beyond the limit (max 2 levels)"
       },
       "group": "OPERATIONS",
       "errorState": "Could not load blueprints.",
@@ -2295,7 +2297,10 @@
             "errValue": "Enter a value",
             "errPort": "Invalid port (letters, digits, - and _)",
             "errDuplicate": "Duplicate port",
-            "errReserved": "\"default\" is reserved"
+            "errReserved": "\"default\" is reserved",
+            "true": "true",
+            "false": "false",
+            "errNumber": "Enter a number"
           }
         },
         "classification": {

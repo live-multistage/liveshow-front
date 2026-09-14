@@ -235,6 +235,36 @@ describe('ConfigField — ref (forEach items)', () => {
   });
 });
 
+describe('ConfigField — cases (typed via the sibling "value" ref)', () => {
+  const switchEntry: BlueprintCatalogEntry = {
+    key: 'core.switch', version: 1, kind: 'core', mode: 'call', label: 'Escolher', description: 'Ramifica por valor.',
+    config: {}, outputs: {},
+  };
+  const capacityField: AvailableField[] = [
+    { nodeId: 'e', nodeLabel: 'Evento', field: 'capacity', path: [], depth: 0, out: { type: 'number', class: 'PUBLIC', description: 'Capacidade' } },
+  ];
+
+  it('resolves the value ref\'s type and stores a numeric match end-to-end', () => {
+    const onChange = vi.fn();
+    render(
+      <ConfigField
+        nodeId="sw"
+        entry={switchEntry}
+        name="cases"
+        spec={{ kind: 'cases', required: true, description: 'Casos', maxCases: 12 }}
+        value={[{ match: 0, port: 'small' }]}
+        nodeConfig={{ value: '{{e.capacity}}' }}
+        fields={capacityField}
+        onChange={onChange}
+      />,
+    );
+
+    const valueInput = screen.getByLabelText('editor.fields.cases.value');
+    fireEvent.change(valueInput, { target: { value: '100' } });
+    expect(onChange).toHaveBeenCalledWith([{ match: 100, port: 'small' }]);
+  });
+});
+
 describe('ConfigField — secret', () => {
   it('lists secret names from the mocked query', async () => {
     secretsData.mockReturnValue({ data: [{ name: 'PARTNER', updatedAt: '2026-01-01T00:00:00Z' }] });
