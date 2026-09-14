@@ -92,7 +92,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'platformAdPartnerships', href: '/dashboard/platform/ad-partnerships', icon: Handshake,  group: 'OPERACIONAL' },
     { navKey: 'platformCoupons',       href: '/dashboard/platform/coupons',       icon: Tag,          group: 'OPERACIONAL', flag: 'coupons' },
     { navKey: 'platformMailing',       href: '/dashboard/platform/mailing',       icon: Mail,         group: 'OPERACIONAL', flag: 'mailing' },
-    { navKey: 'platformBlueprints',    href: '/dashboard/platform/blueprints',    icon: Workflow,     group: 'OPERACIONAL', flag: 'blueprints' },
+    { navKey: 'platformBlueprints',    href: '/dashboard/platform/blueprints',    icon: Workflow,     group: 'OPERACIONAL' }, // not flag-gated: authoring happens with the flag OFF (spec D10)
     { navKey: 'platformSettings',      href: '/dashboard/platform/settings',      icon: Settings,     group: 'CONFIG & GOVERNANÇA' },
     { navKey: 'platformAudit',         href: '/dashboard/platform/audit',         icon: ShieldCheck,  group: 'CONFIG & GOVERNANÇA' },
   ],
