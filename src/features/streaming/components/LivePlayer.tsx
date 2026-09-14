@@ -1,34 +1,21 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Volume2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 import type { LiveCamera, LiveStage } from '../types/live.types';
-import { CameraGrid, DRAWER_W } from './CameraGrid';
-import type { ViewMode } from './CameraGrid';
-import { Header } from './Header';
 import { TransportBar } from './TransportBar';
 import { LiveBadge } from './transport/LiveBadge';
 import { liveScrubber } from './transport/live-scrubber';
 import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
 import { useAuth } from '@/features/account/hooks/use-auth';
-import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
 import { useViewerTracking } from '../hooks/use-viewer-tracking';
 import { useViewerCount } from '../hooks/use-viewer-count';
-import { useFullscreen } from '../hooks/use-fullscreen';
-import { usePictureInPicture } from '../hooks/use-picture-in-picture';
-import { useQualityLevels } from '../hooks/use-quality-levels';
-import { usePlayerAudio } from '../hooks/use-player-audio';
 import type { PlayerAudioState } from '../hooks/use-player-audio';
-import { useCameraSelection } from '../hooks/use-camera-selection';
-import { usePlayerStages } from '../hooks/use-player-stages';
-import { shareCurrentPage } from '../utils/share-current-page';
 import { useLiveDvr } from '../hooks/use-live-dvr';
-import { PlayerStage } from './PlayerStage';
-import { RecommendedOverlay } from './RecommendedOverlay';
+import { usePlayerShell } from '../hooks/use-player-shell';
+import { PlayerLayout } from './PlayerLayout';
 import styles from './Player.module.scss';
 
 interface LivePlayerProps {
@@ -71,212 +58,98 @@ interface LivePlayerProps {
   onAudioChange?: (audio: PlayerAudioState) => void;
 }
 
-export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, trackingEventId, chatEnabled, adsEnabled = true, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
+// Live = the shared player shell + DVR, viewer tracking/count, chat and the
+// "tap for sound" prompt.
+export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, title, eventId, trackingEventId, chatEnabled, adsEnabled = true, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
   const t = useTranslations('player');
   const isChannel = variant === 'channel';
-  const router = useRouter();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
-  const { togglePictureInPicture } = usePictureInPicture(containerRef);
+  const { user } = useAuth();
   // Set when the browser blocked unmuted autoplay → drives the "tap for sound"
   // prompt. Cleared for good on the first unmute (see effect below), so it never
   // reappears after the viewer has chosen.
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
-  const [cameraStripOpen, setCameraStripOpen] = useState(false);
-  // A live stream can be paused: the broadcast keeps going, so resuming picks
-  // up where the viewer stopped — behind the live edge, inside the DVR window.
-  // Returning to the edge is the transport bar's job, not this state's.
-  const [paused, setPaused] = useState(false);
-  const togglePlay = () => setPaused((p) => !p);
   const [chatOpen, setChatOpen] = useState(false);
-  // Drives the video-shrinks-into-a-card takeover: fed by PauseAdTakeover's
-  // onVisibleChange, which fires false on resume/unmount so this can never
-  // get stuck shrunk without an ad actually on screen.
-  const [pauseAdVisible, setPauseAdVisible] = useState(false);
-  const { user } = useAuth();
 
-  const { stages, activeStage, activeStageId, setActiveStageId } = usePlayerStages(cameras, rawStages, primaryCameraId);
-
-  // NBR 15290: the Libras window is only relevant when it belongs to the stage
-  // currently on screen. When present it is force-activated and can't be removed.
-  const librasInStage =
-    librasCameraId && activeStage?.cameras.some((c) => c.cameraId === librasCameraId)
-      ? librasCameraId
-      : null;
-
-  const {
-    activeCameraIds,
-    setActiveCameraIds,
-    setMainCameraId,
-    effectiveMainCameraId,
-    toggleCamera,
-  } = useCameraSelection({
-    librasCameraId: librasInStage,
+  const shell = usePlayerShell({
+    cameras,
+    stages,
+    primaryCameraId,
+    librasCameraId,
+    // A live stream can be paused: the broadcast keeps going, so resuming picks
+    // up where the viewer stopped — behind the live edge, inside the DVR window.
+    initialPaused: false,
+    playbackEnabled: !isChannel,
+    initialAudio,
+    onAudioChange,
+    // Live seek commands are addressed to the camera they were issued for (see
+    // CameraGrid, which filters on seekCommand.cameraId). endRewind is
+    // belt-and-suspenders for that, and owns the intent flag.
+    onMainCameraChange: () => endRewind(),
     // Deselecting the current main camera promotes a different one — a
-    // scrub-back intent tagged for the old camera no longer applies to the
-    // new primary, same as the explicit main-camera-change and stage-change
-    // clears below.
+    // scrub-back intent tagged for the old camera no longer applies.
     onMainDeselected: () => clearRewindIntent(),
+    onStageChange: () => resetForStageChange(),
   });
-
-  const dvrState = useLiveDvr(effectiveMainCameraId);
-  const { dvr, dvrSeeking, seekCommand, atLive, handleProgress, handleSeek, endRewind, resetForStageChange, clearRewindIntent } = dvrState;
-
-  // Audio follows the MAIN camera unless the viewer explicitly picked an audio
-  // source. Falling back to cameras[0] instead used to leave the previous
-  // default camera's audio playing after switching the main view.
-  const {
-    globalMuted,
-    setGlobalMuted,
-    volume,
-    setVolume,
-    effectiveAudioCameraId,
-    handleAudioCameraChange,
-  } = usePlayerAudio({
-    cameras: activeStage?.cameras ?? [],
-    fallbackCameraId: effectiveMainCameraId ?? activeStage?.cameras[0]?.cameraId ?? null,
-    initialMuted: initialAudio?.muted,
-    initialVolume: initialAudio?.volume,
-    onChange: onAudioChange,
-  });
-
-  const { levels, onLevelsReady, currentLevel, onSelectLevel, qualityLabel } = useQualityLevels();
+  const { audio } = shell;
+  const { dvr, dvrSeeking, seekCommand, atLive, handleProgress, handleSeek, endRewind, resetForStageChange, clearRewindIntent } =
+    useLiveDvr(shell.effectiveMainCameraId);
 
   const effectiveTrackingEventId = trackingEventId ?? eventId;
-  useViewerTracking(effectiveTrackingEventId, activeCameraIds, user?.id);
+  useViewerTracking(effectiveTrackingEventId, shell.activeCameraIds, user?.id);
   const { currentViewers } = useViewerCount(effectiveTrackingEventId);
   // Only open the SSE connection (and hit the recent-messages endpoint) when
   // chat is actually enabled for this event — see Task 7 addendum.
   const chat = useChat(chatEnabled ? eventId : null);
 
-  // Live seek commands are addressed to the camera they were issued for (see
-  // CameraGrid, which filters on seekCommand.cameraId). endRewind is
-  // belt-and-suspenders for that, and owns the intent flag.
-  const handleMainCameraChange = (cameraId: string) => {
-    setMainCameraId(cameraId);
-    endRewind();
-  };
-
-  const stageCameraKey = (activeStage?.cameras ?? []).map((c) => c.cameraId).sort().join(',');
-  useEffect(() => {
-    const first = activeStage?.cameras[0]?.cameraId;
-    // Always keep the Libras window active alongside the default camera.
-    const initial = first
-      ? librasInStage && librasInStage !== first
-        ? [first, librasInStage]
-        : [first]
-      : librasInStage
-        ? [librasInStage]
-        : [];
-    setActiveCameraIds(initial);
-    resetForStageChange();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stageCameraKey]);
-
-  const handleShare = () => shareCurrentPage(title, () => toast.success(t('linkCopied')));
-
-  const effectiveViewMode: ViewMode = activeCameraIds.length <= 1 ? 'solo' : viewMode;
-
-  const mainCameraName = activeStage?.cameras.find((c) => c.cameraId === effectiveMainCameraId)?.name;
-  const metaLine = metaLineOverride ?? [activeStage?.name, mainCameraName, qualityLabel].filter(Boolean).join(' · ');
-
   // Once the viewer turns sound on, the autoplay prompt is done for the session.
   useEffect(() => {
-    if (!globalMuted) setAutoplayBlocked(false);
-  }, [globalMuted]);
-
-  usePlayerHotkeys({
-    onToggleFullscreen: toggleFullscreen,
-    onToggleCameraPanel: () => setCameraStripOpen((o) => !o),
-    onToggleMute: () => setGlobalMuted((m) => !m),
-    // Sem pausa no canal, a tecla de espaço não tem o que alternar.
-    onTogglePlay: isChannel ? () => {} : togglePlay,
-    onVolumeUp: () => { setVolume((v) => clampVolume(v + VOLUME_STEP)); setGlobalMuted(false); },
-    onVolumeDown: () => setVolume((v) => clampVolume(v - VOLUME_STEP)),
-  });
+    if (!audio.globalMuted) setAutoplayBlocked(false);
+  }, [audio.globalMuted]);
 
   return (
-    <div ref={containerRef} className={styles.player}>
-      <Header
-        className={pauseAdVisible ? styles.headerHidden : undefined}
-        // Constrain the bar's own box to stop before the camera drawer's
-        // DRAWER_W-wide strip — padding alone left the (transparent, but
-        // still hit-testable) right edge of the bar sitting over the
-        // drawer's close/mode buttons and swallowing their clicks.
-        style={cameraStripOpen ? { right: DRAWER_W } : undefined}
-        badge="live"
-        eventId={eventId}
-        eventTitle={title}
-        metaLine={metaLine}
-        stages={stages}
-        activeStageId={activeStageId}
-        onStageChange={setActiveStageId}
-        onExit={() => router.push(exitHref ?? `/events/${eventId}`)}
-        currentViewers={currentViewers}
-        cameraCount={activeStage?.cameras.length ?? 0}
-        cameraStripOpen={cameraStripOpen}
-        onToggleCameraStrip={() => setCameraStripOpen((o) => !o)}
-        chatEnabled={chatEnabled}
-        chatOpen={chatOpen}
-        onToggleChat={() => setChatOpen((o) => !o)}
-        chatMessageCount={chat.messages.length}
-        onShare={handleShare}
-      />
-
-      <div className={styles.main}>
-        <div className={styles.gridArea}>
-          <PlayerStage
-            mode={isChannel ? 'channel' : 'live'}
-            eventId={effectiveTrackingEventId}
-            paused={paused}
-            onResume={() => setPaused(false)}
-            pauseAdVisible={pauseAdVisible}
-            onPauseAdVisibleChange={setPauseAdVisible}
-            adsEnabled={adsEnabled}
-          >
-            {activeStage && (
-              <CameraGrid
-                key={activeStage.stageId}
-                cameras={activeStage.cameras}
-                selectedLevel={currentLevel}
-                onLevelsReady={onLevelsReady}
-                globalMuted={globalMuted}
-                onGlobalMutedChange={setGlobalMuted}
-                onAutoplayBlocked={() => { setGlobalMuted(true); setAutoplayBlocked(true); }}
-                audioCameraId={effectiveAudioCameraId}
-                onAudioCameraChange={handleAudioCameraChange}
-                volume={volume}
-                paused={paused}
-                viewMode={effectiveViewMode}
-                onViewModeChange={setViewMode}
-                mainCameraId={effectiveMainCameraId}
-                onMainCameraChange={handleMainCameraChange}
-                activeCameraIds={activeCameraIds}
-                librasCameraId={librasInStage}
-                pickerOpen={cameraStripOpen}
-                onToggleCamera={toggleCamera}
-                onClosePicker={() => setCameraStripOpen(false)}
-                dvrActive={dvrSeeking}
-                seekCommand={seekCommand}
-                onProgress={handleProgress}
-              />
-            )}
-          </PlayerStage>
-
-          {autoplayBlocked && globalMuted && (
-            <button
-              type="button"
-              className={styles.unmutePrompt}
-              onClick={() => setGlobalMuted(false)}
-            >
-              <Volume2 size={16} />
-              {t('unmutePrompt')}
-            </button>
-          )}
-        </div>
-
-        {chatEnabled && (
+    <PlayerLayout
+      shell={shell}
+      mode={isChannel ? 'channel' : 'live'}
+      badge="live"
+      title={title}
+      eventId={eventId}
+      playbackEventId={effectiveTrackingEventId}
+      exitHref={exitHref}
+      metaLineOverride={metaLineOverride}
+      adsEnabled={adsEnabled}
+      currentViewers={currentViewers}
+      chat={chatEnabled ? { open: chatOpen, onToggle: () => setChatOpen((o) => !o), messageCount: chat.messages.length } : undefined}
+      gridProps={{
+        onAutoplayBlocked: () => { audio.setGlobalMuted(true); setAutoplayBlocked(true); },
+        dvrActive: dvrSeeking,
+        seekCommand,
+        onProgress: handleProgress,
+      }}
+      transport={
+        <TransportBar
+          badge={<LiveBadge atLive={atLive} onBackToLive={() => dvr && handleSeek(dvr.edge)} />}
+          scrubber={liveScrubber(dvr, handleSeek, !isChannel)}
+          paused={shell.paused}
+          onTogglePlay={shell.togglePlay}
+          showPlayback={!isChannel}
+          globalMuted={audio.globalMuted}
+          onToggleMute={() => audio.setGlobalMuted((m) => !m)}
+          volume={audio.volume}
+          onVolumeChange={audio.setVolume}
+          audioCameras={shell.stageCameras}
+          effectiveAudioCameraId={audio.effectiveAudioCameraId}
+          onAudioCameraChange={audio.handleAudioCameraChange}
+          levels={shell.quality.levels}
+          currentLevel={shell.quality.currentLevel}
+          qualityLabel={shell.quality.qualityLabel}
+          onSelectLevel={shell.quality.onSelectLevel}
+          onTogglePip={shell.togglePictureInPicture}
+          isFullscreen={shell.isFullscreen}
+          onToggleFullscreen={shell.toggleFullscreen}
+        />
+      }
+      aside={
+        chatEnabled ? (
           <ChatDock
             open={chatOpen}
             onClose={() => setChatOpen(false)}
@@ -291,38 +164,20 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
             onUnmuteUser={chat.unmuteUser}
             currentUserId={user?.id ?? null}
           />
-        )}
-      </div>
-
-      <div className={styles.bottomStack}>
-        <TransportBar
-          badge={<LiveBadge atLive={atLive} onBackToLive={() => dvr && handleSeek(dvr.edge)} />}
-          scrubber={liveScrubber(dvr, handleSeek, !isChannel)}
-          paused={paused}
-          onTogglePlay={togglePlay}
-          showPlayback={!isChannel}
-          globalMuted={globalMuted}
-          onToggleMute={() => setGlobalMuted((m) => !m)}
-          volume={volume}
-          onVolumeChange={setVolume}
-          audioCameras={activeStage?.cameras ?? []}
-          effectiveAudioCameraId={effectiveAudioCameraId}
-          onAudioCameraChange={handleAudioCameraChange}
-          levels={levels}
-          currentLevel={currentLevel}
-          qualityLabel={qualityLabel}
-          onSelectLevel={onSelectLevel}
-          onTogglePip={togglePictureInPicture}
-          isFullscreen={isFullscreen}
-          onToggleFullscreen={toggleFullscreen}
-        />
-      </div>
-
-      <ReactionsTicker totalReactions={chat.totalReactions} />
-
-      <RecommendedOverlay eventId={eventId} containerRef={containerRef} isFullscreen={isFullscreen} />
-
-      {overlay}
-    </div>
+        ) : undefined
+      }
+      extras={
+        <>
+          {autoplayBlocked && audio.globalMuted && (
+            <button type="button" className={styles.unmutePrompt} onClick={() => audio.setGlobalMuted(false)}>
+              <Volume2 size={16} />
+              {t('unmutePrompt')}
+            </button>
+          )}
+          <ReactionsTicker totalReactions={chat.totalReactions} />
+          {overlay}
+        </>
+      }
+    />
   );
 }

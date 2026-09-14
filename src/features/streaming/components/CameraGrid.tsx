@@ -18,7 +18,7 @@ export type { QualityLevel };
 export type { ViewMode } from './camera-layout';
 export { DRAWER_W } from './camera-layout';
 
-interface CameraGridProps {
+export interface CameraGridProps {
   cameras: LiveCamera[];
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;

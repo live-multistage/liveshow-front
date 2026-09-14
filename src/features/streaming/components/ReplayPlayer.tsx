@@ -2,29 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 import type { ReplayCameraPlayback, ReplayEventTimeline, ReplayStagePlayback, LiveCamera } from '../types/live.types';
-import { CameraGrid, DRAWER_W } from './CameraGrid';
-import type { ViewMode } from './CameraGrid';
-import { Header } from './Header';
-import { PlayerStage } from './PlayerStage';
 import { TransportBar } from './TransportBar';
 import { ReplayBadge } from './transport/ReplayBadge';
 import { formatTime } from './transport/live-scrubber';
-import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
 import { localToAbsolute } from '../utils/replay-timeline';
-import { shareCurrentPage } from '../utils/share-current-page';
 import { useTrackPlaybackProgress, usePlaybackProgressQuery } from '@/features/playback-progress';
 import { useAuth } from '@/features/account/hooks/use-auth';
-import { useFullscreen } from '../hooks/use-fullscreen';
-import { usePictureInPicture } from '../hooks/use-picture-in-picture';
-import { useQualityLevels } from '../hooks/use-quality-levels';
-import { usePlayerAudio } from '../hooks/use-player-audio';
-import { useCameraSelection } from '../hooks/use-camera-selection';
-import { usePlayerStages } from '../hooks/use-player-stages';
+import { usePlayerShell } from '../hooks/use-player-shell';
 import type { PlayerStageLike } from '../hooks/use-player-stages';
-import { RecommendedOverlay } from './RecommendedOverlay';
+import { PlayerLayout } from './PlayerLayout';
 import styles from './Player.module.scss';
 
 interface ReplayPlayerProps {
@@ -64,10 +51,10 @@ function toLiveCamera(c: ReplayCameraPlayback): LiveCamera {
   };
 }
 
-// Replay shares the live player's chrome (Header with stage tabs + share,
-// TransportBar, PlayerStage/CameraGrid) and drops what's live-only (viewer
-// tracking/count, chat); its own concerns are the absolute event timeline,
-// resume-from-progress and ending on pause.
+const firstPlayable = (list: LiveCamera[]) => list.find((c) => c.manifestPath !== null)?.cameraId;
+
+// Replay = the shared player shell + the absolute event timeline, resume from
+// saved progress and ending on pause. No chat, no viewer count.
 //
 // paused/seekCommand are applied to every active camera's <video> (see
 // VideoPanel), so switching the main camera mid-playback doesn't leave a
@@ -77,21 +64,27 @@ function toLiveCamera(c: ReplayCameraPlayback): LiveCamera {
 // later.
 export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCameraId = null, librasCameraId = null, title, eventId, timeline, adsEnabled = true }: ReplayPlayerProps) {
   const t = useTranslations('player');
-  const router = useRouter();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
-  const [cameraStripOpen, setCameraStripOpen] = useState(false);
-  const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
-  const { togglePictureInPicture } = usePictureInPicture(containerRef);
-  // Starts paused: a VOD stream autoplaying with sound the moment the page
-  // loads (no direct user gesture on this element) is exactly what browser
-  // autoplay policies block anyway — same big-play-button pattern as any
-  // VOD player.
-  const [paused, setPaused] = useState(true);
-  // Drives the video-shrinks-into-a-card takeover: fed by PauseAdTakeover's
-  // onVisibleChange, which fires false on resume/unmount so this can never
-  // get stuck shrunk without an ad actually on screen.
-  const [pauseAdVisible, setPauseAdVisible] = useState(false);
+
+  const cameras = useMemo(() => rawCameras.map(toLiveCamera), [rawCameras]);
+  const stages = useMemo<PlayerStageLike<LiveCamera>[] | undefined>(
+    () => rawStages?.map((s) => ({ ...s, cameras: s.cameras.map(toLiveCamera) })),
+    [rawStages],
+  );
+
+  const shell = usePlayerShell({
+    cameras,
+    stages,
+    primaryCameraId,
+    librasCameraId,
+    // Starts paused: a VOD stream autoplaying with sound the moment the page
+    // loads (no direct user gesture on this element) is exactly what browser
+    // autoplay policies block anyway — same big-play-button pattern as any
+    // VOD player.
+    initialPaused: true,
+    pickInitialCamera: firstPlayable,
+  });
+  const { audio } = shell;
+
   // The absolute instant (ms, event timeline) playback is currently at — NOT
   // a camera's local media time. Each camera's <video> only knows its own
   // local seconds; positionMs is what lets cameras that joined the event at
@@ -101,48 +94,6 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
   // positionMs, NOT a camera-local offset. The token still exists so
   // re-seeking the same instant twice in a row (e.g. resume) still applies.
   const [seekCommand, setSeekCommand] = useState<{ time: number; token: number } | null>(null);
-
-  const cameras = useMemo(() => rawCameras.map(toLiveCamera), [rawCameras]);
-  const mappedStages = useMemo<PlayerStageLike<LiveCamera>[] | undefined>(
-    () => rawStages?.map((s) => ({ ...s, cameras: s.cameras.map(toLiveCamera) })),
-    [rawStages],
-  );
-  const { stages, activeStage, activeStageId, setActiveStageId } = usePlayerStages(cameras, mappedStages, primaryCameraId);
-  const stageCameras = activeStage?.cameras ?? [];
-
-  // The Libras window (if this event has one) is always active and never
-  // removable — but only while it belongs to the stage on screen.
-  const librasInStage = librasCameraId && stageCameras.some((c) => c.cameraId === librasCameraId)
-    ? librasCameraId
-    : null;
-
-  const firstPlayable = (list: LiveCamera[]) => list.find((c) => c.manifestPath !== null)?.cameraId;
-  const initialActiveIds = (list: LiveCamera[], libras: string | null) => {
-    const first = firstPlayable(list);
-    const initial = first ? [first] : [];
-    if (libras && !initial.includes(libras)) initial.push(libras);
-    return initial;
-  };
-
-  const {
-    activeCameraIds,
-    setActiveCameraIds,
-    setMainCameraId,
-    effectiveMainCameraId,
-    toggleCamera,
-  } = useCameraSelection({
-    librasCameraId: librasInStage,
-    initialActiveIds: () => initialActiveIds(stageCameras, librasInStage),
-  });
-
-  // Stage switch: start over on that stage's first playable camera (+ Libras).
-  const stageCameraKey = stageCameras.map((c) => c.cameraId).sort().join(',');
-  const stageMounted = useRef(false);
-  useEffect(() => {
-    if (!stageMounted.current) { stageMounted.current = true; return; }
-    setActiveCameraIds(initialActiveIds(stageCameras, librasInStage));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stageCameraKey]);
 
   const { isLoggedIn } = useAuth();
   const { report } = useTrackPlaybackProgress({ eventId, enabled: isLoggedIn });
@@ -175,26 +126,10 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     setPositionMs(resumeAbsoluteMs);
   }, [progress, eventId, timeline]);
 
-  const playableCameras = cameras.filter((c) => c.manifestPath !== null);
   // CameraGrid only reports progress for the PRIMARY panel, and it reports in
   // that camera's own local seconds — its coverage is what converts that back
   // to the absolute instant everything else (positionMs, seekCommand) is in.
-  const primaryCoverage =
-    rawCameras.find((c) => c.cameraId === effectiveMainCameraId)?.coverage ?? [];
-
-  const {
-    globalMuted,
-    setGlobalMuted,
-    volume,
-    setVolume,
-    effectiveAudioCameraId,
-    handleAudioCameraChange,
-  } = usePlayerAudio({
-    cameras: stageCameras,
-    fallbackCameraId: effectiveMainCameraId ?? stageCameras[0]?.cameraId ?? null,
-  });
-
-  const { levels, onLevelsReady, currentLevel, onSelectLevel, qualityLabel } = useQualityLevels();
+  const primaryCoverage = rawCameras.find((c) => c.cameraId === shell.effectiveMainCameraId)?.coverage ?? [];
 
   // `absoluteMs` is the event-timeline instant (see positionMs comment above),
   // not a camera-local offset — the transport bar's domain is the timeline.
@@ -203,24 +138,12 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     setSeekCommand({ time: absoluteMs, token: Date.now() });
   };
 
-  const handleEnded = () => setPaused(true);
-  const handleShare = () => shareCurrentPage(title, () => toast.success(t('linkCopied')));
-
-  usePlayerHotkeys({
-    onToggleFullscreen: toggleFullscreen,
-    onToggleCameraPanel: () => { if (stageCameras.length > 1) setCameraStripOpen((o) => !o); },
-    onToggleMute: () => setGlobalMuted((m) => !m),
-    onTogglePlay: () => setPaused((p) => !p),
-    onVolumeUp: () => { setVolume((v) => clampVolume(v + VOLUME_STEP)); setGlobalMuted(false); },
-    onVolumeDown: () => setVolume((v) => clampVolume(v - VOLUME_STEP)),
-  });
-
   // ponytail: `!timeline` derruba o replay de VOD junto. O backend devolve
   // timeline null para VOD (asset único, sem costura de pacotes), então um VOD
   // com vídeo pronto cai aqui e anuncia "indisponível" — regressão conhecida,
   // adiada de propósito. Conserto: dar ao VOD uma timeline derivada da duração
   // do asset, mantendo um contrato só, em vez de abrir exceção neste guard.
-  if (playableCameras.length === 0 || !timeline) {
+  if (!cameras.some((c) => c.manifestPath !== null) || !timeline) {
     return (
       <div className={styles.emptyState}>
         <h2>{title}</h2>
@@ -229,91 +152,35 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     );
   }
 
-  const mainCameraName = stageCameras.find((c) => c.cameraId === effectiveMainCameraId)?.name;
-  const metaLine = [activeStage?.name, mainCameraName, qualityLabel].filter(Boolean).join(' · ');
-
   return (
-    <div ref={containerRef} className={styles.player}>
-      <Header
-        className={pauseAdVisible ? styles.headerHidden : undefined}
-        // Constrain the bar's own box to stop before the camera drawer's
-        // DRAWER_W-wide strip — padding alone left the (transparent, but
-        // still hit-testable) right edge of the bar sitting over the
-        // drawer's close/mode buttons and swallowing their clicks.
-        style={cameraStripOpen ? { right: DRAWER_W } : undefined}
-        badge="replay"
-        eventId={eventId}
-        eventTitle={title}
-        metaLine={metaLine}
-        stages={stages}
-        activeStageId={activeStageId}
-        onStageChange={setActiveStageId}
-        onExit={() => router.push(`/events/${eventId}`)}
-        cameraCount={stageCameras.length}
-        cameraStripOpen={cameraStripOpen}
-        onToggleCameraStrip={() => setCameraStripOpen((o) => !o)}
-        chatEnabled={false}
-        onShare={handleShare}
-      />
-
-      <div className={styles.main}>
-        <div className={styles.gridArea}>
-          <PlayerStage
-            mode="replay"
-            eventId={eventId}
-            paused={paused}
-            onResume={() => setPaused(false)}
-            pauseAdVisible={pauseAdVisible}
-            onPauseAdVisibleChange={setPauseAdVisible}
-            adsEnabled={adsEnabled}
-          >
-            {activeStage && (
-              <CameraGrid
-                key={activeStage.stageId}
-                cameras={stageCameras}
-                selectedLevel={currentLevel}
-                onLevelsReady={onLevelsReady}
-                globalMuted={globalMuted}
-                onGlobalMutedChange={setGlobalMuted}
-                audioCameraId={effectiveAudioCameraId}
-                onAudioCameraChange={handleAudioCameraChange}
-                volume={volume}
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-                mainCameraId={effectiveMainCameraId}
-                onMainCameraChange={setMainCameraId}
-                activeCameraIds={activeCameraIds}
-                librasCameraId={librasInStage}
-                pickerOpen={cameraStripOpen}
-                onToggleCamera={toggleCamera}
-                onClosePicker={() => setCameraStripOpen(false)}
-                mode="replay"
-                paused={paused}
-                // Sem isto o painel julgaria a cobertura pelo último seek, e uma
-                // câmera que entra em cobertura enquanto o vídeo avança nunca
-                // voltaria a tocar.
-                positionMs={positionMs}
-                seekCommand={seekCommand}
-                onProgress={(localSeconds) => {
-                  const absoluteMs = localToAbsolute(primaryCoverage, localSeconds);
-                  // Outside the primary camera's coverage (a gap between its
-                  // stitched stretches) — nothing maps there. Keep the last known
-                  // position rather than write a wrong one.
-                  if (absoluteMs === null) return;
-                  setPositionMs(absoluteMs);
-                  report((absoluteMs - timeline.startsAtMs) / 1000, (timeline.endsAtMs - timeline.startsAtMs) / 1000);
-                }}
-                onEnded={handleEnded}
-              />
-            )}
-          </PlayerStage>
-        </div>
-      </div>
-
-      <div className={styles.bottomStack}>
+    <PlayerLayout
+      shell={shell}
+      mode="replay"
+      badge="replay"
+      title={title}
+      eventId={eventId}
+      adsEnabled={adsEnabled}
+      gridProps={{
+        // Sem isto o painel julgaria a cobertura pelo último seek, e uma
+        // câmera que entra em cobertura enquanto o vídeo avança nunca
+        // voltaria a tocar.
+        positionMs,
+        seekCommand,
+        onProgress: (localSeconds) => {
+          const absoluteMs = localToAbsolute(primaryCoverage, localSeconds);
+          // Outside the primary camera's coverage (a gap between its
+          // stitched stretches) — nothing maps there. Keep the last known
+          // position rather than write a wrong one.
+          if (absoluteMs === null) return;
+          setPositionMs(absoluteMs);
+          report((absoluteMs - timeline.startsAtMs) / 1000, (timeline.endsAtMs - timeline.startsAtMs) / 1000);
+        },
+        onEnded: () => shell.setPaused(true),
+      }}
+      transport={
         <TransportBar
-          paused={paused}
-          onTogglePlay={() => setPaused((p) => !p)}
+          paused={shell.paused}
+          onTogglePlay={shell.togglePlay}
           badge={<ReplayBadge />}
           // Labels show elapsed-since-timeline-start (0:00 at the beginning),
           // not the underlying wall-clock ms — viewers read a stopwatch, not a date.
@@ -325,24 +192,22 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
             leadingLabel: formatTime((positionMs - timeline.startsAtMs) / 1000),
             trailingLabel: formatTime((timeline.endsAtMs - timeline.startsAtMs) / 1000),
           }}
-          globalMuted={globalMuted}
-          onToggleMute={() => setGlobalMuted((m) => !m)}
-          volume={volume}
-          onVolumeChange={setVolume}
-          audioCameras={stageCameras}
-          effectiveAudioCameraId={effectiveAudioCameraId}
-          onAudioCameraChange={handleAudioCameraChange}
-          levels={levels}
-          currentLevel={currentLevel}
-          qualityLabel={qualityLabel}
-          onSelectLevel={onSelectLevel}
-          onTogglePip={togglePictureInPicture}
-          isFullscreen={isFullscreen}
-          onToggleFullscreen={toggleFullscreen}
+          globalMuted={audio.globalMuted}
+          onToggleMute={() => audio.setGlobalMuted((m) => !m)}
+          volume={audio.volume}
+          onVolumeChange={audio.setVolume}
+          audioCameras={shell.stageCameras}
+          effectiveAudioCameraId={audio.effectiveAudioCameraId}
+          onAudioCameraChange={audio.handleAudioCameraChange}
+          levels={shell.quality.levels}
+          currentLevel={shell.quality.currentLevel}
+          qualityLabel={shell.quality.qualityLabel}
+          onSelectLevel={shell.quality.onSelectLevel}
+          onTogglePip={shell.togglePictureInPicture}
+          isFullscreen={shell.isFullscreen}
+          onToggleFullscreen={shell.toggleFullscreen}
         />
-      </div>
-
-      <RecommendedOverlay eventId={eventId} containerRef={containerRef} isFullscreen={isFullscreen} />
-    </div>
+      }
+    />
   );
 }
