@@ -11,6 +11,8 @@ import { CameraGrid, DRAWER_W } from './CameraGrid';
 import type { ViewMode } from './CameraGrid';
 import { Header } from './Header';
 import { TransportBar } from './TransportBar';
+import { LiveBadge } from './transport/LiveBadge';
+import { liveScrubber } from './transport/live-scrubber';
 import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
@@ -327,9 +329,8 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
 
       <div className={styles.bottomStack}>
         <TransportBar
-          dvr={dvr}
-          atLive={atLive}
-          onSeek={handleSeek}
+          badge={<LiveBadge atLive={atLive} onBackToLive={() => dvr && handleSeek(dvr.edge)} />}
+          scrubber={liveScrubber(dvr, handleSeek, !isChannel)}
           paused={paused}
           onTogglePlay={togglePlay}
           showPlayback={!isChannel}

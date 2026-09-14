@@ -9,7 +9,9 @@ import type { ReplayCameraPlayback, ReplayEventTimeline, LiveCamera } from '../t
 import { CameraGrid, DRAWER_W } from './CameraGrid';
 import type { ViewMode } from './CameraGrid';
 import { PlayerStage } from './PlayerStage';
-import { ReplayTransportBar } from './ReplayTransportBar';
+import { TransportBar } from './TransportBar';
+import { ReplayBadge } from './transport/ReplayBadge';
+import { formatTime } from './transport/live-scrubber';
 import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from '../hooks/use-player-hotkeys';
 import { localToAbsolute } from '../utils/replay-timeline';
 import { useTrackPlaybackProgress, usePlaybackProgressQuery } from '@/features/playback-progress';
@@ -277,13 +279,20 @@ export function ReplayPlayer({ cameras: rawCameras, librasCameraId = null, title
       </div>
 
       <div className={styles.bottomStack}>
-        <ReplayTransportBar
+        <TransportBar
           paused={paused}
           onTogglePlay={() => setPaused((p) => !p)}
-          timelineStartMs={timeline.startsAtMs}
-          timelineEndMs={timeline.endsAtMs}
-          positionMs={positionMs}
-          onSeek={handleSeek}
+          badge={<ReplayBadge />}
+          // Labels show elapsed-since-timeline-start (0:00 at the beginning),
+          // not the underlying wall-clock ms — viewers read a stopwatch, not a date.
+          scrubber={{
+            min: timeline.startsAtMs,
+            max: timeline.endsAtMs,
+            value: positionMs,
+            onSeek: handleSeek,
+            leadingLabel: formatTime((positionMs - timeline.startsAtMs) / 1000),
+            trailingLabel: formatTime((timeline.endsAtMs - timeline.startsAtMs) / 1000),
+          }}
           globalMuted={globalMuted}
           onToggleMute={() => setGlobalMuted((m) => !m)}
           volume={volume}

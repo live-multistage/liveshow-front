@@ -129,7 +129,7 @@ export interface UseTransportControlsOptions {
 
 // Transport wiring for one panel: pause/resume, commanded seeks and the
 // time-source progress/ended reporting. Replay drives play/pause/seek from
-// ReplayTransportBar; live drives DVR seeks and the live-edge readout from
+// the replay TransportBar; live drives DVR seeks and the live-edge readout from
 // TransportBar. Behavior characterized by VideoPanel.characterization.test.tsx.
 export interface UseTransportControlsResult {
   // Replay + coverage only: the commanded absolute instant falls in a gap this

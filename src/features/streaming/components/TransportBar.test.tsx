@@ -1,19 +1,18 @@
 /**
- * Live DVR chrome: the AO VIVO badge's two states (at the live edge vs.
- * scrubbed back into the DVR window) and the seek scrubber that appears once
- * the manifest actually carries a window worth scrubbing.
+ * Mode-agnostic transport chrome: the badge and scrubber are slots, so this
+ * suite only covers the bar's own wiring. Live DVR rules live in
+ * transport/live-scrubber.test.ts, the AO VIVO badge in transport/LiveBadge.test.tsx.
  */
 import { describe, it, expect, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
 import { TransportBar } from './TransportBar';
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-import type { DvrState } from './TransportBar';
-import { LIVE_EDGE_TOLERANCE_SEC } from '../hooks/use-transport-controls';
 
 const baseProps = {
   paused: false,
   onTogglePlay: vi.fn(),
+  badge: <span>BADGE</span>,
   globalMuted: false,
   onToggleMute: vi.fn(),
   volume: 1,
@@ -30,143 +29,58 @@ const baseProps = {
   onToggleFullscreen: vi.fn(),
 };
 
-// A one-hour DVR window whose live edge sits at 3600s.
-const dvrAt = (position: number): DvrState => ({
-  start: 0,
-  end: 3606,
-  position,
-  edge: 3600,
-  tolerance: LIVE_EDGE_TOLERANCE_SEC,
-});
-
-describe('TransportBar — AO VIVO badge', () => {
-  it('is lit and non-interactive while at the live edge', () => {
-    const { getByText, queryByRole } = render(
-      <TransportBar {...baseProps} dvr={dvrAt(3599)} atLive onSeek={vi.fn()} />,
-    );
-    expect(getByText('AO VIVO').tagName).toBe('SPAN');
-    expect(queryByRole('button', { name: 'backToLive' })).toBeNull();
-  });
-
-  it('stays lit before any position has been reported (no dvr yet)', () => {
+describe('TransportBar — slots', () => {
+  it('renders whatever badge it is given', () => {
     const { getByText } = render(<TransportBar {...baseProps} />);
-    expect(getByText('AO VIVO').tagName).toBe('SPAN');
+    expect(getByText('BADGE')).toBeInTheDocument();
   });
 
-  it('becomes a dimmed, clickable control once scrubbed back', () => {
-    const { getByRole } = render(
-      <TransportBar {...baseProps} dvr={dvrAt(1200)} atLive={false} onSeek={vi.fn()} />,
-    );
-    const badge = getByRole('button', { name: 'backToLive' });
-    expect(badge.className).not.toBe('');
-    expect(badge.textContent).toContain('AO VIVO');
-  });
-
-  it('clicking it seeks back to the live edge, not to the seekable end', () => {
+  it('renders the scrubber over the given range with its labels', () => {
     const onSeek = vi.fn();
-    const { getByRole } = render(
-      <TransportBar {...baseProps} dvr={dvrAt(1200)} atLive={false} onSeek={onSeek} />,
-    );
-    fireEvent.click(getByRole('button', { name: 'backToLive' }));
-    expect(onSeek).toHaveBeenCalledWith(3600);
-  });
-});
-
-describe('TransportBar — DVR scrubber', () => {
-  it('renders over the seekable window, positioned at the current time', () => {
-    const { getByLabelText } = render(
-      <TransportBar {...baseProps} dvr={dvrAt(1200)} atLive={false} onSeek={vi.fn()} />,
+    const { getByLabelText, getByText } = render(
+      <TransportBar
+        {...baseProps}
+        scrubber={{ min: 0, max: 3606, value: 1200, onSeek, leadingLabel: '-40:00', trailingLabel: '60:06' }}
+      />,
     );
     const slider = getByLabelText('seekPosition') as HTMLInputElement;
     expect(slider.min).toBe('0');
     expect(slider.max).toBe('3606');
     expect(slider.value).toBe('1200');
-  });
-
-  it('shows how far behind the live edge the viewer is', () => {
-    const { getByText } = render(
-      <TransportBar {...baseProps} dvr={dvrAt(3517)} atLive={false} onSeek={vi.fn()} />,
-    );
-    expect(getByText('-1:23')).toBeTruthy();
-  });
-
-  it('dragging it reports the new position', () => {
-    const onSeek = vi.fn();
-    const { getByLabelText } = render(
-      <TransportBar {...baseProps} dvr={dvrAt(3599)} atLive onSeek={onSeek} />,
-    );
-    fireEvent.change(getByLabelText('seekPosition'), { target: { value: '900' } });
+    expect(getByText('-40:00')).toBeInTheDocument();
+    expect(getByText('60:06')).toBeInTheDocument();
+    fireEvent.change(slider, { target: { value: '900' } });
     expect(onSeek).toHaveBeenCalledWith(900);
   });
 
-  it('stays hidden while the window is only the player buffer (no real DVR)', () => {
-    const { queryByLabelText } = render(
-      <TransportBar
-        {...baseProps}
-        dvr={{ start: 100, end: 112, position: 106, edge: 106, tolerance: LIVE_EDGE_TOLERANCE_SEC }}
-        atLive
-        onSeek={vi.fn()}
-      />,
-    );
-    expect(queryByLabelText('seekPosition')).toBeNull();
-  });
-
-  it('stays hidden when nothing can act on a seek', () => {
-    const { queryByLabelText } = render(<TransportBar {...baseProps} dvr={dvrAt(1200)} atLive />);
+  it('renders no scrubber when the slot is null', () => {
+    const { queryByLabelText } = render(<TransportBar {...baseProps} scrubber={null} />);
     expect(queryByLabelText('seekPosition')).toBeNull();
   });
 });
 
 describe('TransportBar — play/pause', () => {
-  it('exposes a pause control while the live stream is playing', () => {
+  it('exposes a pause control while playing', () => {
     const onTogglePlay = vi.fn();
-    const { getByLabelText } = render(
-      <TransportBar {...baseProps} paused={false} onTogglePlay={onTogglePlay} />,
-    );
-
+    const { getByLabelText } = render(<TransportBar {...baseProps} paused={false} onTogglePlay={onTogglePlay} />);
     fireEvent.click(getByLabelText('pause'));
     expect(onTogglePlay).toHaveBeenCalledTimes(1);
   });
 
   it('flips to a play control once paused', () => {
-    const { getByLabelText, queryByLabelText } = render(
-      <TransportBar {...baseProps} paused onTogglePlay={vi.fn()} />,
-    );
-
+    const { getByLabelText, queryByLabelText } = render(<TransportBar {...baseProps} paused />);
     expect(getByLabelText('play')).toBeInTheDocument();
     expect(queryByLabelText('pause')).toBeNull();
   });
 });
 
-// A channel is a broadcast with no archive behind it: there is nothing to
-// pause into and nothing to scrub back to, so the whole playback half of the
-// bar goes away. The AO VIVO badge stays — a channel is always live.
+// A channel is a broadcast with no archive behind it: nothing to pause into.
+// The badge stays — a channel is always live.
 describe('TransportBar — showPlayback=false', () => {
-  it('drops the play/pause control', () => {
-    const { queryByLabelText } = render(<TransportBar {...baseProps} showPlayback={false} />);
-
+  it('drops the play/pause control but keeps the badge', () => {
+    const { queryByLabelText, getByText } = render(<TransportBar {...baseProps} showPlayback={false} />);
     expect(queryByLabelText('pause')).toBeNull();
     expect(queryByLabelText('play')).toBeNull();
-  });
-
-  it('drops the DVR scrubber even when the window is seekable', () => {
-    const { queryByLabelText, queryByText } = render(
-      <TransportBar
-        {...baseProps}
-        showPlayback={false}
-        dvr={dvrAt(3517)}
-        atLive={false}
-        onSeek={vi.fn()}
-      />,
-    );
-
-    expect(queryByLabelText('seekPosition')).toBeNull();
-    expect(queryByText('-1:23')).toBeNull();
-  });
-
-  it('keeps the live badge', () => {
-    const { getByText } = render(<TransportBar {...baseProps} showPlayback={false} />);
-
-    expect(getByText('AO VIVO')).toBeInTheDocument();
+    expect(getByText('BADGE')).toBeInTheDocument();
   });
 });

@@ -13,7 +13,7 @@ interface Props {
   ariaLabel: string;
 }
 
-// The scrub track shared by ReplayTransportBar (VOD timeline) and TransportBar
+// The scrub track shared by the replay (VOD timeline) and live (DVR) transport bars
 // (live DVR window). Only the input is shared — each bar keeps its own labels
 // and layout, since "0:00 / 3:42" and "-1:23 behind live" are different
 // readings of the same control.
