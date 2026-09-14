@@ -81,6 +81,20 @@ describe('CasesBuilder', () => {
 
     expect(screen.getByText('editor.fields.cases.errValue')).toBeInTheDocument();
   });
+
+  it('keeps an unparsable case (e.g. legacy null match) on the raw array and preserves it when a sibling row is edited', () => {
+    const onChange = vi.fn();
+    const withLegacy = [{ match: null, port: 'legacy' }, { match: 'A', port: 'a' }];
+    render(<CasesBuilder id="c" label="Casos" value={withLegacy} maxCases={12} onChange={onChange} />);
+
+    // The legacy row still renders (empty value, existing empty-value error) instead of vanishing.
+    expect(screen.getAllByText('editor.fields.cases.errValue')).toHaveLength(1);
+    expect(screen.getByDisplayValue('legacy')).toBeInTheDocument();
+
+    const portInputs = screen.getAllByLabelText('editor.fields.cases.port');
+    fireEvent.change(portInputs[1], { target: { value: 'b' } });
+    expect(onChange).toHaveBeenCalledWith([{ match: null, port: 'legacy' }, { match: 'A', port: 'b' }]);
+  });
 });
 
 describe('CasesBuilder — typed value (matchesCase compares strictly typed)', () => {

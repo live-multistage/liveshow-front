@@ -5,15 +5,18 @@ import { X } from 'lucide-react';
 import type { BlueprintFieldType, BlueprintSwitchCase } from '@live-show/api-contracts';
 import { Input, cn } from '@live-show/design-system';
 import { ChoiceSelect } from '../../../mailing/components/BlockInspector';
-import { casesOf } from '../expr-builders';
+import { isCase } from '../expr-builders';
 import styles from '../Inspector.module.scss';
 
-const PORT_RE = /^[A-Za-z0-9_-]{1,32}$/;
+// Mirrors the orchestrator's PORT_NAME (analyzer.ts): a letter, then letters/digits/_.
+const PORT_RE = /^[a-z][a-z0-9_]{0,31}$/i;
 // Collide with a fixed handle (true/false/next/error) or the switch's own
 // fallthrough (default) — the analyzer's SWITCH_CASES check mirrors this set.
 const RESERVED_PORTS = new Set(['default', 'true', 'false', 'next', 'error']);
 type ScalarType = 'string' | 'number' | 'boolean';
 const isScalarType = (t?: BlueprintFieldType): t is ScalarType => t === 'string' || t === 'number' || t === 'boolean';
+const asRecord = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' ? (v as Record<string, unknown>) : {});
+const portOf = (v: unknown): string => (typeof asRecord(v).port === 'string' ? (asRecord(v).port as string) : '');
 
 interface Props {
   id: string;
@@ -29,21 +32,28 @@ interface Props {
 // fixed, non-editable "todos os outros → padrão" row always trails the list.
 // The backend's matchesCase() compares strictly typed, so the match must be
 // stored as the same JS type as the resolved value ref (number/boolean/string).
+//
+// Rows mirror the raw `config.cases` array (like the orchestrator's
+// ports-of.ts), not just the entries that parse as a complete case: an entry
+// with an unparsable `match` (e.g. imported/legacy data) still keeps its slot
+// — and its port — so editing a sibling row never silently drops it.
 export function CasesBuilder({ id, label, value, maxCases, valueType, onChange }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
-  const rows = casesOf(value);
+  const rows: unknown[] = Array.isArray(value) ? value : [];
+  const ports = rows.map(portOf);
   const atMax = rows.length >= maxCases;
   const scalarType: ScalarType = isScalarType(valueType) ? valueType : 'string';
 
   const update = (index: number, patch: Partial<BlueprintSwitchCase>) =>
-    onChange(rows.map((r, i) => (i === index ? { ...r, ...patch } : r)));
-  const remove = (index: number) => onChange(rows.filter((_, i) => i !== index));
-  const add = () => onChange([...rows, { match: '', port: '' }]);
+    onChange(rows.map((r, i) => (i === index ? { ...asRecord(r), ...patch } : r)) as BlueprintSwitchCase[]);
+  const remove = (index: number) => onChange(rows.filter((_, i) => i !== index) as BlueprintSwitchCase[]);
+  const add = () => onChange([...rows, { match: '', port: '' }] as BlueprintSwitchCase[]);
 
-  const portError = (row: BlueprintSwitchCase, index: number): string | null => {
-    if (!PORT_RE.test(row.port)) return t('editor.fields.cases.errPort');
-    if (RESERVED_PORTS.has(row.port)) return t('editor.fields.cases.errReserved');
-    if (rows.some((r, i) => i !== index && r.port === row.port)) return t('editor.fields.cases.errDuplicate');
+  const portError = (index: number): string | null => {
+    const port = ports[index];
+    if (!PORT_RE.test(port)) return t('editor.fields.cases.errPort');
+    if (RESERVED_PORTS.has(port)) return t('editor.fields.cases.errReserved');
+    if (ports.some((p, i) => i !== index && p === port)) return t('editor.fields.cases.errDuplicate');
     return null;
   };
 
@@ -62,17 +72,24 @@ export function CasesBuilder({ id, label, value, maxCases, valueType, onChange }
         <span />
       </div>
       <div className={styles.casesRows}>
-        {rows.map((row, index) => {
-          const valueInvalid = row.match === '';
-          const numberInvalid = scalarType === 'number' && !valueInvalid && typeof row.match !== 'number';
-          const portMsg = portError(row, index);
+        {rows.map((raw, index) => {
+          const parsed = isCase(raw) ? raw : null;
+          const match = parsed ? parsed.match : '';
+          const port = ports[index];
+          const valueInvalid = match === '';
+          const numberInvalid = scalarType === 'number' && !valueInvalid && typeof match !== 'number';
+          const portMsg = portError(index);
+          const errorId = `${id}-${index}-error`;
+          const hasError = valueInvalid || numberInvalid || portMsg !== null;
           return (
             <div key={index} className={styles.caseRow}>
               <div className={styles.caseRowGrid}>
                 {scalarType === 'boolean' ? (
                   <ChoiceSelect
                     id={`${id}-${index}-value`}
-                    value={row.match === true ? 'true' : row.match === false ? 'false' : ''}
+                    aria-label={t('editor.fields.cases.value')}
+                    aria-describedby={hasError ? errorId : undefined}
+                    value={match === true ? 'true' : match === false ? 'false' : ''}
                     options={[
                       { value: 'true', label: t('editor.fields.cases.true') },
                       { value: 'false', label: t('editor.fields.cases.false') },
@@ -87,7 +104,8 @@ export function CasesBuilder({ id, label, value, maxCases, valueType, onChange }
                     type="text"
                     inputMode={scalarType === 'number' ? 'decimal' : undefined}
                     aria-invalid={valueInvalid || numberInvalid}
-                    value={String(row.match)}
+                    aria-describedby={hasError ? errorId : undefined}
+                    value={String(match)}
                     onChange={(e) => setMatch(index, e.target.value)}
                   />
                 )}
@@ -96,15 +114,16 @@ export function CasesBuilder({ id, label, value, maxCases, valueType, onChange }
                   aria-label={t('editor.fields.cases.port')}
                   className={styles.mono}
                   aria-invalid={portMsg !== null}
-                  value={row.port}
+                  aria-describedby={hasError ? errorId : undefined}
+                  value={port}
                   onChange={(e) => update(index, { port: e.target.value })}
                 />
                 <button type="button" className={styles.iconBtn} aria-label={t('editor.fields.removeRow')} onClick={() => remove(index)}>
                   <X size={13} />
                 </button>
               </div>
-              {(valueInvalid || numberInvalid || portMsg) && (
-                <p className={styles.stale}>
+              {hasError && (
+                <p id={errorId} className={styles.stale}>
                   {valueInvalid ? t('editor.fields.cases.errValue') : numberInvalid ? t('editor.fields.cases.errNumber') : portMsg}
                 </p>
               )}

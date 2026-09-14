@@ -193,8 +193,8 @@ export function RunsTable({ blueprintId, onSelectRun, expandedRunId = null, onTo
             <tbody>
               {runs.map((r) => {
                 const meta = runMeta(r, t, format);
-                const hasChildren = r.children !== null;
-                const expandable = hasChildren && r.children!.total > 0;
+                const hasChildren = (r.children?.total ?? 0) > 0;
+                const expandable = hasChildren;
                 const expanded = expandedRunId === r.id;
                 return (
                   <Fragment key={r.id}>
@@ -209,10 +209,12 @@ export function RunsTable({ blueprintId, onSelectRun, expandedRunId = null, onTo
                         <div className={styles.statusCell}>
                           {expandable && (
                             <button
+                              type="button"
                               className={styles.chevron}
                               aria-label={t(expanded ? 'runs.children.collapse' : 'runs.children.expand')}
                               aria-expanded={expanded}
                               onClick={(e) => { e.stopPropagation(); onToggleExpand(r.id); }}
+                              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') e.stopPropagation(); }}
                             >
                               {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
                             </button>
@@ -225,9 +227,7 @@ export function RunsTable({ blueprintId, onSelectRun, expandedRunId = null, onTo
                         {hasChildren
                           ? (
                             <span className={`${styles.pill} ${styles.childrenBadge}`}>
-                              {r.children!.total === 0
-                                ? t('runs.children.none')
-                                : t('runs.children.summary', { total: r.children!.total, completed: r.children!.completed, failed: r.children!.failed, running: r.children!.running })}
+                              {t('runs.children.summary', { total: r.children!.total, completed: r.children!.completed, failed: r.children!.failed, running: r.children!.running })}
                             </span>
                           )
                           : (r.currentNodeId ?? '—')}

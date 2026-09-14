@@ -61,6 +61,7 @@ export function ConfigField({ nodeId, entry, name, spec, value, fields, nodeConf
     }
     case 'ref': {
       const forEachItems = entry.key === 'core.forEach' && name === 'items';
+      const switchValue = entry.key === 'core.switch' && name === 'value';
       control = (
         <RefSelect
           id={id}
@@ -71,6 +72,10 @@ export function ConfigField({ nodeId, entry, name, spec, value, fields, nodeConf
           reject={(out) => {
             if (out.class === 'PERSONAL') return t('editor.fields.personalNotAllowed');
             if (forEachItems) return isList(out.type) ? null : t('editor.fields.listRequired');
+            if (switchValue) {
+              const scalar = out.type === 'string' || out.type === 'number' || out.type === 'boolean';
+              return scalar ? null : t('editor.fields.typeMismatch', { type: typeLabel(out.type) });
+            }
             if (out.type === 'json' && !sameType(out.type, spec.type)) return t('editor.fields.jsonNeedsTransform');
             return sameType(out.type, spec.type) ? null : t('editor.fields.typeMismatch', { type: typeLabel(out.type) });
           }}

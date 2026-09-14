@@ -74,6 +74,13 @@ describe('portsOfNode', () => {
   it('switch with no cases yields only default', () => {
     expect(portsOfNode(entry('core.switch'), {})).toEqual([{ name: 'default', optional: false }]);
   });
+
+  it('keeps a port for a case whose match does not parse (mirrors the orchestrator: only the port matters here)', () => {
+    const ports = portsOfNode(entry('core.switch'), {
+      cases: [{ match: null, port: 'legacy' }, { match: 'A', port: 'a' }],
+    });
+    expect(ports).toEqual([{ name: 'legacy', optional: false }, { name: 'a', optional: false }, { name: 'default', optional: false }]);
+  });
 });
 
 describe('editorReducer', () => {

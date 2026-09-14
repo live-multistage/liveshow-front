@@ -2164,9 +2164,7 @@
       "runs": {
         "children": {
           "summary": "{total, plural, one {# child} other {# children}} · {completed} ok · {failed} {failed, plural, one {failure} other {failures}} · {running} running",
-          "none": "0 children · pending",
           "loadMore": "load more children",
-          "loading": "loading children…",
           "error": "Could not load children",
           "retry": "try again",
           "expand": "show children",
@@ -2315,7 +2313,7 @@
             "otherwise": "everything else",
             "default": "default",
             "errValue": "Enter a value",
-            "errPort": "Invalid port (letters, digits, - and _)",
+            "errPort": "Invalid port (a letter, then letters, digits or _)",
             "errDuplicate": "Duplicate port",
             "errReserved": "\"default\" is reserved",
             "true": "true",

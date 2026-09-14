@@ -42,13 +42,14 @@ export function Field({ id, label, error, hint, counter, className, children }: 
 }
 
 /** Design-system select whose trigger takes an id, so a <Label htmlFor> names it. */
-export function ChoiceSelect({ id, value, onChange, options }: {
+export function ChoiceSelect({ id, value, onChange, options, 'aria-label': ariaLabel, 'aria-describedby': ariaDescribedBy }: {
   id: string; value: string; onChange(value: string): void; options: Array<{ value: string; label: string }>;
+  'aria-label'?: string; 'aria-describedby'?: string;
 }) {
   return (
     // Radix can emit '' while re-syncing; never write that into the form.
     <CustomSelect value={value} onValueChange={(v) => v && onChange(v)}>
-      <CustomSelectTrigger id={id}><CustomSelectValue /></CustomSelectTrigger>
+      <CustomSelectTrigger id={id} aria-label={ariaLabel} aria-describedby={ariaDescribedBy}><CustomSelectValue /></CustomSelectTrigger>
       <CustomSelectContent>
         {options.map((o) => <CustomSelectItem key={o.value} value={o.value}>{o.label}</CustomSelectItem>)}
       </CustomSelectContent>

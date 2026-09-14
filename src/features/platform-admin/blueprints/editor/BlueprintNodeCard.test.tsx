@@ -94,6 +94,14 @@ describe('BlueprintNodeCard', () => {
     expect(container.textContent).toContain('2h');
   });
 
+  it('keeps React Flow\'s centered handle for a single-port node (core.delay), not a fixed portPos', () => {
+    const container = renderCard(delayEntry);
+    const source = container.querySelector('.react-flow__handle.source') as HTMLElement;
+    expect(source).not.toBeNull();
+    expect(source.className).not.toMatch(/portPos0/);
+    expect(source.className).not.toMatch(/portPos1/);
+  });
+
   it('renders each/done handles with labels for core.forEach, keeping the fixed (non-stacked) card', () => {
     const container = renderCard(forEachEntry);
     const each = container.querySelector('[data-handleid="each"]');

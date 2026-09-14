@@ -43,7 +43,7 @@ export function RunDrawer({ blueprintId, run, onClose, onNavigate }: Props) {
   const format = useFormatter();
   const outcomeLabel = (outcome: string) => (t.has(`runOutcome.${outcome}`) ? t(`runOutcome.${outcome}`) : outcome);
   const hasChildren = !!run.children && run.children.total > 0;
-  const { data: childrenData } = useBlueprintRunChildrenQuery(blueprintId, run.id, { enabled: hasChildren });
+  const { data: childrenData, isLoading: childrenLoading } = useBlueprintRunChildrenQuery(blueprintId, run.id, { enabled: hasChildren });
   const children = (childrenData?.pages.flatMap((p) => p.items) ?? []).slice(0, 5);
 
   useEffect(() => {
@@ -108,7 +108,7 @@ export function RunDrawer({ blueprintId, run, onClose, onNavigate }: Props) {
                   </button>
                 ))}
               </div>
-              {run.children!.total > children.length && (
+              {!childrenLoading && run.children!.total > children.length && (
                 <button className={styles.seeAll} onClick={() => onNavigate?.(run.id)}>
                   {t('runs.children.seeAll', { total: run.children!.total })}
                 </button>

@@ -11,6 +11,7 @@ vi.mock('../../queries/blueprint-secrets.queries', () => ({
   useBlueprintSecretsQuery: () => secretsData(),
 }));
 
+import { useState } from 'react';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -262,6 +263,50 @@ describe('ConfigField — cases (typed via the sibling "value" ref)', () => {
     const valueInput = screen.getByLabelText('editor.fields.cases.value');
     fireEvent.change(valueInput, { target: { value: '100' } });
     expect(onChange).toHaveBeenCalledWith([{ match: 100, port: 'small' }]);
+  });
+
+  function SwitchValueAndCases() {
+    const [nodeConfig, setNodeConfig] = useState<Record<string, unknown>>({ cases: [{ match: 0, port: 'small' }] });
+    return (
+      <>
+        <ConfigField
+          nodeId="sw"
+          entry={switchEntry}
+          name="value"
+          spec={{ kind: 'ref', required: true, description: 'Valor a comparar', type: 'string' }}
+          value={nodeConfig.value ?? ''}
+          fields={capacityField}
+          onChange={(v) => setNodeConfig((c) => ({ ...c, value: v }))}
+        />
+        <ConfigField
+          nodeId="sw"
+          entry={switchEntry}
+          name="cases"
+          spec={{ kind: 'cases', required: true, description: 'Casos', maxCases: 12 }}
+          value={nodeConfig.cases}
+          nodeConfig={nodeConfig}
+          fields={capacityField}
+          onChange={(v) => setNodeConfig((c) => ({ ...c, cases: v }))}
+        />
+      </>
+    );
+  }
+
+  it('offers the numeric field (not disabled) in the value picker, and picking it flows a numeric match through CasesBuilder', async () => {
+    render(<SwitchValueAndCases />);
+
+    // Spec says type 'string', but core.switch's value ref accepts any scalar.
+    await userEvent.click(screen.getByRole('combobox'));
+    const capacityOption = screen.getByRole('option', { name: /capacity/ });
+    expect(capacityOption).not.toHaveAttribute('aria-disabled', 'true');
+    await userEvent.click(capacityOption);
+
+    const valueInput = screen.getByLabelText('editor.fields.cases.value');
+    expect(valueInput).not.toBeDisabled();
+    expect(valueInput).toHaveValue('0');
+
+    fireEvent.change(valueInput, { target: { value: '250' } });
+    expect(await screen.findByDisplayValue('250')).toBeInTheDocument();
   });
 });
 

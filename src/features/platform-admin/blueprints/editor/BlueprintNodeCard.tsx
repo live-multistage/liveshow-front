@@ -71,7 +71,7 @@ function BlueprintNodeCardImpl({ data, selected }: NodeProps<CardNode>) {
       {entry?.kind !== 'trigger' && <Handle type="target" position={Position.Left} className={styles.port} />}
       {rightPorts.map((p, i) => {
         const portStyle = { '--port-index': i } as CSSProperties;
-        const posClass = !stacked ? fixedPos[i] : undefined;
+        const posClass = !stacked && rightPorts.length > 1 ? fixedPos[i] : undefined;
         return (
           <Fragment key={p.name ?? '_next'}>
             <Handle

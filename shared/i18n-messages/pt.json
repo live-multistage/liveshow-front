@@ -2164,9 +2164,7 @@
       "runs": {
         "children": {
           "summary": "{total, plural, one {# filho} other {# filhos}} · {completed} ok · {failed} {failed, plural, one {falha} other {falhas}} · {running} rodando",
-          "none": "0 filhos · aguardando",
           "loadMore": "carregar mais filhos",
-          "loading": "carregando filhos…",
           "error": "Não foi possível carregar os filhos",
           "retry": "tentar de novo",
           "expand": "mostrar filhos",
@@ -2315,9 +2313,9 @@
             "otherwise": "todos os outros",
             "default": "padrão",
             "errValue": "Informe um valor",
-            "errPort": "Porta inválida (letras, números, - e _)",
+            "errPort": "Porta inválida (letra, depois letras, números ou _)",
             "errDuplicate": "Porta repetida",
-            "errReserved": "\"padrão\" é reservada",
+            "errReserved": "\"default\" é reservada",
             "true": "verdadeiro",
             "false": "falso",
             "errNumber": "Informe um número"

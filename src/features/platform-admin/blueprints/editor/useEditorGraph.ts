@@ -4,7 +4,7 @@ import { useMemo, useReducer } from 'react';
 import type {
   BlueprintAnalysisError, BlueprintCatalogEntry, BlueprintEdge, BlueprintGraph, BlueprintOutputField,
 } from '@live-show/api-contracts';
-import { casesOf, parseRef } from './expr-builders';
+import { parseRef } from './expr-builders';
 import { isList } from './field-types';
 
 export type Port = string;
@@ -222,12 +222,17 @@ export function portsOfNode(entry: BlueprintCatalogEntry, config: Record<string,
   if (entry.key === 'core.condition') return [{ name: 'true', optional: false }, { name: 'false', optional: false }];
   if (entry.key === 'core.forEach') return [{ name: 'each', optional: false }, { name: 'done', optional: false }];
   if (entry.dynamicPorts === 'switch') {
+    // Mirrors the orchestrator's ports-of.ts exactly: any object with a
+    // string `port` counts, regardless of whether `match` parses — an
+    // unparsable case must still keep its handle so edges don't vanish.
+    const raw = Array.isArray(config.cases) ? (config.cases as unknown[]) : [];
     const seen = new Set<string>();
     const ports: PortSpec[] = [];
-    for (const c of casesOf(config.cases)) {
-      if (seen.has(c.port)) continue;
-      seen.add(c.port);
-      ports.push({ name: c.port, optional: false });
+    for (const c of raw) {
+      const port = c && typeof c === 'object' ? (c as { port?: unknown }).port : undefined;
+      if (typeof port !== 'string' || seen.has(port)) continue;
+      seen.add(port);
+      ports.push({ name: port, optional: false });
     }
     return [...ports, { name: 'default', optional: false }];
   }

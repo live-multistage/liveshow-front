@@ -11,10 +11,13 @@ import type { BlueprintRunDto } from '@live-show/api-contracts';
 import { RunsTable } from './RunsTable';
 import { useBlueprintRunChildrenQuery, useBlueprintRunsQuery } from '../queries/blueprints.queries';
 
+// The repository always sends zeroed children counts (never null) for
+// top-level run-list rows; only a run with no children summary at all
+// (e.g. a child row) would omit it — but the DTO still types it non-null here.
 const run: BlueprintRunDto = {
   id: 'r1', versionId: 'v2', version: 2, status: 'WAITING', currentNodeId: 'e3',
   wakeAt: '2026-10-02T18:00:00Z', errorCode: null, createdAt: '2026-10-01T10:00:00Z', updatedAt: '2026-10-01T10:00:00Z', steps: [],
-  parentRunId: null, itemIndex: null, children: null,
+  parentRunId: null, itemIndex: null, children: { total: 0, running: 0, completed: 0, cancelled: 0, failed: 0 },
 };
 
 const parentRun: BlueprintRunDto = {
@@ -27,7 +30,7 @@ const noChildrenRun: BlueprintRunDto = { ...run, id: 'p2', children: { total: 0,
 const childRun: BlueprintRunDto = {
   id: 'c1', versionId: 'v2', version: 2, status: 'COMPLETED', currentNodeId: null,
   wakeAt: null, errorCode: null, createdAt: '2026-10-01T10:05:00Z', updatedAt: '2026-10-01T10:05:00Z', steps: [],
-  parentRunId: 'p1', itemIndex: 3, children: null,
+  parentRunId: 'p1', itemIndex: 3, children: { total: 0, running: 0, completed: 0, cancelled: 0, failed: 0 },
 };
 
 const fetchNextPage = vi.fn();
@@ -127,11 +130,22 @@ describe('RunsTable', () => {
     expect(onSelectRun).toHaveBeenCalledWith(childRun);
   });
 
-  it('shows the "0 filhos" badge with no chevron when a parent has no children', () => {
+  it('shows the node id and no children badge/chevron when a run has zeroed children counts', () => {
     mockPages([noChildrenRun]);
     render(<RunsTable blueprintId="b1" onSelectRun={onSelectRun} expandedRunId={null} onToggleExpand={onToggleExpand} />);
-    expect(screen.getByText('runs.children.none')).toBeInTheDocument();
+    expect(screen.getByText('e3')).toBeInTheDocument();
+    expect(screen.queryByText(/runs\.children\.summary/)).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'runs.children.expand' })).not.toBeInTheDocument();
+  });
+
+  it('lets Enter on the focused chevron expand without also triggering the row click', async () => {
+    mockPages([parentRun]);
+    render(<RunsTable blueprintId="b1" onSelectRun={onSelectRun} expandedRunId={null} onToggleExpand={onToggleExpand} />);
+    const chevron = screen.getByRole('button', { name: 'runs.children.expand' });
+    chevron.focus();
+    await userEvent.keyboard('{Enter}');
+    expect(onToggleExpand).toHaveBeenCalledWith('p1');
+    expect(onSelectRun).not.toHaveBeenCalled();
   });
 
   it('shows a retry button when the children query errors, calling refetch', async () => {
