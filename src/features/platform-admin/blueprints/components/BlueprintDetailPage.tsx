@@ -106,6 +106,7 @@ export function BlueprintDetailPage({ id, blueprintsEnabled = true }: Props) {
         </div>
         <div className={styles.actions}>
           <Link className={styles.editorLink} href={`/dashboard/platform/blueprints/${id}/editor`}>{t('detail.openEditor')} →</Link>
+          <span className={styles.editorNeedsLargerScreenNote}>{t('detail.editorNeedsLargerScreen')}</span>
           {data.status === 'ACTIVE' && (
             <Button variant="outline" onClick={() => setConfirmDeactivate(true)}>{t('detail.deactivate')}</Button>
           )}

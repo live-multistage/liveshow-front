@@ -2022,8 +2022,7 @@
         "version": "Versão ativa",
         "started": "Iniciadas (7d)",
         "completed": "Concluídas",
-        "cancelled": "Canceladas",
-        "failed": "Falhas",
+        "cancelledFailed": "CANC./FALHAS",
         "updated": "Atualizado"
       },
       "detail": {
@@ -2046,6 +2045,7 @@
         "noRuns": "Nenhuma execução ainda.",
         "importSubmit": "Validar e salvar rascunho",
         "openEditor": "Abrir editor",
+        "editorNeedsLargerScreen": "O editor visual precisa de uma tela maior.",
         "versionNoErrors": "Sem erros",
         "versionErrorCount": "{count} erros",
         "viewInEditor": "Ver no editor →",

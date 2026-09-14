@@ -2022,8 +2022,7 @@
         "version": "Active version",
         "started": "Started (7d)",
         "completed": "Completed",
-        "cancelled": "Cancelled",
-        "failed": "Failed",
+        "cancelledFailed": "CANC./FAILED",
         "updated": "Updated"
       },
       "detail": {
@@ -2046,6 +2045,7 @@
         "noRuns": "No runs yet.",
         "importSubmit": "Validate and save draft",
         "openEditor": "Open editor",
+        "editorNeedsLargerScreen": "The visual editor needs a larger screen.",
         "versionNoErrors": "No errors",
         "versionErrorCount": "{count} errors",
         "viewInEditor": "View in editor →",

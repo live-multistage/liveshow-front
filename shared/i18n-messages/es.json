@@ -2022,8 +2022,7 @@
         "version": "Versión activa",
         "started": "Iniciadas (7d)",
         "completed": "Completadas",
-        "cancelled": "Canceladas",
-        "failed": "Fallidas",
+        "cancelledFailed": "CANC./FALLIDAS",
         "updated": "Actualizado"
       },
       "detail": {
@@ -2046,6 +2045,7 @@
         "noRuns": "Todavía no hay ejecuciones.",
         "importSubmit": "Validar y guardar borrador",
         "openEditor": "Abrir editor",
+        "editorNeedsLargerScreen": "El editor visual necesita una pantalla más grande.",
         "versionNoErrors": "Sin errores",
         "versionErrorCount": "{count} errores",
         "viewInEditor": "Ver en el editor →",

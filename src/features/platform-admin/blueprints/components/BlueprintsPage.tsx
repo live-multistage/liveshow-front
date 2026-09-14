@@ -82,7 +82,7 @@ export function BlueprintsPage({ blueprintsEnabled = true }: Props) {
           <table className={tableStyles.card}>
             <thead className={tableStyles.head}>
               <tr>
-                {(['name', 'status', 'version', 'started', 'completed', 'cancelled', 'failed', 'updated'] as const).map((c) => (
+                {(['name', 'status', 'version', 'started', 'completed', 'cancelledFailed', 'updated'] as const).map((c) => (
                   <th key={c}>{t(`columns.${c}`)}</th>
                 ))}
               </tr>
@@ -104,8 +104,7 @@ export function BlueprintsPage({ blueprintsEnabled = true }: Props) {
                   <td data-label={t('columns.version')} className={tableStyles.mono}>{b.latestVersion ? `v${b.latestVersion}` : '—'}</td>
                   <td data-label={t('columns.started')} className={tableStyles.mono}>{b.counts7d.started}</td>
                   <td data-label={t('columns.completed')} className={tableStyles.mono}>{b.counts7d.completed}</td>
-                  <td data-label={t('columns.cancelled')} className={tableStyles.mono}>{b.counts7d.cancelled}</td>
-                  <td data-label={t('columns.failed')} className={tableStyles.mono}>{b.counts7d.failed}</td>
+                  <td data-label={t('columns.cancelledFailed')} className={tableStyles.mono}>{b.counts7d.cancelled} / {b.counts7d.failed}</td>
                   <td data-label={t('columns.updated')} className={tableStyles.mono}>{fmtUpdated(b.updatedAt)}</td>
                 </tr>
               ))}
