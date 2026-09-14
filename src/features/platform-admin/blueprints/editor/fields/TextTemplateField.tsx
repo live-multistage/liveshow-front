@@ -32,7 +32,11 @@ interface Props {
 export function TextTemplateField({ id, label, spec, value, fields, allowSecrets = false, help, onChange }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
   const caret = useRef<number | null>(null);
-  const variables = spec.template ? fields.filter((f) => spec.acceptsPersonal || f.out.class !== 'PERSONAL') : [];
+  // Only scalar leaves are offered: interpolating an object/list/json into a text slot is a
+  // TYPE_MISMATCH the analyzer rejects, so objects/lists/json are not real choices here.
+  const variables = spec.template
+    ? fields.filter((f) => (spec.acceptsPersonal || f.out.class !== 'PERSONAL') && typeof f.out.type === 'string' && f.out.type !== 'json')
+    : [];
   const secretsQuery = useBlueprintSecretsQuery({ enabled: allowSecrets });
   const secretNames = allowSecrets ? (secretsQuery.data ?? []).map((s) => s.name) : [];
 

@@ -121,7 +121,7 @@ describe('BlueprintHttpSection', () => {
     render(<BlueprintHttpSection />);
 
     await user.type(screen.getByPlaceholderText('adicionar host'), 'new.host.com');
-    await user.click(screen.getByRole('button', { name: '+ Add' }));
+    await user.click(screen.getByRole('button', { name: '+ Adicionar' }));
 
     expect(mutate).toHaveBeenCalledWith(['api.partner.com', '*.stripe.com', 'new.host.com']);
   });

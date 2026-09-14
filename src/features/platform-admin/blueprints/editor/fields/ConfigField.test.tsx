@@ -101,10 +101,11 @@ describe('ConfigField — keyValueList', () => {
 });
 
 describe('ConfigField — text (nested-path variables)', () => {
-  it('offers a nested object output with its full dotted path, not just the top-level field', async () => {
+  it('offers a nested object output via its scalar leaf path, not the object/json root itself', async () => {
     const nestedFields: AvailableField[] = [
       { nodeId: 'h', nodeLabel: 'HTTP', field: 'error', path: [], depth: 0, out: { type: { object: {} }, class: 'INTERNAL', description: 'Erro', port: 'error' } },
       { nodeId: 'h', nodeLabel: 'HTTP', field: 'error', path: ['code'], depth: 1, out: { type: 'string', class: 'INTERNAL', description: 'Código' } },
+      { nodeId: 'h', nodeLabel: 'HTTP', field: 'body', path: [], depth: 0, out: { type: 'json', class: 'INTERNAL', description: 'Corpo' } },
     ];
     render(
       <ConfigField
@@ -119,8 +120,10 @@ describe('ConfigField — text (nested-path variables)', () => {
     );
 
     await userEvent.click(screen.getByText('editor.fields.addVariable'));
+    // Objects and json are TYPE_MISMATCH in a text slot — only the scalar leaf is a real choice.
     expect(screen.getByText('{{h.error.code}}')).toBeInTheDocument();
-    expect(screen.getByText('{{h.error}}')).toBeInTheDocument();
+    expect(screen.queryByText('{{h.error}}')).not.toBeInTheDocument();
+    expect(screen.queryByText('{{h.body}}')).not.toBeInTheDocument();
   });
 });
 
