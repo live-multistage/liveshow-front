@@ -2216,6 +2216,7 @@
           "title": "Node settings",
           "empty": "Select a node on the canvas to configure it.",
           "nodeId": "Node id",
+          "ports": "PORTS",
           "unavailableHint": "This node no longer exists in the catalog. Delete it or replace it.",
           "outputs": "OUTPUTS",
           "noTarget": "not connected",
@@ -2223,7 +2224,9 @@
           "noProblems": "No problems.",
           "duplicate": "Duplicate",
           "remove": "Delete",
-          "rules": "Rules"
+          "rules": "Rules",
+          "noOutputs": "This node produces no outputs.",
+          "jsonHint": "use in Transform"
         },
         "fields": {
           "addVariable": "+ Variable",

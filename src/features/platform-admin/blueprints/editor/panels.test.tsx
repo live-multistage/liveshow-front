@@ -21,6 +21,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { useEffect, useReducer } from 'react';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { BlueprintAnalysisError, BlueprintGraph } from '@live-show/api-contracts';
 import buyers from './__fixtures__/reminder-buyers.json';
 import { CATALOG, CATALOG_MAP } from './__fixtures__/catalog';
@@ -166,7 +167,31 @@ describe('Inspector', () => {
     expect(expr()).toEqual({ or: [{ eq: ['{{e2.status}}', 'PUBLISHED'] }, { eq: ['{{e2.status}}', 'LIVE'] }] });
     expect(screen.queryByText('editor.condition.incomplete')).not.toBeInTheDocument();
 
-    expect(within(screen.getByText('editor.inspector.outputs').parentElement as HTMLElement).getByText(/editor.ports.true → Notificação no app/)).toBeInTheDocument();
+    expect(within(screen.getByText('editor.inspector.ports').parentElement as HTMLElement).getByText(/editor.ports.true → Notificação no app/)).toBeInTheDocument();
+  });
+
+  it('shows an empty outputs state for a node with no outputs', () => {
+    render(<InspectorHarness initial={buyersAt('n')} />);
+    expect(screen.getByText('editor.inspector.noOutputs')).toBeInTheDocument();
+  });
+
+  it('shows nested and port-scoped outputs, with a JSON chip and hint', () => {
+    const withHttp = editorReducer(buyersAt('t'), { type: 'add', entry: CATALOG_MAP.get('test.http@1')!, position: { x: 0, y: 400 } });
+    const queryClient = new QueryClient();
+    render(<QueryClientProvider client={queryClient}><InspectorHarness initial={withHttp} /></QueryClientProvider>);
+
+    const section = screen.getByText('editor.inspector.outputs').parentElement as HTMLElement;
+    expect(within(section).getByText('status')).toBeInTheDocument();
+    expect(within(section).getByText('number')).toBeInTheDocument();
+    expect(within(section).getByText('body')).toBeInTheDocument();
+    expect(within(section).getByText('JSON')).toBeInTheDocument();
+    expect(within(section).getByText('editor.inspector.jsonHint')).toBeInTheDocument();
+    expect(within(section).getByText('partner')).toBeInTheDocument();
+    expect(within(section).getByText('partner.name')).toBeInTheDocument();
+
+    expect(within(section).getByText('editor.fields.errorPortSection')).toBeInTheDocument();
+    expect(within(section).getByText('error.code')).toBeInTheDocument();
+    expect(within(section).getByText('error.message')).toBeInTheDocument();
   });
 
   it('drops the stale ConditionBuilder draft when a different version loads with the same node id', () => {

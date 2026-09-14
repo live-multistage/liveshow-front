@@ -2,14 +2,19 @@
 
 import { useState, type Dispatch } from 'react';
 import { useTranslations } from 'next-intl';
-import { AlertTriangle, Check, Copy, Trash2 } from 'lucide-react';
-import type { BlueprintAnalysisError, BlueprintCatalogEntry } from '@live-show/api-contracts';
+import { AlertTriangle, Check, ChevronRight, Copy, Trash2 } from 'lucide-react';
+import type { BlueprintAnalysisError, BlueprintCatalogEntry, BlueprintOutputField } from '@live-show/api-contracts';
 import { Button, Input, cn } from '@live-show/design-system';
 import { blueprintErrorMessage } from '../errorMessage';
 import { ConfigField } from './fields/ConfigField';
+import { ClassChip } from './fields/RefSelect';
+import { isObject, typeLabel } from './field-types';
 import { NodeIcon, kindClass } from './nodeVisuals';
 import { availableFields, catalogKey, type EditorAction, type EditorState } from './useEditorGraph';
 import styles from './Inspector.module.scss';
+
+const PORT_DOT: Record<string, string> = { true: 'dotTrue', false: 'dotFalse', next: 'dotNext', error: 'dotError' };
+const DEPTH_CLASS = [undefined, 'outputDepth1', 'outputDepth2', 'outputDepth3'] as const;
 
 interface Props {
   state: EditorState;
@@ -72,18 +77,39 @@ export function Inspector({ state, dispatch, catalog, errors, readOnly }: Props)
 
         {entry?.ports && (
           <section className={styles.section}>
-            <h4 className={styles.sectionTitle}>{t('editor.inspector.outputs')}</h4>
+            <h4 className={styles.sectionTitle}>{t('editor.inspector.ports')}</h4>
             <ul className={styles.outputs}>
               {entry.ports.map((p) => {
                 const edge = state.edges.find((e) => e.from === node.id && e.port === p);
                 return (
                   <li key={p}>
-                    <span className={cn(styles.dot, p === 'true' ? styles.dotTrue : styles.dotFalse)} />
+                    <span className={cn(styles.dot, styles[PORT_DOT[p] ?? 'dotNext'])} />
                     {t(`editor.ports.${p}`)} → {edge ? labelOf(edge.to) : t('editor.inspector.noTarget')}
                   </li>
                 );
               })}
             </ul>
+          </section>
+        )}
+
+        {entry && (
+          <section className={styles.section}>
+            <h4 className={styles.sectionTitle}>{t('editor.inspector.outputs')}</h4>
+            {Object.keys(entry.outputs).length === 0
+              ? <p className={styles.muted}>{t('editor.inspector.noOutputs')}</p>
+              : (
+                <ul className={styles.outputTree}>
+                  {Object.entries(entry.outputs).filter(([, spec]) => !spec.port).map(([name, spec]) => (
+                    <OutputRow key={name} name={name} spec={spec} depth={0} />
+                  ))}
+                  {Object.entries(entry.outputs).some(([, spec]) => spec.port) && (
+                    <li className={styles.errorPortSection}>{t('editor.fields.errorPortSection')}</li>
+                  )}
+                  {Object.entries(entry.outputs).filter(([, spec]) => spec.port).map(([name, spec]) => (
+                    <OutputRow key={name} name={name} spec={spec} depth={0} />
+                  ))}
+                </ul>
+              )}
           </section>
         )}
 
@@ -116,6 +142,30 @@ export function Inspector({ state, dispatch, catalog, errors, readOnly }: Props)
         </footer>
       </fieldset>
     </aside>
+  );
+}
+
+// One output leaf/branch (design C4): object fields recurse into their
+// children ("partner" → "partner.name"), each indented by depth; a `json`
+// output can't be referenced directly, so it carries a hint pointing at
+// Transformar instead of the class chip a leaf gets.
+function OutputRow({ name, spec, depth }: { name: string; spec: BlueprintOutputField; depth: number }) {
+  const t = useTranslations('platformAdmin.blueprints');
+  const object = isObject(spec.type);
+  const depthKey = DEPTH_CLASS[Math.min(depth, 3)];
+  return (
+    <>
+      <li className={cn(styles.outputRow, depthKey && styles[depthKey])}>
+        {object && <ChevronRight size={11} className={styles.outputChevron} aria-hidden />}
+        <span className={styles.mono}>{name}</span>
+        <span className={cn(styles.chip, styles.typeChip)}>{spec.type === 'json' ? 'JSON' : typeLabel(spec.type)}</span>
+        {!object && <ClassChip cls={spec.class} />}
+        {spec.type === 'json' && <span className={styles.jsonHint}>{t('editor.inspector.jsonHint')}</span>}
+      </li>
+      {isObject(spec.type) && Object.entries(spec.type.object).map(([childName, childSpec]) => (
+        <OutputRow key={`${name}.${childName}`} name={`${name}.${childName}`} spec={childSpec} depth={depth + 1} />
+      ))}
+    </>
   );
 }
 

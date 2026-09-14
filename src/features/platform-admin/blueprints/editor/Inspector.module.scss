@@ -167,6 +167,18 @@ $field-border: rgba(255, 255, 255, .1);
 .dot { width: 8px; height: 8px; border-radius: 50%; }
 .dotTrue { background: #7fe0a0; }
 .dotFalse { background: #9b7bff; }
+.dotNext { background: #6f6f77; }
+.dotError { background: #ff8f8f; }
+
+// ── Output tree (design C4) ─────────────────────────────────────────────────
+.outputTree { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.outputRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: $mono; font-size: 11.5px; color: #e4e4e7; }
+.outputDepth1 { padding-left: 24px; font-size: 11px; color: #c7c7cd; }
+.outputDepth2 { padding-left: 48px; font-size: 11px; color: #c7c7cd; }
+.outputDepth3 { padding-left: 72px; font-size: 11px; color: #c7c7cd; }
+.outputChevron { color: #6f6f77; flex: none; }
+.jsonHint { font-size: 10px; color: $text-muted; }
+.errorPortSection { list-style: none; font-family: $mono; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #ff8f8f; opacity: .85; margin: 14px 0 8px; }
 
 .ok { margin: 0; display: flex; align-items: center; gap: 7px; font-size: 12px; color: $success-light; }
 .problems { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }

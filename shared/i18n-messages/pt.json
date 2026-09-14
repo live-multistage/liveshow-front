@@ -2216,6 +2216,7 @@
           "title": "Configuração do nó",
           "empty": "Selecione um nó no canvas para configurar.",
           "nodeId": "Id do nó",
+          "ports": "LIGAÇÕES",
           "unavailableHint": "Este nó não existe mais no catálogo. Exclua-o ou troque por outro.",
           "outputs": "SAÍDAS",
           "noTarget": "sem ligação",
@@ -2223,7 +2224,9 @@
           "noProblems": "Nenhum problema.",
           "duplicate": "Duplicar",
           "remove": "Excluir",
-          "rules": "Regras"
+          "rules": "Regras",
+          "noOutputs": "Este nó não produz saídas.",
+          "jsonHint": "use em Transformar"
         },
         "fields": {
           "addVariable": "+ Variável",

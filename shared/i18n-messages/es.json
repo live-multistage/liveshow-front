@@ -2216,6 +2216,7 @@
           "title": "Configuración del nodo",
           "empty": "Selecciona un nodo en el canvas para configurarlo.",
           "nodeId": "Id del nodo",
+          "ports": "CONEXIONES",
           "unavailableHint": "Este nodo ya no existe en el catálogo. Elimínalo o reemplázalo.",
           "outputs": "SALIDAS",
           "noTarget": "sin conexión",
@@ -2223,7 +2224,9 @@
           "noProblems": "Ningún problema.",
           "duplicate": "Duplicar",
           "remove": "Eliminar",
-          "rules": "Reglas"
+          "rules": "Reglas",
+          "noOutputs": "Este nodo no produce salidas.",
+          "jsonHint": "usa en Transformar"
         },
         "fields": {
           "addVariable": "+ Variable",
