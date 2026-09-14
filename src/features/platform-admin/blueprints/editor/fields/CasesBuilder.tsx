@@ -9,6 +9,9 @@ import { casesOf } from '../expr-builders';
 import styles from '../Inspector.module.scss';
 
 const PORT_RE = /^[A-Za-z0-9_-]{1,32}$/;
+// Collide with a fixed handle (true/false/next/error) or the switch's own
+// fallthrough (default) — the analyzer's SWITCH_CASES check mirrors this set.
+const RESERVED_PORTS = new Set(['default', 'true', 'false', 'next', 'error']);
 type ScalarType = 'string' | 'number' | 'boolean';
 const isScalarType = (t?: BlueprintFieldType): t is ScalarType => t === 'string' || t === 'number' || t === 'boolean';
 
@@ -39,7 +42,7 @@ export function CasesBuilder({ id, label, value, maxCases, valueType, onChange }
 
   const portError = (row: BlueprintSwitchCase, index: number): string | null => {
     if (!PORT_RE.test(row.port)) return t('editor.fields.cases.errPort');
-    if (row.port === 'default') return t('editor.fields.cases.errReserved');
+    if (RESERVED_PORTS.has(row.port)) return t('editor.fields.cases.errReserved');
     if (rows.some((r, i) => i !== index && r.port === row.port)) return t('editor.fields.cases.errDuplicate');
     return null;
   };

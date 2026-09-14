@@ -41,6 +41,11 @@ function BlueprintNodeCardImpl({ data, selected }: NodeProps<CardNode>) {
   const rightPorts: { name?: string }[] = ports ? ports.filter((p) => p.name !== 'error') : [{}];
   const hasErrorPort = ports?.some((p) => p.name === 'error') ?? false;
   const portLabel = (name: string) => (t.has(`editor.ports.${name}`) ? t(`editor.ports.${name}`) : name);
+  // ≤2 right-side ports (core.condition's true/false, core.forEach's each/done)
+  // keep the original fixed 72px card and 22px/52px dots; only 3+ (core.switch
+  // with cases) switches to the stacked calc-based geometry in the SCSS.
+  const stacked = rightPorts.length > 2;
+  const fixedPos = [styles.portPos0, styles.portPos1];
 
   return (
     <div
@@ -50,7 +55,7 @@ function BlueprintNodeCardImpl({ data, selected }: NodeProps<CardNode>) {
         selected && styles.selected,
         errorCount > 0 && styles.hasError,
         !entry && styles.unknown,
-        rightPorts.length > 2 && styles.stacked,
+        stacked && styles.stacked,
       )}
       style={{ '--card-ports': rightPorts.length } as CSSProperties}
     >
@@ -66,11 +71,18 @@ function BlueprintNodeCardImpl({ data, selected }: NodeProps<CardNode>) {
       {entry?.kind !== 'trigger' && <Handle type="target" position={Position.Left} className={styles.port} />}
       {rightPorts.map((p, i) => {
         const portStyle = { '--port-index': i } as CSSProperties;
+        const posClass = !stacked ? fixedPos[i] : undefined;
         return (
           <Fragment key={p.name ?? '_next'}>
-            <Handle id={p.name} type="source" position={Position.Right} className={cn(styles.port, styles.portRight)} style={portStyle} />
+            <Handle
+              id={p.name}
+              type="source"
+              position={Position.Right}
+              className={cn(styles.port, styles.portRight, posClass)}
+              style={portStyle}
+            />
             {p.name && (
-              <span className={cn(styles.portLabel, MUTED_PORTS.has(p.name) && styles.portLabelMuted)} style={portStyle}>
+              <span className={cn(styles.portLabel, posClass, MUTED_PORTS.has(p.name) && styles.portLabelMuted)} style={portStyle}>
                 {portLabel(p.name)}
               </span>
             )}

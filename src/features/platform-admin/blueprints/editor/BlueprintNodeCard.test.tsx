@@ -94,7 +94,7 @@ describe('BlueprintNodeCard', () => {
     expect(container.textContent).toContain('2h');
   });
 
-  it('renders stacked each/done handles with labels for core.forEach', () => {
+  it('renders each/done handles with labels for core.forEach, keeping the fixed (non-stacked) card', () => {
     const container = renderCard(forEachEntry);
     const each = container.querySelector('[data-handleid="each"]');
     const done = container.querySelector('[data-handleid="done"]');
@@ -104,9 +104,11 @@ describe('BlueprintNodeCard', () => {
     expect((done as HTMLElement).style.getPropertyValue('--port-index')).toBe('1');
     expect(container.textContent).toContain('editor.ports.each');
     expect(container.textContent).toContain('editor.ports.done');
+    const card = container.querySelector('[style*="--card-ports"]') as HTMLElement;
+    expect(card.className).not.toMatch(/stacked/);
   });
 
-  it('renders one handle per case plus default, indexed 0..n, for core.switch', () => {
+  it('renders one handle per case plus default, indexed 0..n, and switches the card to stacked, for core.switch', () => {
     const container = renderCard(switchEntry, { config: { cases: [
       { match: 'PUBLISHED', port: 'a' }, { match: 'DRAFT', port: 'b' }, { match: 'REVIEW', port: 'c' },
     ] } });
@@ -117,13 +119,19 @@ describe('BlueprintNodeCard', () => {
     });
     const card = container.querySelector('[style*="--card-ports"]') as HTMLElement;
     expect(card.style.getPropertyValue('--card-ports')).toBe('4');
+    expect(card.className).toMatch(/stacked/);
   });
 
-  it('sets --card-ports for a plain 2-port card without breaking the 72px floor mechanism', () => {
-    // jsdom doesn't lay out, so this checks the CSS variable feeding the SCSS
-    // max(72px, ...) floor rather than a computed pixel height.
+  it('keeps a plain 2-port card (core.condition) out of the stacked geometry', () => {
+    // jsdom doesn't lay out, so this checks the modifier class/CSS variables
+    // feeding the SCSS geometry rather than a computed pixel height.
     const container = renderCard(conditionEntry);
     const card = container.querySelector('[style*="--card-ports"]') as HTMLElement;
+    expect(card.className).not.toMatch(/stacked/);
     expect(card.style.getPropertyValue('--card-ports')).toBe('2');
+    const trueHandle = container.querySelector('[data-handleid="true"]') as HTMLElement;
+    const falseHandle = container.querySelector('[data-handleid="false"]') as HTMLElement;
+    expect(trueHandle.className).toMatch(/portPos0/);
+    expect(falseHandle.className).toMatch(/portPos1/);
   });
 });

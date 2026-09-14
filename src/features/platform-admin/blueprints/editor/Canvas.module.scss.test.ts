@@ -11,4 +11,11 @@ describe('Canvas.module.scss', () => {
     const css = compile(path.join(__dirname, 'Canvas.module.scss')).css;
     expect(css).toMatch(/\.react-flow__edges svg\)?\s*\{[^}]*max-width:\s*none/);
   });
+
+  it('keeps the plain (<=2 port) card fixed at 72px; only .stacked grows via calc(46px + ...)', () => {
+    const css = compile(path.join(__dirname, 'Canvas.module.scss')).css;
+    expect(css).toMatch(/\.card\s*\{[^}]*min-height:\s*72px/);
+    expect(css).not.toMatch(/\.card\s*\{[^}]*calc\(46px/);
+    expect(css).toMatch(/\.stacked\s*\{[^}]*calc\(46px/);
+  });
 });

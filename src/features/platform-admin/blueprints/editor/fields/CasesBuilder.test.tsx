@@ -66,6 +66,15 @@ describe('CasesBuilder', () => {
     expect(addBtn).toHaveTextContent('editor.fields.cases.limit:{"max":3}');
   });
 
+  it('flags reserved port names that would collide with fixed handles (true/error), not just "default"', () => {
+    const reserved: BlueprintSwitchCase[] = [
+      { match: 'a', port: 'true' },
+      { match: 'b', port: 'error' },
+    ];
+    render(<CasesBuilder id="c" label="Casos" value={reserved} maxCases={12} onChange={vi.fn()} />);
+    expect(screen.getAllByText('editor.fields.cases.errReserved')).toHaveLength(2);
+  });
+
   it('flags an empty value and an invalid port pattern', () => {
     const invalid: BlueprintSwitchCase[] = [{ match: '', port: '!!' }];
     render(<CasesBuilder id="c" label="Casos" value={invalid} maxCases={12} onChange={vi.fn()} />);
