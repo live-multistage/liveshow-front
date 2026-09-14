@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import type { BlueprintRunDto, BlueprintRunStepDto } from '@live-show/api-contracts';
 import styles from './RunDrawer.module.scss';
@@ -11,8 +11,8 @@ const RESULT_CLASS: Record<BlueprintRunStepDto['status'], string> = {
   OK: styles.resultOk, SKIPPED: styles.resultSkipped, FAILED: styles.resultFailed,
 };
 
-function fmtDateTime(iso: string): string {
-  return new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+function fmtDateTime(iso: string, format: ReturnType<typeof useFormatter>): string {
+  return format.dateTime(new Date(iso), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 }
 
 function duration(step: BlueprintRunStepDto): string | null {
@@ -32,6 +32,7 @@ interface Props {
 // personal data flows through a run, so there is nothing to redact here.
 export function RunDrawer({ blueprintId, run, onClose }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
+  const format = useFormatter();
   const outcomeLabel = (outcome: string) => (t.has(`runOutcome.${outcome}`) ? t(`runOutcome.${outcome}`) : outcome);
 
   useEffect(() => {
@@ -49,9 +50,9 @@ export function RunDrawer({ blueprintId, run, onClose }: Props) {
             <button className={styles.close} onClick={onClose} aria-label={t('drawer.close')}><X size={18} /></button>
           </div>
           <div className={styles.runId}>{run.id.slice(0, 12)}</div>
-          <div className={styles.sub}>v{run.version} · {fmtDateTime(run.createdAt)}</div>
+          <div className={styles.sub}>v{run.version} · {fmtDateTime(run.createdAt, format)}</div>
           {run.status === 'WAITING' && run.wakeAt && (
-            <div className={styles.wake}>{t('drawer.wakeAt', { datetime: fmtDateTime(run.wakeAt) })}</div>
+            <div className={styles.wake}>{t('drawer.wakeAt', { datetime: fmtDateTime(run.wakeAt, format) })}</div>
           )}
         </div>
 
@@ -76,7 +77,7 @@ export function RunDrawer({ blueprintId, run, onClose }: Props) {
                   {step.outcome && <div className={styles.outcome}>{outcomeLabel(step.outcome)}</div>}
                   {step.errorCode && <div className={styles.errorCode}>{step.errorCode}</div>}
                   <div className={styles.timing}>
-                    {fmtDateTime(step.startedAt)}{step.finishedAt ? ` → ${fmtDateTime(step.finishedAt)}` : ''}
+                    {fmtDateTime(step.startedAt, format)}{step.finishedAt ? ` → ${fmtDateTime(step.finishedAt, format)}` : ''}
                     {dur ? ` · ${dur}` : ''}
                   </div>
                 </div>
@@ -88,7 +89,7 @@ export function RunDrawer({ blueprintId, run, onClose }: Props) {
         <div className={styles.footer}>
           <Link
             className={styles.footerBtn}
-            href={`/dashboard/platform/blueprints/${blueprintId}/editor?version=${run.versionId}${run.currentNodeId ? `&node=${run.currentNodeId}` : ''}`}
+            href={`/dashboard/platform/blueprints/${encodeURIComponent(blueprintId)}/editor?${new URLSearchParams({ version: run.versionId, ...(run.currentNodeId ? { node: run.currentNodeId } : {}) })}`}
           >
             {t('drawer.openEditor')}
           </Link>

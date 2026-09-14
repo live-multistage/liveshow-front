@@ -1,33 +1,36 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { Clock } from 'lucide-react';
 import type { BlueprintRunDto, BlueprintRunStatus } from '@live-show/api-contracts';
 import { useBlueprintRunsQuery } from '../queries/blueprints.queries';
 import styles from './RunsTable.module.scss';
+
+type Translator = ReturnType<typeof useTranslations>;
+type Formatter = ReturnType<typeof useFormatter>;
 
 const FILTERS: Array<BlueprintRunStatus | 'ALL'> = ['ALL', 'RUNNING', 'WAITING', 'COMPLETED', 'CANCELLED', 'FAILED'];
 const PILL_CLASS: Record<BlueprintRunStatus, string> = {
   RUNNING: styles.running, WAITING: styles.waiting, COMPLETED: styles.completed, CANCELLED: styles.cancelled, FAILED: styles.failed,
 };
 
-function fmtRelative(iso: string): string {
+function fmtRelative(iso: string, t: Translator, format: Formatter): string {
   const date = new Date(iso);
   const now = new Date();
-  const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const time = format.dateTime(date, { hour: '2-digit', minute: '2-digit' });
   const sameDay = date.toDateString() === now.toDateString();
-  if (sameDay) return `hoje ${time}`;
+  if (sameDay) return t('detail.today', { time });
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
-  if (date.toDateString() === yesterday.toDateString()) return `ontem ${time}`;
-  return `${date.toLocaleDateString('pt-BR')} ${time}`;
+  if (date.toDateString() === yesterday.toDateString()) return t('detail.yesterday', { time });
+  return `${format.dateTime(date, { dateStyle: 'short' })} ${time}`;
 }
 
-function runMeta(run: BlueprintRunDto): { text: string; className: string } {
-  if (run.status === 'WAITING' && run.wakeAt) return { text: `acorda ${fmtRelative(run.wakeAt)}`, className: styles.metaWaiting };
+function runMeta(run: BlueprintRunDto, t: Translator, format: Formatter): { text: string; className: string } {
+  if (run.status === 'WAITING' && run.wakeAt) return { text: t('detail.wakes', { when: fmtRelative(run.wakeAt, t, format) }), className: styles.metaWaiting };
   if (run.status === 'FAILED' && run.errorCode) return { text: run.errorCode, className: styles.metaFailed };
-  return { text: fmtRelative(run.createdAt), className: styles.metaNeutral };
+  return { text: fmtRelative(run.createdAt, t, format), className: styles.metaNeutral };
 }
 
 interface Props {
@@ -39,6 +42,7 @@ interface Props {
 // "Carregar mais" via nextCursor, refreshed silently every 30s.
 export function RunsTable({ blueprintId, onSelectRun }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
+  const format = useFormatter();
   const [filter, setFilter] = useState<BlueprintRunStatus | 'ALL'>('ALL');
   const status = filter === 'ALL' ? undefined : filter;
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage, dataUpdatedAt } = useBlueprintRunsQuery(blueprintId, status);
@@ -79,9 +83,16 @@ export function RunsTable({ blueprintId, onSelectRun }: Props) {
             </thead>
             <tbody>
               {runs.map((r) => {
-                const meta = runMeta(r);
+                const meta = runMeta(r, t, format);
                 return (
-                  <tr key={r.id} className={styles.row} onClick={() => onSelectRun(r)}>
+                  <tr
+                    key={r.id}
+                    className={styles.row}
+                    tabIndex={0}
+                    role="button"
+                    onClick={() => onSelectRun(r)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectRun(r); } }}
+                  >
                     <td>
                       <span className={`${styles.pill} ${PILL_CLASS[r.status]}`}>
                         {r.status === 'WAITING' && <Clock size={11} />}

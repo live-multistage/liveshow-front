@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { AlertCircle, Sparkles } from 'lucide-react';
 import { Button, Skeleton } from '@live-show/design-system';
 import { PlatformPageShell } from '../../components/PlatformPageShell';
@@ -14,13 +14,13 @@ import { FlagOffBanner } from './FlagOffBanner';
 import { NewBlueprintDialog } from './NewBlueprintDialog';
 import styles from './BlueprintsPage.module.scss';
 
-function fmtUpdated(iso: string): string {
+// Intl.RelativeTimeFormat (via next-intl) picks the unit and pluralizes for
+// the active locale, so this needs no ICU strings of its own.
+function fmtUpdated(iso: string, format: ReturnType<typeof useFormatter>): string {
   const date = new Date(iso);
   const diffMs = Date.now() - date.getTime();
-  const hours = diffMs / 3_600_000;
-  if (hours < 1) return `há ${Math.max(1, Math.round(diffMs / 60_000))} min`;
-  if (hours < 24) return `há ${Math.round(hours)} h`;
-  return date.toLocaleDateString('pt-BR');
+  if (diffMs < 86_400_000) return format.relativeTime(date);
+  return format.dateTime(date, { dateStyle: 'short' });
 }
 
 interface Props {
@@ -32,6 +32,7 @@ interface Props {
 // flag off.
 export function BlueprintsPage({ blueprintsEnabled = true }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
+  const format = useFormatter();
   const router = useRouter();
   const { data, isLoading, isError, refetch } = useBlueprintsQuery();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -105,7 +106,7 @@ export function BlueprintsPage({ blueprintsEnabled = true }: Props) {
                   <td data-label={t('columns.started')} className={tableStyles.mono}>{b.counts7d.started}</td>
                   <td data-label={t('columns.completed')} className={tableStyles.mono}>{b.counts7d.completed}</td>
                   <td data-label={t('columns.cancelledFailed')} className={tableStyles.mono}>{b.counts7d.cancelled} / {b.counts7d.failed}</td>
-                  <td data-label={t('columns.updated')} className={tableStyles.mono}>{fmtUpdated(b.updatedAt)}</td>
+                  <td data-label={t('columns.updated')} className={tableStyles.mono}>{fmtUpdated(b.updatedAt, format)}</td>
                 </tr>
               ))}
             </tbody>

@@ -4,6 +4,7 @@ vi.mock('next-intl', () => ({
     t.rich = (key: string) => key;
     return t;
   },
+  useFormatter: () => ({ relativeTime: () => 'agora', dateTime: (d: Date) => d.toISOString() }),
 }));
 vi.mock('next/link', () => ({ default: ({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: (e: React.MouseEvent) => void }) => <a href={href} onClick={onClick}>{children}</a> }));
 const push = vi.fn();

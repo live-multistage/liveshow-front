@@ -4,6 +4,7 @@ vi.mock('next-intl', () => ({
     t.has = (key: string) => key.startsWith('runOutcome.') && ['runOutcome.WAITING', 'runOutcome.SENT'].includes(key);
     return t;
   },
+  useFormatter: () => ({ dateTime: (d: Date) => d.toISOString() }),
 }));
 vi.mock('next/link', () => ({ default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a> }));
 

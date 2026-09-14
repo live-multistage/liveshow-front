@@ -1,4 +1,7 @@
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string, values?: Record<string, unknown>) => (values ? `${key}:${JSON.stringify(values)}` : key) }));
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string, values?: Record<string, unknown>) => (values ? `${key}:${JSON.stringify(values)}` : key),
+  useFormatter: () => ({ dateTime: (d: Date) => d.toISOString() }),
+}));
 vi.mock('../queries/blueprints.queries', () => ({ useBlueprintRunsQuery: vi.fn() }));
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
