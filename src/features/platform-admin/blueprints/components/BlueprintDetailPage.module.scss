@@ -1,0 +1,21 @@
+.section { margin-top: 28px; }
+.h2 { font-size: 15px; font-weight: 700; margin: 0 0 12px; }
+.hint { font-size: 13px; color: #9a9aa2; margin: 4px 0 10px; }
+.json {
+  width: 100%;
+  min-height: 240px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 10px;
+  background: #101013;
+  color: #f4f4f5;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.row { display: flex; gap: 10px; margin-top: 10px; }
+.message { margin: 10px 0 0; font-size: 13px; color: #ff7ec2; }
+.ok { font-size: 13px; color: #6ee7a8; margin: 0; }
+.errors { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13px; }
+.detail { color: #9a9aa2; }

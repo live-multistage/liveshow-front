@@ -38,3 +38,5 @@ export * from './fiscal/document';
 export * from './chat/types';
 export * from './mailing/types';
 export * from './mailing/schemas';
+export * from './blueprints/types';
+export * from './blueprints/schemas';

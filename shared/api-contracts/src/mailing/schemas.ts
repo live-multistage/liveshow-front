@@ -51,7 +51,7 @@ export const mailingBlockSchema = z
     z.object({ type: z.literal('text'), paragraphs: z.array(z.array(mailingTextRunSchema).min(1)).min(1, 'Obrigatório.') }).strict(),
     z.object({ type: z.literal('image'), assetKey: z.string().regex(MAILING_ASSET_KEY, 'Envie uma imagem.'), alt: z.string().max(L.altMax), href: httpsUrlSchema.optional() }).strict(),
     z.object({ type: z.literal('button'), label, href: httpsUrlSchema }).strict(),
-    z.object({ type: z.literal('eventCard'), eventId: uuid, badge: label.optional(), ctaLabel: label.optional() }).strict(),
+    z.object({ type: z.literal('eventCard'), eventId: z.union([uuid, z.literal('context')]), badge: label.optional(), ctaLabel: label.optional() }).strict(),
     z.object({ type: z.literal('eventList'), eventIds: z.array(uuid).min(L.eventListMin).max(L.eventListMax) }).strict(),
     z.object({ type: z.literal('divider') }).strict(),
   ])

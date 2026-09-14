@@ -562,7 +562,8 @@
       "platformArtistApplications": "Candidaturas de artistas",
       "artists": "Artistas",
       "artistsCatalog": "Catálogo de Artistas",
-      "platformMailing": "E-mails"
+      "platformMailing": "E-mails",
+      "platformBlueprints": "Blueprints"
     },
     "navMobile": {
       "overview": "Painel",
@@ -1823,7 +1824,8 @@
           "ctaLabel": "Texto do botão (opcional)",
           "searchEvents": "Buscar eventos…",
           "noEvents": "Nenhum evento encontrado.",
-          "removeEvent": "Remover evento"
+          "removeEvent": "Remover evento",
+          "eventContext": "Usar o evento do blueprint"
         },
         "preview": "Pré-visualização",
         "previewDesktop": "Desktop",
@@ -1998,6 +2000,86 @@
         "cancelConfirm": "Cancelar campanha",
         "dismiss": "Voltar"
       }
+    },
+    "blueprints": {
+      "title": "Blueprints",
+      "subtitle": "Automações que disparam notificações e e-mails a partir de eventos da plataforma.",
+      "new": "Novo blueprint",
+      "name": "Nome",
+      "description": "Descrição",
+      "create": "Criar",
+      "empty": "Nenhum blueprint ainda.",
+      "back": "Voltar para blueprints",
+      "status": {
+        "ACTIVE": "Ativo",
+        "INACTIVE": "Inativo",
+        "INVALID": "Inválido"
+      },
+      "columns": {
+        "name": "Nome",
+        "status": "Status",
+        "version": "Versão ativa",
+        "started": "Iniciadas (7d)",
+        "completed": "Concluídas",
+        "cancelled": "Canceladas",
+        "failed": "Falhas",
+        "updated": "Atualizado"
+      },
+      "detail": {
+        "importTitle": "Importar JSON",
+        "importHint": "Cole o grafo do blueprint. Salvar cria um rascunho e roda a análise.",
+        "invalidJson": "JSON inválido.",
+        "save": "Salvar rascunho",
+        "export": "Copiar JSON",
+        "copied": "JSON copiado.",
+        "versions": "Versões",
+        "draft": "Rascunho",
+        "published": "Publicada",
+        "active": "Ativa",
+        "publish": "Publicar",
+        "activate": "Ativar",
+        "deactivate": "Desativar",
+        "analysisOk": "Análise sem erros.",
+        "analysisErrors": "Erros da análise",
+        "runs": "Execuções recentes",
+        "noRuns": "Nenhuma execução ainda."
+      },
+      "runColumns": {
+        "status": "Status",
+        "node": "Nó atual",
+        "wakeAt": "Acorda em",
+        "error": "Erro",
+        "created": "Criada"
+      },
+      "runStatus": {
+        "RUNNING": "Rodando",
+        "WAITING": "Esperando",
+        "COMPLETED": "Concluída",
+        "CANCELLED": "Cancelada",
+        "FAILED": "Falhou"
+      },
+      "errors": {
+        "INVALID_GRAPH": "Grafo malformado",
+        "NO_TRIGGER": "Falta um gatilho",
+        "MULTIPLE_TRIGGERS": "Mais de um gatilho",
+        "UNREACHABLE_NODE": "Nó inalcançável a partir do gatilho",
+        "CYCLE": "O grafo tem ciclo",
+        "DANGLING_PATH": "Caminho sem nó de fim",
+        "CONDITION_PORTS": "Condição precisa de uma saída verdadeira e uma falsa",
+        "UNKNOWN_NODE": "Nó não existe no catálogo",
+        "INVALID_CONFIG": "Configuração inválida",
+        "BAD_REFERENCE": "Referência a campo indisponível",
+        "TYPE_MISMATCH": "Tipo do campo incompatível",
+        "RESTRICTED_FIELD": "Campo restrito",
+        "PERSONAL_NOT_ALLOWED": "Dado pessoal não permitido aqui",
+        "MISSING_DEDUPE_KEY": "Gatilho sem chave de deduplicação",
+        "WAIT_TOO_LONG": "Espera acima de 30 dias",
+        "TOO_MANY_NODES": "Mais de 50 nós",
+        "ANALYSIS_FAILED": "Corrija os erros da análise antes de publicar",
+        "NOT_PUBLISHED": "Só versões publicadas podem ser ativadas",
+        "GENERIC": "Não foi possível concluir. Tente novamente."
+      },
+      "group": "OPERACIONAL"
     }
   },
   "reports": {

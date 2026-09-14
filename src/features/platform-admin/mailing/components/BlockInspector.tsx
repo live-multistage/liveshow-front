@@ -4,7 +4,7 @@ import { useEffect, useId, useState, type ChangeEvent, type ComponentProps, type
 import { Controller, useController, useFormContext, useWatch, type FieldPath } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import {
-  CustomSelect, CustomSelectContent, CustomSelectItem, CustomSelectTrigger, CustomSelectValue, Input, Label,
+  Checkbox, CustomSelect, CustomSelectContent, CustomSelectItem, CustomSelectTrigger, CustomSelectValue, Input, Label,
 } from '@live-show/design-system';
 import {
   MAILING_LIMITS as L, mailingTextLength, type MailingBlock, type MailingTemplateDraft, type MailingTextRun,
@@ -251,20 +251,31 @@ export function BlockInspector({ index }: { index: number }) {
         </>
       );
       break;
-    case 'eventCard':
+    case 'eventCard': {
+      const isContext = block.eventId === 'context';
       fields = (
         <>
-          <EventPicker
-            max={1}
-            value={[block.eventId].filter(Boolean)}
-            onChange={(ids) => setValue(`${path}.eventId` as `blocks.${number}.eventId`, ids[0] ?? '', opts)}
-          />
+          <label className={styles.inline}>
+            <Checkbox
+              checked={isContext}
+              onCheckedChange={(checked) => setValue(`${path}.eventId` as `blocks.${number}.eventId`, checked ? 'context' : '', opts)}
+            />
+            {t('editor.field.eventContext')}
+          </label>
+          {!isContext && (
+            <EventPicker
+              max={1}
+              value={[block.eventId].filter(Boolean)}
+              onChange={(ids) => setValue(`${path}.eventId` as `blocks.${number}.eventId`, ids[0] ?? '', opts)}
+            />
+          )}
           {error('eventId') && <p className={styles.error}>{error('eventId')}</p>}
           {optionalField('badge', t('editor.field.badge'), L.labelMax)}
           {optionalField('ctaLabel', t('editor.field.ctaLabel'), L.labelMax)}
         </>
       );
       break;
+    }
     case 'eventList':
       fields = (
         <>

@@ -28,6 +28,8 @@
   color: $text-primary;
 }
 
+.inline { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+
 .fields {
   display: flex;
   flex-direction: column;

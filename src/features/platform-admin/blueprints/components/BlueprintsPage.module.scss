@@ -1,0 +1,9 @@
+.create {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 20px;
+  max-width: 560px;
+
+  > :nth-child(2) { flex: 1; }
+}

@@ -41,6 +41,8 @@ const PARITY_CASES: Array<[string, unknown, boolean]> = [
   ['4 events in a list', withBlocks({ type: 'eventList', eventIds: [U1, U2, U3, U4] }), false],
   ['empty event list', withBlocks({ type: 'eventList', eventIds: [] }), false],
   ['non-uuid event', withBlocks({ type: 'eventCard', eventId: 'abc' }), false],
+  ['eventCard bound to the blueprint context', withBlocks({ type: 'eventCard', eventId: 'context' }), true],
+  ['eventCard with an invalid eventId', withBlocks({ type: 'eventCard', eventId: 'nope' }), false],
   ['unknown block type', withBlocks({ type: 'html', html: '<b>x</b>' }), false],
   ['extra block property', withBlocks({ type: 'divider', html: '<b>x</b>' }), false],
   ['subject 151 chars', { ...base, subject: 'x'.repeat(151), blocks: [] }, false],

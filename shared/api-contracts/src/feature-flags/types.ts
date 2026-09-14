@@ -16,7 +16,8 @@ export type FeatureFlagKey =
   | 'physical_tickets'
   | 'event_collaborations'
   | 'fiscal_emission'
-  | 'mailing';
+  | 'mailing'
+  | 'blueprints';
 
 export type FeatureFlags = Record<FeatureFlagKey, boolean>;
 
@@ -55,4 +56,6 @@ export const DEFAULT_FEATURE_FLAGS = {
   fiscal_emission: false,
   // Ships off — admin email campaigns; enabled once MAILING_UNSUBSCRIBE_SECRET is set.
   mailing: false,
+  // Ships off — new automation engine, not yet ready for org rollout.
+  blueprints: false,
 } satisfies Record<FeatureFlagKey, boolean>;

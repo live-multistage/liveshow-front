@@ -562,7 +562,8 @@
       "platformArtistApplications": "Artist applications",
       "artists": "Artists",
       "artistsCatalog": "Artist Catalog",
-      "platformMailing": "Emails"
+      "platformMailing": "Emails",
+      "platformBlueprints": "Blueprints"
     },
     "navMobile": {
       "overview": "Home",
@@ -1823,7 +1824,8 @@
           "ctaLabel": "Button text (optional)",
           "searchEvents": "Search events…",
           "noEvents": "No events found.",
-          "removeEvent": "Remove event"
+          "removeEvent": "Remove event",
+          "eventContext": "Use the blueprint's event"
         },
         "preview": "Preview",
         "previewDesktop": "Desktop",
@@ -1998,6 +2000,86 @@
         "cancelConfirm": "Cancel campaign",
         "dismiss": "Back"
       }
+    },
+    "blueprints": {
+      "title": "Blueprints",
+      "subtitle": "Automations that trigger notifications and emails from platform events.",
+      "new": "New blueprint",
+      "name": "Name",
+      "description": "Description",
+      "create": "Create",
+      "empty": "No blueprints yet.",
+      "back": "Back to blueprints",
+      "status": {
+        "ACTIVE": "Active",
+        "INACTIVE": "Inactive",
+        "INVALID": "Invalid"
+      },
+      "columns": {
+        "name": "Name",
+        "status": "Status",
+        "version": "Active version",
+        "started": "Started (7d)",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "failed": "Failed",
+        "updated": "Updated"
+      },
+      "detail": {
+        "importTitle": "Import JSON",
+        "importHint": "Paste the blueprint graph. Saving creates a draft and runs the analysis.",
+        "invalidJson": "Invalid JSON.",
+        "save": "Save draft",
+        "export": "Copy JSON",
+        "copied": "JSON copied.",
+        "versions": "Versions",
+        "draft": "Draft",
+        "published": "Published",
+        "active": "Active",
+        "publish": "Publish",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "analysisOk": "Analysis has no errors.",
+        "analysisErrors": "Analysis errors",
+        "runs": "Recent runs",
+        "noRuns": "No runs yet."
+      },
+      "runColumns": {
+        "status": "Status",
+        "node": "Current node",
+        "wakeAt": "Wakes at",
+        "error": "Error",
+        "created": "Created"
+      },
+      "runStatus": {
+        "RUNNING": "Running",
+        "WAITING": "Waiting",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled",
+        "FAILED": "Failed"
+      },
+      "errors": {
+        "INVALID_GRAPH": "Malformed graph",
+        "NO_TRIGGER": "Missing a trigger",
+        "MULTIPLE_TRIGGERS": "More than one trigger",
+        "UNREACHABLE_NODE": "Node unreachable from the trigger",
+        "CYCLE": "The graph has a cycle",
+        "DANGLING_PATH": "Path without an end node",
+        "CONDITION_PORTS": "Condition needs a true and a false output",
+        "UNKNOWN_NODE": "Node does not exist in the catalog",
+        "INVALID_CONFIG": "Invalid configuration",
+        "BAD_REFERENCE": "Reference to an unavailable field",
+        "TYPE_MISMATCH": "Incompatible field type",
+        "RESTRICTED_FIELD": "Restricted field",
+        "PERSONAL_NOT_ALLOWED": "Personal data not allowed here",
+        "MISSING_DEDUPE_KEY": "Trigger missing a dedupe key",
+        "WAIT_TOO_LONG": "Wait longer than 30 days",
+        "TOO_MANY_NODES": "More than 50 nodes",
+        "ANALYSIS_FAILED": "Fix the analysis errors before publishing",
+        "NOT_PUBLISHED": "Only published versions can be activated",
+        "GENERIC": "Could not complete. Please try again."
+      },
+      "group": "OPERATIONS"
     }
   },
   "reports": {

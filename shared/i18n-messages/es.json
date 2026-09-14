@@ -562,7 +562,8 @@
       "platformArtistApplications": "Candidaturas de artistas",
       "artists": "Artistas",
       "artistsCatalog": "Catálogo de Artistas",
-      "platformMailing": "Correos"
+      "platformMailing": "Correos",
+      "platformBlueprints": "Blueprints"
     },
     "navMobile": {
       "overview": "Panel",
@@ -1823,7 +1824,8 @@
           "ctaLabel": "Texto del botón (opcional)",
           "searchEvents": "Buscar eventos…",
           "noEvents": "No se encontraron eventos.",
-          "removeEvent": "Quitar evento"
+          "removeEvent": "Quitar evento",
+          "eventContext": "Usar el evento del blueprint"
         },
         "preview": "Vista previa",
         "previewDesktop": "Escritorio",
@@ -1998,6 +2000,86 @@
         "cancelConfirm": "Cancelar campaña",
         "dismiss": "Volver"
       }
+    },
+    "blueprints": {
+      "title": "Blueprints",
+      "subtitle": "Automatizaciones que disparan notificaciones y correos a partir de eventos de la plataforma.",
+      "new": "Nuevo blueprint",
+      "name": "Nombre",
+      "description": "Descripción",
+      "create": "Crear",
+      "empty": "Todavía no hay blueprints.",
+      "back": "Volver a blueprints",
+      "status": {
+        "ACTIVE": "Activo",
+        "INACTIVE": "Inactivo",
+        "INVALID": "Inválido"
+      },
+      "columns": {
+        "name": "Nombre",
+        "status": "Estado",
+        "version": "Versión activa",
+        "started": "Iniciadas (7d)",
+        "completed": "Completadas",
+        "cancelled": "Canceladas",
+        "failed": "Fallidas",
+        "updated": "Actualizado"
+      },
+      "detail": {
+        "importTitle": "Importar JSON",
+        "importHint": "Pega el grafo del blueprint. Guardar crea un borrador y ejecuta el análisis.",
+        "invalidJson": "JSON inválido.",
+        "save": "Guardar borrador",
+        "export": "Copiar JSON",
+        "copied": "JSON copiado.",
+        "versions": "Versiones",
+        "draft": "Borrador",
+        "published": "Publicada",
+        "active": "Activa",
+        "publish": "Publicar",
+        "activate": "Activar",
+        "deactivate": "Desactivar",
+        "analysisOk": "Análisis sin errores.",
+        "analysisErrors": "Errores del análisis",
+        "runs": "Ejecuciones recientes",
+        "noRuns": "Todavía no hay ejecuciones."
+      },
+      "runColumns": {
+        "status": "Estado",
+        "node": "Nodo actual",
+        "wakeAt": "Despierta en",
+        "error": "Error",
+        "created": "Creada"
+      },
+      "runStatus": {
+        "RUNNING": "Ejecutando",
+        "WAITING": "Esperando",
+        "COMPLETED": "Completada",
+        "CANCELLED": "Cancelada",
+        "FAILED": "Falló"
+      },
+      "errors": {
+        "INVALID_GRAPH": "Grafo malformado",
+        "NO_TRIGGER": "Falta un disparador",
+        "MULTIPLE_TRIGGERS": "Más de un disparador",
+        "UNREACHABLE_NODE": "Nodo inalcanzable desde el disparador",
+        "CYCLE": "El grafo tiene un ciclo",
+        "DANGLING_PATH": "Camino sin nodo de fin",
+        "CONDITION_PORTS": "La condición necesita una salida verdadera y una falsa",
+        "UNKNOWN_NODE": "El nodo no existe en el catálogo",
+        "INVALID_CONFIG": "Configuración inválida",
+        "BAD_REFERENCE": "Referencia a un campo no disponible",
+        "TYPE_MISMATCH": "Tipo de campo incompatible",
+        "RESTRICTED_FIELD": "Campo restringido",
+        "PERSONAL_NOT_ALLOWED": "Dato personal no permitido aquí",
+        "MISSING_DEDUPE_KEY": "Al disparador le falta la clave de deduplicación",
+        "WAIT_TOO_LONG": "Espera superior a 30 días",
+        "TOO_MANY_NODES": "Más de 50 nodos",
+        "ANALYSIS_FAILED": "Corrige los errores del análisis antes de publicar",
+        "NOT_PUBLISHED": "Solo las versiones publicadas pueden activarse",
+        "GENERIC": "No se pudo completar. Inténtalo de nuevo."
+      },
+      "group": "OPERACIONES"
     }
   },
   "reports": {
