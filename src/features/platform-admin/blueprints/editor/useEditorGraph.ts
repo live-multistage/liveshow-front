@@ -108,15 +108,18 @@ export function stateToGraph(state: EditorState): BlueprintGraph {
   };
 }
 
-function reaches(edges: BlueprintEdge[], from: string, to: string): boolean {
-  const seen = new Set([from]);
-  const stack = [from];
+function reachableFrom(edges: BlueprintEdge[], start: string): Set<string> {
+  const seen = new Set<string>([start]);
+  const stack = [start];
   while (stack.length) {
     const id = stack.pop() as string;
-    if (id === to) return true;
     for (const e of edges) if (e.from === id && !seen.has(e.to)) { seen.add(e.to); stack.push(e.to); }
   }
-  return false;
+  return seen;
+}
+
+function reaches(edges: BlueprintEdge[], from: string, to: string): boolean {
+  return reachableFrom(edges, from).has(to);
 }
 
 function renameRefs(value: unknown, from: string, to: string): unknown {
@@ -211,16 +214,6 @@ export interface AvailableField {
 
 export function portsOfEntry(entry: BlueprintCatalogEntry): { name: string; optional: boolean }[] | null {
   return entry.ports ? entry.ports.map((name) => ({ name, optional: entry.optionalPorts?.includes(name) ?? false })) : null;
-}
-
-function reachableFrom(edges: BlueprintEdge[], start: string): Set<string> {
-  const seen = new Set<string>([start]);
-  const stack = [start];
-  while (stack.length) {
-    const id = stack.pop() as string;
-    for (const e of edges) if (e.from === id && !seen.has(e.to)) { seen.add(e.to); stack.push(e.to); }
-  }
-  return seen;
 }
 
 /**

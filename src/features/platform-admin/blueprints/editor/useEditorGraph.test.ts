@@ -4,7 +4,7 @@ import buyers from './__fixtures__/reminder-buyers.json';
 import savers from './__fixtures__/reminder-savers.json';
 import { CATALOG_MAP } from './__fixtures__/catalog';
 import {
-  EMPTY_STATE, availableFields, editorReducer, errorCountByNode, graphToState, isDirty, nextNodeId, stateToGraph,
+  EMPTY_STATE, availableFields, editorReducer, errorCountByNode, graphToState, isDirty, nextNodeId, portsOfEntry, stateToGraph,
   type EditorAction, type EditorState,
 } from './useEditorGraph';
 
@@ -45,6 +45,18 @@ describe('nextNodeId', () => {
   });
 });
 
+describe('portsOfEntry', () => {
+  it('maps declared ports with their optionality', () => {
+    const condition = entry('core.condition');
+    expect(portsOfEntry({ ...condition, ports: ['next', 'error'], optionalPorts: ['error'] }))
+      .toEqual([{ name: 'next', optional: false }, { name: 'error', optional: true }]);
+  });
+
+  it('returns null for an entry without ports', () => {
+    expect(portsOfEntry(entry('events.byId'))).toBeNull();
+  });
+});
+
 describe('editorReducer', () => {
   it('adds nodes with generated unique ids and selects them', () => {
     const s = run(EMPTY_STATE, { type: 'add', entry: entry('orders.paid') }, { type: 'add', entry: entry('events.byId') },
@@ -54,6 +66,13 @@ describe('editorReducer', () => {
     expect(s.nodes[3]).toMatchObject({ node: 'core.condition', version: 1, config: {}, position: { x: 5, y: 6 } });
     expect(s.selectedId).toBe('end1');
     expect(isDirty(s)).toBe(true);
+  });
+
+  it('assigns ids from PREFIX for real catalog keys not covered by the fixture catalog', () => {
+    const s = run(EMPTY_STATE,
+      { type: 'add', entry: { key: 'http.request', version: 1, kind: 'action' } },
+      { type: 'add', entry: { key: 'core.delay', version: 1, kind: 'core' } });
+    expect(s.nodes.map((n) => n.id)).toEqual(['h1', 'd1']);
   });
 
   it('connects, replaces an occupied port and refuses self-loops and cycles', () => {
@@ -169,7 +188,8 @@ describe('availableFields', () => {
 });
 
 describe('availableFields with ports and nested object outputs', () => {
-  // t -> h(test.http) -[next]-> c ; h -[error]-> err. Mirrors the analyzer's
+  // t -> h(test.http) -[next]-> c ; h -[error]-> err. Both branches re-join at
+  // j (c -[true]-> j ; err -> j), then j -> end. Mirrors the analyzer's
   // test.http fixture (Task 4): status/body/partner are unported, error is
   // port-scoped to "error".
   const httpGraph: BlueprintGraph = {
@@ -179,8 +199,13 @@ describe('availableFields with ports and nested object outputs', () => {
       { id: 'h', node: 'test.http', version: 1, config: {}, position: { x: 100, y: 0 } },
       { id: 'c', node: 'core.condition', version: 1, config: {}, position: { x: 200, y: 0 } },
       { id: 'err', node: 'core.end', version: 1, config: {}, position: { x: 200, y: 100 } },
+      { id: 'j', node: 'core.waitUntil', version: 1, config: {}, position: { x: 300, y: 50 } },
+      { id: 'end', node: 'core.end', version: 1, config: {}, position: { x: 400, y: 50 } },
     ],
-    edges: [{ from: 't', to: 'h' }, { from: 'h', to: 'c', port: 'next' }, { from: 'h', to: 'err', port: 'error' }],
+    edges: [
+      { from: 't', to: 'h' }, { from: 'h', to: 'c', port: 'next' }, { from: 'h', to: 'err', port: 'error' },
+      { from: 'c', to: 'j', port: 'true' }, { from: 'err', to: 'j' }, { from: 'j', to: 'end' },
+    ],
   };
   const s = graphToState(httpGraph);
   const refKeys = (nodeId: string) => availableFields(s, CATALOG_MAP, nodeId)
@@ -202,6 +227,12 @@ describe('availableFields with ports and nested object outputs', () => {
   it('includes the error branch outputs only for a node reached through the error port', () => {
     const list = refKeys('err');
     expect(list).toEqual(expect.arrayContaining(['h.status', 'h.partner', 'h.partner.name', 'h.body', 'h.error', 'h.error.code', 'h.error.message']));
+  });
+
+  it('excludes the error branch at a node that converges from both branches (visibleViaPort must reject, not just require reachability)', () => {
+    const list = refKeys('j');
+    expect(list).toContain('h.status');
+    expect(list.some((k) => k.startsWith('h.error'))).toBe(false);
   });
 });
 
