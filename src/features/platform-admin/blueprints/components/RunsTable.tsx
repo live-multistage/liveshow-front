@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { ChevronDown, ChevronRight, Clock } from 'lucide-react';
 import { Skeleton } from '@live-show/design-system';
@@ -49,14 +49,31 @@ interface ChildRowsProps {
   onSelectRun: (run: BlueprintRunDto) => void;
   t: Translator;
   format: Formatter;
+  childCounts: BlueprintRunDto['children'];
 }
 
 // Split out so the children query only mounts (and fetches) once a parent
 // row is actually expanded.
-function ChildRows({ blueprintId, runId, onSelectRun, t, format }: ChildRowsProps) {
+function ChildRows({ blueprintId, runId, onSelectRun, t, format, childCounts }: ChildRowsProps) {
   const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage, refetch } =
     useBlueprintRunChildrenQuery(blueprintId, runId, { enabled: true });
   const children = data?.pages.flatMap((p) => p.items) ?? [];
+
+  // The parent's 30s poll can bump these counts while this row stays
+  // expanded; refetch the child list so it doesn't go stale. Skipped on
+  // mount since the query itself already fetches then.
+  const countsSignature = childCounts
+    ? `${childCounts.total}:${childCounts.running}:${childCounts.completed}:${childCounts.cancelled}:${childCounts.failed}`
+    : null;
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countsSignature]);
 
   if (isLoading) {
     return (
@@ -194,6 +211,7 @@ export function RunsTable({ blueprintId, onSelectRun, expandedRunId = null, onTo
                             <button
                               className={styles.chevron}
                               aria-label={t(expanded ? 'runs.children.collapse' : 'runs.children.expand')}
+                              aria-expanded={expanded}
                               onClick={(e) => { e.stopPropagation(); onToggleExpand(r.id); }}
                             >
                               {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
@@ -217,7 +235,7 @@ export function RunsTable({ blueprintId, onSelectRun, expandedRunId = null, onTo
                       <td className={`${styles.mono} ${styles.right} ${meta.className}`}>{meta.text}</td>
                     </tr>
                     {expandable && expanded && (
-                      <ChildRows blueprintId={blueprintId} runId={r.id} onSelectRun={onSelectRun} t={t} format={format} />
+                      <ChildRows blueprintId={blueprintId} runId={r.id} onSelectRun={onSelectRun} t={t} format={format} childCounts={r.children} />
                     )}
                   </Fragment>
                 );

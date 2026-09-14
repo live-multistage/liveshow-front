@@ -97,8 +97,26 @@ describe('RunsTable', () => {
     mockPages([parentRun]);
     render(<RunsTable blueprintId="b1" onSelectRun={onSelectRun} expandedRunId={null} onToggleExpand={onToggleExpand} />);
     expect(screen.getByText(/runs\.children\.summary/)).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'runs.children.expand' }));
+    const chevron = screen.getByRole('button', { name: 'runs.children.expand' });
+    expect(chevron).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(chevron);
     expect(onToggleExpand).toHaveBeenCalledWith('p1');
+  });
+
+  it('flips aria-expanded when the row is expanded', () => {
+    mockPages([parentRun]);
+    render(<RunsTable blueprintId="b1" onSelectRun={onSelectRun} expandedRunId="p1" onToggleExpand={onToggleExpand} />);
+    expect(screen.getByRole('button', { name: 'runs.children.collapse' })).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('refetches child runs when the parent poll updates the children counts', () => {
+    mockPages([parentRun]);
+    const { rerender } = render(<RunsTable blueprintId="b1" onSelectRun={onSelectRun} expandedRunId="p1" onToggleExpand={onToggleExpand} />);
+    expect(childRefetch).not.toHaveBeenCalled();
+
+    mockPages([{ ...parentRun, children: { ...parentRun.children!, running: 2, completed: 11 } }]);
+    rerender(<RunsTable blueprintId="b1" onSelectRun={onSelectRun} expandedRunId="p1" onToggleExpand={onToggleExpand} />);
+    expect(childRefetch).toHaveBeenCalled();
   });
 
   it('renders child rows from the children query when the parent row is expanded', async () => {
