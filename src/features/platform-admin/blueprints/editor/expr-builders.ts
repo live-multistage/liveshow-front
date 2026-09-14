@@ -2,7 +2,7 @@
 // - condition: domain/condition.ts (ConditionExpr)
 // - datetimeExpr: domain/expressions.ts ("{{node.field}} ± N(m|h|d)" or ISO)
 
-import type { BlueprintFieldType } from '@live-show/api-contracts';
+import type { BlueprintFieldType, BlueprintSwitchCase } from '@live-show/api-contracts';
 
 export type Operand = string | number | boolean | null;
 // Mirrors domain/expressions.ts ISO_DATETIME: the runtime only requires the
@@ -76,6 +76,16 @@ export function rulesToCondition(set: RuleSet, typeOf?: (left: string) => Bluepr
   const complete = set.rules.filter((r) => isCompleteRule(r, typeOf?.(r.left)));
   if (complete.length === 0) return undefined;
   return { [set.join]: complete.map((r) => (r.op === 'exists' ? { exists: r.left } : { [r.op]: [r.left, r.right] })) };
+}
+
+// Mirrors the orchestrator analyzer's per-case validation (ports-of.ts): only
+// an object with a string port and a scalar match counts as a real case.
+export const isCase = (v: unknown): v is BlueprintSwitchCase =>
+  !!v && typeof v === 'object' && typeof (v as Partial<BlueprintSwitchCase>).port === 'string'
+  && ['string', 'number', 'boolean'].includes(typeof (v as Partial<BlueprintSwitchCase>).match);
+
+export function casesOf(value: unknown): BlueprintSwitchCase[] {
+  return Array.isArray(value) ? value.filter(isCase) : [];
 }
 
 export type WaitUnit = 'm' | 'h' | 'd';

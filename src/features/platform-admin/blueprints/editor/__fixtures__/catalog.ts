@@ -17,6 +17,39 @@ export const CATALOG: BlueprintCatalogEntry[] = [
       ifPast: { kind: 'enum', values: ['continue', 'end'], required: true, description: 'Se o horário já passou' },
     }, outputs: {} },
   { kind: 'core', key: 'core.end', version: 1, label: 'Fim', description: 'Encerra a execução.', config: {}, outputs: {} },
+  // Mirrors the orchestrator's CORE_NODES entries (domain/core-nodes.ts) for forEach/switch.
+  { kind: 'core', key: 'core.forEach', version: 1, label: 'Para cada',
+    description: 'Executa o ramo "cada item" uma vez por item da lista, em execuções filhas; segue por "depois" imediatamente.',
+    ports: ['each', 'done'], dynamicOutputs: 'forEach',
+    config: {
+      items: { kind: 'ref', type: { list: 'json' }, required: true, description: 'Lista a percorrer' },
+      maxItems: { kind: 'number', min: 1, max: 5000, required: false, description: 'Máximo de itens (padrão 500)' },
+    },
+    outputs: {
+      item: { type: 'json', class: 'INTERNAL', description: 'Item atual', port: 'each' },
+      index: { type: 'number', class: 'INTERNAL', description: 'Posição (0-based)', port: 'each' },
+    } },
+  { kind: 'core', key: 'core.switch', version: 1, label: 'Escolher',
+    description: 'Compara um valor com cada caso e segue pela porta correspondente, ou por "padrão".',
+    ports: ['default'], dynamicPorts: 'switch',
+    config: {
+      value: { kind: 'ref', type: 'string', required: true, description: 'Valor a comparar' },
+      cases: { kind: 'cases', maxCases: 12, required: true, description: 'Casos' },
+    }, outputs: {} },
+  { kind: 'trigger', key: 'events.published', version: 1, event: 'event.published', label: 'Evento publicado', description: 'Um evento foi publicado.',
+    config: { dedupeKey }, outputs: {
+      eventId: { type: 'uuid', class: 'INTERNAL', description: 'Evento publicado' },
+      organizationId: { type: 'uuid', class: 'INTERNAL', description: 'Organização' },
+      title: { type: 'string', class: 'PUBLIC', description: 'Título' },
+    } },
+  { kind: 'data', key: 'follows.artistFollowers', version: 1, label: 'Seguidores do artista', description: 'Lista os seguidores de um artista, lida no momento em que o nó executa.',
+    config: { eventId: uuidRef('Evento') }, outputs: {
+      followers: {
+        type: { list: { object: { userId: { type: 'uuid', class: 'INTERNAL', description: 'Seguidor' } } } },
+        class: 'INTERNAL', description: 'Seguidores',
+      },
+      count: { type: 'number', class: 'INTERNAL', description: 'Total de seguidores' },
+    } },
   { kind: 'trigger', key: 'orders.paid', version: 1, event: 'order.paid', label: 'Pedido pago', description: 'Um pedido foi pago; uma execução por evento do pedido.',
     config: { dedupeKey }, outputs: {
       userId: { type: 'uuid', class: 'INTERNAL', description: 'Comprador' },

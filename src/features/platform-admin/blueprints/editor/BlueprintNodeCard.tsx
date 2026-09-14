@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import type { BlueprintCatalogEntry } from '@live-show/api-contracts';
 import { cn } from '@live-show/design-system';
 import { NodeIcon, kindClass } from './nodeVisuals';
-import { portsOfEntry, type EditorNode } from './useEditorGraph';
+import { portsOfNode, type EditorNode } from './useEditorGraph';
 import styles from './Canvas.module.scss';
 
 export interface CardData extends Record<string, unknown> {
@@ -27,7 +27,7 @@ export type CardNode = Node<CardData, 'blueprint'>;
 function BlueprintNodeCardImpl({ data, selected }: NodeProps<CardNode>) {
   const t = useTranslations('platformAdmin.blueprints');
   const { instance, entry, errorCount, sub, errorConnected } = data;
-  const ports = entry ? portsOfEntry(entry) : null;
+  const ports = entry ? portsOfNode(entry, instance.config) : null;
 
   return (
     <div className={cn(styles.card, kindClass(entry?.kind), selected && styles.selected, errorCount > 0 && styles.hasError, !entry && styles.unknown)}>

@@ -4,6 +4,8 @@ import { useMemo, useReducer } from 'react';
 import type {
   BlueprintAnalysisError, BlueprintCatalogEntry, BlueprintEdge, BlueprintGraph, BlueprintOutputField,
 } from '@live-show/api-contracts';
+import { casesOf, parseRef } from './expr-builders';
+import { isList } from './field-types';
 
 export type Port = string;
 export interface XY { x: number; y: number }
@@ -47,7 +49,7 @@ const NODE_ID = /^[A-Za-z0-9_-]{1,64}$/;
 const PREFIX: Record<string, string> = {
   'core.end': 'end', 'core.condition': 'c', 'core.waitUntil': 'w', 'events.byId': 'e', 'wishlist.stillSaved': 's',
   'ticketing.hasAccess': 'a', 'notifications.inApp': 'n', 'mailing.sendEmail': 'm', 'account.profile': 'p',
-  'http.request': 'h', 'core.delay': 'd',
+  'http.request': 'h', 'core.delay': 'd', 'core.forEach': 'f', 'core.switch': 'sw',
 };
 
 export const catalogKey = (key: string, version: number) => `${key}@${version}`;
@@ -212,7 +214,23 @@ export interface AvailableField {
   nodeId: string; nodeLabel: string; field: string; path: string[]; out: BlueprintOutputField; depth: number;
 }
 
-export function portsOfEntry(entry: BlueprintCatalogEntry): { name: string; optional: boolean }[] | null {
+export interface PortSpec { name: string; optional: boolean }
+
+/** Mirrors the orchestrator's domain/ports-of.ts portsOf, including the two dynamic node kinds. */
+export function portsOfNode(entry: BlueprintCatalogEntry, config: Record<string, unknown>): PortSpec[] | null {
+  if (entry.key === 'core.end') return [];
+  if (entry.key === 'core.condition') return [{ name: 'true', optional: false }, { name: 'false', optional: false }];
+  if (entry.key === 'core.forEach') return [{ name: 'each', optional: false }, { name: 'done', optional: false }];
+  if (entry.dynamicPorts === 'switch' || entry.key === 'core.switch') {
+    const seen = new Set<string>();
+    const ports: PortSpec[] = [];
+    for (const c of casesOf(config.cases)) {
+      if (seen.has(c.port)) continue;
+      seen.add(c.port);
+      ports.push({ name: c.port, optional: false });
+    }
+    return [...ports, { name: 'default', optional: false }];
+  }
   return entry.ports ? entry.ports.map((name) => ({ name, optional: entry.optionalPorts?.includes(name) ?? false })) : null;
 }
 
@@ -248,6 +266,30 @@ function collectFields(
  * Object outputs are flattened: one entry per leaf AND per object/list node,
  * so a picker can offer either the whole object/list or a nested leaf.
  */
+/**
+ * Mirrors the orchestrator's domain/outputs-of.ts outputsOf: only core.forEach
+ * is dynamic, typing `item` from the resolved `items` ref (falls back to the
+ * static json/number outputs when the ref is missing or isn't a list).
+ * `forEachId` is the id of the node whose config is being evaluated — resolving
+ * its own `items` ref walks its ancestors, so it never revisits itself.
+ */
+export function outputsOfNode(
+  entry: BlueprintCatalogEntry, config: Record<string, unknown>,
+  state: EditorState, catalog: Map<string, BlueprintCatalogEntry>, forEachId: string,
+): Record<string, BlueprintOutputField> {
+  if (entry.dynamicOutputs !== 'forEach' && entry.key !== 'core.forEach') return entry.outputs;
+  const ref = parseRef(config.items);
+  const spec = ref
+    ? availableFields(state, catalog, forEachId)
+      .find((f) => f.nodeId === ref.nodeId && f.field === ref.field && f.path.join('.') === ref.path.join('.'))?.out
+    : undefined;
+  if (!spec || !isList(spec.type)) return entry.outputs;
+  return {
+    item: { type: spec.type.list, class: spec.class ?? 'INTERNAL', description: entry.outputs.item.description, port: 'each' },
+    index: entry.outputs.index,
+  };
+}
+
 export function availableFields(state: EditorState, catalog: Map<string, BlueprintCatalogEntry>, nodeId: string): AvailableField[] {
   const self = state.nodes.find((n) => n.id === nodeId);
   if (!self) return [];
@@ -266,7 +308,10 @@ export function availableFields(state: EditorState, catalog: Map<string, Bluepri
     if (!ids.has(n.id)) continue;
     const entry = catalog.get(catalogKey(n.node, n.version));
     if (!entry) continue;
-    for (const [field, spec] of Object.entries(entry.outputs)) {
+    // A forEach can't be its own ancestor in a DAG (ids excludes nodeId itself
+    // unless self is a trigger), but guard explicitly against cycles anyway.
+    const outputs = n.id === nodeId ? entry.outputs : outputsOfNode(entry, n.config, state, catalog, n.id);
+    for (const [field, spec] of Object.entries(outputs)) {
       collectFields(nodeId, state.edges, n.id, entry.label, field, spec, [], result);
     }
   }

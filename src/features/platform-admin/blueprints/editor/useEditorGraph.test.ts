@@ -4,7 +4,7 @@ import buyers from './__fixtures__/reminder-buyers.json';
 import savers from './__fixtures__/reminder-savers.json';
 import { CATALOG_MAP } from './__fixtures__/catalog';
 import {
-  EMPTY_STATE, availableFields, editorReducer, errorCountByNode, graphToState, isDirty, nextNodeId, portsOfEntry, stateToGraph,
+  EMPTY_STATE, availableFields, editorReducer, errorCountByNode, graphToState, isDirty, nextNodeId, outputsOfNode, portsOfNode, stateToGraph,
   type EditorAction, type EditorState,
 } from './useEditorGraph';
 
@@ -45,15 +45,34 @@ describe('nextNodeId', () => {
   });
 });
 
-describe('portsOfEntry', () => {
-  it('maps declared ports with their optionality', () => {
+describe('portsOfNode', () => {
+  it('maps declared ports with their optionality (falls back to entry.ports for a non-dynamic node)', () => {
+    expect(portsOfNode(entry('test.http'), {})).toEqual([{ name: 'next', optional: false }, { name: 'error', optional: true }]);
+  });
+
+  it('hardcodes core.condition ports regardless of entry.ports', () => {
     const condition = entry('core.condition');
-    expect(portsOfEntry({ ...condition, ports: ['next', 'error'], optionalPorts: ['error'] }))
-      .toEqual([{ name: 'next', optional: false }, { name: 'error', optional: true }]);
+    expect(portsOfNode({ ...condition, ports: ['next', 'error'], optionalPorts: ['error'] }, {}))
+      .toEqual([{ name: 'true', optional: false }, { name: 'false', optional: false }]);
   });
 
   it('returns null for an entry without ports', () => {
-    expect(portsOfEntry(entry('events.byId'))).toBeNull();
+    expect(portsOfNode(entry('events.byId'), {})).toBeNull();
+  });
+
+  it('forEach always exposes each/done', () => {
+    expect(portsOfNode(entry('core.forEach'), {})).toEqual([{ name: 'each', optional: false }, { name: 'done', optional: false }]);
+  });
+
+  it('switch derives one port per distinct case plus default, skipping non-objects and duplicates', () => {
+    const ports = portsOfNode(entry('core.switch'), {
+      cases: [{ match: 'A', port: 'a' }, { match: 'B', port: 'b' }, { match: 'C', port: 'a' }, null],
+    });
+    expect(ports).toEqual([{ name: 'a', optional: false }, { name: 'b', optional: false }, { name: 'default', optional: false }]);
+  });
+
+  it('switch with no cases yields only default', () => {
+    expect(portsOfNode(entry('core.switch'), {})).toEqual([{ name: 'default', optional: false }]);
   });
 });
 
@@ -73,6 +92,12 @@ describe('editorReducer', () => {
       { type: 'add', entry: { key: 'http.request', version: 1, kind: 'action' } },
       { type: 'add', entry: { key: 'core.delay', version: 1, kind: 'core' } });
     expect(s.nodes.map((n) => n.id)).toEqual(['h1', 'd1']);
+  });
+
+  it('assigns the f/sw prefixes to forEach/switch nodes', () => {
+    const s = run(EMPTY_STATE, { type: 'add', entry: entry('core.forEach') }, { type: 'add', entry: entry('core.switch') },
+      { type: 'add', entry: entry('core.forEach') });
+    expect(s.nodes.map((n) => n.id)).toEqual(['f1', 'sw1', 'f2']);
   });
 
   it('connects, replaces an occupied port and refuses self-loops and cycles', () => {
@@ -233,6 +258,49 @@ describe('availableFields with ports and nested object outputs', () => {
     const list = refKeys('j');
     expect(list).toContain('h.status');
     expect(list.some((k) => k.startsWith('h.error'))).toBe(false);
+  });
+});
+
+describe('outputsOfNode / availableFields for core.forEach', () => {
+  // t(events.published) -> d(follows.artistFollowers) -> f(core.forEach, items: {{d.followers}})
+  // -[each]-> each1 ; -[done]-> done1.
+  const forEachGraph: BlueprintGraph = {
+    schemaVersion: 1,
+    nodes: [
+      { id: 't', node: 'events.published', version: 1, config: {}, position: { x: 0, y: 0 } },
+      { id: 'd', node: 'follows.artistFollowers', version: 1, config: { eventId: '{{t.eventId}}' }, position: { x: 100, y: 0 } },
+      { id: 'f', node: 'core.forEach', version: 1, config: { items: '{{d.followers}}' }, position: { x: 200, y: 0 } },
+      { id: 'each1', node: 'core.end', version: 1, config: {}, position: { x: 300, y: -50 } },
+      { id: 'done1', node: 'core.end', version: 1, config: {}, position: { x: 300, y: 50 } },
+    ],
+    edges: [
+      { from: 't', to: 'd' }, { from: 'd', to: 'f' },
+      { from: 'f', to: 'each1', port: 'each' }, { from: 'f', to: 'done1', port: 'done' },
+    ],
+  };
+  const s = graphToState(forEachGraph);
+  const forEachEntry = entry('core.forEach');
+
+  it('types item from the resolved list ref', () => {
+    const outputs = outputsOfNode(forEachEntry, { items: '{{d.followers}}' }, s, CATALOG_MAP, 'f');
+    expect(outputs.item.type).toEqual({ object: { userId: { type: 'uuid', class: 'INTERNAL', description: 'Seguidor' } } });
+    expect(outputs.item.port).toBe('each');
+    expect(outputs.index).toEqual({ type: 'number', class: 'INTERNAL', description: 'Posição (0-based)', port: 'each' });
+  });
+
+  it('falls back to static json outputs when items is missing or not a list ref', () => {
+    expect(outputsOfNode(forEachEntry, {}, s, CATALOG_MAP, 'f').item.type).toBe('json');
+    expect(outputsOfNode(forEachEntry, { items: 'not a ref' }, s, CATALOG_MAP, 'f').item.type).toBe('json');
+    expect(outputsOfNode(forEachEntry, { items: '{{t.eventId}}' }, s, CATALOG_MAP, 'f').item.type).toBe('json');
+  });
+
+  it('exposes f.item.userId only to a node reached through the each port', () => {
+    const eachFields = availableFields(s, CATALOG_MAP, 'each1');
+    const item = eachFields.find((field) => field.nodeId === 'f' && field.field === 'item' && field.path.join('.') === 'userId');
+    expect(item?.out.type).toBe('uuid');
+
+    const doneFields = availableFields(s, CATALOG_MAP, 'done1');
+    expect(doneFields.some((field) => field.nodeId === 'f' && field.field === 'item')).toBe(false);
   });
 });
 
