@@ -2144,6 +2144,142 @@
         "SKIPPED_UNVERIFIED": "Omitido: correo no verificado",
         "NOT_FOUND": "Dato no encontrado",
         "PAST_END": "El horario ya había pasado — terminado"
+      },
+      "editor": {
+        "back": "Volver al detalle",
+        "validate": "Validar",
+        "saveDraft": "Guardar borrador",
+        "publish": "Publicar",
+        "publishBlocked": "Corrige los errores del análisis antes de publicar",
+        "saveBeforePublish": "Guarda el borrador antes de publicar",
+        "duplicateAsDraft": "Duplicar como borrador",
+        "badge": {
+          "draft": "BORRADOR",
+          "published": "PUBLICADA",
+          "active": "ACTIVA",
+          "readOnly": "SOLO LECTURA"
+        },
+        "summary": "{nodes, plural, one {# nodo} other {# nodos}} · {edges, plural, one {# conexión} other {# conexiones}}",
+        "unsaved": "cambios sin guardar",
+        "readOnlyBanner": "Estás viendo la versión activa. Duplícala como borrador para editar.",
+        "readOnlyBannerPublished": "Estás viendo una versión publicada. Duplícala como borrador para editar.",
+        "smallScreen": "El editor visual necesita una pantalla más grande",
+        "loadError": "No se pudo cargar el editor.",
+        "savedToast": "Borrador v{version} guardado · {count, plural, one {# error} other {# errores}}",
+        "publishedToast": "Versión v{version} publicada. Actívala en el detalle para empezar a ejecutar.",
+        "discardTitle": "¿Descartar cambios?",
+        "discardBody": "Se perderán los cambios sin guardar de este borrador.",
+        "discard": "Descartar",
+        "keepEditing": "Seguir editando",
+        "problems": "PROBLEMAS ({count})",
+        "viewNode": "· Ver en el nodo",
+        "unavailable": "Nodo no disponible",
+        "palette": {
+          "title": "AGREGAR NODO",
+          "search": "Buscar nodo…",
+          "empty": "No se encontraron nodos."
+        },
+        "groups": {
+          "trigger": "Disparadores",
+          "data": "Datos",
+          "core": "Control",
+          "action": "Acciones"
+        },
+        "kind": {
+          "trigger": "Disparador",
+          "data": "Datos",
+          "core": "Control",
+          "action": "Acción"
+        },
+        "canvas": {
+          "grid": "CUADRÍCULA",
+          "snap": "AJUSTAR",
+          "emptyTitle": "Empieza arrastrando un disparador de la paleta",
+          "emptyBody": "Todo blueprint empieza con un disparador: {triggers}."
+        },
+        "ports": {
+          "true": "si verdadero",
+          "false": "si falso"
+        },
+        "inspector": {
+          "title": "Configuración del nodo",
+          "empty": "Selecciona un nodo en el canvas para configurarlo.",
+          "nodeId": "Id del nodo",
+          "unavailableHint": "Este nodo ya no existe en el catálogo. Elimínalo o reemplázalo.",
+          "outputs": "SALIDAS",
+          "noTarget": "sin conexión",
+          "problems": "PROBLEMAS DE ESTE NODO",
+          "noProblems": "Ningún problema.",
+          "duplicate": "Duplicar",
+          "remove": "Eliminar",
+          "rules": "Reglas"
+        },
+        "fields": {
+          "addVariable": "+ Variable",
+          "counter": "{count}/{max}",
+          "selectField": "Selecciona un campo",
+          "noUpstream": "Conecta un nodo anterior para usar sus campos",
+          "personalTooltip": "Dato personal — solo puede ir en textos de mensaje",
+          "typeMismatch": "tipo {type}",
+          "personalNotAllowed": "dato personal",
+          "dedupeHelp": "Evita dos ejecuciones para la misma persona y evento. Ej.: {example}"
+        },
+        "classification": {
+          "PUBLIC": "Público",
+          "INTERNAL": "Interno",
+          "PERSONAL": "Personal"
+        },
+        "enum": {
+          "EVENT": "Evento",
+          "TICKET": "Entrada",
+          "RECOMMENDATION": "Recomendación",
+          "TICKET_REMINDERS": "Recordatorios de entradas",
+          "NEWS_PROMOS": "Novedades y promociones",
+          "NONE": "Ninguna (enviar siempre)"
+        },
+        "wait": {
+          "label": "Horario",
+          "amount": "Cantidad",
+          "before": "antes de",
+          "after": "después de",
+          "summary": "{amount} {unit} {direction} {field}",
+          "at": "A la hora de {field}",
+          "ifPast": "Si el horario ya pasó",
+          "continue": "Continuar",
+          "end": "Terminar",
+          "absolute": "Horario absoluto (ISO 8601)."
+        },
+        "units": {
+          "m": "min",
+          "h": "h",
+          "d": "días"
+        },
+        "condition": {
+          "and": "Y",
+          "or": "O",
+          "addRule": "+ Agregar regla",
+          "removeRule": "Quitar regla",
+          "now": "ahora",
+          "value": "Valor",
+          "true": "verdadero",
+          "false": "falso",
+          "raw": "Expresión avanzada (JSON). Edita y sal del campo para aplicar.",
+          "ops": {
+            "eq": "igual",
+            "neq": "distinto",
+            "gt": "mayor",
+            "gte": "mayor o igual",
+            "lt": "menor",
+            "lte": "menor o igual",
+            "exists": "existe"
+          }
+        },
+        "template": {
+          "label": "Plantilla de correo",
+          "placeholder": "Selecciona una plantilla",
+          "category": "Categoría: {category}",
+          "notFound": "Plantilla no encontrada: {id}"
+        }
       }
     }
   },

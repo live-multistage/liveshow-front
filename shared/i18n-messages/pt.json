@@ -2144,6 +2144,142 @@
         "SKIPPED_UNVERIFIED": "Pulado: e-mail não verificado",
         "NOT_FOUND": "Dado não encontrado",
         "PAST_END": "Horário já tinha passado — encerrado"
+      },
+      "editor": {
+        "back": "Voltar ao detalhe",
+        "validate": "Validar",
+        "saveDraft": "Salvar rascunho",
+        "publish": "Publicar",
+        "publishBlocked": "Corrija os erros da análise antes de publicar",
+        "saveBeforePublish": "Salve o rascunho antes de publicar",
+        "duplicateAsDraft": "Duplicar como rascunho",
+        "badge": {
+          "draft": "RASCUNHO",
+          "published": "PUBLICADA",
+          "active": "ATIVA",
+          "readOnly": "SOMENTE LEITURA"
+        },
+        "summary": "{nodes, plural, =0 {0 nós} one {# nó} other {# nós}} · {edges, plural, =0 {0 ligações} one {# ligação} other {# ligações}}",
+        "unsaved": "alterações não salvas",
+        "readOnlyBanner": "Você está vendo a versão ativa. Duplique como rascunho para editar.",
+        "readOnlyBannerPublished": "Você está vendo uma versão publicada. Duplique como rascunho para editar.",
+        "smallScreen": "O editor visual precisa de uma tela maior",
+        "loadError": "Não foi possível carregar o editor.",
+        "savedToast": "Rascunho v{version} salvo · {count, plural, =0 {0 erros} one {# erro} other {# erros}}",
+        "publishedToast": "Versão v{version} publicada. Ative no detalhe para começar a rodar.",
+        "discardTitle": "Descartar alterações?",
+        "discardBody": "As alterações não salvas deste rascunho serão perdidas.",
+        "discard": "Descartar",
+        "keepEditing": "Continuar editando",
+        "problems": "PROBLEMAS ({count})",
+        "viewNode": "· Ver no nó",
+        "unavailable": "Nó indisponível",
+        "palette": {
+          "title": "ADICIONAR NÓ",
+          "search": "Buscar nó…",
+          "empty": "Nenhum nó encontrado."
+        },
+        "groups": {
+          "trigger": "Gatilhos",
+          "data": "Dados",
+          "core": "Controle",
+          "action": "Ações"
+        },
+        "kind": {
+          "trigger": "Gatilho",
+          "data": "Dados",
+          "core": "Controle",
+          "action": "Ação"
+        },
+        "canvas": {
+          "grid": "GRADE",
+          "snap": "AJUSTAR",
+          "emptyTitle": "Comece arrastando um gatilho da paleta",
+          "emptyBody": "Todo blueprint começa por um gatilho: {triggers}."
+        },
+        "ports": {
+          "true": "se verdadeiro",
+          "false": "se falso"
+        },
+        "inspector": {
+          "title": "Configuração do nó",
+          "empty": "Selecione um nó no canvas para configurar.",
+          "nodeId": "Id do nó",
+          "unavailableHint": "Este nó não existe mais no catálogo. Exclua-o ou troque por outro.",
+          "outputs": "SAÍDAS",
+          "noTarget": "sem ligação",
+          "problems": "PROBLEMAS DESTE NÓ",
+          "noProblems": "Nenhum problema.",
+          "duplicate": "Duplicar",
+          "remove": "Excluir",
+          "rules": "Regras"
+        },
+        "fields": {
+          "addVariable": "+ Variável",
+          "counter": "{count}/{max}",
+          "selectField": "Selecione um campo",
+          "noUpstream": "Ligue um nó anterior para usar seus campos",
+          "personalTooltip": "Dado pessoal — só pode ir em textos de mensagem",
+          "typeMismatch": "tipo {type}",
+          "personalNotAllowed": "dado pessoal",
+          "dedupeHelp": "Evita duas execuções para a mesma pessoa e evento. Ex.: {example}"
+        },
+        "classification": {
+          "PUBLIC": "Público",
+          "INTERNAL": "Interno",
+          "PERSONAL": "Pessoal"
+        },
+        "enum": {
+          "EVENT": "Evento",
+          "TICKET": "Ingresso",
+          "RECOMMENDATION": "Recomendação",
+          "TICKET_REMINDERS": "Lembretes de ingresso",
+          "NEWS_PROMOS": "Novidades e promoções",
+          "NONE": "Nenhuma (sempre enviar)"
+        },
+        "wait": {
+          "label": "Horário",
+          "amount": "Quantidade",
+          "before": "antes de",
+          "after": "depois de",
+          "summary": "{amount} {unit} {direction} {field}",
+          "at": "No horário de {field}",
+          "ifPast": "Se o horário já passou",
+          "continue": "Continuar",
+          "end": "Encerrar",
+          "absolute": "Horário absoluto (ISO 8601)."
+        },
+        "units": {
+          "m": "min",
+          "h": "h",
+          "d": "dias"
+        },
+        "condition": {
+          "and": "E",
+          "or": "OU",
+          "addRule": "+ Adicionar regra",
+          "removeRule": "Remover regra",
+          "now": "agora",
+          "value": "Valor",
+          "true": "verdadeiro",
+          "false": "falso",
+          "raw": "Expressão avançada (JSON). Edite e saia do campo para aplicar.",
+          "ops": {
+            "eq": "igual",
+            "neq": "diferente",
+            "gt": "maior",
+            "gte": "maior ou igual",
+            "lt": "menor",
+            "lte": "menor ou igual",
+            "exists": "existe"
+          }
+        },
+        "template": {
+          "label": "Template de e-mail",
+          "placeholder": "Selecione um template",
+          "category": "Categoria: {category}",
+          "notFound": "Template não encontrado: {id}"
+        }
       }
     }
   },

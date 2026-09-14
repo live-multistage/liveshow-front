@@ -2144,6 +2144,142 @@
         "SKIPPED_UNVERIFIED": "Skipped: email not verified",
         "NOT_FOUND": "Data not found",
         "PAST_END": "Time had already passed — ended"
+      },
+      "editor": {
+        "back": "Back to details",
+        "validate": "Validate",
+        "saveDraft": "Save draft",
+        "publish": "Publish",
+        "publishBlocked": "Fix the analysis errors before publishing",
+        "saveBeforePublish": "Save the draft before publishing",
+        "duplicateAsDraft": "Duplicate as draft",
+        "badge": {
+          "draft": "DRAFT",
+          "published": "PUBLISHED",
+          "active": "ACTIVE",
+          "readOnly": "READ-ONLY"
+        },
+        "summary": "{nodes, plural, one {# node} other {# nodes}} · {edges, plural, one {# link} other {# links}}",
+        "unsaved": "unsaved changes",
+        "readOnlyBanner": "You are viewing the active version. Duplicate it as a draft to edit.",
+        "readOnlyBannerPublished": "You are viewing a published version. Duplicate it as a draft to edit.",
+        "smallScreen": "The visual editor needs a larger screen",
+        "loadError": "Could not load the editor.",
+        "savedToast": "Draft v{version} saved · {count, plural, one {# error} other {# errors}}",
+        "publishedToast": "Version v{version} published. Activate it in the details to start running.",
+        "discardTitle": "Discard changes?",
+        "discardBody": "The unsaved changes to this draft will be lost.",
+        "discard": "Discard",
+        "keepEditing": "Keep editing",
+        "problems": "PROBLEMS ({count})",
+        "viewNode": "· View node",
+        "unavailable": "Node unavailable",
+        "palette": {
+          "title": "ADD NODE",
+          "search": "Search nodes…",
+          "empty": "No nodes found."
+        },
+        "groups": {
+          "trigger": "Triggers",
+          "data": "Data",
+          "core": "Control",
+          "action": "Actions"
+        },
+        "kind": {
+          "trigger": "Trigger",
+          "data": "Data",
+          "core": "Control",
+          "action": "Action"
+        },
+        "canvas": {
+          "grid": "GRID",
+          "snap": "SNAP",
+          "emptyTitle": "Start by dragging a trigger from the palette",
+          "emptyBody": "Every blueprint starts with a trigger: {triggers}."
+        },
+        "ports": {
+          "true": "if true",
+          "false": "if false"
+        },
+        "inspector": {
+          "title": "Node settings",
+          "empty": "Select a node on the canvas to configure it.",
+          "nodeId": "Node id",
+          "unavailableHint": "This node no longer exists in the catalog. Delete it or replace it.",
+          "outputs": "OUTPUTS",
+          "noTarget": "not connected",
+          "problems": "PROBLEMS IN THIS NODE",
+          "noProblems": "No problems.",
+          "duplicate": "Duplicate",
+          "remove": "Delete",
+          "rules": "Rules"
+        },
+        "fields": {
+          "addVariable": "+ Variable",
+          "counter": "{count}/{max}",
+          "selectField": "Select a field",
+          "noUpstream": "Connect a previous node to use its fields",
+          "personalTooltip": "Personal data — only allowed in message texts",
+          "typeMismatch": "type {type}",
+          "personalNotAllowed": "personal data",
+          "dedupeHelp": "Prevents two runs for the same person and event. E.g.: {example}"
+        },
+        "classification": {
+          "PUBLIC": "Public",
+          "INTERNAL": "Internal",
+          "PERSONAL": "Personal"
+        },
+        "enum": {
+          "EVENT": "Event",
+          "TICKET": "Ticket",
+          "RECOMMENDATION": "Recommendation",
+          "TICKET_REMINDERS": "Ticket reminders",
+          "NEWS_PROMOS": "News and promotions",
+          "NONE": "None (always send)"
+        },
+        "wait": {
+          "label": "Time",
+          "amount": "Amount",
+          "before": "before",
+          "after": "after",
+          "summary": "{amount} {unit} {direction} {field}",
+          "at": "At {field}",
+          "ifPast": "If the time has already passed",
+          "continue": "Continue",
+          "end": "End",
+          "absolute": "Absolute time (ISO 8601)."
+        },
+        "units": {
+          "m": "min",
+          "h": "h",
+          "d": "days"
+        },
+        "condition": {
+          "and": "AND",
+          "or": "OR",
+          "addRule": "+ Add rule",
+          "removeRule": "Remove rule",
+          "now": "now",
+          "value": "Value",
+          "true": "true",
+          "false": "false",
+          "raw": "Advanced expression (JSON). Edit and leave the field to apply.",
+          "ops": {
+            "eq": "equals",
+            "neq": "not equal",
+            "gt": "greater",
+            "gte": "greater or equal",
+            "lt": "less",
+            "lte": "less or equal",
+            "exists": "exists"
+          }
+        },
+        "template": {
+          "label": "Email template",
+          "placeholder": "Select a template",
+          "category": "Category: {category}",
+          "notFound": "Template not found: {id}"
+        }
       }
     }
   },
