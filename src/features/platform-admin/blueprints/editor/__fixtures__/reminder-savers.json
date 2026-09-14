@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "nodes": [
+    { "id": "t", "node": "wishlist.itemAdded", "version": 1, "config": { "dedupeKey": "saved:{{t.eventId}}:{{t.userId}}" } },
+    { "id": "e1", "node": "events.byId", "version": 1, "config": { "eventId": "{{t.eventId}}" } },
+    { "id": "w", "node": "core.waitUntil", "version": 1, "config": { "at": "{{e1.startsAt}} - 24h", "ifPast": "end" } },
+    { "id": "s", "node": "wishlist.stillSaved", "version": 1, "config": { "userId": "{{t.userId}}", "eventId": "{{t.eventId}}" } },
+    { "id": "a", "node": "ticketing.hasAccess", "version": 1, "config": { "userId": "{{t.userId}}", "eventId": "{{t.eventId}}" } },
+    { "id": "e2", "node": "events.byId", "version": 1, "config": { "eventId": "{{t.eventId}}" } },
+    { "id": "c", "node": "core.condition", "version": 1, "config": { "expression": { "and": [
+      { "eq": ["{{s.saved}}", true] }, { "eq": ["{{a.hasAccess}}", false] },
+      { "eq": ["{{e2.status}}", "PUBLISHED"] }, { "gt": ["{{e2.startsAt}}", "now"] } ] } } },
+    { "id": "n", "node": "notifications.inApp", "version": 1, "config": {
+      "recipient": "{{t.userId}}", "type": "RECOMMENDATION",
+      "title": "{{e2.title}} é amanhã", "message": "Ainda dá tempo de garantir seu ingresso.", "link": "/events/{{e2.slug}}" } },
+    { "id": "m", "node": "mailing.sendEmail", "version": 1, "config": {
+      "templateId": "00000000-0000-0000-0000-000000000000", "recipient": "{{t.userId}}", "eventRef": "{{t.eventId}}", "preference": "NEWS_PROMOS" } },
+    { "id": "end", "node": "core.end", "version": 1, "config": {} }
+  ],
+  "edges": [
+    { "from": "t", "to": "e1" }, { "from": "e1", "to": "w" }, { "from": "w", "to": "s" }, { "from": "s", "to": "a" },
+    { "from": "a", "to": "e2" }, { "from": "e2", "to": "c" },
+    { "from": "c", "to": "n", "port": "true" }, { "from": "c", "to": "end", "port": "false" },
+    { "from": "n", "to": "m" }, { "from": "m", "to": "end" }
+  ]
+}

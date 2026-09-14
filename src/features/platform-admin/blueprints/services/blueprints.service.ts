@@ -1,13 +1,14 @@
 import { httpClient } from '@/lib/http/client';
 import type {
-  ActivateBlueprintRequest, BlueprintDetail, BlueprintRunStatus, BlueprintRunsPage, BlueprintSummary, BlueprintVersionDto,
+  ActivateBlueprintRequest, BlueprintCatalogEntry, BlueprintDetail, BlueprintRunStatus, BlueprintRunsPage, BlueprintSummary, BlueprintVersionDto,
   CreateBlueprintRequest, SaveBlueprintVersionRequest,
 } from '@live-show/api-contracts';
 
 export interface BlueprintRunsParams { status?: BlueprintRunStatus; cursor?: string }
 
 export const blueprintsService = {
-  list: async () => (await httpClient.get<BlueprintSummary[]>('/blueprints')).data,
+  catalog: async () => (await httpClient.get<BlueprintCatalogEntry[]>('/blueprints/catalog')).data,
+  list: async () =>(await httpClient.get<BlueprintSummary[]>('/blueprints')).data,
   get: async (id: string) => (await httpClient.get<BlueprintDetail>(`/blueprints/${id}`)).data,
   create: async (req: CreateBlueprintRequest) => (await httpClient.post<BlueprintSummary>('/blueprints', req)).data,
   saveVersion: async (id: string, req: SaveBlueprintVersionRequest) => (await httpClient.post<BlueprintVersionDto>(`/blueprints/${id}/versions`, req)).data,

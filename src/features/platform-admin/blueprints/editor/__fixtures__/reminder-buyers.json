@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "nodes": [
+    { "id": "t", "node": "orders.paid", "version": 1, "config": { "dedupeKey": "purchase:{{t.eventId}}:{{t.userId}}" } },
+    { "id": "e1", "node": "events.byId", "version": 1, "config": { "eventId": "{{t.eventId}}" } },
+    { "id": "w", "node": "core.waitUntil", "version": 1, "config": { "at": "{{e1.startsAt}} - 2h", "ifPast": "end" } },
+    { "id": "e2", "node": "events.byId", "version": 1, "config": { "eventId": "{{t.eventId}}" } },
+    { "id": "c", "node": "core.condition", "version": 1, "config": { "expression": { "and": [
+      { "eq": ["{{e2.status}}", "PUBLISHED"] }, { "gt": ["{{e2.startsAt}}", "now"] } ] } } },
+    { "id": "n", "node": "notifications.inApp", "version": 1, "config": {
+      "recipient": "{{t.userId}}", "type": "TICKET",
+      "title": "{{e2.title}} começa em 2h", "message": "Seu ingresso está pronto. Te vemos lá!", "link": "/events/{{e2.slug}}" } },
+    { "id": "m", "node": "mailing.sendEmail", "version": 1, "config": {
+      "templateId": "00000000-0000-0000-0000-000000000000", "recipient": "{{t.userId}}", "eventRef": "{{t.eventId}}", "preference": "TICKET_REMINDERS" } },
+    { "id": "end", "node": "core.end", "version": 1, "config": {} }
+  ],
+  "edges": [
+    { "from": "t", "to": "e1" }, { "from": "e1", "to": "w" }, { "from": "w", "to": "e2" }, { "from": "e2", "to": "c" },
+    { "from": "c", "to": "n", "port": "true" }, { "from": "c", "to": "end", "port": "false" },
+    { "from": "n", "to": "m" }, { "from": "m", "to": "end" }
+  ]
+}

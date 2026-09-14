@@ -1,0 +1,107 @@
+@use '../../../../styles/_variables' as *;
+
+$mono: var(--font-space-mono), 'Space Mono', monospace;
+
+// Full screen over the dashboard chrome (brief: "tela cheia"); below the DS
+// dialog/select/tooltip layers (z-index 50–60).
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: #050506;
+  color: #f4f4f5;
+}
+
+.loading { flex: 1; margin: 14px 22px 18px; border-radius: 14px; background: #0d0d10; }
+.canvasLoading { flex: 1; min-width: 0; border-radius: 14px; background: #0d0d10; border: 1px solid $border-hairline; }
+
+// ── Top bar ─────────────────────────────────────────────────────────────────
+.toolbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
+  background: $bg;
+}
+
+.back { display: flex; background: none; border: none; padding: 0; color: #8f8f97; cursor: pointer; &:hover { color: $text-primary; } }
+
+.titleBlock { min-width: 0; }
+.titleRow { display: flex; align-items: center; gap: 10px; }
+.title { margin: 0; font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.summary { margin-top: 4px; font-family: $mono; font-size: 10px; color: #6f6f77; }
+.errorCount { font-family: $mono; font-size: 10px; color: $error; }
+
+.badge { font-family: $mono; font-size: 10px; font-weight: 700; letter-spacing: .1em; white-space: nowrap; padding: 4px 9px; border-radius: 6px; border: 1px solid; }
+.badge_draft { background: rgba(255, 46, 158, .14); border-color: rgba(255, 46, 158, .45); color: $accent-text; }
+.badge_active { background: rgba(22, 163, 74, .14); border-color: rgba(22, 163, 74, .4); color: $success-light; }
+.badge_published { background: rgba(155, 123, 255, .12); border-color: rgba(155, 123, 255, .4); color: #b9a6ff; }
+
+.actions { margin-left: auto; display: flex; gap: 9px; }
+.tooltipAnchor { display: inline-flex; }
+.spin { animation: spin 1s linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.readOnlyBanner {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 20px;
+  background: rgba(155, 123, 255, .07);
+  border-bottom: 1px solid rgba(155, 123, 255, .25);
+  color: #b9a6ff;
+  font-size: 13px;
+
+  span { color: #c9bcf5; }
+}
+
+.body { flex: 1; min-height: 0; display: flex; gap: 14px; padding: 14px 22px 18px; }
+
+// ── PROBLEMAS footer (C2) ───────────────────────────────────────────────────
+.problems { flex: none; border-top: 1px solid rgba(255, 77, 77, .25); background: #0c0709; }
+
+.problemsHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  background: none;
+  border: none;
+  font-family: $mono;
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: $error;
+  cursor: pointer;
+}
+
+.problemList { list-style: none; margin: 0; padding: 2px 22px 12px; display: flex; flex-wrap: wrap; gap: 8px 26px; }
+
+.problem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { opacity: .8; }
+  &:disabled { cursor: default; }
+}
+
+.problemNode { font-family: $mono; font-size: 10px; color: $accent-text; }
+.problemTitle { font-size: 12px; color: #f3b0b0; }
+.problemLink { font-family: $mono; font-size: 10px; color: #6f6f77; }
+
+// ── Small screen / errors ───────────────────────────────────────────────────
+.small { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; color: $text-secondary; font-size: 14px; p { margin: 0; } }
+.smallLink { color: $accent-text; text-decoration: none; &:hover { text-decoration: underline; } }
+
+.dialogBody { margin: 0; color: $text-secondary; font-size: 14px; }

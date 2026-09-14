@@ -1,0 +1,6 @@
+// Node-kind colors (brief: applied to icon, port and stripe only, never chrome).
+.trigger { --kind-color: #ff2e9e; --kind-soft: rgba(255, 46, 158, .13); }
+.data { --kind-color: #46d6d8; --kind-soft: rgba(70, 214, 216, .13); }
+.core { --kind-color: #9b7bff; --kind-soft: rgba(155, 123, 255, .13); }
+.action { --kind-color: #7fe0a0; --kind-soft: rgba(127, 224, 160, .13); }
+.unknown { --kind-color: #71717a; --kind-soft: rgba(113, 113, 122, .13); }

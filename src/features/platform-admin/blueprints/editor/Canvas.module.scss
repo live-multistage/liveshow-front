@@ -1,0 +1,155 @@
+@use '../../../../styles/_variables' as *;
+
+$mono: var(--font-space-mono), 'Space Mono', monospace;
+$error-border: rgba(255, 77, 77, .6);
+
+// ── Canvas shell (design C1: #0d0d10 card, dotted grid, mono toggles) ─────────
+.canvas {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  background: #0d0d10;
+  border: 1px solid $border-hairline;
+  border-radius: 14px;
+  overflow: hidden;
+
+  :global(.react-flow) { background: transparent; }
+  :global(.react-flow__edge-path) { stroke: rgba(255, 255, 255, .35); stroke-width: 1.5; }
+  :global(.react-flow__edge.selected .react-flow__edge-path) { stroke: $action; }
+  :global(.react-flow__connection-path) { stroke: $action; stroke-width: 1.5; }
+  :global(.react-flow__edge-textbg) { fill: #0d0d10; stroke: rgba(255, 255, 255, .08); }
+  :global(.react-flow__edge-text) { font-family: $mono; font-size: 8.5px; letter-spacing: .08em; text-transform: uppercase; fill: #c7c7cd; }
+}
+
+.edgeTrue :global(.react-flow__edge-text) { fill: #7fe0a0; }
+.edgeFalse :global(.react-flow__edge-text) { fill: #b9a6ff; }
+
+.toggles { position: absolute; top: 12px; left: 14px; z-index: 5; display: flex; gap: 6px; }
+
+.toggle {
+  font-family: $mono;
+  font-size: 9.5px;
+  color: #8f8f97;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 6px;
+  padding: 4px 9px;
+  cursor: pointer;
+}
+
+.toggleOn { border-color: rgba(255, 46, 158, .4); color: $accent-text; }
+
+.controls {
+  background: $bg;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: none;
+
+  :global(.react-flow__controls-button) {
+    width: 26px;
+    height: 26px;
+    background: transparent;
+    border: none;
+    color: #c7c7cd;
+    fill: currentColor;
+
+    &:hover { color: $text-primary; background: transparent; }
+  }
+}
+
+.minimap {
+  background: $bg;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 8px;
+  overflow: hidden;
+
+  :global(svg) { display: block; width: 150px; height: 86px; }
+}
+
+// ── Node card (design buildGraph: 190–200×72, 12px radius) ──────────────────
+.card {
+  position: relative;
+  width: 200px;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 14px 0 16px;
+  background: #101013;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 12px;
+  color: #f4f4f5;
+}
+
+.selected { border: 1.5px solid $action; box-shadow: 0 0 24px rgba(255, 46, 158, .25); }
+.hasError { border: 1.5px solid $error-border; }
+.unknown { border: 1.5px dashed rgba(255, 255, 255, .25); background: #0c0c0e; color: #8f8f97; }
+
+.stripe { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--kind-color); border-radius: 12px 0 0 12px; }
+
+.icon {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--kind-soft);
+  color: var(--kind-color);
+}
+
+.text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.name { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.key { font-family: $mono; font-size: 9px; color: #6f6f77; margin-top: 2px; }
+.sub { font-family: $mono; font-size: 9px; color: #9b7bff; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nodeId { position: absolute; top: 5px; right: 8px; font-family: $mono; font-size: 8.5px; color: var(--kind-color); }
+
+.errorBadge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: $danger;
+  color: $text-primary;
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Doubled class beats React Flow's own .react-flow__handle rules.
+.card .port { width: 10px; height: 10px; background: #0d0d10; border: 2px solid var(--kind-color); border-radius: 50%; }
+.card .portTrue { top: 22px; }
+.card .portFalse { top: 52px; }
+
+// ── Empty state (C4) ────────────────────────────────────────────────────────
+.emptyWrap { position: absolute; inset: 0; z-index: 4; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+
+.empty {
+  text-align: center;
+  border: 1.5px dashed rgba(255, 46, 158, .4);
+  border-radius: 16px;
+  padding: 34px 40px;
+  background: rgba(255, 46, 158, .04);
+}
+
+.emptyIcon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border-radius: 12px;
+  background: rgba(255, 46, 158, .12);
+  color: $action;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyTitle { margin: 0; font-size: 16px; font-weight: 700; color: #f4f4f5; }
+.emptyBody { margin: 8px auto 0; font-size: 13px; color: $text-muted; max-width: 32ch; }

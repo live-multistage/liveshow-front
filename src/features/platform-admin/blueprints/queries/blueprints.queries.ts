@@ -7,6 +7,7 @@ import { blueprintsService } from '../services/blueprints.service';
 export const blueprintKeys = {
   all: ['platform-admin', 'blueprints'] as const,
   list: () => [...blueprintKeys.all, 'list'] as const,
+  catalog: () => [...blueprintKeys.all, 'catalog'] as const,
   detail: (id: string) => [...blueprintKeys.all, 'detail', id] as const,
   // A bare prefix (no status) so mutations can invalidate every filter chip's
   // cached pages at once; the query itself appends the status below.
@@ -15,6 +16,11 @@ export const blueprintKeys = {
 
 export function useBlueprintsQuery() {
   return useQuery({ queryKey: blueprintKeys.list(), queryFn: blueprintsService.list, staleTime: 15_000 });
+}
+
+// The catalog only changes on deploy (plugins register at boot).
+export function useBlueprintCatalogQuery() {
+  return useQuery({ queryKey: blueprintKeys.catalog(), queryFn: blueprintsService.catalog, staleTime: 5 * 60_000 });
 }
 
 export function useBlueprintQuery(id: string) {
