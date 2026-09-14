@@ -2059,7 +2059,11 @@
         "deactivateConfirmTitle": "Deactivate this blueprint?",
         "deactivateConfirmBody": "Runs that are waiting will be cancelled.",
         "deactivatedToast": "Blueprint deactivated · {count} runs cancelled",
-        "invalidBanner": "This blueprint is invalid: the active version uses a node that no longer exists. Publish a new version."
+        "invalidBanner": "This blueprint is invalid: the active version uses a node that no longer exists. Publish a new version.",
+        "today": "today {time}",
+        "yesterday": "yesterday {time}",
+        "wakes": "wakes {when}",
+        "duplicated": "Version duplicated as a draft."
       },
       "runColumns": {
         "status": "Status",
@@ -2094,7 +2098,9 @@
         "TOO_MANY_NODES": "More than 50 nodes",
         "ANALYSIS_FAILED": "Fix the analysis errors before publishing",
         "NOT_PUBLISHED": "Only published versions can be activated",
-        "GENERIC": "Could not complete. Please try again."
+        "GENERIC": "Could not complete. Please try again.",
+        "BLUEPRINT_NOT_FOUND": "Blueprint not found",
+        "VERSION_NOT_FOUND": "Version not found"
       },
       "group": "OPERATIONS",
       "errorState": "Could not load blueprints.",
