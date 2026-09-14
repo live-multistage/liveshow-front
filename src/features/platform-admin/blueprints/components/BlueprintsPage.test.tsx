@@ -11,6 +11,7 @@ const push = vi.fn();
 const relativeTime = vi.fn(() => 'agora');
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 vi.mock('../queries/blueprints.queries', () => ({ useBlueprintsQuery: vi.fn() }));
+vi.mock('../mutations/blueprints.mutations', () => ({ useCreateBlueprintMutation: vi.fn() }));
 vi.mock('./NewBlueprintDialog', () => ({
   NewBlueprintDialog: ({ open, onCreated }: { open: boolean; onOpenChange: (o: boolean) => void; onCreated: (id: string) => void }) =>
     open ? <div><button onClick={() => onCreated('new-id')}>confirm-create</button></div> : null,
@@ -21,6 +22,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BlueprintsPage } from './BlueprintsPage';
 import { useBlueprintsQuery } from '../queries/blueprints.queries';
+import { useCreateBlueprintMutation } from '../mutations/blueprints.mutations';
 import tableStyles from '../../components/PlatformTable.module.scss';
 
 const refetch = vi.fn();
@@ -32,7 +34,18 @@ function mockList(data: unknown, overrides: Record<string, unknown> = {}) {
   vi.mocked(useBlueprintsQuery).mockReturnValue({ data, isLoading: false, isError: false, refetch, ...overrides } as never);
 }
 
-beforeEach(() => vi.clearAllMocks());
+// Wide by default (>1280px); narrow-screen tests override matches to false.
+function mockWide(matches = true) {
+  window.matchMedia = vi.fn().mockReturnValue({ matches, addEventListener: vi.fn(), removeEventListener: vi.fn() });
+}
+
+const createTutorial = vi.fn();
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  mockWide(true);
+  vi.mocked(useCreateBlueprintMutation).mockReturnValue({ mutate: createTutorial, isPending: false } as never);
+});
 
 describe('BlueprintsPage', () => {
   it('lists blueprints with status, version and 7-day counters, linking to the detail page', () => {
@@ -105,5 +118,36 @@ describe('BlueprintsPage', () => {
     await userEvent.click(screen.getAllByRole('button', { name: 'new' })[0]);
     await userEvent.click(screen.getByText('confirm-create'));
     expect(push).toHaveBeenCalledWith('/dashboard/platform/blueprints/new-id');
+  });
+
+  // Design §C1: "Tutorial" creates a throwaway draft and opens the editor in
+  // guided mode — same mutation as "Novo", different navigation target.
+  it('clicking Tutorial creates a draft and navigates to the editor in tour mode', async () => {
+    mockList(rows);
+    createTutorial.mockImplementation((_vars, { onSuccess }: { onSuccess: (s: { id: string }) => void }) => onSuccess({ id: 'tour-id' }));
+    render(<BlueprintsPage />);
+    await userEvent.click(screen.getAllByRole('button', { name: 'tour.entry' })[0]);
+    expect(createTutorial).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'tour.draftName', description: 'tour.draftDescription' }),
+      expect.anything(),
+    );
+    expect(push).toHaveBeenCalledWith('/dashboard/platform/blueprints/tour-id/editor?tour=first');
+  });
+
+  it('shows a "Fazer o tutorial" link in the empty state', () => {
+    mockList([]);
+    render(<BlueprintsPage />);
+    expect(screen.getByText('tour.emptyLink')).toBeInTheDocument();
+  });
+
+  // Design §B1: below the editor's real 1280px gate, Tutorial explains
+  // instead of creating a draft that can't be opened.
+  it('shows the narrow-screen notice instead of creating a draft below the width gate', async () => {
+    mockList(rows);
+    mockWide(false);
+    render(<BlueprintsPage />);
+    await userEvent.click(screen.getAllByRole('button', { name: 'tour.entry' })[0]);
+    expect(createTutorial).not.toHaveBeenCalled();
+    expect(screen.getByText('tour.smallScreen.title')).toBeInTheDocument();
   });
 });
