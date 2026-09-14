@@ -44,25 +44,21 @@ export function PauseAdTakeover({ eventId, paused, onResume, onVisibleChange }: 
     return () => clearTimeout(timer);
   }, [paused]);
 
-  const active = paused && visibleFor > 0;
+  // "Eligible to show" (real 2s+ pause), not "showing" — only TakeoverAd
+  // knows whether the serve returned an ad, so it owns onVisibleChange.
+  const eligible = paused && visibleFor > 0;
 
-  // Reports upward so the player can shrink the video card / hide its header.
-  // Fires on every change (including unmount, via the cleanup) so the layout
-  // never gets stuck shrunk if this component goes away mid-takeover.
-  useEffect(() => {
-    onVisibleChange(active);
-    return () => onVisibleChange(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active]);
-
-  return (
-    <>
-      {active && <TakeoverAd key={visibleFor} eventId={eventId} onResume={onResume} />}
-    </>
-  );
+  if (!eligible) return null;
+  return <TakeoverAd key={visibleFor} eventId={eventId} onResume={onResume} onVisibleChange={onVisibleChange} />;
 }
 
-function TakeoverAd({ eventId, onResume }: { eventId: string; onResume: () => void }) {
+interface TakeoverAdProps {
+  eventId: string;
+  onResume: () => void;
+  onVisibleChange: (visible: boolean) => void;
+}
+
+function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
   const impressionFired = useRef(false);
 
   const { data: ads } = useQuery({
@@ -79,6 +75,18 @@ function TakeoverAd({ eventId, onResume }: { eventId: string; onResume: () => vo
       impressionFired.current = true;
       advertisementsService.recordImpression(ad.servedId);
     }
+  }, [ad]);
+
+  // Shrink the video / hide the header only while a real ad is on screen —
+  // an empty serve or a failed request must not touch the layout. Cleanup
+  // fires false on resume/unmount so the player can never get stuck shrunk.
+  const onVisibleChangeRef = useRef(onVisibleChange);
+  useEffect(() => {
+    onVisibleChangeRef.current = onVisibleChange;
+  });
+  useEffect(() => {
+    onVisibleChangeRef.current(Boolean(ad));
+    return () => onVisibleChangeRef.current(false);
   }, [ad]);
 
   if (!ad) return null;

@@ -54,7 +54,10 @@ function renderTakeover(props: Partial<Parameters<typeof PauseAdTakeover>[0]> & 
 // suite. Fake timers keep these instant; none of them need the served ad's
 // content to have loaded, only whether the takeover mounts at all.
 describe('PauseAdTakeover timing', () => {
-  beforeEach(() => vi.useFakeTimers());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+  });
   afterEach(() => vi.useRealTimers());
 
   it('shows nothing while playing', () => {
@@ -68,13 +71,14 @@ describe('PauseAdTakeover timing', () => {
     expect(screen.queryByText('Great Ad')).toBeNull();
   });
 
-  it('shows the takeover 2s after a pause transition, not before', () => {
+  it('does not request an ad before the 2s pause delay', () => {
     const { rerenderWith, onVisibleChange } = renderTakeover({ paused: false });
     rerenderWith(true);
     act(() => vi.advanceTimersByTime(1999));
+    expect(mockedService.serve).not.toHaveBeenCalled();
     expect(onVisibleChange).not.toHaveBeenCalledWith(true);
     act(() => vi.advanceTimersByTime(1));
-    expect(onVisibleChange).toHaveBeenLastCalledWith(true);
+    expect(mockedService.serve).toHaveBeenCalledTimes(1);
   });
 
   it('hides immediately on resume', () => {
@@ -100,8 +104,21 @@ describe('PauseAdTakeover content', () => {
   }
 
   it('renders the takeover after the pause delay with the served ad', async () => {
-    await pauseAndWaitForAd();
+    const { onVisibleChange } = await pauseAndWaitForAd();
     expect(screen.getByText('Great Ad')).toBeInTheDocument();
+    expect(onVisibleChange).toHaveBeenLastCalledWith(true);
+  }, 4000);
+
+  // Replay with no PLAYER_PAUSE ad registered: the serve returns [] and the
+  // player must not shrink the video / hide its header / show the chip.
+  it('never reports visible when the serve returns no ad', async () => {
+    const utils = renderTakeover({ paused: false });
+    mockedService.serve.mockResolvedValue([]);
+    utils.rerenderWith(true);
+    await waitFor(() => expect(mockedService.serve).toHaveBeenCalledTimes(1), { timeout: 3000 });
+    await act(() => new Promise((r) => setTimeout(r, 50)));
+    expect(utils.onVisibleChange).not.toHaveBeenCalledWith(true);
+    expect(screen.queryByText('PATROCINADO')).toBeNull();
   }, 4000);
 
   it('"Fechar anúncio" calls onResume', async () => {
