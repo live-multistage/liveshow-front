@@ -2230,7 +2230,19 @@
           "personalNotAllowed": "dado pessoal",
           "dedupeHelp": "Evita duas execuções para a mesma pessoa e evento. Ex.: {example}",
           "jsonNeedsTransform": "tipo diferente (json — use Transformar)",
-          "errorPortSection": "Disponível na porta erro"
+          "errorPortSection": "Disponível na porta erro",
+          "durationUnit": {
+            "m": "min",
+            "h": "h",
+            "d": "dias"
+          },
+          "addHeader": "+ Adicionar header",
+          "secretsManage": "Gerenciar segredos →",
+          "headerName": "Nome do header",
+          "headerValue": "Valor do header",
+          "noSecrets": "Nenhum segredo cadastrado",
+          "headerLimit": "Até {max} itens",
+          "removeRow": "Remover"
         },
         "classification": {
           "PUBLIC": "Público",

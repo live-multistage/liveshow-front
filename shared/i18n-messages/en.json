@@ -2230,7 +2230,19 @@
           "personalNotAllowed": "personal data",
           "dedupeHelp": "Prevents two runs for the same person and event. E.g.: {example}",
           "jsonNeedsTransform": "different type (json — use Transform)",
-          "errorPortSection": "Available on the error port"
+          "errorPortSection": "Available on the error port",
+          "durationUnit": {
+            "m": "min",
+            "h": "hr",
+            "d": "days"
+          },
+          "addHeader": "+ Add header",
+          "secretsManage": "Manage secrets →",
+          "headerName": "Header name",
+          "headerValue": "Header value",
+          "noSecrets": "No secrets registered",
+          "headerLimit": "Up to {max} items",
+          "removeRow": "Remove"
         },
         "classification": {
           "PUBLIC": "Public",

@@ -2,13 +2,18 @@
 
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import type { BlueprintCatalogEntry, BlueprintConfigField } from '@live-show/api-contracts';
+import type { BlueprintCatalogEntry, BlueprintConfigField, BlueprintKeyValue } from '@live-show/api-contracts';
 import { Input } from '@live-show/design-system';
 import { ChoiceSelect } from '../../../mailing/components/BlockInspector';
 import type { AvailableField } from '../useEditorGraph';
 import { sameType, typeLabel } from '../field-types';
+import { BooleanField } from './BooleanField';
 import { ConditionBuilder } from './ConditionBuilder';
+import { DurationField } from './DurationField';
+import { KeyValueListField } from './KeyValueListField';
+import { NumberField } from './NumberField';
 import { RefSelect } from './RefSelect';
+import { SecretSelect } from './SecretSelect';
 import { TemplateSelect } from './TemplateSelect';
 import { TextTemplateField } from './TextTemplateField';
 import { IfPastRadio, WaitUntilBuilder } from './WaitUntilBuilder';
@@ -90,6 +95,40 @@ export function ConfigField({ nodeId, entry, name, spec, value, fields, onChange
     case 'condition':
       label = t('editor.inspector.rules');
       control = <ConditionBuilder id={id} value={value} fields={fields} onChange={onChange} />;
+      break;
+    case 'number':
+      return (
+        <NumberField
+          id={id}
+          label={spec.description}
+          value={typeof value === 'number' ? value : undefined}
+          min={spec.min}
+          max={spec.max}
+          onChange={onChange}
+        />
+      );
+    case 'boolean':
+      return (
+        <BooleanField id={id} label={spec.description} value={typeof value === 'boolean' ? value : undefined} onChange={onChange} />
+      );
+    case 'duration':
+      return (
+        <DurationField id={id} label={spec.description} value={typeof value === 'string' ? value : undefined} onChange={onChange} />
+      );
+    case 'keyValueList':
+      return (
+        <KeyValueListField
+          id={id}
+          label={spec.description}
+          value={Array.isArray(value) ? (value as BlueprintKeyValue[]) : undefined}
+          maxItems={spec.maxItems}
+          fields={fields}
+          allowSecrets={entry.secretFields?.includes(name) ?? false}
+          onChange={onChange}
+        />
+      );
+    case 'secret':
+      control = <SecretSelect id={id} value={text} onChange={setText} />;
       break;
   }
 

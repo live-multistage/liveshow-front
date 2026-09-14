@@ -12,6 +12,7 @@ export const blueprintKeys = {
   // A bare prefix (no status) so mutations can invalidate every filter chip's
   // cached pages at once; the query itself appends the status below.
   runs: (id: string) => [...blueprintKeys.all, 'runs', id] as const,
+  secrets: () => [...blueprintKeys.all, 'secrets'] as const,
 };
 
 export function useBlueprintsQuery() {

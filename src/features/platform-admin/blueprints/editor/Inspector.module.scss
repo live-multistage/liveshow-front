@@ -84,6 +84,26 @@ $field-border: rgba(255, 255, 255, .1);
 .chipTested { background: $success-bg; color: $success-light; }
 .typeChip { background: rgba(255, 255, 255, .06); color: #a1a1aa; }
 
+// ── Number / boolean / duration ────────────────────────────────────────────
+.switchRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.durationRow { display: flex; align-items: center; gap: 8px; > * { flex: 1; min-width: 0; } }
+
+// ── Key/value list (headers, etc.) ─────────────────────────────────────────
+.headerRows { display: flex; flex-direction: column; gap: 7px; margin-bottom: 9px; }
+.headerRow { display: flex; align-items: center; gap: 6px; }
+.headerName { width: 40%; flex: none; }
+.headerValue { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; }
+.headerValue > input { flex: 1; min-width: 0; }
+.secretChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(234, 179, 8, .14);
+  color: #facc15;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
 .linkBtn {
   align-self: flex-start;
   background: none;
