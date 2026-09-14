@@ -2013,7 +2013,8 @@
       "status": {
         "ACTIVE": "Ativo",
         "INACTIVE": "Inativo",
-        "INVALID": "Inválido"
+        "INVALID": "Inválido",
+        "invalidTooltip": "Um nó usado pela versão ativa não existe mais no catálogo. Nenhuma execução nova começa."
       },
       "columns": {
         "name": "Nome",
@@ -2030,7 +2031,7 @@
         "importHint": "Cole o grafo do blueprint. Salvar cria um rascunho e roda a análise.",
         "invalidJson": "JSON inválido.",
         "save": "Salvar rascunho",
-        "export": "Copiar JSON",
+        "export": "Exportar JSON",
         "copied": "JSON copiado.",
         "versions": "Versões",
         "draft": "Rascunho",
@@ -2042,7 +2043,23 @@
         "analysisOk": "Análise sem erros.",
         "analysisErrors": "Erros da análise",
         "runs": "Execuções recentes",
-        "noRuns": "Nenhuma execução ainda."
+        "noRuns": "Nenhuma execução ainda.",
+        "importSubmit": "Validar e salvar rascunho",
+        "openEditor": "Abrir editor",
+        "versionNoErrors": "Sem erros",
+        "versionErrorCount": "{count} erros",
+        "viewInEditor": "Ver no editor →",
+        "updatedAgo": "atualizado há {seconds} s",
+        "allRuns": "Todas",
+        "loadMore": "Carregar mais",
+        "notFound": "Blueprint não encontrado.",
+        "activeVersionBadge": "ativa v{version}",
+        "moreActions": "Mais ações",
+        "duplicate": "Duplicar versão ativa como rascunho",
+        "deactivateConfirmTitle": "Desativar este blueprint?",
+        "deactivateConfirmBody": "As execuções que estão esperando serão canceladas.",
+        "deactivatedToast": "Blueprint desativado · {count} execuções canceladas",
+        "invalidBanner": "Este blueprint está inválido: a versão ativa usa um nó que não existe mais. Publique uma nova versão."
       },
       "runColumns": {
         "status": "Status",
@@ -2079,7 +2096,55 @@
         "NOT_PUBLISHED": "Só versões publicadas podem ser ativadas",
         "GENERIC": "Não foi possível concluir. Tente novamente."
       },
-      "group": "OPERACIONAL"
+      "group": "OPERACIONAL",
+      "errorState": "Não foi possível carregar os blueprints.",
+      "retry": "Tentar de novo",
+      "emptyHint": "Crie o primeiro para automatizar lembretes de eventos.",
+      "flagOffBanner": "<strong>Execuções desligadas</strong> — a flag <mono>blueprints</mono> está desligada. Você pode criar e publicar, mas nada roda até ligar em Configurações.",
+      "newDialog": {
+        "hint": "Dê um nome para começar.",
+        "namePlaceholder": "Ex.: Lembrete — quem comprou",
+        "descriptionLabel": "Descrição (opcional)",
+        "descriptionPlaceholder": "Para que serve esta automação…",
+        "cancel": "Cancelar"
+      },
+      "kpis": {
+        "started": "Iniciadas (7d)",
+        "completed": "Concluídas",
+        "cancelled": "Canceladas",
+        "failed": "Falhas"
+      },
+      "runColumns2": {
+        "status": "Status",
+        "version": "Versão",
+        "node": "Nó",
+        "meta": "Criada / acorda"
+      },
+      "drawer": {
+        "title": "Detalhes da execução",
+        "close": "Fechar",
+        "wakeAt": "Acorda em {datetime}",
+        "cancelledBanner": "Cancelada: o evento foi cancelado ou o blueprint foi desativado.",
+        "noSteps": "Nenhum passo registrado ainda.",
+        "result": {
+          "OK": "OK",
+          "SKIPPED": "Pulado",
+          "FAILED": "Falhou"
+        },
+        "openEditor": "Abrir no editor →"
+      },
+      "runOutcome": {
+        "WAITING": "Aguardando",
+        "TRUE": "Condição: verdadeiro",
+        "FALSE": "Condição: falso",
+        "ENQUEUED": "Enviada para a fila",
+        "SENT": "Enviado",
+        "SKIPPED_PREFERENCE": "Pulado: preferência desligada",
+        "SKIPPED_CAP": "Pulado: limite diário de e-mails",
+        "SKIPPED_UNVERIFIED": "Pulado: e-mail não verificado",
+        "NOT_FOUND": "Dado não encontrado",
+        "PAST_END": "Horário já tinha passado — encerrado"
+      }
     }
   },
   "reports": {

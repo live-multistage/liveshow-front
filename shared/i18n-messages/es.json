@@ -2013,7 +2013,8 @@
       "status": {
         "ACTIVE": "Activo",
         "INACTIVE": "Inactivo",
-        "INVALID": "Inválido"
+        "INVALID": "Inválido",
+        "invalidTooltip": "Un nodo usado por la versión activa ya no existe en el catálogo. No comienzan ejecuciones nuevas."
       },
       "columns": {
         "name": "Nombre",
@@ -2030,7 +2031,7 @@
         "importHint": "Pega el grafo del blueprint. Guardar crea un borrador y ejecuta el análisis.",
         "invalidJson": "JSON inválido.",
         "save": "Guardar borrador",
-        "export": "Copiar JSON",
+        "export": "Exportar JSON",
         "copied": "JSON copiado.",
         "versions": "Versiones",
         "draft": "Borrador",
@@ -2042,7 +2043,23 @@
         "analysisOk": "Análisis sin errores.",
         "analysisErrors": "Errores del análisis",
         "runs": "Ejecuciones recientes",
-        "noRuns": "Todavía no hay ejecuciones."
+        "noRuns": "Todavía no hay ejecuciones.",
+        "importSubmit": "Validar y guardar borrador",
+        "openEditor": "Abrir editor",
+        "versionNoErrors": "Sin errores",
+        "versionErrorCount": "{count} errores",
+        "viewInEditor": "Ver en el editor →",
+        "updatedAgo": "actualizado hace {seconds} s",
+        "allRuns": "Todas",
+        "loadMore": "Cargar más",
+        "notFound": "Blueprint no encontrado.",
+        "activeVersionBadge": "activa v{version}",
+        "moreActions": "Más acciones",
+        "duplicate": "Duplicar versión activa como borrador",
+        "deactivateConfirmTitle": "¿Desactivar este blueprint?",
+        "deactivateConfirmBody": "Las ejecuciones que están esperando se cancelarán.",
+        "deactivatedToast": "Blueprint desactivado · {count} ejecuciones canceladas",
+        "invalidBanner": "Este blueprint está inválido: la versión activa usa un nodo que ya no existe. Publica una nueva versión."
       },
       "runColumns": {
         "status": "Estado",
@@ -2079,7 +2096,55 @@
         "NOT_PUBLISHED": "Solo las versiones publicadas pueden activarse",
         "GENERIC": "No se pudo completar. Inténtalo de nuevo."
       },
-      "group": "OPERACIONES"
+      "group": "OPERACIONES",
+      "errorState": "No se pudieron cargar los blueprints.",
+      "retry": "Intentar de nuevo",
+      "emptyHint": "Crea el primero para automatizar recordatorios de eventos.",
+      "flagOffBanner": "<strong>Ejecuciones desactivadas</strong> — la flag <mono>blueprints</mono> está desactivada. Puedes crear y publicar, pero nada se ejecuta hasta activarla en Configuración.",
+      "newDialog": {
+        "hint": "Ponle un nombre para empezar.",
+        "namePlaceholder": "Ej.: Recordatorio — quien compró",
+        "descriptionLabel": "Descripción (opcional)",
+        "descriptionPlaceholder": "Para qué sirve esta automatización…",
+        "cancel": "Cancelar"
+      },
+      "kpis": {
+        "started": "Iniciadas (7d)",
+        "completed": "Completadas",
+        "cancelled": "Canceladas",
+        "failed": "Fallidas"
+      },
+      "runColumns2": {
+        "status": "Estado",
+        "version": "Versión",
+        "node": "Nodo",
+        "meta": "Creada / despierta"
+      },
+      "drawer": {
+        "title": "Detalles de la ejecución",
+        "close": "Cerrar",
+        "wakeAt": "Despierta a las {datetime}",
+        "cancelledBanner": "Cancelada: el evento fue cancelado o el blueprint fue desactivado.",
+        "noSteps": "Todavía no hay pasos registrados.",
+        "result": {
+          "OK": "OK",
+          "SKIPPED": "Omitido",
+          "FAILED": "Falló"
+        },
+        "openEditor": "Abrir en el editor →"
+      },
+      "runOutcome": {
+        "WAITING": "Esperando",
+        "TRUE": "Condición: verdadero",
+        "FALSE": "Condición: falso",
+        "ENQUEUED": "Enviada a la cola",
+        "SENT": "Enviado",
+        "SKIPPED_PREFERENCE": "Omitido: preferencia desactivada",
+        "SKIPPED_CAP": "Omitido: límite diario de correos",
+        "SKIPPED_UNVERIFIED": "Omitido: correo no verificado",
+        "NOT_FOUND": "Dato no encontrado",
+        "PAST_END": "El horario ya había pasado — terminado"
+      }
     }
   },
   "reports": {

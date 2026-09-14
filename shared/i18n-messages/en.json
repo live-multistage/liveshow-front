@@ -2013,7 +2013,8 @@
       "status": {
         "ACTIVE": "Active",
         "INACTIVE": "Inactive",
-        "INVALID": "Invalid"
+        "INVALID": "Invalid",
+        "invalidTooltip": "A node used by the active version no longer exists in the catalog. No new runs start."
       },
       "columns": {
         "name": "Name",
@@ -2030,7 +2031,7 @@
         "importHint": "Paste the blueprint graph. Saving creates a draft and runs the analysis.",
         "invalidJson": "Invalid JSON.",
         "save": "Save draft",
-        "export": "Copy JSON",
+        "export": "Export JSON",
         "copied": "JSON copied.",
         "versions": "Versions",
         "draft": "Draft",
@@ -2042,7 +2043,23 @@
         "analysisOk": "Analysis has no errors.",
         "analysisErrors": "Analysis errors",
         "runs": "Recent runs",
-        "noRuns": "No runs yet."
+        "noRuns": "No runs yet.",
+        "importSubmit": "Validate and save draft",
+        "openEditor": "Open editor",
+        "versionNoErrors": "No errors",
+        "versionErrorCount": "{count} errors",
+        "viewInEditor": "View in editor →",
+        "updatedAgo": "updated {seconds}s ago",
+        "allRuns": "All",
+        "loadMore": "Load more",
+        "notFound": "Blueprint not found.",
+        "activeVersionBadge": "active v{version}",
+        "moreActions": "More actions",
+        "duplicate": "Duplicate active version as draft",
+        "deactivateConfirmTitle": "Deactivate this blueprint?",
+        "deactivateConfirmBody": "Runs that are waiting will be cancelled.",
+        "deactivatedToast": "Blueprint deactivated · {count} runs cancelled",
+        "invalidBanner": "This blueprint is invalid: the active version uses a node that no longer exists. Publish a new version."
       },
       "runColumns": {
         "status": "Status",
@@ -2079,7 +2096,55 @@
         "NOT_PUBLISHED": "Only published versions can be activated",
         "GENERIC": "Could not complete. Please try again."
       },
-      "group": "OPERATIONS"
+      "group": "OPERATIONS",
+      "errorState": "Could not load blueprints.",
+      "retry": "Try again",
+      "emptyHint": "Create the first one to automate event reminders.",
+      "flagOffBanner": "<strong>Runs are off</strong> — the <mono>blueprints</mono> flag is off. You can create and publish, but nothing runs until it's turned on in Settings.",
+      "newDialog": {
+        "hint": "Give it a name to get started.",
+        "namePlaceholder": "E.g.: Reminder — who bought",
+        "descriptionLabel": "Description (optional)",
+        "descriptionPlaceholder": "What this automation is for…",
+        "cancel": "Cancel"
+      },
+      "kpis": {
+        "started": "Started (7d)",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "failed": "Failed"
+      },
+      "runColumns2": {
+        "status": "Status",
+        "version": "Version",
+        "node": "Node",
+        "meta": "Created / wakes"
+      },
+      "drawer": {
+        "title": "Run details",
+        "close": "Close",
+        "wakeAt": "Wakes at {datetime}",
+        "cancelledBanner": "Cancelled: the event was cancelled or the blueprint was deactivated.",
+        "noSteps": "No steps recorded yet.",
+        "result": {
+          "OK": "OK",
+          "SKIPPED": "Skipped",
+          "FAILED": "Failed"
+        },
+        "openEditor": "Open in editor →"
+      },
+      "runOutcome": {
+        "WAITING": "Waiting",
+        "TRUE": "Condition: true",
+        "FALSE": "Condition: false",
+        "ENQUEUED": "Queued for delivery",
+        "SENT": "Sent",
+        "SKIPPED_PREFERENCE": "Skipped: preference off",
+        "SKIPPED_CAP": "Skipped: daily email cap",
+        "SKIPPED_UNVERIFIED": "Skipped: email not verified",
+        "NOT_FOUND": "Data not found",
+        "PAST_END": "Time had already passed — ended"
+      }
     }
   },
   "reports": {
