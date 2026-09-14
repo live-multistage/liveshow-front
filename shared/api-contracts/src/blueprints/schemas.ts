@@ -17,7 +17,7 @@ export const blueprintGraphSchema = z
       )
       .min(1)
       .max(50),
-    edges: z.array(z.object({ from: nodeId, to: nodeId, port: z.enum(['true', 'false']).optional() })).max(200),
+    edges: z.array(z.object({ from: nodeId, to: nodeId, port: z.string().regex(/^[a-z][a-z0-9_]{0,31}$/i).optional() })).max(200),
   })
   .superRefine((g, ctx) => {
     const ids = new Set<string>();

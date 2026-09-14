@@ -1,4 +1,5 @@
-export type BlueprintFieldType = 'string' | 'number' | 'boolean' | 'datetime' | 'uuid' | 'url';
+export type BlueprintScalarType = 'string' | 'number' | 'boolean' | 'datetime' | 'uuid' | 'url' | 'json';
+export type BlueprintFieldType = BlueprintScalarType | { list: BlueprintFieldType } | { object: Record<string, BlueprintOutputField> };
 export type BlueprintFieldClass = 'PUBLIC' | 'INTERNAL' | 'PERSONAL';
 export type BlueprintNodeKind = 'trigger' | 'data' | 'action' | 'core';
 
@@ -9,7 +10,7 @@ export interface BlueprintNodeInstance {
   config: Record<string, unknown>;
   position?: { x: number; y: number };
 }
-export interface BlueprintEdge { from: string; to: string; port?: 'true' | 'false' }
+export interface BlueprintEdge { from: string; to: string; port?: string }
 export interface BlueprintGraph { schemaVersion: 1; nodes: BlueprintNodeInstance[]; edges: BlueprintEdge[] }
 
 export type BlueprintConfigField =
@@ -18,9 +19,14 @@ export type BlueprintConfigField =
   | { kind: 'enum'; values: string[]; required: boolean; description: string }
   | { kind: 'uuid'; required: boolean; description: string }
   | { kind: 'datetimeExpr'; required: boolean; description: string }
-  | { kind: 'condition'; required: boolean; description: string };
+  | { kind: 'condition'; required: boolean; description: string }
+  | { kind: 'number'; required: boolean; description: string; min?: number; max?: number }
+  | { kind: 'boolean'; required: boolean; description: string }
+  | { kind: 'duration'; required: boolean; description: string }
+  | { kind: 'keyValueList'; required: boolean; description: string; template: boolean; maxItems: number }
+  | { kind: 'secret'; required: boolean; description: string };
 
-export interface BlueprintOutputField { type: BlueprintFieldType; class: BlueprintFieldClass; description: string }
+export interface BlueprintOutputField { type: BlueprintFieldType; class: BlueprintFieldClass; description: string; port?: string }
 
 export interface BlueprintCatalogEntry {
   key: string;
@@ -31,14 +37,17 @@ export interface BlueprintCatalogEntry {
   config: Record<string, BlueprintConfigField>;
   outputs: Record<string, BlueprintOutputField>;
   event?: string;
-  ports?: Array<'true' | 'false'>;
+  ports?: string[];
+  optionalPorts?: string[];
+  mode?: 'dispatch' | 'call';
+  secretFields?: string[];
 }
 
 export type BlueprintAnalysisCode =
   | 'INVALID_GRAPH' | 'NO_TRIGGER' | 'MULTIPLE_TRIGGERS' | 'UNREACHABLE_NODE' | 'CYCLE'
   | 'DANGLING_PATH' | 'CONDITION_PORTS' | 'UNKNOWN_NODE' | 'INVALID_CONFIG' | 'BAD_REFERENCE'
   | 'TYPE_MISMATCH' | 'RESTRICTED_FIELD' | 'PERSONAL_NOT_ALLOWED' | 'MISSING_DEDUPE_KEY'
-  | 'WAIT_TOO_LONG' | 'TOO_MANY_NODES';
+  | 'WAIT_TOO_LONG' | 'TOO_MANY_NODES' | 'PORT_EDGES' | 'SECRET_NOT_ALLOWED' | 'JSON_PATH';
 export interface BlueprintAnalysisError { nodeId?: string; code: BlueprintAnalysisCode; message: string }
 export interface BlueprintAnalysis { ok: boolean; errors: BlueprintAnalysisError[] }
 
@@ -90,3 +99,7 @@ export interface BlueprintRunsPage { items: BlueprintRunDto[]; nextCursor: strin
 export interface CreateBlueprintRequest { name: string; description?: string }
 export interface SaveBlueprintVersionRequest { graph: BlueprintGraph }
 export interface ActivateBlueprintRequest { versionId: string }
+
+export interface BlueprintSecretSummary { name: string; updatedAt: string }
+export interface SetBlueprintSecretRequest { value: string }
+export interface BlueprintKeyValue { name: string; value: string }
