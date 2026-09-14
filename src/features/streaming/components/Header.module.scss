@@ -89,6 +89,13 @@
   animation: pulse 1.2s ease-in-out infinite;
 }
 
+.replayBadge {
+  color: $text-secondary;
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
 .title {
   font-family: var(--font-archivo), 'Archivo', sans-serif;
   font-size: 0.875rem;

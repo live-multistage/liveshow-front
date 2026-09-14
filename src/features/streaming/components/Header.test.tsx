@@ -26,6 +26,8 @@ vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
 
 const baseProps = {
+  badge: 'live' as const,
+  cameraStripOpen: false,
   eventId: 'evt-1',
   metaLine: 'Palco principal',
   stages: [],
@@ -71,5 +73,28 @@ describe('Header — stays clear of the camera drawer', () => {
     const headerRule = scss.slice(scss.indexOf('.header {'), scss.indexOf('.headerHidden'));
     expect(headerRule).toMatch(/pointer-events:\s*none/);
     expect(headerRule).toMatch(/button,\s*\n\s*a\s*\{\s*\n\s*pointer-events:\s*auto/);
+  });
+});
+
+describe('Header — badge and optional live-only chrome', () => {
+  it('renders the REPLAY badge for replay and no viewer count', () => {
+    const { getByText, queryByText, container } = render(
+      <Header {...baseProps} badge="replay" currentViewers={undefined} />,
+    );
+    expect(getByText('REPLAY')).toBeTruthy();
+    expect(queryByText('AO VIVO')).toBeNull();
+    expect(container.querySelector('svg.lucide-users')).toBeNull();
+  });
+
+  it('renders AO VIVO for live', () => {
+    const { getByText } = render(<Header {...baseProps} badge="live" />);
+    expect(getByText('AO VIVO')).toBeTruthy();
+  });
+
+  it('omits the chat button when chat is disabled', () => {
+    const { queryByTitle } = render(
+      <Header {...baseProps} badge="replay" chatEnabled={false} chatOpen={undefined} onToggleChat={undefined} chatMessageCount={undefined} />,
+    );
+    expect(queryByTitle('toggleChat')).toBeNull();
   });
 });

@@ -16,6 +16,8 @@ interface Props {
   // drawer's close/mode buttons and swallowing their clicks (see
   // CameraGrid's DRAWER_W — the single source for that width).
   style?: CSSProperties;
+  // AO VIVO (lit dot) for live/channel, static REPLAY chip for replay.
+  badge: 'live' | 'replay';
   eventId: string;
   eventTitle?: string;
   metaLine: string;
@@ -23,14 +25,15 @@ interface Props {
   activeStageId: string;
   onStageChange: (stageId: string) => void;
   onExit: () => void;
-  currentViewers: number;
+  // Live-only: hidden when undefined (replay) or 0.
+  currentViewers?: number;
   cameraCount: number;
   cameraStripOpen: boolean;
   onToggleCameraStrip: () => void;
   chatEnabled: boolean;
-  chatOpen: boolean;
-  onToggleChat: () => void;
-  chatMessageCount: number;
+  chatOpen?: boolean;
+  onToggleChat?: () => void;
+  chatMessageCount?: number;
   onShare: () => void;
 }
 
@@ -44,6 +47,7 @@ function fmtCompact(v: number): string {
 export function Header({
   className,
   style,
+  badge,
   eventId,
   eventTitle,
   metaLine,
@@ -56,9 +60,9 @@ export function Header({
   cameraStripOpen,
   onToggleCameraStrip,
   chatEnabled,
-  chatOpen,
+  chatOpen = false,
   onToggleChat,
-  chatMessageCount,
+  chatMessageCount = 0,
   onShare,
 }: Props) {
   const t = useTranslations('player');
@@ -69,10 +73,14 @@ export function Header({
       </button>
 
       <div className={styles.titleGroup}>
-        <span className={styles.liveBadge}>
-          <span className={styles.liveDot} />
-          AO VIVO
-        </span>
+        {badge === 'live' ? (
+          <span className={styles.liveBadge}>
+            <span className={styles.liveDot} />
+            AO VIVO
+          </span>
+        ) : (
+          <span className={styles.replayBadge}>REPLAY</span>
+        )}
         <div>
           {eventTitle && <div className={styles.title}>{eventTitle}</div>}
           <div className={styles.meta}>{metaLine}</div>
@@ -99,7 +107,7 @@ export function Header({
       )}
 
       <div className={styles.right}>
-        {currentViewers > 0 && (
+        {currentViewers != null && currentViewers > 0 && (
           <div className={styles.viewerBadge}>
             <Users size={12} />
             {fmtCompact(currentViewers)}

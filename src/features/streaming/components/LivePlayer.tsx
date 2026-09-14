@@ -236,6 +236,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
         // still hit-testable) right edge of the bar sitting over the
         // drawer's close/mode buttons and swallowing their clicks.
         style={cameraStripOpen ? { right: DRAWER_W } : undefined}
+        badge="live"
         eventId={eventId}
         eventTitle={title}
         metaLine={metaLine}
