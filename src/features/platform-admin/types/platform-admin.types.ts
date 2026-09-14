@@ -194,6 +194,7 @@ export interface ImpersonationSession {
 export interface PlatformSettingsView {
   defaultFeeRate: number;
   cartTaxRate: number;
+  blueprintHttpAllowlist: string[];
 }
 
 // Audit trail entry (GET /platform-admin/audit).

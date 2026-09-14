@@ -65,7 +65,13 @@ function AuditRailRow({ entry, locale }: { entry: AuditLogEntry; locale: string 
       ? t(enabled ? 'on' : 'off')
       : entry.action === 'FEE_RATE_SET'
         ? t('feeChanged', { to: typeof entry.metadata?.rate === 'number' ? ratePct(entry.metadata.rate) : '—' })
-        : t('feeOverride');
+        : entry.action === 'BLUEPRINT_HTTP_ALLOWLIST_SET'
+          ? t('httpAllowlistSet')
+          : entry.action === 'BLUEPRINT_SECRET_SET'
+            ? t('secretSet')
+            : entry.action === 'BLUEPRINT_SECRET_DELETED'
+              ? t('secretDeleted')
+              : t('feeOverride');
 
   return (
     <div className={styles.auditRow}>

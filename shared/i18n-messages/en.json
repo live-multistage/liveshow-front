@@ -1677,12 +1677,42 @@
         "off": "disabled",
         "feeChanged": "changed to {to}",
         "feeOverride": "fee override",
-        "empty": "No recent changes."
+        "empty": "No recent changes.",
+        "httpAllowlistSet": "HTTP allowlist updated",
+        "secretSet": "secret set",
+        "secretDeleted": "secret deleted"
       },
       "how": {
         "eyebrow": "HOW IT WORKS",
         "text": "Global flags apply to all organizations. Changes take effect within 60 seconds and require no deploy. Flags marked as <risky>payment-impacting</risky> require confirmation.",
         "link": "Per-organization overrides"
+      },
+      "blueprintsHttp": {
+        "title": "Blueprints · HTTP",
+        "description": "Hosts the HTTP Request action can call and secrets used in headers.",
+        "allowlistLabel": "HOST ALLOWLIST",
+        "addHost": "+ Add",
+        "addHostPlaceholder": "add host",
+        "allowlistHelp": "Empty = no request is allowed.",
+        "allowlistEmpty": "No host allowed",
+        "secretsTitle": "SECRETS",
+        "name": "NAME",
+        "updatedAt": "UPDATED",
+        "actions": "ACTIONS",
+        "define": "Set secret",
+        "replace": "Replace",
+        "remove": "Remove",
+        "confirmRemove": "Confirm removal",
+        "secretsEmpty": "No secrets",
+        "valueLabel": "VALUE",
+        "show": "show",
+        "hide": "hide",
+        "valueNeverShown": "The value is never shown again after saving.",
+        "nameHelp": "Uppercase letters, numbers and _",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saved": "Secret saved.",
+        "error": "Could not save. Try again."
       }
     },
     "fiscal": {

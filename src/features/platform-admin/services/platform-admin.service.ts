@@ -78,6 +78,11 @@ export const platformAdminService = {
     return data;
   },
 
+  setBlueprintHttpAllowlist: async (hosts: string[]): Promise<PlatformSettingsView> => {
+    const { data } = await httpClient.patch<PlatformSettingsView>('/platform-settings/blueprint-http-allowlist', { hosts });
+    return data;
+  },
+
   getGlobalFlags: async (): Promise<Record<string, boolean>> => {
     const { data } = await httpClient.get<Record<string, boolean>>('/feature-flags');
     return data;

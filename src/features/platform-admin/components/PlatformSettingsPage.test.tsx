@@ -60,6 +60,7 @@ import { PlatformSettingsPage } from './PlatformSettingsPage';
 import {
   usePlatformSettingsQuery,
   useSetDefaultFeeRateMutation,
+  useSetBlueprintHttpAllowlistMutation,
   useLastFeeChangeQuery,
   useGlobalFlagsQuery,
   useSetGlobalFlagMutation,
@@ -68,17 +69,27 @@ import {
 } from '../queries/get-settings';
 import { useFiscalIssuerQuery } from '../queries/get-fiscal-issuer';
 import { useUpdateFiscalIssuerMutation } from '../mutations/update-fiscal-issuer.mutation';
+import { useBlueprintSecretsQuery } from '../blueprints/queries/blueprint-secrets.queries';
+import { useSetBlueprintSecretMutation, useDeleteBlueprintSecretMutation } from '../blueprints/mutations/blueprint-secrets.mutations';
 import type { AuditLogEntry, PlatformSettingsView, FiscalIssuerView } from '../types/platform-admin.types';
+import type { BlueprintSecretSummary } from '@live-show/api-contracts';
+import type { AppError } from '@/lib/http/errors';
 
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock('../queries/get-fiscal-issuer', () => ({ useFiscalIssuerQuery: vi.fn() }));
 vi.mock('../mutations/update-fiscal-issuer.mutation', () => ({ useUpdateFiscalIssuerMutation: vi.fn() }));
+vi.mock('../blueprints/queries/blueprint-secrets.queries', () => ({ useBlueprintSecretsQuery: vi.fn() }));
+vi.mock('../blueprints/mutations/blueprint-secrets.mutations', () => ({
+  useSetBlueprintSecretMutation: vi.fn(),
+  useDeleteBlueprintSecretMutation: vi.fn(),
+}));
 vi.mock('../queries/get-settings', async () => {
   const actual = await vi.importActual<typeof import('../queries/get-settings')>('../queries/get-settings');
   return {
     ...actual,
     usePlatformSettingsQuery: vi.fn(),
     useSetDefaultFeeRateMutation: vi.fn(),
+    useSetBlueprintHttpAllowlistMutation: vi.fn(),
     useLastFeeChangeQuery: vi.fn(),
     useGlobalFlagsQuery: vi.fn(),
     useSetGlobalFlagMutation: vi.fn(),
@@ -89,6 +100,7 @@ vi.mock('../queries/get-settings', async () => {
 
 const mockedSettings = vi.mocked(usePlatformSettingsQuery);
 const mockedSetFee = vi.mocked(useSetDefaultFeeRateMutation);
+const mockedSetAllowlist = vi.mocked(useSetBlueprintHttpAllowlistMutation);
 const mockedLastFeeChange = vi.mocked(useLastFeeChangeQuery);
 const mockedFlags = vi.mocked(useGlobalFlagsQuery);
 const mockedSetFlag = vi.mocked(useSetGlobalFlagMutation);
@@ -96,6 +108,9 @@ const mockedFlagAudit = vi.mocked(useFlagAuditQuery);
 const mockedSettingsAudit = vi.mocked(useSettingsAuditQuery);
 const mockedFiscalIssuer = vi.mocked(useFiscalIssuerQuery);
 const mockedUpdateFiscalIssuer = vi.mocked(useUpdateFiscalIssuerMutation);
+const mockedBlueprintSecrets = vi.mocked(useBlueprintSecretsQuery);
+const mockedSetBlueprintSecret = vi.mocked(useSetBlueprintSecretMutation);
+const mockedDeleteBlueprintSecret = vi.mocked(useDeleteBlueprintSecretMutation);
 
 const FISCAL_ISSUER: FiscalIssuerView = {
   id: 'i1',
@@ -120,10 +135,10 @@ function stubQuery<T>(data: T, extra?: Partial<UseQueryResult<T>>): UseQueryResu
   return { data, isLoading: false, isError: false, ...extra } as unknown as UseQueryResult<T>;
 }
 
-function stubMutation<TData = unknown, TVariables = unknown>(
-  mutate = vi.fn(),
-): UseMutationResult<TData, Error, TVariables> {
-  return { mutate, isPending: false } as unknown as UseMutationResult<TData, Error, TVariables>;
+function stubMutation<TData = unknown, TVariables = unknown, TError = Error>(
+  mutate: (...args: unknown[]) => unknown = vi.fn(),
+): UseMutationResult<TData, TError, TVariables> {
+  return { mutate, isPending: false } as unknown as UseMutationResult<TData, TError, TVariables>;
 }
 
 const FLAGS = {
@@ -168,9 +183,18 @@ function setup(overrides?: {
   auditEntries?: AuditLogEntry[];
 }) {
   mockedSettings.mockReturnValue(
-    stubQuery<PlatformSettingsView>({ defaultFeeRate: 0.035, cartTaxRate: 0.125, ...overrides?.settings }),
+    stubQuery<PlatformSettingsView>({
+      defaultFeeRate: 0.035,
+      cartTaxRate: 0.125,
+      blueprintHttpAllowlist: [],
+      ...overrides?.settings,
+    }),
   );
   mockedSetFee.mockReturnValue(stubMutation<PlatformSettingsView, number>());
+  mockedSetAllowlist.mockReturnValue(stubMutation<PlatformSettingsView, string[]>());
+  mockedBlueprintSecrets.mockReturnValue(stubQuery<BlueprintSecretSummary[]>([]));
+  mockedSetBlueprintSecret.mockReturnValue(stubMutation<void, { name: string; value: string }, AppError>());
+  mockedDeleteBlueprintSecret.mockReturnValue(stubMutation<void, { name: string }, AppError>());
   mockedLastFeeChange.mockReturnValue(
     stubQuery<AuditLogEntry | undefined>(AUDIT_ENTRIES.find((e) => e.action === 'FEE_RATE_SET')),
   );

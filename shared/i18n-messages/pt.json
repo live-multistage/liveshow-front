@@ -1677,12 +1677,42 @@
         "off": "desligada",
         "feeChanged": "alterada para {to}",
         "feeOverride": "override de taxa",
-        "empty": "Nenhuma alteração recente."
+        "empty": "Nenhuma alteração recente.",
+        "httpAllowlistSet": "allowlist HTTP atualizada",
+        "secretSet": "segredo definido",
+        "secretDeleted": "segredo removido"
       },
       "how": {
         "eyebrow": "COMO FUNCIONA",
         "text": "Flags globais valem para todas as organizações. Alterações entram em vigor em até 60 segundos e não exigem deploy. Flags marcadas como <risky>impacta pagamento</risky> pedem confirmação.",
         "link": "Overrides por organização"
+      },
+      "blueprintsHttp": {
+        "title": "Blueprints · HTTP",
+        "description": "Hosts que a ação Requisição HTTP pode chamar e segredos usados em headers.",
+        "allowlistLabel": "ALLOWLIST DE HOSTS",
+        "addHost": "+ Add",
+        "addHostPlaceholder": "adicionar host",
+        "allowlistHelp": "Vazio = nenhuma requisição é permitida.",
+        "allowlistEmpty": "Nenhum host liberado",
+        "secretsTitle": "SEGREDOS",
+        "name": "NOME",
+        "updatedAt": "ATUALIZADO",
+        "actions": "AÇÕES",
+        "define": "Definir segredo",
+        "replace": "Substituir",
+        "remove": "Remover",
+        "confirmRemove": "Confirmar remoção",
+        "secretsEmpty": "Nenhum segredo",
+        "valueLabel": "VALOR",
+        "show": "mostrar",
+        "hide": "ocultar",
+        "valueNeverShown": "O valor nunca é exibido depois de salvo.",
+        "nameHelp": "Letras maiúsculas, números e _",
+        "cancel": "Cancelar",
+        "save": "Salvar",
+        "saved": "Segredo salvo.",
+        "error": "Não foi possível salvar. Tente novamente."
       }
     },
     "fiscal": {

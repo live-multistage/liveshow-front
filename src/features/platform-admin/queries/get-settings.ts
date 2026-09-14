@@ -7,7 +7,14 @@ import type { AuditLogEntry } from '../types/platform-admin.types';
 const SETTINGS_KEY = ['platform-admin', 'settings'] as const;
 const FLAGS_KEY = ['platform-admin', 'global-flags'] as const;
 
-const SETTINGS_AUDIT_ACTIONS = ['FEATURE_FLAG_SET', 'FEE_RATE_SET', 'FEE_OVERRIDE_SET'] as const;
+const SETTINGS_AUDIT_ACTIONS = [
+  'FEATURE_FLAG_SET',
+  'FEE_RATE_SET',
+  'FEE_OVERRIDE_SET',
+  'BLUEPRINT_HTTP_ALLOWLIST_SET',
+  'BLUEPRINT_SECRET_SET',
+  'BLUEPRINT_SECRET_DELETED',
+] as const;
 
 export function usePlatformSettingsQuery() {
   return useQuery({
@@ -25,6 +32,14 @@ export function useSetDefaultFeeRateMutation() {
       qc.invalidateQueries({ queryKey: SETTINGS_KEY });
       qc.invalidateQueries({ queryKey: ['platform-admin', 'last-fee-change'] });
     },
+  });
+}
+
+export function useSetBlueprintHttpAllowlistMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (hosts: string[]) => platformAdminService.setBlueprintHttpAllowlist(hosts),
+    onSuccess: () => qc.invalidateQueries({ queryKey: SETTINGS_KEY }),
   });
 }
 

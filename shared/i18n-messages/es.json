@@ -1677,12 +1677,42 @@
         "off": "desactivada",
         "feeChanged": "cambiada a {to}",
         "feeOverride": "override de tarifa",
-        "empty": "Sin cambios recientes."
+        "empty": "Sin cambios recientes.",
+        "httpAllowlistSet": "lista de hosts HTTP actualizada",
+        "secretSet": "secreto definido",
+        "secretDeleted": "secreto eliminado"
       },
       "how": {
         "eyebrow": "CÓMO FUNCIONA",
         "text": "Las flags globales aplican a todas las organizaciones. Los cambios entran en vigor en hasta 60 segundos y no requieren deploy. Las flags marcadas como <risky>impacta el pago</risky> piden confirmación.",
         "link": "Overrides por organización"
+      },
+      "blueprintsHttp": {
+        "title": "Blueprints · HTTP",
+        "description": "Hosts que la acción de solicitud HTTP puede llamar y secretos usados en encabezados.",
+        "allowlistLabel": "LISTA DE HOSTS PERMITIDOS",
+        "addHost": "+ Añadir",
+        "addHostPlaceholder": "añadir host",
+        "allowlistHelp": "Vacío = ninguna solicitud está permitida.",
+        "allowlistEmpty": "Ningún host permitido",
+        "secretsTitle": "SECRETOS",
+        "name": "NOMBRE",
+        "updatedAt": "ACTUALIZADO",
+        "actions": "ACCIONES",
+        "define": "Definir secreto",
+        "replace": "Reemplazar",
+        "remove": "Eliminar",
+        "confirmRemove": "Confirmar eliminación",
+        "secretsEmpty": "Ningún secreto",
+        "valueLabel": "VALOR",
+        "show": "mostrar",
+        "hide": "ocultar",
+        "valueNeverShown": "El valor nunca se muestra después de guardarlo.",
+        "nameHelp": "Letras mayúsculas, números y _",
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "saved": "Secreto guardado.",
+        "error": "No se pudo guardar. Intenta de nuevo."
       }
     },
     "fiscal": {

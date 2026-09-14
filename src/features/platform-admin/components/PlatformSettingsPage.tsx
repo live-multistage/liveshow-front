@@ -6,6 +6,7 @@ import { Clock } from 'lucide-react';
 import { PlatformPageShell } from './PlatformPageShell';
 import { FeesSection } from './FeesSection';
 import { FiscalIssuerSection } from './FiscalIssuerSection';
+import { BlueprintHttpSection } from './BlueprintHttpSection';
 import { FeatureFlagsSection } from './FeatureFlagsSection';
 import { SettingsAuditRail } from './SettingsAuditRail';
 import styles from './PlatformSettingsPage.module.scss';
@@ -38,6 +39,7 @@ export function PlatformSettingsPage() {
         <div className={styles.main}>
           <FeesSection />
           <FiscalIssuerSection />
+          <BlueprintHttpSection />
           <FeatureFlagsSection />
         </div>
         <SettingsAuditRail />
