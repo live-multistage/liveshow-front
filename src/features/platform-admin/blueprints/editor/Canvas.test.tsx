@@ -14,11 +14,19 @@ import { CATALOG_MAP } from './__fixtures__/catalog';
 import { Canvas } from './Canvas';
 import type { EditorState } from './useEditorGraph';
 
-function renderCanvas(state: EditorState) {
+function renderCanvas(state: EditorState, minimapPosition?: 'bottom-left' | 'bottom-right') {
   return render(
     <div style={{ width: 800, height: 600 }}>
       <ReactFlowProvider>
-        <Canvas state={state} dispatch={vi.fn()} catalog={CATALOG_MAP} errorCounts={new Map()} readOnly={false} focus={null} />
+        <Canvas
+          state={state}
+          dispatch={vi.fn()}
+          catalog={CATALOG_MAP}
+          errorCounts={new Map()}
+          readOnly={false}
+          focus={null}
+          minimapPosition={minimapPosition}
+        />
       </ReactFlowProvider>
     </div>,
   );
@@ -51,5 +59,16 @@ describe('Canvas', () => {
   it('falls back to the grey "select a list" hint when core.forEach has no items ref', () => {
     renderCanvas(baseState({}));
     expect(screen.getByText('editor.fields.selectList')).toBeInTheDocument();
+  });
+
+  // Guided tour (design §A): the panel is anchored bottom-right, so it must
+  // be able to push the minimap out of its way.
+  it('defaults the minimap to bottom-right, and flips to bottom-left when asked', () => {
+    const { container, unmount } = renderCanvas(baseState({}));
+    expect(container.querySelector('.react-flow__minimap')).toHaveClass('bottom', 'right');
+    unmount();
+
+    const { container: container2 } = renderCanvas(baseState({}), 'bottom-left');
+    expect(container2.querySelector('.react-flow__minimap')).toHaveClass('bottom', 'left');
   });
 });

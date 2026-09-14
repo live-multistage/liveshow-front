@@ -2381,6 +2381,8 @@
       },
       "tour": {
         "entry": "Tutorial",
+        "panelLabel": "Guided tutorial",
+        "stepDone": "Step completed",
         "draftName": "Tutorial — 24h reminder",
         "draftDescription": "Created by the guided tutorial.",
         "emptyLink": "Take the tutorial →",
@@ -2408,7 +2410,7 @@
           "learnedLabel": "WHAT YOU LEARNED",
           "learned": {
             "0": "Execution is a single line starting from the trigger",
-            "1": "References are {{node.field}} and only look upward",
+            "1": "References are '{{'node.field'}}' and only look upward",
             "2": "Every port has an arrow and everything ends at End"
           },
           "pendingTitle": "Published — activate whenever you're ready",
@@ -2418,11 +2420,11 @@
         "steps": {
           "0": {
             "title": "How a blueprint runs",
-            "body": "The engine doesn't pull data \"backwards\": it starts at the trigger and runs one node at a time, following the arrows. Each node publishes outputs ({{t.userId}}) that the following ones read. Named ports branch; every port needs an arrow and everything ends at End."
+            "body": "The engine doesn't pull data \"backwards\": it starts at the trigger and runs one node at a time, following the arrows. Each node publishes outputs ('{{'t.userId'}}') that the following ones read. Named ports branch; every port needs an arrow and everything ends at End."
           },
           "1": {
             "title": "Add the trigger",
-            "body": "Drag Saved an event (wishlist.itemAdded) onto the canvas. In the inspector, fill dedupeKey with saved-24h:{{t.eventId}}:{{t.userId}}.",
+            "body": "Drag Saved an event (wishlist.itemAdded) onto the canvas. In the inspector, fill dedupeKey with saved-24h:'{{'t.eventId'}}':'{{'t.userId'}}'.",
             "checklist": "The wishlist.itemAdded node exists and dedupeKey is filled in.",
             "hint": "dedupeKey prevents two runs for the same user/event pair."
           },
@@ -2434,7 +2436,7 @@
           },
           "3": {
             "title": "Still saved?",
-            "body": "Drag Still saved?, connect it after Wait, fill userId = {{t.userId}} and eventId = {{t.eventId}} through the variable picker.",
+            "body": "Drag Still saved?, connect it after Wait, fill userId = '{{'t.userId'}}' and eventId = '{{'t.eventId'}}' through the variable picker.",
             "checklist": "Node added, edge connected, and both fields referencing the trigger.",
             "hint": "The picker only shows what's above it in the line; userId comes from the trigger (t), not from Wait."
           },
@@ -2445,18 +2447,18 @@
           },
           "5": {
             "title": "Event data",
-            "body": "Drag Event by id, eventId = {{t.eventId}}. It publishes title, slug, status and date — public data only.",
+            "body": "Drag Event by id, eventId = '{{'t.eventId'}}'. It publishes title, slug, status and date — public data only.",
             "checklist": "Node added, edge connected, and eventId referencing the trigger."
           },
           "6": {
             "title": "Decide",
-            "body": "Drag Condition, connect it after Event by id and build: {{s.saved}} = true and {{a.hasAccess}} = false and {{e.status}} = PUBLISHED and {{e.startsAt}} > now.",
+            "body": "Drag Condition, connect it after Event by id and build: '{{'s.saved'}}' = true and '{{'a.hasAccess'}}' = false and '{{'e.status'}}' = PUBLISHED and '{{'e.startsAt'}}' > now.",
             "checklist": "Node added, edge connected, and the four rules built.",
             "hint": "The condition has two ports: if true and if false. Both need an arrow."
           },
           "7": {
             "title": "Notify and end it",
-            "body": "Drag In-app notification connected on if true: recipient {{t.userId}}, title Still thinking about {{e.title}}?, link /events/{{e.slug}}. Connect the notification to an End, and if false to another End.",
+            "body": "Drag In-app notification connected on if true: recipient '{{'t.userId'}}', title Still thinking about '{{'e.title'}}'?, link /events/'{{'e.slug'}}'. Connect the notification to an End, and if false to another End.",
             "checklist": "Notification filled in, connected on if true to an End, and if false connected to another End.",
             "hint": "A port with no arrow is a Validate error (PORT_EDGES). Connect \"if false\" to an End."
           },

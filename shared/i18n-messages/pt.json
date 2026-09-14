@@ -2381,6 +2381,8 @@
       },
       "tour": {
         "entry": "Tutorial",
+        "panelLabel": "Tutorial guiado",
+        "stepDone": "Passo concluído",
         "draftName": "Tutorial — lembrete 24h",
         "draftDescription": "Criado pelo tutorial guiado.",
         "emptyLink": "Fazer o tutorial →",
@@ -2408,7 +2410,7 @@
           "learnedLabel": "O QUE VOCÊ APRENDEU",
           "learned": {
             "0": "Execução é uma linha a partir do gatilho",
-            "1": "Referências são {{nó.campo}} e só olham para cima",
+            "1": "Referências são '{{'nó.campo'}}' e só olham para cima",
             "2": "Cada porta tem uma seta e tudo termina em Fim"
           },
           "pendingTitle": "Publicado — ative quando quiser",
@@ -2418,11 +2420,11 @@
         "steps": {
           "0": {
             "title": "Como um blueprint executa",
-            "body": "O motor não puxa dados \"de trás para frente\": começa no gatilho e executa um nó por vez, seguindo as setas. Cada nó publica saídas ({{t.userId}}) que os seguintes leem. Portas com nome ramificam; toda porta precisa de uma seta e tudo termina em Fim."
+            "body": "O motor não puxa dados \"de trás para frente\": começa no gatilho e executa um nó por vez, seguindo as setas. Cada nó publica saídas ('{{'t.userId'}}') que os seguintes leem. Portas com nome ramificam; toda porta precisa de uma seta e tudo termina em Fim."
           },
           "1": {
             "title": "Adicione o gatilho",
-            "body": "Arraste Salvou um evento (wishlist.itemAdded) para o canvas. No inspetor, preencha dedupeKey com saved-24h:{{t.eventId}}:{{t.userId}}.",
+            "body": "Arraste Salvou um evento (wishlist.itemAdded) para o canvas. No inspetor, preencha dedupeKey com saved-24h:'{{'t.eventId'}}':'{{'t.userId'}}'.",
             "checklist": "Nó wishlist.itemAdded existe e dedupeKey preenchido.",
             "hint": "O dedupeKey evita duas execuções para o mesmo par usuário/evento."
           },
@@ -2434,7 +2436,7 @@
           },
           "3": {
             "title": "Ainda está salvo?",
-            "body": "Arraste Ainda está salvo?, ligue depois de Esperar, preencha userId = {{t.userId}} e eventId = {{t.eventId}} pelo seletor de variáveis.",
+            "body": "Arraste Ainda está salvo?, ligue depois de Esperar, preencha userId = '{{'t.userId'}}' e eventId = '{{'t.eventId'}}' pelo seletor de variáveis.",
             "checklist": "Nó adicionado, aresta conectada e os dois campos referenciando o gatilho.",
             "hint": "O seletor só mostra o que está acima na linha; userId vem do gatilho (t), não do Esperar."
           },
@@ -2445,18 +2447,18 @@
           },
           "5": {
             "title": "Dados do evento",
-            "body": "Arraste Evento por id, eventId = {{t.eventId}}. Ele publica título, slug, status e data — só dados públicos.",
+            "body": "Arraste Evento por id, eventId = '{{'t.eventId'}}'. Ele publica título, slug, status e data — só dados públicos.",
             "checklist": "Nó adicionado, aresta conectada e eventId referenciando o gatilho."
           },
           "6": {
             "title": "Decida",
-            "body": "Arraste Condição, ligue depois de Evento por id e monte: {{s.saved}} = true e {{a.hasAccess}} = false e {{e.status}} = PUBLISHED e {{e.startsAt}} > now.",
+            "body": "Arraste Condição, ligue depois de Evento por id e monte: '{{'s.saved'}}' = true e '{{'a.hasAccess'}}' = false e '{{'e.status'}}' = PUBLISHED e '{{'e.startsAt'}}' > now.",
             "checklist": "Nó adicionado, aresta conectada e as quatro regras montadas.",
             "hint": "A condição tem duas portas: se verdadeiro e se falso. As duas vão precisar de seta."
           },
           "7": {
             "title": "Notifique e encerre",
-            "body": "Arraste Notificação no app ligada em se verdadeiro: destinatário {{t.userId}}, título Ainda pensando em {{e.title}}?, link /events/{{e.slug}}. Ligue a notificação a um Fim e se falso a outro Fim.",
+            "body": "Arraste Notificação no app ligada em se verdadeiro: destinatário '{{'t.userId'}}', título Ainda pensando em '{{'e.title'}}'?, link /events/'{{'e.slug'}}'. Ligue a notificação a um Fim e se falso a outro Fim.",
             "checklist": "Notificação preenchida, ligada em se verdadeiro a um Fim, e se falso ligado a outro Fim.",
             "hint": "Porta sem seta é erro no Validar (PORT_EDGES). Ligue \"se falso\" a um Fim."
           },

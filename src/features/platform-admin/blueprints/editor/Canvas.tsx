@@ -33,12 +33,14 @@ interface Props {
   focus: { id: string; seq: number } | null;
   /** Guided tour (design §A): pulses the card of the step's target node. */
   highlightNodeId?: string;
+  /** Guided tour: the panel is anchored bottom-right, so move the minimap out of its way while it's visible. */
+  minimapPosition?: 'bottom-left' | 'bottom-right';
 }
 
 // React Flow is driven from the editor reducer: every change is dispatched
 // and the nodes/edges are re-derived. Only measured sizes stay local, because
 // React Flow keeps a node hidden until its user object carries `measured`.
-export function Canvas({ state, dispatch, catalog, errorCounts, readOnly, focus, highlightNodeId }: Props) {
+export function Canvas({ state, dispatch, catalog, errorCounts, readOnly, focus, highlightNodeId, minimapPosition = 'bottom-right' }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
   const locale = useLocale();
   const { screenToFlowPosition, setCenter } = useReactFlow();
@@ -203,7 +205,7 @@ export function Canvas({ state, dispatch, catalog, errorCounts, readOnly, focus,
         {grid && <Background variant={BackgroundVariant.Dots} gap={GRID} size={1} color="rgba(255,255,255,.07)" />}
         <Controls position="bottom-left" showInteractive={false} className={styles.controls} />
         <MiniMap<CardNode>
-          position="bottom-right"
+          position={minimapPosition}
           pannable
           zoomable
           className={styles.minimap}

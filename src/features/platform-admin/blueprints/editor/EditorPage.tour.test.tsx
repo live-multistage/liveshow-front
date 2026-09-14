@@ -96,7 +96,35 @@ describe('EditorPage — guided tutorial (design §A)', () => {
     expect(item.className).toMatch(/tourHighlight/);
   });
 
-  it('Fazer por mim through steps 1–7 lands on step 8, with the real graph built', async () => {
+  // Item 2 (fix round 1): onDoForMe must use `replace`, not `load` — `load`
+  // resets revision/savedRevision and silently un-dirties the draft, which
+  // would (a) hide the "unsaved" marker and (b) let the beforeunload guard
+  // and Publicar's "save first" gate think there was nothing to lose.
+  it('Fazer por mim keeps the draft dirty: unsaved marker shows, beforeunload guards, Publicar still needs a save', async () => {
+    mockDetail(detailData());
+    renderEditor();
+    expect(screen.queryByText(/editor\.unsaved/)).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'tour.next' })); // step 0 → 1
+    await userEvent.click(screen.getByRole('button', { name: 'tour.doForMe' })); // applies step 1
+
+    expect(screen.getByText(/editor\.unsaved/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'editor.publish' })).toBeDisabled();
+    // Item 3: the node the step just built stays selected, so the Inspector
+    // opens on it (and the step-2 field highlight is visible) without the
+    // admin having to click the new card themselves.
+    expect(screen.queryByText('editor.inspector.empty')).not.toBeInTheDocument();
+
+    const event = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  // Each "Fazer por mim" now also selects the target node (item 3, fix round
+  // 1), so every click re-renders the real Inspector on top of the real
+  // Canvas — seven of those plus userEvent's built-in delays need more than
+  // the 5s default.
+  it('Fazer por mim through steps 1–7 lands on step 8, with the real graph built', { timeout: 15000 }, async () => {
     mockDetail(detailData());
     renderEditor();
     await userEvent.click(screen.getByRole('button', { name: 'tour.next' })); // step 0 → 1
@@ -112,7 +140,7 @@ describe('EditorPage — guided tutorial (design §A)', () => {
     expect(screen.queryByRole('button', { name: 'tour.next' })).not.toBeInTheDocument();
   });
 
-  it('Validar + Publicar reach the B3 completion (published, not active); Ativar then B2', async () => {
+  it('Validar + Publicar reach the B3 completion (published, not active); Ativar then B2', { timeout: 15000 }, async () => {
     mockDetail(detailData());
     const { rerender } = renderEditor();
     await userEvent.click(screen.getByRole('button', { name: 'tour.next' }));

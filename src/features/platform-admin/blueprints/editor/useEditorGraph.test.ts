@@ -202,6 +202,28 @@ describe('editorReducer', () => {
     expect(isDirty(run(s2, { type: 'saved', revision: s2.revision }))).toBe(false);
     expect(isDirty(run(s2, { type: 'saved', revision: s2.revision }, { type: 'select', id: 'end1' }))).toBe(false);
   });
+
+  it('replace swaps nodes/edges, bumps revision (stays dirty) and keeps savedRevision/loadId untouched', () => {
+    const saved = run(EMPTY_STATE, { type: 'add', entry: entry('core.end') }, { type: 'saved', revision: 1 });
+    expect(isDirty(saved)).toBe(false);
+
+    const nextNodes = [{ id: 'end1', node: 'core.end', version: 1, config: {}, position: { x: 240, y: 0 } }];
+    const replaced = editorReducer(saved, { type: 'replace', nodes: nextNodes, edges: [], selectedId: 'end1' });
+    expect(isDirty(replaced)).toBe(true);
+    expect(replaced.savedRevision).toBe(saved.savedRevision);
+    expect(replaced.loadId).toBe(saved.loadId);
+    expect(replaced.nodes).toBe(nextNodes);
+    expect(replaced.selectedId).toBe('end1');
+  });
+
+  it('replace without an explicit selectedId keeps the current selection only if it still exists', () => {
+    const base = run(EMPTY_STATE, { type: 'add', entry: entry('core.end') });
+    const stillThere = editorReducer(base, { type: 'replace', nodes: base.nodes, edges: base.edges });
+    expect(stillThere.selectedId).toBe('end1');
+
+    const gone = editorReducer(base, { type: 'replace', nodes: [], edges: [] });
+    expect(gone.selectedId).toBeNull();
+  });
 });
 
 describe('availableFields', () => {

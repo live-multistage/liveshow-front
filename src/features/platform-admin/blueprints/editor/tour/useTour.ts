@@ -14,7 +14,11 @@ interface Options {
   blueprintId: string;
 }
 
-interface Persisted { step: TourStepId; skipped: boolean }
+// `step` isn't persisted: resume always recomputes it from the graph via
+// firstIncompleteStep (the brief's rule), so a stored step number would be
+// dead weight. The record's mere existence is what the resume-toast gates on
+// ("have we been here before"), not any field inside it.
+interface Persisted { skipped: boolean }
 
 const storageKey = (id: string) => `bp-tour:${id}`;
 
@@ -62,9 +66,11 @@ export function useTour({ enabled, state, analysisOk, published, active, bluepri
 
   // Step 0's check() is unconditionally true (it's pure instruction, nothing
   // to fill in), so firstIncompleteStep never returns it — a genuinely fresh
-  // draft must start there explicitly. Persisted state only tells us we've
-  // been here before, in which case the brief's rule applies: resume at
-  // firstIncompleteStep (the graph, not the stored step number, is truth).
+  // draft must start there explicitly. A returning visit (a record already
+  // exists in storage from *before* this mount) resumes at
+  // firstIncompleteStep and toasts; nothing is written back here — writing
+  // only ever happens as the direct result of a user action (next/previous/
+  // autoApply/skip below), never from this resume effect itself.
   useEffect(() => {
     if (!enabled || initialized.current) return;
     initialized.current = true;
@@ -76,12 +82,6 @@ export function useTour({ enabled, state, analysisOk, published, active, bluepri
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, blueprintId]);
 
-  useEffect(() => {
-    if (!initialized.current) return;
-    savePersisted(blueprintId, { step, skipped });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, skipped, blueprintId]);
-
   const stepDef = TOUR_STEPS[step];
   const stepChecked = stepDef.check(ctx);
   const completed = TOUR_STEPS[8].check(ctx);
@@ -92,11 +92,21 @@ export function useTour({ enabled, state, analysisOk, published, active, bluepri
     stepDef,
     stepChecked,
     completed,
-    next: () => { if (stepChecked) setStep((s) => (Math.min(8, s + 1) as TourStepId)); },
+    next: () => {
+      if (!stepChecked) return;
+      setStep((s) => (Math.min(8, s + 1) as TourStepId));
+      savePersisted(blueprintId, { skipped: false });
+    },
     previous: () => setStep((s) => (Math.max(0, s - 1) as TourStepId)),
     // The auto-applied patch is guaranteed to satisfy the current step's
     // check on the next render, so this can advance optimistically.
-    advanceAfterAutoApply: () => setStep((s) => (Math.min(8, s + 1) as TourStepId)),
-    skip: () => setSkipped(true),
+    advanceAfterAutoApply: () => {
+      setStep((s) => (Math.min(8, s + 1) as TourStepId));
+      savePersisted(blueprintId, { skipped: false });
+    },
+    skip: () => {
+      setSkipped(true);
+      savePersisted(blueprintId, { skipped: true });
+    },
   };
 }

@@ -69,8 +69,12 @@ describe('TourPanel', () => {
   it('a completed step shows the green check and enables Próximo', () => {
     renderPanel(baseTour({ step: 2, stepDef: TOUR_STEPS[2], stepChecked: true }));
     expect(screen.getByRole('button', { name: 'tour.next' })).toBeEnabled();
-    // The check badge has no accessible name of its own; assert via the icon's presence next to the step label.
-    expect(document.querySelector('svg')).toBeInTheDocument();
+    expect(screen.getByTestId('tour-step-done')).toBeInTheDocument();
+  });
+
+  it('a pending step does not show the green check badge', () => {
+    renderPanel(baseTour({ step: 2, stepDef: TOUR_STEPS[2], stepChecked: false }));
+    expect(screen.queryByTestId('tour-step-done')).not.toBeInTheDocument();
   });
 
   it('shows the hint block for a step with a hintKey', () => {
@@ -99,7 +103,7 @@ describe('TourPanel', () => {
 
   it('renders the B2 completion panel when active, with Ver execuções and Fechar', () => {
     renderPanel(baseTour({ completed: true }), { active: true });
-    expect(screen.getByText('tour.completion.activeTitle')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'tour.completion.activeTitle' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'tour.viewRuns' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'tour.close' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'tour.activate' })).not.toBeInTheDocument();
@@ -108,6 +112,8 @@ describe('TourPanel', () => {
   it('renders the B3 completion panel when published but not active, with Ativar', async () => {
     const onActivate = vi.fn();
     renderPanel(baseTour({ completed: true }), { active: false, onActivate });
+    // The panel's aria-label must reflect B3 (not-active), not a hardcoded B2 title.
+    expect(screen.getByRole('region', { name: 'tour.completion.pendingTitle' })).toBeInTheDocument();
     expect(screen.getByText('tour.completion.pendingTitle')).toBeInTheDocument();
     const activateBtn = screen.getByRole('button', { name: 'tour.activate' });
     activateBtn.click();

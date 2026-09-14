@@ -27,6 +27,11 @@ export interface EditorState {
 
 export type EditorAction =
   | { type: 'load'; graph: BlueprintGraph | null; selectedId?: string | null }
+  // Swaps nodes/edges in place (e.g. the tour's "Fazer por mim") without the
+  // `load` semantics of a fresh version: revision bumps so the graph stays
+  // dirty, savedRevision/loadId are untouched so Inspector drafts and the
+  // saved/unsaved badge keep tracking the real save state.
+  | { type: 'replace'; nodes: EditorNode[]; edges: BlueprintEdge[]; selectedId?: string | null }
   | { type: 'add'; entry: Pick<BlueprintCatalogEntry, 'key' | 'version' | 'kind'>; position?: XY }
   | { type: 'move'; id: string; position: XY }
   | { type: 'connect'; from: string; to: string; port?: Port }
@@ -139,6 +144,12 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
   switch (action.type) {
     case 'load':
       return { ...graphToState(action.graph, action.selectedId ?? null), loadId: state.loadId + 1 };
+    case 'replace': {
+      const selectedId = action.selectedId !== undefined
+        ? action.selectedId
+        : (state.selectedId && action.nodes.some((n) => n.id === state.selectedId) ? state.selectedId : null);
+      return bump(state, { nodes: action.nodes, edges: action.edges, selectedId });
+    }
     case 'select':
       return { ...state, selectedId: action.id };
     case 'saved':

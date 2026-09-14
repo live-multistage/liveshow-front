@@ -41,11 +41,13 @@ export function TourPanel({ tour, catalog, blueprintId, active, onDoForMe, onAct
   const canGoNext = step < 8;
 
   return (
-    <aside className={styles.panel} role="dialog" aria-label={t('tour.stepLabel', { n: step + 1 })}>
+    <aside className={styles.panel} role="region" aria-label={t('tour.panelLabel')}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           {stepChecked && step > 0 && (
-            <span className={styles.checkBadge}><Check size={13} aria-hidden /></span>
+            <span className={styles.checkBadge} data-testid="tour-step-done" aria-label={t('tour.stepDone')}>
+              <Check size={13} aria-hidden />
+            </span>
           )}
           <span className={styles.stepLabel}>{t('tour.stepLabel', { n: step + 1 })}</span>
         </div>
@@ -107,7 +109,7 @@ function CompletionPanel({ t, blueprintId, active, onActivate, activating, onClo
   onClose(): void;
 }) {
   return (
-    <aside className={styles.panel} role="dialog" aria-label={t('tour.completion.activeTitle')}>
+    <aside className={styles.panel} role="region" aria-label={active ? t('tour.completion.activeTitle') : t('tour.completion.pendingTitle')}>
       <div className={cn(styles.body, styles.completionBody)}>
         <div className={cn(styles.completionIcon, active ? styles.completionIconActive : styles.completionIconPending)}>
           {active ? <Check size={24} aria-hidden /> : <Clock size={24} aria-hidden />}

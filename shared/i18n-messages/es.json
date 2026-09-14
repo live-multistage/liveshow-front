@@ -2381,6 +2381,8 @@
       },
       "tour": {
         "entry": "Tutorial",
+        "panelLabel": "Tutorial guiado",
+        "stepDone": "Paso completado",
         "draftName": "Tutorial — recordatorio 24h",
         "draftDescription": "Creado por el tutorial guiado.",
         "emptyLink": "Hacer el tutorial →",
@@ -2408,7 +2410,7 @@
           "learnedLabel": "LO QUE APRENDISTE",
           "learned": {
             "0": "La ejecución es una línea a partir del gatillo",
-            "1": "Las referencias son {{nodo.campo}} y solo miran hacia arriba",
+            "1": "Las referencias son '{{'nodo.campo'}}' y solo miran hacia arriba",
             "2": "Cada puerto tiene una flecha y todo termina en Fin"
           },
           "pendingTitle": "Publicado — actívalo cuando quieras",
@@ -2418,11 +2420,11 @@
         "steps": {
           "0": {
             "title": "Cómo se ejecuta un blueprint",
-            "body": "El motor no trae datos \"hacia atrás\": empieza en el gatillo y ejecuta un nodo a la vez, siguiendo las flechas. Cada nodo publica salidas ({{t.userId}}) que los siguientes leen. Los puertos con nombre ramifican; todo puerto necesita una flecha y todo termina en Fin."
+            "body": "El motor no trae datos \"hacia atrás\": empieza en el gatillo y ejecuta un nodo a la vez, siguiendo las flechas. Cada nodo publica salidas ('{{'t.userId'}}') que los siguientes leen. Los puertos con nombre ramifican; todo puerto necesita una flecha y todo termina en Fin."
           },
           "1": {
             "title": "Agrega el gatillo",
-            "body": "Arrastra Guardó un evento (wishlist.itemAdded) al lienzo. En el inspector, completa dedupeKey con saved-24h:{{t.eventId}}:{{t.userId}}.",
+            "body": "Arrastra Guardó un evento (wishlist.itemAdded) al lienzo. En el inspector, completa dedupeKey con saved-24h:'{{'t.eventId'}}':'{{'t.userId'}}'.",
             "checklist": "El nodo wishlist.itemAdded existe y dedupeKey está completado.",
             "hint": "dedupeKey evita dos ejecuciones para el mismo par usuario/evento."
           },
@@ -2434,7 +2436,7 @@
           },
           "3": {
             "title": "¿Sigue guardado?",
-            "body": "Arrastra ¿Sigue guardado?, conéctalo después de Esperar, completa userId = {{t.userId}} y eventId = {{t.eventId}} con el selector de variables.",
+            "body": "Arrastra ¿Sigue guardado?, conéctalo después de Esperar, completa userId = '{{'t.userId'}}' y eventId = '{{'t.eventId'}}' con el selector de variables.",
             "checklist": "Nodo agregado, arista conectada y los dos campos referenciando al gatillo.",
             "hint": "El selector solo muestra lo que está arriba en la línea; userId viene del gatillo (t), no de Esperar."
           },
@@ -2445,18 +2447,18 @@
           },
           "5": {
             "title": "Datos del evento",
-            "body": "Arrastra Evento por id, eventId = {{t.eventId}}. Publica título, slug, estado y fecha — solo datos públicos.",
+            "body": "Arrastra Evento por id, eventId = '{{'t.eventId'}}'. Publica título, slug, estado y fecha — solo datos públicos.",
             "checklist": "Nodo agregado, arista conectada y eventId referenciando al gatillo."
           },
           "6": {
             "title": "Decide",
-            "body": "Arrastra Condición, conéctala después de Evento por id y arma: {{s.saved}} = true y {{a.hasAccess}} = false y {{e.status}} = PUBLISHED y {{e.startsAt}} > now.",
+            "body": "Arrastra Condición, conéctala después de Evento por id y arma: '{{'s.saved'}}' = true y '{{'a.hasAccess'}}' = false y '{{'e.status'}}' = PUBLISHED y '{{'e.startsAt'}}' > now.",
             "checklist": "Nodo agregado, arista conectada y las cuatro reglas armadas.",
             "hint": "La condición tiene dos puertos: si verdadero y si falso. Ambos necesitan una flecha."
           },
           "7": {
             "title": "Notifica y termina",
-            "body": "Arrastra Notificación en la app conectada en si verdadero: destinatario {{t.userId}}, título ¿Sigues pensando en {{e.title}}?, enlace /events/{{e.slug}}. Conecta la notificación a un Fin, y si falso a otro Fin.",
+            "body": "Arrastra Notificación en la app conectada en si verdadero: destinatario '{{'t.userId'}}', título ¿Sigues pensando en '{{'e.title'}}'?, enlace /events/'{{'e.slug'}}'. Conecta la notificación a un Fin, y si falso a otro Fin.",
             "checklist": "Notificación completada, conectada en si verdadero a un Fin, y si falso conectado a otro Fin.",
             "hint": "Un puerto sin flecha es un error de Validar (PORT_EDGES). Conecta \"si falso\" a un Fin."
           },

@@ -21,7 +21,7 @@ import { Inspector } from './Inspector';
 import { Palette } from './Palette';
 import { ProblemsFooter } from './ProblemsFooter';
 import { useWideScreen } from './useWideScreen';
-import { catalogKey, errorCountByNode, stateToGraph, useEditorGraph } from './useEditorGraph';
+import { catalogKey, errorCountByNode, useEditorGraph } from './useEditorGraph';
 import { tourHighlight } from './tour/highlightTarget';
 import { TOUR_STEPS } from './tour/tourSteps';
 import { TourPanel } from './tour/TourPanel';
@@ -105,7 +105,17 @@ export function EditorPage({ id, versionId, nodeId, tour: tourMode }: Props) {
   function onDoForMe() {
     const apply = TOUR_STEPS[tourState.step].autoApply;
     if (!apply) return;
-    dispatch({ type: 'load', graph: stateToGraph(apply(state)) });
+    const next = apply(state);
+    // `replace` (not `load`) keeps the draft dirty — this is an in-session
+    // edit, not a fresh version load. Re-select the node this step just
+    // finished (tourHighlight resolves to that node — as its own "card"
+    // target once the step is fully done, or still as a field target for
+    // step 6's condition — so either shape names the right node) so the
+    // Inspector stays open on it and the next step's field highlight is
+    // visible without the admin re-clicking the card.
+    const target = tourHighlight(tourState.step, next);
+    const selectedId = target.nodeId ?? target.field?.nodeId ?? null;
+    dispatch({ type: 'replace', nodes: next.nodes, edges: next.edges, selectedId });
     tourState.advanceAfterAutoApply();
   }
 
@@ -240,6 +250,7 @@ export function EditorPage({ id, versionId, nodeId, tour: tourMode }: Props) {
                 readOnly={readOnly}
                 focus={focus}
                 highlightNodeId={highlight.nodeId}
+                minimapPosition={tourState.visible ? 'bottom-left' : 'bottom-right'}
               />
             </ReactFlowProvider>
           ) : <div className={styles.canvasLoading} />}
