@@ -1,0 +1,24 @@
+.form { display: flex; flex-direction: column; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.textarea {
+  width: 100%;
+  min-height: 70px;
+  resize: none;
+  background: #08080a;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 6px;
+  color: #f4f4f5;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 11px 13px;
+  outline: none;
+
+  &:focus-visible { border-color: #ec4899; }
+}
+.counter {
+  align-self: flex-end;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  color: #52525b;
+}
+.error { margin: 0; font-size: 13px; color: #ff8f8f; }

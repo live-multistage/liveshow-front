@@ -1,93 +1,137 @@
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-vi.mock('next/link', () => ({ default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => <a href={href} {...rest}>{children}</a> }));
-vi.mock('../queries/blueprints.queries', () => ({ useBlueprintQuery: vi.fn(), useBlueprintRunsQuery: vi.fn() }));
-vi.mock('../mutations/blueprints.mutations', () => ({
-  useSaveBlueprintVersionMutation: vi.fn(), usePublishBlueprintVersionMutation: vi.fn(),
-  useActivateBlueprintMutation: vi.fn(), useDeactivateBlueprintMutation: vi.fn(),
+vi.mock('next-intl', () => ({
+  useTranslations: () => {
+    const t = (key: string, values?: Record<string, unknown>) => (values ? `${key}:${JSON.stringify(values)}` : key);
+    t.rich = (key: string) => key;
+    return t;
+  },
+}));
+vi.mock('next/link', () => ({ default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a> }));
+
+const { toastSuccess, toastError } = vi.hoisted(() => ({ toastSuccess: vi.fn(), toastError: vi.fn() }));
+vi.mock('sonner', () => ({ toast: { success: toastSuccess, error: toastError } }));
+
+vi.mock('../queries/blueprints.queries', () => ({ useBlueprintQuery: vi.fn() }));
+vi.mock('../mutations/blueprints.mutations', () => ({ useDeactivateBlueprintMutation: vi.fn(), useSaveBlueprintVersionMutation: vi.fn() }));
+
+vi.mock('./RunsTable', () => ({
+  RunsTable: ({ onSelectRun }: { onSelectRun: (run: unknown) => void }) => (
+    <button onClick={() => onSelectRun({ id: 'r1', versionId: 'v2', version: 2, currentNodeId: null })}>select-run</button>
+  ),
+}));
+vi.mock('./VersionsCard', () => ({ VersionsCard: () => <div>versions-card</div> }));
+vi.mock('./AnalysisCard', () => ({ AnalysisCard: ({ version }: { version: { version: number } }) => <div>analysis v{version.version}</div> }));
+vi.mock('./ImportJsonDialog', () => ({
+  ImportJsonDialog: ({ open }: { open: boolean }) => (open ? <div>import-dialog-open</div> : null),
+}));
+vi.mock('./RunDrawer', () => ({
+  RunDrawer: ({ run, onClose }: { run: { id: string }; onClose: () => void }) => (
+    <div>run-drawer-{run.id}<button onClick={onClose}>close-drawer</button></div>
+  ),
 }));
 
-Object.defineProperty(navigator, 'clipboard', {
-  value: { writeText: vi.fn() },
-  configurable: true,
-});
+Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn() }, configurable: true });
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { BlueprintDetail } from '@live-show/api-contracts';
 import { BlueprintDetailPage } from './BlueprintDetailPage';
-import { useBlueprintQuery, useBlueprintRunsQuery } from '../queries/blueprints.queries';
-import {
-  useActivateBlueprintMutation, useDeactivateBlueprintMutation, usePublishBlueprintVersionMutation, useSaveBlueprintVersionMutation,
-} from '../mutations/blueprints.mutations';
+import { useBlueprintQuery } from '../queries/blueprints.queries';
+import { useDeactivateBlueprintMutation, useSaveBlueprintVersionMutation } from '../mutations/blueprints.mutations';
 
-const graph = { schemaVersion: 1, nodes: [], edges: [] };
-const save = vi.fn(); const publish = vi.fn(); const activate = vi.fn(); const deactivate = vi.fn();
+const graph = { schemaVersion: 1 as const, nodes: [], edges: [] };
+const deactivate = vi.fn();
+const duplicate = vi.fn();
 
-function detail(versions: unknown[], activeVersionId: string | null = null) {
-  vi.mocked(useBlueprintQuery).mockReturnValue({ data: {
-    id: 'b1', name: 'Lembrete', description: '', status: activeVersionId ? 'ACTIVE' : 'INACTIVE', activeVersionId,
-    latestVersion: 2, counts7d: { started: 0, completed: 0, cancelled: 0, failed: 0 }, updatedAt: '2026-09-13T12:00:00Z', versions,
-  }, isLoading: false, isError: false } as never);
+function detail(overrides: Partial<BlueprintDetail> = {}): BlueprintDetail {
+  return {
+    id: 'b1', name: 'Lembrete', description: 'Envia lembrete', status: 'ACTIVE', activeVersionId: 'v1',
+    latestVersion: 1, counts7d: { started: 12, completed: 9, cancelled: 1, failed: 2 }, updatedAt: '2026-09-13T12:00:00Z',
+    versions: [{ id: 'v1', version: 1, graph, analysis: { ok: true, errors: [] }, publishedAt: '2026-09-01T00:00:00Z' }],
+    ...overrides,
+  };
+}
+
+function mockDetail(data: BlueprintDetail | undefined, overrides: Record<string, unknown> = {}) {
+  vi.mocked(useBlueprintQuery).mockReturnValue({ data, isLoading: false, isError: false, ...overrides } as never);
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(useBlueprintRunsQuery).mockReturnValue({ data: { items: [
-    { id: 'r1', versionId: 'v1', version: 1, status: 'WAITING', currentNodeId: 'c', wakeAt: '2026-10-02T18:00:00Z', errorCode: null, createdAt: '2026-10-01T10:00:00Z', updatedAt: '2026-10-01T10:00:00Z', steps: [] },
-  ], nextCursor: null }, isLoading: false } as never);
-  vi.mocked(useSaveBlueprintVersionMutation).mockReturnValue({ mutate: save, isPending: false } as never);
-  vi.mocked(usePublishBlueprintVersionMutation).mockReturnValue({ mutate: publish, isPending: false } as never);
-  vi.mocked(useActivateBlueprintMutation).mockReturnValue({ mutate: activate, isPending: false } as never);
   vi.mocked(useDeactivateBlueprintMutation).mockReturnValue({ mutate: deactivate, isPending: false } as never);
+  vi.mocked(useSaveBlueprintVersionMutation).mockReturnValue({ mutate: duplicate, isPending: false } as never);
 });
 
 describe('BlueprintDetailPage', () => {
-  it('rejects invalid JSON locally and saves parsed JSON as a draft', async () => {
-    detail([]);
+  it('shows the not-found state when the blueprint fails to load', () => {
+    mockDetail(undefined, { isError: true });
     render(<BlueprintDetailPage id="b1" />);
-    const box = screen.getByLabelText('detail.importTitle');
-    fireEvent.change(box, { target: { value: '{ nope' } });
-    await userEvent.click(screen.getByRole('button', { name: 'detail.save' }));
-    expect(screen.getByRole('alert')).toHaveTextContent('detail.invalidJson');
-    expect(save).not.toHaveBeenCalled();
-    fireEvent.change(box, { target: { value: JSON.stringify(graph) } });
-    await userEvent.click(screen.getByRole('button', { name: 'detail.save' }));
-    expect(save).toHaveBeenCalledWith({ id: 'b1', graph }, expect.anything());
+    expect(screen.getByText('detail.notFound')).toBeInTheDocument();
   });
 
-  it('shows analysis errors of the latest version with translated codes; publish only for clean drafts', () => {
-    detail([
-      { id: 'v2', version: 2, graph, analysis: { ok: false, errors: [{ nodeId: 'n', code: 'BAD_REFERENCE', message: '{{x.y}} is not available here' }] }, publishedAt: null },
-      { id: 'v1', version: 1, graph, analysis: { ok: true, errors: [] }, publishedAt: null },
-    ]);
+  it('shows the invalid banner for an INVALID blueprint', () => {
+    mockDetail(detail({ status: 'INVALID' }));
     render(<BlueprintDetailPage id="b1" />);
-    expect(screen.getByText('errors.BAD_REFERENCE')).toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: 'detail.publish' })).toHaveLength(1);
+    expect(screen.getByText('detail.invalidBanner')).toBeInTheDocument();
   });
 
-  it('activates a published version and deactivates the active blueprint', async () => {
-    detail([{ id: 'v1', version: 1, graph, analysis: { ok: true, errors: [] }, publishedAt: '2026-09-13T12:00:00Z' }]);
-    const { rerender } = render(<BlueprintDetailPage id="b1" />);
-    await userEvent.click(screen.getByRole('button', { name: 'detail.activate' }));
-    expect(activate).toHaveBeenCalledWith({ id: 'b1', versionId: 'v1' }, expect.anything());
-    detail([{ id: 'v1', version: 1, graph, analysis: { ok: true, errors: [] }, publishedAt: '2026-09-13T12:00:00Z' }], 'v1');
-    rerender(<BlueprintDetailPage id="b1" />);
+  it('shows the flag-off banner only when disabled', () => {
+    mockDetail(detail());
+    const { rerender } = render(<BlueprintDetailPage id="b1" blueprintsEnabled={false} />);
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    rerender(<BlueprintDetailPage id="b1" blueprintsEnabled />);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('renders the 7-day KPIs', () => {
+    mockDetail(detail());
+    render(<BlueprintDetailPage id="b1" />);
+    expect(screen.getByText('12')).toBeInTheDocument();
+    expect(screen.getByText('9')).toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument();
+  });
+
+  it('asks for confirmation before deactivating, then toasts the cancelled run count', async () => {
+    deactivate.mockImplementation((_data, options) => options?.onSuccess?.({ cancelledRuns: 3 }));
+    mockDetail(detail({ status: 'ACTIVE' }));
+    render(<BlueprintDetailPage id="b1" />);
+    await userEvent.click(screen.getByRole('button', { name: 'detail.deactivate' }));
     await userEvent.click(screen.getByRole('button', { name: 'detail.deactivate' }));
     expect(deactivate).toHaveBeenCalledWith({ id: 'b1' }, expect.anything());
+    expect(toastSuccess).toHaveBeenCalledWith('detail.deactivatedToast:{"count":3}');
   });
 
-  it('lists recent runs with status and current node', () => {
-    detail([]);
+  it('exports the latest version graph to the clipboard and toasts success', async () => {
+    mockDetail(detail());
     render(<BlueprintDetailPage id="b1" />);
-    expect(screen.getByText('runStatus.WAITING')).toBeInTheDocument();
-    expect(screen.getByText('c')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'detail.moreActions' }));
+    await userEvent.click(await screen.findByText('detail.export'));
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(JSON.stringify(graph, null, 2));
+    expect(toastSuccess).toHaveBeenCalledWith('detail.copied');
   });
 
-  it('shows error alert when clipboard.writeText fails', async () => {
-    vi.mocked(navigator.clipboard.writeText).mockRejectedValueOnce(new Error('Clipboard denied'));
-    detail([{ id: 'v1', version: 1, graph, analysis: { ok: true, errors: [] }, publishedAt: '2026-09-13T12:00:00Z' }]);
+  it('duplicates the active version as a new draft', async () => {
+    mockDetail(detail({ activeVersionId: 'v1' }));
     render(<BlueprintDetailPage id="b1" />);
-    await userEvent.click(screen.getByRole('button', { name: 'detail.export' }));
-    expect(screen.getByRole('alert')).toHaveTextContent('errors.GENERIC');
+    await userEvent.click(screen.getByRole('button', { name: 'detail.moreActions' }));
+    await userEvent.click(await screen.findByText('detail.duplicate'));
+    expect(duplicate).toHaveBeenCalledWith({ id: 'b1', graph }, expect.anything());
+  });
+
+  it('opens the import dialog from the menu', async () => {
+    mockDetail(detail());
+    render(<BlueprintDetailPage id="b1" />);
+    await userEvent.click(screen.getByRole('button', { name: 'detail.moreActions' }));
+    await userEvent.click(await screen.findByText('detail.importTitle'));
+    expect(screen.getByText('import-dialog-open')).toBeInTheDocument();
+  });
+
+  it('opens the run drawer when a run row is selected and closes it', async () => {
+    mockDetail(detail());
+    render(<BlueprintDetailPage id="b1" />);
+    await userEvent.click(screen.getByText('select-run'));
+    expect(screen.getByText('run-drawer-r1')).toBeInTheDocument();
+    await userEvent.click(screen.getByText('close-drawer'));
+    expect(screen.queryByText('run-drawer-r1')).not.toBeInTheDocument();
   });
 });

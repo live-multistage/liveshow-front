@@ -3,140 +3,160 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Button, Label } from '@live-show/design-system';
-import type { BlueprintGraph, BlueprintVersionDto } from '@live-show/api-contracts';
+import { toast } from 'sonner';
+import { AlertTriangle, MoreHorizontal } from 'lucide-react';
+import {
+  Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from '@live-show/design-system';
+import type { BlueprintRunDto } from '@live-show/api-contracts';
 import type { AppError } from '@/lib/http/errors';
 import { PlatformPageShell } from '../../components/PlatformPageShell';
 import tableStyles from '../../components/PlatformTable.module.scss';
-import { useBlueprintQuery, useBlueprintRunsQuery } from '../queries/blueprints.queries';
-import {
-  useActivateBlueprintMutation, useDeactivateBlueprintMutation, usePublishBlueprintVersionMutation, useSaveBlueprintVersionMutation,
-} from '../mutations/blueprints.mutations';
-import { STATUS_BADGE } from './BlueprintsPage';
+import { useBlueprintQuery } from '../queries/blueprints.queries';
+import { useDeactivateBlueprintMutation, useSaveBlueprintVersionMutation } from '../mutations/blueprints.mutations';
+import { BlueprintStatusPill } from './BlueprintStatusPill';
+import { FlagOffBanner } from './FlagOffBanner';
+import { VersionsCard } from './VersionsCard';
+import { AnalysisCard } from './AnalysisCard';
+import { RunsTable } from './RunsTable';
+import { ImportJsonDialog } from './ImportJsonDialog';
+import { RunDrawer } from './RunDrawer';
 import styles from './BlueprintDetailPage.module.scss';
 
-export function BlueprintDetailPage({ id }: { id: string }) {
+interface Props {
+  id: string;
+  blueprintsEnabled?: boolean;
+}
+
+// Design group B: blueprint detail — header/KPIs, runs + versions/analysis
+// columns, and the ⋯ menu (duplicate/export/import). "Abrir editor" targets
+// the Task 2 route; until that route exists the link 404s inside this
+// branch, which the plan accepts.
+export function BlueprintDetailPage({ id, blueprintsEnabled = true }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
-  const { data } = useBlueprintQuery(id);
-  const { data: runs } = useBlueprintRunsQuery(id);
-  const save = useSaveBlueprintVersionMutation();
-  const publish = usePublishBlueprintVersionMutation();
-  const activate = useActivateBlueprintMutation();
+  const { data, isLoading, isError } = useBlueprintQuery(id);
   const deactivate = useDeactivateBlueprintMutation();
-  const [json, setJson] = useState('');
+  const duplicate = useSaveBlueprintVersionMutation();
   const [message, setMessage] = useState<string | null>(null);
-  const onError = { onError: (err: AppError) => setMessage(t(`errors.${err.code ?? 'GENERIC'}`)) };
+  const [confirmDeactivate, setConfirmDeactivate] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [selectedRun, setSelectedRun] = useState<BlueprintRunDto | null>(null);
 
-  if (!data) return null;
-  const latest: BlueprintVersionDto | undefined = data.versions[0];
+  if (isLoading) return <PlatformPageShell group={t('group')} title="" ><div className={styles.loading} /></PlatformPageShell>;
 
-  function onSave() {
-    let graph: BlueprintGraph;
-    try {
-      graph = JSON.parse(json) as BlueprintGraph;
-    } catch {
-      setMessage(t('detail.invalidJson'));
-      return;
-    }
-    setMessage(null);
-    save.mutate({ id, graph }, onError);
+  if (isError || !data) {
+    return (
+      <PlatformPageShell group={t('group')} title={t('detail.notFound')}>
+        <Link className={tableStyles.primaryLink} href="/dashboard/platform/blueprints">{t('back')}</Link>
+      </PlatformPageShell>
+    );
+  }
+
+  const latest = data.versions[0];
+  const activeVersion = data.versions.find((v) => v.id === data.activeVersionId) ?? null;
+
+  function onDeactivate() {
+    deactivate.mutate(
+      { id },
+      {
+        onSuccess: ({ cancelledRuns }) => {
+          setConfirmDeactivate(false);
+          toast.success(t('detail.deactivatedToast', { count: cancelledRuns }));
+        },
+        onError: (err: AppError) => { setConfirmDeactivate(false); setMessage(t(`errors.${err.code ?? 'GENERIC'}`)); },
+      },
+    );
   }
 
   async function onExport() {
     if (!latest) return;
     try {
       await navigator.clipboard.writeText(JSON.stringify(latest.graph, null, 2));
-      setMessage(t('detail.copied'));
+      toast.success(t('detail.copied'));
     } catch {
-      setMessage(t('errors.GENERIC'));
+      toast.error(t('errors.GENERIC'));
     }
   }
 
+  function onDuplicate() {
+    if (!activeVersion) return;
+    duplicate.mutate(
+      { id, graph: activeVersion.graph },
+      { onError: (err: AppError) => setMessage(t(`errors.${err.code ?? 'GENERIC'}`)) },
+    );
+  }
+
   return (
-    <PlatformPageShell
-      group={t('group')}
-      title={data.name}
-      subtitle={t(`status.${data.status}`)}
-      actions={data.status === 'ACTIVE'
-        ? <Button variant="outline" onClick={() => deactivate.mutate({ id }, onError)}>{t('detail.deactivate')}</Button>
-        : null}
-    >
+    <PlatformPageShell group={t('group')} title={data.name} subtitle={data.description || undefined}>
       <Link className={tableStyles.primaryLink} href="/dashboard/platform/blueprints">{t('back')}</Link>
 
-      <section className={styles.section}>
-        <Label htmlFor="blueprint-json">{t('detail.importTitle')}</Label>
-        <p className={styles.hint}>{t('detail.importHint')}</p>
-        <textarea id="blueprint-json" className={styles.json} value={json} onChange={(e) => setJson(e.target.value)} spellCheck={false} rows={14} />
-        <div className={styles.row}>
-          <Button onClick={onSave} disabled={save.isPending || !json.trim()}>{t('detail.save')}</Button>
-          {latest && <Button variant="outline" onClick={onExport}>{t('detail.export')}</Button>}
+      {data.status === 'INVALID' && (
+        <div className={styles.invalidBanner}>
+          <AlertTriangle size={18} />
+          <p>{t('detail.invalidBanner')}</p>
         </div>
-        {message && <p role="alert" className={styles.message}>{message}</p>}
-      </section>
-
-      {latest && (
-        <section className={styles.section}>
-          <h2 className={styles.h2}>{t('detail.analysisErrors')} — v{latest.version}</h2>
-          {latest.analysis.ok ? <p className={styles.ok}>{t('detail.analysisOk')}</p> : (
-            <ul className={styles.errors}>
-              {latest.analysis.errors.map((e, i) => (
-                <li key={`${e.nodeId ?? 'graph'}-${i}`}>
-                  <span className={tableStyles.mono}>{e.nodeId ?? '—'}</span>{' '}
-                  <strong>{t(`errors.${e.code}`)}</strong>{' '}
-                  <span className={styles.detail}>{e.message}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
       )}
+      <FlagOffBanner visible={!blueprintsEnabled} />
 
-      <section className={styles.section}>
-        <h2 className={styles.h2}>{t('detail.versions')}</h2>
-        <table className={tableStyles.card}>
-          <tbody>
-            {data.versions.map((v) => {
-              const isActive = data.activeVersionId === v.id;
-              return (
-                <tr key={v.id} className={tableStyles.row}>
-                  <td className={tableStyles.mono}>v{v.version}</td>
-                  <td>{isActive ? t('detail.active') : v.publishedAt ? t('detail.published') : t('detail.draft')}</td>
-                  <td className={tableStyles.right}>
-                    {!v.publishedAt && v.analysis.ok && (
-                      <Button size="sm" disabled={publish.isPending} onClick={() => publish.mutate({ id, versionId: v.id }, onError)}>{t('detail.publish')}</Button>
-                    )}
-                    {v.publishedAt && !isActive && (
-                      <Button size="sm" disabled={activate.isPending} onClick={() => activate.mutate({ id, versionId: v.id }, onError)}>{t('detail.activate')}</Button>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </section>
+      <div className={styles.header}>
+        <div className={styles.headline}>
+          <BlueprintStatusPill status={data.status} />
+          {data.latestVersion && <span className={styles.versionBadge}>{t('detail.activeVersionBadge', { version: activeVersion?.version ?? data.latestVersion })}</span>}
+        </div>
+        <div className={styles.actions}>
+          <Link className={styles.editorLink} href={`/dashboard/platform/blueprints/${id}/editor`}>{t('detail.openEditor')} →</Link>
+          {data.status === 'ACTIVE' && (
+            <Button variant="outline" onClick={() => setConfirmDeactivate(true)}>{t('detail.deactivate')}</Button>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className={styles.moreBtn} aria-label={t('detail.moreActions')}><MoreHorizontal size={16} /></button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem disabled={!activeVersion} onSelect={onDuplicate}>{t('detail.duplicate')}</DropdownMenuItem>
+              <DropdownMenuItem disabled={!latest} onSelect={onExport}>{t('detail.export')}</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setImportOpen(true)}>{t('detail.importTitle')}</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
 
-      <section className={styles.section}>
-        <h2 className={styles.h2}>{t('detail.runs')}</h2>
-        {!runs || runs.items.length === 0 ? <p className={tableStyles.empty}>{t('detail.noRuns')}</p> : (
-          <table className={tableStyles.card}>
-            <thead className={tableStyles.head}>
-              <tr>{(['status', 'node', 'wakeAt', 'error', 'created'] as const).map((c) => <th key={c}>{t(`runColumns.${c}`)}</th>)}</tr>
-            </thead>
-            <tbody>
-              {runs.items.map((r) => (
-                <tr key={r.id} className={tableStyles.row}>
-                  <td>{t(`runStatus.${r.status}`)}</td>
-                  <td className={tableStyles.mono}>{r.currentNodeId ?? '—'}</td>
-                  <td className={tableStyles.mono}>{r.wakeAt ? new Date(r.wakeAt).toLocaleString() : '—'}</td>
-                  <td className={tableStyles.mono}>{r.errorCode ?? '—'}</td>
-                  <td className={tableStyles.mono}>{new Date(r.createdAt).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+      {message && <p role="alert" className={styles.message}>{message}</p>}
+
+      <div className={`${tableStyles.kpis} ${styles.kpis}`}>
+        {(['started', 'completed', 'cancelled', 'failed'] as const).map((k) => (
+          <div key={k} className={tableStyles.kpi}>
+            <div className={tableStyles.kpiLabel}>{t(`kpis.${k}`)}</div>
+            <div className={tableStyles.kpiValue}>{data.counts7d[k]}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className={styles.columns}>
+        <RunsTable blueprintId={id} onSelectRun={setSelectedRun} />
+        <div className={styles.rightStack}>
+          <VersionsCard blueprint={data} onError={setMessage} />
+          {latest && <AnalysisCard blueprintId={id} version={latest} />}
+        </div>
+      </div>
+
+      <Dialog open={confirmDeactivate} onOpenChange={setConfirmDeactivate}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('detail.deactivateConfirmTitle')}</DialogTitle>
+          </DialogHeader>
+          <p className={styles.confirmBody}>{t('detail.deactivateConfirmBody')}</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmDeactivate(false)}>{t('newDialog.cancel')}</Button>
+            <Button variant="destructive" disabled={deactivate.isPending} onClick={onDeactivate}>{t('detail.deactivate')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <ImportJsonDialog blueprintId={id} open={importOpen} onOpenChange={setImportOpen} />
+
+      {selectedRun && <RunDrawer blueprintId={id} run={selectedRun} onClose={() => setSelectedRun(null)} />}
     </PlatformPageShell>
   );
 }

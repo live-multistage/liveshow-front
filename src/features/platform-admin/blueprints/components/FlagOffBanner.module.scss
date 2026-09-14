@@ -1,0 +1,20 @@
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(234, 179, 8, .08);
+  border: 1px solid rgba(234, 179, 8, .34);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 22px;
+  color: #facc15;
+
+  svg { flex: none; margin-top: 1px; }
+
+  p { margin: 0; font-size: 13.5px; line-height: 1.5; color: #e9d38a; }
+}
+
+.mono {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 12px;
+}
