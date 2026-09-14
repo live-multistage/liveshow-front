@@ -24,7 +24,10 @@ export type BlueprintConfigField =
   | { kind: 'boolean'; required: boolean; description: string }
   | { kind: 'duration'; required: boolean; description: string }
   | { kind: 'keyValueList'; required: boolean; description: string; template: boolean; maxItems: number }
-  | { kind: 'secret'; required: boolean; description: string };
+  | { kind: 'secret'; required: boolean; description: string }
+  | { kind: 'cases'; required: boolean; description: string; maxCases: number };
+
+export interface BlueprintSwitchCase { match: string | number | boolean; port: string }
 
 export interface BlueprintOutputField { type: BlueprintFieldType; class: BlueprintFieldClass; description: string; port?: string }
 
@@ -41,13 +44,16 @@ export interface BlueprintCatalogEntry {
   optionalPorts?: string[];
   mode?: 'dispatch' | 'call';
   secretFields?: string[];
+  dynamicPorts?: 'switch';
+  dynamicOutputs?: 'forEach';
 }
 
 export type BlueprintAnalysisCode =
   | 'INVALID_GRAPH' | 'NO_TRIGGER' | 'MULTIPLE_TRIGGERS' | 'UNREACHABLE_NODE' | 'CYCLE'
   | 'DANGLING_PATH' | 'CONDITION_PORTS' | 'UNKNOWN_NODE' | 'INVALID_CONFIG' | 'BAD_REFERENCE'
   | 'TYPE_MISMATCH' | 'RESTRICTED_FIELD' | 'PERSONAL_NOT_ALLOWED' | 'MISSING_DEDUPE_KEY'
-  | 'WAIT_TOO_LONG' | 'TOO_MANY_NODES' | 'PORT_EDGES' | 'SECRET_NOT_ALLOWED' | 'JSON_PATH';
+  | 'WAIT_TOO_LONG' | 'TOO_MANY_NODES' | 'PORT_EDGES' | 'SECRET_NOT_ALLOWED' | 'JSON_PATH'
+  | 'FOREACH_DEPTH' | 'SWITCH_CASES';
 export interface BlueprintAnalysisError { nodeId?: string; code: BlueprintAnalysisCode; message: string }
 export interface BlueprintAnalysis { ok: boolean; errors: BlueprintAnalysisError[] }
 
@@ -82,6 +88,7 @@ export interface BlueprintRunStepDto {
   startedAt: string;
   finishedAt: string | null;
 }
+export interface BlueprintRunChildrenCounts { total: number; running: number; completed: number; cancelled: number; failed: number }
 export interface BlueprintRunDto {
   id: string;
   versionId: string;
@@ -93,6 +100,9 @@ export interface BlueprintRunDto {
   createdAt: string;
   updatedAt: string;
   steps: BlueprintRunStepDto[];
+  parentRunId: string | null;
+  itemIndex: number | null;
+  children: BlueprintRunChildrenCounts | null;
 }
 export interface BlueprintRunsPage { items: BlueprintRunDto[]; nextCursor: string | null }
 

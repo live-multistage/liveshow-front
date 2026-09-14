@@ -16,6 +16,7 @@ import { RunDrawer } from './RunDrawer';
 const baseRun: BlueprintRunDto = {
   id: 'run_0123456789', versionId: 'v2', version: 2, status: 'COMPLETED', currentNodeId: null,
   wakeAt: null, errorCode: null, createdAt: '2026-10-01T10:00:00Z', updatedAt: '2026-10-01T10:00:00Z',
+  parentRunId: null, itemIndex: null, children: null,
   steps: [
     { nodeId: 'e1', nodeKey: 'orders.paid', status: 'OK', outcome: 'WAITING', errorCode: null, startedAt: '2026-10-01T10:00:00Z', finishedAt: '2026-10-01T10:00:01Z' },
     { nodeId: 'e7', nodeKey: 'email.send', status: 'FAILED', outcome: 'weird_unmapped_outcome', errorCode: 'TRANSIENT_EXHAUSTED', startedAt: '2026-10-01T10:00:02Z', finishedAt: null },

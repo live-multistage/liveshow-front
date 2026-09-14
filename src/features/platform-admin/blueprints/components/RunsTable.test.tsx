@@ -14,6 +14,7 @@ import { useBlueprintRunsQuery } from '../queries/blueprints.queries';
 const run: BlueprintRunDto = {
   id: 'r1', versionId: 'v2', version: 2, status: 'WAITING', currentNodeId: 'e3',
   wakeAt: '2026-10-02T18:00:00Z', errorCode: null, createdAt: '2026-10-01T10:00:00Z', updatedAt: '2026-10-01T10:00:00Z', steps: [],
+  parentRunId: null, itemIndex: null, children: null,
 };
 
 const fetchNextPage = vi.fn();
