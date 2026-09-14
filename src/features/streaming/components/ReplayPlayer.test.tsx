@@ -4,13 +4,11 @@
  * for the same pattern), next-intl echoes keys, media play/pause stubbed on
  * HTMLMediaElement.prototype.
  */
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, act, fireEvent } from '@testing-library/react';
 import { ReplayPlayer } from './ReplayPlayer';
 import { DRAWER_W } from './CameraGrid';
-import type { ReplayCameraPlayback } from '../types/live.types';
+import type { ReplayCameraPlayback, ReplayStagePlayback } from '../types/live.types';
 
 // ── hls.js mock ──────────────────────────────────────────────────────────────
 const h = vi.hoisted(() => {
@@ -56,6 +54,7 @@ vi.mock('@/lib/analytics/analytics-client', () => ({ track: vi.fn() }));
 vi.mock('./RecommendedOverlay', () => ({ RecommendedOverlay: () => null }));
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 const authState = { isLoggedIn: true };
 vi.mock('@/features/account/hooks/use-auth', () => ({
@@ -224,11 +223,32 @@ describe('ReplayPlayer — header stays clear of the camera drawer', () => {
     fireEvent.click(getByLabelText('closeCameras'));
     expect(queryByLabelText('closeCameras')).toBeNull();
   });
+});
 
-  it('declares pointer-events: none on the bar and auto on its buttons/links in the stylesheet', () => {
-    const scss = readFileSync(join(__dirname, 'ReplayPlayer.module.scss'), 'utf-8');
-    const headerRule = scss.slice(scss.indexOf('.header {'), scss.indexOf('.headerHidden'));
-    expect(headerRule).toMatch(/pointer-events:\s*none/);
-    expect(headerRule).toMatch(/button,\s*\n\s*a\s*\{\s*\n\s*pointer-events:\s*auto/);
+// Replay mirrors the live chrome: stage tabs + share, but no chat / viewers.
+describe('ReplayPlayer — shared chrome', () => {
+  it('renders stage tabs and swaps cameras on stage change', () => {
+    const stages: ReplayStagePlayback[] = [
+      { stageId: 's1', name: 'Palco A', slug: 'a', position: 0, cameras: [camA] },
+      { stageId: 's2', name: 'Palco B', slug: 'b', position: 1, cameras: [camB] },
+    ];
+    const { getByRole, container } = render(
+      <ReplayPlayer cameras={[camA, camB]} stages={stages} title="Show" eventId="evt-1" timeline={timeline} />,
+    );
+    expect(container.querySelectorAll('video')).toHaveLength(1);
+    expect(lastHls().loadSource).toHaveBeenCalledWith(expect.stringContaining('pkg-a'));
+
+    fireEvent.click(getByRole('tab', { name: /Palco B/ }));
+    expect(lastHls().loadSource).toHaveBeenCalledWith(expect.stringContaining('pkg-b'));
+  });
+
+  it('exposes share and the REPLAY badge, with no chat or viewer chrome', () => {
+    const { getByLabelText, getAllByText, queryByTitle, container } = render(
+      <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} />,
+    );
+    expect(getByLabelText('share')).toBeTruthy();
+    expect(getAllByText('REPLAY').length).toBeGreaterThan(0);
+    expect(queryByTitle('toggleChat')).toBeNull();
+    expect(container.querySelector('svg.lucide-users')).toBeNull();
   });
 });

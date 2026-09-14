@@ -19,7 +19,7 @@
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
 
   // Mobile: the dock has no room to sit beside the video, so it becomes a
-  // fullscreen overlay instead — same breakpoint LivePlayer.module.scss
+  // fullscreen overlay instead — same breakpoint Player.module.scss
   // already uses elsewhere in this feature.
   @media (max-width: 639px) {
     inset: 0;

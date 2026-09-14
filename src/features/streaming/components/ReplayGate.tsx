@@ -71,6 +71,8 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
   return (
     <ReplayPlayer
       cameras={playback.data.cameras}
+      stages={playback.data.stages}
+      primaryCameraId={playback.data.primaryCameraId}
       librasCameraId={playback.data.librasCameraId}
       title={eventTitle}
       eventId={eventId}

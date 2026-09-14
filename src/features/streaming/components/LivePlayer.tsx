@@ -29,7 +29,7 @@ import { shareCurrentPage } from '../utils/share-current-page';
 import { useLiveDvr } from '../hooks/use-live-dvr';
 import { PlayerStage } from './PlayerStage';
 import { RecommendedOverlay } from './RecommendedOverlay';
-import styles from './LivePlayer.module.scss';
+import styles from './Player.module.scss';
 
 interface LivePlayerProps {
   cameras: LiveCamera[];
