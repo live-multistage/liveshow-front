@@ -2259,6 +2259,7 @@
           "or": "O",
           "addRule": "+ Agregar regla",
           "removeRule": "Quitar regla",
+          "incomplete": "Regla incompleta: seleccione un campo y un valor.",
           "now": "ahora",
           "value": "Valor",
           "true": "verdadero",

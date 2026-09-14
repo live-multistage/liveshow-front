@@ -2259,6 +2259,7 @@
           "or": "OR",
           "addRule": "+ Add rule",
           "removeRule": "Remove rule",
+          "incomplete": "Incomplete rule — pick a field and a value.",
           "now": "now",
           "value": "Value",
           "true": "true",
