@@ -221,7 +221,7 @@ export function portsOfNode(entry: BlueprintCatalogEntry, config: Record<string,
   if (entry.key === 'core.end') return [];
   if (entry.key === 'core.condition') return [{ name: 'true', optional: false }, { name: 'false', optional: false }];
   if (entry.key === 'core.forEach') return [{ name: 'each', optional: false }, { name: 'done', optional: false }];
-  if (entry.dynamicPorts === 'switch' || entry.key === 'core.switch') {
+  if (entry.dynamicPorts === 'switch') {
     const seen = new Set<string>();
     const ports: PortSpec[] = [];
     for (const c of casesOf(config.cases)) {
@@ -261,26 +261,26 @@ function collectFields(
 }
 
 /**
- * Outputs a node can reference: its ancestors' (the analyzer narrows this to
- * nodes on every path), or — for a trigger's dedupeKey — the trigger's own.
- * Object outputs are flattened: one entry per leaf AND per object/list node,
- * so a picker can offer either the whole object/list or a nested leaf.
- */
-/**
  * Mirrors the orchestrator's domain/outputs-of.ts outputsOf: only core.forEach
  * is dynamic, typing `item` from the resolved `items` ref (falls back to the
  * static json/number outputs when the ref is missing or isn't a list).
  * `forEachId` is the id of the node whose config is being evaluated — resolving
- * its own `items` ref walks its ancestors, so it never revisits itself.
+ * its own `items` ref walks its ancestors.
+ *
+ * A well-formed (acyclic) graph can't make a forEach its own ancestor, but a
+ * corrupted save or a future import path could still produce a cycle — e.g.
+ * two forEach nodes each referencing the other's `item`. `resolving` tracks
+ * forEach ids already on the current resolution stack; hitting one again
+ * short-circuits to the node's static outputs instead of recursing forever.
  */
-export function outputsOfNode(
+function outputsOfNodeInternal(
   entry: BlueprintCatalogEntry, config: Record<string, unknown>,
-  state: EditorState, catalog: Map<string, BlueprintCatalogEntry>, forEachId: string,
+  state: EditorState, catalog: Map<string, BlueprintCatalogEntry>, forEachId: string, resolving: Set<string>,
 ): Record<string, BlueprintOutputField> {
-  if (entry.dynamicOutputs !== 'forEach' && entry.key !== 'core.forEach') return entry.outputs;
+  if ((entry.dynamicOutputs !== 'forEach' && entry.key !== 'core.forEach') || resolving.has(forEachId)) return entry.outputs;
   const ref = parseRef(config.items);
   const spec = ref
-    ? availableFields(state, catalog, forEachId)
+    ? availableFieldsInternal(state, catalog, forEachId, new Set(resolving).add(forEachId))
       .find((f) => f.nodeId === ref.nodeId && f.field === ref.field && f.path.join('.') === ref.path.join('.'))?.out
     : undefined;
   if (!spec || !isList(spec.type)) return entry.outputs;
@@ -290,7 +290,22 @@ export function outputsOfNode(
   };
 }
 
-export function availableFields(state: EditorState, catalog: Map<string, BlueprintCatalogEntry>, nodeId: string): AvailableField[] {
+export function outputsOfNode(
+  entry: BlueprintCatalogEntry, config: Record<string, unknown>,
+  state: EditorState, catalog: Map<string, BlueprintCatalogEntry>, forEachId: string,
+): Record<string, BlueprintOutputField> {
+  return outputsOfNodeInternal(entry, config, state, catalog, forEachId, new Set());
+}
+
+/**
+ * Outputs a node can reference: its ancestors' (the analyzer narrows this to
+ * nodes on every path), or — for a trigger's dedupeKey — the trigger's own.
+ * Object outputs are flattened: one entry per leaf AND per object/list node,
+ * so a picker can offer either the whole object/list or a nested leaf.
+ */
+function availableFieldsInternal(
+  state: EditorState, catalog: Map<string, BlueprintCatalogEntry>, nodeId: string, resolving: Set<string>,
+): AvailableField[] {
   const self = state.nodes.find((n) => n.id === nodeId);
   if (!self) return [];
   const selfEntry = catalog.get(catalogKey(self.node, self.version));
@@ -308,14 +323,16 @@ export function availableFields(state: EditorState, catalog: Map<string, Bluepri
     if (!ids.has(n.id)) continue;
     const entry = catalog.get(catalogKey(n.node, n.version));
     if (!entry) continue;
-    // A forEach can't be its own ancestor in a DAG (ids excludes nodeId itself
-    // unless self is a trigger), but guard explicitly against cycles anyway.
-    const outputs = n.id === nodeId ? entry.outputs : outputsOfNode(entry, n.config, state, catalog, n.id);
+    const outputs = n.id === nodeId ? entry.outputs : outputsOfNodeInternal(entry, n.config, state, catalog, n.id, resolving);
     for (const [field, spec] of Object.entries(outputs)) {
       collectFields(nodeId, state.edges, n.id, entry.label, field, spec, [], result);
     }
   }
   return result;
+}
+
+export function availableFields(state: EditorState, catalog: Map<string, BlueprintCatalogEntry>, nodeId: string): AvailableField[] {
+  return availableFieldsInternal(state, catalog, nodeId, new Set());
 }
 
 export function errorCountByNode(errors: BlueprintAnalysisError[]): Map<string, number> {

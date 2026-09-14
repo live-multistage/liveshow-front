@@ -302,6 +302,38 @@ describe('outputsOfNode / availableFields for core.forEach', () => {
     const doneFields = availableFields(s, CATALOG_MAP, 'done1');
     expect(doneFields.some((field) => field.nodeId === 'f' && field.field === 'item')).toBe(false);
   });
+
+  it('propagates the PERSONAL class through to a resolved forEach item', () => {
+    const contactsGraph: BlueprintGraph = {
+      schemaVersion: 1,
+      nodes: [
+        { id: 't', node: 'events.published', version: 1, config: {}, position: { x: 0, y: 0 } },
+        { id: 'c', node: 'account.contacts', version: 1, config: { userId: '{{t.eventId}}' }, position: { x: 100, y: 0 } },
+        { id: 'f', node: 'core.forEach', version: 1, config: { items: '{{c.contacts}}' }, position: { x: 200, y: 0 } },
+      ],
+      edges: [{ from: 't', to: 'c' }, { from: 'c', to: 'f' }],
+    };
+    const cs = graphToState(contactsGraph);
+    const outputs = outputsOfNode(forEachEntry, { items: '{{c.contacts}}' }, cs, CATALOG_MAP, 'f');
+    expect(outputs.item.class).toBe('PERSONAL');
+    expect(outputs.item.type).toEqual({ object: { email: { type: 'string', class: 'PERSONAL', description: 'E-mail do contato' } } });
+  });
+
+  it('does not hang on a cycle of forEach nodes referencing each other\'s item, falling back to static outputs', () => {
+    // f1 -> f2 -> f1, each config.items pointing at the other's `item`.
+    const cyclicGraph: BlueprintGraph = {
+      schemaVersion: 1,
+      nodes: [
+        { id: 'f1', node: 'core.forEach', version: 1, config: { items: '{{f2.item}}' }, position: { x: 0, y: 0 } },
+        { id: 'f2', node: 'core.forEach', version: 1, config: { items: '{{f1.item}}' }, position: { x: 100, y: 0 } },
+      ],
+      edges: [{ from: 'f1', to: 'f2', port: 'each' }, { from: 'f2', to: 'f1', port: 'each' }],
+    };
+    const cs = graphToState(cyclicGraph);
+    const fields = availableFields(cs, CATALOG_MAP, 'f1');
+    const item = fields.find((field) => field.nodeId === 'f2' && field.field === 'item' && field.path.length === 0);
+    expect(item?.out.type).toBe('json');
+  });
 });
 
 describe('errorCountByNode', () => {

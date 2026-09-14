@@ -74,6 +74,14 @@ export const CATALOG: BlueprintCatalogEntry[] = [
     config: { userId: uuidRef('Usuário'), eventId: uuidRef('Evento') }, outputs: { saved: { type: 'boolean', class: 'INTERNAL', description: 'true se ainda salvo' } } },
   { kind: 'data', key: 'account.profile', version: 1, label: 'Perfil do usuário', description: 'Primeiro nome para personalizar mensagens.',
     config: { userId: uuidRef('Usuário') }, outputs: { firstName: { type: 'string', class: 'PERSONAL', description: 'Primeiro nome' } } },
+  // PERSONAL-class list output, used to exercise outputsOfNode's class propagation through core.forEach.
+  { kind: 'data', key: 'account.contacts', version: 1, label: 'Contatos', description: 'Contatos do usuário, lidos no momento em que o nó executa.',
+    config: { userId: uuidRef('Usuário') }, outputs: {
+      contacts: {
+        type: { list: { object: { email: { type: 'string', class: 'PERSONAL', description: 'E-mail do contato' } } } },
+        class: 'PERSONAL', description: 'Contatos',
+      },
+    } },
   { kind: 'action', key: 'notifications.inApp', version: 1, label: 'Notificação no app', description: 'Cria a notificação do sino (e o push, se habilitado).',
     config: {
       recipient: uuidRef('Destinatário (userId)'),
