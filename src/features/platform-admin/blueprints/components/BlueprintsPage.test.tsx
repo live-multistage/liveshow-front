@@ -4,10 +4,11 @@ vi.mock('next-intl', () => ({
     t.rich = (key: string) => key;
     return t;
   },
-  useFormatter: () => ({ relativeTime: () => 'agora', dateTime: (d: Date) => d.toISOString() }),
+  useFormatter: () => ({ relativeTime, dateTime: (d: Date) => d.toISOString() }),
 }));
 vi.mock('next/link', () => ({ default: ({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: (e: React.MouseEvent) => void }) => <a href={href} onClick={onClick}>{children}</a> }));
 const push = vi.fn();
+const relativeTime = vi.fn(() => 'agora');
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 vi.mock('../queries/blueprints.queries', () => ({ useBlueprintsQuery: vi.fn() }));
 vi.mock('./NewBlueprintDialog', () => ({
@@ -42,6 +43,12 @@ describe('BlueprintsPage', () => {
     expect(within(row).getByText('v2')).toBeInTheDocument();
     expect(within(row).getByText('12')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Lembrete — comprou' })).toHaveAttribute('href', '/dashboard/platform/blueprints/b1');
+  });
+
+  it('passes an explicit `now` to relativeTime so next-intl does not fall back', () => {
+    mockList(rows);
+    render(<BlueprintsPage />);
+    expect(relativeTime).toHaveBeenCalledWith(expect.any(Date), expect.any(Number));
   });
 
   // PlatformTable's `.head`/`.row` are display:grid for div lists; on a real

@@ -18,8 +18,9 @@ import styles from './BlueprintsPage.module.scss';
 // the active locale, so this needs no ICU strings of its own.
 function fmtUpdated(iso: string, format: ReturnType<typeof useFormatter>): string {
   const date = new Date(iso);
-  const diffMs = Date.now() - date.getTime();
-  if (diffMs < 86_400_000) return format.relativeTime(date);
+  const now = Date.now();
+  // next-intl needs `now` explicitly; otherwise it logs ENVIRONMENT_FALLBACK.
+  if (now - date.getTime() < 86_400_000) return format.relativeTime(date, now);
   return format.dateTime(date, { dateStyle: 'short' });
 }
 
