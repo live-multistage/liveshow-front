@@ -17,6 +17,9 @@ export const blueprintsService = {
   deactivate: async (id: string) => (await httpClient.post<{ cancelledRuns: number }>(`/blueprints/${id}/deactivate`)).data,
   runs: async (id: string, params: BlueprintRunsParams = {}) =>
     (await httpClient.get<BlueprintRunsPage>(`/blueprints/${id}/runs`, { params })).data,
+  // Backend cursor is the last child's numeric itemIndex as a string; pages of 25.
+  runChildren: async (id: string, runId: string, cursor?: string) =>
+    (await httpClient.get<BlueprintRunsPage>(`/blueprints/${id}/runs/${runId}/children`, { params: { cursor } })).data,
   listSecrets: async () => (await httpClient.get<BlueprintSecretSummary[]>('/blueprints/secrets')).data,
   setSecret: async (name: string, value: string) => {
     await httpClient.put(`/blueprints/secrets/${name}`, { value } satisfies SetBlueprintSecretRequest);

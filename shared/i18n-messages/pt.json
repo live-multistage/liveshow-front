@@ -2161,6 +2161,23 @@
         "node": "Nó",
         "meta": "Criada / acorda"
       },
+      "runs": {
+        "children": {
+          "summary": "{total, plural, one {# filho} other {# filhos}} · {completed} ok · {failed} {failed, plural, one {falha} other {falhas}} · {running} rodando",
+          "none": "0 filhos · aguardando",
+          "loadMore": "carregar mais filhos",
+          "loading": "carregando filhos…",
+          "error": "Não foi possível carregar os filhos",
+          "retry": "tentar de novo",
+          "expand": "mostrar filhos",
+          "collapse": "ocultar filhos",
+          "parentCrumb": "Execução pai › #{index}",
+          "parent": "pai",
+          "itemLine": "item #{index}",
+          "title": "Filhos",
+          "seeAll": "ver todos os {total} →"
+        }
+      },
       "drawer": {
         "title": "Detalhes da execução",
         "close": "Fechar",

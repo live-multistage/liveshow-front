@@ -2161,6 +2161,23 @@
         "node": "Nodo",
         "meta": "Creada / despierta"
       },
+      "runs": {
+        "children": {
+          "summary": "{total, plural, one {# hijo} other {# hijos}} · {completed} ok · {failed} {failed, plural, one {falla} other {fallas}} · {running} en curso",
+          "none": "0 hijos · pendiente",
+          "loadMore": "cargar más hijos",
+          "loading": "cargando hijos…",
+          "error": "No se pudieron cargar los hijos",
+          "retry": "intentar de nuevo",
+          "expand": "mostrar hijos",
+          "collapse": "ocultar hijos",
+          "parentCrumb": "Ejecución padre › #{index}",
+          "parent": "padre",
+          "itemLine": "elemento #{index}",
+          "title": "Hijos",
+          "seeAll": "ver todos los {total} →"
+        }
+      },
       "drawer": {
         "title": "Detalles de la ejecución",
         "close": "Cerrar",

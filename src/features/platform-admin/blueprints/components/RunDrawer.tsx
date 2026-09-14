@@ -3,8 +3,9 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useFormatter, useTranslations } from 'next-intl';
-import { X } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import type { BlueprintRunDto, BlueprintRunStepDto } from '@live-show/api-contracts';
+import { useBlueprintRunChildrenQuery } from '../queries/blueprints.queries';
 import styles from './RunDrawer.module.scss';
 
 const RESULT_CLASS: Record<BlueprintRunStepDto['status'], string> = {
@@ -26,14 +27,24 @@ interface Props {
   blueprintId: string;
   run: BlueprintRunDto;
   onClose: () => void;
+  // Navigates the drawer to another run by id — the page owner resolves the
+  // run from its cached pages (see BlueprintDetailPage). Only present when
+  // that navigation is possible: a child's "pai" button or a parent's child
+  // list / "ver todos".
+  onNavigate?: (runId: string) => void;
 }
 
 // Design D: run timeline drawer. Steps only ever carry ids/keys/timings — no
 // personal data flows through a run, so there is nothing to redact here.
-export function RunDrawer({ blueprintId, run, onClose }: Props) {
+// Design D6/D7: a child run shows a breadcrumb back to its parent, a parent
+// run with children lists its first 5 with a "ver todos" shortcut.
+export function RunDrawer({ blueprintId, run, onClose, onNavigate }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
   const format = useFormatter();
   const outcomeLabel = (outcome: string) => (t.has(`runOutcome.${outcome}`) ? t(`runOutcome.${outcome}`) : outcome);
+  const hasChildren = !!run.children && run.children.total > 0;
+  const { data: childrenData } = useBlueprintRunChildrenQuery(blueprintId, run.id, { enabled: hasChildren });
+  const children = (childrenData?.pages.flatMap((p) => p.items) ?? []).slice(0, 5);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -45,20 +56,65 @@ export function RunDrawer({ blueprintId, run, onClose }: Props) {
     <div className={styles.backdrop} onClick={onClose}>
       <aside className={styles.drawer} onClick={(e) => e.stopPropagation()} role="dialog" aria-label={t('drawer.title')}>
         <div className={styles.header}>
-          <div className={styles.headTop}>
-            <span className={styles.pill}>{t(`runStatus.${run.status}`)}</span>
-            <button className={styles.close} onClick={onClose} aria-label={t('drawer.close')}><X size={18} /></button>
+          {run.parentRunId ? (
+            <div className={styles.crumbRow}>
+              <span className={styles.crumb}>{t('runs.children.parentCrumb', { index: run.itemIndex })}</span>
+              <button className={styles.close} onClick={onClose} aria-label={t('drawer.close')}><X size={18} /></button>
+            </div>
+          ) : (
+            <div className={styles.headTop}>
+              <span className={styles.pill}>{t(`runStatus.${run.status}`)}</span>
+              <button className={styles.close} onClick={onClose} aria-label={t('drawer.close')}><X size={18} /></button>
+            </div>
+          )}
+          {run.parentRunId && onNavigate && (
+            <button className={styles.parentBtn} onClick={() => onNavigate(run.parentRunId!)}>
+              <ArrowLeft size={12} />{t('runs.children.parent')}
+            </button>
+          )}
+          {run.parentRunId ? (
+            <div className={styles.headTop}>
+              <span className={styles.runId}>{run.id.slice(0, 12)} · #{run.itemIndex}</span>
+              <span className={styles.pill}>{t(`runStatus.${run.status}`)}</span>
+            </div>
+          ) : (
+            <div className={styles.runId}>{run.id.slice(0, 12)}</div>
+          )}
+          <div className={styles.sub}>
+            {run.parentRunId && `${t('runs.children.itemLine', { index: run.itemIndex })} · `}v{run.version} · {fmtDateTime(run.createdAt, format)}
           </div>
-          <div className={styles.runId}>{run.id.slice(0, 12)}</div>
-          <div className={styles.sub}>v{run.version} · {fmtDateTime(run.createdAt, format)}</div>
           {run.status === 'WAITING' && run.wakeAt && (
             <div className={styles.wake}>{t('drawer.wakeAt', { datetime: fmtDateTime(run.wakeAt, format) })}</div>
+          )}
+          {hasChildren && (
+            <div className={styles.childrenSummary}>
+              <span className={styles.pill}>{t('runs.children.summary', { total: run.children!.total, completed: run.children!.completed, failed: run.children!.failed, running: run.children!.running })}</span>
+            </div>
           )}
         </div>
 
         {run.status === 'CANCELLED' && <div className={styles.banner}>{t('drawer.cancelledBanner')}</div>}
 
         <div className={styles.body}>
+          {hasChildren && (
+            <div className={styles.childrenSection}>
+              <div className={styles.childrenTitle}>{t('runs.children.title')}</div>
+              <div className={styles.childrenList}>
+                {children.map((child) => (
+                  <button key={child.id} className={styles.childItem} onClick={() => onNavigate?.(child.id)}>
+                    <span className={styles.childIdx}>#{child.itemIndex}</span>
+                    <span className={styles.pill}>{t(`runStatus.${child.status}`)}</span>
+                    <span className={styles.childUpdated}>{fmtDateTime(child.updatedAt, format)}</span>
+                  </button>
+                ))}
+              </div>
+              {run.children!.total > children.length && (
+                <button className={styles.seeAll} onClick={() => onNavigate?.(run.id)}>
+                  {t('runs.children.seeAll', { total: run.children!.total })}
+                </button>
+              )}
+            </div>
+          )}
           {run.steps.length === 0 && <p className={styles.empty}>{t('drawer.noSteps')}</p>}
           {run.steps.map((step, i) => {
             const dur = duration(step);

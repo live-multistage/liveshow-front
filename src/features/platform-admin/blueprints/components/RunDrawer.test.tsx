@@ -7,11 +7,14 @@ vi.mock('next-intl', () => ({
   useFormatter: () => ({ dateTime: (d: Date) => d.toISOString() }),
 }));
 vi.mock('next/link', () => ({ default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a> }));
+vi.mock('../queries/blueprints.queries', () => ({ useBlueprintRunChildrenQuery: vi.fn() }));
 
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import type { BlueprintRunDto } from '@live-show/api-contracts';
 import { RunDrawer } from './RunDrawer';
+import { useBlueprintRunChildrenQuery } from '../queries/blueprints.queries';
 
 const baseRun: BlueprintRunDto = {
   id: 'run_0123456789', versionId: 'v2', version: 2, status: 'COMPLETED', currentNodeId: null,
@@ -22,6 +25,17 @@ const baseRun: BlueprintRunDto = {
     { nodeId: 'e7', nodeKey: 'email.send', status: 'FAILED', outcome: 'weird_unmapped_outcome', errorCode: 'TRANSIENT_EXHAUSTED', startedAt: '2026-10-01T10:00:02Z', finishedAt: null },
   ],
 };
+
+const childRun: BlueprintRunDto = {
+  id: 'run_child000001', versionId: 'v2', version: 2, status: 'COMPLETED', currentNodeId: null,
+  wakeAt: null, errorCode: null, createdAt: '2026-10-01T10:05:00Z', updatedAt: '2026-10-01T10:05:00Z', steps: [],
+  parentRunId: 'run_0123456789', itemIndex: 3, children: null,
+};
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  vi.mocked(useBlueprintRunChildrenQuery).mockReturnValue({ data: { pages: [{ items: [], nextCursor: null }] } } as never);
+});
 
 describe('RunDrawer', () => {
   it('renders the step timeline with translated outcomes and a fallback for unmapped ones', () => {
@@ -56,5 +70,29 @@ describe('RunDrawer', () => {
     render(<RunDrawer blueprintId="b1" run={baseRun} onClose={onClose} />);
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('shows the parent crumb and #index for a child run, and navigates to the parent', async () => {
+    const child: BlueprintRunDto = { ...baseRun, id: 'run_child000001', parentRunId: 'run_parent0001', itemIndex: 7 };
+    const onNavigate = vi.fn();
+    render(<RunDrawer blueprintId="b1" run={child} onClose={vi.fn()} onNavigate={onNavigate} />);
+    expect(screen.getByText(/runs\.children\.parentCrumb/)).toBeInTheDocument();
+    expect(screen.getByText(/run_child000.*#7/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /runs\.children\.parent/ }));
+    expect(onNavigate).toHaveBeenCalledWith('run_parent0001');
+  });
+
+  it('lists the first children and offers "ver todos" for a parent run', async () => {
+    vi.mocked(useBlueprintRunChildrenQuery).mockReturnValue({ data: { pages: [{ items: [childRun], nextCursor: null }] } } as never);
+    const parent: BlueprintRunDto = { ...baseRun, children: { total: 12, running: 1, completed: 10, cancelled: 0, failed: 1 } };
+    const onNavigate = vi.fn();
+    render(<RunDrawer blueprintId="b1" run={parent} onClose={vi.fn()} onNavigate={onNavigate} />);
+    expect(screen.getByText('runs.children.title')).toBeInTheDocument();
+    expect(screen.getByText('#3')).toBeInTheDocument();
+    await userEvent.click(screen.getByText('#3'));
+    expect(onNavigate).toHaveBeenCalledWith(childRun.id);
+
+    await userEvent.click(screen.getByText(/runs\.children\.seeAll/));
+    expect(onNavigate).toHaveBeenCalledWith(parent.id);
   });
 });

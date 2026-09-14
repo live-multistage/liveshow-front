@@ -4,17 +4,19 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, MoreHorizontal } from 'lucide-react';
 import {
   Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@live-show/design-system';
-import type { BlueprintRunDto } from '@live-show/api-contracts';
+import type { BlueprintRunDto, BlueprintRunsPage } from '@live-show/api-contracts';
+import type { InfiniteData } from '@tanstack/react-query';
 import type { AppError } from '@/lib/http/errors';
 import { blueprintErrorMessage } from '../errorMessage';
 import { PlatformPageShell } from '../../components/PlatformPageShell';
 import tableStyles from '../../components/PlatformTable.module.scss';
-import { useBlueprintQuery } from '../queries/blueprints.queries';
+import { blueprintKeys, useBlueprintQuery } from '../queries/blueprints.queries';
 import { useDeactivateBlueprintMutation, useSaveBlueprintVersionMutation } from '../mutations/blueprints.mutations';
 import { BlueprintStatusPill } from './BlueprintStatusPill';
 import { FlagOffBanner } from './FlagOffBanner';
@@ -36,6 +38,7 @@ interface Props {
 // branch, which the plan accepts.
 export function BlueprintDetailPage({ id, blueprintsEnabled = true }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
+  const queryClient = useQueryClient();
   const { data, isLoading, isError } = useBlueprintQuery(id);
   const deactivate = useDeactivateBlueprintMutation();
   const duplicate = useSaveBlueprintVersionMutation();
@@ -43,6 +46,35 @@ export function BlueprintDetailPage({ id, blueprintsEnabled = true }: Props) {
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [selectedRun, setSelectedRun] = useState<BlueprintRunDto | null>(null);
+  const [expandedRunId, setExpandedRunId] = useState<string | null>(null);
+
+  // Resolves a run by id from every runs/runChildren page already cached by
+  // React Query — cheap and avoids a dedicated "get one run" endpoint. If the
+  // run isn't cached yet (e.g. a child past the first page), navigation is a
+  // no-op: the drawer just closes.
+  function findCachedRun(runId: string): BlueprintRunDto | null {
+    const caches = [
+      ...queryClient.getQueriesData<InfiniteData<BlueprintRunsPage>>({ queryKey: [...blueprintKeys.all, 'runs', id] }),
+      ...queryClient.getQueriesData<InfiniteData<BlueprintRunsPage>>({ queryKey: [...blueprintKeys.all, 'runChildren', id] }),
+    ];
+    for (const [, data] of caches) {
+      const found = data?.pages.flatMap((p) => p.items).find((r) => r.id === runId);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  // "ver todos" passes the drawer's own run id: that's the signal to close
+  // the drawer and expand the same run's row in the table instead of
+  // re-opening its own drawer.
+  function onNavigateRun(runId: string) {
+    if (selectedRun && runId === selectedRun.id) {
+      setExpandedRunId(runId);
+      setSelectedRun(null);
+      return;
+    }
+    setSelectedRun(findCachedRun(runId));
+  }
 
   if (isLoading) return <PlatformPageShell group={t('group')} title="" ><div className={styles.loading} /></PlatformPageShell>;
 
@@ -140,7 +172,7 @@ export function BlueprintDetailPage({ id, blueprintsEnabled = true }: Props) {
       </div>
 
       <div className={styles.columns}>
-        <RunsTable blueprintId={id} onSelectRun={setSelectedRun} />
+        <RunsTable blueprintId={id} onSelectRun={setSelectedRun} expandedRunId={expandedRunId} onToggleExpand={(runId) => setExpandedRunId((cur) => (cur === runId ? null : runId))} />
         <div className={styles.rightStack}>
           <VersionsCard blueprint={data} onError={setMessage} />
           {latest && <AnalysisCard blueprintId={id} version={latest} />}
@@ -162,7 +194,7 @@ export function BlueprintDetailPage({ id, blueprintsEnabled = true }: Props) {
 
       <ImportJsonDialog blueprintId={id} open={importOpen} onOpenChange={setImportOpen} />
 
-      {selectedRun && <RunDrawer blueprintId={id} run={selectedRun} onClose={() => setSelectedRun(null)} />}
+      {selectedRun && <RunDrawer blueprintId={id} run={selectedRun} onClose={() => setSelectedRun(null)} onNavigate={onNavigateRun} />}
     </PlatformPageShell>
   );
 }
