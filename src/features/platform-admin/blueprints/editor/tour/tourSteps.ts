@@ -87,12 +87,14 @@ function connect(state: EditorState, from: string, to: string, port?: string): E
  * before it is already correct; rebuild-from-scratch is the lazy fallback.
  */
 function ensureUpTo(state: EditorState, keys: string[]): { state: EditorState; ids: string[] } {
-  const existing = findChain(state, keys);
-  if (existing) return { state, ids: existing.map((n) => n.id) };
+  // Keep the longest chain prefix the user already built and only append what
+  // is missing, so "Fazer por mim" never leaves duplicate nodes behind.
+  let prefix: EditorNode[] = [];
+  for (let n = keys.length; n > 0 && prefix.length === 0; n -= 1) prefix = findChain(state, keys.slice(0, n)) ?? [];
   let s = state;
-  const ids: string[] = [];
-  let pos: XY = { x: 0, y: 0 };
-  for (let i = 0; i < keys.length; i += 1) {
+  const ids = prefix.map((n) => n.id);
+  let pos: XY = prefix.length ? prefix[prefix.length - 1].position : { x: 0, y: 0 };
+  for (let i = ids.length; i < keys.length; i += 1) {
     const added = addNode(s, keys[i], i === 0 ? { x: 0, y: 0 } : { x: pos.x + 240, y: pos.y });
     s = i === 0 ? added.state : connect(added.state, ids[i - 1], added.id);
     ids.push(added.id);

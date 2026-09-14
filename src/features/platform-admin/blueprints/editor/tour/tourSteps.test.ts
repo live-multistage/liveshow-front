@@ -171,3 +171,20 @@ describe('TOUR_STEPS', () => {
     });
   });
 });
+
+describe('autoApply step by step ("Fazer por mim" one step at a time)', () => {
+  it('extends the chain the user already built instead of rebuilding it', () => {
+    let state: EditorState = EMPTY_STATE;
+    for (const step of TOUR_STEPS.slice(1, 8)) {
+      state = step.autoApply!(state);
+      const ctx: TourContext = { state, analysisOk: null, published: false, active: false };
+      expect(step.check(ctx)).toBe(true);
+    }
+    const keys = state.nodes.map((n) => n.node).sort();
+    expect(keys.filter((k) => k === 'wishlist.itemAdded')).toHaveLength(1);
+    expect(keys.filter((k) => k === 'core.delay')).toHaveLength(1);
+    expect(keys.filter((k) => k === 'core.condition')).toHaveLength(1);
+    expect(state.nodes).toHaveLength(9);
+    expect(firstIncompleteStep({ state, analysisOk: null, published: false, active: false })).toBe(8);
+  });
+});
