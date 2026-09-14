@@ -20,6 +20,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BlueprintsPage } from './BlueprintsPage';
 import { useBlueprintsQuery } from '../queries/blueprints.queries';
+import tableStyles from '../../components/PlatformTable.module.scss';
 
 const refetch = vi.fn();
 const rows = [
@@ -41,6 +42,18 @@ describe('BlueprintsPage', () => {
     expect(within(row).getByText('v2')).toBeInTheDocument();
     expect(within(row).getByText('12')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Lembrete — comprou' })).toHaveAttribute('href', '/dashboard/platform/blueprints/b1');
+  });
+
+  // PlatformTable's `.head`/`.row` are display:grid for div lists; on a real
+  // <table> they collapsed every column into one stacked cell.
+  it('does not put the div-grid PlatformTable classes on real table rows', () => {
+    mockList(rows);
+    render(<BlueprintsPage />);
+    const row = screen.getByText('Lembrete — comprou').closest('tr')!;
+    const thead = screen.getByRole('table').querySelector('thead')!;
+    expect(row).not.toHaveClass(tableStyles.row);
+    expect(thead).not.toHaveClass(tableStyles.head);
+    expect(screen.getByRole('table')).toHaveClass(tableStyles.table);
   });
 
   it('navigates to the detail page when a row is clicked', async () => {

@@ -44,6 +44,30 @@
 
 .scroll { overflow-x: auto; }
 
+// Real <table> markup. Rows keep `display: table-row` so column widths align
+// across <thead>/<tbody>; `.head`/`.row` below are `display: grid` for the
+// div-based lists and collapse a real table into one stacked column.
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.headRow th {
+  text-align: left;
+  padding: 4px 10px 12px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: #7d7d85;
+  text-transform: uppercase;
+}
+.bodyRow td {
+  padding: 12px 10px;
+  border-top: 1px solid rgba(255, 255, 255, .06);
+  font-size: 13.5px;
+  vertical-align: middle;
+}
+
 .head,
 .row {
   display: grid;

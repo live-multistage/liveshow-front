@@ -79,10 +79,10 @@ export function BlueprintsPage({ blueprintsEnabled = true }: Props) {
       )}
 
       {!isLoading && data && data.length > 0 && (
-        <div className={`${tableStyles.scroll} ${styles.tableWrap}`}>
-          <table className={tableStyles.card}>
-            <thead className={tableStyles.head}>
-              <tr>
+        <div className={`${tableStyles.card} ${tableStyles.scroll} ${styles.tableWrap}`}>
+          <table className={tableStyles.table}>
+            <thead>
+              <tr className={tableStyles.headRow}>
                 {(['name', 'status', 'version', 'started', 'completed', 'cancelledFailed', 'updated'] as const).map((c) => (
                   <th key={c}>{t(`columns.${c}`)}</th>
                 ))}
@@ -92,7 +92,7 @@ export function BlueprintsPage({ blueprintsEnabled = true }: Props) {
               {data.map((b) => (
                 <tr
                   key={b.id}
-                  className={`${tableStyles.row} ${styles.clickableRow}`}
+                  className={`${tableStyles.bodyRow} ${styles.clickableRow}`}
                   onClick={() => router.push(`/dashboard/platform/blueprints/${b.id}`)}
                 >
                   <td data-label={t('columns.name')}>
