@@ -49,6 +49,7 @@ export function ConfigField({ nodeId, entry, name, spec, value, fields, onChange
           spec={spec}
           value={text}
           fields={fields}
+          allowSecrets={entry.secretFields?.includes(name) ?? false}
           onChange={setText}
           help={dedupe ? t('editor.fields.dedupeHelp', { example: 'compra:{{t.eventId}}:{{t.userId}}' }) : undefined}
         />

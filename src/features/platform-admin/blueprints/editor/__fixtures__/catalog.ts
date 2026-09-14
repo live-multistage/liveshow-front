@@ -56,6 +56,29 @@ export const CATALOG: BlueprintCatalogEntry[] = [
       eventRef: { kind: 'ref', type: 'uuid', required: false, description: 'Evento usado pelos cartões "evento do contexto"' },
       preference: { kind: 'enum', values: ['TICKET_REMINDERS', 'NEWS_PROMOS', 'NONE'], required: true, description: 'Preferência' },
     }, outputs: {} },
+  { kind: 'core', key: 'core.delay', version: 1, label: 'Esperar', description: 'Pausa a execução por um intervalo fixo (ex.: 2h, 3d).',
+    config: { duration: { kind: 'duration', required: true, description: 'Intervalo: 30m, 2h, 3d (máx. 30 dias)' } }, outputs: {} },
+  // Mirrors the real http.request@1 node definition (orchestrator src/blueprints/nodes/http/http-request.node.ts).
+  { kind: 'action', key: 'http.request', version: 1, mode: 'call', label: 'Chamar HTTP',
+    description: 'Faz uma requisição HTTP a um host da allowlist da plataforma. Bloqueia hosts fora da allowlist e IPs privados (SSRF).',
+    secretFields: ['url', 'headers'], ports: ['next', 'error'], optionalPorts: ['error'],
+    config: {
+      method: { kind: 'enum', values: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], required: true, description: 'Método HTTP' },
+      url: { kind: 'text', template: true, acceptsPersonal: false, maxLength: 2000, required: true, description: 'URL de destino (https, host precisa estar na allowlist)' },
+      headers: { kind: 'keyValueList', template: true, maxItems: 20, required: false, description: 'Cabeçalhos da requisição' },
+      body: { kind: 'text', template: true, acceptsPersonal: false, maxLength: 20000, required: false, description: 'Corpo da requisição' },
+      timeoutMs: { kind: 'number', required: false, description: 'Timeout em milissegundos', min: 100, max: 10000 },
+    },
+    outputs: {
+      status: { type: 'number', class: 'INTERNAL', description: 'Código de status HTTP' },
+      ok: { type: 'boolean', class: 'INTERNAL', description: 'true quando status < 300' },
+      body: { type: 'json', class: 'INTERNAL', description: 'Corpo da resposta' },
+      headers: { type: 'json', class: 'INTERNAL', description: 'Cabeçalhos da resposta' },
+      error: {
+        type: { object: { code: { type: 'string', class: 'INTERNAL', description: 'Código do erro' }, message: { type: 'string', class: 'INTERNAL', description: 'Mensagem do erro' } } },
+        class: 'INTERNAL', description: 'Erro da chamada', port: 'error',
+      },
+    } },
   // Mirrors the `test.http` call-action fixture from the analyzer spec (Task 4): next/error ports,
   // a json output and a nested object output — used to exercise availableFields' port + path handling.
   { kind: 'action', key: 'test.http', version: 1, mode: 'call', label: 'HTTP', description: 'Chama um endpoint externo.',

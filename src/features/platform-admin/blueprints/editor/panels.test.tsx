@@ -18,7 +18,7 @@ vi.mock('../../mailing/queries/mailing.queries', () => ({
 }));
 
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -69,9 +69,14 @@ function InspectorHarness({ initial, errors = [], readOnly = false, onState, onD
   initial: EditorState; errors?: BlueprintAnalysisError[]; readOnly?: boolean; onState?(s: EditorState): void; onDispatch?(d: (a: EditorAction) => void): void;
 }) {
   const [state, dispatch] = useReducer(editorReducer, initial);
+  const [queryClient] = useState(() => new QueryClient());
   onState?.(state);
   useEffect(() => { onDispatch?.(dispatch); }, [onDispatch]);
-  return <Inspector state={state} dispatch={dispatch} catalog={CATALOG_MAP} errors={errors} readOnly={readOnly} />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Inspector state={state} dispatch={dispatch} catalog={CATALOG_MAP} errors={errors} readOnly={readOnly} />
+    </QueryClientProvider>
+  );
 }
 
 const buyersAt = (selected: string) => graphToState(buyers as BlueprintGraph, selected);

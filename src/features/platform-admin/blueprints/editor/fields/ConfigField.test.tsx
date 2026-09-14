@@ -100,6 +100,70 @@ describe('ConfigField — keyValueList', () => {
   });
 });
 
+describe('ConfigField — text (nested-path variables)', () => {
+  it('offers a nested object output with its full dotted path, not just the top-level field', async () => {
+    const nestedFields: AvailableField[] = [
+      { nodeId: 'h', nodeLabel: 'HTTP', field: 'error', path: [], depth: 0, out: { type: { object: {} }, class: 'INTERNAL', description: 'Erro', port: 'error' } },
+      { nodeId: 'h', nodeLabel: 'HTTP', field: 'error', path: ['code'], depth: 1, out: { type: 'string', class: 'INTERNAL', description: 'Código' } },
+    ];
+    render(
+      <ConfigField
+        nodeId="n"
+        entry={{ ...ENTRY, secretFields: [] }}
+        name="title"
+        spec={{ kind: 'text', template: true, acceptsPersonal: true, maxLength: 120, required: true, description: 'Título' }}
+        value=""
+        fields={nestedFields}
+        onChange={vi.fn()}
+      />,
+    );
+
+    await userEvent.click(screen.getByText('editor.fields.addVariable'));
+    expect(screen.getByText('{{h.error.code}}')).toBeInTheDocument();
+    expect(screen.getByText('{{h.error}}')).toBeInTheDocument();
+  });
+});
+
+describe('ConfigField — text (secret chips)', () => {
+  it('offers secrets.NAME in "+ Variável" when the entry declares the field as a secret field', async () => {
+    secretsData.mockReturnValue({ data: [{ name: 'PARTNER', updatedAt: '2026-01-01T00:00:00Z' }] });
+    const httpEntry: BlueprintCatalogEntry = { ...ENTRY, secretFields: ['url', 'headers'] };
+    render(
+      <ConfigField
+        nodeId="h"
+        entry={httpEntry}
+        name="url"
+        spec={{ kind: 'text', template: true, acceptsPersonal: false, maxLength: 2000, required: true, description: 'URL' }}
+        value=""
+        fields={FIELDS}
+        onChange={vi.fn()}
+      />,
+    );
+
+    await userEvent.click(screen.getByText('editor.fields.addVariable'));
+    expect(screen.getByText('secrets.PARTNER')).toBeInTheDocument();
+  });
+
+  it('does not offer secrets when the entry does not declare the field as a secret field', async () => {
+    secretsData.mockReturnValue({ data: [{ name: 'PARTNER', updatedAt: '2026-01-01T00:00:00Z' }] });
+    const notifEntry: BlueprintCatalogEntry = { ...ENTRY, secretFields: [] };
+    render(
+      <ConfigField
+        nodeId="n"
+        entry={notifEntry}
+        name="title"
+        spec={{ kind: 'text', template: true, acceptsPersonal: true, maxLength: 120, required: true, description: 'Título' }}
+        value=""
+        fields={FIELDS}
+        onChange={vi.fn()}
+      />,
+    );
+
+    await userEvent.click(screen.getByText('editor.fields.addVariable'));
+    expect(screen.queryByText('secrets.PARTNER')).not.toBeInTheDocument();
+  });
+});
+
 describe('ConfigField — secret', () => {
   it('lists secret names from the mocked query', async () => {
     secretsData.mockReturnValue({ data: [{ name: 'PARTNER', updatedAt: '2026-01-01T00:00:00Z' }] });

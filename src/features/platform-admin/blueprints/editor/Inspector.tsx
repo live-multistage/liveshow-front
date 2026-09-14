@@ -99,6 +99,7 @@ export function Inspector({ state, dispatch, catalog, errors, readOnly }: Props)
               ? <p className={styles.muted}>{t('editor.inspector.noOutputs')}</p>
               : (
                 <ul className={styles.outputTree}>
+                  {/* Port tags are a top-level-only convention (analyzer visibleVia checks outputs[field].port only). */}
                   {Object.entries(entry.outputs).filter(([, spec]) => !spec.port).map(([name, spec]) => (
                     <OutputRow key={name} name={name} spec={spec} depth={0} />
                   ))}

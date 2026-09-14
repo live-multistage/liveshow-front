@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "nodes": [
+    { "id": "t", "node": "orders.paid", "version": 1, "config": { "dedupeKey": "webhook:{{t.orderId}}" } },
+    { "id": "h", "node": "http.request", "version": 1, "config": { "method": "POST", "url": "https://api.partner.com/orders", "headers": [{ "name": "Authorization", "value": "Bearer {{secrets.PARTNER}}" }, { "name": "Content-Type", "value": "application/json" }], "body": "{\"orderId\":\"{{t.orderId}}\",\"userId\":\"{{t.userId}}\"}", "timeoutMs": 5000 } },
+    { "id": "n", "node": "notifications.inApp", "version": 1, "config": { "recipient": "{{t.userId}}", "type": "TICKET", "title": "Webhook falhou: {{h.error.code}}", "message": "O parceiro não confirmou o pedido {{t.orderId}}. Motivo: {{h.error.message}}" } },
+    { "id": "end", "node": "core.end", "version": 1, "config": {} },
+    { "id": "end2", "node": "core.end", "version": 1, "config": {} }
+  ],
+  "edges": [
+    { "from": "t", "to": "h" },
+    { "from": "h", "to": "end", "port": "next" },
+    { "from": "h", "to": "n", "port": "error" },
+    { "from": "n", "to": "end2" }
+  ]
+}

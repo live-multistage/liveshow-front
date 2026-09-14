@@ -1691,7 +1691,7 @@
         "title": "Blueprints · HTTP",
         "description": "Hosts que a ação Requisição HTTP pode chamar e segredos usados em headers.",
         "allowlistLabel": "ALLOWLIST DE HOSTS",
-        "addHost": "+ Add",
+        "addHost": "+ Adicionar",
         "addHostPlaceholder": "adicionar host",
         "allowlistHelp": "Vazio = nenhuma requisição é permitida.",
         "allowlistEmpty": "Nenhum host liberado",
