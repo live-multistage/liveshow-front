@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "nodes": [
+    { "id": "t", "node": "events.published", "version": 1, "config": { "dedupeKey": "followers-reminder:{{t.eventId}}" } },
+    { "id": "s", "node": "follows.artistFollowers", "version": 1, "config": { "eventId": "{{t.eventId}}" } },
+    { "id": "f", "node": "core.forEach", "version": 1, "config": { "items": "{{s.followers}}" } },
+    { "id": "d", "node": "core.delay", "version": 1, "config": { "duration": "3d" } },
+    { "id": "a", "node": "ticketing.hasAccess", "version": 1, "config": { "userId": "{{f.item.userId}}", "eventId": "{{t.eventId}}" } },
+    { "id": "c", "node": "core.condition", "version": 1, "config": { "expression": { "eq": ["{{a.hasAccess}}", false] } } },
+    { "id": "n", "node": "notifications.inApp", "version": 1, "config": {
+      "recipient": "{{f.item.userId}}", "type": "EVENT",
+      "title": "{{t.title}} está chegando", "message": "O evento que você segue começa em 3 dias." } },
+    { "id": "end", "node": "core.end", "version": 1, "config": {} },
+    { "id": "end2", "node": "core.end", "version": 1, "config": {} },
+    { "id": "end3", "node": "core.end", "version": 1, "config": {} }
+  ],
+  "edges": [
+    { "from": "t", "to": "s" }, { "from": "s", "to": "f" },
+    { "from": "f", "to": "d", "port": "each" }, { "from": "d", "to": "a" }, { "from": "a", "to": "c" },
+    { "from": "c", "to": "n", "port": "true" }, { "from": "n", "to": "end" },
+    { "from": "c", "to": "end2", "port": "false" },
+    { "from": "f", "to": "end3", "port": "done" }
+  ]
+}

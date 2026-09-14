@@ -1,6 +1,6 @@
 # Fixtures
 
-- `reminder-buyers.json`, `reminder-savers.json` — verbatim copies of
+- `reminder-buyers.json`, `reminder-savers.json`, `reminder-followers.json` — verbatim copies of
   `live-show-orchestrator/src/blueprints/fixtures/<file>.json`. Keep them in
   sync by hand whenever the orchestrator fixtures change (no build step
   copies them).

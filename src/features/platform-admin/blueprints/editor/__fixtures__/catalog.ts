@@ -39,16 +39,16 @@ export const CATALOG: BlueprintCatalogEntry[] = [
   { kind: 'trigger', key: 'events.published', version: 1, event: 'event.published', label: 'Evento publicado', description: 'Um evento foi publicado.',
     config: { dedupeKey }, outputs: {
       eventId: { type: 'uuid', class: 'INTERNAL', description: 'Evento publicado' },
-      organizationId: { type: 'uuid', class: 'INTERNAL', description: 'Organização' },
-      title: { type: 'string', class: 'PUBLIC', description: 'Título' },
+      organizationId: { type: 'uuid', class: 'INTERNAL', description: 'Organização dona do evento' },
+      title: { type: 'string', class: 'PUBLIC', description: 'Título do evento' },
     } },
-  { kind: 'data', key: 'follows.artistFollowers', version: 1, label: 'Seguidores do artista', description: 'Lista os seguidores de um artista, lida no momento em que o nó executa.',
+  { kind: 'data', key: 'follows.artistFollowers', version: 1, label: 'Seguidores dos artistas', description: 'Quem segue algum artista do line-up (ACCEPTED) do evento.',
     config: { eventId: uuidRef('Evento') }, outputs: {
       followers: {
         type: { list: { object: { userId: { type: 'uuid', class: 'INTERNAL', description: 'Seguidor' } } } },
-        class: 'INTERNAL', description: 'Seguidores',
+        class: 'INTERNAL', description: 'Seguidores únicos dos artistas do line-up',
       },
-      count: { type: 'number', class: 'INTERNAL', description: 'Total de seguidores' },
+      count: { type: 'number', class: 'INTERNAL', description: 'Quantidade de seguidores únicos' },
     } },
   { kind: 'trigger', key: 'orders.paid', version: 1, event: 'order.paid', label: 'Pedido pago', description: 'Um pedido foi pago; uma execução por evento do pedido.',
     config: { dedupeKey }, outputs: {
