@@ -75,6 +75,7 @@ describe('blueprints i18n key coverage', () => {
       'INVALID_GRAPH', 'NO_TRIGGER', 'MULTIPLE_TRIGGERS', 'UNREACHABLE_NODE', 'CYCLE', 'DANGLING_PATH',
       'CONDITION_PORTS', 'UNKNOWN_NODE', 'INVALID_CONFIG', 'BAD_REFERENCE', 'TYPE_MISMATCH', 'RESTRICTED_FIELD',
       'PERSONAL_NOT_ALLOWED', 'MISSING_DEDUPE_KEY', 'WAIT_TOO_LONG', 'TOO_MANY_NODES',
+      'PORT_EDGES', 'SECRET_NOT_ALLOWED', 'JSON_PATH',
     ];
     for (const locale of ['pt', 'en', 'es'] as const) {
       for (const code of codes) {

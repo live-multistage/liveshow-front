@@ -2100,7 +2100,10 @@
         "NOT_PUBLISHED": "Solo las versiones publicadas pueden activarse",
         "GENERIC": "No se pudo completar. Inténtalo de nuevo.",
         "BLUEPRINT_NOT_FOUND": "Blueprint no encontrado",
-        "VERSION_NOT_FOUND": "Versión no encontrada"
+        "VERSION_NOT_FOUND": "Versión no encontrada",
+        "PORT_EDGES": "Cada puerto necesita exactamente una conexión (el puerto error es opcional)",
+        "SECRET_NOT_ALLOWED": "Los secretos solo pueden usarse en la URL y los headers de la Solicitud HTTP",
+        "JSON_PATH": "No se puede leer dentro de un JSON aquí — usa Transformar"
       },
       "group": "OPERACIONES",
       "errorState": "No se pudieron cargar los blueprints.",
@@ -2205,7 +2208,9 @@
         },
         "ports": {
           "true": "si verdadero",
-          "false": "si falso"
+          "false": "si falso",
+          "next": "seguir",
+          "error": "error"
         },
         "inspector": {
           "title": "Configuración del nodo",

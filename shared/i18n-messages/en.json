@@ -2100,7 +2100,10 @@
         "NOT_PUBLISHED": "Only published versions can be activated",
         "GENERIC": "Could not complete. Please try again.",
         "BLUEPRINT_NOT_FOUND": "Blueprint not found",
-        "VERSION_NOT_FOUND": "Version not found"
+        "VERSION_NOT_FOUND": "Version not found",
+        "PORT_EDGES": "Each port needs exactly one connection (the error port is optional)",
+        "SECRET_NOT_ALLOWED": "Secrets can only be used in the HTTP Request's URL and headers",
+        "JSON_PATH": "Can't read inside a JSON here — use Transform"
       },
       "group": "OPERATIONS",
       "errorState": "Could not load blueprints.",
@@ -2205,7 +2208,9 @@
         },
         "ports": {
           "true": "if true",
-          "false": "if false"
+          "false": "if false",
+          "next": "next",
+          "error": "error"
         },
         "inspector": {
           "title": "Node settings",

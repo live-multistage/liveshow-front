@@ -29,6 +29,13 @@ $error-border: rgba(255, 77, 77, .6);
 .edgeTrue :global(.react-flow__edge-text) { fill: #7fe0a0; }
 .edgeFalse :global(.react-flow__edge-text) { fill: #b9a6ff; }
 
+// ── error port/edge (design A1–A4/B: dashed ring on the card, dashed wire) ──
+.edgeError {
+  :global(.react-flow__edge-path) { stroke-dasharray: 5 4; }
+  :global(.react-flow__edge-text) { fill: #ff8f8f; }
+  :global(.react-flow__edge-textbg) { fill: #0d0d10; stroke: rgba(255, 143, 143, .3); }
+}
+
 .toggles { position: absolute; top: 12px; left: 14px; z-index: 5; display: flex; gap: 6px; }
 
 .toggle {
@@ -132,6 +139,22 @@ $error-border: rgba(255, 77, 77, .6);
 .card .port { width: 10px; height: 10px; background: #0d0d10; border: 2px solid var(--kind-color); border-radius: 50%; }
 .card .portTrue { top: 22px; }
 .card .portFalse { top: 52px; }
+
+// A1/A3: 10px circle centered on the bottom edge, dashed while a call action's
+// error port sits unwired (50% opacity), full opacity once an edge leaves it.
+.card .portError { left: 50%; bottom: -5px; border: 2px dashed #ff8f8f; opacity: .5; }
+.card .portErrorConnected { opacity: 1; }
+
+.errorLabel {
+  position: absolute;
+  left: 50%;
+  bottom: -13px;
+  transform: translateX(-50%);
+  font-family: $mono;
+  font-size: 8px;
+  color: #ff8f8f;
+  pointer-events: none;
+}
 
 // ── Empty state (C4) ────────────────────────────────────────────────────────
 .emptyWrap { position: absolute; inset: 0; z-index: 4; display: flex; align-items: center; justify-content: center; pointer-events: none; }

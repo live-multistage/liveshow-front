@@ -66,21 +66,30 @@ export function Canvas({ state, dispatch, catalog, errorCounts, readOnly, focus 
         instance: n,
         entry: catalog.get(catalogKey(n.node, n.version)),
         errorCount: errorCounts.get(n.id) ?? 0,
-        sub: n.node === 'core.waitUntil' ? waitSub(n.config.at) : undefined,
+        sub: n.node === 'core.waitUntil'
+          ? waitSub(n.config.at)
+          : n.node === 'core.delay' && typeof n.config.duration === 'string' ? n.config.duration : undefined,
+        errorConnected: state.edges.some((e) => e.from === n.id && e.port === 'error'),
       },
     }));
-  }, [state.nodes, state.selectedId, measured, catalog, errorCounts, summarizeWait]);
+  }, [state.nodes, state.selectedId, measured, catalog, errorCounts, summarizeWait, state.edges]);
 
+  // "next" edges (the single-output "then" wire of a call action) carry no
+  // label per design; true/false/error do, falling back to the raw port name
+  // if a locale is missing the key.
   const edges = useMemo<Edge[]>(() => state.edges.map((e) => {
     const id = edgeId(e);
+    const label = e.port && e.port !== 'next'
+      ? (t.has(`editor.ports.${e.port}`) ? t(`editor.ports.${e.port}`) : e.port)
+      : undefined;
     return {
       id,
       source: e.from,
       target: e.to,
       sourceHandle: e.port ?? null,
       selected: id === selectedEdge,
-      label: e.port ? t(`editor.ports.${e.port}`) : undefined,
-      className: cn(e.port === 'true' && styles.edgeTrue, e.port === 'false' && styles.edgeFalse),
+      label,
+      className: cn(e.port === 'true' && styles.edgeTrue, e.port === 'false' && styles.edgeFalse, e.port === 'error' && styles.edgeError),
       markerEnd: { type: MarkerType.ArrowClosed, width: 14, height: 14, color: 'rgba(255,255,255,.4)' },
     };
   }), [state.edges, selectedEdge, t]);

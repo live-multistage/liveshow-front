@@ -2100,7 +2100,10 @@
         "NOT_PUBLISHED": "Só versões publicadas podem ser ativadas",
         "GENERIC": "Não foi possível concluir. Tente novamente.",
         "BLUEPRINT_NOT_FOUND": "Blueprint não encontrado",
-        "VERSION_NOT_FOUND": "Versão não encontrada"
+        "VERSION_NOT_FOUND": "Versão não encontrada",
+        "PORT_EDGES": "Cada porta precisa de exatamente uma ligação (a porta erro é opcional)",
+        "SECRET_NOT_ALLOWED": "Segredos só podem ser usados em URL e headers da Requisição HTTP",
+        "JSON_PATH": "Não dá para ler dentro de um JSON aqui — use Transformar"
       },
       "group": "OPERACIONAL",
       "errorState": "Não foi possível carregar os blueprints.",
@@ -2205,7 +2208,9 @@
         },
         "ports": {
           "true": "se verdadeiro",
-          "false": "se falso"
+          "false": "se falso",
+          "next": "seguir",
+          "error": "erro"
         },
         "inspector": {
           "title": "Configuração do nó",

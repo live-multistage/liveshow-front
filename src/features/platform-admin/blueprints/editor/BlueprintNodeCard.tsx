@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import type { BlueprintCatalogEntry } from '@live-show/api-contracts';
 import { cn } from '@live-show/design-system';
 import { NodeIcon, kindClass } from './nodeVisuals';
-import type { EditorNode } from './useEditorGraph';
+import { portsOfEntry, type EditorNode } from './useEditorGraph';
 import styles from './Canvas.module.scss';
 
 export interface CardData extends Record<string, unknown> {
@@ -14,15 +14,20 @@ export interface CardData extends Record<string, unknown> {
   entry?: BlueprintCatalogEntry;
   errorCount: number;
   sub?: string;
+  /** Whether an edge already leaves this node's `error` port (D1: dashed ring at 100% opacity once wired). */
+  errorConnected?: boolean;
 }
 export type CardNode = Node<CardData, 'blueprint'>;
 
 // ~200×72 card: kind stripe + icon, label, technical key, node id; a trigger
-// has no input, the end node no output, a condition one output per port.
-// A node missing from the catalog renders as the grey dashed "Nó indisponível".
+// has no input, the end node no output, a condition one output per port. A
+// call action (http.request) carries a `next` port plus an optional `error`
+// port pinned to the bottom edge (dashed ring, "erro" caption). A node
+// missing from the catalog renders as the grey dashed "Nó indisponível".
 function BlueprintNodeCardImpl({ data, selected }: NodeProps<CardNode>) {
   const t = useTranslations('platformAdmin.blueprints');
-  const { instance, entry, errorCount, sub } = data;
+  const { instance, entry, errorCount, sub, errorConnected } = data;
+  const ports = entry ? portsOfEntry(entry) : null;
 
   return (
     <div className={cn(styles.card, kindClass(entry?.kind), selected && styles.selected, errorCount > 0 && styles.hasError, !entry && styles.unknown)}>
@@ -36,11 +41,30 @@ function BlueprintNodeCardImpl({ data, selected }: NodeProps<CardNode>) {
       <span className={styles.nodeId}>{instance.id}</span>
       {errorCount > 0 && <span className={styles.errorBadge}>{errorCount}</span>}
       {entry?.kind !== 'trigger' && <Handle type="target" position={Position.Left} className={styles.port} />}
-      {entry?.ports
-        ? entry.ports.map((p) => (
-          <Handle key={p} id={p} type="source" position={Position.Right} className={cn(styles.port, p === 'true' ? styles.portTrue : styles.portFalse)} />
+      {ports
+        ? ports.map(({ name }) => (
+          name === 'error'
+            ? (
+              <Handle
+                key={name}
+                id={name}
+                type="source"
+                position={Position.Bottom}
+                className={cn(styles.port, styles.portError, errorConnected && styles.portErrorConnected)}
+              />
+            )
+            : (
+              <Handle
+                key={name}
+                id={name}
+                type="source"
+                position={Position.Right}
+                className={cn(styles.port, name === 'true' ? styles.portTrue : name === 'false' ? styles.portFalse : undefined)}
+              />
+            )
         ))
         : entry?.key !== 'core.end' && <Handle type="source" position={Position.Right} className={styles.port} />}
+      {ports?.some((p) => p.name === 'error') && <span className={styles.errorLabel}>{t('editor.ports.error')}</span>}
     </div>
   );
 }
