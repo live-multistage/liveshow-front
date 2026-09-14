@@ -84,10 +84,6 @@ export const isCase = (v: unknown): v is BlueprintSwitchCase =>
   !!v && typeof v === 'object' && typeof (v as Partial<BlueprintSwitchCase>).port === 'string'
   && ['string', 'number', 'boolean'].includes(typeof (v as Partial<BlueprintSwitchCase>).match);
 
-export function casesOf(value: unknown): BlueprintSwitchCase[] {
-  return Array.isArray(value) ? value.filter(isCase) : [];
-}
-
 export type WaitUnit = 'm' | 'h' | 'd';
 export interface WaitExpr { ref: string; sign: '-' | '+'; amount: number; unit: WaitUnit }
 

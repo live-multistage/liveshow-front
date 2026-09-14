@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import buyers from './__fixtures__/reminder-buyers.json';
 import savers from './__fixtures__/reminder-savers.json';
-import { casesOf, conditionToRules, formatWait, isCase, isCompleteRule, parseRef, parseWait, refOf, rulesToCondition } from './expr-builders';
+import { conditionToRules, formatWait, isCase, isCompleteRule, parseRef, parseWait, refOf, rulesToCondition } from './expr-builders';
 
 const conditionOf = (g: { nodes: Array<{ node: string; config: Record<string, unknown> }> }) =>
   g.nodes.find((n) => n.node === 'core.condition')?.config.expression;
 const waitOf = (g: { nodes: Array<{ node: string; config: Record<string, unknown> }> }) =>
   g.nodes.find((n) => n.node === 'core.waitUntil')?.config.at;
 
-describe('isCase / casesOf', () => {
+describe('isCase', () => {
   it('accepts an object with a string port and a scalar match', () => {
     expect(isCase({ match: 'A', port: 'a' })).toBe(true);
     expect(isCase({ match: 1, port: 'a' })).toBe(true);
@@ -21,12 +21,6 @@ describe('isCase / casesOf', () => {
     expect(isCase(v)).toBe(false);
   });
 
-  it('filters an array down to valid cases, and returns [] for anything else', () => {
-    expect(casesOf([{ match: 'A', port: 'a' }, null, { port: 'b' }, { match: 'C', port: 'c' }]))
-      .toEqual([{ match: 'A', port: 'a' }, { match: 'C', port: 'c' }]);
-    expect(casesOf(undefined)).toEqual([]);
-    expect(casesOf('not an array')).toEqual([]);
-  });
 });
 
 describe('condition builder', () => {
