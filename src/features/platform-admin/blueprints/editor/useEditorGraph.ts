@@ -16,6 +16,11 @@ export interface EditorState {
   // flight keeps the graph dirty after that save resolves.
   revision: number;
   savedRevision: number;
+  // Bumped on every 'load' action (not reset by graphToState). Lets the
+  // Inspector key its per-node drafts on "which graph load" in addition to
+  // node id, so switching to a version with the same node ids doesn't leave
+  // a stale ConditionBuilder/WaitUntilBuilder draft on screen.
+  loadId: number;
 }
 
 export type EditorAction =
@@ -31,7 +36,7 @@ export type EditorAction =
   | { type: 'select'; id: string | null }
   | { type: 'saved'; revision: number };
 
-export const EMPTY_STATE: EditorState = { nodes: [], edges: [], selectedId: null, revision: 0, savedRevision: 0 };
+export const EMPTY_STATE: EditorState = { nodes: [], edges: [], selectedId: null, revision: 0, savedRevision: 0, loadId: 0 };
 
 const COL = 240;
 const ROW = 120;
@@ -127,7 +132,7 @@ const bump = (s: EditorState, patch: Partial<EditorState>): EditorState => ({ ..
 export function editorReducer(state: EditorState, action: EditorAction): EditorState {
   switch (action.type) {
     case 'load':
-      return graphToState(action.graph, action.selectedId ?? null);
+      return { ...graphToState(action.graph, action.selectedId ?? null), loadId: state.loadId + 1 };
     case 'select':
       return { ...state, selectedId: action.id };
     case 'saved':

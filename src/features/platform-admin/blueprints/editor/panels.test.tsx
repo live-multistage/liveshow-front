@@ -18,8 +18,8 @@ vi.mock('../../mailing/queries/mailing.queries', () => ({
 }));
 
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { useReducer } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { useEffect, useReducer } from 'react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { BlueprintAnalysisError, BlueprintGraph } from '@live-show/api-contracts';
 import buyers from './__fixtures__/reminder-buyers.json';
@@ -27,7 +27,8 @@ import { CATALOG, CATALOG_MAP } from './__fixtures__/catalog';
 import { Palette } from './Palette';
 import { Inspector } from './Inspector';
 import { ProblemsFooter } from './ProblemsFooter';
-import { editorReducer, graphToState, stateToGraph, type AvailableField, type EditorState } from './useEditorGraph';
+import savers from './__fixtures__/reminder-savers.json';
+import { editorReducer, graphToState, stateToGraph, type AvailableField, type EditorAction, type EditorState } from './useEditorGraph';
 import { WaitUntilBuilder } from './fields/WaitUntilBuilder';
 
 beforeAll(() => {
@@ -62,11 +63,12 @@ describe('Palette', () => {
   });
 });
 
-function InspectorHarness({ initial, errors = [], readOnly = false, onState }: {
-  initial: EditorState; errors?: BlueprintAnalysisError[]; readOnly?: boolean; onState?(s: EditorState): void;
+function InspectorHarness({ initial, errors = [], readOnly = false, onState, onDispatch }: {
+  initial: EditorState; errors?: BlueprintAnalysisError[]; readOnly?: boolean; onState?(s: EditorState): void; onDispatch?(d: (a: EditorAction) => void): void;
 }) {
   const [state, dispatch] = useReducer(editorReducer, initial);
   onState?.(state);
+  useEffect(() => { onDispatch?.(dispatch); }, [onDispatch]);
   return <Inspector state={state} dispatch={dispatch} catalog={CATALOG_MAP} errors={errors} readOnly={readOnly} />;
 }
 
@@ -163,6 +165,20 @@ describe('Inspector', () => {
     expect(screen.queryByText('editor.condition.incomplete')).not.toBeInTheDocument();
 
     expect(within(screen.getByText('editor.inspector.outputs').parentElement as HTMLElement).getByText(/editor.ports.true → Notificação no app/)).toBeInTheDocument();
+  });
+
+  it('drops the stale ConditionBuilder draft when a different version loads with the same node id', () => {
+    let dispatch: ((a: EditorAction) => void) | undefined;
+    render(<InspectorHarness initial={buyersAt('c')} onDispatch={(d) => { dispatch = d; }} />);
+    // buyers' "c" has 2 and-joined rules.
+    expect(screen.getAllByRole('button', { name: 'editor.condition.removeRule' })).toHaveLength(2);
+
+    act(() => dispatch!({ type: 'load', graph: savers as BlueprintGraph, selectedId: 'c' }));
+
+    // savers' "c" has 4 and-joined rules — the stale 2-row draft must not
+    // still be on screen (it would otherwise show the wrong condition, and
+    // rulesToCondition would then silently re-emit only those 2 rules).
+    expect(screen.getAllByRole('button', { name: 'editor.condition.removeRule' })).toHaveLength(4);
   });
 
   it('shows the invalid-JSON hint on blur instead of silently dropping the raw condition', async () => {
