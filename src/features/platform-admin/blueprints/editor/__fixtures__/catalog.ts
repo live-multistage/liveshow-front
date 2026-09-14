@@ -56,6 +56,23 @@ export const CATALOG: BlueprintCatalogEntry[] = [
       eventRef: { kind: 'ref', type: 'uuid', required: false, description: 'Evento usado pelos cartões "evento do contexto"' },
       preference: { kind: 'enum', values: ['TICKET_REMINDERS', 'NEWS_PROMOS', 'NONE'], required: true, description: 'Preferência' },
     }, outputs: {} },
+  // Mirrors the `test.http` call-action fixture from the analyzer spec (Task 4): next/error ports,
+  // a json output and a nested object output — used to exercise availableFields' port + path handling.
+  { kind: 'action', key: 'test.http', version: 1, mode: 'call', label: 'HTTP', description: 'Chama um endpoint externo.',
+    secretFields: ['url', 'headers'], ports: ['next', 'error'], optionalPorts: ['error'],
+    config: {
+      url: { kind: 'text', template: true, acceptsPersonal: false, maxLength: 2000, required: true, description: 'URL' },
+      headers: { kind: 'keyValueList', template: true, maxItems: 20, required: false, description: 'Cabeçalhos' },
+    },
+    outputs: {
+      status: { type: 'number', class: 'INTERNAL', description: 'Status HTTP' },
+      body: { type: 'json', class: 'INTERNAL', description: 'Corpo da resposta' },
+      partner: { type: { object: { name: { type: 'string', class: 'PUBLIC', description: 'Nome' } } }, class: 'INTERNAL', description: 'Dados do parceiro' },
+      error: {
+        type: { object: { code: { type: 'string', class: 'INTERNAL', description: 'Código' }, message: { type: 'string', class: 'INTERNAL', description: 'Mensagem' } } },
+        class: 'INTERNAL', description: 'Erro', port: 'error',
+      },
+    } },
 ];
 
 export const CATALOG_MAP = new Map(CATALOG.map((e) => [`${e.key}@${e.version}`, e]));

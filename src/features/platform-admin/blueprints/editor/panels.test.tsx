@@ -227,8 +227,8 @@ describe('Inspector', () => {
 
 describe('WaitUntilBuilder', () => {
   const fields: AvailableField[] = [
-    { nodeId: 'p', nodeLabel: 'Perfil', field: 'birthAt', out: { type: 'datetime', class: 'PERSONAL', description: 'Nascimento' } },
-    { nodeId: 'e', nodeLabel: 'Evento', field: 'startsAt', out: { type: 'datetime', class: 'PUBLIC', description: 'Início' } },
+    { nodeId: 'p', nodeLabel: 'Perfil', field: 'birthAt', path: [], depth: 0, out: { type: 'datetime', class: 'PERSONAL', description: 'Nascimento' } },
+    { nodeId: 'e', nodeLabel: 'Evento', field: 'startsAt', path: [], depth: 0, out: { type: 'datetime', class: 'PUBLIC', description: 'Início' } },
   ];
 
   it('rejects a PERSONAL datetime field even though its type matches', async () => {

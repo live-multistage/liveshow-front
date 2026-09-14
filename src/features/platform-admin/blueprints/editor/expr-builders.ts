@@ -15,16 +15,20 @@ const BINARY = new Set<string>(['eq', 'neq', 'gt', 'gte', 'lt', 'lte']);
 export interface Rule { left: string; op: RuleOp; right: Operand }
 export interface RuleSet { join: 'and' | 'or'; rules: Rule[] }
 
-const REF = /^\{\{\s*([A-Za-z0-9_-]+)\.([A-Za-z0-9_]+)\s*\}\}$/;
+// Path refs: {{node.field.sub.sub}} — field is the top-level output key, path
+// is any nested chain into an object output (mirrors the analyzer's Ref.path).
+const REF = /^\{\{\s*([A-Za-z0-9_-]+)\.([A-Za-z0-9_]+)((?:\.[A-Za-z0-9_]+)*)\s*\}\}$/;
 const WAIT = /^\s*(\{\{\s*[A-Za-z0-9_-]+\.[A-Za-z0-9_]+\s*\}\})\s*(?:([+-])\s*(\d+)\s*([mhd]))?\s*$/;
 
-export function parseRef(value: unknown): { nodeId: string; field: string } | null {
+export function parseRef(value: unknown): { nodeId: string; field: string; path: string[] } | null {
   if (typeof value !== 'string') return null;
   const m = REF.exec(value.trim());
-  return m ? { nodeId: m[1], field: m[2] } : null;
+  if (!m) return null;
+  return { nodeId: m[1], field: m[2], path: m[3] ? m[3].slice(1).split('.') : [] };
 }
 
-export const refOf = (nodeId: string, field: string) => `{{${nodeId}.${field}}}`;
+export const refOf = (nodeId: string, field: string, path: string[] = []) =>
+  `{{${nodeId}.${field}${path.length ? `.${path.join('.')}` : ''}}}`;
 
 const isObject = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const isOperand = (v: unknown): v is Operand => v === null || ['string', 'number', 'boolean'].includes(typeof v);

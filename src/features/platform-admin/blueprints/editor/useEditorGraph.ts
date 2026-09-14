@@ -5,7 +5,7 @@ import type {
   BlueprintAnalysisError, BlueprintCatalogEntry, BlueprintEdge, BlueprintGraph, BlueprintOutputField,
 } from '@live-show/api-contracts';
 
-export type Port = 'true' | 'false';
+export type Port = string;
 export interface XY { x: number; y: number }
 export interface EditorNode { id: string; node: string; version: number; config: Record<string, unknown>; position: XY }
 export interface EditorState {
@@ -47,6 +47,7 @@ const NODE_ID = /^[A-Za-z0-9_-]{1,64}$/;
 const PREFIX: Record<string, string> = {
   'core.end': 'end', 'core.condition': 'c', 'core.waitUntil': 'w', 'events.byId': 'e', 'wishlist.stillSaved': 's',
   'ticketing.hasAccess': 'a', 'notifications.inApp': 'n', 'mailing.sendEmail': 'm', 'account.profile': 'p',
+  'http.request': 'h', 'core.delay': 'd',
 };
 
 export const catalogKey = (key: string, version: number) => `${key}@${version}`;
@@ -204,11 +205,55 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
   }
 }
 
-export interface AvailableField { nodeId: string; nodeLabel: string; field: string; out: BlueprintOutputField }
+export interface AvailableField {
+  nodeId: string; nodeLabel: string; field: string; path: string[]; out: BlueprintOutputField; depth: number;
+}
+
+export function portsOfEntry(entry: BlueprintCatalogEntry): { name: string; optional: boolean }[] | null {
+  return entry.ports ? entry.ports.map((name) => ({ name, optional: entry.optionalPorts?.includes(name) ?? false })) : null;
+}
+
+function reachableFrom(edges: BlueprintEdge[], start: string): Set<string> {
+  const seen = new Set<string>([start]);
+  const stack = [start];
+  while (stack.length) {
+    const id = stack.pop() as string;
+    for (const e of edges) if (e.from === id && !seen.has(e.to)) { seen.add(e.to); stack.push(e.to); }
+  }
+  return seen;
+}
+
+/**
+ * Mirrors the orchestrator analyzer's port-visibility rule: a port-scoped
+ * output of `source` is visible to `viewerId` only if `viewerId` is reachable
+ * from that port's edge target, and not also reachable from any of
+ * `source`'s other port edges (excludes nodes past a diamond re-join).
+ */
+function visibleViaPort(edges: BlueprintEdge[], source: string, port: string, viewerId: string): boolean {
+  const portEdges = edges.filter((e) => e.from === source && e.port);
+  const mine = portEdges.find((e) => e.port === port);
+  if (!mine || !reachableFrom(edges, mine.to).has(viewerId)) return false;
+  return !portEdges.some((e) => e.port !== port && reachableFrom(edges, e.to).has(viewerId));
+}
+
+function collectFields(
+  viewerId: string, edges: BlueprintEdge[], sourceId: string, nodeLabel: string,
+  field: string, spec: BlueprintOutputField, path: string[], out: AvailableField[],
+): void {
+  if (spec.port && !visibleViaPort(edges, sourceId, spec.port, viewerId)) return;
+  out.push({ nodeId: sourceId, nodeLabel, field, path, out: spec, depth: path.length });
+  if (typeof spec.type === 'object' && spec.type !== null && 'object' in spec.type) {
+    for (const [key, sub] of Object.entries(spec.type.object)) {
+      collectFields(viewerId, edges, sourceId, nodeLabel, field, sub, [...path, key], out);
+    }
+  }
+}
 
 /**
  * Outputs a node can reference: its ancestors' (the analyzer narrows this to
  * nodes on every path), or — for a trigger's dedupeKey — the trigger's own.
+ * Object outputs are flattened: one entry per leaf AND per object/list node,
+ * so a picker can offer either the whole object/list or a nested leaf.
  */
 export function availableFields(state: EditorState, catalog: Map<string, BlueprintCatalogEntry>, nodeId: string): AvailableField[] {
   const self = state.nodes.find((n) => n.id === nodeId);
@@ -223,11 +268,16 @@ export function availableFields(state: EditorState, catalog: Map<string, Bluepri
       for (const e of state.edges) if (e.to === id && !ids.has(e.from)) { ids.add(e.from); stack.push(e.from); }
     }
   }
-  return state.nodes.filter((n) => ids.has(n.id)).flatMap((n) => {
+  const result: AvailableField[] = [];
+  for (const n of state.nodes) {
+    if (!ids.has(n.id)) continue;
     const entry = catalog.get(catalogKey(n.node, n.version));
-    if (!entry) return [];
-    return Object.entries(entry.outputs).map(([field, out]) => ({ nodeId: n.id, nodeLabel: entry.label, field, out }));
-  });
+    if (!entry) continue;
+    for (const [field, spec] of Object.entries(entry.outputs)) {
+      collectFields(nodeId, state.edges, n.id, entry.label, field, spec, [], result);
+    }
+  }
+  return result;
 }
 
 export function errorCountByNode(errors: BlueprintAnalysisError[]): Map<string, number> {

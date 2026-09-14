@@ -70,6 +70,19 @@ describe('editorReducer', () => {
     expect(run(s, { type: 'connect', from: 'end2', to: 't' })).toBe(s);
   });
 
+  it('connect keeps one edge per (from, port) for any string port, leaving other ports untouched', () => {
+    let s = run(EMPTY_STATE, { type: 'add', entry: entry('orders.paid') }, { type: 'add', entry: entry('test.http') },
+      { type: 'add', entry: entry('core.end') }, { type: 'add', entry: entry('core.end') });
+    const h = s.nodes[1].id;
+    s = run(s, { type: 'connect', from: 't', to: h }, { type: 'connect', from: h, to: 'end1', port: 'next' },
+      { type: 'connect', from: h, to: 'end2', port: 'error' });
+    expect(s.edges).toEqual([{ from: 't', to: h }, { from: h, to: 'end1', port: 'next' }, { from: h, to: 'end2', port: 'error' }]);
+
+    // Reconnecting the "error" port to a new target replaces only that port's edge.
+    s = run(s, { type: 'connect', from: h, to: 'end1', port: 'error' });
+    expect(s.edges).toEqual([{ from: 't', to: h }, { from: h, to: 'end1', port: 'next' }, { from: h, to: 'end1', port: 'error' }]);
+  });
+
   it('edits config and deletes a field set to undefined', () => {
     let s = run(EMPTY_STATE, { type: 'add', entry: entry('core.waitUntil') });
     s = run(s, { type: 'setConfig', id: 'w1', field: 'at', value: '{{e1.startsAt}} - 2h' }, { type: 'setConfig', id: 'w1', field: 'ifPast', value: 'end' });
@@ -152,6 +165,43 @@ describe('availableFields', () => {
 
   it('lists only its own outputs for a trigger (dedupeKey)', () => {
     expect(availableFields(s, CATALOG_MAP, 't').map((f) => f.field)).toEqual(['userId', 'eventId', 'orderId']);
+  });
+});
+
+describe('availableFields with ports and nested object outputs', () => {
+  // t -> h(test.http) -[next]-> c ; h -[error]-> err. Mirrors the analyzer's
+  // test.http fixture (Task 4): status/body/partner are unported, error is
+  // port-scoped to "error".
+  const httpGraph: BlueprintGraph = {
+    schemaVersion: 1,
+    nodes: [
+      { id: 't', node: 'orders.paid', version: 1, config: {}, position: { x: 0, y: 0 } },
+      { id: 'h', node: 'test.http', version: 1, config: {}, position: { x: 100, y: 0 } },
+      { id: 'c', node: 'core.condition', version: 1, config: {}, position: { x: 200, y: 0 } },
+      { id: 'err', node: 'core.end', version: 1, config: {}, position: { x: 200, y: 100 } },
+    ],
+    edges: [{ from: 't', to: 'h' }, { from: 'h', to: 'c', port: 'next' }, { from: 'h', to: 'err', port: 'error' }],
+  };
+  const s = graphToState(httpGraph);
+  const refKeys = (nodeId: string) => availableFields(s, CATALOG_MAP, nodeId)
+    .map((f) => `${f.nodeId}.${f.field}${f.path.length ? `.${f.path.join('.')}` : ''}`);
+
+  it('includes unported outputs (flattening the partner object, and body as a json leaf) but excludes the error branch', () => {
+    const list = refKeys('c');
+    expect(list).toEqual(expect.arrayContaining(['h.status', 'h.partner', 'h.partner.name', 'h.body']));
+    expect(list).not.toContain('h.error');
+    expect(list).not.toContain('h.error.code');
+
+    const partner = availableFields(s, CATALOG_MAP, 'c').find((f) => f.field === 'partner' && f.path.length === 0);
+    const partnerName = availableFields(s, CATALOG_MAP, 'c').find((f) => f.path.join('.') === 'name');
+    expect(partner?.depth).toBe(0);
+    expect(partnerName?.depth).toBe(1);
+    expect(availableFields(s, CATALOG_MAP, 'c').find((f) => f.field === 'body')?.out.type).toBe('json');
+  });
+
+  it('includes the error branch outputs only for a node reached through the error port', () => {
+    const list = refKeys('err');
+    expect(list).toEqual(expect.arrayContaining(['h.status', 'h.partner', 'h.partner.name', 'h.body', 'h.error', 'h.error.code', 'h.error.message']));
   });
 });
 

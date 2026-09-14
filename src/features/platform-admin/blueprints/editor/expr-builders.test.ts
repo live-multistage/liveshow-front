@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import buyers from './__fixtures__/reminder-buyers.json';
 import savers from './__fixtures__/reminder-savers.json';
-import { conditionToRules, formatWait, isCompleteRule, parseRef, parseWait, rulesToCondition } from './expr-builders';
+import { conditionToRules, formatWait, isCompleteRule, parseRef, parseWait, refOf, rulesToCondition } from './expr-builders';
 
 const conditionOf = (g: { nodes: Array<{ node: string; config: Record<string, unknown> }> }) =>
   g.nodes.find((n) => n.node === 'core.condition')?.config.expression;
@@ -88,7 +88,18 @@ describe('wait builder', () => {
 
 describe('parseRef', () => {
   it('reads a single {{node.field}} reference', () => {
-    expect(parseRef('{{ t.userId }}')).toEqual({ nodeId: 't', field: 'userId' });
+    expect(parseRef('{{ t.userId }}')).toEqual({ nodeId: 't', field: 'userId', path: [] });
     expect(parseRef('x {{t.userId}}')).toBeNull();
+  });
+
+  it('reads nested {{node.field.sub.sub}} path refs', () => {
+    expect(parseRef('{{h.partner.name}}')).toEqual({ nodeId: 'h', field: 'partner', path: ['name'] });
+    expect(parseRef('{{h.error.code}}')).toEqual({ nodeId: 'h', field: 'error', path: ['code'] });
+  });
+
+  it('refOf round-trips a bare ref and a path ref', () => {
+    expect(refOf('t', 'userId')).toBe('{{t.userId}}');
+    expect(refOf('h', 'partner', ['name'])).toBe('{{h.partner.name}}');
+    expect(parseRef(refOf('h', 'partner', ['name']))).toEqual({ nodeId: 'h', field: 'partner', path: ['name'] });
   });
 });
