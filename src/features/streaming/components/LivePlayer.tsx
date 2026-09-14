@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Volume2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -24,6 +24,8 @@ import { useQualityLevels } from '../hooks/use-quality-levels';
 import { usePlayerAudio } from '../hooks/use-player-audio';
 import type { PlayerAudioState } from '../hooks/use-player-audio';
 import { useCameraSelection } from '../hooks/use-camera-selection';
+import { usePlayerStages } from '../hooks/use-player-stages';
+import { shareCurrentPage } from '../utils/share-current-page';
 import { useLiveDvr } from '../hooks/use-live-dvr';
 import { PlayerStage } from './PlayerStage';
 import { RecommendedOverlay } from './RecommendedOverlay';
@@ -69,27 +71,6 @@ interface LivePlayerProps {
   onAudioChange?: (audio: PlayerAudioState) => void;
 }
 
-function useStages(cameras: LiveCamera[], rawStages?: LiveStage[]): LiveStage[] {
-  const t = useTranslations('player');
-  return useMemo(() => {
-    if (rawStages && rawStages.length > 0) {
-      return [...rawStages]
-        .sort((a, b) => a.position - b.position)
-        .map((s) => ({ ...s, cameras: [...s.cameras].sort((a, b) => a.priority - b.priority) }));
-    }
-    return [{ stageId: '__main__', name: t('mainStage'), slug: 'main', position: 0, cameras: [...cameras].sort((a, b) => a.priority - b.priority) }];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cameras, rawStages]);
-}
-
-function initialStageId(stages: LiveStage[], primaryCameraId?: string | null): string {
-  if (primaryCameraId) {
-    const match = stages.find((s) => s.cameras.some((c) => c.cameraId === primaryCameraId));
-    if (match) return match.stageId;
-  }
-  return stages.find((s) => s.cameras.length > 0)?.stageId ?? stages[0]?.stageId ?? '__main__';
-}
-
 export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, librasCameraId, title, eventId, trackingEventId, chatEnabled, adsEnabled = true, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
   const t = useTranslations('player');
   const isChannel = variant === 'channel';
@@ -115,9 +96,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
   const [pauseAdVisible, setPauseAdVisible] = useState(false);
   const { user } = useAuth();
 
-  const stages = useStages(cameras, rawStages);
-  const [activeStageId, setActiveStageId] = useState<string>(() => initialStageId(stages, primaryCameraId));
-  const activeStage = stages.find((s) => s.stageId === activeStageId) ?? stages[0];
+  const { stages, activeStage, activeStageId, setActiveStageId } = usePlayerStages(cameras, rawStages, primaryCameraId);
 
   // NBR 15290: the Libras window is only relevant when it belongs to the stage
   // currently on screen. When present it is force-activated and can't be removed.
@@ -195,19 +174,7 @@ export function LivePlayer({ cameras, stages: rawStages, primaryCameraId, libras
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stageCameraKey]);
 
-  const handleShare = async () => {
-    const url = window.location.href;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, url });
-      } catch {
-        // User cancelled the native share sheet.
-      }
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast.success(t('linkCopied'));
-    }
-  };
+  const handleShare = () => shareCurrentPage(title, () => toast.success(t('linkCopied')));
 
   const effectiveViewMode: ViewMode = activeCameraIds.length <= 1 ? 'solo' : viewMode;
 
