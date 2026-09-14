@@ -2242,7 +2242,10 @@
           "true": "se verdadeiro",
           "false": "se falso",
           "next": "seguir",
-          "error": "erro"
+          "error": "erro",
+          "each": "cada item",
+          "done": "depois",
+          "default": "padrão"
         },
         "inspector": {
           "title": "Configuração do nó",

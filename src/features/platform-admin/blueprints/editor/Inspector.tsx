@@ -10,7 +10,7 @@ import { ConfigField } from './fields/ConfigField';
 import { ClassChip } from './fields/RefSelect';
 import { isObject, typeLabel } from './field-types';
 import { NodeIcon, kindClass } from './nodeVisuals';
-import { availableFields, catalogKey, outputsOfNode, type EditorAction, type EditorState } from './useEditorGraph';
+import { availableFields, catalogKey, outputsOfNode, portsOfNode, type EditorAction, type EditorState } from './useEditorGraph';
 import styles from './Inspector.module.scss';
 
 const PORT_DOT: Record<string, string> = { true: 'dotTrue', false: 'dotFalse', next: 'dotNext', error: 'dotError' };
@@ -47,6 +47,10 @@ export function Inspector({ state, dispatch, catalog, errors, readOnly }: Props)
     return (target && catalog.get(catalogKey(target.node, target.version))?.label) ?? id;
   };
   const errorTitle = (code: string) => blueprintErrorMessage(t, code);
+  // Switch's case ports only exist once `node.config.cases` is known, so the
+  // static entry.ports (just `default`) isn't enough — recompute dynamically.
+  const ports = entry ? portsOfNode(entry, node.config) : null;
+  const portLabel = (name: string) => (t.has(`editor.ports.${name}`) ? t(`editor.ports.${name}`) : name);
 
   return (
     <aside className={cn(styles.panel, kindClass(entry?.kind), readOnly && styles.readOnly)} aria-label={t('editor.inspector.title')}>
@@ -76,16 +80,16 @@ export function Inspector({ state, dispatch, catalog, errors, readOnly }: Props)
           ))
           : <p className={styles.muted}>{t('editor.inspector.unavailableHint')}</p>}
 
-        {entry?.ports && (
+        {ports && ports.length > 0 && (
           <section className={styles.section}>
             <h4 className={styles.sectionTitle}>{t('editor.inspector.ports')}</h4>
             <ul className={styles.outputs}>
-              {entry.ports.map((p) => {
+              {ports.map(({ name: p }) => {
                 const edge = state.edges.find((e) => e.from === node.id && e.port === p);
                 return (
                   <li key={p}>
                     <span className={cn(styles.dot, styles[PORT_DOT[p] ?? 'dotNext'])} />
-                    {t(`editor.ports.${p}`)} → {edge ? labelOf(edge.to) : t('editor.inspector.noTarget')}
+                    {portLabel(p)} → {edge ? labelOf(edge.to) : t('editor.inspector.noTarget')}
                   </li>
                 );
               })}

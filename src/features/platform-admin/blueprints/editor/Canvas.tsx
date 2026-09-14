@@ -56,23 +56,36 @@ export function Canvas({ state, dispatch, catalog, errorCounts, readOnly, focus 
       const out = source && catalog.get(catalogKey(source.node, source.version))?.outputs[ref.field];
       return summarizeWait(wait, out ? out.description.toLowerCase() : ref.field);
     };
-    return state.nodes.map((n) => ({
-      id: n.id,
-      type: 'blueprint' as const,
-      position: n.position,
-      selected: n.id === state.selectedId,
-      measured: measured[n.id],
-      data: {
-        instance: n,
-        entry: catalog.get(catalogKey(n.node, n.version)),
-        errorCount: errorCounts.get(n.id) ?? 0,
-        sub: n.node === 'core.waitUntil'
-          ? waitSub(n.config.at)
-          : n.node === 'core.delay' && typeof n.config.duration === 'string' ? n.config.duration : undefined,
-        errorConnected: state.edges.some((e) => e.from === n.id && e.port === 'error'),
-      },
-    }));
-  }, [state.nodes, state.selectedId, measured, catalog, errorCounts, summarizeWait, state.edges]);
+    // forEach/switch (A1–A6): the sub-line shows the picked ref's bare
+    // "node.field" (parseRef strips the {{ }}), joined with any nested path.
+    const refSub = (value: unknown) => {
+      const ref = parseRef(value);
+      return ref ? [ref.nodeId, ref.field, ...ref.path].join('.') : undefined;
+    };
+    return state.nodes.map((n) => {
+      const forEachItems = n.node === 'core.forEach' ? refSub(n.config.items) : undefined;
+      return {
+        id: n.id,
+        type: 'blueprint' as const,
+        position: n.position,
+        selected: n.id === state.selectedId,
+        measured: measured[n.id],
+        data: {
+          instance: n,
+          entry: catalog.get(catalogKey(n.node, n.version)),
+          errorCount: errorCounts.get(n.id) ?? 0,
+          sub: n.node === 'core.waitUntil'
+            ? waitSub(n.config.at)
+            : n.node === 'core.delay' && typeof n.config.duration === 'string' ? n.config.duration
+              : n.node === 'core.forEach' ? (forEachItems ?? t('editor.fields.selectList'))
+                : n.node === 'core.switch' ? refSub(n.config.value)
+                  : undefined,
+          subMuted: n.node === 'core.forEach' && !forEachItems,
+          errorConnected: state.edges.some((e) => e.from === n.id && e.port === 'error'),
+        },
+      };
+    });
+  }, [state.nodes, state.selectedId, measured, catalog, errorCounts, summarizeWait, state.edges, t]);
 
   // "next" edges (the single-output "then" wire of a call action) carry no
   // label per design; true/false/error do, falling back to the raw port name

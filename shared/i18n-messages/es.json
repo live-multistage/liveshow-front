@@ -2242,7 +2242,10 @@
           "true": "si verdadero",
           "false": "si falso",
           "next": "seguir",
-          "error": "error"
+          "error": "error",
+          "each": "cada elemento",
+          "done": "después",
+          "default": "predeterminado"
         },
         "inspector": {
           "title": "Configuración del nodo",

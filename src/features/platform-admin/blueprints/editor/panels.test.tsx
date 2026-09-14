@@ -239,6 +239,19 @@ describe('Inspector', () => {
     expect(latest!.nodes.some((n) => n.id === 'm1')).toBe(false);
   });
 
+  it('lists switch case ports (plus default) in the ports section, recomputed from config.cases', () => {
+    const withSwitch = editorReducer(
+      editorReducer(buyersAt('t'), { type: 'add', entry: CATALOG_MAP.get('core.switch@1')!, position: { x: 0, y: 400 } }),
+      { type: 'setConfig', id: 'sw1', field: 'cases', value: [{ match: 'PUBLISHED', port: 'a' }, { match: 'DRAFT', port: 'b' }] },
+    );
+    render(<InspectorHarness initial={withSwitch} />);
+
+    const section = screen.getByText('editor.inspector.ports').parentElement as HTMLElement;
+    expect(within(section).getByText(/^editor.ports.a →/)).toBeInTheDocument();
+    expect(within(section).getByText(/^editor.ports.b →/)).toBeInTheDocument();
+    expect(within(section).getByText(/^editor.ports.default →/)).toBeInTheDocument();
+  });
+
   it('renames the node id on blur, rewriting references', async () => {
     let latest: EditorState | undefined;
     render(<InspectorHarness initial={buyersAt('e2')} onState={(s) => { latest = s; }} />);

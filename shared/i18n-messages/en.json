@@ -2242,7 +2242,10 @@
           "true": "if true",
           "false": "if false",
           "next": "next",
-          "error": "error"
+          "error": "error",
+          "each": "each item",
+          "done": "afterwards",
+          "default": "default"
         },
         "inspector": {
           "title": "Node settings",

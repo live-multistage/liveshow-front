@@ -48,6 +48,17 @@ const delayEntry: BlueprintCatalogEntry = {
   kind: 'core', key: 'core.delay', version: 1, label: 'Aguardar', description: '', config: {}, outputs: {},
 };
 
+const forEachEntry: BlueprintCatalogEntry = {
+  kind: 'core', key: 'core.forEach', version: 1, label: 'Para cada', description: '',
+  config: { items: { kind: 'ref', type: { list: 'json' }, required: true, description: '' } }, outputs: {},
+};
+
+const switchEntry: BlueprintCatalogEntry = {
+  kind: 'core', key: 'core.switch', version: 1, label: 'Escolher', description: '', dynamicPorts: 'switch',
+  config: { value: { kind: 'ref', type: 'string', required: true, description: '' }, cases: { kind: 'cases', maxCases: 12, required: true, description: '' } },
+  outputs: {},
+};
+
 describe('BlueprintNodeCard', () => {
   it('renders a source handle per declared port, incl. next/error', () => {
     const container = renderCard(httpEntry);
@@ -81,5 +92,38 @@ describe('BlueprintNodeCard', () => {
   it('shows the duration sub-line for core.delay', () => {
     const container = renderCard(delayEntry, { config: { duration: '2h' } }, { sub: '2h' });
     expect(container.textContent).toContain('2h');
+  });
+
+  it('renders stacked each/done handles with labels for core.forEach', () => {
+    const container = renderCard(forEachEntry);
+    const each = container.querySelector('[data-handleid="each"]');
+    const done = container.querySelector('[data-handleid="done"]');
+    expect(each).not.toBeNull();
+    expect(done).not.toBeNull();
+    expect((each as HTMLElement).style.getPropertyValue('--port-index')).toBe('0');
+    expect((done as HTMLElement).style.getPropertyValue('--port-index')).toBe('1');
+    expect(container.textContent).toContain('editor.ports.each');
+    expect(container.textContent).toContain('editor.ports.done');
+  });
+
+  it('renders one handle per case plus default, indexed 0..n, for core.switch', () => {
+    const container = renderCard(switchEntry, { config: { cases: [
+      { match: 'PUBLISHED', port: 'a' }, { match: 'DRAFT', port: 'b' }, { match: 'REVIEW', port: 'c' },
+    ] } });
+    ['a', 'b', 'c', 'default'].forEach((id, i) => {
+      const handle = container.querySelector(`[data-handleid="${id}"]`) as HTMLElement;
+      expect(handle).not.toBeNull();
+      expect(handle.style.getPropertyValue('--port-index')).toBe(String(i));
+    });
+    const card = container.querySelector('[style*="--card-ports"]') as HTMLElement;
+    expect(card.style.getPropertyValue('--card-ports')).toBe('4');
+  });
+
+  it('sets --card-ports for a plain 2-port card without breaking the 72px floor mechanism', () => {
+    // jsdom doesn't lay out, so this checks the CSS variable feeding the SCSS
+    // max(72px, ...) floor rather than a computed pixel height.
+    const container = renderCard(conditionEntry);
+    const card = container.querySelector('[style*="--card-ports"]') as HTMLElement;
+    expect(card.style.getPropertyValue('--card-ports')).toBe('2');
   });
 });

@@ -1,5 +1,6 @@
 import {
-  Bell, Bookmark, BookmarkCheck, CircleHelp, Clock, Database, Flag, GitBranch, Globe, Mail, Ticket, Timer, User, Zap, type LucideIcon,
+  Bell, Bookmark, BookmarkCheck, CircleHelp, Clock, Database, Flag, GitBranch, GitFork, Globe, Mail, Repeat, Ticket, Timer, User, Zap,
+  type LucideIcon,
 } from 'lucide-react';
 import type { BlueprintNodeKind } from '@live-show/api-contracts';
 import styles from './nodeVisuals.module.scss';
@@ -8,6 +9,7 @@ const ICON_BY_KEY: Record<string, LucideIcon> = {
   'orders.paid': Zap, 'wishlist.itemAdded': Bookmark, 'events.byId': Database, 'ticketing.hasAccess': Ticket,
   'wishlist.stillSaved': BookmarkCheck, 'account.profile': User, 'core.condition': GitBranch, 'core.waitUntil': Clock,
   'core.end': Flag, 'notifications.inApp': Bell, 'mailing.sendEmail': Mail, 'http.request': Globe, 'core.delay': Timer,
+  'core.forEach': Repeat, 'core.switch': GitFork,
 };
 const ICON_BY_KIND: Record<BlueprintNodeKind, LucideIcon> = { trigger: Zap, data: Database, core: GitBranch, action: Bell };
 
