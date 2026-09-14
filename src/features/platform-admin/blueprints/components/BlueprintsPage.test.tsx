@@ -35,4 +35,17 @@ describe('BlueprintsPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'create' }));
     expect(create).toHaveBeenCalledWith({ name: 'Lembrete — salvou', description: '' }, expect.anything());
   });
+
+  it('shows error alert when create mutation fails', async () => {
+    create.mockImplementationOnce((_data, options) => {
+      // Trigger onError callback
+      setTimeout(() => options?.onError?.({ message: 'Network error', status: 500, code: 'NETWORK_ERROR' }), 0);
+    });
+    render(<BlueprintsPage />);
+    await userEvent.type(screen.getByLabelText('name'), 'Faulty');
+    await userEvent.click(screen.getByRole('button', { name: 'create' }));
+    // Wait for async onError to trigger
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(screen.getByRole('alert')).toHaveTextContent('errors.NETWORK_ERROR');
+  });
 });

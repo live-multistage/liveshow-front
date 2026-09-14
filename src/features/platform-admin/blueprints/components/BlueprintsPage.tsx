@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Button, Input, Label } from '@live-show/design-system';
 import type { BlueprintStatus } from '@live-show/api-contracts';
+import type { AppError } from '@/lib/http/errors';
 import { PlatformPageShell } from '../../components/PlatformPageShell';
 import tableStyles from '../../components/PlatformTable.module.scss';
 import { useBlueprintsQuery } from '../queries/blueprints.queries';
@@ -20,11 +21,19 @@ export function BlueprintsPage() {
   const { data = [], isLoading, isError } = useBlueprintsQuery();
   const create = useCreateBlueprintMutation();
   const [name, setName] = useState('');
+  const [createError, setCreateError] = useState<string | null>(null);
 
   function onCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!name.trim()) return;
-    create.mutate({ name: name.trim(), description: '' }, { onSuccess: () => setName('') });
+    setCreateError(null);
+    create.mutate(
+      { name: name.trim(), description: '' },
+      {
+        onSuccess: () => setName(''),
+        onError: (err: AppError) => setCreateError(t(`errors.${err.code ?? 'GENERIC'}`)),
+      },
+    );
   }
 
   return (
@@ -35,6 +44,7 @@ export function BlueprintsPage() {
         <Button type="submit" disabled={create.isPending || !name.trim()}>{t('create')}</Button>
       </form>
       {isError && <p role="alert" className={tableStyles.filterError}>{t('errors.GENERIC')}</p>}
+      {createError && <p role="alert" className={tableStyles.filterError}>{createError}</p>}
       {!isLoading && data.length === 0 ? (
         <p className={tableStyles.empty}>{t('empty')}</p>
       ) : (

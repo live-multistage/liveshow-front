@@ -44,8 +44,12 @@ export function BlueprintDetailPage({ id }: { id: string }) {
 
   async function onExport() {
     if (!latest) return;
-    await navigator.clipboard.writeText(JSON.stringify(latest.graph, null, 2));
-    setMessage(t('detail.copied'));
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(latest.graph, null, 2));
+      setMessage(t('detail.copied'));
+    } catch {
+      setMessage(t('errors.GENERIC'));
+    }
   }
 
   return (
@@ -99,10 +103,10 @@ export function BlueprintDetailPage({ id }: { id: string }) {
                   <td>{isActive ? t('detail.active') : v.publishedAt ? t('detail.published') : t('detail.draft')}</td>
                   <td className={tableStyles.right}>
                     {!v.publishedAt && v.analysis.ok && (
-                      <Button size="sm" onClick={() => publish.mutate({ id, versionId: v.id }, onError)}>{t('detail.publish')}</Button>
+                      <Button size="sm" disabled={publish.isPending} onClick={() => publish.mutate({ id, versionId: v.id }, onError)}>{t('detail.publish')}</Button>
                     )}
                     {v.publishedAt && !isActive && (
-                      <Button size="sm" onClick={() => activate.mutate({ id, versionId: v.id }, onError)}>{t('detail.activate')}</Button>
+                      <Button size="sm" disabled={activate.isPending} onClick={() => activate.mutate({ id, versionId: v.id }, onError)}>{t('detail.activate')}</Button>
                     )}
                   </td>
                 </tr>

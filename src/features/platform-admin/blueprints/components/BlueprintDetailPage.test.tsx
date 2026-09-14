@@ -6,6 +6,11 @@ vi.mock('../mutations/blueprints.mutations', () => ({
   useActivateBlueprintMutation: vi.fn(), useDeactivateBlueprintMutation: vi.fn(),
 }));
 
+Object.defineProperty(navigator, 'clipboard', {
+  value: { writeText: vi.fn() },
+  configurable: true,
+});
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -76,5 +81,13 @@ describe('BlueprintDetailPage', () => {
     render(<BlueprintDetailPage id="b1" />);
     expect(screen.getByText('runStatus.WAITING')).toBeInTheDocument();
     expect(screen.getByText('c')).toBeInTheDocument();
+  });
+
+  it('shows error alert when clipboard.writeText fails', async () => {
+    vi.mocked(navigator.clipboard.writeText).mockRejectedValueOnce(new Error('Clipboard denied'));
+    detail([{ id: 'v1', version: 1, graph, analysis: { ok: true, errors: [] }, publishedAt: '2026-09-13T12:00:00Z' }]);
+    render(<BlueprintDetailPage id="b1" />);
+    await userEvent.click(screen.getByRole('button', { name: 'detail.export' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('errors.GENERIC');
   });
 });
