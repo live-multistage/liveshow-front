@@ -27,7 +27,8 @@ import { CATALOG, CATALOG_MAP } from './__fixtures__/catalog';
 import { Palette } from './Palette';
 import { Inspector } from './Inspector';
 import { ProblemsFooter } from './ProblemsFooter';
-import { editorReducer, graphToState, stateToGraph, type EditorState } from './useEditorGraph';
+import { editorReducer, graphToState, stateToGraph, type AvailableField, type EditorState } from './useEditorGraph';
+import { WaitUntilBuilder } from './fields/WaitUntilBuilder';
 
 beforeAll(() => {
   window.HTMLElement.prototype.hasPointerCapture = vi.fn().mockReturnValue(false);
@@ -146,10 +147,36 @@ describe('Inspector', () => {
     await userEvent.click(screen.getAllByRole('button', { name: 'editor.condition.removeRule' })[1]);
     expect(expr()).toEqual({ or: [{ eq: ['{{e2.status}}', 'PUBLISHED'] }] });
 
+    // "+ Adicionar regra" adds an incomplete row (no ref, no value) but must
+    // not change the emitted config — an incomplete rule never serializes.
     await userEvent.click(screen.getByRole('button', { name: 'editor.condition.addRule' }));
-    expect(expr()).toEqual({ or: [{ eq: ['{{e2.status}}', 'PUBLISHED'] }, { eq: ['', ''] }] });
+    expect(expr()).toEqual({ or: [{ eq: ['{{e2.status}}', 'PUBLISHED'] }] });
+    expect(screen.getByText('editor.condition.incomplete')).toBeInTheDocument();
+
+    // Completing the new row (pick a field, fill the value) emits it too.
+    const combos = screen.getAllByRole('combobox');
+    await userEvent.click(combos[combos.length - 2]);
+    await userEvent.click(await screen.findByRole('option', { name: /e2 · Evento por id → status/ }));
+    const operands = screen.getAllByRole('textbox', { name: 'editor.condition.value' });
+    await userEvent.type(operands[operands.length - 1], 'LIVE');
+    expect(expr()).toEqual({ or: [{ eq: ['{{e2.status}}', 'PUBLISHED'] }, { eq: ['{{e2.status}}', 'LIVE'] }] });
+    expect(screen.queryByText('editor.condition.incomplete')).not.toBeInTheDocument();
 
     expect(within(screen.getByText('editor.inspector.outputs').parentElement as HTMLElement).getByText(/editor.ports.true → Notificação no app/)).toBeInTheDocument();
+  });
+
+  it('shows the invalid-JSON hint on blur instead of silently dropping the raw condition', async () => {
+    let latest: EditorState | undefined;
+    const withRawCondition = editorReducer(buyersAt('c'), {
+      type: 'setConfig', id: 'c', field: 'expression', value: { not: { eq: ['{{e2.status}}', 'LIVE'] } },
+    });
+    render(<InspectorHarness initial={withRawCondition} onState={(s) => { latest = s; }} />);
+    const textarea = screen.getByRole('textbox', { name: 'editor.inspector.rules' });
+    await userEvent.clear(textarea);
+    await userEvent.type(textarea, '{{{{not json');
+    await userEvent.tab();
+    expect(screen.getByText('detail.invalidJson')).toBeInTheDocument();
+    expect(latest!.nodes.find((n) => n.id === 'c')?.config.expression).toEqual({ not: { eq: ['{{e2.status}}', 'LIVE'] } });
   });
 
   it('lists this node\'s problems, and duplicates / deletes the node', async () => {
@@ -179,6 +206,21 @@ describe('Inspector', () => {
     expect(screen.getByLabelText('Título')).toBeDisabled();
     expect(screen.getByRole('textbox', { name: 'editor.inspector.nodeId' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'editor.inspector.remove' })).toBeDisabled();
+  });
+});
+
+describe('WaitUntilBuilder', () => {
+  const fields: AvailableField[] = [
+    { nodeId: 'p', nodeLabel: 'Perfil', field: 'birthAt', out: { type: 'datetime', class: 'PERSONAL', description: 'Nascimento' } },
+    { nodeId: 'e', nodeLabel: 'Evento', field: 'startsAt', out: { type: 'datetime', class: 'PUBLIC', description: 'Início' } },
+  ];
+
+  it('rejects a PERSONAL datetime field even though its type matches', async () => {
+    render(<WaitUntilBuilder id="w" value={undefined} fields={fields} onChange={vi.fn()} />);
+    await userEvent.click(screen.getAllByRole('combobox')[0]);
+    expect(screen.getByRole('option', { name: /p · Perfil → birthAt/ })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByText('editor.fields.personalNotAllowed')).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /e · Evento → startsAt/ })).not.toHaveAttribute('aria-disabled');
   });
 });
 

@@ -62,7 +62,10 @@ export function WaitUntilBuilder({ id, value, fields, onChange }: Props) {
         id={id}
         value={draft.ref}
         fields={fields}
-        reject={(out) => (out.type === 'datetime' ? null : t('editor.fields.typeMismatch', { type: out.type }))}
+        reject={(out) => {
+          if (out.class === 'PERSONAL') return t('editor.fields.personalNotAllowed');
+          return out.type === 'datetime' ? null : t('editor.fields.typeMismatch', { type: out.type });
+        }}
         onChange={(ref) => change({ ref })}
       />
       <div className={styles.waitRow}>

@@ -46,9 +46,19 @@ export function conditionToRules(expr: unknown): RuleSet | null {
   return single ? { join: 'and', rules: [single] } : null;
 }
 
+/** A rule is safe to serialize once its left side is a real ref and (for binary ops) its right side is filled in. */
+export function isCompleteRule(r: Rule): boolean {
+  if (!parseRef(r.left)) return false;
+  if (r.op === 'exists') return true;
+  return r.right !== '' && r.right !== null;
+}
+
+// Drops incomplete rows so a half-filled row (e.g. right away from "+ Adicionar
+// regra") never reaches the analyzer as a always-true/false `'' === ''` leaf.
 export function rulesToCondition(set: RuleSet): Record<string, unknown> | undefined {
-  if (set.rules.length === 0) return undefined;
-  return { [set.join]: set.rules.map((r) => (r.op === 'exists' ? { exists: r.left } : { [r.op]: [r.left, r.right] })) };
+  const complete = set.rules.filter(isCompleteRule);
+  if (complete.length === 0) return undefined;
+  return { [set.join]: complete.map((r) => (r.op === 'exists' ? { exists: r.left } : { [r.op]: [r.left, r.right] })) };
 }
 
 export type WaitUnit = 'm' | 'h' | 'd';

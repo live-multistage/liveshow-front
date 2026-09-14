@@ -95,6 +95,7 @@ $field-border: rgba(255, 255, 255, .1);
 // ── Condition rules ─────────────────────────────────────────────────────────
 .rules { display: flex; flex-direction: column; gap: 7px; }
 .rule { display: flex; flex-direction: column; gap: 6px; }
+.ruleIncomplete { border: 1px solid rgba(248, 113, 113, .3); border-radius: 8px; padding: 6px; margin: -6px; }
 .ruleRow { display: flex; align-items: center; gap: 6px; > * { flex: 1; min-width: 0; } }
 .join { align-self: center; background: none; border: none; font-family: $mono; font-size: 9.5px; letter-spacing: .1em; color: #9b7bff; cursor: pointer; }
 .operand { display: flex; align-items: center; gap: 6px; }

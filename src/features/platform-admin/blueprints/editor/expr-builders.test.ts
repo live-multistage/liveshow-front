@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import buyers from './__fixtures__/reminder-buyers.json';
 import savers from './__fixtures__/reminder-savers.json';
-import { conditionToRules, formatWait, parseRef, parseWait, rulesToCondition } from './expr-builders';
+import { conditionToRules, formatWait, isCompleteRule, parseRef, parseWait, rulesToCondition } from './expr-builders';
 
 const conditionOf = (g: { nodes: Array<{ node: string; config: Record<string, unknown> }> }) =>
   g.nodes.find((n) => n.node === 'core.condition')?.config.expression;
@@ -28,6 +28,16 @@ describe('condition builder', () => {
       .toEqual({ or: [{ exists: '{{a.hasAccess}}' }, { eq: ['{{s.saved}}', true] }] });
     expect(rulesToCondition({ join: 'and', rules: [] })).toBeUndefined();
     expect(conditionToRules(undefined)).toEqual({ join: 'and', rules: [] });
+  });
+
+  it('never serializes an incomplete rule (empty left, empty right, or unpicked boolean)', () => {
+    expect(rulesToCondition({ join: 'and', rules: [{ left: '', op: 'eq', right: '' }] })).toBeUndefined();
+    expect(rulesToCondition({ join: 'and', rules: [{ left: '{{e1.status}}', op: 'eq', right: '' }] })).toBeUndefined();
+    expect(rulesToCondition({ join: 'or', rules: [{ left: '{{e1.live}}', op: 'eq', right: '' }, { left: '{{e1.status}}', op: 'eq', right: 'LIVE' }] }))
+      .toEqual({ or: [{ eq: ['{{e1.status}}', 'LIVE'] }] });
+    expect(isCompleteRule({ left: '', op: 'eq', right: 'x' })).toBe(false);
+    expect(isCompleteRule({ left: '{{e1.done}}', op: 'exists', right: null })).toBe(true);
+    expect(isCompleteRule({ left: '{{e1.status}}', op: 'eq', right: '' })).toBe(false);
   });
 
   it('wraps a bare leaf and refuses shapes the flat builder cannot show', () => {
