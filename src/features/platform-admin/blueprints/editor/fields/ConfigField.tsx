@@ -6,8 +6,9 @@ import type { BlueprintCatalogEntry, BlueprintConfigField, BlueprintKeyValue } f
 import { Input } from '@live-show/design-system';
 import { ChoiceSelect } from '../../../mailing/components/BlockInspector';
 import type { AvailableField } from '../useEditorGraph';
-import { sameType, typeLabel } from '../field-types';
+import { isList, sameType, typeLabel } from '../field-types';
 import { BooleanField } from './BooleanField';
+import { CasesBuilder } from './CasesBuilder';
 import { ConditionBuilder } from './ConditionBuilder';
 import { DurationField } from './DurationField';
 import { KeyValueListField } from './KeyValueListField';
@@ -55,21 +56,25 @@ export function ConfigField({ nodeId, entry, name, spec, value, fields, onChange
         />
       );
     }
-    case 'ref':
+    case 'ref': {
+      const forEachItems = entry.key === 'core.forEach' && name === 'items';
       control = (
         <RefSelect
           id={id}
           value={text}
           fields={fields}
+          placeholder={forEachItems ? t('editor.fields.selectList') : undefined}
           onChange={setText}
           reject={(out) => {
             if (out.class === 'PERSONAL') return t('editor.fields.personalNotAllowed');
+            if (forEachItems) return isList(out.type) ? null : t('editor.fields.listRequired');
             if (out.type === 'json' && !sameType(out.type, spec.type)) return t('editor.fields.jsonNeedsTransform');
             return sameType(out.type, spec.type) ? null : t('editor.fields.typeMismatch', { type: typeLabel(out.type) });
           }}
         />
       );
       break;
+    }
     case 'enum':
       if (entry.key === 'core.waitUntil' && name === 'ifPast') return <IfPastRadio name={id} value={text} onChange={setText} />;
       control = (
@@ -131,6 +136,16 @@ export function ConfigField({ nodeId, entry, name, spec, value, fields, onChange
     case 'secret':
       control = <SecretSelect id={id} value={text} onChange={setText} />;
       break;
+    case 'cases':
+      return (
+        <CasesBuilder
+          id={id}
+          label={spec.description}
+          value={value}
+          maxCases={spec.maxCases}
+          onChange={onChange}
+        />
+      );
   }
 
   return (

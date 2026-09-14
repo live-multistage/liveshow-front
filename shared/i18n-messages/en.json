@@ -2280,7 +2280,23 @@
           "headerValue": "Header value",
           "noSecrets": "No secrets registered",
           "headerLimit": "Up to {max} items",
-          "removeRow": "Remove"
+          "removeRow": "Remove",
+          "listRequired": "Choose a list",
+          "selectList": "choose a list",
+          "chooseListHint": "choose the list to see its fields",
+          "maxItemsHelp": "default 500",
+          "cases": {
+            "value": "Value",
+            "port": "Port",
+            "add": "+ Add case",
+            "limit": "up to {max} cases",
+            "otherwise": "everything else",
+            "default": "default",
+            "errValue": "Enter a value",
+            "errPort": "Invalid port (letters, digits, - and _)",
+            "errDuplicate": "Duplicate port",
+            "errReserved": "\"default\" is reserved"
+          }
         },
         "classification": {
           "PUBLIC": "Public",

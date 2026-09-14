@@ -10,7 +10,7 @@ import { ConfigField } from './fields/ConfigField';
 import { ClassChip } from './fields/RefSelect';
 import { isObject, typeLabel } from './field-types';
 import { NodeIcon, kindClass } from './nodeVisuals';
-import { availableFields, catalogKey, type EditorAction, type EditorState } from './useEditorGraph';
+import { availableFields, catalogKey, outputsOfNode, type EditorAction, type EditorState } from './useEditorGraph';
 import styles from './Inspector.module.scss';
 
 const PORT_DOT: Record<string, string> = { true: 'dotTrue', false: 'dotFalse', next: 'dotNext', error: 'dotError' };
@@ -92,27 +92,35 @@ export function Inspector({ state, dispatch, catalog, errors, readOnly }: Props)
           </section>
         )}
 
-        {entry && (
-          <section className={styles.section}>
-            <h4 className={styles.sectionTitle}>{t('editor.inspector.outputs')}</h4>
-            {Object.keys(entry.outputs).length === 0
-              ? <p className={styles.muted}>{t('editor.inspector.noOutputs')}</p>
-              : (
-                <ul className={styles.outputTree}>
-                  {/* Port tags are a top-level-only convention (analyzer visibleVia checks outputs[field].port only). */}
-                  {Object.entries(entry.outputs).filter(([, spec]) => !spec.port).map(([name, spec]) => (
-                    <OutputRow key={name} name={name} spec={spec} depth={0} />
-                  ))}
-                  {Object.entries(entry.outputs).some(([, spec]) => spec.port) && (
-                    <li className={styles.errorPortSection}>{t('editor.fields.errorPortSection')}</li>
+        {entry && (() => {
+          const outputs = outputsOfNode(entry, node.config, state, catalog, node.id);
+          // forEach's `item` stays typed `json` until its `items` ref resolves to a real
+          // list — showing the raw json/index fields then would be misleading noise.
+          const unresolvedForEach = entry.key === 'core.forEach' && outputs.item?.type === 'json';
+          return (
+            <section className={styles.section}>
+              <h4 className={styles.sectionTitle}>{t('editor.inspector.outputs')}</h4>
+              {unresolvedForEach
+                ? <p className={styles.muted}>{t('editor.fields.chooseListHint')}</p>
+                : Object.keys(outputs).length === 0
+                  ? <p className={styles.muted}>{t('editor.inspector.noOutputs')}</p>
+                  : (
+                    <ul className={styles.outputTree}>
+                      {/* Port tags are a top-level-only convention (analyzer visibleVia checks outputs[field].port only). */}
+                      {Object.entries(outputs).filter(([, spec]) => !spec.port).map(([name, spec]) => (
+                        <OutputRow key={name} name={name} spec={spec} depth={0} />
+                      ))}
+                      {Object.entries(outputs).some(([, spec]) => spec.port) && (
+                        <li className={styles.errorPortSection}>{t('editor.fields.errorPortSection')}</li>
+                      )}
+                      {Object.entries(outputs).filter(([, spec]) => spec.port).map(([name, spec]) => (
+                        <OutputRow key={name} name={name} spec={spec} depth={0} />
+                      ))}
+                    </ul>
                   )}
-                  {Object.entries(entry.outputs).filter(([, spec]) => spec.port).map(([name, spec]) => (
-                    <OutputRow key={name} name={name} spec={spec} depth={0} />
-                  ))}
-                </ul>
-              )}
-          </section>
-        )}
+            </section>
+          );
+        })()}
 
         <section className={styles.section}>
           <h4 className={styles.sectionTitle}>{t('editor.inspector.problems')}</h4>

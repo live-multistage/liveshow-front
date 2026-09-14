@@ -32,6 +32,8 @@ interface Props {
   id: string;
   value: string;
   fields: AvailableField[];
+  /** Overrides the default "Selecionar campo" placeholder (e.g. forEach's "escolha uma lista"). */
+  placeholder?: string;
   /** Returns why a field cannot go here (shown next to the disabled option), or null. */
   reject(out: BlueprintOutputField): string | null;
   onChange(value: string): void;
@@ -41,7 +43,7 @@ interface Props {
 // row indented by its path depth with a leaf/type chip; incompatible ones
 // stay listed, disabled, with the reason underneath. Port-scoped outputs
 // (e.g. an action's error port) render below a dedicated sub-header.
-export function RefSelect({ id, value, fields, reject, onChange }: Props) {
+export function RefSelect({ id, value, fields, placeholder, reject, onChange }: Props) {
   const t = useTranslations('platformAdmin.blueprints');
   const byNode = new Map<string, AvailableField[]>();
   for (const f of fields) byNode.set(f.nodeId, [...(byNode.get(f.nodeId) ?? []), f]);
@@ -67,7 +69,7 @@ export function RefSelect({ id, value, fields, reject, onChange }: Props) {
     <>
       <CustomSelect value={known ? value : ''} onValueChange={(v) => v && onChange(v)}>
         <CustomSelectTrigger id={id} className={styles.selectTrigger}>
-          <CustomSelectValue placeholder={fields.length ? t('editor.fields.selectField') : t('editor.fields.noUpstream')} />
+          <CustomSelectValue placeholder={placeholder ?? (fields.length ? t('editor.fields.selectField') : t('editor.fields.noUpstream'))} />
         </CustomSelectTrigger>
         <CustomSelectContent>
           {[...byNode.entries()].map(([nodeId, list]) => {

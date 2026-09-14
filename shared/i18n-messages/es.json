@@ -2280,7 +2280,23 @@
           "headerValue": "Valor del header",
           "noSecrets": "No hay secretos registrados",
           "headerLimit": "Hasta {max} elementos",
-          "removeRow": "Quitar"
+          "removeRow": "Quitar",
+          "listRequired": "Elija una lista",
+          "selectList": "elija una lista",
+          "chooseListHint": "elija la lista para ver los campos",
+          "maxItemsHelp": "predeterminado 500",
+          "cases": {
+            "value": "Valor",
+            "port": "Puerto",
+            "add": "+ Agregar caso",
+            "limit": "límite de {max} casos",
+            "otherwise": "todos los demás",
+            "default": "predeterminado",
+            "errValue": "Ingrese un valor",
+            "errPort": "Puerto inválido (letras, números, - y _)",
+            "errDuplicate": "Puerto repetido",
+            "errReserved": "\"predeterminado\" está reservado"
+          }
         },
         "classification": {
           "PUBLIC": "Público",

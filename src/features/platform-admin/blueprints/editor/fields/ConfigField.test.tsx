@@ -167,6 +167,74 @@ describe('ConfigField — text (secret chips)', () => {
   });
 });
 
+describe('ConfigField — ref (forEach items)', () => {
+  const forEachEntry: BlueprintCatalogEntry = {
+    key: 'core.forEach', version: 1, kind: 'core', mode: 'call', label: 'Para cada', description: 'Itera uma lista.',
+    config: {}, outputs: {},
+  };
+  const listFields: AvailableField[] = [
+    { nodeId: 's', nodeLabel: 'Seguidores', field: 'followers', path: [], depth: 0, out: { type: { list: { object: {} } }, class: 'PUBLIC', description: 'Seguidores' } },
+    { nodeId: 'e', nodeLabel: 'Evento', field: 'title', path: [], depth: 0, out: { type: 'string', class: 'PUBLIC', description: 'Título' } },
+    { nodeId: 'u', nodeLabel: 'Usuário', field: 'name', path: [], depth: 0, out: { type: 'string', class: 'PERSONAL', description: 'Nome' } },
+  ];
+
+  it('accepts any list<T>, not only list<json>, and shows the "choose a list" placeholder', async () => {
+    render(
+      <ConfigField
+        nodeId="fe"
+        entry={forEachEntry}
+        name="items"
+        spec={{ kind: 'ref', required: true, description: 'Lista', type: { list: 'json' } }}
+        value=""
+        fields={listFields}
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('editor.fields.selectList')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('combobox'));
+    expect(screen.getByRole('option', { name: /followers/ })).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('rejects a scalar field with listRequired', async () => {
+    render(
+      <ConfigField
+        nodeId="fe"
+        entry={forEachEntry}
+        name="items"
+        spec={{ kind: 'ref', required: true, description: 'Lista', type: { list: 'json' } }}
+        value=""
+        fields={listFields}
+        onChange={vi.fn()}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('combobox'));
+    const titleOption = screen.getByRole('option', { name: /title/ });
+    expect(titleOption).toHaveAttribute('aria-disabled', 'true');
+    expect(titleOption).toHaveTextContent('editor.fields.listRequired');
+  });
+
+  it('still rejects PERSONAL fields', async () => {
+    render(
+      <ConfigField
+        nodeId="fe"
+        entry={forEachEntry}
+        name="items"
+        spec={{ kind: 'ref', required: true, description: 'Lista', type: { list: 'json' } }}
+        value=""
+        fields={listFields}
+        onChange={vi.fn()}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('combobox'));
+    const nameOption = screen.getByRole('option', { name: /name/ });
+    expect(nameOption).toHaveAttribute('aria-disabled', 'true');
+    expect(nameOption).toHaveTextContent('editor.fields.personalNotAllowed');
+  });
+});
+
 describe('ConfigField — secret', () => {
   it('lists secret names from the mocked query', async () => {
     secretsData.mockReturnValue({ data: [{ name: 'PARTNER', updatedAt: '2026-01-01T00:00:00Z' }] });
