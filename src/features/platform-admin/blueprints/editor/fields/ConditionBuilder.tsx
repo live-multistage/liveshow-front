@@ -7,7 +7,7 @@ import type { BlueprintFieldType } from '@live-show/api-contracts';
 import { Input, cn } from '@live-show/design-system';
 import { ChoiceSelect } from '../../../mailing/components/BlockInspector';
 import {
-  RULE_OPS, conditionToRules, isCompleteRule, parseRef, rulesToCondition, type Operand, type Rule, type RuleOp, type RuleSet,
+  ISO_DATETIME, RULE_OPS, conditionToRules, isCompleteRule, parseRef, rulesToCondition, type Operand, type Rule, type RuleOp, type RuleSet,
 } from '../expr-builders';
 import type { AvailableField } from '../useEditorGraph';
 import { RefSelect } from './RefSelect';
@@ -31,20 +31,20 @@ export function ConditionBuilder({ id, value, fields, onChange }: Props) {
   const [draft, setDraft] = useState<RuleSet | null>(() => conditionToRules(value));
   if (!draft) return <RawCondition id={id} value={value} onChange={onChange} />;
 
-  const emit = (next: RuleSet) => {
-    setDraft(next);
-    onChange(rulesToCondition(next));
-  };
-  const update = (i: number, patch: Partial<Rule>) => emit({ ...draft, rules: draft.rules.map((r, j) => (j === i ? { ...r, ...patch } : r)) });
   const typeOf = (left: string): BlueprintFieldType | undefined => {
     const ref = parseRef(left);
     return fields.find((f) => ref && f.nodeId === ref.nodeId && f.field === ref.field)?.out.type;
   };
+  const emit = (next: RuleSet) => {
+    setDraft(next);
+    onChange(rulesToCondition(next, typeOf));
+  };
+  const update = (i: number, patch: Partial<Rule>) => emit({ ...draft, rules: draft.rules.map((r, j) => (j === i ? { ...r, ...patch } : r)) });
 
   return (
     <div className={styles.rules} id={id}>
       {draft.rules.map((rule, i) => {
-        const incomplete = !isCompleteRule(rule);
+        const incomplete = !isCompleteRule(rule, typeOf(rule.left));
         return (
           <Fragment key={i}>
             {i > 0 && (
@@ -93,6 +93,9 @@ export function ConditionBuilder({ id, value, fields, onChange }: Props) {
 
 function OperandInput({ id, type, value, onChange }: { id: string; type?: BlueprintFieldType; value: Operand; onChange(v: Operand): void }) {
   const t = useTranslations('platformAdmin.blueprints');
+  // Local text draft for the number field only: it lets an in-progress pt-BR
+  // decimal (e.g. "1,") stay visible while `value` upstream is still the raw string.
+  const [numberText, setNumberText] = useState(value === null ? '' : String(value));
   if (type === 'boolean') {
     return (
       <ChoiceSelect
@@ -107,20 +110,45 @@ function OperandInput({ id, type, value, onChange }: { id: string; type?: Bluepr
   if (value === 'now') {
     return <button type="button" className={styles.nowChip} onClick={() => onChange('')}>{t('editor.condition.now')} ×</button>;
   }
+  if (type === 'datetime') {
+    return (
+      <div className={styles.operand}>
+        <Input
+          id={id}
+          type="datetime-local"
+          aria-label={t('editor.condition.value')}
+          value={typeof value === 'string' && ISO_DATETIME.test(value) ? value.slice(0, 16) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <button type="button" className={styles.linkBtn} onClick={() => onChange('now')}>{t('editor.condition.now')}</button>
+      </div>
+    );
+  }
+  if (type === 'number') {
+    // Accepts pt-BR decimal comma on input but always emits a JS number (or the
+    // raw string while it's not yet a valid number, so the row stays visibly incomplete).
+    return (
+      <Input
+        id={id}
+        aria-label={t('editor.condition.value')}
+        value={numberText}
+        onChange={(e) => {
+          const raw = e.target.value;
+          setNumberText(raw);
+          const normalized = raw.trim().replace(',', '.');
+          onChange(normalized !== '' && Number.isFinite(Number(normalized)) ? Number(normalized) : raw);
+        }}
+      />
+    );
+  }
   return (
     <div className={styles.operand}>
       <Input
         id={id}
         aria-label={t('editor.condition.value')}
         value={value === null ? '' : String(value)}
-        onChange={(e) => {
-          const v = e.target.value;
-          onChange(type === 'number' && v.trim() !== '' && Number.isFinite(Number(v)) ? Number(v) : v);
-        }}
+        onChange={(e) => onChange(e.target.value)}
       />
-      {type === 'datetime' && (
-        <button type="button" className={styles.linkBtn} onClick={() => onChange('now')}>{t('editor.condition.now')}</button>
-      )}
     </div>
   );
 }

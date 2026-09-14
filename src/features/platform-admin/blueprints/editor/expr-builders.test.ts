@@ -40,6 +40,24 @@ describe('condition builder', () => {
     expect(isCompleteRule({ left: '{{e1.status}}', op: 'eq', right: '' })).toBe(false);
   });
 
+  it('rejects operands typed wrong for the field (R22-class: analyzer cannot catch a string in a number/datetime slot)', () => {
+    // number: a pt-BR decimal comma typed by the user lands here as a string until converted.
+    expect(isCompleteRule({ left: '{{e1.price}}', op: 'gt', right: '1,5' }, 'number')).toBe(false);
+    expect(isCompleteRule({ left: '{{e1.price}}', op: 'gt', right: 1.5 }, 'number')).toBe(true);
+    // datetime: only "now" or an ISO-ish string (date + hour:minute) counts.
+    expect(isCompleteRule({ left: '{{e1.startsAt}}', op: 'gt', right: '20/09/2026 10:00' }, 'datetime')).toBe(false);
+    expect(isCompleteRule({ left: '{{e1.startsAt}}', op: 'gt', right: '2026-09-20' }, 'datetime')).toBe(false);
+    expect(isCompleteRule({ left: '{{e1.startsAt}}', op: 'gt', right: '2026-09-20T10:00' }, 'datetime')).toBe(true);
+    expect(isCompleteRule({ left: '{{e1.startsAt}}', op: 'gt', right: 'now' }, 'datetime')).toBe(true);
+    // boolean: only a real boolean, never the string "true"/"false".
+    expect(isCompleteRule({ left: '{{e1.live}}', op: 'eq', right: 'true' }, 'boolean')).toBe(false);
+    expect(isCompleteRule({ left: '{{e1.live}}', op: 'eq', right: true }, 'boolean')).toBe(true);
+
+    expect(rulesToCondition({ join: 'and', rules: [{ left: '{{e1.price}}', op: 'gt', right: '1,5' }] }, () => 'number')).toBeUndefined();
+    expect(rulesToCondition({ join: 'and', rules: [{ left: '{{e1.price}}', op: 'gt', right: 1.5 }] }, () => 'number'))
+      .toEqual({ and: [{ gt: ['{{e1.price}}', 1.5] }] });
+  });
+
   it('wraps a bare leaf and refuses shapes the flat builder cannot show', () => {
     expect(conditionToRules({ neq: ['{{e1.status}}', 'LIVE'] })).toEqual({ join: 'and', rules: [{ left: '{{e1.status}}', op: 'neq', right: 'LIVE' }] });
     expect(conditionToRules({ not: { eq: ['a', 'b'] } })).toBeNull();

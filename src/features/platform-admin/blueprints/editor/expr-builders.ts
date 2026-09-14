@@ -2,7 +2,12 @@
 // - condition: domain/condition.ts (ConditionExpr)
 // - datetimeExpr: domain/expressions.ts ("{{node.field}} ± N(m|h|d)" or ISO)
 
+import type { BlueprintFieldType } from '@live-show/api-contracts';
+
 export type Operand = string | number | boolean | null;
+// Mirrors domain/expressions.ts ISO_DATETIME: the runtime only requires the
+// date + hour:minute prefix, so a `datetime-local` input's value already matches.
+export const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 export type RuleOp = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'exists';
 export const RULE_OPS: RuleOp[] = ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'exists'];
 const BINARY = new Set<string>(['eq', 'neq', 'gt', 'gte', 'lt', 'lte']);
@@ -46,17 +51,25 @@ export function conditionToRules(expr: unknown): RuleSet | null {
   return single ? { join: 'and', rules: [single] } : null;
 }
 
-/** A rule is safe to serialize once its left side is a real ref and (for binary ops) its right side is filled in. */
-export function isCompleteRule(r: Rule): boolean {
+/**
+ * A rule is safe to serialize once its left side is a real ref and (for binary
+ * ops) its right side is both filled in AND typed the way condition.ts's
+ * `comparable()` compares it at runtime — otherwise gt/gte/lt/lte silently
+ * return false and eq/neq silently return the wrong thing (R22-class bug).
+ */
+export function isCompleteRule(r: Rule, type?: BlueprintFieldType): boolean {
   if (!parseRef(r.left)) return false;
   if (r.op === 'exists') return true;
+  if (type === 'number') return typeof r.right === 'number' && Number.isFinite(r.right);
+  if (type === 'boolean') return typeof r.right === 'boolean';
+  if (type === 'datetime') return r.right === 'now' || (typeof r.right === 'string' && ISO_DATETIME.test(r.right));
   return r.right !== '' && r.right !== null;
 }
 
 // Drops incomplete rows so a half-filled row (e.g. right away from "+ Adicionar
 // regra") never reaches the analyzer as a always-true/false `'' === ''` leaf.
-export function rulesToCondition(set: RuleSet): Record<string, unknown> | undefined {
-  const complete = set.rules.filter(isCompleteRule);
+export function rulesToCondition(set: RuleSet, typeOf?: (left: string) => BlueprintFieldType | undefined): Record<string, unknown> | undefined {
+  const complete = set.rules.filter((r) => isCompleteRule(r, typeOf?.(r.left)));
   if (complete.length === 0) return undefined;
   return { [set.join]: complete.map((r) => (r.op === 'exists' ? { exists: r.left } : { [r.op]: [r.left, r.right] })) };
 }
