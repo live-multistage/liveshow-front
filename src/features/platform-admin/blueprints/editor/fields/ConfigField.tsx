@@ -6,6 +6,7 @@ import type { BlueprintCatalogEntry, BlueprintConfigField } from '@live-show/api
 import { Input } from '@live-show/design-system';
 import { ChoiceSelect } from '../../../mailing/components/BlockInspector';
 import type { AvailableField } from '../useEditorGraph';
+import { sameType, typeLabel } from '../field-types';
 import { ConditionBuilder } from './ConditionBuilder';
 import { RefSelect } from './RefSelect';
 import { TemplateSelect } from './TemplateSelect';
@@ -57,7 +58,8 @@ export function ConfigField({ nodeId, entry, name, spec, value, fields, onChange
           onChange={setText}
           reject={(out) => {
             if (out.class === 'PERSONAL') return t('editor.fields.personalNotAllowed');
-            return out.type === spec.type ? null : t('editor.fields.typeMismatch', { type: out.type });
+            if (out.type === 'json' && !sameType(out.type, spec.type)) return t('editor.fields.jsonNeedsTransform');
+            return sameType(out.type, spec.type) ? null : t('editor.fields.typeMismatch', { type: typeLabel(out.type) });
           }}
         />
       );

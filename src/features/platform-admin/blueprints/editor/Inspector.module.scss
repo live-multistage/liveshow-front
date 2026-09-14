@@ -70,7 +70,11 @@ $field-border: rgba(255, 255, 255, .1);
 .selectTrigger { background: $field-bg; }
 
 .option { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.optionGroup { font-family: $mono; font-size: 9px; letter-spacing: .1em; color: #6f6f77; }
+.optionDepth1 { padding-left: 12px; }
+.optionDepth2 { padding-left: 24px; }
+.optionDepth3 { padding-left: 36px; }
+.optionGroup { font-family: $mono; font-size: 9px; letter-spacing: .1em; color: #52525b; }
+.errorPortHeader { font-family: $mono; font-size: 9px; letter-spacing: .1em; color: #ff8f8f; opacity: .85; }
 .reason { font-size: 10px; color: $text-muted; }
 
 .chip { font-family: $mono; font-size: 8.5px; letter-spacing: .04em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; }
@@ -78,6 +82,7 @@ $field-border: rgba(255, 255, 255, .1);
 .chipInternal { background: rgba(155, 123, 255, .14); color: #b9a6ff; }
 .chipPersonal { background: rgba(255, 204, 77, .14); color: #ffcc4d; }
 .chipTested { background: $success-bg; color: $success-light; }
+.typeChip { background: rgba(255, 255, 255, .06); color: #a1a1aa; }
 
 .linkBtn {
   align-self: flex-start;

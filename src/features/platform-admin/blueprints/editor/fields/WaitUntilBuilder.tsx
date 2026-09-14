@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Input } from '@live-show/design-system';
 import { ChoiceSelect } from '../../../mailing/components/BlockInspector';
 import { formatWait, parseWait, refOf, type WaitExpr, type WaitUnit } from '../expr-builders';
+import { sameType, typeLabel } from '../field-types';
 import type { AvailableField } from '../useEditorGraph';
 import { RefSelect } from './RefSelect';
 import styles from '../Inspector.module.scss';
@@ -64,7 +65,7 @@ export function WaitUntilBuilder({ id, value, fields, onChange }: Props) {
         fields={fields}
         reject={(out) => {
           if (out.class === 'PERSONAL') return t('editor.fields.personalNotAllowed');
-          return out.type === 'datetime' ? null : t('editor.fields.typeMismatch', { type: out.type });
+          return sameType(out.type, 'datetime') ? null : t('editor.fields.typeMismatch', { type: typeLabel(out.type) });
         }}
         onChange={(ref) => change({ ref })}
       />

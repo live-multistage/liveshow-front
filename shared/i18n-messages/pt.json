@@ -2228,7 +2228,9 @@
           "personalTooltip": "Dado pessoal — só pode ir em textos de mensagem",
           "typeMismatch": "tipo {type}",
           "personalNotAllowed": "dado pessoal",
-          "dedupeHelp": "Evita duas execuções para a mesma pessoa e evento. Ex.: {example}"
+          "dedupeHelp": "Evita duas execuções para a mesma pessoa e evento. Ex.: {example}",
+          "jsonNeedsTransform": "tipo diferente (json — use Transformar)",
+          "errorPortSection": "Disponível na porta erro"
         },
         "classification": {
           "PUBLIC": "Público",

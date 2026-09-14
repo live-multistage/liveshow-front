@@ -29,6 +29,7 @@ import { Inspector } from './Inspector';
 import { ProblemsFooter } from './ProblemsFooter';
 import savers from './__fixtures__/reminder-savers.json';
 import { editorReducer, graphToState, stateToGraph, type AvailableField, type EditorAction, type EditorState } from './useEditorGraph';
+import { ConfigField } from './fields/ConfigField';
 import { WaitUntilBuilder } from './fields/WaitUntilBuilder';
 
 beforeAll(() => {
@@ -105,9 +106,9 @@ describe('Inspector', () => {
     render(<InspectorHarness initial={state} onState={(s) => { latest = s; }} />);
 
     await userEvent.click(screen.getByRole('combobox', { name: 'Evento' }));
-    expect(screen.getByRole('option', { name: /p1 · Perfil do usuário → firstName/ })).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByRole('option', { name: /t · Pedido pago → orderId/ })).not.toHaveAttribute('aria-disabled');
-    await userEvent.click(screen.getByRole('option', { name: /t · Pedido pago → orderId/ }));
+    expect(screen.getByRole('option', { name: /^firstName/ })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('option', { name: /^orderId/ })).not.toHaveAttribute('aria-disabled');
+    await userEvent.click(screen.getByRole('option', { name: /^orderId/ }));
     expect(latest!.nodes.find((n) => n.id === 'e1')?.config.eventId).toBe('{{t.orderId}}');
   });
 
@@ -158,7 +159,8 @@ describe('Inspector', () => {
     // Completing the new row (pick a field, fill the value) emits it too.
     const combos = screen.getAllByRole('combobox');
     await userEvent.click(combos[combos.length - 2]);
-    await userEvent.click(await screen.findByRole('option', { name: /e2 · Evento por id → status/ }));
+    const e2Group = (await screen.findAllByRole('group')).find((g) => within(g).queryByText(/^e2 ·/));
+    await userEvent.click(within(e2Group as HTMLElement).getByRole('option', { name: /^status/ }));
     const operands = screen.getAllByRole('textbox', { name: 'editor.condition.value' });
     await userEvent.type(operands[operands.length - 1], 'LIVE');
     expect(expr()).toEqual({ or: [{ eq: ['{{e2.status}}', 'PUBLISHED'] }, { eq: ['{{e2.status}}', 'LIVE'] }] });
@@ -234,9 +236,32 @@ describe('WaitUntilBuilder', () => {
   it('rejects a PERSONAL datetime field even though its type matches', async () => {
     render(<WaitUntilBuilder id="w" value={undefined} fields={fields} onChange={vi.fn()} />);
     await userEvent.click(screen.getAllByRole('combobox')[0]);
-    expect(screen.getByRole('option', { name: /p · Perfil → birthAt/ })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('option', { name: /birthAt/ })).toHaveAttribute('aria-disabled', 'true');
     expect(screen.getByText('editor.fields.personalNotAllowed')).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: /e · Evento → startsAt/ })).not.toHaveAttribute('aria-disabled');
+    expect(screen.getByRole('option', { name: /startsAt/ })).not.toHaveAttribute('aria-disabled');
+  });
+});
+
+describe('ConfigField ref', () => {
+  const entry = { key: 'notify.push', version: 1, kind: 'action', label: 'Notificação', description: '', config: {}, outputs: {} } as const;
+  const spec = { kind: 'ref', type: 'string', required: true, description: 'Título' } as const;
+
+  it('rejects a json output with the json-specific hint, not the generic type mismatch', async () => {
+    const fields: AvailableField[] = [
+      { nodeId: 'h', nodeLabel: 'Requisição HTTP', field: 'partner', path: ['rawJson'], depth: 1, out: { type: 'json', class: 'INTERNAL', description: 'JSON bruto' } },
+    ];
+    render(<ConfigField nodeId="n" entry={entry} name="title" spec={spec} value="" fields={fields} onChange={vi.fn()} />);
+    await userEvent.click(screen.getByRole('combobox'));
+    expect(screen.getByText('editor.fields.jsonNeedsTransform')).toBeInTheDocument();
+  });
+
+  it('rejects a structurally different type with the generic mismatch, labeled by typeLabel', async () => {
+    const fields: AvailableField[] = [
+      { nodeId: 'h', nodeLabel: 'Requisição HTTP', field: 'partner', path: [], depth: 0, out: { type: { object: { name: { type: 'string', class: 'PUBLIC', description: '' } } }, class: 'PUBLIC', description: 'Parceiro' } },
+    ];
+    render(<ConfigField nodeId="n" entry={entry} name="title" spec={spec} value="" fields={fields} onChange={vi.fn()} />);
+    await userEvent.click(screen.getByRole('combobox'));
+    expect(screen.getByText('editor.fields.typeMismatch:{"type":"object"}')).toBeInTheDocument();
   });
 });
 
