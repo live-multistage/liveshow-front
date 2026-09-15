@@ -233,6 +233,10 @@
   gap: 28px;
   align-items: start;
 
+  // Grid items default to min-width:auto, so any nowrap child (the org name)
+  // widens the 1fr track past the viewport on phones. Let tracks shrink.
+  > * { min-width: 0; }
+
   @media (max-width: 860px) { grid-template-columns: 1fr; }
 }
 
@@ -322,6 +326,7 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+  flex: 1;
   min-width: 0;
 }
 
