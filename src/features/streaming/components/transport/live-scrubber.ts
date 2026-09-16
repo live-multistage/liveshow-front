@@ -1,4 +1,5 @@
-import type { DvrState, TransportScrubber } from '../TransportBar';
+import type { DvrState } from '../../hooks/use-live-dvr';
+import type { TransportScrubber } from '../player/Transport';
 
 // Below this the seekable window is just the player's own buffer, not real
 // DVR history — a scrubber over it would be a control with nowhere to go.

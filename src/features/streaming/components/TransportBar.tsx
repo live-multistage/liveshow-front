@@ -8,31 +8,8 @@ import { SeekSlider } from './SeekSlider';
 import { PlayPauseButton } from './transport/PlayPauseButton';
 import { VolumeControl } from './transport/VolumeControl';
 import { TransportRightControls } from './transport/TransportRightControls';
+import type { TransportScrubber } from './player/Transport';
 import styles from './TransportBar.module.scss';
-
-export interface DvrState {
-  // Bounds of the seekable window and the primary panel's position in it.
-  start: number;
-  end: number;
-  position: number;
-  // What "live" means right now (hls.js's liveSyncPosition), a few segments
-  // behind `end`.
-  edge: number;
-  // How close to `edge` still counts as live — wider on Safari's native path,
-  // which parks further back by design. See use-transport-controls.
-  tolerance: number;
-}
-
-// Mode-agnostic scrubber: live feeds it the DVR window (see
-// transport/live-scrubber.ts), replay the absolute event timeline.
-export interface TransportScrubber {
-  min: number;
-  max: number;
-  value: number;
-  onSeek: (value: number) => void;
-  leadingLabel: string;
-  trailingLabel?: string;
-}
 
 interface Props {
   paused: boolean;

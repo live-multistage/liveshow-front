@@ -3,7 +3,19 @@
 import { useCallback, useState } from 'react';
 import { isAtLiveEdge } from './use-transport-controls';
 import type { LiveSeekCommand, LiveWindow } from './use-transport-controls';
-import type { DvrState } from '../components/TransportBar';
+
+export interface DvrState {
+  // Bounds of the seekable window and the primary panel's position in it.
+  start: number;
+  end: number;
+  position: number;
+  // What "live" means right now (hls.js's liveSyncPosition), a few segments
+  // behind `end`.
+  edge: number;
+  // How close to `edge` still counts as live — wider on Safari's native path,
+  // which parks further back by design. See use-transport-controls.
+  tolerance: number;
+}
 
 // Live DVR state: where the primary panel sits inside the manifest's seekable
 // window, the viewer's INTENT to sit behind the live edge, and the seek
