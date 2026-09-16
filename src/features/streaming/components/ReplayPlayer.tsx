@@ -11,7 +11,7 @@ import { useTrackPlaybackProgress, usePlaybackProgressQuery } from '@/features/p
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { usePlayerShell } from '../hooks/use-player-shell';
 import type { PlayerStageLike } from '../hooks/use-player-stages';
-import { PlayerLayout } from './PlayerLayout';
+import { Player } from './player/Player';
 import styles from './Player.module.scss';
 
 interface ReplayPlayerProps {
@@ -153,31 +153,28 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
   }
 
   return (
-    <PlayerLayout
-      shell={shell}
-      mode="replay"
-      badge="replay"
-      title={title}
-      eventId={eventId}
-      adsEnabled={adsEnabled}
-      gridProps={{
+    <Player.Root shell={shell} mode="replay" eventId={eventId} title={title} adsEnabled={adsEnabled}>
+      <Player.Header badge="replay" />
+
+      <Player.Stage
         // Sem isto o painel julgaria a cobertura pelo último seek, e uma
         // câmera que entra em cobertura enquanto o vídeo avança nunca
         // voltaria a tocar.
-        positionMs,
-        seekCommand,
-        onProgress: (localSeconds) => {
+        positionMs={positionMs}
+        seekCommand={seekCommand}
+        onProgress={(localSeconds) => {
           const absoluteMs = localToAbsolute(primaryCoverage, localSeconds);
-          // Outside the primary camera's coverage (a gap between its
-          // stitched stretches) — nothing maps there. Keep the last known
-          // position rather than write a wrong one.
+          // Outside the primary camera's coverage (a gap between its stitched
+          // stretches) — nothing maps there. Keep the last known position
+          // rather than write a wrong one.
           if (absoluteMs === null) return;
           setPositionMs(absoluteMs);
           report((absoluteMs - timeline.startsAtMs) / 1000, (timeline.endsAtMs - timeline.startsAtMs) / 1000);
-        },
-        onEnded: () => shell.setPaused(true),
-      }}
-      transport={
+        }}
+        onEnded={() => shell.setPaused(true)}
+      />
+
+      <Player.Transport>
         <TransportBar
           paused={shell.paused}
           onTogglePlay={shell.togglePlay}
@@ -207,7 +204,9 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
           isFullscreen={shell.isFullscreen}
           onToggleFullscreen={shell.toggleFullscreen}
         />
-      }
-    />
+      </Player.Transport>
+
+      <Player.Overlay />
+    </Player.Root>
   );
 }
