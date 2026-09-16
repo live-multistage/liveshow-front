@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { ReplayCameraPlayback, ReplayEventTimeline, ReplayStagePlayback, LiveCamera } from '../types/live.types';
-import { TransportBar } from './TransportBar';
+import { Transport } from './player/Transport';
 import { ReplayBadge } from './transport/ReplayBadge';
 import { formatTime } from './transport/live-scrubber';
 import { localToAbsolute } from '../utils/replay-timeline';
@@ -83,7 +83,6 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     initialPaused: true,
     pickInitialCamera: firstPlayable,
   });
-  const { audio } = shell;
 
   // The absolute instant (ms, event timeline) playback is currently at — NOT
   // a camera's local media time. Each camera's <video> only knows its own
@@ -175,35 +174,23 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
       />
 
       <Player.Transport>
-        <TransportBar
-          paused={shell.paused}
-          onTogglePlay={shell.togglePlay}
-          badge={<ReplayBadge />}
-          // Labels show elapsed-since-timeline-start (0:00 at the beginning),
-          // not the underlying wall-clock ms — viewers read a stopwatch, not a date.
-          scrubber={{
-            min: timeline.startsAtMs,
-            max: timeline.endsAtMs,
-            value: positionMs,
-            onSeek: handleSeek,
-            leadingLabel: formatTime((positionMs - timeline.startsAtMs) / 1000),
-            trailingLabel: formatTime((timeline.endsAtMs - timeline.startsAtMs) / 1000),
-          }}
-          globalMuted={audio.globalMuted}
-          onToggleMute={() => audio.setGlobalMuted((m) => !m)}
-          volume={audio.volume}
-          onVolumeChange={audio.setVolume}
-          audioCameras={shell.stageCameras}
-          effectiveAudioCameraId={audio.effectiveAudioCameraId}
-          onAudioCameraChange={audio.handleAudioCameraChange}
-          levels={shell.quality.levels}
-          currentLevel={shell.quality.currentLevel}
-          qualityLabel={shell.quality.qualityLabel}
-          onSelectLevel={shell.quality.onSelectLevel}
-          onTogglePip={shell.togglePictureInPicture}
-          isFullscreen={shell.isFullscreen}
-          onToggleFullscreen={shell.toggleFullscreen}
+        <Transport.Play />
+        <Transport.Badge><ReplayBadge /></Transport.Badge>
+        {/* Labels show elapsed-since-timeline-start (0:00 at the beginning),
+            not the underlying wall-clock ms — viewers read a stopwatch, not a date. */}
+        <Transport.Scrubber
+          min={timeline.startsAtMs}
+          max={timeline.endsAtMs}
+          value={positionMs}
+          onSeek={handleSeek}
+          leadingLabel={formatTime((positionMs - timeline.startsAtMs) / 1000)}
+          trailingLabel={formatTime((timeline.endsAtMs - timeline.startsAtMs) / 1000)}
         />
+        <Transport.Volume />
+        <Transport.AudioCamera />
+        <Transport.Quality />
+        <Transport.Pip />
+        <Transport.Fullscreen />
       </Player.Transport>
 
       <Player.Overlay />

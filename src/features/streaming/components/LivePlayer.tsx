@@ -5,7 +5,8 @@ import type { ReactNode } from 'react';
 import { Volume2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { LiveCamera, LiveStage } from '../types/live.types';
-import { TransportBar } from './TransportBar';
+import { Player } from './player/Player';
+import { Transport } from './player/Transport';
 import { LiveBadge } from './transport/LiveBadge';
 import { liveScrubber } from './transport/live-scrubber';
 import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
@@ -15,7 +16,6 @@ import { useViewerCount } from '../hooks/use-viewer-count';
 import type { PlayerAudioState } from '../hooks/use-player-audio';
 import { useLiveDvr } from '../hooks/use-live-dvr';
 import { usePlayerShell } from '../hooks/use-player-shell';
-import { PlayerLayout } from './PlayerLayout';
 import styles from './Player.module.scss';
 
 interface LivePlayerProps {
@@ -106,50 +106,36 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, t
     if (!audio.globalMuted) setAutoplayBlocked(false);
   }, [audio.globalMuted]);
 
+  // Null for a channel (no archive behind the origin window) and until the
+  // seekable window is bigger than the player's own buffer.
+  const scrubber = liveScrubber(dvr, handleSeek, !isChannel);
+
   return (
-    <PlayerLayout
+    <Player.Root
       shell={shell}
       mode={isChannel ? 'channel' : 'live'}
-      badge="live"
-      title={title}
       eventId={eventId}
       playbackEventId={effectiveTrackingEventId}
-      exitHref={exitHref}
-      metaLineOverride={metaLineOverride}
+      title={title}
       adsEnabled={adsEnabled}
-      currentViewers={currentViewers}
-      chat={chatEnabled ? { open: chatOpen, onToggle: () => setChatOpen((o) => !o), messageCount: chat.messages.length } : undefined}
-      gridProps={{
-        onAutoplayBlocked: () => { audio.setGlobalMuted(true); setAutoplayBlocked(true); },
-        dvrActive: dvrSeeking,
-        seekCommand,
-        onProgress: handleProgress,
-      }}
-      transport={
-        <TransportBar
-          badge={<LiveBadge atLive={atLive} onBackToLive={() => dvr && handleSeek(dvr.edge)} />}
-          scrubber={liveScrubber(dvr, handleSeek, !isChannel)}
-          paused={shell.paused}
-          onTogglePlay={shell.togglePlay}
-          showPlayback={!isChannel}
-          globalMuted={audio.globalMuted}
-          onToggleMute={() => audio.setGlobalMuted((m) => !m)}
-          volume={audio.volume}
-          onVolumeChange={audio.setVolume}
-          audioCameras={shell.stageCameras}
-          effectiveAudioCameraId={audio.effectiveAudioCameraId}
-          onAudioCameraChange={audio.handleAudioCameraChange}
-          levels={shell.quality.levels}
-          currentLevel={shell.quality.currentLevel}
-          qualityLabel={shell.quality.qualityLabel}
-          onSelectLevel={shell.quality.onSelectLevel}
-          onTogglePip={shell.togglePictureInPicture}
-          isFullscreen={shell.isFullscreen}
-          onToggleFullscreen={shell.toggleFullscreen}
-        />
-      }
-      aside={
-        chatEnabled ? (
+    >
+      <Player.Header
+        badge="live"
+        exitHref={exitHref}
+        metaLine={metaLineOverride}
+        currentViewers={currentViewers}
+        chat={chatEnabled ? { open: chatOpen, onToggle: () => setChatOpen((o) => !o), messageCount: chat.messages.length } : undefined}
+      />
+
+      <Player.Stage
+        onAutoplayBlocked={() => { audio.setGlobalMuted(true); setAutoplayBlocked(true); }}
+        dvrActive={dvrSeeking}
+        seekCommand={seekCommand}
+        onProgress={handleProgress}
+      />
+
+      {chatEnabled && (
+        <Player.Aside>
           <ChatDock
             open={chatOpen}
             onClose={() => setChatOpen(false)}
@@ -164,20 +150,32 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, t
             onUnmuteUser={chat.unmuteUser}
             currentUserId={user?.id ?? null}
           />
-        ) : undefined
-      }
-      extras={
-        <>
-          {autoplayBlocked && audio.globalMuted && (
-            <button type="button" className={styles.unmutePrompt} onClick={() => audio.setGlobalMuted(false)}>
-              <Volume2 size={16} />
-              {t('unmutePrompt')}
-            </button>
-          )}
-          <ReactionsTicker totalReactions={chat.totalReactions} />
-          {overlay}
-        </>
-      }
-    />
+        </Player.Aside>
+      )}
+
+      <Player.Transport>
+        {!isChannel && <Transport.Play />}
+        <Transport.Badge>
+          <LiveBadge atLive={atLive} onBackToLive={() => dvr && handleSeek(dvr.edge)} />
+        </Transport.Badge>
+        {scrubber ? <Transport.Scrubber {...scrubber} /> : <Transport.Spacer />}
+        <Transport.Volume />
+        <Transport.AudioCamera />
+        <Transport.Quality />
+        <Transport.Pip />
+        <Transport.Fullscreen />
+      </Player.Transport>
+
+      <Player.Overlay />
+
+      {autoplayBlocked && audio.globalMuted && (
+        <button type="button" className={styles.unmutePrompt} onClick={() => audio.setGlobalMuted(false)}>
+          <Volume2 size={16} />
+          {t('unmutePrompt')}
+        </button>
+      )}
+      <ReactionsTicker totalReactions={chat.totalReactions} />
+      {overlay}
+    </Player.Root>
   );
 }

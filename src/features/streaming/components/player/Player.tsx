@@ -172,7 +172,9 @@ function Stage(gridProps: PlayerStagePartProps) {
 // in declaration order.
 function TransportRegion({ children }: { children: ReactNode }) {
   return (
-    <div className={styles.bottomStack}>{children}</div>
+    <div className={styles.bottomStack}>
+      <div className={styles.bar}>{children}</div>
+    </div>
   );
 }
 
