@@ -45,9 +45,9 @@ function Scrubber({ min, max, value, onSeek, leadingLabel, trailingLabel }: Tran
   );
 }
 
-// Declared in the scrubber's place by a mode that has none (a channel has no
-// archive behind the origin window). The scrubber already stretches, so a
-// second flexible gap alongside it would halve it — never declare both.
+// Declared after the volume control by a mode that has no scrubber (a channel
+// has no archive behind the origin window). The scrubber already stretches,
+// so a second flexible gap alongside it would halve it — never declare both.
 function Spacer() {
   return <div className={styles.spacer} />;
 }

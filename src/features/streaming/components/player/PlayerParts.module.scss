@@ -11,7 +11,7 @@
 }
 
 // While the pause-ad takeover is up: hide the chrome so the creative breathes.
-// Defined HERE, not only in Header.module.scss, because this is the module
+// Defined HERE, not in Header.module.scss, because this is the module
 // <Player.Header> hands to <Header className={...}> — reading it from any
 // other module resolves to undefined outside tests.
 .headerHidden {

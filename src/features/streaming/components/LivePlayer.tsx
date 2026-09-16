@@ -5,8 +5,7 @@ import type { ReactNode } from 'react';
 import { Volume2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { LiveCamera, LiveStage } from '../types/live.types';
-import { Player } from './player/Player';
-import { Transport } from './player/Transport';
+import { Player, Transport } from './player';
 import { LiveBadge } from './transport/LiveBadge';
 import { liveScrubber } from './transport/live-scrubber';
 import { ChatDock, ReactionsTicker, useChat } from '@/features/chat';
@@ -158,8 +157,9 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, t
         <Transport.Badge>
           <LiveBadge atLive={atLive} onBackToLive={() => dvr && handleSeek(dvr.edge)} />
         </Transport.Badge>
-        {scrubber ? <Transport.Scrubber {...scrubber} /> : <Transport.Spacer />}
+        {scrubber && <Transport.Scrubber {...scrubber} />}
         <Transport.Volume />
+        {!scrubber && <Transport.Spacer />}
         <Transport.AudioCamera />
         <Transport.Quality />
         <Transport.Pip />

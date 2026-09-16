@@ -70,7 +70,7 @@ describe('Header — stays clear of the camera drawer', () => {
 
   it('declares pointer-events: none on the bar and auto on its buttons/links in the stylesheet', () => {
     const scss = readFileSync(join(__dirname, 'Header.module.scss'), 'utf-8');
-    const headerRule = scss.slice(scss.indexOf('.header {'), scss.indexOf('.headerHidden'));
+    const headerRule = scss.slice(scss.indexOf('.header {'), scss.indexOf('.backBtn'));
     expect(headerRule).toMatch(/pointer-events:\s*none/);
     expect(headerRule).toMatch(/button,\s*\n\s*a\s*\{\s*\n\s*pointer-events:\s*auto/);
   });

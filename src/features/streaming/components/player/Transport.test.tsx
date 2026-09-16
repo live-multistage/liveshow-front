@@ -73,6 +73,38 @@ describe('Transport controls', () => {
     expect(play.compareDocumentPosition(badge) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
+  // Regression: channel mode (no scrubber) used to declare its spacer-or-
+  // scrubber slot BEFORE Volume, which pushed the volume control into the
+  // right-hand cluster whenever there's no scrubber (channel mode; live
+  // before DVR opens). Volume belongs to the LEFT of the spacer, same as the
+  // pre-refactor TransportBar's `Play → Badge → [Scrubber] → Volume →
+  // [Spacer] → AudioCamera → Quality → Pip → Fullscreen` order.
+  it('channel composition keeps Volume left of the Spacer, ahead of the right cluster', () => {
+    const { container, getByLabelText, getByText } = render(
+      <Harness options={{ cameras: [cam('a', 1), cam('b', 2)] }}>
+        <Transport.Badge><span>BADGE</span></Transport.Badge>
+        <Transport.Volume />
+        <Transport.Spacer />
+        <Transport.AudioCamera />
+        <Transport.Quality />
+        <Transport.Pip />
+        <Transport.Fullscreen />
+      </Harness>,
+    );
+    const badge = getByText('BADGE');
+    const volume = getByLabelText('mute');
+    const spacer = container.querySelector('[class*="spacer"]')!;
+    const audioCamera = getByLabelText('chooseAudioCamera');
+    const pip = getByLabelText('Picture-in-Picture');
+    const fullscreen = getByLabelText('enterFullscreen');
+    const following = Node.DOCUMENT_POSITION_FOLLOWING;
+    expect(badge.compareDocumentPosition(volume) & following).toBeTruthy();
+    expect(volume.compareDocumentPosition(spacer) & following).toBeTruthy();
+    expect(spacer.compareDocumentPosition(audioCamera) & following).toBeTruthy();
+    expect(spacer.compareDocumentPosition(pip) & following).toBeTruthy();
+    expect(spacer.compareDocumentPosition(fullscreen) & following).toBeTruthy();
+  });
+
   it('Play toggles shell.paused', () => {
     const { getByLabelText, queryByLabelText } = render(
       <Harness options={{ cameras: [cam('a', 1)] }}><Transport.Play /></Harness>,
@@ -141,22 +173,38 @@ describe('Transport controls', () => {
         </Player.Root>
       );
     }
-    const { getByText } = render(<QualityHarness />);
+    const { getByText, container } = render(<QualityHarness />);
     fireEvent.click(getByText('Auto'));
     fireEvent.click(getByText('720p'));
-    expect(getByText('720p')).toBeTruthy();
+    // The trigger (not a leftover menu item — the menu closes on select)
+    // relabels itself from the picked level, proving onSelectLevel actually
+    // reached shell.quality rather than just asserting the same text that
+    // was already on screen as a menu item before the click.
+    const trigger = container.querySelector('[class*="qualityBtn"]')!;
+    expect(trigger.textContent).toBe('720p');
   });
 
   it('Pip and Fullscreen call the shell handlers', () => {
-    const { getByLabelText } = render(
-      <Harness options={{ cameras: [cam('a', 1)] }}>
-        <Transport.Pip />
-        <Transport.Fullscreen />
-      </Harness>,
-    );
-    // jsdom has no PiP/fullscreen API; the shell hooks swallow that. What this
-    // asserts is that the controls exist, are wired, and don't throw.
-    expect(() => fireEvent.click(getByLabelText('Picture-in-Picture'))).not.toThrow();
-    expect(() => fireEvent.click(getByLabelText('enterFullscreen'))).not.toThrow();
+    const togglePictureInPicture = vi.fn();
+    const toggleFullscreen = vi.fn();
+    function PipHarness() {
+      const shell = usePlayerShell({ cameras: [cam('a', 1)] });
+      const stubShell = { ...shell, togglePictureInPicture, toggleFullscreen };
+      return (
+        <Player.Root shell={stubShell} mode="live" eventId="evt-1" title="Show">
+          <Player.Transport>
+            <Transport.Pip />
+            <Transport.Fullscreen />
+          </Player.Transport>
+        </Player.Root>
+      );
+    }
+    const { getByLabelText } = render(<PipHarness />);
+    // The buttons must reach the shell's own handlers, not just render without
+    // throwing (jsdom has no PiP/fullscreen API to actually exercise).
+    fireEvent.click(getByLabelText('Picture-in-Picture'));
+    expect(togglePictureInPicture).toHaveBeenCalledTimes(1);
+    fireEvent.click(getByLabelText('enterFullscreen'));
+    expect(toggleFullscreen).toHaveBeenCalledTimes(1);
   });
 });

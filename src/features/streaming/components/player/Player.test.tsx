@@ -136,10 +136,22 @@ describe('Player layout parts', () => {
     warn.mockRestore();
   });
 
+  it('warns in development when Transport is declared more than once', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(
+      <Harness options={{ cameras: [cam('a', 1)] }}>
+        <Player.Transport><div data-testid="transport-1" /></Player.Transport>
+        <Player.Transport><div data-testid="transport-2" /></Player.Transport>
+      </Harness>,
+    );
+    expect(warn).toHaveBeenCalledWith('<Player.Transport> rendered 2 times inside <Player.Root>; only one is supported.');
+    warn.mockRestore();
+  });
+
   it('defines the header-hidden rule in the stylesheet it hands to Header', () => {
     // The old PlayerLayout read this class from a module that never declared
     // it, so the header only appeared to hide (vitest runs with css: false).
-    const scssPath = join(dirname(fileURLToPath(import.meta.url)), 'Player.module.scss');
+    const scssPath = join(dirname(fileURLToPath(import.meta.url)), 'PlayerParts.module.scss');
     const scss = readFileSync(scssPath, 'utf8');
     expect(scss).toContain('.headerHidden');
   });

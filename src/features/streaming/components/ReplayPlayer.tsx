@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { ReplayCameraPlayback, ReplayEventTimeline, ReplayStagePlayback, LiveCamera } from '../types/live.types';
-import { Transport } from './player/Transport';
 import { ReplayBadge } from './transport/ReplayBadge';
 import { formatTime } from './transport/live-scrubber';
 import { localToAbsolute } from '../utils/replay-timeline';
@@ -11,7 +10,7 @@ import { useTrackPlaybackProgress, usePlaybackProgressQuery } from '@/features/p
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { usePlayerShell } from '../hooks/use-player-shell';
 import type { PlayerStageLike } from '../hooks/use-player-stages';
-import { Player } from './player/Player';
+import { Player, Transport } from './player';
 import styles from './Player.module.scss';
 
 interface ReplayPlayerProps {

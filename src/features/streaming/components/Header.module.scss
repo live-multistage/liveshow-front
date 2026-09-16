@@ -36,12 +36,9 @@
   }
 }
 
-// While the pause-ad takeover is up: hide the chrome so the creative breathes.
-// The transport bar stays visible — only this header gates.
-.headerHidden {
-  opacity: 0;
-  pointer-events: none;
-}
+// headerHidden lives in player/PlayerParts.module.scss, not here — that's the
+// module <Player.Header> hands to <Header className={...}>; only it applies
+// the class (see that file's comment for why).
 
 .backBtn {
   width: 2.125rem;
