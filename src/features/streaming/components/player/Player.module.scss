@@ -1,0 +1,63 @@
+@use '../../../../styles/_variables' as *;
+
+// Full-bleed video stage: Header / bottomStack / chat all float as absolute
+// overlays on top of a video layer that always fills the whole viewport,
+// instead of being flex siblings that shrink it.
+.player {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  background-color: $bg;
+}
+
+// While the pause-ad takeover is up: hide the chrome so the creative breathes.
+// Defined HERE, not only in Header.module.scss, because this is the module
+// <Player.Header> hands to <Header className={...}> — reading it from any
+// other module resolves to undefined outside tests.
+.headerHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+// Bottom-anchored overlay so the transport bar (and anything a mode stacks
+// above it) flows normally instead of hardcoding a pixel offset.
+.bottomStack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  // Above the CameraGrid overlays (PiP slot z:21, picker drawer z:21 + its
+  // add-tiles z:22) so the transport bar's audio/quality popover menus — which
+  // are trapped in .bar's backdrop-filter stacking context and can't escape via
+  // their own z-index — render on top of the PiP preview and camera selector.
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  padding-top: 2rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 20%, rgba(0, 0, 0, 0.6) 60%, transparent);
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+// The transport row itself. One flex line: visual order is declaration order,
+// the scrubber (or the spacer standing in for it) takes the slack.
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 1.25rem 1rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(10, 10, 12, 0.72);
+  backdrop-filter: blur(14px);
+  border: 1px solid $border;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
