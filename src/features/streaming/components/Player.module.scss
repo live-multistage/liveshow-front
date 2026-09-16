@@ -1,49 +1,5 @@
 @use '../../../styles/_variables' as *;
 
-// Full-bleed video stage, matching the v2 mockup: Header/bottomStack/chat
-// all float as absolute overlays on top of a video layer that always fills
-// the whole viewport, instead of being flex siblings that shrink it.
-.player {
-  position: relative;
-  height: 100vh;
-  overflow: hidden;
-  background-color: $bg;
-}
-
-.main {
-  position: absolute;
-  inset: 0;
-}
-
-.gridArea {
-  position: absolute;
-  inset: 0;
-}
-
-// Groups CameraStrip + TransportBar so they stack via normal flow inside one
-// bottom-anchored overlay — avoids hardcoding a pixel offset for the strip
-// to clear the transport bar's height.
-.bottomStack {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  // Above the CameraGrid overlays (PiP slot z:21, picker drawer z:21 + its
-  // add-tiles z:22) so the transport bar's audio/quality popover menus — which
-  // are trapped in .bar's backdrop-filter stacking context and can't escape via
-  // their own z-index — render on top of the PiP preview and camera selector.
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  padding-top: 2rem;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 20%, rgba(0, 0, 0, 0.6) 60%, transparent);
-  pointer-events: none;
-
-  > * {
-    pointer-events: auto;
-  }
-}
-
 // "Tap for sound" prompt — shown when the browser blocked unmuted autoplay.
 .unmutePrompt {
   position: absolute;
@@ -71,7 +27,6 @@
     border-color: $action;
   }
 }
-
 
 // Replay with nothing playable (or no timeline yet).
 .emptyState {

@@ -72,7 +72,7 @@ interface VideoPanelProps {
   // 'replay': VOD playback — no live-edge seek, every hls.js request
   // (manifest + segments) carries the viewer's bearer token (replay routes
   // are JWT-gated unlike live's public /origin/* serving), and play/pause/seek
-  // are driven entirely by the replay TransportBar via the props below — no native
+  // are driven entirely by the replay Player.Transport via the props below — no native
   // <video controls>, matching the live player's own custom-chrome look.
   mode?: 'live' | 'replay';
   // Replay only. Controlled like `muted` above — every active camera's

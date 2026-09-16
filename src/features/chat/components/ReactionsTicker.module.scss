@@ -2,8 +2,8 @@
 
 .ticker {
   position: absolute;
-  // Clears the floating TransportBar card (LivePlayer's .bottomStack) —
-  // sits just above it rather than behind its fade.
+  // Clears the floating transport card (Player.Transport's .bar) — sits just
+  // above it rather than behind its fade.
   bottom: 5.5rem;
   left: 1.25rem;
   z-index: 21;

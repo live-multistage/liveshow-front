@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import styles from '../TransportBar.module.scss';
+import styles from '../player/Transport.module.scss';
 
 interface Props {
   atLive: boolean;

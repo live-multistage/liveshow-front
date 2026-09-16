@@ -39,7 +39,7 @@ export interface UsePlayerShellOptions {
 // Everything the live and replay players share below the chrome: container
 // + fullscreen/PiP, playback/pause-ad flags, view mode, camera drawer, stage
 // model, camera selection (with the Libras rule), audio, quality, hotkeys.
-// Modes layer their own state on top and hand the result to PlayerLayout.
+// Modes layer their own state on top and hand the result to Player.Root.
 export function usePlayerShell({
   cameras,
   stages: rawStages,

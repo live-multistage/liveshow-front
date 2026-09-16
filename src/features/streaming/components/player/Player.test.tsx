@@ -1,17 +1,18 @@
 /**
  * The compound layout parts: declaration order, what Stage wires into
- * CameraGrid, the pause-ad gate and the dev-only duplicate-part guard.
- * The chrome cases inherited from PlayerLayout.test.tsx arrive in Task 6.
+ * CameraGrid, the pause-ad gate and the dev-only duplicate-part guard,
+ * plus the chrome cases inherited from the deleted PlayerLayout.test.tsx.
  */
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, fireEvent, act } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { Player } from './Player';
 import { usePlayerShell } from '../../hooks/use-player-shell';
 import type { UsePlayerShellOptions } from '../../hooks/use-player-shell';
+import { DRAWER_W } from '../CameraGrid';
 import type { CameraGridProps } from '../CameraGrid';
 import type { LiveCamera } from '../../types/live.types';
 
@@ -21,7 +22,8 @@ vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
 vi.mock('@/features/account/hooks/use-auth', () => ({ useAuth: () => ({ isLoggedIn: true, user: null }) }));
 vi.mock('@/lib/analytics/analytics-client', () => ({ track: vi.fn() }));
 vi.mock('../RecommendedOverlay', () => ({ RecommendedOverlay: () => null }));
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
+const pushMock = vi.hoisted(() => vi.fn());
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: pushMock }) }));
 vi.mock('@/features/advertisements/components/PauseAdTakeover', () => ({
   PauseAdTakeover: ({ onVisibleChange }: { onVisibleChange: (v: boolean) => void }) => (
     <button data-testid="fake-ad" onClick={() => onVisibleChange(true)} />
@@ -66,6 +68,7 @@ function Harness({ options, children }: { options: UsePlayerShellOptions; childr
 
 beforeEach(() => {
   h.gridCalls.length = 0;
+  pushMock.mockClear();
   globalThis.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} } as unknown as typeof ResizeObserver;
 });
 
@@ -139,5 +142,76 @@ describe('Player layout parts', () => {
     const scssPath = join(dirname(fileURLToPath(import.meta.url)), 'Player.module.scss');
     const scss = readFileSync(scssPath, 'utf8');
     expect(scss).toContain('.headerHidden');
+  });
+});
+
+// Inherited from PlayerLayout.test.tsx: the chrome the parts drive through
+// <Header>. Playback itself stays covered by ReplayPlayer/ChannelPlayer.
+describe('Player chrome', () => {
+  it('renders the header badge and starts paused when asked', () => {
+    const { getByText, container } = render(
+      <Harness options={{ cameras: [cam('a', 1)], initialPaused: true }}>
+        <Player.Header badge="replay" />
+        <Player.Stage />
+      </Harness>,
+    );
+    expect(getByText('REPLAY')).toBeTruthy();
+    // initialPaused surfaces as PlayerStage's centre play overlay.
+    expect(container.querySelector('[aria-label="resume"]')).not.toBeNull();
+  });
+
+  it('offsets the header by DRAWER_W while the camera drawer is open', () => {
+    const { container, getByTitle } = render(
+      <Harness options={{ cameras: [cam('a', 1), cam('b', 2)] }} />,
+    );
+    const header = container.querySelector('header')!;
+    expect(header.style.right).toBe('');
+    fireEvent.click(getByTitle('toggleCameras'));
+    expect(header.style.right).toBe(`${DRAWER_W}px`);
+  });
+
+  it('renders stage tabs and notifies the mode on stage change', () => {
+    const onStageChange = vi.fn();
+    const stages = [
+      { stageId: 's1', name: 'Palco A', slug: 'a', position: 0, cameras: [cam('a', 1)] },
+      { stageId: 's2', name: 'Palco B', slug: 'b', position: 1, cameras: [cam('b', 1)] },
+    ];
+    const { getByRole } = render(<Harness options={{ cameras: [], stages, onStageChange }} />);
+    expect(onStageChange).toHaveBeenCalledTimes(1); // initial stage
+    fireEvent.click(getByRole('tab', { name: /Palco B/ }));
+    expect(onStageChange).toHaveBeenCalledTimes(2);
+    expect(getByRole('tab', { name: /Palco B/ }).getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('shows chat and viewer chrome only when given', () => {
+    const onToggle = vi.fn();
+    const withChat = render(
+      <Harness options={{ cameras: [cam('a', 1)] }}>
+        <Player.Header badge="live" chat={{ open: false, onToggle, messageCount: 3 }} currentViewers={12} />
+        <Player.Stage />
+      </Harness>,
+    );
+    fireEvent.click(withChat.getByTitle('toggleChat'));
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    withChat.unmount();
+
+    const without = render(<Harness options={{ cameras: [cam('a', 1)] }} />);
+    expect(without.queryByTitle('toggleChat')).toBeNull();
+  });
+
+  it('exits to the event page', () => {
+    const { getByLabelText } = render(<Harness options={{ cameras: [cam('a', 1)] }} />);
+    fireEvent.click(getByLabelText('back'));
+    expect(pushMock).toHaveBeenCalledWith('/events/evt-1');
+  });
+
+  it('hides the header while the pause ad is on screen', () => {
+    const { container, getByTestId } = render(
+      <Harness options={{ cameras: [cam('a', 1)], initialPaused: true }} />,
+    );
+    const header = container.querySelector('header')!;
+    expect(header.className).not.toMatch(/headerHidden/);
+    act(() => { fireEvent.click(getByTestId('fake-ad')); });
+    expect(header.className).toMatch(/headerHidden/);
   });
 });

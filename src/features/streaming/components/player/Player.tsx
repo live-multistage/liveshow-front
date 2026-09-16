@@ -184,7 +184,7 @@ function Aside({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-// Fullscreen-only recommended rail, exactly as PlayerLayout rendered it.
+// Fullscreen-only recommended rail.
 function Overlay() {
   const { shell, eventId } = usePlayer();
   return (

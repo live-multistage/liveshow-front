@@ -2,8 +2,8 @@
 
 .dock {
   position: absolute;
-  // Floating inset card — clears Header above and LivePlayer's .bottomStack
-  // below, with margin on all sides, rather than a flush edge-to-edge panel.
+  // Floating inset card — clears Player.Header above and Player.Transport's
+  // .bottomStack below, with margin on all sides, rather than a flush panel.
   top: 4.5rem;
   right: 1.25rem;
   bottom: 5.5rem;
