@@ -20,6 +20,7 @@ import { useOrganizationAnalytics } from '../hooks/use-organization-analytics';
 import { SalesDashboard } from '@/features/analytics/components/SalesDashboard';
 import type { SalesGranularity } from '@/features/analytics/types/sales.types';
 import type { ChartPoint } from '@/features/analytics/types/analytics.types';
+import { chartLabels } from '@/features/analytics/utils/chart-labels';
 import styles from './OrganizationAnalyticsPage.module.scss';
 
 // Registering the same Chart.js components a second time (SalesDashboard
@@ -59,7 +60,7 @@ function ViewersChart({ series, isLoading }: { series: ChartPoint[]; isLoading: 
   const t = useTranslations('organizations');
   const hasData = series.length > 0;
   const chartData = {
-    labels: hasData ? series.map((p) => p.hour) : ['—'],
+    labels: hasData ? chartLabels(series) : ['—'],
     datasets: [
       {
         label: t('anViewers'),

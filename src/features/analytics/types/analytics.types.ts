@@ -13,7 +13,12 @@ export interface EventMetricsFunnel {
 }
 
 export interface ChartPoint {
-  hour: string;
+  /**
+   * ISO instant of the 30-minute bucket. Was `hour` holding a bare "HH:MI",
+   * which is why a multi-day series looked shuffled: 03h, 16h, 23h, 17h are
+   * four different days rendered with the date thrown away.
+   */
+  at: string;
   viewers: number;
   newAccesses: number;
 }
@@ -29,7 +34,7 @@ export interface EventMetricsResult {
   funnel: EventMetricsFunnel;
   chart: ChartPoint[];
   peakViewers: number;
-  peakHour: string | null;
+  peakAt: string | null;
   currentWindow: WindowedMetrics | null;
   previousWindow: WindowedMetrics | null;
 }

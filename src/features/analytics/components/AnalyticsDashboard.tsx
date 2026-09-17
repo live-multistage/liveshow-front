@@ -18,6 +18,7 @@ import { useNotificationBreakdownQuery } from '../hooks/use-notification-breakdo
 import { useSalesOriginQuery } from '../hooks/use-sales-origin';
 import type { EventSalesRow } from '../types/sales.types';
 import type { ChartPoint } from '../types/analytics.types';
+import { chartLabels, formatChartInstant } from '../utils/chart-labels';
 import type { ViewerAnalyticsResult } from '../types/viewer-analytics.types';
 import type { CameraBreakdownRow } from '../types/camera-breakdown.types';
 import type { NotificationBreakdownRow } from '../types/notification-breakdown.types';
@@ -239,13 +240,16 @@ function FunnelSection({ impressionCount, viewCount, cartAddCount, checkoutCount
 interface EngagementChartProps {
   series: ChartPoint[];
   peakViewers: number;
-  peakHour: string | null;
+  peakAt: string | null;
   isLoading: boolean;
 }
 
-function EngagementChart({ series, peakViewers, peakHour, isLoading }: EngagementChartProps) {
+function EngagementChart({ series, peakViewers, peakAt, isLoading }: EngagementChartProps) {
   const hasData = series.length > 0;
-  const labels = hasData ? series.map((p) => p.hour) : ['—'];
+  // chartLabels adds the date only when the series really spans more than one
+  // day — an hour-only label over a multi-day window is what made this chart
+  // look like it ran backwards.
+  const labels = hasData ? chartLabels(series) : ['—'];
   const viewers = hasData ? series.map((p) => p.viewers) : [0];
   const newAccesses = hasData ? series.map((p) => p.newAccesses) : [0];
 
@@ -280,8 +284,8 @@ function EngagementChart({ series, peakViewers, peakHour, isLoading }: Engagemen
     ],
   };
 
-  const peakLabel = peakViewers > 0 && peakHour
-    ? `▲ PICO: ${fmtCompact(peakViewers)} ÀS ${peakHour}`
+  const peakLabel = peakViewers > 0 && peakAt
+    ? `▲ PICO: ${fmtCompact(peakViewers)} ÀS ${formatChartInstant(peakAt)}`
     : null;
 
   return (
@@ -699,7 +703,7 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
   };
   const chartSeries  = metrics?.chart ?? [];
   const peakViewers  = metrics?.peakViewers ?? 0;
-  const peakHour     = metrics?.peakHour ?? null;
+  const peakAt       = metrics?.peakAt ?? null;
 
   const conversionRate = funnel.viewCount > 0 ? funnel.purchaseCount / funnel.viewCount : null;
   const completionPct  = funnel.completionRate !== null
@@ -872,7 +876,7 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
         <EngagementChart
           series={chartSeries}
           peakViewers={peakViewers}
-          peakHour={peakHour}
+          peakAt={peakAt}
           isLoading={metricsLoading}
         />
         <OriginSection data={salesOrigin} isLoading={salesOriginLoading} />
