@@ -507,6 +507,8 @@
     },
     "errors": {
       "EVENT_NOT_PURCHASABLE": "Um dos eventos não está mais disponível para compra.",
+      "ALREADY_OWNED": "Você já tem ingresso para este show. Ele está em Meus ingressos.",
+      "ORDER_REQUEST_IN_PROGRESS": "Já estamos abrindo seu pagamento. Aguarde um instante — não recarregue a página.",
       "GENERIC": "Não foi possível iniciar o pagamento. Tente novamente.",
       "MOBILE_CHECKOUT_DISABLED": "A compra pelo app não está disponível na sua região. Finalize pelo site.",
       "SHEET_FAILED": "Não foi possível abrir o pagamento. Tente novamente.",

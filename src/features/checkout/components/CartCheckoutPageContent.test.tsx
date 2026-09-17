@@ -146,10 +146,10 @@ describe('CartCheckoutPageContent', () => {
     expect(await screen.findByText('couponInvalid')).toBeInTheDocument();
   });
 
-  it('sends the STRIPE provider unconditionally', async () => {
-    let capturedPayload: unknown;
-    stubPlaceOrder(async (payload) => {
-      capturedPayload = payload;
+  it('sends the STRIPE provider unconditionally, under an Idempotency-Key derived from the cart', async () => {
+    let capturedVariables: unknown;
+    stubPlaceOrder(async (variables) => {
+      capturedVariables = variables;
       return {
         order: { id: 'order-1' } as PlaceOrderResponse['order'],
         payment: { id: 'pay-1', action: { type: 'COMPLETED', externalReference: 'ref' } },
@@ -162,7 +162,14 @@ describe('CartCheckoutPageContent', () => {
     await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
 
     await vi.waitFor(() => {
-      expect(capturedPayload).toEqual(expect.objectContaining({ provider: 'STRIPE' }));
+      expect(capturedVariables).toEqual(
+        expect.objectContaining({
+          payload: expect.objectContaining({ provider: 'STRIPE' }),
+          // A key must actually reach the API: without it POST /orders is back
+          // to minting a second checkout per click.
+          idempotencyKey: expect.stringMatching(/^[0-9a-f]{64}$/),
+        }),
+      );
     });
   });
 

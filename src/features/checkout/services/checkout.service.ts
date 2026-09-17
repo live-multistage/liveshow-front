@@ -16,8 +16,16 @@ export const checkoutService = {
     return data.methods;
   },
 
-  placeOrder: async (payload: PlaceOrderRequest): Promise<PlaceOrderResponse> => {
-    const { data } = await httpClient.post<PlaceOrderResponse>('/orders', payload);
+  // The key is what stops a second click / browser back / second tab from
+  // opening a second Stripe session for the same cart — see
+  // ../utils/idempotency-key.
+  placeOrder: async (
+    payload: PlaceOrderRequest,
+    idempotencyKey: string,
+  ): Promise<PlaceOrderResponse> => {
+    const { data } = await httpClient.post<PlaceOrderResponse>('/orders', payload, {
+      headers: { 'Idempotency-Key': idempotencyKey },
+    });
     return data;
   },
 

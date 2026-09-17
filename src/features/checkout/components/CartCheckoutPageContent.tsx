@@ -9,6 +9,7 @@ import { formatPrice } from '@/features/events';
 import { useAuth, useUpdateProfileMutation } from '@/features/account';
 import { useCartQuery, CAPABILITY_LABELS, type CartLineView } from '@/features/cart';
 import { checkoutService } from '../services/checkout.service';
+import { cartIdempotencyKey } from '../utils/idempotency-key';
 import { usePaymentMethodsQuery, usePlaceOrderMutation } from '../mutations/checkout.mutations';
 import { normalizeError, type AppError } from '@/lib/http/errors';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
@@ -18,7 +19,19 @@ import { track } from '@/lib/analytics/analytics-client';
 import styles from './CheckoutPageContent.module.scss';
 import cartStyles from './CartCheckoutPageContent.module.scss';
 
+// Three different 409s now reach this screen, and "this event is not
+// purchasable" is the wrong sentence for two of them — so the machine-readable
+// `code` is consulted before the status.
+const PAY_ERROR_KEYS: Record<string, string> = {
+  ALREADY_OWNED: 'errors.ALREADY_OWNED',
+  ORDER_REQUEST_IN_PROGRESS: 'errors.ORDER_REQUEST_IN_PROGRESS',
+  EVENT_NOT_PURCHASABLE: 'errors.EVENT_NOT_PURCHASABLE',
+  TICKET_SOLD_OUT: 'errors.EVENT_NOT_PURCHASABLE',
+};
+
 function payErrorMessage(err: AppError, t: ReturnType<typeof useTranslations>): string {
+  const byCode = err.code ? PAY_ERROR_KEYS[err.code] : undefined;
+  if (byCode) return t(byCode);
   if (err.status === 400) return t('emptyCart');
   if (err.status === 422) return t('couponInvalid');
   if (err.status === 409) return t('errors.EVENT_NOT_PURCHASABLE');
@@ -111,13 +124,22 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
       }
     }
 
+    // Derived from the cart, so a second click, a back out of Stripe or a
+    // second tab all produce this same key and replay the first order instead
+    // of opening a second checkout for the same items.
+    const idempotencyKey = await cartIdempotencyKey({
+      ticketProductIds: items.map((i) => i.ticketProductId),
+      couponCode: coupon?.code,
+      provider: 'STRIPE',
+    });
+
     placeOrder.mutate(
       // PlaceOrderRequest.provider is now 'STRIPE' | 'GOOGLE_PLAY'. The web
       // stays on STRIPE unconditionally: a browser cannot complete a
       // PLAY_BILLING action, and the backend's Play gate refuses anything that
       // is not the Android app anyway. The selected payment method still
       // decides how Stripe collects (card, PIX…).
-      { provider: 'STRIPE', couponCode: coupon?.code },
+      { payload: { provider: 'STRIPE', couponCode: coupon?.code }, idempotencyKey },
       {
         onSuccess: ({ order, payment }) => {
           sessionStorage.removeItem('cart:coupon');

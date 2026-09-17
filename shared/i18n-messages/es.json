@@ -509,6 +509,8 @@
       "MOBILE_CHECKOUT_DISABLED": "La compra desde la app no está disponible en tu región. Compra en el sitio web.",
       "SHEET_FAILED": "No pudimos abrir el pago. Inténtalo de nuevo.",
       "EVENT_NOT_PURCHASABLE": "Uno de los eventos ya no está disponible para la compra.",
+      "ALREADY_OWNED": "Ya tienes una entrada para este show. Está en Mis entradas.",
+      "ORDER_REQUEST_IN_PROGRESS": "Ya estamos abriendo tu pago. Espera un momento — no recargues la página.",
       "GENERIC": "No se pudo iniciar el pago. Inténtalo de nuevo.",
       "PURCHASE_TOKEN_MISMATCH": "No pudimos vincular esa compra con tu pedido. Contacta al soporte desde el Centro de Ayuda.",
       "PURCHASE_PENDING": "Google todavía está procesando tu compra. Liberaremos tu entrada en cuanto se confirme.",

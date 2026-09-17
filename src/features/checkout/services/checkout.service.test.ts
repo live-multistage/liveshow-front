@@ -83,11 +83,14 @@ describe('checkoutService.placeOrder', () => {
     }) as AxiosAdapter;
 
     await expect(
-      checkoutService.placeOrder({ provider: 'STRIPE', couponCode: 'SUMMER10' }),
+      checkoutService.placeOrder({ provider: 'STRIPE', couponCode: 'SUMMER10' }, 'idem-key-0123456789'),
     ).resolves.toEqual(response);
 
     expect(sent?.url).toBe('/orders');
     expect(JSON.parse(sent?.data as string)).toEqual({ provider: 'STRIPE', couponCode: 'SUMMER10' });
+    // The whole point of the key: it has to leave the browser on the request
+    // that opens the checkout, or the server cannot dedupe a second submit.
+    expect(sent?.headers.get('Idempotency-Key')).toBe('idem-key-0123456789');
     expect(sent?.headers.get('x-attribution-channel')).toBe('OTHER');
     expect(sent?.headers.get('x-attribution-source')).toBe('meta');
     expect(sent?.headers.get('x-attribution-medium')).toBe('paid');

@@ -12,7 +12,8 @@ export function usePaymentMethodsQuery() {
 
 export function usePlaceOrderMutation() {
   return useMutation({
-    mutationFn: (payload: PlaceOrderRequest) => checkoutService.placeOrder(payload),
+    mutationFn: ({ payload, idempotencyKey }: { payload: PlaceOrderRequest; idempotencyKey: string }) =>
+      checkoutService.placeOrder(payload, idempotencyKey),
   });
 }
 
