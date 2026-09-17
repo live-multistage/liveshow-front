@@ -68,6 +68,20 @@ function getLast6Months() {
   });
 }
 
+// "2026-08" -> "ago.". Built from the very key the backend bucketed the sale
+// into, so the axis cannot drift from the data. Recomputing the month list
+// locally meant the labels came from the browser's timezone while the buckets
+// came from the server's — they agree most days and disagree at a month
+// boundary, which is the worst kind of bug to notice.
+function monthLabelFromKey(key: string): string {
+  const [year, month] = key.split('-').map(Number);
+  if (!year || !month) return key;
+  return new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString('pt-BR', {
+    month: 'short',
+    timeZone: 'UTC',
+  });
+}
+
 function buildEventsData(events: EventResponse[]) {
   const months = getLast6Months();
   return months.map(({ year, month }) =>
@@ -98,7 +112,15 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
     summaries.reduce((sum, c) => sum + (c.summary.data[i]?.orders ?? 0), 0),
   );
   const salesValues = orderTotals.slice(-6);
-  const revenueValues = (summaries[0]?.summary.data ?? []).slice(-6).map((p) => p.revenue);
+  const salesSlots = (summaries[0]?.summary.data ?? []).slice(-6);
+  const revenueValues = salesSlots.map((p) => p.revenue);
+  // Labels from the same slots as the values. `months` stays for the Eventos
+  // chart, which is computed client-side from event dates and so legitimately
+  // uses the viewer's own calendar.
+  const salesLabels = salesSlots.length > 0 ? salesSlots.map((p) => monthLabelFromKey(p.date)) : months;
+  // The revenue line is the primary currency only (see above), so the axis says
+  // which one instead of always claiming reais.
+  const primaryCurrency = summaries[0]?.currency ?? 'BRL';
 
   const eventsChartData = {
     labels: months,
@@ -119,7 +141,7 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
   };
 
   const salesChartData = {
-    labels: months,
+    labels: salesLabels,
     datasets: [
       {
         label: 'Vendas',
@@ -137,10 +159,10 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
   };
 
   const revenueChartData = {
-    labels: months,
+    labels: salesLabels,
     datasets: [
       {
-        label: 'Receita (R$)',
+        label: `Receita (${primaryCurrency})`,
         data: revenueValues,
         borderColor: '#ff2e9e',
         backgroundColor: 'rgba(255,46,158,0.12)',
