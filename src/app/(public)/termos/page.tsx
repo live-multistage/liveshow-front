@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import styles from '../privacidade/page.module.scss';
 
@@ -39,6 +40,20 @@ export default async function TermsOfUsePage() {
 
         <section className={styles.section}>
           <p>{t('p4')}</p>
+        </section>
+
+        <section className={styles.section}>
+          <p>{t('p5')}</p>
+        </section>
+
+        <section className={styles.section}>
+          <p>
+            {t('p6')}{' '}
+            <Link href="/privacidade" className={styles.link}>
+              {t('privacyLink')}
+            </Link>
+            .
+          </p>
         </section>
       </div>
     </div>

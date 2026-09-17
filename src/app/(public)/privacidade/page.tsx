@@ -1,78 +1,109 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import styles from './page.module.scss';
 
-const TITLE = 'Política de Privacidade';
-const DESCRIPTION = 'Como o showon.io coleta, usa e protege seus dados, em conformidade com a LGPD.';
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('legal.privacy');
+  const title = t('title');
+  const description = t('intro');
 
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  alternates: { canonical: '/privacidade' },
-  openGraph: { type: 'website', url: '/privacidade', title: TITLE, description: DESCRIPTION },
-  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION },
-};
+  return {
+    title,
+    description,
+    alternates: { canonical: '/privacidade' },
+    openGraph: { type: 'website', url: '/privacidade', title, description },
+    twitter: { card: 'summary_large_image', title, description },
+  };
+}
 
-// ponytail: DPO contact is a placeholder — swap for the real encarregado/e-mail
-// before launch. Everything else reflects what the platform actually collects.
-const DPO_EMAIL = 'privacidade@showon.io';
+// Sections render in this order; each one's copy lives under the same key in
+// legal.privacy so pt/en/es stay in sync (packages/i18n-messages).
+const SECTIONS = [
+  { key: 'controller', paragraphs: ['body'] },
+  {
+    key: 'dataWeCollect',
+    paragraphs: [
+      'account',
+      'session',
+      'payments',
+      'fiscal',
+      'streaming',
+      'chat',
+      'communications',
+      'analytics',
+      'cookies',
+    ],
+  },
+  { key: 'legalBases', paragraphs: ['contract', 'legalObligation', 'consent', 'legitimateInterest'] },
+  {
+    key: 'sharing',
+    paragraphs: ['intro', 'payments', 'fiscal', 'auth', 'push', 'infra', 'observability', 'noSale'],
+  },
+  { key: 'transfers', paragraphs: ['body'] },
+  { key: 'retention', paragraphs: ['analytics', 'ads', 'sessions', 'account', 'orders'] },
+  { key: 'deletion', paragraphs: ['body'] },
+  { key: 'consent', paragraphs: ['body'] },
+  { key: 'minors', paragraphs: ['body'] },
+  { key: 'security', paragraphs: ['body'] },
+  { key: 'changes', paragraphs: ['body'] },
+] as const;
 
-export default function PrivacyPolicyPage() {
+export default async function PrivacyPolicyPage() {
+  const t = await getTranslations('legal.privacy');
+  const dpoEmail = t('dpo.email');
+
+  // Rights and DPO carry links, so they are written out instead of looping.
+  const rightsIndex = SECTIONS.findIndex((section) => section.key === 'deletion');
+
   return (
     <div className={styles.page}>
       <div className={styles.content}>
-        <h1 className={styles.title}>Política de Privacidade</h1>
-        <p className={styles.updated}>Em conformidade com a LGPD (Lei nº 13.709/2018).</p>
+        <h1 className={styles.title}>{t('title')}</h1>
+        <p className={styles.updated}>{t('updatedAt')}</p>
 
         <section className={styles.section}>
-          <h2>Dados que coletamos</h2>
-          <p>
-            <strong>Essenciais</strong> — necessários para prestar o serviço e cumprir
-            obrigações legais: cadastro e autenticação, pagamentos e ingressos, e a
-            contagem de espectadores ao vivo (que também controla a transmissão das câmeras).
-          </p>
-          <p>
-            <strong>Não essenciais</strong> — coletados apenas com o seu consentimento:
-            comportamento de navegação (páginas vistas, buscas, curtidas, itens no carrinho,
-            trocas de câmera) e o perfil de interesses derivado desses eventos para
-            personalizar recomendações.
-          </p>
+          <p>{t('intro')}</p>
         </section>
 
-        <section className={styles.section}>
-          <h2>Base legal</h2>
-          <p>
-            Dados essenciais: execução de contrato e obrigação legal (Art. 7, V e II).
-            Dados não essenciais: consentimento (Art. 7, I), que você pode conceder ou
-            revogar a qualquer momento sem prejuízo do acesso ao serviço.
-          </p>
-        </section>
+        {SECTIONS.slice(0, rightsIndex).map((section) => (
+          <section key={section.key} className={styles.section}>
+            <h2>{t(`${section.key}.title`)}</h2>
+            {section.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{t(`${section.key}.${paragraph}`)}</p>
+            ))}
+          </section>
+        ))}
 
         <section className={styles.section}>
-          <h2>Seus direitos (Art. 18)</h2>
+          <h2>{t('rights.title')}</h2>
           <p>
-            Você pode acessar, exportar e excluir seus dados, além de revogar o
-            consentimento, em{' '}
-            <Link href="/settings#privacidade" className={styles.link}>Configurações → Privacidade</Link>.
-            A exclusão remove o histórico de uso e o perfil de recomendações; dados de
-            compras e ingressos são mantidos pelo prazo legal aplicável.
+            {t('rights.body')}{' '}
+            <Link href="/settings#privacidade" className={styles.link}>
+              {t('rights.settingsLink')}
+            </Link>
+            .
           </p>
+          <p>{t('rights.response')}</p>
         </section>
 
-        <section className={styles.section}>
-          <h2>Retenção</h2>
-          <p>
-            Eventos de uso não essenciais são mantidos por até 12 meses e depois
-            eliminados automaticamente. Dados contratuais seguem os prazos fiscais e
-            legais correspondentes.
-          </p>
-        </section>
+        {SECTIONS.slice(rightsIndex).map((section) => (
+          <section key={section.key} className={styles.section}>
+            <h2>{t(`${section.key}.title`)}</h2>
+            {section.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{t(`${section.key}.${paragraph}`)}</p>
+            ))}
+          </section>
+        ))}
 
         <section className={styles.section}>
-          <h2>Encarregado (DPO)</h2>
+          <h2>{t('dpo.title')}</h2>
           <p>
-            Dúvidas ou solicitações sobre seus dados:{' '}
-            <a href={`mailto:${DPO_EMAIL}`} className={styles.link}>{DPO_EMAIL}</a>.
+            {t('dpo.body')}{' '}
+            <a href={`mailto:${dpoEmail}`} className={styles.link}>
+              {dpoEmail}
+            </a>
+            .
           </p>
         </section>
       </div>

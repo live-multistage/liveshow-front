@@ -3220,11 +3220,85 @@
   "legal": {
     "privacy": {
       "title": "Política de Privacidade",
-      "updatedAt": "Atualizada em agosto de 2026.",
-      "p1": "Coletamos os dados necessários para vender ingressos, entregar transmissões e manter sua conta segura: nome, e-mail, telefone, CPF quando exigido pela emissão fiscal, e o registro dos seus pedidos.",
-      "p2": "Dados de uso não essenciais (comportamento de navegação e perfil de interesses) só são coletados com o seu consentimento, que você pode ligar e desligar a qualquer momento em Preferências. Recusar não afeta compras nem o acesso aos shows.",
-      "p3": "Não vendemos seus dados. Compartilhamos apenas com os processadores necessários para operar o serviço — pagamento, entrega de vídeo e envio de e-mails — e sempre limitado ao necessário.",
-      "p4": "Você pode exportar seus dados, excluir seu histórico de uso e excluir sua conta pelo próprio aplicativo, em Minha Conta."
+      "updatedAt": "Atualizada em 17 de setembro de 2026.",
+      "intro": "Esta política explica quais dados pessoais o showon.io trata, para quê, com quem compartilha e como você exerce seus direitos, conforme a LGPD (Lei nº 13.709/2018).",
+      "controller": {
+        "title": "Controlador",
+        "body": "O controlador dos dados tratados na plataforma é [RAZÃO SOCIAL], inscrita no CNPJ [CNPJ], com sede em [ENDEREÇO]."
+      },
+      "dataWeCollect": {
+        "title": "Dados que tratamos",
+        "account": "Conta e identificação: nome de exibição, e-mail, senha (guardada apenas como hash), telefone, CPF ou CNPJ quando necessário para a emissão fiscal, país, bio, foto de perfil e a faixa etária que você declara para personalização de anúncios. No login com Google ou Apple guardamos o identificador da sua conta nesses provedores e, no caso da Apple, um token usado só para revogar o acesso quando você exclui a conta.",
+        "session": "Sessão e segurança: a cada login guardamos endereço IP, identificação do navegador ou app (user-agent), datas de criação, último uso e expiração, e um hash do token de sessão. Serve para manter você conectado, encerrar sessões e investigar abuso.",
+        "payments": "Pagamentos e pedidos: identificador de cliente na Stripe, tokens de compra do Google Play, itens do pedido, valores, cupom aplicado e a origem da visita (parâmetros de campanha e site de referência). Os dados completos do cartão são tratados pelo provedor de pagamento e não passam pelos nossos servidores.",
+        "fiscal": "Nota fiscal: nome, e-mail e CPF/CNPJ do tomador, além do XML e do PDF da nota guardados em armazenamento de arquivos.",
+        "streaming": "Uso da transmissão: registros de audiência por sessão e câmera (início, último sinal e duração), progresso de reprodução, trocas de câmera e relatórios de qualidade do player.",
+        "chat": "Chat ao vivo: mensagens enviadas, nome de exibição do autor, data, exclusões feitas pela moderação e silenciamentos.",
+        "communications": "Comunicação: notificações enviadas e lidas, token de notificação push do dispositivo com plataforma, versão do app e idioma, suas preferências de notificação, o status de envio das campanhas de e-mail, quem você segue e sua lista de desejos.",
+        "analytics": "Comportamento de navegação (não essencial): páginas e eventos vistos, buscas, curtidas, itens no carrinho, cliques em anúncios e eventos do player, com um identificador de sessão e o tipo de dispositivo. Desses eventos derivamos um perfil de interesses (afinidade por categoria, organizador e artista, faixa de preço, taxa de conclusão e propensão de compra) usado para recomendar eventos.",
+        "cookies": "Cookies e armazenamento local: cookies de autenticação (httpOnly) e um cookie com o conteúdo do carrinho; no seu navegador guardamos o perfil em cache, a sua escolha de consentimento, o identificador de sessão de analytics e os parâmetros de campanha da primeira visita."
+      },
+      "legalBases": {
+        "title": "Bases legais",
+        "contract": "Execução do contrato (Art. 7, V): conta, compra e entrega de ingressos, transmissão, chat, notificações do serviço e suporte.",
+        "legalObligation": "Obrigação legal e regulatória (Art. 7, II): emissão de nota fiscal e guarda dos registros financeiros e de acesso exigidos por lei.",
+        "consent": "Consentimento (Art. 7, I): eventos de comportamento não essenciais, perfil de recomendação e e-mails de novidades e promoções. Você concede e revoga quando quiser, sem perder o acesso ao serviço.",
+        "legitimateInterest": "Legítimo interesse (Art. 7, IX): segurança, prevenção a fraude e abuso, medição agregada de audiência e melhoria do produto, sempre limitado ao necessário."
+      },
+      "sharing": {
+        "title": "Com quem compartilhamos",
+        "intro": "Compartilhamos dados apenas com quem precisa deles para operar o serviço:",
+        "payments": "Stripe (pagamento com cartão e carteira digital): e-mail, nome e identificador do usuário. Google Play (compras no aplicativo Android): tokens de compra.",
+        "fiscal": "PlugNotas (emissão de NFS-e): nome, e-mail e CPF/CNPJ do tomador, valor e descrição do serviço.",
+        "auth": "Google e Apple (login social): apenas o necessário para autenticar e identificar a sua conta.",
+        "push": "Expo (envio de notificações push): o token do dispositivo e o conteúdo da notificação.",
+        "infra": "Infraestrutura: hospedagem e banco de dados (DigitalOcean), publicação do site (Vercel), armazenamento de arquivos compatível com S3 e a CDN de vídeo (Bunny), que transporta a mídia sem receber dados de cadastro.",
+        "observability": "Grafana Cloud (monitoramento): registros técnicos da aplicação que podem conter identificadores internos de usuário, usados para diagnosticar falhas.",
+        "noSale": "Não vendemos dados pessoais e não usamos os seus dados para treinar modelos de inteligência artificial."
+      },
+      "transfers": {
+        "title": "Transferência internacional",
+        "body": "Parte desses provedores processa dados fora do Brasil, principalmente nos Estados Unidos e na União Europeia. Nesses casos a transferência se apoia nas hipóteses do Art. 33 da LGPD, com cláusulas contratuais e garantias de segurança equivalentes."
+      },
+      "retention": {
+        "title": "Por quanto tempo guardamos",
+        "analytics": "Eventos de comportamento e o perfil de interesses: excluídos automaticamente após 180 dias.",
+        "ads": "Registros de anúncios exibidos: 7 dias.",
+        "sessions": "Sessões: até expirarem ou serem revogadas. Tokens de verificação de e-mail e de redefinição de senha expiram em curto prazo e são guardados apenas como hash.",
+        "account": "Conta: enquanto ela existir. Ao excluir, encerramos as sessões, revogamos o login social e a conta deixa de ser utilizável, mas o registro permanece marcado como excluído pelo prazo necessário às obrigações legais e à prevenção a fraude.",
+        "orders": "Pedidos, pagamentos e notas fiscais: mantidos pelos prazos fiscais e contábeis aplicáveis, mesmo depois da exclusão da conta."
+      },
+      "rights": {
+        "title": "Seus direitos (Art. 18)",
+        "body": "Você pode confirmar o tratamento, acessar, corrigir, portar e excluir dados, revogar o consentimento e se opor a tratamentos baseados em legítimo interesse. Exportação, exclusão do histórico de uso e controle de consentimento estão em",
+        "settingsLink": "Configurações → Privacidade",
+        "response": "Solicitações enviadas ao encarregado são respondidas em até 15 dias."
+      },
+      "deletion": {
+        "title": "O que a exclusão apaga",
+        "body": "Excluir os dados de uso apaga os eventos de comportamento, o perfil de recomendação e os registros de audiência. Excluir a conta encerra as sessões, revoga o login social e desativa as notificações, mas não apaga pedidos, pagamentos e notas fiscais, que ficam retidos por obrigação legal."
+      },
+      "consent": {
+        "title": "Consentimento",
+        "body": "Na primeira visita você escolhe se aceita os dados não essenciais. A escolha fica no seu navegador e, se você tiver conta, também no servidor, e pode ser mudada quando quiser em Configurações → Privacidade. Recusar não afeta a compra, o acesso ao evento nem o suporte."
+      },
+      "minors": {
+        "title": "Crianças e adolescentes",
+        "body": "A plataforma é destinada a pessoas com 16 anos ou mais. Menores de 16 anos só podem usá-la com o consentimento específico e destacado de um dos pais ou do responsável legal, que responde pelo cadastro. Identificado um cadastro sem esse consentimento, excluímos os dados."
+      },
+      "security": {
+        "title": "Segurança",
+        "body": "Senhas são guardadas apenas como hash, tokens ficam em hash ou cifrados, o tráfego trafega por HTTPS e o acesso interno aos dados é restrito a quem precisa. Nenhum sistema é infalível: havendo incidente relevante, comunicamos você e a ANPD, conforme o Art. 48."
+      },
+      "changes": {
+        "title": "Mudanças nesta política",
+        "body": "Quando esta política mudar, atualizamos a data no topo e, em mudanças relevantes, avisamos por e-mail ou dentro da plataforma."
+      },
+      "dpo": {
+        "title": "Encarregado (DPO)",
+        "body": "Dúvidas, solicitações e reclamações sobre os seus dados:",
+        "email": "privacidade@showon.io"
+      }
     },
     "terms": {
       "title": "Termos de Uso",
@@ -3232,7 +3306,10 @@
       "p1": "Ao comprar um ingresso você adquire o direito de acesso descrito na página do evento — transmissão ao vivo, replay, câmeras adicionais ou entrada presencial, conforme o ingresso escolhido.",
       "p2": "O acesso é pessoal e intransferível. Compartilhar credenciais ou redistribuir a transmissão encerra o acesso sem reembolso.",
       "p3": "Datas, horários e a disponibilidade do replay são definidos pelo organizador do evento e podem mudar; avisamos por notificação e por e-mail quando isso acontece.",
-      "p4": "Reembolsos seguem as condições informadas na página do evento e a legislação aplicável. Fale com o suporte pela Central de Ajuda."
+      "p4": "Reembolsos seguem as condições informadas na página do evento e a legislação aplicável. Fale com o suporte pela Central de Ajuda.",
+      "p5": "Você precisa ter 16 anos ou mais para criar uma conta. Menores de 16 anos só podem usar a plataforma com o consentimento do responsável legal, que responde pelo cadastro.",
+      "p6": "O tratamento dos seus dados pessoais segue a nossa Política de Privacidade, incluindo o que guardamos após a exclusão da conta por obrigação legal.",
+      "privacyLink": "Política de Privacidade"
     }
   },
   "replaySoon": {

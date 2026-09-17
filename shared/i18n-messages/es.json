@@ -3220,11 +3220,85 @@
   "legal": {
     "privacy": {
       "title": "Política de Privacidad",
-      "updatedAt": "Actualizada en agosto de 2026.",
-      "p1": "Recopilamos los datos necesarios para vender entradas, entregar transmisiones y mantener tu cuenta segura: nombre, correo electrónico, teléfono, CPF cuando lo exija la normativa fiscal, y el registro de tus pedidos.",
-      "p2": "Los datos de uso no esenciales (comportamiento de navegación y perfil de intereses) solo se recopilan con tu consentimiento, que puedes activar y desactivar en cualquier momento en Preferencias. Rechazarlo no afecta las compras ni el acceso a los shows.",
-      "p3": "No vendemos tus datos. Solo los compartimos con los procesadores necesarios para operar el servicio — pago, entrega de video y envío de correos — y siempre limitado a lo necesario.",
-      "p4": "Puedes exportar tus datos, eliminar tu historial de uso y eliminar tu cuenta desde la propia aplicación, en Mi Cuenta."
+      "updatedAt": "Actualizada el 17 de septiembre de 2026.",
+      "intro": "Esta política explica qué datos personales trata showon.io, para qué, con quién los comparte y cómo ejerces tus derechos, conforme a la ley brasileña de protección de datos (LGPD, Ley 13.709/2018).",
+      "controller": {
+        "title": "Responsable del tratamiento",
+        "body": "El responsable de los datos tratados en la plataforma es [RAZÃO SOCIAL], inscrita en el CNPJ [CNPJ], con domicilio en [ENDEREÇO]."
+      },
+      "dataWeCollect": {
+        "title": "Datos que tratamos",
+        "account": "Cuenta e identificación: nombre visible, correo electrónico, contraseña (guardada solo como hash), teléfono, CPF o CNPJ cuando la emisión fiscal lo exige, país, biografía, foto de perfil y la franja de edad que declaras para la personalización de anuncios. Con el inicio de sesión de Google o Apple guardamos tu identificador en esos proveedores y, en el caso de Apple, un token usado solo para revocar el acceso cuando eliminas la cuenta.",
+        "session": "Sesión y seguridad: en cada inicio de sesión guardamos la dirección IP, la identificación del navegador o de la app (user-agent), las fechas de creación, último uso y expiración, y un hash del token de sesión. Sirve para mantenerte conectado, cerrar sesiones e investigar abusos.",
+        "payments": "Pagos y pedidos: tu identificador de cliente en Stripe, tokens de compra de Google Play, artículos del pedido, importes, cupón aplicado y el origen de la visita (parámetros de campaña y sitio de referencia). Los datos completos de la tarjeta los trata el proveedor de pago y no pasan por nuestros servidores.",
+        "fiscal": "Factura: nombre, correo electrónico y CPF/CNPJ del tomador, además del XML y el PDF de la factura guardados en almacenamiento de archivos.",
+        "streaming": "Uso de la transmisión: registros de audiencia por sesión y cámara (inicio, última señal y duración), progreso de reproducción, cambios de cámara e informes de calidad del reproductor.",
+        "chat": "Chat en vivo: mensajes enviados, nombre visible del autor, fecha, eliminaciones hechas por moderación y silenciamientos.",
+        "communications": "Comunicación: notificaciones enviadas y leídas, token de notificación push del dispositivo con plataforma, versión de la app e idioma, tus preferencias de notificación, el estado de envío de las campañas de correo, a quién sigues y tu lista de deseos.",
+        "analytics": "Comportamiento de navegación (no esencial): páginas y eventos vistos, búsquedas, me gusta, artículos en el carrito, clics en anuncios y eventos del reproductor, con un identificador de sesión y el tipo de dispositivo. De esos eventos derivamos un perfil de intereses (afinidad por categoría, organizador y artista, rango de precio, tasa de finalización y propensión de compra) usado para recomendar eventos.",
+        "cookies": "Cookies y almacenamiento local: cookies de autenticación (httpOnly) y una cookie con el contenido del carrito; en tu navegador guardamos el perfil en caché, tu elección de consentimiento, el identificador de sesión de analytics y los parámetros de campaña de la primera visita."
+      },
+      "legalBases": {
+        "title": "Bases legales",
+        "contract": "Ejecución del contrato (Art. 7, V): cuenta, compra y entrega de entradas, transmisión, chat, notificaciones del servicio y soporte.",
+        "legalObligation": "Obligación legal y regulatoria (Art. 7, II): emisión de facturas y conservación de los registros financieros y de acceso exigidos por ley.",
+        "consent": "Consentimiento (Art. 7, I): eventos de comportamiento no esenciales, perfil de recomendación y correos de novedades y promociones. Lo concedes y lo revocas cuando quieras, sin perder el acceso al servicio.",
+        "legitimateInterest": "Interés legítimo (Art. 7, IX): seguridad, prevención de fraude y abuso, medición agregada de audiencia y mejora del producto, siempre limitado a lo necesario."
+      },
+      "sharing": {
+        "title": "Con quién compartimos",
+        "intro": "Compartimos datos solo con quienes los necesitan para operar el servicio:",
+        "payments": "Stripe (pago con tarjeta y billetera digital): correo electrónico, nombre e identificador del usuario. Google Play (compras en la app de Android): tokens de compra.",
+        "fiscal": "PlugNotas (emisión de facturas de servicio): nombre, correo electrónico y CPF/CNPJ del tomador, importe y descripción del servicio.",
+        "auth": "Google y Apple (inicio de sesión social): solo lo necesario para autenticar e identificar tu cuenta.",
+        "push": "Expo (envío de notificaciones push): el token del dispositivo y el contenido de la notificación.",
+        "infra": "Infraestructura: alojamiento y base de datos (DigitalOcean), publicación del sitio (Vercel), almacenamiento de archivos compatible con S3 y la CDN de vídeo (Bunny), que transporta el contenido sin recibir datos de registro.",
+        "observability": "Grafana Cloud (monitorización): registros técnicos de la aplicación que pueden contener identificadores internos de usuario, usados para diagnosticar fallos.",
+        "noSale": "No vendemos datos personales ni usamos tus datos para entrenar modelos de inteligencia artificial."
+      },
+      "transfers": {
+        "title": "Transferencia internacional",
+        "body": "Parte de estos proveedores trata datos fuera de Brasil, principalmente en Estados Unidos y la Unión Europea. En esos casos la transferencia se apoya en los supuestos del Art. 33 de la LGPD, con cláusulas contractuales y garantías de seguridad equivalentes."
+      },
+      "retention": {
+        "title": "Cuánto tiempo los guardamos",
+        "analytics": "Eventos de comportamiento y el perfil de intereses: se eliminan automáticamente después de 180 días.",
+        "ads": "Registros de anuncios mostrados: 7 días.",
+        "sessions": "Sesiones: hasta que expiren o sean revocadas. Los tokens de verificación de correo y de restablecimiento de contraseña expiran en poco tiempo y se guardan solo como hash.",
+        "account": "Cuenta: mientras exista. Al eliminarla cerramos las sesiones, revocamos el inicio de sesión social y la cuenta deja de poder usarse, pero el registro permanece marcado como eliminado durante el plazo que exigen las obligaciones legales y la prevención del fraude.",
+        "orders": "Pedidos, pagos y facturas: se conservan durante los plazos fiscales y contables aplicables, incluso después de eliminar la cuenta."
+      },
+      "rights": {
+        "title": "Tus derechos (Art. 18)",
+        "body": "Puedes confirmar el tratamiento, acceder, corregir, portar y eliminar datos, revocar el consentimiento y oponerte a tratamientos basados en interés legítimo. La exportación, la eliminación del historial de uso y el control del consentimiento están en",
+        "settingsLink": "Configuración → Privacidad",
+        "response": "Las solicitudes enviadas al encargado se responden en un plazo de 15 días."
+      },
+      "deletion": {
+        "title": "Qué borra la eliminación",
+        "body": "Eliminar los datos de uso borra los eventos de comportamiento, el perfil de recomendación y los registros de audiencia. Eliminar la cuenta cierra las sesiones, revoca el inicio de sesión social y desactiva las notificaciones, pero no borra pedidos, pagos ni facturas, que se conservan por obligación legal."
+      },
+      "consent": {
+        "title": "Consentimiento",
+        "body": "En la primera visita eliges si aceptas los datos no esenciales. La elección queda en tu navegador y, si tienes cuenta, también en el servidor, y puedes cambiarla cuando quieras en Configuración → Privacidad. Rechazar no afecta la compra, el acceso al evento ni el soporte."
+      },
+      "minors": {
+        "title": "Niños y adolescentes",
+        "body": "La plataforma está dirigida a personas de 16 años o más. Los menores de 16 solo pueden usarla con el consentimiento específico y destacado de uno de los padres o del responsable legal, que responde por la cuenta. Si detectamos una cuenta sin ese consentimiento, eliminamos los datos."
+      },
+      "security": {
+        "title": "Seguridad",
+        "body": "Las contraseñas se guardan solo como hash, los tokens se guardan en hash o cifrados, el tráfico se sirve por HTTPS y el acceso interno a los datos está restringido a quien lo necesita. Ningún sistema es infalible: ante un incidente relevante te avisamos a ti y a la autoridad brasileña (ANPD), conforme al Art. 48."
+      },
+      "changes": {
+        "title": "Cambios en esta política",
+        "body": "Cuando esta política cambie actualizamos la fecha de arriba y, en cambios relevantes, te avisamos por correo electrónico o dentro de la plataforma."
+      },
+      "dpo": {
+        "title": "Encargado de protección de datos",
+        "body": "Dudas, solicitudes y reclamaciones sobre tus datos:",
+        "email": "privacidade@showon.io"
+      }
     },
     "terms": {
       "title": "Términos de Uso",
@@ -3232,7 +3306,10 @@
       "p1": "Al comprar una entrada adquieres el derecho de acceso descrito en la página del evento — transmisión en vivo, replay, cámaras adicionales o entrada presencial, según la entrada elegida.",
       "p2": "El acceso es personal e intransferible. Compartir credenciales o redistribuir la transmisión termina el acceso sin reembolso.",
       "p3": "Las fechas, horarios y la disponibilidad del replay son definidos por el organizador del evento y pueden cambiar; te avisamos por notificación y correo electrónico cuando eso ocurre.",
-      "p4": "Los reembolsos siguen las condiciones informadas en la página del evento y la legislación aplicable. Contacta con soporte a través del Centro de Ayuda."
+      "p4": "Los reembolsos siguen las condiciones informadas en la página del evento y la legislación aplicable. Contacta con soporte a través del Centro de Ayuda.",
+      "p5": "Debes tener 16 años o más para crear una cuenta. Los menores de 16 solo pueden usar la plataforma con el consentimiento del responsable legal, que responde por la cuenta.",
+      "p6": "El tratamiento de tus datos personales sigue nuestra Política de Privacidad, incluido lo que conservamos tras eliminar la cuenta por obligación legal.",
+      "privacyLink": "Política de Privacidad"
     }
   },
   "replaySoon": {

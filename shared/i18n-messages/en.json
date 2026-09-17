@@ -3220,11 +3220,85 @@
   "legal": {
     "privacy": {
       "title": "Privacy Policy",
-      "updatedAt": "Updated August 2026.",
-      "p1": "We collect the data needed to sell tickets, deliver streams and keep your account secure: name, email, phone, CPF when required by tax rules, and your order history.",
-      "p2": "Non-essential usage data (browsing behavior and interest profile) is only collected with your consent, which you can turn on and off at any time in Preferences. Declining does not affect purchases or access to shows.",
-      "p3": "We do not sell your data. We only share it with the processors needed to operate the service — payment, video delivery and email — and always limited to what is necessary.",
-      "p4": "You can export your data, delete your usage history and delete your account directly in the app, under My Account."
+      "updatedAt": "Updated on 17 September 2026.",
+      "intro": "This policy explains which personal data showon.io processes, why, who we share it with and how you exercise your rights under the Brazilian data protection law (LGPD, Law 13.709/2018).",
+      "controller": {
+        "title": "Controller",
+        "body": "The controller of the data processed on the platform is [RAZÃO SOCIAL], registered under CNPJ [CNPJ], with offices at [ENDEREÇO]."
+      },
+      "dataWeCollect": {
+        "title": "Data we process",
+        "account": "Account and identification: display name, email, password (stored only as a hash), phone, tax ID (CPF or CNPJ) when required for invoicing, country, bio, profile picture and the age bracket you declare for ad personalisation. With Google or Apple sign-in we store your identifier at those providers and, for Apple, a token used only to revoke access when you delete your account.",
+        "session": "Session and security: every login stores the IP address, the browser or app identification (user-agent), creation, last-use and expiry dates, and a hash of the session token. We use it to keep you signed in, end sessions and investigate abuse.",
+        "payments": "Payments and orders: your Stripe customer identifier, Google Play purchase tokens, order items, amounts, coupon used and the origin of the visit (campaign parameters and referring site). Full card details are handled by the payment provider and never reach our servers.",
+        "fiscal": "Invoicing: the payer's name, email and tax ID, plus the invoice XML and PDF kept in file storage.",
+        "streaming": "Stream usage: viewing records per session and camera (start, last signal and duration), playback progress, camera switches and player quality reports.",
+        "chat": "Live chat: messages sent, the author's display name, timestamp, moderator deletions and mutes.",
+        "communications": "Communications: notifications sent and read, the device push token with platform, app version and language, your notification preferences, the delivery status of email campaigns, who you follow and your wishlist.",
+        "analytics": "Browsing behaviour (non-essential): pages and events viewed, searches, likes, cart items, ad clicks and player events, with a session identifier and device type. From these events we derive an interest profile (affinity by category, organiser and artist, price range, completion rate and purchase propensity) used to recommend events.",
+        "cookies": "Cookies and local storage: authentication cookies (httpOnly) and a cookie holding your cart; in your browser we keep a cached profile, your consent choice, the analytics session identifier and the first-visit campaign parameters."
+      },
+      "legalBases": {
+        "title": "Legal bases",
+        "contract": "Performance of the contract (Art. 7, V): account, ticket purchase and delivery, streaming, chat, service notifications and support.",
+        "legalObligation": "Legal and regulatory obligation (Art. 7, II): issuing invoices and keeping the financial and access records required by law.",
+        "consent": "Consent (Art. 7, I): non-essential behaviour events, the recommendation profile and marketing emails. You grant and withdraw it at any time without losing access to the service.",
+        "legitimateInterest": "Legitimate interest (Art. 7, IX): security, fraud and abuse prevention, aggregate audience measurement and product improvement, always limited to what is necessary."
+      },
+      "sharing": {
+        "title": "Who we share it with",
+        "intro": "We share data only with those who need it to run the service:",
+        "payments": "Stripe (card and wallet payments): email, name and user identifier. Google Play (in-app Android purchases): purchase tokens.",
+        "fiscal": "PlugNotas (Brazilian service invoices): the payer's name, email and tax ID, amount and service description.",
+        "auth": "Google and Apple (social sign-in): only what is needed to authenticate and identify your account.",
+        "push": "Expo (push notification delivery): the device token and the notification content.",
+        "infra": "Infrastructure: hosting and database (DigitalOcean), site delivery (Vercel), S3-compatible file storage and the video CDN (Bunny), which carries the media without receiving account data.",
+        "observability": "Grafana Cloud (monitoring): application logs that may contain internal user identifiers, used to diagnose failures.",
+        "noSale": "We do not sell personal data and we do not use your data to train artificial intelligence models."
+      },
+      "transfers": {
+        "title": "International transfers",
+        "body": "Some of these providers process data outside Brazil, mainly in the United States and the European Union. In those cases the transfer relies on the grounds in Art. 33 of the LGPD, with contractual clauses and equivalent security safeguards."
+      },
+      "retention": {
+        "title": "How long we keep it",
+        "analytics": "Behaviour events and the interest profile: deleted automatically after 180 days.",
+        "ads": "Served-ad records: 7 days.",
+        "sessions": "Sessions: until they expire or are revoked. Email verification and password reset tokens expire quickly and are stored only as hashes.",
+        "account": "Account: for as long as it exists. On deletion we end the sessions, revoke social sign-in and the account becomes unusable, but the record stays flagged as deleted for as long as legal obligations and fraud prevention require.",
+        "orders": "Orders, payments and invoices: kept for the applicable tax and accounting periods, even after the account is deleted."
+      },
+      "rights": {
+        "title": "Your rights (Art. 18)",
+        "body": "You may confirm processing, access, correct, port and delete data, withdraw consent and object to processing based on legitimate interest. Export, usage-history deletion and consent controls live in",
+        "settingsLink": "Settings → Privacy",
+        "response": "Requests sent to the data protection officer are answered within 15 days."
+      },
+      "deletion": {
+        "title": "What deletion removes",
+        "body": "Deleting usage data removes behaviour events, the recommendation profile and viewing records. Deleting the account ends sessions, revokes social sign-in and disables notifications, but does not remove orders, payments and invoices, which are retained by legal obligation."
+      },
+      "consent": {
+        "title": "Consent",
+        "body": "On your first visit you choose whether to accept non-essential data. The choice is stored in your browser and, if you have an account, on the server as well, and can be changed at any time in Settings → Privacy. Declining does not affect purchases, event access or support."
+      },
+      "minors": {
+        "title": "Children and teenagers",
+        "body": "The platform is intended for people aged 16 or over. Under-16s may only use it with the specific, prominent consent of a parent or legal guardian, who is responsible for the account. If we find an account without that consent, we delete the data."
+      },
+      "security": {
+        "title": "Security",
+        "body": "Passwords are stored only as hashes, tokens are hashed or encrypted, traffic is served over HTTPS and internal access to data is restricted to those who need it. No system is infallible: in a relevant incident we notify you and the Brazilian authority (ANPD), as required by Art. 48."
+      },
+      "changes": {
+        "title": "Changes to this policy",
+        "body": "When this policy changes we update the date at the top and, for relevant changes, tell you by email or inside the platform."
+      },
+      "dpo": {
+        "title": "Data protection officer",
+        "body": "Questions, requests and complaints about your data:",
+        "email": "privacidade@showon.io"
+      }
     },
     "terms": {
       "title": "Terms of Use",
@@ -3232,7 +3306,10 @@
       "p1": "By purchasing a ticket you acquire the access rights described on the event page — live stream, replay, additional cameras or in-person entry, according to the ticket you chose.",
       "p2": "Access is personal and non-transferable. Sharing credentials or redistributing the stream ends your access with no refund.",
       "p3": "Dates, times and replay availability are set by the event organizer and may change; we notify you by notification and email when that happens.",
-      "p4": "Refunds follow the conditions stated on the event page and applicable law. Contact support through the Help Center."
+      "p4": "Refunds follow the conditions stated on the event page and applicable law. Contact support through the Help Center.",
+      "p5": "You must be 16 or older to create an account. Under-16s may only use the platform with the consent of a legal guardian, who is responsible for the account.",
+      "p6": "Your personal data is processed under our Privacy Policy, including what we keep after account deletion to meet legal obligations.",
+      "privacyLink": "Privacy Policy"
     }
   },
   "replaySoon": {

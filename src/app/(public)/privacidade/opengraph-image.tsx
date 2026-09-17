@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { renderBrandCard, OG_SIZE } from '@/shared/og/BrandCard';
 
 export const runtime = 'edge';
@@ -5,11 +6,12 @@ export const alt = 'Política de Privacidade — showon.io';
 export const size = OG_SIZE;
 export const contentType = 'image/png';
 
-export default function OpengraphImage() {
+export default async function OpengraphImage() {
+  const t = await getTranslations('legal.privacy');
   return renderBrandCard({
     eyebrow: 'PRIVACIDADE',
-    title: 'Política de Privacidade',
-    subtitle: 'Como o showon.io coleta, usa e protege seus dados, em conformidade com a LGPD.',
+    title: t('title'),
+    subtitle: t('intro'),
     badge: 'LEGAL',
   });
 }
