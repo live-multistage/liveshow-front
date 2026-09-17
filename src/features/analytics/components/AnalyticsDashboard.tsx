@@ -158,9 +158,15 @@ interface FunnelProps {
   isLoading: boolean;
 }
 
+// Carries its own sign. The caller used to prefix a literal "-", which printed
+// "--42,9%" whenever a step GREW instead of dropping — and steps do grow here,
+// because page views are uncapped while impressions are counted once per
+// session, so views can exceed impressions. A growing step reads "+".
 function fmtDrop(from: number, to: number): string | null {
   if (from <= 0) return null;
-  return `${((1 - to / from) * 100).toFixed(1).replace('.', ',')}%`;
+  const pct = (1 - to / from) * 100;
+  const sign = pct > 0 ? '−' : '+';
+  return `${sign}${Math.abs(pct).toFixed(1).replace('.', ',')}%`;
 }
 
 // Cold → warm → intent → purchase. Every step is a real counter now
@@ -183,7 +189,9 @@ function FunnelSection({ impressionCount, viewCount, cartAddCount, checkoutCount
     return {
       label: step.label,
       value: isLoading ? '…' : fmtCompact(step.value),
-      rate: i === 0 ? '100%' : fmtRate(top > 0 ? step.value / top : null),
+      // fmtRate(1), not the literal '100%': the other steps render as "42,9%"
+      // and a bare "100%" made the first column the odd one out.
+      rate: i === 0 ? fmtRate(1) : fmtRate(top > 0 ? step.value / top : null),
       heightPct: top > 0 ? Math.max(4, Math.round((step.value / top) * 100)) : 0,
       hasDrop: !!next,
       drop: next ? fmtDrop(step.value, next.value) : null,
@@ -226,7 +234,7 @@ function FunnelSection({ impressionCount, viewCount, cartAddCount, checkoutCount
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5f5f67" strokeWidth="2">
                   <path d="M5 12h14M13 6l6 6-6 6" />
                 </svg>
-                {step.drop && <span className={styles.funnelDrop}>-{step.drop}</span>}
+                {step.drop && <span className={styles.funnelDrop}>{step.drop}</span>}
               </div>
             )}
           </div>
@@ -404,10 +412,13 @@ function ViewersSection({ data, isLoading }: ViewersSectionProps) {
     ? new Date(data.peakAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
     : null;
 
-  const hourlyLabels = data?.hourlyBreakdown.map((p) => {
-    const d = new Date(p.hour);
-    return `${d.getHours().toString().padStart(2, '0')}h`;
-  }) ?? ['—'];
+  // Same formatter as the engagement chart, so the date shows only when the
+  // series really spans more than one day. Printing just the hour over a
+  // multi-day window is what made this axis read 03h → 16h → 23h → 17h and
+  // look like fabricated data — those are four different days.
+  const hourlyLabels = data && data.hourlyBreakdown.length > 0
+    ? chartLabels(data.hourlyBreakdown.map((p) => ({ at: p.hour })))
+    : ['—'];
 
   const hourlyViewers = data?.hourlyBreakdown.map((p) => p.viewers) ?? [0];
 
@@ -691,7 +702,10 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
   const { data: eventData, isLoading: eventLoading } = useGetEventQuery(eventId);
   const orgId = eventData?.organizationId;
   const { data: myOrgs = [], isLoading: orgsLoading } = useMyOrganizationsQuery();
-  const { data: viewerAnalytics, isLoading: viewersLoading } = useViewerAnalyticsQuery(orgId, eventId);
+  // rangeWindow, not nothing: the range picker above this screen never reached
+  // the viewers query, so its hourly series always covered the event's entire
+  // history regardless of what 24h/7d said.
+  const { data: viewerAnalytics, isLoading: viewersLoading } = useViewerAnalyticsQuery(orgId, eventId, rangeWindow);
   const { data: salesOrigin, isLoading: salesOriginLoading } = useSalesOriginQuery(orgId, eventId);
   const { data: cameraBreakdown, isLoading: cameraBreakdownLoading } = useCameraBreakdownQuery(orgId, eventId);
   const { data: notificationBreakdown, isLoading: notificationsLoading } = useNotificationBreakdownQuery(eventId);
@@ -704,6 +718,7 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
   const chartSeries  = metrics?.chart ?? [];
   const peakViewers  = metrics?.peakViewers ?? 0;
   const peakAt       = metrics?.peakAt ?? null;
+  const savedCount   = metrics?.savedCount ?? 0;
 
   const conversionRate = funnel.viewCount > 0 ? funnel.purchaseCount / funnel.viewCount : null;
   const completionPct  = funnel.completionRate !== null
@@ -842,6 +857,16 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
           iconPath={<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>}
           delta={avgWatchDelta?.delta ?? ''}
           deltaUp={avgWatchDelta?.deltaUp ?? true}
+        />
+        <KpiCard
+          label="SALVOS"
+          value={metricsLoading ? '…' : fmtCompact(savedCount)}
+          sub="pessoas salvaram o evento"
+          iconBg="rgba(127,224,160,.14)"
+          iconColor="#7fe0a0"
+          iconPath={<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />}
+          delta=""
+          deltaUp
         />
         <KpiCard
           label="TROCAS DE CÂMERA"

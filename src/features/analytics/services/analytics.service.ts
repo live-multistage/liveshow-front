@@ -20,9 +20,17 @@ export const analyticsService = {
     const { data } = await httpClient.get<EventMetricsResult>(`/analytics/events/${eventId}/metrics`, { params });
     return data;
   },
-  getViewerAnalytics: async (orgId: string, eventId: string): Promise<ViewerAnalyticsResult> => {
+  // The endpoint has always accepted from/to; nothing ever sent them, so the
+  // hourly series silently spanned the event's whole history.
+  getViewerAnalytics: async (
+    orgId: string,
+    eventId: string,
+    range?: { from: Date; to: Date },
+  ): Promise<ViewerAnalyticsResult> => {
+    const params = range ? { from: range.from.toISOString(), to: range.to.toISOString() } : undefined;
     const { data } = await httpClient.get<ViewerAnalyticsResult>(
       `/organizations/${orgId}/events/${eventId}/analytics/viewers`,
+      { params },
     );
     return data;
   },

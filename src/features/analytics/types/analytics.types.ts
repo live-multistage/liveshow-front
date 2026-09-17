@@ -32,6 +32,12 @@ export interface WindowedMetrics {
 export interface EventMetricsResult {
   eventId: string;
   funnel: EventMetricsFunnel;
+  /**
+   * Distinct users who saved (wishlisted) the event. Outside `funnel` because
+   * saving is not a step towards buying — savers may never return and buyers
+   * often never save.
+   */
+  savedCount: number;
   chart: ChartPoint[];
   peakViewers: number;
   peakAt: string | null;
