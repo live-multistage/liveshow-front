@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.0.1",
   "packageManager": "pnpm@10.33.2",
+  "sideEffects": [
+    "*.css",
+    "*.scss"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",

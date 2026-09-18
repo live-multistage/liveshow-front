@@ -27,7 +27,7 @@ describe('reportError', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const error = new Error('boom');
 
-    reportError(error, { userId: 'u1' });
+    await reportError(error, { userId: 'u1' });
 
     expect(consoleSpy).toHaveBeenCalledWith(error, { userId: 'u1' });
     expect(initMock).not.toHaveBeenCalled();
@@ -40,7 +40,7 @@ describe('reportError', () => {
     const { reportError } = await import('./index');
     const error = new Error('boom');
 
-    reportError(error, { orderId: 'o1' });
+    await reportError(error, { orderId: 'o1' });
 
     expect(initMock).toHaveBeenCalledWith(
       expect.objectContaining({

@@ -34,8 +34,22 @@ describe('MediaWithTeaserVideo', () => {
   it('renders the poster only when no videoSrc is given', () => {
     const { container } = render(<MediaWithTeaserVideo posterSrc={POSTER} posterAlt="Poster" />);
 
-    expect(screen.getByAltText('Poster')).toHaveAttribute('src', POSTER);
+    expect(screen.getByAltText('Poster').getAttribute('src')).toContain(encodeURIComponent(POSTER));
     expect(container.querySelector('video')).toBeNull();
+  });
+
+  it('lazy-loads the poster by default', () => {
+    render(<MediaWithTeaserVideo posterSrc={POSTER} posterAlt="Poster" />);
+
+    expect(screen.getByAltText('Poster')).toHaveAttribute('loading', 'lazy');
+  });
+
+  it('loads the poster eagerly at high priority when it is the LCP image', () => {
+    render(<MediaWithTeaserVideo posterSrc={POSTER} posterAlt="Poster" posterPriority />);
+
+    const poster = screen.getByAltText('Poster');
+    expect(poster).not.toHaveAttribute('loading', 'lazy');
+    expect(poster).toHaveAttribute('fetchpriority', 'high');
   });
 
   it('layers a muted looping video over the poster when videoSrc is given', () => {

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { ReactEventHandler } from 'react';
+import Image from 'next/image';
 
 export type TeaserVideoPhase = 'poster' | 'playing' | 'fallback';
 
@@ -26,6 +27,9 @@ interface Props {
   /** Appended to videoClassName once the teaser has buffered enough to show. */
   videoVisibleClassName?: string;
   posterOnError?: ReactEventHandler<HTMLImageElement>;
+  /** The poster is the page's LCP element: preload it at high priority. */
+  posterPriority?: boolean;
+  posterSizes?: string;
 }
 
 export function MediaWithTeaserVideo({
@@ -39,6 +43,8 @@ export function MediaWithTeaserVideo({
   videoClassName,
   videoVisibleClassName,
   posterOnError,
+  posterPriority = false,
+  posterSizes = '100vw',
 }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [phase, setPhase] = useState<TeaserVideoPhase>('poster');
@@ -107,8 +113,16 @@ export function MediaWithTeaserVideo({
 
   return (
     <>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={posterSrc} alt={posterAlt} className={posterClassName} onError={posterOnError} />
+      <Image
+        src={posterSrc}
+        alt={posterAlt}
+        fill
+        sizes={posterSizes}
+        priority={posterPriority}
+        fetchPriority={posterPriority ? 'high' : undefined}
+        className={posterClassName}
+        onError={posterOnError}
+      />
       {showVideo && videoSrc && (
         <video
           ref={videoRef}

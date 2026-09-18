@@ -80,6 +80,7 @@ export function EventDetailPageContent({ id }: Props) {
               posterAlt={event.title}
               videoSrc={event.teaserVideoUrl}
               posterClassName={styles.heroImg}
+              posterPriority
               videoClassName={styles.heroVideo}
               videoVisibleClassName={styles.heroVideoVisible}
               posterOnError={() => setHeroImgFailed(true)}

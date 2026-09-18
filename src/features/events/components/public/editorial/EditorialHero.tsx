@@ -42,11 +42,15 @@ type VideoPhase = TeaserVideoPhase;
 function HeroSlideMedia({
   show,
   active,
+  priority,
   reducedMotion,
   onPhaseChange,
 }: {
   show: Show;
   active: boolean;
+  // Only the first slide is on screen at load (the LCP image); the rest load
+  // lazily instead of competing with it for bandwidth.
+  priority: boolean;
   // null = not yet resolved (SSR / pre-effect). Resolved once at the
   // EditorialHero level and threaded down, so N slides don't each open their
   // own matchMedia listener.
@@ -70,6 +74,7 @@ function HeroSlideMedia({
       videoClassName={styles.heroV2Video}
       videoVisibleClassName={styles.heroV2VideoVisible}
       posterOnError={onImgError}
+      posterPriority={priority}
     />
   );
 }
@@ -204,7 +209,7 @@ export function EditorialHero({ slides }: Props) {
   if (count === 1) {
     return (
       <div className={styles.heroV2}>
-        <HeroSlideMedia show={slides[0]} active reducedMotion={reducedMotion} />
+        <HeroSlideMedia show={slides[0]} active priority reducedMotion={reducedMotion} />
         <div className={styles.heroV2Glow} aria-hidden="true" />
         <div className={styles.heroV2Scrim} aria-hidden="true" />
         <SlideContent show={slides[0]} />
@@ -276,6 +281,7 @@ export function EditorialHero({ slides }: Props) {
             <HeroSlideMedia
               show={show}
               active={i === index}
+              priority={i === 0}
               reducedMotion={reducedMotion}
               onPhaseChange={handleSlidePhaseChange}
             />

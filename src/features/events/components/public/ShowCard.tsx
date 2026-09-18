@@ -58,7 +58,8 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
             src={show.image}
             alt={show.title}
             fill
-            sizes="(max-width: 640px) 100vw, 320px"
+            // Compact cards sit two-up on phones (see .recommendedItem).
+            sizes={size === 'compact' ? '(max-width: 640px) 50vw, 320px' : '(max-width: 640px) 100vw, 320px'}
             className={styles.image}
           />
           <div className={styles.imageScrim} />

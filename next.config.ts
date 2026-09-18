@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
     return [{ source: '/api/:path*', destination: `${target}/:path*` }];
   },
   images: {
+    // Upload origins answer `max-age=0`, which would cap the optimizer cache
+    // at Next's 60s default and re-encode the hero on nearly every visit.
+    // Upload paths are content-unique (uuid filenames), so a long TTL is safe.
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       {
         protocol: 'https',

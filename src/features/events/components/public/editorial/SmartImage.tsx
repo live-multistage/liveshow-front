@@ -10,7 +10,11 @@ import { FALLBACK_IMAGE } from '@/features/events/utils/event-adapter';
 // one). Isolating the <img onError> here keeps every card server-rendered and
 // hydrates just this trivial leaf.
 export function onImgError(e: SyntheticEvent<HTMLImageElement>) {
-  if (e.currentTarget.src !== FALLBACK_IMAGE) e.currentTarget.src = FALLBACK_IMAGE;
+  if (e.currentTarget.src === FALLBACK_IMAGE) return;
+  // next/image renders a srcset, which the browser prefers over src — drop it
+  // or the swap never takes effect.
+  e.currentTarget.removeAttribute('srcset');
+  e.currentTarget.src = FALLBACK_IMAGE;
 }
 
 export function SmartImage(props: { src: string; alt: string; className?: string }) {

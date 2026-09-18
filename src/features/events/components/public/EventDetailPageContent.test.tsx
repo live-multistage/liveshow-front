@@ -112,14 +112,14 @@ describe('EventDetailPageContent hero media', () => {
     expect(video).toHaveAttribute('src', TEASER);
     // Single static hero: always active, so it autoplays.
     expect((video as HTMLVideoElement).autoplay).toBe(true);
-    expect(screen.getByAltText('Show Teste')).toHaveAttribute('src', BANNER);
+    expect(screen.getByAltText('Show Teste').getAttribute('src')).toContain(encodeURIComponent(BANNER));
   });
 
   it('renders the banner image only when teaserVideoUrl is absent', () => {
     const { container } = renderWithEvent(makeEvent());
 
     expect(container.querySelector('video')).toBeNull();
-    expect(screen.getByAltText('Show Teste')).toHaveAttribute('src', BANNER);
+    expect(screen.getByAltText('Show Teste').getAttribute('src')).toContain(encodeURIComponent(BANNER));
   });
 
   it('falls back to the banner image when the teaser errors', () => {
@@ -134,7 +134,7 @@ describe('EventDetailPageContent hero media', () => {
   it('falls back to the thumbnail when there is no banner', () => {
     renderWithEvent(makeEvent({ bannerUrl: null, thumbnailUrl: 'https://example.com/thumb.jpg' }));
 
-    expect(screen.getByAltText('Show Teste')).toHaveAttribute('src', 'https://example.com/thumb.jpg');
+    expect(screen.getByAltText('Show Teste').getAttribute('src')).toContain(encodeURIComponent('https://example.com/thumb.jpg'));
   });
 
   it('renders the placeholder when the event has no image at all', () => {
