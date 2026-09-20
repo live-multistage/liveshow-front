@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { httpClient } from '@/lib/http/client';
 import type {
   OrganizationResponse,
@@ -12,6 +13,7 @@ import type {
 import type { EventResponse } from '@/features/events/types/event.types';
 import type { OrganizationAnalyticsResponse } from '../types/organization-analytics.types';
 import type { SalesGranularity } from '@/features/analytics/types/sales.types';
+import type { AsaasSubaccountResponse, CreateAsaasSubaccountRequest } from '@live-show/api-contracts';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -109,6 +111,30 @@ export const organizationService = {
   initiateStripeConnect: async (orgId: string): Promise<{ url: string }> => {
     const { data } = await httpClient.post<{ url: string }>(
       `/organizations/${orgId}/stripe/connect`,
+    );
+    return data;
+  },
+
+  // 404 → no subaccount yet.
+  getAsaasSubaccount: async (orgId: string): Promise<AsaasSubaccountResponse | null> => {
+    try {
+      const { data } = await httpClient.get<AsaasSubaccountResponse>(
+        `/organizations/${orgId}/asaas/subaccount`,
+      );
+      return data;
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 404) return null;
+      throw err;
+    }
+  },
+
+  createAsaasSubaccount: async (
+    orgId: string,
+    body: CreateAsaasSubaccountRequest,
+  ): Promise<AsaasSubaccountResponse> => {
+    const { data } = await httpClient.post<AsaasSubaccountResponse>(
+      `/organizations/${orgId}/asaas/subaccount`,
+      body,
     );
     return data;
   },
