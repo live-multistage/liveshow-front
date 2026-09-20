@@ -31,4 +31,11 @@ describe('cartIdempotencyKey', () => {
   it('is a hex digest the API will accept', async () => {
     expect(await cartIdempotencyKey(base)).toMatch(/^[0-9a-f]{64}$/);
   });
+
+  it('differs between Pix and card for the same cart', async () => {
+    const asaasBase = { ticketProductIds: ['t1'], provider: 'ASAAS' };
+    expect(await cartIdempotencyKey({ ...asaasBase, method: 'PIX' })).not.toBe(
+      await cartIdempotencyKey({ ...asaasBase, method: 'CREDIT_CARD' }),
+    );
+  });
 });

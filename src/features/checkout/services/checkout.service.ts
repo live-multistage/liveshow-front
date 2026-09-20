@@ -2,6 +2,8 @@ import { httpClient } from '@/lib/http/client';
 import type {
   PaymentMethod,
   PaymentMethodsResponse,
+  PaymentOptionsResponse,
+  PixQrAction,
   OrderView,
   PlaceOrderRequest,
   PlaceOrderResponse,
@@ -41,6 +43,16 @@ export const checkoutService = {
 
   claimFreeTicket: async (ticketProductId: string): Promise<ClaimFreeTicketResponse> => {
     const { data } = await httpClient.post<ClaimFreeTicketResponse>('/orders/free-ticket', { ticketProductId });
+    return data;
+  },
+
+  getPaymentOptions: async (): Promise<PaymentOptionsResponse> => {
+    const { data } = await httpClient.get<PaymentOptionsResponse>('/orders/payment-options');
+    return data;
+  },
+
+  getPaymentAction: async (orderId: string): Promise<PixQrAction> => {
+    const { data } = await httpClient.get<PixQrAction>(`/orders/${orderId}/payment-action`);
     return data;
   },
 };

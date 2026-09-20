@@ -18,12 +18,14 @@ export async function cartIdempotencyKey(input: {
   couponCode?: string | null;
   provider: string;
   flow?: string;
+  method?: string;
 }): Promise<string> {
   const canonical = [
     [...input.ticketProductIds].sort().join(','),
     input.couponCode ?? '',
     input.provider,
     input.flow ?? '',
+    input.method ?? '',
   ].join('|');
 
   const digest = await crypto.subtle.digest(

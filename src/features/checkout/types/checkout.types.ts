@@ -1,10 +1,12 @@
 import type {
   PaymentProvider,
+  PaymentProviderChoice,
   PaymentActionType,
   PaymentAction,
   PaymentMethod,
   PaymentMethodType,
   PaymentMethodsResponse,
+  PaymentOptionsResponse,
   PaymentStatus,
   PaymentChannel,
   PaymentFlow,
@@ -22,11 +24,13 @@ import type {
 
 export type {
   PaymentProvider,
+  PaymentProviderChoice,
   PaymentActionType,
   PaymentAction,
   PaymentMethod,
   PaymentMethodType,
   PaymentMethodsResponse,
+  PaymentOptionsResponse,
   PaymentStatus,
   PaymentChannel,
   PaymentFlow,
@@ -41,3 +45,5 @@ export type {
   CartCouponPreviewRequest,
   CartCouponPreviewResult,
 };
+
+export type PixQrAction = Extract<PaymentAction, { type: 'QR_CODE' }>;

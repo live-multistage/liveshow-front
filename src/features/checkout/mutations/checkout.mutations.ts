@@ -28,3 +28,25 @@ export function useOrderQuery(orderId: string | null) {
       query.state.data && query.state.data.status !== 'PENDING' ? false : 3000,
   });
 }
+
+export function usePaymentOptionsQuery() {
+  return useQuery({
+    queryKey: ['orders', 'payment-options'],
+    queryFn: checkoutService.getPaymentOptions,
+    // Eligibility depends on the cart; refetch when the checkout mounts.
+    staleTime: 0,
+  });
+}
+
+export const pixActionKey = (orderId: string | null) => ['orders', orderId, 'payment-action'] as const;
+
+// Seeded by the checkout right after POST /orders; fetched only after a reload.
+export function usePixPaymentAction(orderId: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: pixActionKey(orderId),
+    queryFn: () => checkoutService.getPaymentAction(orderId!),
+    enabled: !!orderId && enabled,
+    staleTime: Infinity,
+    retry: false,
+  });
+}

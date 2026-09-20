@@ -4,7 +4,8 @@ export type PaymentProvider =
   | 'MERCADO_PAGO'
   | 'PIX'
   | 'INTERNAL'
-  | 'GOOGLE_PLAY';
+  | 'GOOGLE_PLAY'
+  | 'ASAAS';
 
 export type PaymentActionType =
   | 'REDIRECT'
@@ -15,9 +16,18 @@ export type PaymentActionType =
   | 'PLAY_BILLING';
 
 export type PaymentAction =
-  | { type: 'REDIRECT'; url: string }
+  | { type: 'REDIRECT'; url: string; externalReference?: string }
   | { type: 'EMBEDDED_FORM'; clientSecret: string }
-  | { type: 'QR_CODE'; qrCode: string }
+  | {
+      type: 'QR_CODE';
+      /** PNG, base64 (no data: prefix). */
+      qrCodeImage: string;
+      /** Pix "copia e cola" payload. */
+      copyPaste: string;
+      /** ISO-8601. */
+      expiresAt: string;
+      externalReference: string;
+    }
   | { type: 'COMPLETED'; externalReference: string }
   // Everything the native Stripe PaymentSheet needs, in one payload.
   | {
@@ -50,9 +60,9 @@ export interface PaymentMethod {
 /**
  * What a client may ask POST /orders for. Narrower than PaymentProvider on
  * purpose: PIX, PAYPAL and MERCADO_PAGO exist as historical values on stored
- * payments, but no client may request them.
+ * payments, but no client may request them. ASAAS is requestable on web only.
  */
-export type PaymentProviderChoice = 'STRIPE' | 'GOOGLE_PLAY';
+export type PaymentProviderChoice = 'STRIPE' | 'GOOGLE_PLAY' | 'ASAAS';
 
 // Where a sale was made. Reporting-only: the store commission is absorbed by
 // the platform, so the ledger is identical across channels.
@@ -90,6 +100,7 @@ export type PaymentStatus =
 export interface PaymentOptionsResponse {
   stripe: boolean;
   play: { productId: string } | null;
+  asaas: { pix: boolean; card: boolean };
 }
 
 // POST /payments/google-play/verify. The purchase token is verified against
@@ -102,4 +113,35 @@ export interface VerifyGooglePlayPurchaseRequest {
 export interface VerifyGooglePlayPurchaseResponse {
   orderId: string;
   status: import('../orders/types').OrderStatus;
+}
+
+export type AsaasSubaccountStatus = 'PENDING_APPROVAL' | 'ACTIVE' | 'REJECTED';
+
+// GET /organizations/:id/asaas/subaccount. The API key never leaves the server.
+export interface AsaasSubaccountResponse {
+  status: AsaasSubaccountStatus;
+  /** Last 4 chars only, e.g. "••••9f3a". */
+  walletIdMasked: string;
+  createdAt: string;
+}
+
+export type AsaasCompanyType = 'MEI' | 'LIMITED' | 'INDIVIDUAL' | 'ASSOCIATION';
+
+// POST /organizations/:id/asaas/subaccount
+export interface CreateAsaasSubaccountRequest {
+  name: string;
+  email: string;
+  cpfCnpj: string;
+  /** Required when cpfCnpj is a CNPJ. */
+  companyType?: AsaasCompanyType;
+  /** YYYY-MM-DD, required when cpfCnpj is a CPF. */
+  birthDate?: string;
+  mobilePhone: string;
+  address: string;
+  addressNumber: string;
+  complement?: string;
+  province: string;
+  postalCode: string;
+  /** Monthly revenue in reais (Asaas KYC field). */
+  incomeValue: number;
 }

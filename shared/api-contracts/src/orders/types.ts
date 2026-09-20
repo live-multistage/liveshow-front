@@ -58,6 +58,8 @@ export interface PlaceOrderRequest {
   // user-choice dialog hands the app when the buyer picks our processor. The
   // backend owes Google a report of that transaction within 24h.
   playExternalTransactionToken?: string;
+  /** Required when provider is ASAAS, forbidden otherwise. */
+  method?: 'PIX' | 'CREDIT_CARD';
 }
 
 export interface PlaceOrderResponse {

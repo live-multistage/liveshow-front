@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { AxiosAdapter } from 'axios';
 import { httpClient } from '@/lib/http/client';
 import { checkoutService } from './checkout.service';
@@ -118,5 +118,23 @@ describe('checkoutService.listPaymentMethods', () => {
     })) as AxiosAdapter;
 
     await expect(checkoutService.listPaymentMethods()).resolves.toEqual(methods);
+  });
+});
+
+describe('checkoutService.getPaymentOptions', () => {
+  it('getPaymentOptions GETs /orders/payment-options', async () => {
+    vi.spyOn(httpClient, 'get').mockResolvedValue({ data: { stripe: false, play: null, asaas: { pix: true, card: false } } });
+    await expect(checkoutService.getPaymentOptions()).resolves.toEqual({ stripe: false, play: null, asaas: { pix: true, card: false } });
+    expect(httpClient.get).toHaveBeenCalledWith('/orders/payment-options');
+    vi.restoreAllMocks();
+  });
+});
+
+describe('checkoutService.getPaymentAction', () => {
+  it('getPaymentAction GETs the order payment action', async () => {
+    vi.spyOn(httpClient, 'get').mockResolvedValue({ data: { type: 'QR_CODE' } });
+    await checkoutService.getPaymentAction('o1');
+    expect(httpClient.get).toHaveBeenCalledWith('/orders/o1/payment-action');
+    vi.restoreAllMocks();
   });
 });

@@ -19,9 +19,10 @@ test('PlaceOrderRequest.provider is the two-member choice, not PaymentProvider',
   expectTypeOf<PlaceOrderRequest['provider']>().toEqualTypeOf<PaymentProviderChoice>();
 });
 
-test('placeOrderSchema accepts both providers and rejects everything else', () => {
+test('placeOrderSchema accepts all three providers and rejects everything else', () => {
   expect(placeOrderSchema.safeParse({ provider: 'STRIPE' }).success).toBe(true);
   expect(placeOrderSchema.safeParse({ provider: 'GOOGLE_PLAY' }).success).toBe(true);
+  expect(placeOrderSchema.safeParse({ provider: 'ASAAS' }).success).toBe(true);
   expect(placeOrderSchema.safeParse({ provider: 'PIX' }).success).toBe(false);
   expect(placeOrderSchema.safeParse({ provider: 'PAYPAL' }).success).toBe(false);
 });
@@ -43,8 +44,8 @@ test('placeOrderSchema carries an optional external-transaction token', () => {
 // `play: null` is the whole protocol for "no Play here" — an off-ladder total,
 // iOS, the flag off. The app renders one option instead of two.
 test('PaymentOptionsResponse says stripe with a boolean and play with a nullable SKU', () => {
-  const both: PaymentOptionsResponse = { stripe: true, play: { productId: 'ls_price_3000' } };
-  const stripeOnly: PaymentOptionsResponse = { stripe: true, play: null };
+  const both: PaymentOptionsResponse = { stripe: true, play: { productId: 'ls_price_3000' }, asaas: { pix: true, card: true } };
+  const stripeOnly: PaymentOptionsResponse = { stripe: true, play: null, asaas: { pix: false, card: false } };
   expect(both.play?.productId).toBe('ls_price_3000');
   expect(stripeOnly.play).toBeNull();
 });
