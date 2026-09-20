@@ -516,7 +516,10 @@
       "PURCHASE_PENDING": "Google todavía está procesando tu compra. Liberaremos tu entrada en cuanto se confirme.",
       "PURCHASE_NOT_VALID": "No pudimos validar esa compra. Contacta al soporte desde el Centro de Ayuda.",
       "PLAY_BILLING_DISABLED": "El pago con Google Play no está disponible aquí. Paga con tarjeta.",
-      "PLAY_UNAVAILABLE": "No pudimos abrir Google Play. Inténtalo de nuevo o paga con tarjeta."
+      "PLAY_UNAVAILABLE": "No pudimos abrir Google Play. Inténtalo de nuevo o paga con tarjeta.",
+      "TAX_DOCUMENT_REQUIRED": "Ingresa tu CPF para pagar con Pix o tarjeta.",
+      "ASAAS_NOT_AVAILABLE": "Pix y tarjeta no están disponibles para este pedido. Elige otro método de pago.",
+      "PAYMENT_GATEWAY_ERROR": "No pudimos iniciar el pago. Inténtalo de nuevo en unos instantes."
     },
     "buyerDocument": {
       "label": "CPF o CNPJ (opcional)",

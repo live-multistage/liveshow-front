@@ -1,4 +1,13 @@
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+import { createTranslator } from 'use-intl';
+import { messages } from '@live-show/i18n-messages';
+
+// Real ICU translator over the pt catalog (not a key-echo stub): the Asaas
+// error copy assertions below can only be checked meaningfully against the
+// actual message templates.
+vi.mock('next-intl', () => ({
+  useTranslations: (namespace?: string) =>
+    createTranslator({ locale: 'pt', messages: messages.pt, namespace: namespace as never }),
+}));
 
 const mockRouter = { replace: vi.fn(), push: vi.fn() };
 vi.mock('next/navigation', () => ({ useRouter: () => mockRouter }));
@@ -9,10 +18,10 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CartCheckoutPageContent } from './CartCheckoutPageContent';
 import { checkoutService } from '../services/checkout.service';
-import { usePaymentMethodsQuery, usePlaceOrderMutation } from '../mutations/checkout.mutations';
+import { usePaymentMethodsQuery, usePlaceOrderMutation, usePaymentOptionsQuery } from '../mutations/checkout.mutations';
 import { useAuth, useUpdateProfileMutation } from '@/features/account';
 import { useCartQuery } from '@/features/cart';
-import type { PaymentMethod } from '../types/checkout.types';
+import type { PaymentMethod, PaymentOptionsResponse, PlaceOrderRequest } from '../types/checkout.types';
 import type { PlaceOrderResponse } from '@live-show/api-contracts';
 import type { CartView } from '@/features/cart';
 import { useMutation } from '@tanstack/react-query';
@@ -28,6 +37,8 @@ vi.mock('../services/checkout.service', () => ({
 vi.mock('../mutations/checkout.mutations', () => ({
   usePaymentMethodsQuery: vi.fn(),
   usePlaceOrderMutation: vi.fn(),
+  usePaymentOptionsQuery: vi.fn(),
+  pixActionKey: (orderId: string | null) => ['orders', orderId, 'payment-action'] as const,
 }));
 vi.mock('@/features/account', () => ({ useAuth: vi.fn(), useUpdateProfileMutation: vi.fn() }));
 vi.mock('@/features/cart', () => ({
@@ -39,15 +50,33 @@ vi.mock('@/features/advertisements', () => ({ AdBanner: () => null }));
 const mockedService = vi.mocked(checkoutService);
 const mockedPaymentMethods = vi.mocked(usePaymentMethodsQuery);
 const mockedPlaceOrder = vi.mocked(usePlaceOrderMutation);
+const mockedPaymentOptions = vi.mocked(usePaymentOptionsQuery);
 const mockedAuth = vi.mocked(useAuth);
 const mockedCart = vi.mocked(useCartQuery);
 const mockedUpdateProfile = vi.mocked(useUpdateProfileMutation);
 
+// The server labels its own Stripe card entry "Cartão internacional" — the
+// fixture mirrors that instead of a generic "Cartão" so tests can't hide a
+// regression where the UI re-labels it locally.
 const method: PaymentMethod = {
   id: 'pm-1',
-  displayName: 'Cartão',
+  displayName: 'Cartão internacional',
   type: 'CREDIT_CARD',
   provider: 'STRIPE',
+};
+
+const asaasPixMethod: PaymentMethod = {
+  id: 'pm-asaas-pix',
+  displayName: 'Pix',
+  type: 'PIX',
+  provider: 'ASAAS',
+};
+
+const asaasCardMethod: PaymentMethod = {
+  id: 'pm-asaas-card',
+  displayName: 'Cartão',
+  type: 'CREDIT_CARD',
+  provider: 'ASAAS',
 };
 
 const cart: CartView = {
@@ -69,8 +98,11 @@ const cart: CartView = {
   totals: { subtotal: 100, lines: [], total: 100 },
 };
 
-function renderPage(props: { fiscalEnabled?: boolean } = {}) {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+let queryClient: QueryClient;
+const routerPush = mockRouter.push;
+
+function renderCheckout(props: { fiscalEnabled?: boolean } = {}) {
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
       <CartCheckoutPageContent {...props} />
@@ -78,12 +110,44 @@ function renderPage(props: { fiscalEnabled?: boolean } = {}) {
   );
 }
 
+function mockOptions(overrides: Partial<PaymentOptionsResponse> = {}) {
+  mockedPaymentOptions.mockReturnValue({
+    data: { stripe: true, play: null, asaas: { pix: false, card: false }, ...overrides },
+    isLoading: false,
+  } as ReturnType<typeof usePaymentOptionsQuery>);
+}
+
+function mockUser(user: Partial<{ taxDocument: string }>) {
+  mockedAuth.mockReturnValue({
+    isLoggedIn: true,
+    isLoading: false,
+    user,
+  } as unknown as ReturnType<typeof useAuth>);
+}
+
 // Wraps react-query's real useMutation so `.mutate` actually resolves/rejects
 // against a stubbed mutationFn, letting the component's onSuccess/onError run.
-function stubPlaceOrder(mutationFn: (payload: unknown) => Promise<PlaceOrderResponse>) {
+function stubPlaceOrder(
+  mutationFn: (variables: { payload: PlaceOrderRequest; idempotencyKey: string }) => Promise<PlaceOrderResponse>,
+) {
   mockedPlaceOrder.mockImplementation(
     () => useMutation({ mutationFn }) as unknown as ReturnType<typeof usePlaceOrderMutation>,
   );
+}
+
+function placeOrderResolves(response: PlaceOrderResponse) {
+  mockedService.placeOrder.mockResolvedValue(response);
+  stubPlaceOrder(({ payload, idempotencyKey }) => checkoutService.placeOrder(payload, idempotencyKey));
+}
+
+function placeOrderRejects(err: { status: number; code: string }) {
+  mockedService.placeOrder.mockRejectedValue(
+    new AxiosError('failed', undefined, undefined, undefined, {
+      status: err.status,
+      data: { code: err.code, message: 'failed' },
+    } as never),
+  );
+  stubPlaceOrder(({ payload, idempotencyKey }) => checkoutService.placeOrder(payload, idempotencyKey));
 }
 
 describe('CartCheckoutPageContent', () => {
@@ -93,9 +157,10 @@ describe('CartCheckoutPageContent', () => {
     mockedAuth.mockReturnValue({ isLoggedIn: true, isLoading: false, user: null } as ReturnType<typeof useAuth>);
     mockedCart.mockReturnValue({ data: cart, isLoading: false } as ReturnType<typeof useCartQuery>);
     mockedPaymentMethods.mockReturnValue({
-      data: [method],
+      data: [method, asaasPixMethod, asaasCardMethod],
       isLoading: false,
     } as ReturnType<typeof usePaymentMethodsQuery>);
+    mockOptions();
     mockedUpdateProfile.mockReturnValue({
       mutateAsync: vi.fn().mockResolvedValue(undefined),
     } as unknown as ReturnType<typeof useUpdateProfileMutation>);
@@ -108,9 +173,9 @@ describe('CartCheckoutPageContent', () => {
       payment: { id: 'pay-1', action: { type: 'REDIRECT', url: 'https://stripe.test/session' } },
     }));
 
-    renderPage();
+    renderCheckout();
 
-    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão internacional/i }));
     await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
 
     await vi.waitFor(() => expect(window.location.href).toBe('https://stripe.test/session'));
@@ -122,9 +187,9 @@ describe('CartCheckoutPageContent', () => {
       payment: { id: 'pay-1', action: { type: 'COMPLETED', externalReference: 'ref' } },
     }));
 
-    renderPage();
+    renderCheckout();
 
-    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão internacional/i }));
     await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
 
     await vi.waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/checkout/success?orderId=order-42'));
@@ -138,12 +203,12 @@ describe('CartCheckoutPageContent', () => {
       } as never);
     });
 
-    renderPage();
+    renderCheckout();
 
-    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão internacional/i }));
     await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
 
-    expect(await screen.findByText('couponInvalid')).toBeInTheDocument();
+    expect(await screen.findByText('Cupom inválido ou expirado')).toBeInTheDocument();
   });
 
   it('sends the STRIPE provider unconditionally, under an Idempotency-Key derived from the cart', async () => {
@@ -156,9 +221,9 @@ describe('CartCheckoutPageContent', () => {
       };
     });
 
-    renderPage();
+    renderCheckout();
 
-    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão internacional/i }));
     await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
 
     await vi.waitFor(() => {
@@ -179,12 +244,12 @@ describe('CartCheckoutPageContent', () => {
       payment: { id: 'pay-1', action: { type: 'COMPLETED', externalReference: 'ref' } },
     }));
 
-    renderPage({ fiscalEnabled: true });
+    renderCheckout({ fiscalEnabled: true });
 
-    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
-    expect(screen.getByLabelText('buyerDocument.label')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão internacional/i }));
+    expect(screen.getByLabelText(/cpf/i)).toBeInTheDocument();
 
-    await userEvent.type(screen.getByLabelText('buyerDocument.label'), '111');
+    await userEvent.type(screen.getByLabelText(/cpf/i), '111');
     expect(screen.getByRole('button', { name: /Pagar/i })).toBeDisabled();
   });
 
@@ -205,13 +270,13 @@ describe('CartCheckoutPageContent', () => {
       isPending: false,
     } as unknown as ReturnType<typeof usePlaceOrderMutation>);
 
-    renderPage({ fiscalEnabled: true });
+    renderCheckout({ fiscalEnabled: true });
 
-    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
-    await userEvent.type(screen.getByLabelText('buyerDocument.label'), '52998224725');
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão internacional/i }));
+    await userEvent.type(screen.getByLabelText(/cpf/i), '52998224725');
     await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
 
-    expect(await screen.findByText('buyerDocument.saveError')).toBeInTheDocument();
+    expect(await screen.findByText('Não foi possível salvar o documento.')).toBeInTheDocument();
     expect(mutateAsync).toHaveBeenCalledWith({ taxDocument: '52998224725' });
     expect(placeOrderMutate).not.toHaveBeenCalled();
   });
@@ -226,9 +291,90 @@ describe('CartCheckoutPageContent', () => {
       isPending: true,
     } as unknown as ReturnType<typeof useUpdateProfileMutation>);
 
-    renderPage({ fiscalEnabled: true });
+    renderCheckout({ fiscalEnabled: true });
 
     expect(screen.getByRole('button', { name: /Processando/i })).toBeDisabled();
+  });
+
+  it('lists Pix first when the backend allows Asaas', async () => {
+    mockOptions({ asaas: { pix: true, card: true } });
+    renderCheckout();
+    const radios = await screen.findAllByRole('radio');
+    expect(radios[0]).toHaveTextContent('Pix');
+  });
+
+  it('hides Asaas methods when not eligible', async () => {
+    mockOptions({ asaas: { pix: false, card: false } });
+    renderCheckout();
+    await screen.findAllByRole('radio');
+    expect(screen.queryByRole('radio', { name: /pix/i })).not.toBeInTheDocument();
+  });
+
+  it('asks for CPF when Pix is selected even with fiscal off', async () => {
+    mockOptions({ asaas: { pix: true, card: true } });
+    renderCheckout({ fiscalEnabled: false });
+    await userEvent.click(await screen.findByRole('radio', { name: /pix/i }));
+    expect(screen.getByLabelText(/cpf/i)).toBeInTheDocument();
+  });
+
+  it('sends provider ASAAS + method PIX and goes to pending with the QR cached', async () => {
+    mockOptions({ asaas: { pix: true, card: true } });
+    mockUser({ taxDocument: '12345678909' });
+    placeOrderResolves({
+      order: { id: 'o1' } as PlaceOrderResponse['order'],
+      payment: {
+        id: 'p1',
+        action: {
+          type: 'QR_CODE',
+          qrCodeImage: 'IMG',
+          copyPaste: 'PIX',
+          expiresAt: '2026-09-19T23:59:59Z',
+          externalReference: 'pay_1',
+        },
+      },
+    });
+    renderCheckout();
+
+    await userEvent.click(await screen.findByRole('radio', { name: /pix/i }));
+    await userEvent.click(screen.getByRole('button', { name: /pagar|finalizar/i }));
+
+    expect(checkoutService.placeOrder).toHaveBeenCalledWith(
+      expect.objectContaining({ provider: 'ASAAS', method: 'PIX' }),
+      expect.any(String),
+    );
+    await vi.waitFor(() => expect(routerPush).toHaveBeenCalledWith('/checkout/pending?orderId=o1'));
+    expect(queryClient.getQueryData(['orders', 'o1', 'payment-action'])).toMatchObject({ type: 'QR_CODE' });
+  });
+
+  it('keeps Stripe card orders on provider STRIPE without a method', async () => {
+    mockOptions({ asaas: { pix: true, card: true } });
+    placeOrderResolves({
+      order: { id: 'o2' } as PlaceOrderResponse['order'],
+      payment: { id: 'p2', action: { type: 'REDIRECT', url: 'https://stripe' } },
+    });
+    renderCheckout();
+
+    await userEvent.click(await screen.findByRole('radio', { name: /internacional/i }));
+    await userEvent.click(screen.getByRole('button', { name: /pagar|finalizar/i }));
+
+    await vi.waitFor(() => {
+      expect(checkoutService.placeOrder).toHaveBeenCalledWith(
+        expect.not.objectContaining({ method: expect.anything() }),
+        expect.any(String),
+      );
+    });
+  });
+
+  it('shows the not-available message for ASAAS_NOT_AVAILABLE', async () => {
+    mockOptions({ asaas: { pix: true, card: true } });
+    mockUser({ taxDocument: '12345678909' });
+    placeOrderRejects({ status: 409, code: 'ASAAS_NOT_AVAILABLE' });
+    renderCheckout();
+
+    await userEvent.click(await screen.findByRole('radio', { name: /pix/i }));
+    await userEvent.click(screen.getByRole('button', { name: /pagar|finalizar/i }));
+
+    expect(await screen.findByText(/pix e cartão não estão disponíveis/i)).toBeInTheDocument();
   });
 });
 

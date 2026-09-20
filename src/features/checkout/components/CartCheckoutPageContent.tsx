@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { Shield, AlertCircle, Check, Ticket } from 'lucide-react';
 import { formatPrice } from '@/features/events';
@@ -10,7 +11,13 @@ import { useAuth, useUpdateProfileMutation } from '@/features/account';
 import { useCartQuery, CAPABILITY_LABELS, type CartLineView } from '@/features/cart';
 import { checkoutService } from '../services/checkout.service';
 import { cartIdempotencyKey } from '../utils/idempotency-key';
-import { usePaymentMethodsQuery, usePlaceOrderMutation } from '../mutations/checkout.mutations';
+import { paymentChoiceOf, visiblePaymentMethods } from '../utils/payment-choice';
+import {
+  usePaymentMethodsQuery,
+  usePlaceOrderMutation,
+  usePaymentOptionsQuery,
+  pixActionKey,
+} from '../mutations/checkout.mutations';
 import { normalizeError, type AppError } from '@/lib/http/errors';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
 import { BuyerDocumentField } from './BuyerDocumentField';
@@ -27,6 +34,10 @@ const PAY_ERROR_KEYS: Record<string, string> = {
   ORDER_REQUEST_IN_PROGRESS: 'errors.ORDER_REQUEST_IN_PROGRESS',
   EVENT_NOT_PURCHASABLE: 'errors.EVENT_NOT_PURCHASABLE',
   TICKET_SOLD_OUT: 'errors.EVENT_NOT_PURCHASABLE',
+  TAX_DOCUMENT_REQUIRED: 'errors.TAX_DOCUMENT_REQUIRED',
+  ASAAS_NOT_AVAILABLE: 'errors.ASAAS_NOT_AVAILABLE',
+  ASAAS_MARGIN_TOO_LOW: 'errors.ASAAS_NOT_AVAILABLE',
+  PAYMENT_GATEWAY_ERROR: 'errors.PAYMENT_GATEWAY_ERROR',
 };
 
 function payErrorMessage(err: AppError, t: ReturnType<typeof useTranslations>): string {
@@ -48,6 +59,7 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
   const { isLoggedIn, isLoading: authLoading, user } = useAuth();
   const { data: cart, isLoading: cartLoading } = useCartQuery();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // Checkout requires auth. Instead of rendering a blank page, send guests to
   // login and bring them straight back here after they sign in.
@@ -79,8 +91,10 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
   const [doc, setDoc] = useState({ value: user?.taxDocument ?? '', valid: true });
 
   const paymentMethods = usePaymentMethodsQuery();
+  const paymentOptions = usePaymentOptionsQuery();
   const placeOrder = usePlaceOrderMutation();
   const updateProfile = useUpdateProfileMutation();
+  const methods = visiblePaymentMethods(paymentMethods.data ?? [], paymentOptions.data);
 
   // `user` hydrates asynchronously after first render; seed the field from it
   // exactly once so it doesn't clobber whatever the buyer has already typed.
@@ -108,14 +122,18 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length, couponsEnabled]);
 
-  const selectedMethod = paymentMethods.data?.find((m) => m.id === selectedMethodId);
+  const selectedMethod = methods.find((m) => m.id === selectedMethodId);
+  const choice = selectedMethod ? paymentChoiceOf(selectedMethod) : null;
+  // Asaas charges require a tax document even when the fiscal-note flag is
+  // off — the flag only controls whether Stripe buyers are asked for one.
+  const needsDocument = fiscalEnabled || choice?.provider === 'ASAAS';
   const submitting = updateProfile.isPending || placeOrder.isPending;
 
   const handlePay = async () => {
-    if (!selectedMethod || items.length === 0 || submitting) return;
+    if (!selectedMethod || !choice || items.length === 0 || submitting) return;
     setPayErrorMsg(null);
 
-    if (fiscalEnabled && doc.value && doc.value !== user?.taxDocument) {
+    if (needsDocument && doc.value && doc.value !== user?.taxDocument) {
       try {
         await updateProfile.mutateAsync({ taxDocument: doc.value });
       } catch {
@@ -130,16 +148,14 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
     const idempotencyKey = await cartIdempotencyKey({
       ticketProductIds: items.map((i) => i.ticketProductId),
       couponCode: coupon?.code,
-      provider: 'STRIPE',
+      provider: choice.provider,
+      method: choice.provider === 'ASAAS' ? choice.method : undefined,
     });
 
     placeOrder.mutate(
-      // PlaceOrderRequest.provider is now 'STRIPE' | 'GOOGLE_PLAY'. The web
-      // stays on STRIPE unconditionally: a browser cannot complete a
-      // PLAY_BILLING action, and the backend's Play gate refuses anything that
-      // is not the Android app anyway. The selected payment method still
-      // decides how Stripe collects (card, PIX…).
-      { payload: { provider: 'STRIPE', couponCode: coupon?.code }, idempotencyKey },
+      // The selected payment method decides both the provider and (for Asaas)
+      // the rail: Pix or Brazilian card.
+      { payload: { ...choice, couponCode: coupon?.code }, idempotencyKey },
       {
         onSuccess: ({ order, payment }) => {
           sessionStorage.removeItem('cart:coupon');
@@ -147,6 +163,11 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
             window.location.href = payment.action.url;
           } else if (payment.action.type === 'COMPLETED') {
             router.push(`/checkout/success?orderId=${order.id}`);
+          } else if (payment.action.type === 'QR_CODE') {
+            // The pending page draws the QR from this cache entry; after a
+            // reload it refetches it from GET /orders/:id/payment-action.
+            queryClient.setQueryData(pixActionKey(order.id), payment.action);
+            router.push(`/checkout/pending?orderId=${order.id}`);
           } else {
             // PAYMENT_INTENT is the in-app sheet: the web never asks for it
             // (it sends no `flow`), and a browser cannot present it. Falling
@@ -202,7 +223,7 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
 
         <div className={styles.layout}>
           <div className={styles.left}>
-            {fiscalEnabled && (
+            {needsDocument && (
               <BuyerDocumentField
                 value={doc.value}
                 onChange={setDoc}
@@ -215,7 +236,7 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
             )}
 
             <PaymentMethodSelector
-              methods={paymentMethods.data ?? []}
+              methods={methods}
               selected={selectedMethodId}
               onChange={setSelectedMethodId}
               isLoading={paymentMethods.isLoading}
@@ -228,7 +249,7 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
                 !selectedMethodId ||
                 submitting ||
                 items.length === 0 ||
-                (fiscalEnabled && !doc.valid)
+                (needsDocument && (!doc.valid || !doc.value))
               }
               aria-busy={submitting}
             >
