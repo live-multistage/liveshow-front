@@ -58,6 +58,18 @@ export function CheckoutPendingContent({ orderId }: Props) {
     );
   }
 
+  // Known ASAAS+PIX order, action just hasn't arrived yet (and hasn't 404'd —
+  // that's a real "no Pix action" case handled by the generic card below):
+  // show the Pix loading shimmer instead of the generic "Aguardando" card.
+  const isAsaasPix = order?.provider === 'ASAAS' && order?.method === 'PIX';
+  if (order && isAsaasPix && !pixActionQuery.isError) {
+    return (
+      <div className={styles.page}>
+        <PixPaymentPanel amount={order.totalAmount} currency={order.currency} isLoading />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.card}>

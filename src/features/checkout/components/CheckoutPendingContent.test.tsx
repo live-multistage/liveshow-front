@@ -32,9 +32,22 @@ const pixAction = {
   externalReference: 'pay_1',
 };
 
-function renderWithStatus(status: OrderStatus | undefined, hasPixAction = false) {
+function renderWithStatus(
+  status: OrderStatus | undefined,
+  hasPixAction = false,
+  order: { provider?: 'STRIPE' | 'GOOGLE_PLAY' | 'ASAAS' | null; method?: 'PIX' | 'CREDIT_CARD' | null } = {},
+) {
   mockedOrderQuery.mockReturnValue({
-    data: status ? { id: 'order-1', status, totalAmount: 12000, currency: 'BRL' } : undefined,
+    data: status
+      ? {
+          id: 'order-1',
+          status,
+          totalAmount: 12000,
+          currency: 'BRL',
+          provider: order.provider ?? null,
+          method: order.method ?? null,
+        }
+      : undefined,
   } as unknown as ReturnType<typeof useOrderQuery>);
   mockedPixAction.mockReturnValue({
     data: hasPixAction ? pixAction : undefined,
@@ -46,7 +59,7 @@ const refetch = vi.fn();
 
 function renderWithPixActionError(status: number) {
   mockedOrderQuery.mockReturnValue({
-    data: { id: 'order-1', status: 'PENDING', totalAmount: 12000, currency: 'BRL' },
+    data: { id: 'order-1', status: 'PENDING', totalAmount: 12000, currency: 'BRL', provider: 'ASAAS', method: 'PIX' },
   } as unknown as ReturnType<typeof useOrderQuery>);
   mockedPixAction.mockReturnValue({
     data: undefined,
@@ -86,6 +99,18 @@ describe('CheckoutPendingContent', () => {
   it.each(['CANCELLED', 'EXPIRED'] as const)('%s → back to checkout', (status) => {
     renderWithStatus(status);
     expect(mockRouter.replace).toHaveBeenCalledWith('/checkout');
+  });
+
+  it('renders the Pix loading panel for an ASAAS+PIX order while the action is still loading', () => {
+    renderWithStatus('PENDING', false, { provider: 'ASAAS', method: 'PIX' });
+    expect(screen.getByText('Gerando código Pix…')).toBeInTheDocument();
+    expect(screen.queryByText('Aguardando confirmação')).not.toBeInTheDocument();
+  });
+
+  it('renders the generic pending card for a STRIPE order while the action query is in flight', () => {
+    renderWithStatus('PENDING', false, { provider: 'STRIPE', method: null });
+    expect(screen.getByText('Aguardando confirmação')).toBeInTheDocument();
+    expect(screen.queryByText('Gerando código Pix…')).not.toBeInTheDocument();
   });
 
   it('404 on the payment-action fetch falls back to the generic card, not an error state', () => {

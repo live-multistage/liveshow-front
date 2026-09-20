@@ -23,6 +23,8 @@ const order: OrderView = {
   totalAmount: 15000,
   couponCode: null,
   paymentId: 'pay-1',
+  provider: null,
+  method: null,
   createdAt: '2026-08-01T00:00:00.000Z',
   expiresAt: null,
   lines: [

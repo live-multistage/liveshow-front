@@ -40,6 +40,8 @@ export interface OrderView {
   totalAmount: number;
   couponCode: string | null;
   paymentId: string | null;
+  provider: 'STRIPE' | 'GOOGLE_PLAY' | 'ASAAS' | null;
+  method: 'PIX' | 'CREDIT_CARD' | null;
   createdAt: string;
   expiresAt: string | null;
   lines: OrderLineView[];

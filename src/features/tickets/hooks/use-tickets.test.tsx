@@ -38,6 +38,8 @@ const orders: OrderView[] = [
     totalAmount: 10000,
     couponCode: null,
     paymentId: 'pay-1',
+    provider: null,
+    method: null,
     createdAt: '2026-08-01T00:00:00.000Z',
     expiresAt: null,
     lines: [
@@ -66,6 +68,8 @@ const orders: OrderView[] = [
     totalAmount: 8000,
     couponCode: null,
     paymentId: 'pay-2',
+    provider: null,
+    method: null,
     createdAt: '2026-08-02T00:00:00.000Z',
     expiresAt: null,
     lines: [
