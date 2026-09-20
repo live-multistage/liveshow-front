@@ -526,6 +526,23 @@
       "hint": "Used in the invoice for the service fee.",
       "invalid": "Invalid CPF or CNPJ.",
       "saveError": "Could not save the document."
+    },
+    "pix": {
+      "payWithPix": "Pay with Pix",
+      "totalLabel": "Total due",
+      "qrAlt": "Pix QR code",
+      "copyButton": "Copy Pix code",
+      "copied": "Code copied",
+      "copyError": "Could not copy the code. Copy it manually.",
+      "expiresIn": "Expires in",
+      "waiting": "Waiting for payment…",
+      "step1": "Open your bank app",
+      "step2": "Choose to pay with Pix",
+      "step3": "Scan the QR code or paste the code",
+      "backToCheckout": "Back to checkout",
+      "expiredTitle": "The code has expired",
+      "expiredDesc": "Go back to checkout to generate a new order.",
+      "expiredBadge": "Code expired"
     }
   },
   "carousel": {

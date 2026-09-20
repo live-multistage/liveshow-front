@@ -4,7 +4,8 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Clock } from 'lucide-react';
-import { useOrderQuery } from '../mutations/checkout.mutations';
+import { useOrderQuery, usePixPaymentAction } from '../mutations/checkout.mutations';
+import { PixPaymentPanel } from './PixPaymentPanel';
 import styles from './CheckoutResultContent.module.scss';
 
 interface Props {
@@ -15,6 +16,7 @@ export function CheckoutPendingContent({ orderId }: Props) {
   const router = useRouter();
 
   const orderQuery = useOrderQuery(orderId ?? null);
+  const pixActionQuery = usePixPaymentAction(orderId ?? null, orderQuery.data?.status === 'PENDING');
 
   useEffect(() => {
     const status = orderQuery.data?.status;
@@ -27,6 +29,17 @@ export function CheckoutPendingContent({ orderId }: Props) {
       router.replace('/checkout');
     }
   }, [orderQuery.data, orderId, router]);
+
+  const order = orderQuery.data;
+  const pixAction = pixActionQuery.data;
+
+  if (order && pixAction) {
+    return (
+      <div className={styles.page}>
+        <PixPaymentPanel action={pixAction} amount={order.totalAmount} currency={order.currency} />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>

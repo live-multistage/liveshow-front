@@ -526,6 +526,23 @@
       "hint": "Usado na nota fiscal da taxa de serviço.",
       "invalid": "CPF ou CNPJ inválido.",
       "saveError": "Não foi possível salvar o documento."
+    },
+    "pix": {
+      "payWithPix": "Pague com Pix",
+      "totalLabel": "Total a pagar",
+      "qrAlt": "QR Code Pix",
+      "copyButton": "Copiar código Pix",
+      "copied": "Código copiado",
+      "copyError": "Não foi possível copiar o código. Copie manualmente.",
+      "expiresIn": "Expira em",
+      "waiting": "Aguardando pagamento…",
+      "step1": "Abra o app do seu banco",
+      "step2": "Escolha pagar com Pix",
+      "step3": "Leia o QR Code ou cole o código",
+      "backToCheckout": "Voltar ao checkout",
+      "expiredTitle": "O código expirou",
+      "expiredDesc": "Volte ao checkout para gerar um novo pedido.",
+      "expiredBadge": "Código expirado"
     }
   },
   "carousel": {

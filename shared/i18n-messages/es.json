@@ -526,6 +526,23 @@
       "hint": "Utilizado en la factura de la tarifa de servicio.",
       "invalid": "CPF o CNPJ inválido.",
       "saveError": "No se pudo guardar el documento."
+    },
+    "pix": {
+      "payWithPix": "Paga con Pix",
+      "totalLabel": "Total a pagar",
+      "qrAlt": "Código QR de Pix",
+      "copyButton": "Copiar código Pix",
+      "copied": "Código copiado",
+      "copyError": "No se pudo copiar el código. Cópialo manualmente.",
+      "expiresIn": "Expira en",
+      "waiting": "Esperando el pago…",
+      "step1": "Abre la app de tu banco",
+      "step2": "Elige pagar con Pix",
+      "step3": "Escanea el código QR o pega el código",
+      "backToCheckout": "Volver al checkout",
+      "expiredTitle": "El código expiró",
+      "expiredDesc": "Vuelve al checkout para generar un nuevo pedido.",
+      "expiredBadge": "Código expirado"
     }
   },
   "carousel": {
