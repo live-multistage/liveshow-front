@@ -15,6 +15,63 @@ $ink-bright: #f4f4f5;
   padding: 40px 32px;
   display: flex;
   flex-direction: column;
+
+  &[data-state='error'] {
+    padding: 56px 32px;
+    align-items: center;
+  }
+}
+
+.errorIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: $error-bg;
+  border: 1px solid rgba($error, 0.4);
+  color: $error;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+
+.errorTitle {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: $ink-bright;
+  margin-bottom: 8px;
+}
+
+.errorDesc {
+  text-align: center;
+  font-size: 13.5px;
+  color: $text-secondary;
+  line-height: 1.5;
+  margin-bottom: 28px;
+  max-width: 30ch;
+}
+
+.retryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 48px;
+  padding: 0 24px;
+  background: transparent;
+  color: $ink-bright;
+  font-family: 'Archivo', sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: $action;
+    color: #fff;
+  }
 }
 
 .eyebrow {

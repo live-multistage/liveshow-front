@@ -543,7 +543,10 @@
       "expiredTitle": "O código Pix expirou",
       "expiredDesc": "Volte ao checkout para gerar um novo pedido.",
       "expiredBadge": "Código expirado",
-      "generating": "Gerando código Pix…"
+      "generating": "Gerando código Pix…",
+      "errorTitle": "Não foi possível carregar o código Pix.",
+      "errorDesc": "Verifique sua conexão e tente novamente.",
+      "retryButton": "Tentar de novo"
     }
   },
   "carousel": {

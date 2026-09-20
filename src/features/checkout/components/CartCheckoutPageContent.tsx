@@ -247,6 +247,7 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
               onClick={handlePay}
               disabled={
                 !selectedMethodId ||
+                !choice ||
                 submitting ||
                 items.length === 0 ||
                 (needsDocument && (!doc.valid || !doc.value))

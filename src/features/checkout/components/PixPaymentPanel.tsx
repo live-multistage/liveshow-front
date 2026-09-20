@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { Copy, Check, Clock, ArrowLeft } from 'lucide-react';
+import { Copy, Check, Clock, ArrowLeft, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useCountdown } from '../hooks/use-countdown';
 import { formatCents } from '@/shared/utils/money';
 import type { PixQrAction } from '../types/checkout.types';
@@ -18,9 +18,12 @@ interface Props {
   currency: string;
   /** Shows the shimmer skeleton (design's "CARREGANDO" artboard) instead of the QR/button. */
   isLoading?: boolean;
+  /** Shows the design's "ERRO AO CARREGAR" artboard instead of the QR/button. */
+  error?: boolean;
+  onRetry?: () => void;
 }
 
-export function PixPaymentPanel({ action, amount, currency, isLoading = false }: Props) {
+export function PixPaymentPanel({ action, amount, currency, isLoading = false, error = false, onRetry }: Props) {
   const t = useTranslations('checkout');
   const [copied, setCopied] = useState(false);
   const { label, isExpired } = useCountdown(action?.expiresAt);
@@ -33,6 +36,22 @@ export function PixPaymentPanel({ action, amount, currency, isLoading = false }:
     } catch {
       toast.error(t('pix.copyError'));
     }
+  }
+
+  if (error) {
+    return (
+      <div className={styles.card} data-state="error">
+        <div className={styles.errorIcon}>
+          <AlertTriangle size={26} />
+        </div>
+        <div className={styles.errorTitle}>{t('pix.errorTitle')}</div>
+        <div className={styles.errorDesc}>{t('pix.errorDesc')}</div>
+        <button type="button" className={styles.retryButton} onClick={onRetry}>
+          <RefreshCw size={16} />
+          {t('pix.retryButton')}
+        </button>
+      </div>
+    );
   }
 
   if (isLoading || !action) {
@@ -89,7 +108,7 @@ export function PixPaymentPanel({ action, amount, currency, isLoading = false }:
           alt={t('pix.qrAlt')}
         />
       </div>
-      <div className={styles.actionArea}>
+      <div className={styles.actionArea} aria-live="polite">
         {copied ? (
           <button type="button" className={styles.copiedButton} onClick={handleCopy}>
             <Check size={18} />

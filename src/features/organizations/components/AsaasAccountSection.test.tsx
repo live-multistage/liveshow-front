@@ -253,6 +253,32 @@ describe('AsaasAccountSection', () => {
       expect(document.getElementById(describedBy!)).toHaveTextContent('asaas.fieldRequired');
     });
 
+    it('flags an empty name field with error text and aria-invalid', async () => {
+      mockAccount(null);
+      render(<AsaasAccountSection orgId="o1" />);
+      await openForm();
+      await userEvent.click(screen.getByRole('button', { name: 'asaas.submitButton' }));
+
+      const name = screen.getByLabelText('asaas.fieldName');
+      expect(name).toHaveAttribute('aria-invalid', 'true');
+      const describedBy = name.getAttribute('aria-describedby');
+      expect(describedBy).toBeTruthy();
+      expect(document.getElementById(describedBy!)).toHaveTextContent('asaas.fieldRequired');
+    });
+
+    it('flags an empty address field with error text and aria-invalid', async () => {
+      mockAccount(null);
+      render(<AsaasAccountSection orgId="o1" />);
+      await openForm();
+      await userEvent.click(screen.getByRole('button', { name: 'asaas.submitButton' }));
+
+      const address = screen.getByLabelText('asaas.fieldAddress');
+      expect(address).toHaveAttribute('aria-invalid', 'true');
+      const describedBy = address.getAttribute('aria-describedby');
+      expect(describedBy).toBeTruthy();
+      expect(document.getElementById(describedBy!)).toHaveTextContent('asaas.fieldRequired');
+    });
+
     it('flags a missing incomeValue on its own field', async () => {
       mockAccount(null);
       render(<AsaasAccountSection orgId="o1" />);

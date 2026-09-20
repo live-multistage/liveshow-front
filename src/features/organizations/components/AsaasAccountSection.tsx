@@ -257,7 +257,7 @@ function AsaasForm({
       </div>
 
       {(serverErrorKey || (isSubmitted && hasFieldErrors)) && (
-        <div className={styles.errorBanner}>
+        <div className={styles.errorBanner} role="alert">
           <AlertCircle size={16} />
           {t(serverErrorKey ?? 'asaas.formErrorBanner')}
         </div>
@@ -269,7 +269,13 @@ function AsaasForm({
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className={styles.sectionLabel}>{t('asaas.sectionHolder')}</div>
         <div className={styles.grid}>
-          <Field t={t} label="asaas.fieldName" id="asaas-name" full>
+          <Field
+            t={t}
+            label="asaas.fieldName"
+            id="asaas-name"
+            full
+            error={errors.name ? t('asaas.fieldRequired') : undefined}
+          >
             <input className={styles.input} id="asaas-name" {...register('name')} />
           </Field>
           <Field
@@ -373,13 +379,29 @@ function AsaasForm({
             parse={(display) => digitsOnly(display).slice(0, 8)}
             error={errors.postalCode ? t('asaas.fieldRequired') : undefined}
           />
-          <Field t={t} label="asaas.fieldProvince" id="asaas-province">
+          <Field
+            t={t}
+            label="asaas.fieldProvince"
+            id="asaas-province"
+            error={errors.province ? t('asaas.fieldRequired') : undefined}
+          >
             <input className={styles.input} id="asaas-province" {...register('province')} />
           </Field>
-          <Field t={t} label="asaas.fieldAddress" id="asaas-address" full>
+          <Field
+            t={t}
+            label="asaas.fieldAddress"
+            id="asaas-address"
+            full
+            error={errors.address ? t('asaas.fieldRequired') : undefined}
+          >
             <input className={styles.input} id="asaas-address" {...register('address')} />
           </Field>
-          <Field t={t} label="asaas.fieldAddressNumber" id="asaas-addressNumber">
+          <Field
+            t={t}
+            label="asaas.fieldAddressNumber"
+            id="asaas-addressNumber"
+            error={errors.addressNumber ? t('asaas.fieldRequired') : undefined}
+          >
             <input className={styles.input} id="asaas-addressNumber" {...register('addressNumber')} />
           </Field>
           <Field t={t} label="asaas.fieldComplement" id="asaas-complement" optional>

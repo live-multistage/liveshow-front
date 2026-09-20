@@ -11,6 +11,7 @@ vi.mock('next/navigation', () => ({ useRouter: () => mockRouter }));
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { CheckoutPendingContent } from './CheckoutPendingContent';
 import { useOrderQuery, usePixPaymentAction } from '../mutations/checkout.mutations';
 import type { OrderStatus } from '../types/checkout.types';
@@ -37,6 +38,21 @@ function renderWithStatus(status: OrderStatus | undefined, hasPixAction = false)
   } as unknown as ReturnType<typeof useOrderQuery>);
   mockedPixAction.mockReturnValue({
     data: hasPixAction ? pixAction : undefined,
+  } as unknown as ReturnType<typeof usePixPaymentAction>);
+  render(<CheckoutPendingContent orderId="order-1" />);
+}
+
+const refetch = vi.fn();
+
+function renderWithPixActionError(status: number) {
+  mockedOrderQuery.mockReturnValue({
+    data: { id: 'order-1', status: 'PENDING', totalAmount: 12000, currency: 'BRL' },
+  } as unknown as ReturnType<typeof useOrderQuery>);
+  mockedPixAction.mockReturnValue({
+    data: undefined,
+    isError: true,
+    error: { isAxiosError: true, response: { status } },
+    refetch,
   } as unknown as ReturnType<typeof usePixPaymentAction>);
   render(<CheckoutPendingContent orderId="order-1" />);
 }
@@ -70,5 +86,20 @@ describe('CheckoutPendingContent', () => {
   it.each(['CANCELLED', 'EXPIRED'] as const)('%s → back to checkout', (status) => {
     renderWithStatus(status);
     expect(mockRouter.replace).toHaveBeenCalledWith('/checkout');
+  });
+
+  it('404 on the payment-action fetch falls back to the generic card, not an error state', () => {
+    renderWithPixActionError(404);
+    expect(screen.getByText('Aguardando confirmação')).toBeInTheDocument();
+    expect(screen.queryByText(/não foi possível carregar/i)).not.toBeInTheDocument();
+  });
+
+  it('a non-404 payment-action failure renders the Pix error state with a working retry', async () => {
+    renderWithPixActionError(500);
+    expect(screen.getByText(/não foi possível carregar o código pix/i)).toBeInTheDocument();
+    expect(screen.queryByText('Aguardando confirmação')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /tentar de novo/i }));
+    expect(refetch).toHaveBeenCalled();
   });
 });

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Clock } from 'lucide-react';
 import { useOrderQuery, usePixPaymentAction } from '../mutations/checkout.mutations';
 import { PixPaymentPanel } from './PixPaymentPanel';
+import { normalizeError } from '@/lib/http/errors';
 import styles from './CheckoutResultContent.module.scss';
 
 interface Props {
@@ -37,6 +38,22 @@ export function CheckoutPendingContent({ orderId }: Props) {
     return (
       <div className={styles.page}>
         <PixPaymentPanel action={pixAction} amount={order.totalAmount} currency={order.currency} />
+      </div>
+    );
+  }
+
+  // A 404 means this order simply has no Pix action (not a Pix order) — the
+  // generic card below is correct. Any other error (5xx, network) is a
+  // fetch failure the buyer can retry without losing their order.
+  if (order && pixActionQuery.isError && normalizeError(pixActionQuery.error).status !== 404) {
+    return (
+      <div className={styles.page}>
+        <PixPaymentPanel
+          amount={order.totalAmount}
+          currency={order.currency}
+          error
+          onRetry={() => pixActionQuery.refetch()}
+        />
       </div>
     );
   }
