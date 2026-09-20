@@ -2,7 +2,7 @@
 
 import { useState, cloneElement, isValidElement, type ReactNode, type ReactElement } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, type Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { LayoutGrid, Plus, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
@@ -334,70 +334,45 @@ function AsaasForm({
               <input className={styles.input} id="asaas-birthDate" type="date" {...register('birthDate')} />
             </Field>
           )}
-          <Field t={t} label="asaas.fieldMobilePhone" id="asaas-mobilePhone">
-            <Controller
-              control={control}
-              name="mobilePhone"
-              render={({ field }) => (
-                <input
-                  className={styles.input}
-                  id="asaas-mobilePhone"
-                  inputMode="numeric"
-                  value={formatPhone(field.value ?? '')}
-                  onChange={(e) => field.onChange(digitsOnly(e.target.value).slice(0, 11))}
-                  onBlur={field.onBlur}
-                  ref={field.ref}
-                />
-              )}
-            />
-          </Field>
-          <Field
+          <MaskedField
             t={t}
-            label="asaas.fieldIncomeValue"
+            control={control}
+            name="mobilePhone"
+            id="asaas-mobilePhone"
+            label="asaas.fieldMobilePhone"
+            format={(v) => formatPhone((v as string) ?? '')}
+            parse={(display) => digitsOnly(display).slice(0, 11)}
+            error={errors.mobilePhone ? t('asaas.fieldRequired') : undefined}
+          />
+          <MaskedField
+            t={t}
+            control={control}
+            name="incomeValue"
             id="asaas-incomeValue"
+            label="asaas.fieldIncomeValue"
             hint="asaas.fieldIncomeValueHint"
-          >
-            <Controller
-              control={control}
-              name="incomeValue"
-              render={({ field }) => {
-                const numeric = typeof field.value === 'number' ? field.value : Number(field.value);
-                const cents = Number.isFinite(numeric) ? Math.round(numeric * 100) : 0;
-                return (
-                  <input
-                    className={styles.input}
-                    id="asaas-incomeValue"
-                    inputMode="numeric"
-                    value={cents ? formatBRLFromCents(cents) : ''}
-                    onChange={(e) => field.onChange(digitsToCents(e.target.value) / 100)}
-                    onBlur={field.onBlur}
-                    ref={field.ref}
-                  />
-                );
-              }}
-            />
-          </Field>
+            format={(v) => {
+              const numeric = typeof v === 'number' ? v : Number(v);
+              const cents = Number.isFinite(numeric) ? Math.round(numeric * 100) : 0;
+              return cents ? formatBRLFromCents(cents) : '';
+            }}
+            parse={(display) => digitsToCents(display) / 100}
+            error={errors.incomeValue ? t('asaas.fieldRequired') : undefined}
+          />
         </div>
 
         <div className={styles.sectionLabel}>{t('asaas.sectionAddress')}</div>
         <div className={styles.grid}>
-          <Field t={t} label="asaas.fieldPostalCode" id="asaas-postalCode">
-            <Controller
-              control={control}
-              name="postalCode"
-              render={({ field }) => (
-                <input
-                  className={styles.input}
-                  id="asaas-postalCode"
-                  inputMode="numeric"
-                  value={formatPostalCode(field.value ?? '')}
-                  onChange={(e) => field.onChange(digitsOnly(e.target.value).slice(0, 8))}
-                  onBlur={field.onBlur}
-                  ref={field.ref}
-                />
-              )}
-            />
-          </Field>
+          <MaskedField
+            t={t}
+            control={control}
+            name="postalCode"
+            id="asaas-postalCode"
+            label="asaas.fieldPostalCode"
+            format={(v) => formatPostalCode((v as string) ?? '')}
+            parse={(display) => digitsOnly(display).slice(0, 8)}
+            error={errors.postalCode ? t('asaas.fieldRequired') : undefined}
+          />
           <Field t={t} label="asaas.fieldProvince" id="asaas-province">
             <input className={styles.input} id="asaas-province" {...register('province')} />
           </Field>
@@ -425,6 +400,59 @@ function AsaasForm({
   );
 }
 
+// Shared shape for the four Controller-driven (masked) fields: cpfCnpj,
+// mobilePhone, postalCode, incomeValue. cpfCnpj is left hand-wired inline
+// above (its behavior is pinned as-is), but the other three used to
+// duplicate this same render/format/parse/aria wiring with no error prop at
+// all -- Field's generic cloneElement wiring clones the <Controller>
+// element, not the <input> its render prop returns, so it silently no-ops
+// on every one of these. Wiring aria here once, in the one place that
+// renders the actual <input>, fixes all three instead of hand-wiring each.
+function MaskedField({
+  t,
+  control,
+  name,
+  id,
+  label,
+  format,
+  parse,
+  error,
+  hint,
+}: {
+  t: Translate;
+  control: Control<AsaasSubaccountForm>;
+  name: 'mobilePhone' | 'postalCode' | 'incomeValue';
+  id: string;
+  label: string;
+  format: (value: unknown) => string;
+  parse: (display: string) => unknown;
+  error?: string;
+  hint?: string;
+}) {
+  const errorId = `${id}-error`;
+  return (
+    <Field t={t} label={label} id={id} error={error} hint={hint}>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => (
+          <input
+            className={styles.input}
+            id={id}
+            inputMode="numeric"
+            value={format(field.value)}
+            onChange={(e) => field.onChange(parse(e.target.value))}
+            onBlur={field.onBlur}
+            ref={field.ref}
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? errorId : undefined}
+          />
+        )}
+      />
+    </Field>
+  );
+}
+
 function Field({
   t,
   label,
@@ -445,6 +473,13 @@ function Field({
   hint?: string;
 }) {
   const errorId = `${id}-error`;
+  // NOTE: this only reaches the real form control when `children` is a
+  // plain <input>/<select>. For a <Controller>-driven field (cpfCnpj,
+  // MaskedField below), this clones props onto the <Controller> element
+  // itself, not the <input> its render prop returns -- a no-op React
+  // silently accepts. Those fields wire aria-invalid/describedby directly
+  // inside their own render callback instead; this stays generic for the
+  // plain-input fields (name/email/companyType/birthDate/province/...).
   const childWithAria = isValidElement(children)
     ? cloneElement(children as ReactElement<Record<string, unknown>>, {
         'aria-invalid': Boolean(error),

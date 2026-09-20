@@ -222,6 +222,51 @@ describe('AsaasAccountSection', () => {
       const describedBy = birthDate.getAttribute('aria-describedby');
       expect(document.getElementById(describedBy!)).toHaveTextContent('asaas.fieldRequired');
     });
+
+    it('flags a malformed mobilePhone on its own field', async () => {
+      mockAccount(null);
+      render(<AsaasAccountSection orgId="o1" />);
+      await openForm();
+      // Too short for either a landline or a mobile number.
+      await userEvent.type(screen.getByLabelText('asaas.fieldMobilePhone'), '119');
+      await userEvent.click(screen.getByRole('button', { name: 'asaas.submitButton' }));
+
+      const phone = screen.getByLabelText('asaas.fieldMobilePhone');
+      expect(phone).toHaveAttribute('aria-invalid', 'true');
+      const describedBy = phone.getAttribute('aria-describedby');
+      expect(describedBy).toBeTruthy();
+      expect(document.getElementById(describedBy!)).toHaveTextContent('asaas.fieldRequired');
+    });
+
+    it('flags a malformed postalCode on its own field', async () => {
+      mockAccount(null);
+      render(<AsaasAccountSection orgId="o1" />);
+      await openForm();
+      // A CEP is 8 digits; 4 is too short.
+      await userEvent.type(screen.getByLabelText('asaas.fieldPostalCode'), '0100');
+      await userEvent.click(screen.getByRole('button', { name: 'asaas.submitButton' }));
+
+      const postalCode = screen.getByLabelText('asaas.fieldPostalCode');
+      expect(postalCode).toHaveAttribute('aria-invalid', 'true');
+      const describedBy = postalCode.getAttribute('aria-describedby');
+      expect(describedBy).toBeTruthy();
+      expect(document.getElementById(describedBy!)).toHaveTextContent('asaas.fieldRequired');
+    });
+
+    it('flags a missing incomeValue on its own field', async () => {
+      mockAccount(null);
+      render(<AsaasAccountSection orgId="o1" />);
+      await openForm();
+      // Left untouched: incomeValue stays undefined -> z.coerce.number()
+      // -> NaN -> fails .positive().
+      await userEvent.click(screen.getByRole('button', { name: 'asaas.submitButton' }));
+
+      const incomeValue = screen.getByLabelText('asaas.fieldIncomeValue');
+      expect(incomeValue).toHaveAttribute('aria-invalid', 'true');
+      const describedBy = incomeValue.getAttribute('aria-describedby');
+      expect(describedBy).toBeTruthy();
+      expect(document.getElementById(describedBy!)).toHaveTextContent('asaas.fieldRequired');
+    });
   });
 
   describe('display masks', () => {
