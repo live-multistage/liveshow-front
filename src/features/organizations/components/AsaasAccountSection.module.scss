@@ -1,0 +1,286 @@
+@use '../../../styles/_variables' as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: $surface;
+  border: 1px solid $border-hairline;
+  border-radius: 16px;
+  padding: 1.375rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: rgba(255, 46, 158, 0.1);
+  color: $accent-text;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+
+  &[data-muted='true'] {
+    background-color: rgba(255, 255, 255, 0.04);
+    color: $text-muted;
+  }
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: $text-primary;
+
+  &[data-muted='true'] {
+    color: $text-secondary;
+  }
+}
+
+.subtitle {
+  font-size: 0.8125rem;
+  color: $text-secondary;
+  margin-top: 0.125rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.625rem;
+  border-radius: 999px;
+  flex: none;
+
+  &[data-status='none'] {
+    color: $text-secondary;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  &[data-status='pending'] {
+    color: $accent-text;
+    background-color: rgba(255, 46, 158, 0.1);
+    border: 1px solid rgba(255, 46, 158, 0.34);
+  }
+
+  &[data-status='active'] {
+    color: $success-light;
+    background-color: $success-bg;
+    border: 1px solid rgba(74, 222, 128, 0.34);
+  }
+
+  &[data-status='rejected'] {
+    color: $error;
+    background-color: $error-bg;
+    border: 1px solid rgba(248, 113, 113, 0.34);
+  }
+}
+
+.description {
+  margin: 0 0 1rem;
+  font-size: 0.84rem;
+  color: $text-secondary;
+  line-height: 1.55;
+  max-width: 54ch;
+}
+
+.unavailableDescription {
+  margin: 0;
+  font-size: 0.84rem;
+  color: $text-muted;
+  line-height: 1.55;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  flex-wrap: wrap;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  color: $text-secondary;
+  padding-top: 0.875rem;
+  border-top: 1px solid $border-hairline;
+}
+
+.footerDot {
+  color: #3f3f47;
+}
+
+.cta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: $action;
+  color: $ink;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+}
+
+.error {
+  font-size: 0.8rem;
+  color: $error;
+  margin: 0 0 0.75rem;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.skeletonPill {
+  width: 96px;
+  height: 26px;
+  border-radius: 999px;
+}
+
+.skeletonBar {
+  height: 14px;
+  border-radius: 6px;
+  margin-top: 0.625rem;
+
+  &[data-short='true'] {
+    width: 70%;
+  }
+}
+
+// ── Form ──────────────────────────────────────────────────────────
+
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  background-color: $error-bg;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 10px;
+  padding: 0.75rem 0.875rem;
+  margin-bottom: 1.25rem;
+  color: $error;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+
+  svg {
+    flex: none;
+  }
+}
+
+.sectionLabel {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: $text-muted;
+  margin-bottom: 0.875rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.875rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &[data-full='true'] {
+    grid-column: 1 / -1;
+  }
+}
+
+.fieldLabel {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.656rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $text-secondary;
+}
+
+.fieldOptional {
+  color: #52525b;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.fieldError {
+  font-size: 0.75rem;
+  color: $error;
+}
+
+.fieldHint {
+  font-size: 0.75rem;
+  color: $text-muted;
+}
+
+// ponytail: plain <input>/<select> instead of the design-system `Input`
+// here — that component isn't wrapped in React.forwardRef, so
+// react-hook-form's register() ref never reaches the DOM node (breaks
+// watch()/value tracking); this repo's other RHF forms (OrganizationForm)
+// already work around it the same way. Fix upstream if that's ever wanted.
+.input {
+  height: 46px;
+  border-radius: 10px;
+  border: 1px solid $border;
+  background-color: $bg;
+  color: $text-primary;
+  font-size: 0.875rem;
+  padding: 0 0.875rem;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $action;
+    box-shadow: 0 0 0 3px rgba(255, 46, 158, 0.15);
+  }
+}
+
+// ponytail: native <select> instead of the Radix-based CustomSelect —
+// avoids jsdom pointer-capture/scrollIntoView flakiness for a single
+// 4-option field; upgrade to CustomSelect if the design needs its popover
+// styling elsewhere on this form.
+.select {
+  @extend .input;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

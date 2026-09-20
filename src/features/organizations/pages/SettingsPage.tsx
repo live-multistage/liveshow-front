@@ -10,6 +10,7 @@ import { OrganizationForm } from '../components/OrganizationForm';
 import { OrganizationLogoUploader } from '../components/OrganizationLogoUploader';
 import { OrganizationBannerUploader } from '../components/OrganizationBannerUploader';
 import { StripeConnectSection } from '../components/StripeConnectSection';
+import { AsaasAccountSection } from '../components/AsaasAccountSection';
 import { LedgerBalanceSection } from '../components/LedgerBalanceSection';
 import { useOrganization } from '../hooks/use-organizations';
 import { useOrganizationSettings } from '../hooks/use-organization-settings';
@@ -139,6 +140,7 @@ export function SettingsPage({ organizationId }: Props) {
             )}
             <div className={styles.sectionBody}>
               <StripeConnectSection orgId={organizationId} />
+              <AsaasAccountSection orgId={organizationId} />
               <LedgerBalanceSection orgId={organizationId} />
             </div>
           </section>
