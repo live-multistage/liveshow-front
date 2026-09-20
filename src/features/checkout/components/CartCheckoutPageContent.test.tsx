@@ -317,6 +317,38 @@ describe('CartCheckoutPageContent', () => {
     expect(screen.getByLabelText(/cpf/i)).toBeInTheDocument();
   });
 
+  it('disables pay and never places the order when Pix is selected and the CPF is empty', async () => {
+    mockOptions({ asaas: { pix: true, card: true } });
+    mockUser({ taxDocument: '' });
+    placeOrderResolves({
+      order: { id: 'o3' } as PlaceOrderResponse['order'],
+      payment: { id: 'p3', action: { type: 'COMPLETED', externalReference: 'ref' } },
+    });
+    renderCheckout();
+
+    await userEvent.click(await screen.findByRole('radio', { name: /pix/i }));
+    expect(screen.getByRole('button', { name: /pagar|finalizar/i })).toBeDisabled();
+
+    await userEvent.click(screen.getByRole('button', { name: /pagar|finalizar/i }));
+    expect(checkoutService.placeOrder).not.toHaveBeenCalled();
+  });
+
+  it('enables pay once a valid CPF is entered for Pix', async () => {
+    mockOptions({ asaas: { pix: true, card: true } });
+    mockUser({ taxDocument: '' });
+    placeOrderResolves({
+      order: { id: 'o4' } as PlaceOrderResponse['order'],
+      payment: { id: 'p4', action: { type: 'COMPLETED', externalReference: 'ref' } },
+    });
+    renderCheckout();
+
+    await userEvent.click(await screen.findByRole('radio', { name: /pix/i }));
+    expect(screen.getByRole('button', { name: /pagar|finalizar/i })).toBeDisabled();
+
+    await userEvent.type(screen.getByLabelText(/cpf/i), '52998224725');
+    expect(screen.getByRole('button', { name: /pagar|finalizar/i })).toBeEnabled();
+  });
+
   it('sends provider ASAAS + method PIX and goes to pending with the QR cached', async () => {
     mockOptions({ asaas: { pix: true, card: true } });
     mockUser({ taxDocument: '12345678909' });
