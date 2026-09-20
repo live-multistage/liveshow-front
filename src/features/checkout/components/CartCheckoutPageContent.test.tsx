@@ -408,6 +408,23 @@ describe('CartCheckoutPageContent', () => {
 
     expect(await screen.findByText(/pix e cartão não estão disponíveis/i)).toBeInTheDocument();
   });
+
+  // The backend supersedes a buyer's other pending orders, and refuses the new
+  // one when an earlier charge still looks paid. That is a "wait a moment",
+  // not a failure — without this mapping it fell back to the generic error.
+  it('tells the buyer to wait for PENDING_PAYMENT_IN_PROGRESS', async () => {
+    mockOptions({ asaas: { pix: true, card: true } });
+    mockUser({ taxDocument: '12345678909' });
+    placeOrderRejects({ status: 409, code: 'PENDING_PAYMENT_IN_PROGRESS' });
+    renderCheckout();
+
+    await userEvent.click(await screen.findByRole('radio', { name: /pix/i }));
+    await userEvent.click(screen.getByRole('button', { name: /pagar|finalizar/i }));
+
+    expect(
+      await screen.findByText(/já tem um pagamento em andamento/i),
+    ).toBeInTheDocument();
+  });
 });
 
 describe('web order provider schema', () => {

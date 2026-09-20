@@ -511,6 +511,7 @@
       "EVENT_NOT_PURCHASABLE": "Uno de los eventos ya no está disponible para la compra.",
       "ALREADY_OWNED": "Ya tienes una entrada para este show. Está en Mis entradas.",
       "ORDER_REQUEST_IN_PROGRESS": "Ya estamos abriendo tu pago. Espera un momento — no recargues la página.",
+      "PENDING_PAYMENT_IN_PROGRESS": "Ya tienes un pago en curso. Si acabas de pagar, espera unos instantes: la entrada aparece en Mis entradas en cuanto se confirme.",
       "GENERIC": "No se pudo iniciar el pago. Inténtalo de nuevo.",
       "PURCHASE_TOKEN_MISMATCH": "No pudimos vincular esa compra con tu pedido. Contacta al soporte desde el Centro de Ayuda.",
       "PURCHASE_PENDING": "Google todavía está procesando tu compra. Liberaremos tu entrada en cuanto se confirme.",

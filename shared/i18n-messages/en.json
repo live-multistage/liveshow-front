@@ -511,6 +511,7 @@
       "EVENT_NOT_PURCHASABLE": "One of the events is no longer available for purchase.",
       "ALREADY_OWNED": "You already have a ticket for this show. It's in My tickets.",
       "ORDER_REQUEST_IN_PROGRESS": "We're already opening your payment. Hold on a moment — don't reload the page.",
+      "PENDING_PAYMENT_IN_PROGRESS": "You already have a payment in progress. If you just paid, wait a moment — the ticket shows up in My tickets as soon as it is confirmed.",
       "GENERIC": "Could not start the payment. Please try again.",
       "PURCHASE_TOKEN_MISMATCH": "We couldn't match that purchase to your order. Please contact support through the Help Centre.",
       "PURCHASE_PENDING": "Google is still processing your purchase. We'll unlock your ticket as soon as it clears.",

@@ -32,6 +32,9 @@ import cartStyles from './CartCheckoutPageContent.module.scss';
 const PAY_ERROR_KEYS: Record<string, string> = {
   ALREADY_OWNED: 'errors.ALREADY_OWNED',
   ORDER_REQUEST_IN_PROGRESS: 'errors.ORDER_REQUEST_IN_PROGRESS',
+  // The backend refuses a new order while an earlier charge of this buyer
+  // still looks paid — tell them to wait, not that something broke.
+  PENDING_PAYMENT_IN_PROGRESS: 'errors.PENDING_PAYMENT_IN_PROGRESS',
   EVENT_NOT_PURCHASABLE: 'errors.EVENT_NOT_PURCHASABLE',
   TICKET_SOLD_OUT: 'errors.EVENT_NOT_PURCHASABLE',
   TAX_DOCUMENT_REQUIRED: 'errors.TAX_DOCUMENT_REQUIRED',
