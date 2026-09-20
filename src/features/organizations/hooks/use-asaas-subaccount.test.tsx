@@ -7,11 +7,16 @@ vi.mock('../services/organization.service', () => ({
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { useAsaasSubaccount } from './use-asaas-subaccount';
+import type { Query } from '@tanstack/react-query';
+import { useAsaasSubaccount, asaasSubaccountRefetchInterval } from './use-asaas-subaccount';
 import { useCreateAsaasSubaccount } from './use-create-asaas-subaccount';
 import { asaasSubaccountKey } from './use-asaas-subaccount';
 import { organizationService } from '../services/organization.service';
 import type { AsaasSubaccountResponse, CreateAsaasSubaccountRequest } from '@live-show/api-contracts';
+
+function fakeQuery(data: AsaasSubaccountResponse | null): Query<AsaasSubaccountResponse | null> {
+  return { state: { data } } as Query<AsaasSubaccountResponse | null>;
+}
 
 const mockedGet = vi.mocked(organizationService.getAsaasSubaccount);
 const mockedCreate = vi.mocked(organizationService.createAsaasSubaccount);
@@ -38,6 +43,39 @@ describe('useAsaasSubaccount', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toBeNull();
     expect(mockedGet).toHaveBeenCalledWith('org-1');
+  });
+});
+
+describe('asaasSubaccountRefetchInterval', () => {
+  it('polls every 30s while the subaccount is PENDING_APPROVAL', () => {
+    const data: AsaasSubaccountResponse = {
+      status: 'PENDING_APPROVAL',
+      walletIdMasked: '••••1234',
+      createdAt: '2026-09-19T00:00:00.000Z',
+    };
+    expect(asaasSubaccountRefetchInterval(fakeQuery(data))).toBe(30_000);
+  });
+
+  it('stops polling once the subaccount is ACTIVE', () => {
+    const data: AsaasSubaccountResponse = {
+      status: 'ACTIVE',
+      walletIdMasked: '••••1234',
+      createdAt: '2026-09-19T00:00:00.000Z',
+    };
+    expect(asaasSubaccountRefetchInterval(fakeQuery(data))).toBe(false);
+  });
+
+  it('stops polling once the subaccount is REJECTED', () => {
+    const data: AsaasSubaccountResponse = {
+      status: 'REJECTED',
+      walletIdMasked: '••••1234',
+      createdAt: '2026-09-19T00:00:00.000Z',
+    };
+    expect(asaasSubaccountRefetchInterval(fakeQuery(data))).toBe(false);
+  });
+
+  it('does not poll when there is no data yet', () => {
+    expect(asaasSubaccountRefetchInterval(fakeQuery(null))).toBe(false);
   });
 });
 

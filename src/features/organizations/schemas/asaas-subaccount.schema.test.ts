@@ -1,5 +1,20 @@
 import { describe, expect, it } from 'vitest';
+import type { z } from 'zod';
 import { asaasSubaccountSchema } from './asaas-subaccount.schema';
+import type { CreateAsaasSubaccountRequest } from '@live-show/api-contracts';
+
+// Compile-time contract pin (see the comment in asaas-subaccount.schema.ts
+// for why this can't live as a `satisfies` clause on the schema itself under
+// this repo's `strict: false`): under that setting, `z.output<...>` always
+// reports every field as optional regardless of drift — a plain
+// `CreateAsaasSubaccountRequest = {} as z.output<...>` pin would therefore
+// fail unconditionally and prove nothing. Wrapping in `Required<...>` first
+// undoes that artifact for keys the schema DOES produce, so this only fails
+// when a key is genuinely renamed or dropped from the schema (verified by
+// deleting a field locally and confirming this line then fails to compile).
+// It asserts nothing at runtime; `tsc --noEmit` is what enforces it.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _contractPin: CreateAsaasSubaccountRequest = {} as Required<z.output<typeof asaasSubaccountSchema>>;
 
 const cnpj = {
   name: 'Produtora X', email: 'fin@x.io', cpfCnpj: '12.345.678/0001-95', companyType: 'LIMITED',

@@ -3,6 +3,19 @@ import { isCpfOrCnpj, normalizeTaxDocument } from '@live-show/api-contracts';
 
 const digits = (v: string) => v.replace(/\D/g, '');
 
+// NOTE on the missing `satisfies z.ZodType<CreateAsaasSubaccountRequest>`:
+// this repo's tsconfig has `strict: false` (no `strictNullChecks`), and under
+// that setting ANY zod object schema — regardless of field shape, with or
+// without `.transform()`/`.refine()` — infers its `_output` as fully partial
+// (zod's mapped-type machinery relies on `undefined extends T` checks that
+// collapse once strictNullChecks is off). Verified in isolation: the same
+// `satisfies` clause fails identically on a trivial two-field object with no
+// transforms at all, and passes once `strict: true` is set. Flipping
+// strictNullChecks repo-wide is out of scope here, so the compile-time pin
+// against contract drift lives in this schema's test file instead, as a
+// `Required<z.output<...>>` value assignment — that check is a structural
+// "missing/optional property" comparison, which fails correctly even under
+// strict: false (verified by dropping a field locally).
 export const asaasSubaccountSchema = z
   .object({
     name: z.string().trim().min(2).max(120),
