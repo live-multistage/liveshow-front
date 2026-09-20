@@ -269,6 +269,12 @@
     border-color: $action;
     box-shadow: 0 0 0 3px rgba(255, 46, 158, 0.15);
   }
+
+  // Matches the FORMULÁRIO artboard's e-mail field: an invalid field gets a
+  // red border, not just error text below it.
+  &[aria-invalid='true'] {
+    border-color: $error;
+  }
 }
 
 // ponytail: native <select> instead of the Radix-based CustomSelect —
