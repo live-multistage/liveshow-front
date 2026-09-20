@@ -154,7 +154,8 @@ $ink-bright: #f4f4f5;
   gap: 8px;
   margin-top: 12px;
   font-size: 13.5px;
-  color: $ink-bright;
+  // Literal per the artboards — distinct from $ink-bright (#f4f4f5).
+  color: #e4e4e7;
 }
 
 .waitingDot {
@@ -255,16 +256,63 @@ $ink-bright: #f4f4f5;
   &:hover { filter: brightness(1.08); color: $ink; }
 }
 
-// Mobile hierarchy: the design moves the QR below the copy button and drops
-// the step list to save vertical space on small screens.
+// Mobile hierarchy per the MOBILE artboard: value → copy button → expiry →
+// QR → waiting. The QR drops below the button+expiry block and the step
+// list is dropped to save vertical space on small screens.
 @media (max-width: 600px) {
-  .qrBox { order: 6; margin-top: 22px; }
-  .waiting { order: 7; }
+  .expiry { order: 6; }
+  .qrBox { order: 7; margin-top: 22px; }
+  .waiting { order: 8; }
   .divider,
   .steps { display: none; }
+}
+
+.skeletonQr {
+  order: 4;
+  width: clamp(168px, 45vw, 216px);
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 26px;
+  border-radius: 14px;
+  background: linear-gradient(100deg, #151517 30%, #232327 50%, #151517 70%);
+  background-size: 320px 100%;
+  animation: pxShimmer 1.3s linear infinite;
+}
+
+.skeletonButton {
+  order: 5;
+  width: 100%;
+  height: 52px;
+  border-radius: 12px;
+  background: linear-gradient(100deg, #151517 30%, #232327 50%, #151517 70%);
+  background-size: 320px 100%;
+  animation: pxShimmer 1.3s linear infinite;
+}
+
+.loadingRow {
+  order: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+  font-size: 13.5px;
+  color: $text-muted;
+}
+
+.loadingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $text-muted;
+  animation: lsPulse 1.6s infinite;
 }
 
 @keyframes lsPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.3; transform: scale(0.65); }
+}
+
+@keyframes pxShimmer {
+  0% { background-position: -320px 0; }
+  100% { background-position: 320px 0; }
 }

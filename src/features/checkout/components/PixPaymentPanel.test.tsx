@@ -62,7 +62,14 @@ describe('PixPaymentPanel', () => {
     await act(async () => {
       vi.advanceTimersByTime(10 * 60 * 1000);
     });
-    expect(screen.getByText(/código expirou/i)).toBeInTheDocument();
+    expect(screen.getByText('O código Pix expirou')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /copiar código/i })).not.toBeInTheDocument();
+  });
+
+  it('shows the loading skeleton (CARREGANDO) instead of the QR/button while isLoading', () => {
+    render(<PixPaymentPanel amount={110} currency="BRL" isLoading />);
+    expect(screen.getByText(/gerando código pix/i)).toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: /qr code pix/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /copiar código/i })).not.toBeInTheDocument();
   });
 });

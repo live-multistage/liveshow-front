@@ -26,4 +26,9 @@ describe('useCountdown', () => {
     act(() => { vi.advanceTimersByTime(10 * 60 * 1000); });
     expect(result.current.isExpired).toBe(true);
   });
+
+  it('is a no-op, never-expired placeholder when there is no target yet', () => {
+    const { result } = renderHook(() => useCountdown(undefined));
+    expect(result.current).toEqual({ label: '00:00', isExpired: false });
+  });
 });

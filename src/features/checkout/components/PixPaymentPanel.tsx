@@ -11,23 +11,44 @@ import type { PixQrAction } from '../types/checkout.types';
 import styles from './PixPaymentPanel.module.scss';
 
 interface Props {
-  action: PixQrAction;
+  // Optional so the CARREGANDO state can render before the action has
+  // arrived — see `isLoading`.
+  action?: PixQrAction;
   amount: number;
   currency: string;
+  /** Shows the shimmer skeleton (design's "CARREGANDO" artboard) instead of the QR/button. */
+  isLoading?: boolean;
 }
 
-export function PixPaymentPanel({ action, amount, currency }: Props) {
+export function PixPaymentPanel({ action, amount, currency, isLoading = false }: Props) {
   const t = useTranslations('checkout');
   const [copied, setCopied] = useState(false);
-  const { label, isExpired } = useCountdown(action.expiresAt);
+  const { label, isExpired } = useCountdown(action?.expiresAt);
 
   async function handleCopy() {
+    if (!action) return;
     try {
       await navigator.clipboard.writeText(action.copyPaste);
       setCopied(true);
     } catch {
       toast.error(t('pix.copyError'));
     }
+  }
+
+  if (isLoading || !action) {
+    return (
+      <div className={styles.card}>
+        <div className={styles.eyebrow}>{t('pix.payWithPix')}</div>
+        <div className={styles.totalLabel}>{t('pix.totalLabel')}</div>
+        <div className={styles.totalValue}>{formatCents(amount, currency)}</div>
+        <div className={styles.skeletonQr} />
+        <div className={styles.skeletonButton} />
+        <div className={styles.loadingRow}>
+          <span className={styles.loadingDot} />
+          {t('pix.generating')}
+        </div>
+      </div>
+    );
   }
 
   if (isExpired) {

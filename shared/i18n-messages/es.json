@@ -540,9 +540,10 @@
       "step2": "Elige pagar con Pix",
       "step3": "Escanea el código QR o pega el código",
       "backToCheckout": "Volver al checkout",
-      "expiredTitle": "El código expiró",
+      "expiredTitle": "El código Pix expiró",
       "expiredDesc": "Vuelve al checkout para generar un nuevo pedido.",
-      "expiredBadge": "Código expirado"
+      "expiredBadge": "Código expirado",
+      "generating": "Generando código Pix…"
     }
   },
   "carousel": {
