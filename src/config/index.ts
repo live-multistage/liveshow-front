@@ -38,7 +38,11 @@ const mustProxy =
 export const config = {
   apiUrl: mustProxy ? '/api' : rawApiUrl,
   appName: 'showon.io',
-  adsManagerUrl: process.env.NEXT_PUBLIC_ADS_MANAGER_URL ?? 'http://localhost:3002',
+  // NEXT_PUBLIC_ADS_MANAGER_URL isn't set on the Vercel prod build, so the
+  // fallback must already point at prod there instead of shipping localhost.
+  adsManagerUrl:
+    process.env.NEXT_PUBLIC_ADS_MANAGER_URL ??
+    (process.env.NODE_ENV === 'production' ? 'https://ads.showon.io' : 'http://localhost:3002'),
 } as const;
 
 /**

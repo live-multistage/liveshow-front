@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { organizerCtaHref, ORGANIZATION_APPLY_PATH } from './constants';
+import { config } from '@/config';
+import { organizerCtaHref, ORGANIZATION_APPLY_PATH, ADS_SIGNUP_URL, ADS_LOGIN_URL } from './constants';
+
+describe('ads manager links', () => {
+  it('builds signup/login off config.adsManagerUrl', () => {
+    expect(ADS_SIGNUP_URL).toBe(`${config.adsManagerUrl}/signup`);
+    expect(ADS_LOGIN_URL).toBe(`${config.adsManagerUrl}/login`);
+  });
+});
 
 describe('organizerCtaHref', () => {
   it('sends a logged-in organizer to the public apply flow', () => {

@@ -1,5 +1,28 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { shouldProxyApi, mediaUrl, config } from './index';
+
+describe('adsManagerUrl fallback', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+
+  it('falls back to the prod Ads Manager URL on a prod build with no env var set', async () => {
+    delete process.env.NEXT_PUBLIC_ADS_MANAGER_URL;
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.resetModules();
+    const { config: prodConfig } = await import('./index');
+    expect(prodConfig.adsManagerUrl).toBe('https://ads.showon.io');
+  });
+
+  it('falls back to localhost outside production', async () => {
+    delete process.env.NEXT_PUBLIC_ADS_MANAGER_URL;
+    vi.stubEnv('NODE_ENV', 'development');
+    vi.resetModules();
+    const { config: devConfig } = await import('./index');
+    expect(devConfig.adsManagerUrl).toBe('http://localhost:3002');
+  });
+});
 
 describe('mediaUrl', () => {
   it('returns an absolute CDN URL untouched (no double /api prefix)', () => {
