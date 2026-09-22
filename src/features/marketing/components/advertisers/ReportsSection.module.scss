@@ -99,6 +99,15 @@
   height: 120px;
 }
 
+.axisRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  color: $text-muted;
+}
+
 .bar,
 .barPink {
   flex: 1;

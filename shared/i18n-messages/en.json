@@ -3732,7 +3732,9 @@
         }
       ],
       "mock": {
-        "skipLabel": "SKIP IN 5s"
+        "skipLabel": "SKIP IN 5s",
+        "pauseHeadline": "Your brand, full screen",
+        "pauseCta": "LEARN MORE"
       }
     },
     "formats": {
@@ -3805,7 +3807,7 @@
         "reviewTitle": "Jazz Festival — Top Banner",
         "reviewText": "Our team reviews before the ad runs.",
         "approved": "Ad approved · ACTIVE",
-        "approvedMeta": "live in every position",
+        "approvedMeta": "live on the positions you pick",
         "reportLabel": "REPORT · LAST 30 DAYS",
         "impressions": "IMPRESSIONS",
         "clicks": "CLICKS",
@@ -3880,7 +3882,7 @@
     },
     "reports": {
       "label": "REPORTING",
-      "title": "Know exactly what every real delivered",
+      "title": "Know exactly what every real you spent delivered",
       "subtitle": "Impressions, clicks, CTR and spend by day and by position.",
       "panelTitle": "Report",
       "panelSubtitle": "Jazz Festival — Top Banner",
@@ -3908,7 +3910,7 @@
       }
     },
     "security": {
-      "label": "REVIEW & TEAM",
+      "label": "SECURITY & TEAM",
       "title": "Reviewed ads, protected brand",
       "text": "Every ad goes through review before it airs. Gambling, adult content and crypto scams are not accepted. If an ad is rejected, just fix it and resubmit.",
       "tags": [

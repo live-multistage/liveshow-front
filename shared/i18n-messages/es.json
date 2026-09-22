@@ -3719,7 +3719,7 @@
           "text": "En el momento de la compra."
         },
         {
-          "title": "Posconfirmación",
+          "title": "Poscompra",
           "text": "En la confirmación de la entrada."
         },
         {
@@ -3732,7 +3732,9 @@
         }
       ],
       "mock": {
-        "skipLabel": "SALTAR EN 5s"
+        "skipLabel": "SALTAR EN 5s",
+        "pauseHeadline": "Tu marca en pantalla completa",
+        "pauseCta": "CONOCER"
       }
     },
     "formats": {
@@ -3805,7 +3807,7 @@
         "reviewTitle": "Festival de Jazz — Banner Superior",
         "reviewText": "Nuestro equipo revisa antes de que el anuncio se publique.",
         "approved": "Anuncio aprobado · ACTIVO",
-        "approvedMeta": "activo en todas las posiciones",
+        "approvedMeta": "activo en las posiciones elegidas",
         "reportLabel": "INFORME · ÚLTIMOS 30 DÍAS",
         "impressions": "IMPRESIONES",
         "clicks": "CLICS",

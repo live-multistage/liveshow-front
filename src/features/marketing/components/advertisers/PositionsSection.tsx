@@ -18,8 +18,8 @@ export function PositionsSection() {
   const mockCopy = {
     skipLabel: t('positions.mock.skipLabel'),
     sponsored: t('hero.mock.sponsored'),
-    headline: t('hero.mock.headline'),
-    cta: t('hero.mock.cta'),
+    headline: t('positions.mock.pauseHeadline'),
+    cta: t('positions.mock.pauseCta'),
   };
 
   return (

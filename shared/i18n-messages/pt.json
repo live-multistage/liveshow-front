@@ -3732,7 +3732,9 @@
         }
       ],
       "mock": {
-        "skipLabel": "PULAR EM 5s"
+        "skipLabel": "PULAR EM 5s",
+        "pauseHeadline": "Sua marca em tela cheia",
+        "pauseCta": "CONHECER"
       }
     },
     "formats": {
@@ -3805,7 +3807,7 @@
         "reviewTitle": "Festival Jazz — Banner Topo",
         "reviewText": "Nossa equipe revisa antes de o anúncio rodar.",
         "approved": "Anúncio aprovado · ATIVO",
-        "approvedMeta": "no ar em todas as posições",
+        "approvedMeta": "no ar nas posições escolhidas",
         "reportLabel": "RELATÓRIO · ÚLTIMOS 30 DIAS",
         "impressions": "IMPRESSÕES",
         "clicks": "CLIQUES",
