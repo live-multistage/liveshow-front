@@ -1,0 +1,171 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.section {
+  position: relative;
+  padding: 140px 40px 96px;
+  overflow: hidden;
+
+  @media (max-width: $md) {
+    padding: 120px 20px 64px;
+  }
+}
+
+.glowTop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 50% at 20% 0%, rgba(255, 46, 158, 0.16), transparent 70%),
+    radial-gradient(45% 45% at 90% 20%, rgba(152, 16, 250, 0.12), transparent 70%);
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  top: -220px;
+  left: 10%;
+  width: 820px;
+  height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, 0.09), transparent 62%);
+  animation: poDrift 16s ease-in-out infinite;
+  pointer-events: none;
+
+  @include reduced-motion {
+    animation: none;
+  }
+}
+
+.container {
+  position: relative;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 48px;
+
+  @media (max-width: $lg) {
+    grid-template-columns: 1fr;
+    gap: 56px;
+  }
+}
+
+.text {
+  max-width: 600px;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: $pink-soft;
+  margin-bottom: 24px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $action;
+  animation: poPulse 1.8s infinite;
+
+  @include reduced-motion {
+    animation: none;
+  }
+}
+
+.title {
+  margin: 0 0 22px;
+  font-size: clamp(40px, 5.4vw, 76px);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.accent {
+  color: $action;
+}
+
+.subtitle {
+  margin: 0 0 30px;
+  font-size: clamp(16px, 1.4vw, 20px);
+  line-height: 1.5;
+  color: $text-secondary;
+  max-width: 52ch;
+  text-wrap: pretty;
+}
+
+.ctaRow {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.primaryCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: $action;
+  color: $ink;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 15px 26px;
+  border-radius: 999px;
+  transition: opacity 0.15s, transform 0.15s;
+
+  &:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+    color: $ink;
+  }
+}
+
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: $text-primary;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 15px 18px;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.guarantees {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: $text-muted;
+}
+
+.dividerDot {
+  display: inline-block;
+  color: #3f3f47;
+  margin: 0 8px 0 -12px;
+}
+
+.loginLine {
+  margin-top: 22px;
+  font-size: 14px;
+  color: $text-muted;
+}
+
+.mockCol {
+  position: relative;
+  min-width: 0;
+}

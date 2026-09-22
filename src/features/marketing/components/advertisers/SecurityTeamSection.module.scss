@@ -1,0 +1,174 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.section {
+  @include section-pad;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.container {
+  @include container;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 56px;
+  align-items: start;
+}
+
+.copyCol {
+  max-width: 48ch;
+}
+
+.label {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: $pink-soft;
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0 0 22px;
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.99;
+  text-wrap: balance;
+}
+
+.text {
+  margin: 0 0 20px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: $text-secondary;
+  text-wrap: pretty;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: $text-secondary;
+  border: 1px solid $border;
+  border-radius: 999px;
+  padding: 7px 13px;
+}
+
+.teamCard {
+  border-radius: $radius-panel;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: $panel;
+  padding: 30px 32px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
+}
+
+.teamHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.teamIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: rgba(152, 16, 250, 0.1);
+  border: 1px solid rgba(152, 16, 250, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $violet-soft;
+}
+
+.teamTitle {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.teamText {
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.memberRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.memberInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 50%;
+  color: $ink;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.avatar_owner {
+  background: linear-gradient(135deg, $action, $violet);
+}
+
+.avatar_manager {
+  background: linear-gradient(135deg, $violet, #46d6d8);
+}
+
+.memberText {
+  min-width: 0;
+}
+
+.memberName {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.memberEmail {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  color: $text-muted;
+}
+
+.rolePill {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.role_owner {
+  color: $pink-soft;
+  background: rgba(255, 46, 158, 0.12);
+  border: 1px solid rgba(255, 46, 158, 0.35);
+}
+
+.role_manager {
+  color: $violet-soft;
+  background: rgba(155, 123, 255, 0.12);
+  border: 1px solid rgba(155, 123, 255, 0.35);
+}

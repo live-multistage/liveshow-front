@@ -1,0 +1,65 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.section {
+  padding: 0 40px 20px;
+
+  @media (max-width: $sm) {
+    padding: 0 20px 16px;
+  }
+}
+
+.band {
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0c0a0f;
+  padding: 26px 30px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.icon {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: 12px;
+  background: rgba(152, 16, 250, 0.1);
+  border: 1px solid rgba(152, 16, 250, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $violet-soft;
+}
+
+.text {
+  font-size: 16px;
+  font-weight: 600;
+  color: $ink-soft;
+  text-wrap: pretty;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: $text-primary;
+  white-space: nowrap;
+
+  &:hover {
+    color: $text-primary;
+  }
+}

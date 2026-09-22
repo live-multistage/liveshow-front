@@ -1,0 +1,175 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.section {
+  @include section-pad;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.container {
+  @include container;
+}
+
+.panel {
+  border-radius: $radius-panel;
+  border: 1px solid $line-strong;
+  background: $panel;
+  overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.panelHeadLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  color: $text-muted;
+  font-weight: 400;
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.kpiCell {
+  background: $panel;
+  padding: 22px 24px;
+}
+
+.kpiLabel {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $text-muted;
+  margin-bottom: 10px;
+}
+
+.kpiValue {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: $text-primary;
+}
+
+.kpiPrice {
+  color: $price;
+}
+
+.chartSection {
+  padding: 24px;
+}
+
+.colLabel {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $text-muted;
+  margin-bottom: 18px;
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 120px;
+}
+
+.bar,
+.barPink {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+}
+
+.bar {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.barPink {
+  background: $action;
+}
+
+.tableSection {
+  padding: 0 24px 24px;
+}
+
+.tableHead,
+.tableRow {
+  display: grid;
+  grid-template-columns: 1.6fr 0.9fr 0.7fr 0.5fr 0.8fr;
+  align-items: center;
+}
+
+.tableHead {
+  padding: 10px 0;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: $text-muted;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tableRow {
+  padding: 13px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.right {
+  text-align: right;
+}
+
+.posName {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.mono {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.monoDim {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 12.5px;
+  color: $text-secondary;
+}
+
+.monoPrice {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: $price;
+}
+
+.ctrGood {
+  color: $green;
+}
+
+.ctrWarn {
+  color: $amber;
+}

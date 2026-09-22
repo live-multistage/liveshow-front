@@ -1,0 +1,121 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.section {
+  @include section-pad;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.glow {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1100px;
+  height: 460px;
+  transform: translateX(-50%);
+  background: radial-gradient(50% 50% at 50% 0%, rgba(255, 46, 158, 0.1), transparent 70%);
+  pointer-events: none;
+}
+
+.container {
+  @include container;
+  position: relative;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.card {
+  border-radius: $radius-card;
+  border: 1px solid $border;
+  background: $surface;
+  padding: 34px 30px;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: $action;
+  }
+}
+
+.glyph {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  color: $price;
+  letter-spacing: 0.02em;
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: $text-secondary;
+}
+
+.budgetCard {
+  border-radius: $radius-card;
+  border: 1px solid rgba(255, 46, 158, 0.25);
+  background: rgba(255, 46, 158, 0.04);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 26px;
+}
+
+.budgetIcon {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 12px;
+  background: rgba(255, 46, 158, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $pink-soft;
+}
+
+.budgetTitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.budgetText {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: $text-secondary;
+  text-wrap: pretty;
+}
+
+.conditions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 20px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: $text-muted;
+  text-align: center;
+}
+
+.dot {
+  color: #3f3f47;
+  margin-right: 20px;
+}

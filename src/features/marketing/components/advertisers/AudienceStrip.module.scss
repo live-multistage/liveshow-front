@@ -1,0 +1,43 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.section {
+  padding: 20px 40px 110px;
+
+  @media (max-width: $sm) {
+    padding: 20px 20px 72px;
+  }
+}
+
+.list {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: $ink-soft;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 20px;
+  border-radius: 999px;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: rgba(255, 46, 158, 0.5);
+    color: $text-primary;
+  }
+}
+
+.icon {
+  color: $pink-soft;
+  display: inline-flex;
+}

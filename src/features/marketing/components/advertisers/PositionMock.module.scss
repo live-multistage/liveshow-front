@@ -1,0 +1,197 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.wrap {
+  position: absolute;
+  inset: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.rowFlex {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.colMain {
+  flex: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card,
+.cardTall {
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #131316;
+}
+
+.card {
+  flex: 1;
+}
+
+.cardTall {
+  flex: 1;
+  display: block;
+}
+
+.skel,
+.skelDim {
+  display: block;
+  height: 8px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.skelDim {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lineRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.checkRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.checkIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $green;
+}
+
+.adBarH {
+  height: 30px;
+  border-radius: 5px;
+  border: 1px solid $action;
+  background: rgba(255, 46, 158, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: $pink-soft;
+}
+
+.adBarV {
+  flex: 1;
+  border-radius: 5px;
+  border: 1px solid $action;
+  background: rgba(255, 46, 158, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  color: $pink-soft;
+}
+
+.prerollWrap {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(150deg, #1c1030, #08080a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adTag {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: $ink;
+  background: $action;
+  border-radius: 3px;
+  padding: 2px 5px;
+}
+
+.playIcon {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.skipTag {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: #c4c4cc;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  padding: 3px 7px;
+}
+
+.pauseWrap {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255, 46, 158, 0.18), #0b0b14 55%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 14px;
+}
+
+.sponsoredTag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: $text-primary;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
+.pauseHeadline {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.pauseCta {
+  align-self: flex-start;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  color: $ink;
+  background: $action;
+  border-radius: 999px;
+  padding: 4px 9px;
+}

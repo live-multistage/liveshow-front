@@ -1,0 +1,575 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.section {
+  padding: 40px 40px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.container {
+  @include container;
+}
+
+.headerWrap {
+  padding: 80px 0 40px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 80px;
+  align-items: start;
+
+  @media (max-width: $lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Steps list ──────────────────────────────────────────────────────
+.steps {
+  padding-bottom: 40vh;
+}
+
+.step {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 0;
+  opacity: 0.28;
+  transform: translateX(-10px);
+  transition:
+    opacity 0.5s,
+    transform 0.6s $ease;
+
+  &.active {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.stepNum {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: $text-muted;
+  margin-bottom: 18px;
+  transition: color 0.4s;
+
+  &.active {
+    color: $action;
+  }
+}
+
+.stepTitle {
+  margin: 0 0 14px;
+  font-size: clamp(26px, 2.6vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.stepText {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: $text-secondary;
+  max-width: 42ch;
+}
+
+// ── Compact (≤1024px) ─────────────────────────────────────────────
+.compactList {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  padding-bottom: 64px;
+}
+
+.compactItem {
+  .stepNum {
+    color: $action;
+  }
+}
+
+.compactScreen {
+  position: relative;
+  height: 360px;
+  margin-top: 24px;
+  border-radius: $radius-panel;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: $panel;
+  padding: 34px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+// ── Sticky visual ───────────────────────────────────────────────────
+.visualWrap {
+  position: sticky;
+  top: calc(50vh - 220px);
+  height: 440px;
+}
+
+.glow {
+  position: absolute;
+  inset: -60px;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(152, 16, 250, 0.18), transparent 70%);
+  filter: blur(30px);
+  pointer-events: none;
+}
+
+.panel {
+  position: relative;
+  height: 100%;
+  border-radius: $radius-panel;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: $panel;
+  overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  padding: 34px;
+  opacity: 0;
+  transform: scale(0.96);
+  transition:
+    opacity 0.6s,
+    transform 0.8s $ease;
+
+  &.active {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.screenLabel {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $text-muted;
+  margin-bottom: 22px;
+}
+
+// Screen 0: create account
+.brandRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.brandAccent {
+  color: $action;
+}
+
+.adsBadge {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: $pink-soft;
+  border: 1px solid rgba(255, 46, 158, 0.5);
+  padding: 3px 6px;
+  border-radius: 5px;
+}
+
+.accountTitle {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.accountText {
+  font-size: 13px;
+  color: $text-secondary;
+  margin-bottom: 22px;
+}
+
+.fieldLabel {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: $text-muted;
+  margin-bottom: 8px;
+}
+
+.inputFocused {
+  height: 46px;
+  border-radius: 10px;
+  border: 1px solid $action;
+  background: $surface;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  font-size: 15px;
+  color: $text-primary;
+  margin-bottom: 18px;
+  box-shadow: 0 0 0 3px rgba(255, 46, 158, 0.15);
+}
+
+.caret {
+  width: 1.5px;
+  height: 18px;
+  background: $action;
+  margin-left: 2px;
+  animation: poPulse 1s infinite;
+
+  @include reduced-motion {
+    animation: none;
+  }
+}
+
+.submitPill {
+  height: 48px;
+  border-radius: 11px;
+  background: $action;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $ink;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+// Screen 1: balance
+.balanceCard {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 46, 158, 0.3);
+  background: linear-gradient(150deg, rgba(255, 46, 158, 0.08), $panel 60%);
+  padding: 22px 24px;
+  margin-bottom: 16px;
+}
+
+.balanceLabel {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: $pink-soft;
+  margin-bottom: 10px;
+}
+
+.balanceValue {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.topupRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.topupChip {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: $text-primary;
+  border: 1px solid $border;
+  border-radius: 9px;
+  padding: 11px 0;
+}
+
+.topupActive {
+  color: $ink;
+  background: $action;
+  border-color: transparent;
+}
+
+.cardRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid $border;
+  background: $surface;
+  color: $green;
+  font-size: 13.5px;
+}
+
+.cardRow span:not(.cardDigits) {
+  color: $text-primary;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.cardDigits {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+// Screen 2: campaign
+.formatGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.formatCard {
+  border-radius: 12px;
+  border: 1px solid $border;
+  background: $surface;
+  padding: 14px;
+}
+
+.formatActive {
+  border-color: rgba(255, 46, 158, 0.5);
+  background: rgba(255, 46, 158, 0.06);
+}
+
+.formatBarActive {
+  display: block;
+  height: 14px;
+  width: 80%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, $action, $violet);
+  margin-bottom: 10px;
+}
+
+.formatBar {
+  display: block;
+  height: 32px;
+  width: 22px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.14);
+  margin-bottom: 6px;
+}
+
+.formatCardTitle {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.formatCardSpec {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  color: $pink-soft;
+}
+
+.formatCardSpecDim {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  color: $text-muted;
+}
+
+.uploadBox {
+  border-radius: 10px;
+  border: 1px dashed rgba(255, 46, 158, 0.4);
+  background: rgba(255, 46, 158, 0.04);
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.uploadTitle {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.uploadHint {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9.5px;
+  color: $text-muted;
+  margin-top: 3px;
+}
+
+.bidRow {
+  display: flex;
+  gap: 10px;
+}
+
+.bidCard {
+  flex: 1;
+  border-radius: 10px;
+  border: 1px solid $border;
+  background: $surface;
+  padding: 10px 12px;
+}
+
+.bidLabel {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9px;
+  color: $text-muted;
+}
+
+.bidValue {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: $price;
+}
+
+.bidValueMuted {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+// Screen 3: review
+.reviewCard {
+  border-radius: 14px;
+  border: 1px solid $border;
+  background: $surface;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.reviewCardHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.pulseDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $violet-soft;
+  animation: poPulse 1.6s infinite;
+
+  @include reduced-motion {
+    animation: none;
+  }
+}
+
+.reviewLabel {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $violet-soft;
+}
+
+.reviewTitle {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.reviewText {
+  font-size: 13.5px;
+  color: $text-secondary;
+  line-height: 1.5;
+}
+
+.approvedCard {
+  border-radius: 14px;
+  border: 1px solid rgba(74, 222, 128, 0.35);
+  background: rgba(74, 222, 128, 0.05);
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.approvedIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(74, 222, 128, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $green;
+  flex: none;
+}
+
+.approvedTitle {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.approvedMeta {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  color: $text-muted;
+  margin-top: 3px;
+}
+
+// Screen 4: report
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.kpiCard {
+  border-radius: 10px;
+  border: 1px solid $border;
+  background: $surface;
+  padding: 12px 14px;
+}
+
+.kpiLabel {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  color: $text-muted;
+}
+
+.kpiValue {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.kpiValuePrice {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: $price;
+  margin-top: 4px;
+}
+
+.chartBox {
+  border-radius: 12px;
+  border: 1px solid $border;
+  background: $surface;
+  padding: 18px;
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 96px;
+}
+
+.bar,
+.barPink {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+}
+
+.bar {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.barPink {
+  background: $action;
+}

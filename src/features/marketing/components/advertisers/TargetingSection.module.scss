@@ -1,0 +1,104 @@
+@use '../../../../styles/_variables' as *;
+@use '../../styles/_organizers-tokens' as *;
+
+.section {
+  @include section-pad;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.container {
+  @include container;
+}
+
+.destinationGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+  margin-bottom: 48px;
+}
+
+.destinationCard {
+  border-radius: $radius-card;
+  border: 1px solid $border;
+  background: $surface;
+  padding: 28px;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: $action;
+  }
+}
+
+.destinationIcon {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 46, 158, 0.1);
+  border: 1px solid rgba(255, 46, 158, 0.28);
+  align-items: center;
+  justify-content: center;
+  color: $pink-soft;
+  margin-bottom: 18px;
+}
+
+.destinationTitle {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.destinationText {
+  font-size: 15px;
+  line-height: 1.55;
+  color: $text-secondary;
+  text-wrap: pretty;
+}
+
+.subTitle {
+  margin: 0 0 22px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 12px 48px;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+  padding: 18px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(255, 46, 158, 0.08);
+  border: 1px solid rgba(255, 46, 158, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $pink-soft;
+  flex: none;
+}
+
+.rowTitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.rowText {
+  font-size: 14px;
+  line-height: 1.5;
+  color: $text-secondary;
+  text-wrap: pretty;
+}
