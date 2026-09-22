@@ -30,7 +30,7 @@ export function SecurityTeamSection() {
           </div>
         </Reveal>
 
-        <Reveal as="div" delay={120} variant="scale" className={styles.teamCard} ariaHidden>
+        <Reveal as="div" delay={120} variant="scale" className={styles.teamCard}>
           <div className={styles.teamHead}>
             <span className={styles.teamIcon}>
               <Users2 size={19} strokeWidth={2} />
@@ -40,20 +40,24 @@ export function SecurityTeamSection() {
               <div className={styles.teamText}>{t('teamText')}</div>
             </div>
           </div>
-          {TEAM_MOCK.map((member) => (
-            <div key={member.email} className={styles.memberRow}>
-              <div className={styles.memberInfo}>
-                <div className={[styles.avatar, styles[`avatar_${member.role}`]].join(' ')}>{member.initials}</div>
-                <div className={styles.memberText}>
-                  <div className={styles.memberName}>{member.name}</div>
-                  <div className={styles.memberEmail}>{member.email}</div>
+          {/* Only the member rows are illustrative; the card's title and text
+              are real copy, so they stay readable by assistive tech. */}
+          <div aria-hidden="true">
+            {TEAM_MOCK.map((member) => (
+              <div key={member.email} className={styles.memberRow}>
+                <div className={styles.memberInfo}>
+                  <div className={[styles.avatar, styles[`avatar_${member.role}`]].join(' ')}>{member.initials}</div>
+                  <div className={styles.memberText}>
+                    <div className={styles.memberName}>{member.name}</div>
+                    <div className={styles.memberEmail}>{member.email}</div>
+                  </div>
                 </div>
+                <span className={[styles.rolePill, styles[`role_${member.role}`]].join(' ')}>
+                  {t(`roles.${member.role}`)}
+                </span>
               </div>
-              <span className={[styles.rolePill, styles[`role_${member.role}`]].join(' ')}>
-                {t(`roles.${member.role}`)}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </Reveal>
       </div>
     </section>
