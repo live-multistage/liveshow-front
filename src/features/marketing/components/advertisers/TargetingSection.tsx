@@ -26,7 +26,7 @@ export function TargetingSection() {
           {destinations.map((dest, i) => (
             <Reveal as="div" key={dest.title} delay={i * 100} className={styles.destinationCard}>
               <span className={styles.destinationIcon}>{advertiserIcon(DESTINATION_ICONS[i] ?? 'calendar', 20)}</span>
-              <div className={styles.destinationTitle}>{dest.title}</div>
+              <h3 className={styles.destinationTitle}>{dest.title}</h3>
               <div className={styles.destinationText}>{dest.text}</div>
             </Reveal>
           ))}

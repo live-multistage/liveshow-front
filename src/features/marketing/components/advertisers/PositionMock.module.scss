@@ -57,6 +57,28 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
+// Fixed skeleton widths for the illustrative mocks above — not data-driven,
+// so plain modifier classes instead of inline styles (chart bar heights stay
+// inline elsewhere since those ARE computed per-item, see ReportsSection).
+.w16 {
+  width: 16%;
+}
+.w18 {
+  width: 18%;
+}
+.w40 {
+  width: 40%;
+}
+.w45 {
+  width: 45%;
+}
+.w50 {
+  width: 50%;
+}
+.w70 {
+  width: 70%;
+}
+
 .lineRow {
   display: flex;
   justify-content: space-between;
