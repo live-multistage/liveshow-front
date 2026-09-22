@@ -17,7 +17,8 @@ export type FeatureFlagKey =
   | 'event_collaborations'
   | 'fiscal_emission'
   | 'mailing'
-  | 'blueprints';
+  | 'blueprints'
+  | 'advertiser_platform';
 
 export type FeatureFlags = Record<FeatureFlagKey, boolean>;
 
@@ -58,4 +59,6 @@ export const DEFAULT_FEATURE_FLAGS = {
   mailing: false,
   // Ships off — new automation engine, not yet ready for org rollout.
   blueprints: false,
+  // Ships on — seeded ON; kill switch for the advertiser platform (/be-advertiser).
+  advertiser_platform: true,
 } satisfies Record<FeatureFlagKey, boolean>;

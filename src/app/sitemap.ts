@@ -3,6 +3,7 @@ import type { PaginatedEventsResponse } from '@/features/events/types/event.type
 import type { ChannelListItem } from '@/features/channels/types/channel.types';
 import type { ArtistListItem } from '@live-show/api-contracts';
 import { eventHref } from '@/features/events/utils/slug';
+import { fetchFeatureFlags } from '@/features/feature-flags';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 
@@ -67,10 +68,11 @@ async function fetchList<T>(path: string): Promise<T[]> {
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [events, channels, artists] = await Promise.all([
+  const [events, channels, artists, flags] = await Promise.all([
     fetchAllEvents(),
     fetchList<ChannelListItem>('/channels'),
     fetchArtists(),
+    fetchFeatureFlags(),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = [
@@ -78,7 +80,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/events`, changeFrequency: 'hourly', priority: 0.9 },
     { url: `${SITE_URL}/artists`, changeFrequency: 'daily', priority: 0.7 },
     { url: `${SITE_URL}/be-partner`, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${SITE_URL}/be-advertiser`, changeFrequency: 'monthly', priority: 0.6 },
+    ...(flags.advertiser_platform
+      ? [{ url: `${SITE_URL}/be-advertiser`, changeFrequency: 'monthly' as const, priority: 0.6 }]
+      : []),
     ...(channels.length ? [{ url: `${SITE_URL}/channels`, changeFrequency: 'daily' as const, priority: 0.8 }] : []),
     { url: `${SITE_URL}/about`, changeFrequency: 'monthly', priority: 0.4 },
     { url: `${SITE_URL}/help`, changeFrequency: 'monthly', priority: 0.4 },

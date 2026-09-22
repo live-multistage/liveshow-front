@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Logo } from '@live-show/design-system';
+import { fetchFeatureFlags } from '@/features/feature-flags';
 import styles from './Footer.module.scss';
 
 // O e-mail já é público na página de privacidade — não é um canal novo, é o
@@ -18,8 +19,10 @@ const LINKS = [
   { key: 'help', href: '/help' },
 ] as const;
 
-export function Footer() {
+export async function Footer() {
   const t = useTranslations('footer');
+  const flags = await fetchFeatureFlags();
+  const links = flags.advertiser_platform ? LINKS : LINKS.filter(({ key }) => key !== 'advertisers');
 
   return (
     <footer className={styles.footer}>
@@ -30,7 +33,7 @@ export function Footer() {
       </div>
 
       <nav className={styles.links}>
-        {LINKS.map(({ key, href }) =>
+        {links.map(({ key, href }) =>
           // mailto: não é rota do app — o Link do Next assumiria navegação
           // client-side e o cliente de e-mail nunca abriria.
           href.startsWith('mailto:') ? (
