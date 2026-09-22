@@ -13,6 +13,7 @@ const LINKS = [
   { key: 'privacy', href: '/privacidade' },
   { key: 'contact', href: `mailto:${CONTACT_EMAIL}` },
   { key: 'organizers', href: '/be-partner' },
+  { key: 'advertisers', href: '/be-advertiser' },
   { key: 'about', href: '/about' },
   { key: 'help', href: '/help' },
 ] as const;

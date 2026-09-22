@@ -37,6 +37,11 @@ describe('Footer', () => {
     expect(screen.getByRole('link', { name: 'about' })).toHaveAttribute('href', '/about');
   });
 
+  it('links advertisers to the /be-advertiser landing page', () => {
+    render(<Footer />);
+    expect(screen.getByRole('link', { name: 'advertisers' })).toHaveAttribute('href', '/be-advertiser');
+  });
+
   it('renders the contact address as a plain anchor, not a router link', () => {
     render(<Footer />);
     const contact = screen.getByRole('link', { name: 'contact' });

@@ -2674,6 +2674,7 @@
     "help": "Ayuda",
     "copyright": "© {year} showon.io. Todos los derechos reservados.",
     "organizers": "Sé un socio",
+    "advertisers": "Anunciantes",
     "about": "Sobre nosotros",
     "privacy": "Privacidad"
   },
@@ -3662,6 +3663,314 @@
       "ctaHint": "Toma 2 minutos. Tu candidatura pasa por una revisión rápida antes de la aprobación.",
       "helpLink": "¿Aún tienes dudas? Habla con nosotros",
       "watermark": "EN VIVO"
+    }
+  },
+  "advertisersPage": {
+    "meta": {
+      "title": "Anuncia en showon.io",
+      "description": "Pon tu marca en los shows en vivo y replays de showon.io: banners, pre-roll y anuncio de pausa, con segmentación, presupuesto controlado e informes."
+    },
+    "hero": {
+      "label": "SHOWON ADS",
+      "title": "Anuncia donde está el público",
+      "titleAccent": "en vivo.",
+      "subtitle": "Pon tu marca dentro de los shows transmitidos en showon.io — desde el feed hasta el reproductor — y paga solo por lo que se entregue.",
+      "cta": "Crear cuenta de anunciante",
+      "secondary": "Ver dónde aparecen los anuncios ↓",
+      "login": "¿Ya anuncias? <link>Entrar</link>",
+      "guarantees": [
+        "SIN MENSUALIDAD",
+        "DESDE R$ 50",
+        "REVISIÓN EN CADA ANUNCIO"
+      ],
+      "mock": {
+        "paused": "PAUSADO",
+        "event": "Festival de Invierno · Escenario A",
+        "sponsored": "PATROCINADO",
+        "eyebrow": "TU MARCA AQUÍ",
+        "headline": "¿Zapatillas nuevas? Envío gratis hoy.",
+        "cta": "Conocer",
+        "resume": "REANUDAR",
+        "bannerTitle": "Banner 728×90",
+        "bannerPositions": "FEED · EVENTO · CHECKOUT"
+      }
+    },
+    "audiences": {
+      "brands": "Marcas",
+      "producers": "Productoras y promotores de eventos",
+      "sponsors": "Patrocinadores de shows",
+      "local": "Negocios locales"
+    },
+    "positions": {
+      "label": "POSICIONES",
+      "title": "Tu marca en todo el recorrido del fan",
+      "subtitle": "Desde el momento en que descubre el show hasta después de la compra — y dentro del reproductor.",
+      "items": [
+        {
+          "title": "Feed",
+          "text": "En el inicio y en la lista de eventos."
+        },
+        {
+          "title": "Página del evento",
+          "text": "Junto a la información del show."
+        },
+        {
+          "title": "Checkout",
+          "text": "En el momento de la compra."
+        },
+        {
+          "title": "Posconfirmación",
+          "text": "En la confirmación de la entrada."
+        },
+        {
+          "title": "Pre-roll",
+          "text": "Video antes de la transmisión, en vivo y en replay. Se puede saltar después de 5 segundos."
+        },
+        {
+          "title": "Pausa en el reproductor",
+          "text": "Pantalla completa cuando el fan pausa el video, en vivo y en replay."
+        }
+      ],
+      "mock": {
+        "skipLabel": "SALTAR EN 5s"
+      }
+    },
+    "formats": {
+      "label": "FORMATOS",
+      "title": "Cuatro formatos, cada uno en su lugar",
+      "items": [
+        {
+          "title": "Banner horizontal",
+          "spec": "728 × 90",
+          "where": "FEED · EVENTO · CHECKOUT · POSCOMPRA"
+        },
+        {
+          "title": "Banner vertical",
+          "spec": "300 × 600",
+          "where": "FEED · EVENTO · CHECKOUT · POSCOMPRA"
+        },
+        {
+          "title": "Imagen 16:9",
+          "spec": "MÍNIMO 1280 × 720",
+          "where": "PAUSA EN EL REPRODUCTOR"
+        },
+        {
+          "title": "Video 16:9",
+          "spec": "MP4 · HASTA 30s · HASTA 50MB",
+          "where": "PRE-ROLL"
+        }
+      ]
+    },
+    "howItWorks": {
+      "label": "CÓMO FUNCIONA",
+      "title": "De la cuenta al anuncio activo en cinco pasos.",
+      "steps": [
+        {
+          "title": "Crea tu cuenta",
+          "text": "Regístrate y crea la cuenta de anunciante de tu empresa."
+        },
+        {
+          "title": "Carga saldo",
+          "text": "Prepago con tarjeta, desde R$ 50."
+        },
+        {
+          "title": "Arma la campaña",
+          "text": "Elige destino, formato, creatividad, público y presupuesto."
+        },
+        {
+          "title": "Revisión",
+          "text": "Nuestro equipo revisa cada anuncio antes de que se publique."
+        },
+        {
+          "title": "Activo y midiendo",
+          "text": "Sigue impresiones, clics y gasto en Ads Manager."
+        }
+      ],
+      "visual": {
+        "accountLabel": "NOMBRE DE LA EMPRESA",
+        "accountValue": "RockFest Producciones",
+        "accountTitle": "Crea tu cuenta de anunciante",
+        "accountText": "La necesitas antes de continuar.",
+        "accountButton": "Crear cuenta",
+        "billingLabel": "FACTURACIÓN · SALDO",
+        "availableBalance": "SALDO DISPONIBLE",
+        "creditCard": "Tarjeta de crédito",
+        "campaignLabel": "NUEVA CAMPAÑA",
+        "horizontal": "Horizontal",
+        "vertical": "Vertical",
+        "uploadCreative": "Subir creatividad",
+        "uploadHint": "PNG · JPG · HASTA 2MB",
+        "dailyBudget": "PRESUP./DÍA",
+        "inReview": "EN REVISIÓN",
+        "reviewTitle": "Festival de Jazz — Banner Superior",
+        "reviewText": "Nuestro equipo revisa antes de que el anuncio se publique.",
+        "approved": "Anuncio aprobado · ACTIVO",
+        "approvedMeta": "activo en todas las posiciones",
+        "reportLabel": "INFORME · ÚLTIMOS 30 DÍAS",
+        "impressions": "IMPRESIONES",
+        "clicks": "CLICS",
+        "spend": "GASTO"
+      }
+    },
+    "targeting": {
+      "label": "DESTINO Y PÚBLICO",
+      "title": "Lleva al fan adonde quieras",
+      "destinations": [
+        {
+          "title": "Un evento de showon.io",
+          "text": "Promociona un show de la plataforma; el clic lleva directo a su página."
+        },
+        {
+          "title": "Enlace externo",
+          "text": "Tu sitio, tu tienda o tu landing page."
+        }
+      ],
+      "segmentationTitle": "Segmentación",
+      "items": [
+        {
+          "title": "Posiciones",
+          "text": "Elige una o varias."
+        },
+        {
+          "title": "Rango de edad",
+          "text": "De 18–24 a 55+. Nunca mostramos anuncios a menores."
+        },
+        {
+          "title": "Intereses",
+          "text": "Entretenimiento, Deportes, Corporativo, Educación y Religioso."
+        },
+        {
+          "title": "Categorías",
+          "text": "Etiquetas libres para afinar el público."
+        },
+        {
+          "title": "Período",
+          "text": "Define el inicio y el fin de la campaña."
+        },
+        {
+          "title": "Frecuencia",
+          "text": "Limita cuántas veces cada persona ve el anuncio, por día o en total."
+        }
+      ]
+    },
+    "pricing": {
+      "label": "PRECIO",
+      "title": "Tú defines la puja y el tope",
+      "cards": {
+        "cpm": {
+          "label": "CPM",
+          "title": "Paga por mil impresiones",
+          "text": "Ideal para alcance y reconocimiento de marca. Pagas cada mil exhibiciones."
+        },
+        "cpc": {
+          "label": "CPC",
+          "title": "Paga solo cuando hagan clic",
+          "text": "Ideal para tráfico y conversión. Pagas solo por los clics recibidos."
+        }
+      },
+      "budgetTitle": "Presupuesto diario y límite total",
+      "budgetText": "La campaña se pausa sola al alcanzar el límite o cuando se acaba el saldo.",
+      "conditions": [
+        "PREPAGO",
+        "RECARGA DESDE R$ 50",
+        "TARJETA DE CRÉDITO",
+        "EN REALES",
+        "SIN MENSUALIDAD"
+      ]
+    },
+    "reports": {
+      "label": "INFORMES",
+      "title": "Sabe exactamente qué entregó cada real",
+      "subtitle": "Impresiones, clics, CTR y gasto por día y por posición.",
+      "panelTitle": "Informe",
+      "panelSubtitle": "Festival de Jazz — Banner Superior",
+      "kpis": {
+        "impressions": "IMPRESIONES",
+        "clicks": "CLICS",
+        "ctr": "CTR",
+        "spend": "GASTO"
+      },
+      "dailyLabel": "DESEMPEÑO DIARIO · 30 DÍAS",
+      "byPositionTitle": "Por posición",
+      "columns": {
+        "position": "POSICIÓN",
+        "impressions": "IMPRESIONES",
+        "clicks": "CLICS",
+        "ctr": "CTR",
+        "spend": "GASTO"
+      },
+      "positions": {
+        "feed": "Feed",
+        "pause": "Pausa en el reproductor",
+        "event": "Página del evento",
+        "preroll": "Pre-roll",
+        "checkout": "Checkout"
+      }
+    },
+    "security": {
+      "label": "SEGURIDAD Y EQUIPO",
+      "title": "Anuncios revisados, marca protegida",
+      "text": "Todo anuncio pasa por revisión antes de publicarse. No se aceptan apuestas, contenido adulto ni estafas con cripto. Si un anuncio es rechazado, solo hay que ajustarlo y reenviarlo.",
+      "tags": [
+        "SIN APUESTAS",
+        "SIN CONTENIDO ADULTO",
+        "SIN ESTAFAS CON CRIPTO"
+      ],
+      "teamTitle": "Trabaja en equipo",
+      "teamText": "Invita personas por correo electrónico.",
+      "roles": {
+        "owner": "DUEÑO",
+        "manager": "GERENTE"
+      }
+    },
+    "organizerCross": {
+      "text": "¿Eres organizador? Tus eventos también pueden generar ingresos con anuncios.",
+      "link": "Conoce el programa para organizadores"
+    },
+    "faq": {
+      "label": "PREGUNTAS",
+      "title": "Preguntas frecuentes",
+      "helpLink": "¿Listo para empezar? Crear cuenta",
+      "items": [
+        {
+          "q": "¿Cuánto cuesta empezar?",
+          "a": "No hay mensualidad. Cargas saldo desde R$ 50 y defines la puja y el presupuesto de cada campaña."
+        },
+        {
+          "q": "¿Cómo pago?",
+          "a": "Con tarjeta de crédito, en reales. El saldo es prepago y los anuncios se publican mientras haya saldo."
+        },
+        {
+          "q": "¿Cuál es la diferencia entre CPM y CPC?",
+          "a": "En CPM pagas cada mil exhibiciones del anuncio. En CPC pagas solo cuando alguien hace clic."
+        },
+        {
+          "q": "¿Mi anuncio se publica de inmediato?",
+          "a": "No. Todo anuncio pasa por revisión antes de mostrarse. Puedes seguir el estado en Ads Manager."
+        },
+        {
+          "q": "¿Qué formatos puedo usar?",
+          "a": "Banner 728×90, banner 300×600, imagen 16:9 para el anuncio de pausa y video 16:9 de hasta 30 segundos para el pre-roll."
+        },
+        {
+          "q": "¿Puedo anunciar un evento de showon.io?",
+          "a": "Sí. Elige el evento como destino y el clic lleva directo a su página."
+        },
+        {
+          "q": "¿Puedo controlar cuánto gasto?",
+          "a": "Sí. Cada campaña tiene presupuesto diario y límite total, además de fecha de inicio y fin."
+        },
+        {
+          "q": "¿Puedo compartir la cuenta con mi equipo?",
+          "a": "Sí. Invita personas por correo electrónico como Dueño o Gerente."
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "¿Listo para poner tu marca en el show?",
+      "cta": "Crear cuenta de anunciante",
+      "login": "¿Ya anuncias? Entrar",
+      "watermark": "SHOWON ADS"
     }
   },
   "aboutPage": {

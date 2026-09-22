@@ -2674,6 +2674,7 @@
     "help": "Help",
     "copyright": "© {year} showon.io. All rights reserved.",
     "organizers": "Become a partner",
+    "advertisers": "Advertisers",
     "about": "About us",
     "privacy": "Privacy"
   },
@@ -3662,6 +3663,314 @@
       "ctaHint": "Takes 2 minutes. Your application goes through a quick review before approval.",
       "helpLink": "Still have questions? Talk to us",
       "watermark": "LIVE"
+    }
+  },
+  "advertisersPage": {
+    "meta": {
+      "title": "Advertise on showon.io",
+      "description": "Put your brand inside showon.io's live shows and replays: banners, pre-roll and pause ads, with targeting, controlled budgets and reporting."
+    },
+    "hero": {
+      "label": "SHOWON ADS",
+      "title": "Advertise where the audience is",
+      "titleAccent": "live.",
+      "subtitle": "Put your brand inside the shows streamed on showon.io — from the feed to the player — and pay only for what's delivered.",
+      "cta": "Create advertiser account",
+      "secondary": "See where ads appear ↓",
+      "login": "Already advertising? <link>Log in</link>",
+      "guarantees": [
+        "NO MONTHLY FEE",
+        "STARTING AT R$ 50",
+        "EVERY AD IS REVIEWED"
+      ],
+      "mock": {
+        "paused": "PAUSED",
+        "event": "Winter Festival · Stage A",
+        "sponsored": "SPONSORED",
+        "eyebrow": "YOUR BRAND HERE",
+        "headline": "New sneakers? Free shipping today.",
+        "cta": "Learn more",
+        "resume": "RESUME",
+        "bannerTitle": "Banner 728×90",
+        "bannerPositions": "FEED · EVENT · CHECKOUT"
+      }
+    },
+    "audiences": {
+      "brands": "Brands",
+      "producers": "Event producers and promoters",
+      "sponsors": "Show sponsors",
+      "local": "Local businesses"
+    },
+    "positions": {
+      "label": "POSITIONS",
+      "title": "Your brand across the whole fan journey",
+      "subtitle": "From the moment they discover the show to after the purchase — and inside the player.",
+      "items": [
+        {
+          "title": "Feed",
+          "text": "On the home page and event list."
+        },
+        {
+          "title": "Event page",
+          "text": "Next to the show's information."
+        },
+        {
+          "title": "Checkout",
+          "text": "At purchase time."
+        },
+        {
+          "title": "Post-purchase",
+          "text": "On the ticket confirmation screen."
+        },
+        {
+          "title": "Pre-roll",
+          "text": "Video before the stream starts, live and on replay. Skippable after 5 seconds."
+        },
+        {
+          "title": "Player pause",
+          "text": "Full screen when a fan pauses the video, live and on replay."
+        }
+      ],
+      "mock": {
+        "skipLabel": "SKIP IN 5s"
+      }
+    },
+    "formats": {
+      "label": "FORMATS",
+      "title": "Four formats, each in its own place",
+      "items": [
+        {
+          "title": "Horizontal banner",
+          "spec": "728 × 90",
+          "where": "FEED · EVENT · CHECKOUT · POST-PURCHASE"
+        },
+        {
+          "title": "Vertical banner",
+          "spec": "300 × 600",
+          "where": "FEED · EVENT · CHECKOUT · POST-PURCHASE"
+        },
+        {
+          "title": "16:9 image",
+          "spec": "MINIMUM 1280 × 720",
+          "where": "PLAYER PAUSE"
+        },
+        {
+          "title": "16:9 video",
+          "spec": "MP4 · UP TO 30s · UP TO 50MB",
+          "where": "PRE-ROLL"
+        }
+      ]
+    },
+    "howItWorks": {
+      "label": "HOW IT WORKS",
+      "title": "From account to live ad in five steps.",
+      "steps": [
+        {
+          "title": "Create your account",
+          "text": "Sign up and create your company's advertiser account."
+        },
+        {
+          "title": "Load balance",
+          "text": "Prepaid by card, starting at R$ 50."
+        },
+        {
+          "title": "Build the campaign",
+          "text": "Choose destination, format, creative, audience and budget."
+        },
+        {
+          "title": "Review",
+          "text": "Our team reviews every ad before it runs."
+        },
+        {
+          "title": "Live and measuring",
+          "text": "Track impressions, clicks and spend in Ads Manager."
+        }
+      ],
+      "visual": {
+        "accountLabel": "COMPANY NAME",
+        "accountValue": "RockFest Productions",
+        "accountTitle": "Create your advertiser account",
+        "accountText": "You need it before you continue.",
+        "accountButton": "Create account",
+        "billingLabel": "BILLING · BALANCE",
+        "availableBalance": "AVAILABLE BALANCE",
+        "creditCard": "Credit card",
+        "campaignLabel": "NEW CAMPAIGN",
+        "horizontal": "Horizontal",
+        "vertical": "Vertical",
+        "uploadCreative": "Upload creative",
+        "uploadHint": "PNG · JPG · UP TO 2MB",
+        "dailyBudget": "DAILY BUDGET",
+        "inReview": "IN REVIEW",
+        "reviewTitle": "Jazz Festival — Top Banner",
+        "reviewText": "Our team reviews before the ad runs.",
+        "approved": "Ad approved · ACTIVE",
+        "approvedMeta": "live in every position",
+        "reportLabel": "REPORT · LAST 30 DAYS",
+        "impressions": "IMPRESSIONS",
+        "clicks": "CLICKS",
+        "spend": "SPEND"
+      }
+    },
+    "targeting": {
+      "label": "DESTINATION & AUDIENCE",
+      "title": "Send the fan wherever you want",
+      "destinations": [
+        {
+          "title": "A showon.io event",
+          "text": "Promote a show on the platform; the click goes straight to its page."
+        },
+        {
+          "title": "External link",
+          "text": "Your site, your store or your landing page."
+        }
+      ],
+      "segmentationTitle": "Targeting",
+      "items": [
+        {
+          "title": "Positions",
+          "text": "Choose one or several."
+        },
+        {
+          "title": "Age range",
+          "text": "From 18–24 to 55+. We never show ads to minors."
+        },
+        {
+          "title": "Interests",
+          "text": "Entertainment, Sports, Corporate, Education and Religious."
+        },
+        {
+          "title": "Categories",
+          "text": "Free-form tags to refine the audience."
+        },
+        {
+          "title": "Period",
+          "text": "Set the campaign's start and end."
+        },
+        {
+          "title": "Frequency",
+          "text": "Cap how many times each person sees the ad, per day or in total."
+        }
+      ]
+    },
+    "pricing": {
+      "label": "PRICING",
+      "title": "You set the bid and the cap",
+      "cards": {
+        "cpm": {
+          "label": "CPM",
+          "title": "Pay per thousand impressions",
+          "text": "Ideal for reach and brand awareness. You pay per thousand views."
+        },
+        "cpc": {
+          "label": "CPC",
+          "title": "Pay only when they click",
+          "text": "Ideal for traffic and conversion. You pay only for the clicks you receive."
+        }
+      },
+      "budgetTitle": "Daily budget and total limit",
+      "budgetText": "The campaign pauses itself once it hits the limit or the balance runs out.",
+      "conditions": [
+        "PREPAID",
+        "TOP-UP FROM R$ 50",
+        "CREDIT CARD",
+        "IN BRL",
+        "NO MONTHLY FEE"
+      ]
+    },
+    "reports": {
+      "label": "REPORTING",
+      "title": "Know exactly what every real delivered",
+      "subtitle": "Impressions, clicks, CTR and spend by day and by position.",
+      "panelTitle": "Report",
+      "panelSubtitle": "Jazz Festival — Top Banner",
+      "kpis": {
+        "impressions": "IMPRESSIONS",
+        "clicks": "CLICKS",
+        "ctr": "CTR",
+        "spend": "SPEND"
+      },
+      "dailyLabel": "DAILY PERFORMANCE · 30 DAYS",
+      "byPositionTitle": "By position",
+      "columns": {
+        "position": "POSITION",
+        "impressions": "IMPRESSIONS",
+        "clicks": "CLICKS",
+        "ctr": "CTR",
+        "spend": "SPEND"
+      },
+      "positions": {
+        "feed": "Feed",
+        "pause": "Player pause",
+        "event": "Event page",
+        "preroll": "Pre-roll",
+        "checkout": "Checkout"
+      }
+    },
+    "security": {
+      "label": "REVIEW & TEAM",
+      "title": "Reviewed ads, protected brand",
+      "text": "Every ad goes through review before it airs. Gambling, adult content and crypto scams are not accepted. If an ad is rejected, just fix it and resubmit.",
+      "tags": [
+        "NO GAMBLING",
+        "NO ADULT CONTENT",
+        "NO CRYPTO SCAMS"
+      ],
+      "teamTitle": "Work as a team",
+      "teamText": "Invite people by e-mail.",
+      "roles": {
+        "owner": "OWNER",
+        "manager": "MANAGER"
+      }
+    },
+    "organizerCross": {
+      "text": "Are you an organizer? Your events can also earn revenue from ads.",
+      "link": "See the organizer program"
+    },
+    "faq": {
+      "label": "FAQ",
+      "title": "Frequently asked questions",
+      "helpLink": "Ready to start? Create account",
+      "items": [
+        {
+          "q": "How much does it cost to get started?",
+          "a": "There's no monthly fee. You load balance starting at R$ 50 and set the bid and budget for each campaign."
+        },
+        {
+          "q": "How do I pay?",
+          "a": "With a credit card, in Brazilian reais. The balance is prepaid and ads run while there's balance."
+        },
+        {
+          "q": "What's the difference between CPM and CPC?",
+          "a": "With CPM you pay every thousand times the ad is shown. With CPC you pay only when someone clicks."
+        },
+        {
+          "q": "Does my ad go live right away?",
+          "a": "No. Every ad goes through review before it's shown. You can track the status in Ads Manager."
+        },
+        {
+          "q": "Which formats can I use?",
+          "a": "728×90 banner, 300×600 banner, a 16:9 image for the pause ad and a 16:9 video up to 30 seconds for the pre-roll."
+        },
+        {
+          "q": "Can I advertise a showon.io event?",
+          "a": "Yes. Pick the event as the destination and the click goes straight to its page."
+        },
+        {
+          "q": "Can I control how much I spend?",
+          "a": "Yes. Every campaign has a daily budget and total limit, plus a start and end date."
+        },
+        {
+          "q": "Can I share the account with my team?",
+          "a": "Yes. Invite people by e-mail as Owner or Manager."
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "Ready to put your brand in the show?",
+      "cta": "Create advertiser account",
+      "login": "Already advertising? Log in",
+      "watermark": "SHOWON ADS"
     }
   },
   "aboutPage": {
