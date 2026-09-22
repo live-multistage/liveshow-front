@@ -9,6 +9,8 @@ interface RevealProps {
   as?: keyof JSX.IntrinsicElements;
   className?: string;
   variant?: 'up' | 'scale';
+  /** Marks a purely decorative reveal (e.g. an illustrative mock) as hidden from assistive tech. */
+  ariaHidden?: boolean;
 }
 
 function prefersReducedMotion(): boolean {
@@ -16,7 +18,7 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-export function Reveal({ children, delay = 0, as = 'div', className, variant = 'up' }: RevealProps) {
+export function Reveal({ children, delay = 0, as = 'div', className, variant = 'up', ariaHidden }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
   // Always start hidden so server and client markup match; the environment
   // checks (no IntersectionObserver, reduced motion) run in the effect.
@@ -51,7 +53,7 @@ export function Reveal({ children, delay = 0, as = 'div', className, variant = '
   const cls = [styles.reveal, styles[variant], visible ? styles.visible : '', className ?? ''].join(' ').trim();
 
   return (
-    <Tag ref={ref as never} className={cls} style={style}>
+    <Tag ref={ref as never} className={cls} style={style} aria-hidden={ariaHidden}>
       {children}
     </Tag>
   );

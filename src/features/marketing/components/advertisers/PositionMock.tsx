@@ -8,7 +8,7 @@ interface PositionMockCopy {
   skipLabel: string;
   /** Shared with the hero pause-ad mock: "PATROCINADO". */
   sponsored: string;
-  /** Shared with the hero pause-ad mock, shortened for the small card. */
+  /** positions.mock.pauseHeadline — own copy, distinct from the hero mock's headline. */
   headline: string;
   cta: string;
 }
@@ -22,7 +22,7 @@ interface PositionMockCopy {
 export function PositionMock({ kind, copy }: { kind: PositionMockKind; copy: PositionMockCopy }) {
   if (kind === 'feed') {
     return (
-      <div className={styles.wrap}>
+      <div className={styles.wrap} aria-hidden="true">
         <div className={styles.row}>
           <span className={styles.card} />
           <span className={styles.card} />
@@ -35,12 +35,12 @@ export function PositionMock({ kind, copy }: { kind: PositionMockKind; copy: Pos
 
   if (kind === 'event') {
     return (
-      <div className={styles.wrap}>
+      <div className={styles.wrap} aria-hidden="true">
         <div className={styles.rowFlex}>
           <div className={styles.colMain}>
             <span className={styles.cardTall} />
-            <span className={styles.skel} style={{ width: '70%' }} />
-            <span className={styles.skelDim} style={{ width: '45%' }} />
+            <span className={[styles.skel, styles.w70].join(' ')} />
+            <span className={[styles.skelDim, styles.w45].join(' ')} />
           </div>
           <div className={styles.adBarV}>300×600</div>
         </div>
@@ -50,14 +50,14 @@ export function PositionMock({ kind, copy }: { kind: PositionMockKind; copy: Pos
 
   if (kind === 'checkout') {
     return (
-      <div className={styles.wrap}>
+      <div className={styles.wrap} aria-hidden="true">
         <div className={styles.lineRow}>
-          <span className={styles.skel} style={{ width: '40%' }} />
-          <span className={styles.skelDim} style={{ width: '18%' }} />
+          <span className={[styles.skel, styles.w40].join(' ')} />
+          <span className={[styles.skelDim, styles.w18].join(' ')} />
         </div>
         <div className={styles.lineRow}>
-          <span className={styles.skelDim} style={{ width: '50%' }} />
-          <span className={styles.skelDim} style={{ width: '16%' }} />
+          <span className={[styles.skelDim, styles.w50].join(' ')} />
+          <span className={[styles.skelDim, styles.w16].join(' ')} />
         </div>
         <div className={styles.adBarH}>BANNER</div>
       </div>
@@ -66,12 +66,12 @@ export function PositionMock({ kind, copy }: { kind: PositionMockKind; copy: Pos
 
   if (kind === 'post') {
     return (
-      <div className={styles.wrap}>
+      <div className={styles.wrap} aria-hidden="true">
         <div className={styles.checkRow}>
           <span className={styles.checkIcon}>
             <Check size={16} strokeWidth={3} />
           </span>
-          <span className={styles.skelDim} style={{ width: '45%' }} />
+          <span className={[styles.skelDim, styles.w45].join(' ')} />
         </div>
         <div className={styles.adBarH}>BANNER</div>
       </div>
@@ -80,7 +80,7 @@ export function PositionMock({ kind, copy }: { kind: PositionMockKind; copy: Pos
 
   if (kind === 'preroll') {
     return (
-      <div className={styles.prerollWrap}>
+      <div className={styles.prerollWrap} aria-hidden="true">
         <span className={styles.adTag}>AD</span>
         <span className={styles.playIcon}>
           <Play size={20} fill="currentColor" strokeWidth={0} />
@@ -91,7 +91,7 @@ export function PositionMock({ kind, copy }: { kind: PositionMockKind; copy: Pos
   }
 
   return (
-    <div className={styles.pauseWrap}>
+    <div className={styles.pauseWrap} aria-hidden="true">
       <span className={styles.sponsoredTag}>{copy.sponsored}</span>
       <div className={styles.pauseHeadline}>{copy.headline}</div>
       <span className={styles.pauseCta}>{copy.cta} ▸</span>

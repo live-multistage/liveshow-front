@@ -217,7 +217,7 @@ export function HowItWorks() {
 
             <div className={styles.visualWrap}>
               <div className={styles.glow} />
-              <div className={styles.panel}>
+              <div className={styles.panel} aria-hidden="true">
                 {steps.map((_, index) => (
                   <div
                     key={index}

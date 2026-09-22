@@ -30,13 +30,13 @@ export function SecurityTeamSection() {
           </div>
         </Reveal>
 
-        <Reveal as="div" delay={120} variant="scale" className={styles.teamCard}>
+        <Reveal as="div" delay={120} variant="scale" className={styles.teamCard} ariaHidden>
           <div className={styles.teamHead}>
             <span className={styles.teamIcon}>
               <Users2 size={19} strokeWidth={2} />
             </span>
             <div>
-              <div className={styles.teamTitle}>{t('teamTitle')}</div>
+              <h3 className={styles.teamTitle}>{t('teamTitle')}</h3>
               <div className={styles.teamText}>{t('teamText')}</div>
             </div>
           </div>

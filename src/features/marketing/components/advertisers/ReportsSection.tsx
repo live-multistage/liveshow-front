@@ -42,7 +42,7 @@ export function ReportsSection() {
       <div className={styles.container}>
         <SectionHeader label={t('label')} title={t('title')} text={t('subtitle')} />
 
-        <Reveal as="div" delay={80} variant="scale" className={styles.panel}>
+        <Reveal as="div" delay={80} variant="scale" className={styles.panel} ariaHidden>
           <div className={styles.panelHead}>
             <div className={styles.panelHeadLeft}>
               {t('panelTitle')}
@@ -67,6 +67,17 @@ export function ReportsSection() {
               {CHART_BARS.map((bar, i) => (
                 <span key={i} className={bar.pink ? styles.barPink : styles.bar} style={{ height: `${bar.h}%` }} />
               ))}
+            </div>
+            {/*
+              The design also shows month-over-month deltas ("+12% vs. mês
+              ant.") and a 7/30 DIAS toggle — deliberately left out: the
+              product has no historical comparison yet and reports are a
+              fixed 30-day window, so both would be fabricated UI.
+            */}
+            <div className={styles.axisRow}>
+              <span>01</span>
+              <span>15</span>
+              <span>30</span>
             </div>
           </div>
 
