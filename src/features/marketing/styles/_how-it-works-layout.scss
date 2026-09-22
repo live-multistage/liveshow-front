@@ -1,0 +1,165 @@
+@use '../../../styles/_variables' as *;
+@use './_organizers-tokens' as *;
+
+// Shared sticky-steps layout for organizers/HowItWorks and
+// advertisers/HowItWorks — only the per-screen mock content differs between
+// the two pages. Each `.module.scss` extends these placeholders so the
+// generated CSS keeps the same class names/output as before the split.
+
+%hiwSection {
+  padding: 40px 40px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+%hiwContainer {
+  @include container;
+}
+
+%hiwHeaderWrap {
+  padding: 80px 0 40px;
+}
+
+%hiwGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 80px;
+  align-items: start;
+
+  @media (max-width: $lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Steps list ──────────────────────────────────────────────────────
+%hiwSteps {
+  padding-bottom: 40vh;
+}
+
+%hiwStep {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 0;
+  opacity: 0.28;
+  transform: translateX(-10px);
+  transition:
+    opacity 0.5s,
+    transform 0.6s $ease;
+
+  &.active {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+%hiwStepNum {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: $text-muted;
+  margin-bottom: 18px;
+  transition: color 0.4s;
+
+  &.active {
+    color: $action;
+  }
+}
+
+%hiwStepTitle {
+  margin: 0 0 14px;
+  font-size: clamp(26px, 2.6vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+%hiwStepText {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: $text-secondary;
+  max-width: 42ch;
+}
+
+// ── Compact (≤1024px) ─────────────────────────────────────────────
+%hiwCompactList {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  padding-bottom: 64px;
+}
+
+%hiwCompactItem {
+  .stepNum {
+    color: $action;
+  }
+}
+
+%hiwCompactScreen {
+  position: relative;
+  height: 360px;
+  margin-top: 24px;
+  border-radius: $radius-panel;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: $panel;
+  padding: 34px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+// ── Sticky visual ───────────────────────────────────────────────────
+%hiwVisualWrap {
+  position: sticky;
+  top: calc(50vh - 220px);
+  height: 440px;
+}
+
+%hiwGlow {
+  position: absolute;
+  inset: -60px;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(152, 16, 250, 0.18), transparent 70%);
+  filter: blur(30px);
+  pointer-events: none;
+}
+
+%hiwPanel {
+  position: relative;
+  height: 100%;
+  border-radius: $radius-panel;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: $panel;
+  overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+}
+
+%hiwScreen {
+  position: absolute;
+  inset: 0;
+  padding: 34px;
+  opacity: 0;
+  transform: scale(0.96);
+  transition:
+    opacity 0.6s,
+    transform 0.8s $ease;
+
+  &.active {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// ── Screen: shared bits ─────────────────────────────────────────────
+%hiwScreenLabel {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $text-muted;
+  margin-bottom: 22px;
+}

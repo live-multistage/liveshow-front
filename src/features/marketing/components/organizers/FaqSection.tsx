@@ -42,19 +42,33 @@ function FaqRow({ item, isOpen, onToggle }: { item: FaqItem; isOpen: boolean; on
   );
 }
 
-export function FaqSection() {
-  const t = useTranslations('organizersPage');
+interface FaqSectionProps {
+  /** Message namespace to read `faq.*` copy from. Defaults to the organizers page. */
+  namespace?: 'organizersPage' | 'advertisersPage';
+  /** Where the help link points. Internal paths render as a Next Link, absolute URLs as a plain anchor. */
+  helpHref?: string;
+}
+
+export function FaqSection({ namespace = 'organizersPage', helpHref = '/help' }: FaqSectionProps = {}) {
+  const t = useTranslations(namespace);
   const items = t.raw('faq.items') as FaqItem[];
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const isExternal = /^https?:\/\//.test(helpHref);
 
   return (
     <section className={styles.section}>
       <div className={styles.container}>
         <Reveal as="div" className={styles.left}>
           <SectionHeader label={t('faq.label')} title={t('faq.title')} />
-          <Link href="/help" className={styles.helpLink}>
-            {t('faq.helpLink')} <span>→</span>
-          </Link>
+          {isExternal ? (
+            <a href={helpHref} className={styles.helpLink}>
+              {t('faq.helpLink')} <span>→</span>
+            </a>
+          ) : (
+            <Link href={helpHref} className={styles.helpLink}>
+              {t('faq.helpLink')} <span>→</span>
+            </Link>
+          )}
         </Reveal>
 
         <Reveal as="div" delay={120} className={styles.right}>

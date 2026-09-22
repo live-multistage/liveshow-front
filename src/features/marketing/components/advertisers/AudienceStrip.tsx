@@ -1,7 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { Reveal } from '../shared/Reveal';
 import { advertiserIcon, type AdvertiserIconKey } from '../../data/advertisers-icons';
-import styles from './AudienceStrip.module.scss';
+import styles from '../shared/AudienceStrip.module.scss';
 
 const AUDIENCES: Array<{ key: string; icon: AdvertiserIconKey }> = [
   { key: 'brands', icon: 'brand' },

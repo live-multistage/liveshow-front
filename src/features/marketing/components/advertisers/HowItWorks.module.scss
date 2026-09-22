@@ -1,161 +1,60 @@
 @use '../../../../styles/_variables' as *;
 @use '../../styles/_organizers-tokens' as *;
+@use '../../styles/_how-it-works-layout';
 
+// Sticky-steps layout (section/grid/steps/visual panel) lives in
+// ../../styles/_how-it-works-layout.scss, shared with organizers/HowItWorks.
+// Only the per-screen mock styles below are page-specific.
 .section {
-  padding: 40px 40px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  @extend %hiwSection;
 }
-
 .container {
-  @include container;
+  @extend %hiwContainer;
 }
-
 .headerWrap {
-  padding: 80px 0 40px;
+  @extend %hiwHeaderWrap;
 }
-
 .grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  gap: 80px;
-  align-items: start;
-
-  @media (max-width: $lg) {
-    grid-template-columns: 1fr;
-  }
+  @extend %hiwGrid;
 }
-
-// ── Steps list ──────────────────────────────────────────────────────
 .steps {
-  padding-bottom: 40vh;
+  @extend %hiwSteps;
 }
-
 .step {
-  min-height: 60vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 20px 0;
-  opacity: 0.28;
-  transform: translateX(-10px);
-  transition:
-    opacity 0.5s,
-    transform 0.6s $ease;
-
-  &.active {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  @extend %hiwStep;
 }
-
 .stepNum {
-  font-family: var(--font-space-mono), 'Space Mono', monospace;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: $text-muted;
-  margin-bottom: 18px;
-  transition: color 0.4s;
-
-  &.active {
-    color: $action;
-  }
+  @extend %hiwStepNum;
 }
-
 .stepTitle {
-  margin: 0 0 14px;
-  font-size: clamp(26px, 2.6vw, 36px);
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 1.05;
+  @extend %hiwStepTitle;
 }
-
 .stepText {
-  margin: 0;
-  font-size: 17px;
-  line-height: 1.55;
-  color: $text-secondary;
-  max-width: 42ch;
+  @extend %hiwStepText;
 }
-
-// ── Compact (≤1024px) ─────────────────────────────────────────────
 .compactList {
-  display: flex;
-  flex-direction: column;
-  gap: 56px;
-  padding-bottom: 64px;
+  @extend %hiwCompactList;
 }
-
 .compactItem {
-  .stepNum {
-    color: $action;
-  }
+  @extend %hiwCompactItem;
 }
-
 .compactScreen {
-  position: relative;
-  height: 360px;
-  margin-top: 24px;
-  border-radius: $radius-panel;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: $panel;
-  padding: 34px;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  @extend %hiwCompactScreen;
 }
-
-// ── Sticky visual ───────────────────────────────────────────────────
 .visualWrap {
-  position: sticky;
-  top: calc(50vh - 220px);
-  height: 440px;
+  @extend %hiwVisualWrap;
 }
-
 .glow {
-  position: absolute;
-  inset: -60px;
-  background: radial-gradient(50% 50% at 50% 50%, rgba(152, 16, 250, 0.18), transparent 70%);
-  filter: blur(30px);
-  pointer-events: none;
+  @extend %hiwGlow;
 }
-
 .panel {
-  position: relative;
-  height: 100%;
-  border-radius: $radius-panel;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: $panel;
-  overflow: hidden;
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+  @extend %hiwPanel;
 }
-
 .screen {
-  position: absolute;
-  inset: 0;
-  padding: 34px;
-  opacity: 0;
-  transform: scale(0.96);
-  transition:
-    opacity 0.6s,
-    transform 0.8s $ease;
-
-  &.active {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
+  @extend %hiwScreen;
 }
-
 .screenLabel {
-  font-family: var(--font-space-mono), 'Space Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: $text-muted;
-  margin-bottom: 22px;
+  @extend %hiwScreenLabel;
 }
 
 // Screen 0: create account
