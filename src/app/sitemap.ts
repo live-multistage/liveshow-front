@@ -78,6 +78,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/events`, changeFrequency: 'hourly', priority: 0.9 },
     { url: `${SITE_URL}/artists`, changeFrequency: 'daily', priority: 0.7 },
     { url: `${SITE_URL}/be-partner`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${SITE_URL}/be-advertiser`, changeFrequency: 'monthly', priority: 0.6 },
     ...(channels.length ? [{ url: `${SITE_URL}/channels`, changeFrequency: 'daily' as const, priority: 0.8 }] : []),
     { url: `${SITE_URL}/about`, changeFrequency: 'monthly', priority: 0.4 },
     { url: `${SITE_URL}/help`, changeFrequency: 'monthly', priority: 0.4 },

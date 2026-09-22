@@ -1,0 +1,7 @@
+@use '../../../styles/_variables' as *;
+
+.page {
+  background: $bg;
+  color: $text-primary;
+  overflow-x: clip;
+}
