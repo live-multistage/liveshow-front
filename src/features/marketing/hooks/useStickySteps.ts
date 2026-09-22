@@ -3,21 +3,22 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Shared by organizers/HowItWorks and advertisers/HowItWorks — both render a
- * sticky "N steps, one visual panel each" section and fall back to a stacked
- * list below this breakpoint.
+ * Shared by organizers/HowItWorks, advertisers/HowItWorks (sticky "N steps,
+ * one visual panel each" section, falls back to a stacked list below
+ * `maxWidth`) and advertisers/AdvertisersHero (falls back to a non-pinned
+ * stacked hero below 900px).
  */
-export function useIsCompact(): boolean {
+export function useIsCompact(maxWidth = 1024): boolean {
   const [isCompact, setIsCompact] = useState(false);
 
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') return;
-    const mql = window.matchMedia('(max-width: 1024px)');
+    const mql = window.matchMedia(`(max-width: ${maxWidth}px)`);
     setIsCompact(mql.matches);
     const onChange = (event: MediaQueryListEvent) => setIsCompact(event.matches);
     mql.addEventListener('change', onChange);
     return () => mql.removeEventListener('change', onChange);
-  }, []);
+  }, [maxWidth]);
 
   return isCompact;
 }
@@ -58,6 +59,10 @@ export function useActiveStep(stepCount: number): [number, (index: number, el: H
       ticking = true;
       requestAnimationFrame(computeActive);
     };
+
+    // Compute once on mount so a mid-page reload or anchor jump shows the
+    // right step immediately, instead of waiting for the next scroll event.
+    computeActive();
 
     window.addEventListener('scroll', onScrollOrResize, { passive: true });
     window.addEventListener('resize', onScrollOrResize, { passive: true });
