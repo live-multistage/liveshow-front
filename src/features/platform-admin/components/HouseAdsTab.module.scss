@@ -1,0 +1,174 @@
+.adCell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+.thumb {
+  position: relative;
+  width: 64px;
+  height: 36px;
+  flex: none;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #2a0f1f, #0d0710);
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.thumbFormat {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 8px;
+  letter-spacing: .04em;
+  color: #fff;
+  background: rgba(0, 0, 0, .6);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.adTitle {
+  font-weight: 600;
+  color: #f4f4f5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adDest {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  color: #71717a;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.positions { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.positionChip {
+  font-size: 12px;
+  color: #c7c7cd;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .1);
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.period {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 12px;
+  color: #c7c7cd;
+  line-height: 1.5;
+}
+.periodEnd { color: #71717a; }
+
+.priorityPill {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.priorityFill {
+  color: #9b9ba3;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .12);
+}
+.priorityPriority {
+  color: #7dd3fc;
+  background: rgba(125, 211, 252, .1);
+  border: 1px solid rgba(125, 211, 252, .3);
+}
+
+.emptyWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+  padding: 56px 24px;
+}
+.emptyIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: rgba(236, 72, 153, .1);
+  border: 1px solid rgba(236, 72, 153, .3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff8ec9;
+}
+.errorIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(248, 113, 113, .1);
+  border: 1px solid rgba(248, 113, 113, .3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f87171;
+}
+.emptyTitle {
+  font-family: 'Archivo', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+.emptyDesc {
+  font-size: 14px;
+  color: #a1a1aa;
+  max-width: 40ch;
+  line-height: 1.5;
+}
+
+@keyframes houseAdShimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 17px 4px;
+  border-top: 1px solid rgba(255, 255, 255, .05);
+}
+.skeletonThumb, .skeletonBar, .skeletonPill {
+  border-radius: 6px;
+  background: linear-gradient(90deg, #131316 0px, #1c1c22 200px, #131316 400px);
+  background-size: 800px 100%;
+  animation: houseAdShimmer 1.3s linear infinite;
+}
+.skeletonThumb { width: 64px; height: 36px; flex: none; }
+.skeletonBar { flex: 1; height: 14px; }
+.skeletonPill { width: 70px; height: 22px; border-radius: 999px; flex: none; }
+
+// ≤1100px — the grid row becomes a stacked "card": each cell is a full-width
+// labeled block instead of a grid column. Applied alongside PlatformTable's
+// `.row`/`.head` classes (not overridable from this module, hence !important).
+@media (max-width: 1100px) {
+  .rowResponsive {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 16px 4px;
+  }
+  .headResponsive { display: none !important; }
+  .cellLabeled[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--font-space-mono), 'Space Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: .1em;
+    color: #71717a;
+    margin-bottom: 4px;
+  }
+  .actionsResponsive {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
