@@ -31,7 +31,7 @@ const activeAd: HouseAdListItem = {
   housePriority: 'PRIORITY',
   impressions30d: 4200,
   clicks30d: 84,
-  ctr30d: 0.02,
+  ctr30d: 2,
 };
 
 const pausedAd: HouseAdListItem = { ...activeAd, id: 'ha-2', title: 'Aviso de manutenção', status: 'PAUSED', housePriority: 'FILL' };
@@ -150,6 +150,21 @@ describe('HouseAdsTab', () => {
     expect(screen.queryByTestId('report-drawer')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Ver desempenho' }));
     expect(screen.getByTestId('report-drawer')).toHaveTextContent('Estreia: Showon Sessions');
+  });
+
+  it('opens the performance drawer when the row itself is clicked, not just the button', async () => {
+    const user = userEvent.setup();
+    render(<HouseAdsTab {...baseProps} items={[activeAd]} total={1} isLoading={false} />);
+    expect(screen.queryByTestId('report-drawer')).not.toBeInTheDocument();
+    await user.click(screen.getByText('Estreia: Showon Sessions'));
+    expect(screen.getByTestId('report-drawer')).toHaveTextContent('Estreia: Showon Sessions');
+  });
+
+  it('does not open the report drawer when clicking a row action button', async () => {
+    const user = userEvent.setup();
+    render(<HouseAdsTab {...baseProps} items={[activeAd]} total={1} isLoading={false} />);
+    await user.click(screen.getByRole('button', { name: 'Pausar' }));
+    expect(screen.queryByTestId('report-drawer')).not.toBeInTheDocument();
   });
 
   it('routes the report drawer\'s onEdit to onEdit and closes the drawer', async () => {

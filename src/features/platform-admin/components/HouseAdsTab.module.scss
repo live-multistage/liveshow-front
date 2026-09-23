@@ -31,6 +31,30 @@
   text-overflow: ellipsis;
 }
 
+// Same look as .adTitle, but a real <button> so the row-click-opens-report
+// behaviour (dc.html:805) stays keyboard-reachable without nesting a role or
+// keydown handler on the whole row.
+.adTitleButton {
+  display: block;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  font-weight: 600;
+  color: #f4f4f5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover, &:focus-visible { color: #ff8ec9; }
+  &:focus-visible { outline: 2px solid #ff2e9e; outline-offset: 2px; }
+}
+
+.rowClickable { cursor: pointer; }
+
 .adDest {
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;

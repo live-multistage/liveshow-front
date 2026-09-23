@@ -11,6 +11,13 @@ export {
   HOUSE_AD_TARGETABLE_AGE_BRACKETS,
   HOUSE_AD_PLACEMENT_ACCEPTED_FORMATS,
 } from './types/house-ads.types';
+export {
+  HOUSE_AD_FORMAT_LABEL,
+  HOUSE_AD_PLACEMENT_LABEL,
+  HOUSE_AD_STATUS_LABEL,
+  HOUSE_AD_PRIORITY_LABEL,
+  canEditHouseAd,
+} from './labels';
 export type {
   HouseAdFormat,
   HouseAdPlacement,

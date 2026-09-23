@@ -5,41 +5,16 @@ import { toast } from 'sonner';
 import { Megaphone, AlertCircle } from 'lucide-react';
 import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@live-show/design-system';
 import { useChangeHouseAdStatusMutation } from '../house-ads/mutations/house-ads.mutations';
-import type { HouseAdListItem, HouseAdPlacement, HouseAdPriority, HouseAdStatus } from '../house-ads/types/house-ads.types';
+import { HOUSE_AD_FORMAT_LABEL, HOUSE_AD_PLACEMENT_LABEL, HOUSE_AD_PRIORITY_LABEL, HOUSE_AD_STATUS_LABEL, canEditHouseAd } from '../house-ads/labels';
+import type { HouseAdListItem, HouseAdStatus } from '../house-ads/types/house-ads.types';
 import { Pager } from './PlatformEventsPage';
-// F4's performance drawer and F3's create/edit wizard — imported by direct
-// path per the branch's file-ownership split.
+// F4's performance drawer — imported by direct path per the branch's
+// file-ownership split.
 import { HouseAdReportDrawer } from './HouseAdReportDrawer';
-import { HouseAdWizardDialog } from './house-ads-wizard/HouseAdWizardDialog';
 import table from './PlatformTable.module.scss';
 import styles from './HouseAdsTab.module.scss';
 
 const COLS = 'minmax(0,2.4fr) minmax(0,1.5fr) 118px 110px 120px 100px 90px 64px 150px';
-
-const FORMAT_LABEL: Record<HouseAdListItem['format'], string> = {
-  HORIZONTAL_728x90: '728×90',
-  VERTICAL_300x600: '300×600',
-  WIDE_16_9: '16:9',
-  VIDEO_16_9: 'Vídeo 16:9',
-};
-
-const PLACEMENT_LABEL: Record<HouseAdPlacement, string> = {
-  FEED: 'Feed',
-  EVENT_DETAIL: 'Página do evento',
-  CHECKOUT: 'Checkout',
-  POST_PURCHASE: 'Pós-compra',
-  PLAYER_PAUSE: 'Pausa no player',
-  PRE_ROLL: 'Pre-roll',
-};
-
-const STATUS_LABEL: Record<HouseAdStatus, string> = {
-  DRAFT: 'Rascunho',
-  REVIEW: 'Revisão',
-  ACTIVE: 'Ativo',
-  PAUSED: 'Pausado',
-  ENDED: 'Encerrado',
-  REJECTED: 'Rejeitado',
-};
 
 function statusBadgeClass(status: HouseAdStatus): string {
   if (status === 'ACTIVE') return table.badgeGreen;
@@ -49,13 +24,11 @@ function statusBadgeClass(status: HouseAdStatus): string {
   return table.badge; // DRAFT, ENDED
 }
 
-const PRIORITY_LABEL: Record<HouseAdPriority, string> = {
-  PRIORITY: 'Prioritário',
-  FILL: 'Preenchimento',
-};
-
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
-const fmtCtr = (ctr: number | null) => (ctr === null ? '—' : `${(ctr * 100).toFixed(2)}%`);
+// The API already returns a percentage (see ad-metrics.ts computeCtr:
+// Number((clicks * 10000n) / impressions) / 100 — 2% arrives as `2`, not
+// `0.02`), so this only formats, it never rescales.
+const fmtCtr = (ctr: number | null) => (ctr === null ? '—' : `${ctr.toFixed(2)}%`);
 const fmtCompact = (n: number) => (n < 1000 ? String(n) : `${(n / 1000).toFixed(1).replace('.', ',')}k`);
 
 function destinationLabel(item: HouseAdListItem): string {
@@ -211,24 +184,26 @@ function HouseAdRow({ item, onEnd, onViewReport, onEdit, onPauseResume, pending 
   const canPause = item.status === 'ACTIVE';
   const canResume = item.status === 'PAUSED';
   const canEnd = item.status === 'ACTIVE' || item.status === 'PAUSED' || item.status === 'DRAFT';
-  // The wizard only supports editing a DRAFT or PAUSED ad (see
-  // HouseAdWizardDialogProps.ad doc comment) — anything else is edit-locked.
-  const canEdit = item.status === 'DRAFT' || item.status === 'PAUSED';
+  const canEdit = canEditHouseAd(item.status);
 
   return (
-    <div className={`${table.row} ${styles.rowResponsive}`} style={{ gridTemplateColumns: COLS }}>
+    <div
+      className={`${table.row} ${styles.rowResponsive} ${styles.rowClickable}`}
+      style={{ gridTemplateColumns: COLS }}
+      onClick={onViewReport}
+    >
       <div className={`${table.primary} ${styles.adCell} ${styles.cellLabeled}`} data-label="ANÚNCIO">
         <div className={styles.thumb}>
-          <span className={styles.thumbFormat}>{FORMAT_LABEL[item.format]}</span>
+          <span className={styles.thumbFormat}>{HOUSE_AD_FORMAT_LABEL[item.format]}</span>
         </div>
         <div style={{ minWidth: 0 }}>
-          <div className={styles.adTitle}>{item.title}</div>
+          <button type="button" className={styles.adTitleButton} onClick={onViewReport}>{item.title}</button>
           <div className={styles.adDest}>{destinationLabel(item)}</div>
         </div>
       </div>
 
       <div className={`${styles.positions} ${styles.cellLabeled}`} data-label="POSIÇÕES">
-        {item.placements.map((p) => <span key={p} className={styles.positionChip}>{PLACEMENT_LABEL[p]}</span>)}
+        {item.placements.map((p) => <span key={p} className={styles.positionChip}>{HOUSE_AD_PLACEMENT_LABEL[p]}</span>)}
       </div>
 
       <div className={`${styles.period} ${styles.cellLabeled}`} data-label="PERÍODO">
@@ -236,13 +211,13 @@ function HouseAdRow({ item, onEnd, onViewReport, onEdit, onPauseResume, pending 
       </div>
 
       <div className={styles.cellLabeled} data-label="STATUS">
-        <span className={`${table.badge} ${statusBadgeClass(item.status)}`}>{STATUS_LABEL[item.status]}</span>
+        <span className={`${table.badge} ${statusBadgeClass(item.status)}`}>{HOUSE_AD_STATUS_LABEL[item.status]}</span>
       </div>
 
       <div className={styles.cellLabeled} data-label="PRIORIDADE">
         {item.housePriority && (
           <span className={`${styles.priorityPill} ${item.housePriority === 'PRIORITY' ? styles.priorityPriority : styles.priorityFill}`}>
-            {PRIORITY_LABEL[item.housePriority]}
+            {HOUSE_AD_PRIORITY_LABEL[item.housePriority]}
           </span>
         )}
         {!item.housePriority && '—'}
@@ -252,7 +227,11 @@ function HouseAdRow({ item, onEnd, onViewReport, onEdit, onPauseResume, pending 
       <div className={`${table.mono} ${table.right} ${styles.cellLabeled}`} data-label="CLIQUES 30D">{fmtCompact(item.clicks30d)}</div>
       <div className={`${table.mono} ${table.right} ${styles.cellLabeled}`} data-label="CTR">{fmtCtr(item.ctr30d)}</div>
 
-      <div className={`${table.actions} ${styles.actionsResponsive} ${styles.cellLabeled}`} data-label="AÇÕES">
+      <div
+        className={`${table.actions} ${styles.actionsResponsive} ${styles.cellLabeled}`}
+        data-label="AÇÕES"
+        onClick={(e) => e.stopPropagation()}
+      >
         {canPause && (
           <button className={table.actionBtn} onClick={() => onPauseResume('pause')} disabled={pending}>Pausar</button>
         )}
