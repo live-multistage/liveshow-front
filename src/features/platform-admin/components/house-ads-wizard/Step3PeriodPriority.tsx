@@ -25,6 +25,12 @@ interface Props {
 
 export function Step3PeriodPriority({ draft, update }: Props) {
   const invalidRange = draft.startsAt && draft.endsAt && new Date(draft.endsAt).getTime() <= new Date(draft.startsAt).getTime();
+  const missingDates = !draft.startsAt || !draft.endsAt;
+  const periodErrorId = invalidRange
+    ? 'house-ad-period-range-error'
+    : missingDates
+      ? 'house-ad-period-missing-error'
+      : undefined;
 
   return (
     <>
@@ -39,6 +45,8 @@ export function Step3PeriodPriority({ draft, update }: Props) {
               type="datetime-local"
               value={draft.startsAt}
               onChange={(e) => update('startsAt', e.target.value)}
+              aria-invalid={Boolean(invalidRange || missingDates)}
+              aria-describedby={periodErrorId}
             />
           </div>
           <div className={styles.field}>
@@ -49,11 +57,17 @@ export function Step3PeriodPriority({ draft, update }: Props) {
               type="datetime-local"
               value={draft.endsAt}
               onChange={(e) => update('endsAt', e.target.value)}
+              aria-invalid={Boolean(invalidRange || missingDates)}
+              aria-describedby={periodErrorId}
             />
           </div>
         </div>
-        {invalidRange && <p className={styles.error}>O fim precisa ser depois do início.</p>}
-        {(!draft.startsAt || !draft.endsAt) && <p className={styles.error}>Defina o início e o fim.</p>}
+        {invalidRange && (
+          <p id="house-ad-period-range-error" role="alert" className={styles.error}>O fim precisa ser depois do início.</p>
+        )}
+        {missingDates && (
+          <p id="house-ad-period-missing-error" role="alert" className={styles.error}>Defina o início e o fim.</p>
+        )}
       </div>
 
       <div className={styles.card}>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import type { HouseAdFormat } from '../../house-ads';
 import { EventDestinationSearch } from './EventDestinationSearch';
@@ -24,6 +25,11 @@ interface Props {
 
 export function Step1CreativeDestination({ draft, update, setFormat, setCreativeFile }: Props) {
   const accept = draft.format && isVideoFormat(draft.format) ? VIDEO_MIME_TYPES.join(',') : IMAGE_MIME_TYPES.join(',');
+  // Step 1 is the first thing an admin sees — unlike later steps, showing
+  // "give it a title" before anyone has typed anything is a pristine-load
+  // error, not feedback. Gate it on the field having been touched.
+  const [titleTouched, setTitleTouched] = useState(false);
+  const showTitleError = titleTouched && !draft.title.trim();
 
   return (
     <>
@@ -37,11 +43,19 @@ export function Step1CreativeDestination({ draft, update, setFormat, setCreative
           placeholder="Ex.: Festival Rota Sul — ingressos à venda"
           value={draft.title}
           maxLength={80}
-          onChange={(e) => update('title', e.target.value)}
+          onChange={(e) => {
+            setTitleTouched(true);
+            update('title', e.target.value);
+          }}
+          onBlur={() => setTitleTouched(true)}
           aria-label="Título do anúncio"
+          aria-invalid={showTitleError}
+          aria-describedby={showTitleError ? 'house-ad-title-error' : undefined}
         />
         <p className={styles.hint}>Uso interno e texto alternativo do criativo.</p>
-        {!draft.title.trim() && <p className={styles.error}>Dê um título ao anúncio.</p>}
+        {showTitleError && (
+          <p id="house-ad-title-error" role="alert" className={styles.error}>Dê um título ao anúncio.</p>
+        )}
       </div>
 
       <div className={styles.card}>
@@ -86,11 +100,13 @@ export function Step1CreativeDestination({ draft, update, setFormat, setCreative
               disabled={!draft.format}
               onChange={(e) => setCreativeFile(e.target.files?.[0] ?? null)}
               aria-label="Selecionar arquivo do criativo"
+              aria-invalid={Boolean(draft.creativeError)}
+              aria-describedby={draft.creativeError ? 'house-ad-creative-error' : undefined}
             />
           </label>
         </div>
         {draft.creativeError ? (
-          <p className={styles.error}><AlertCircle size={13} aria-hidden /> {draft.creativeError}</p>
+          <p id="house-ad-creative-error" role="alert" className={styles.error}><AlertCircle size={13} aria-hidden /> {draft.creativeError}</p>
         ) : draft.creativeFileName ? (
           <p className={styles.hint} style={{ color: '#4ade80' }}><CheckCircle2 size={13} aria-hidden /> Arquivo válido</p>
         ) : null}
@@ -137,9 +153,11 @@ export function Step1CreativeDestination({ draft, update, setFormat, setCreative
               value={draft.destinationUrl}
               onChange={(e) => update('destinationUrl', e.target.value)}
               aria-label="Link externo de destino"
+              aria-invalid={Boolean(draft.destinationUrl) && !isValidHttpsUrl(draft.destinationUrl)}
+              aria-describedby={draft.destinationUrl && !isValidHttpsUrl(draft.destinationUrl) ? 'house-ad-destination-url-error' : undefined}
             />
             {draft.destinationUrl && !isValidHttpsUrl(draft.destinationUrl) && (
-              <p className={styles.error}>Use um link que comece com https://</p>
+              <p id="house-ad-destination-url-error" role="alert" className={styles.error}>Use um link que comece com https://</p>
             )}
           </div>
         )}

@@ -10,6 +10,19 @@ import {
 import type { WizardDraft } from './useHouseAdWizardForm';
 import styles from './HouseAdWizardDialog.module.scss';
 
+// Closed taxonomy — mirrors the Ads Manager's TargetingStep DOMAIN_OPTIONS
+// (live-show-ads/src/features/campaigns/components/steps/TargetingStep.tsx)
+// and what AdTargetingScorer.service.ts (orchestrator) looks up as keys. A
+// typed-in value here scored 0 (worse than leaving it empty, which scores
+// 0.5), so this can't be freeform like CATEGORIAS genuinely is.
+const DOMAIN_OPTIONS: { value: string; label: string }[] = [
+  { value: 'ENTERTAINMENT', label: 'Entretenimento' },
+  { value: 'SPORTS', label: 'Esportes' },
+  { value: 'CORPORATE', label: 'Corporativo' },
+  { value: 'EDUCATION', label: 'Educação' },
+  { value: 'RELIGIOUS', label: 'Religioso' },
+];
+
 const PLACEMENT_META: Record<HouseAdPlacement, { name: string; desc: string }> = {
   FEED: { name: 'Feed', desc: 'Lista de eventos e canais' },
   EVENT_DETAIL: { name: 'Página do evento', desc: 'Abaixo dos detalhes do evento' },
@@ -65,9 +78,14 @@ function TagGroup({ label, values, onChange }: { label: string; values: string[]
 }
 
 export function Step2PlacementsAudience({ draft, update, togglePlacement }: Props) {
+  // Step 2 only ever renders after the admin clicked "Continuar" on step 1 —
+  // an interaction already happened — so showing this validation immediately
+  // (matching step 1's own "arrive already invalid" behavior) is expected,
+  // not a pristine-load error.
   const compatiblePlacements = draft.format
     ? (Object.keys(PLACEMENT_META) as HouseAdPlacement[]).filter((p) => HOUSE_AD_PLACEMENT_ACCEPTED_FORMATS[p].includes(draft.format!))
     : [];
+  const showPlacementsError = draft.placements.length === 0;
 
   return (
     <>
@@ -76,7 +94,13 @@ export function Step2PlacementsAudience({ draft, update, togglePlacement }: Prop
           <span>POSIÇÕES</span>
           <span>{draft.placements.length} de {compatiblePlacements.length} compatíveis selecionadas</span>
         </div>
-        <div className={styles.placementGrid} role="group" aria-label="Posições">
+        <div
+          className={styles.placementGrid}
+          role="group"
+          aria-label="Posições"
+          aria-invalid={showPlacementsError}
+          aria-describedby={showPlacementsError ? 'house-ad-placements-error' : undefined}
+        >
           {(Object.keys(PLACEMENT_META) as HouseAdPlacement[]).map((p) => {
             const compatible = compatiblePlacements.includes(p);
             const active = draft.placements.includes(p);
@@ -99,11 +123,36 @@ export function Step2PlacementsAudience({ draft, update, togglePlacement }: Prop
             );
           })}
         </div>
-        {draft.placements.length === 0 && <p className={styles.error}>Selecione ao menos uma posição.</p>}
+        {showPlacementsError && (
+          <p id="house-ad-placements-error" role="alert" className={styles.error}>
+            Selecione ao menos uma posição.
+          </p>
+        )}
       </div>
 
       <div className={styles.card}>
-        <TagGroup label="INTERESSES" values={draft.targetDomains} onChange={(v) => update('targetDomains', v)} />
+        <div className={styles.cardHead}><span>INTERESSES</span></div>
+        <div className={styles.chipRow} role="group" aria-label="Interesses">
+          {DOMAIN_OPTIONS.map((domain) => (
+            <button
+              key={domain.value}
+              type="button"
+              role="checkbox"
+              aria-checked={draft.targetDomains.includes(domain.value)}
+              className={`${styles.chip} ${draft.targetDomains.includes(domain.value) ? styles.chipActive : ''}`}
+              onClick={() =>
+                update(
+                  'targetDomains',
+                  draft.targetDomains.includes(domain.value)
+                    ? draft.targetDomains.filter((d) => d !== domain.value)
+                    : [...draft.targetDomains, domain.value],
+                )
+              }
+            >
+              {domain.label}
+            </button>
+          ))}
+        </div>
         <TagGroup label="CATEGORIAS" values={draft.targetCategories} onChange={(v) => update('targetCategories', v)} />
         <p className={styles.hint}>Sem seleção = todos. Interesses e categorias somam alcance (qualquer um).</p>
       </div>
@@ -141,6 +190,8 @@ export function Step2PlacementsAudience({ draft, update, togglePlacement }: Prop
             value={draft.frequencyCapMax}
             onChange={(e) => update('frequencyCapMax', e.target.value.replace(/\D/g, ''))}
             aria-label="Máximo de exibições por pessoa"
+            aria-invalid={Boolean(draft.frequencyCapMax) && Number(draft.frequencyCapMax) <= 0}
+            aria-describedby={draft.frequencyCapMax && Number(draft.frequencyCapMax) <= 0 ? 'house-ad-frequency-cap-error' : undefined}
           />
           <span className={styles.hint}>exibições</span>
           <div className={styles.destinationTabs} role="tablist" aria-label="Janela do limite de frequência">
@@ -165,7 +216,7 @@ export function Step2PlacementsAudience({ draft, update, togglePlacement }: Prop
           </div>
         </div>
         {draft.frequencyCapMax && Number(draft.frequencyCapMax) <= 0 && (
-          <p className={styles.error}>O limite precisa ser maior que zero.</p>
+          <p id="house-ad-frequency-cap-error" role="alert" className={styles.error}>O limite precisa ser maior que zero.</p>
         )}
       </div>
     </>
