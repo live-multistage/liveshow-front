@@ -1,0 +1,63 @@
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #8f8f97;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 4px 12px;
+  cursor: pointer;
+
+  &:hover { color: #c7c7cd; }
+  &:focus-visible { outline: 2px solid #ff2e9e; outline-offset: 2px; }
+
+  &[aria-selected='true'] {
+    color: #fff;
+    border-bottom-color: #ff2e9e;
+  }
+}
+
+.tabCount {
+  background: rgba(255, 255, 255, .06);
+  color: #c7c7cd;
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+
+.tab[aria-selected='true'] .tabCount {
+  background: #ff2e9e;
+  color: #0a0a0b;
+}
+
+.primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: #ff2e9e;
+  color: #0a0a0b;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { background: #ff7ec2; }
+  &:focus-visible { outline: 2px solid #ff2e9e; outline-offset: 2px; }
+}
