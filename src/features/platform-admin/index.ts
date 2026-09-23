@@ -61,3 +61,4 @@ export { useFiscalIssuerQuery } from './queries/get-fiscal-issuer';
 export { useRetryFiscalDocumentMutation } from './mutations/retry-fiscal-document.mutation';
 export { useUpdateFiscalIssuerMutation } from './mutations/update-fiscal-issuer.mutation';
 export type * from './types/platform-admin.types';
+export * from './house-ads';
