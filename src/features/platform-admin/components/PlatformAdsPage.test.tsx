@@ -55,7 +55,7 @@ const houseAd: HouseAdListItem = {
   housePriority: 'PRIORITY',
   impressions30d: 4200,
   clicks30d: 84,
-  ctr30d: 0.02,
+  ctr30d: 2,
 };
 
 beforeEach(() => {
@@ -118,6 +118,15 @@ describe('PlatformAdsPage — tabs', () => {
     expect(screen.getByTestId('wizard-dialog')).toBeInTheDocument();
   });
 
+  it('disables the house-ads query while the Revisão tab is active, and enables it on house-ads', () => {
+    render(<PlatformAdsPage />);
+    expect(useHouseAdsQuery).toHaveBeenLastCalledWith(expect.anything(), { enabled: false });
+
+    search = new URLSearchParams('tab=house-ads');
+    render(<PlatformAdsPage />);
+    expect(useHouseAdsQuery).toHaveBeenLastCalledWith(expect.anything(), { enabled: true });
+  });
+
   it('drives the house-ads query with the status and priority filters', async () => {
     search = new URLSearchParams('tab=house-ads');
     const user = userEvent.setup();
@@ -125,12 +134,12 @@ describe('PlatformAdsPage — tabs', () => {
 
     await user.selectOptions(screen.getByLabelText('Status'), 'PAUSED');
     await vi.waitFor(() => {
-      expect(useHouseAdsQuery).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'PAUSED' }));
+      expect(useHouseAdsQuery).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'PAUSED' }), expect.anything());
     });
 
     await user.selectOptions(screen.getByLabelText('Prioridade'), 'PRIORITY');
     await vi.waitFor(() => {
-      expect(useHouseAdsQuery).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'PAUSED', priority: 'PRIORITY' }));
+      expect(useHouseAdsQuery).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'PAUSED', priority: 'PRIORITY' }), expect.anything());
     });
   });
 });

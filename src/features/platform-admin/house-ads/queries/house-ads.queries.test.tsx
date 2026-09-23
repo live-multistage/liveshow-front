@@ -50,6 +50,14 @@ describe('useHouseAdsQuery', () => {
     expect(houseAdsService.list).toHaveBeenCalledWith(filter);
     expect(hookResult.current.data).toEqual(result);
   });
+
+  it('does not fetch when enabled is false', () => {
+    const filter = { status: 'ACTIVE' as const, page: 1, limit: 20 };
+    const { result } = renderHook(() => useHouseAdsQuery(filter, { enabled: false }), { wrapper: wrapper() });
+
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(houseAdsService.list).not.toHaveBeenCalled();
+  });
 });
 
 describe('useHouseAdQuery', () => {

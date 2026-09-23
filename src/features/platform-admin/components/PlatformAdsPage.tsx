@@ -86,12 +86,15 @@ export function PlatformAdsPage() {
   const [haStatus, setHaStatus] = useState<HouseAdStatus | ''>('');
   const [haPriority, setHaPriority] = useState<HouseAdPriority | ''>('');
   const [haPage, setHaPage] = useState(1);
-  const houseAds = useHouseAdsQuery({
-    status: haStatus || undefined,
-    priority: haPriority || undefined,
-    page: haPage,
-    limit: HA_LIMIT,
-  });
+  const houseAds = useHouseAdsQuery(
+    {
+      status: haStatus || undefined,
+      priority: haPriority || undefined,
+      page: haPage,
+      limit: HA_LIMIT,
+    },
+    { enabled: tab === 'house-ads' }
+  );
   const haTotal = houseAds.data?.total ?? 0;
   const haHasFilter = haStatus !== '' || haPriority !== '';
   const clearHaFilter = () => { setHaStatus(''); setHaPriority(''); setHaPage(1); };

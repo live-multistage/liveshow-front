@@ -11,11 +11,12 @@ export const houseAdsKeys = {
   report: (id: string) => [...houseAdsKeys.all, 'report', id] as const,
 };
 
-export function useHouseAdsQuery(filter: HouseAdListFilter) {
+export function useHouseAdsQuery(filter: HouseAdListFilter, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: houseAdsKeys.list(filter),
     queryFn: () => houseAdsService.list(filter),
     staleTime: 30_000,
+    enabled: options?.enabled ?? true,
   });
 }
 
