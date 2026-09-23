@@ -7,6 +7,7 @@ import type { HouseAdListFilter } from '../types/house-ads.types';
 export const houseAdsKeys = {
   all: ['platform-admin', 'house-ads'] as const,
   list: (filter: HouseAdListFilter) => [...houseAdsKeys.all, 'list', filter] as const,
+  detail: (id: string) => [...houseAdsKeys.all, 'detail', id] as const,
   report: (id: string) => [...houseAdsKeys.all, 'report', id] as const,
 };
 
@@ -15,6 +16,15 @@ export function useHouseAdsQuery(filter: HouseAdListFilter) {
     queryKey: houseAdsKeys.list(filter),
     queryFn: () => houseAdsService.list(filter),
     staleTime: 30_000,
+  });
+}
+
+export function useHouseAdQuery(id: string | null) {
+  return useQuery({
+    queryKey: houseAdsKeys.detail(id ?? 'none'),
+    queryFn: () => houseAdsService.getDetail(id as string),
+    enabled: id !== null,
+    staleTime: 15_000,
   });
 }
 

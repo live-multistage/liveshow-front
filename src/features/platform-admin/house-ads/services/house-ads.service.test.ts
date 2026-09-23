@@ -23,6 +23,12 @@ describe('houseAdsService', () => {
     });
   });
 
+  it('getDetail() GETs the full ad by id', async () => {
+    await houseAdsService.getDetail('ad-1');
+
+    expect(httpClient.get).toHaveBeenCalledWith('/platform-admin/house-ads/ad-1');
+  });
+
   it('create() POSTs the payload to the collection', async () => {
     const payload: CreateHouseAdRequest = {
       title: 'Show it off',

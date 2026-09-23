@@ -2,6 +2,7 @@ import { httpClient } from '@/lib/http/client';
 import type {
   CreateHouseAdRequest,
   CreateHouseAdResponse,
+  HouseAdDetail,
   HouseAdListFilter,
   HouseAdListResult,
   HouseAdReport,
@@ -18,6 +19,11 @@ export const houseAdsService = {
     const { data } = await httpClient.get<HouseAdListResult>(BASE, {
       params: { status: filter.status, priority: filter.priority, page: filter.page, limit: filter.limit },
     });
+    return data;
+  },
+
+  getDetail: async (id: string): Promise<HouseAdDetail> => {
+    const { data } = await httpClient.get<HouseAdDetail>(`${BASE}/${id}`);
     return data;
   },
 

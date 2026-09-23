@@ -110,6 +110,29 @@ export interface UploadHouseAdVideoResponse {
   videoDurationSec: number;
 }
 
+// GET /platform-admin/house-ads/:id (GetHouseAdUseCase). The only endpoint
+// that carries targeting, frequency cap and the creative URLs — the list row
+// (HouseAdListItem) doesn't. No billing fields.
+export interface HouseAdDetail {
+  id: string;
+  title: string;
+  format: HouseAdFormat;
+  placements: HouseAdPlacement[];
+  destination: HouseAdDestination | null;
+  targetDomains: string[];
+  targetCategories: string[];
+  targetAgeBrackets: AgeBracket[];
+  frequencyCapMax: number | null;
+  frequencyCapWindow: HouseAdFrequencyCapWindow | null;
+  startsAt: string;
+  endsAt: string;
+  status: HouseAdStatus;
+  housePriority: HouseAdPriority | null;
+  bannerUrl: string | null;
+  videoUrl: string | null;
+  videoDurationSec: number | null;
+}
+
 // GET /platform-admin/house-ads/:id/report (GetHouseAdReportUseCase). No
 // spend field anywhere — a house ad is never billed.
 export interface HouseAdReportDailyPoint {

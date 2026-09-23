@@ -1,6 +1,7 @@
 vi.mock('../services/house-ads.service', () => ({
   houseAdsService: {
     list: vi.fn(),
+    getDetail: vi.fn(),
     getReport: vi.fn(),
   },
 }));
@@ -9,9 +10,9 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { useHouseAdReportQuery, useHouseAdsQuery, houseAdsKeys } from './house-ads.queries';
+import { useHouseAdQuery, useHouseAdReportQuery, useHouseAdsQuery, houseAdsKeys } from './house-ads.queries';
 import { houseAdsService } from '../services/house-ads.service';
-import type { HouseAdListResult, HouseAdReport } from '../types/house-ads.types';
+import type { HouseAdDetail, HouseAdListResult, HouseAdReport } from '../types/house-ads.types';
 
 function wrapper() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -29,6 +30,10 @@ describe('houseAdsKeys', () => {
   it('builds an id-scoped report key', () => {
     expect(houseAdsKeys.report('ad-1')).toEqual(['platform-admin', 'house-ads', 'report', 'ad-1']);
   });
+
+  it('builds an id-scoped detail key', () => {
+    expect(houseAdsKeys.detail('ad-1')).toEqual(['platform-admin', 'house-ads', 'detail', 'ad-1']);
+  });
 });
 
 describe('useHouseAdsQuery', () => {
@@ -44,6 +49,27 @@ describe('useHouseAdsQuery', () => {
     await waitFor(() => expect(hookResult.current.isSuccess).toBe(true));
     expect(houseAdsService.list).toHaveBeenCalledWith(filter);
     expect(hookResult.current.data).toEqual(result);
+  });
+});
+
+describe('useHouseAdQuery', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('stays disabled when id is null', () => {
+    const { result } = renderHook(() => useHouseAdQuery(null), { wrapper: wrapper() });
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(houseAdsService.getDetail).not.toHaveBeenCalled();
+  });
+
+  it('fetches the detail once an id is provided', async () => {
+    const detail = { id: 'ad-1' } as HouseAdDetail;
+    vi.mocked(houseAdsService.getDetail).mockResolvedValue(detail);
+
+    const { result } = renderHook(() => useHouseAdQuery('ad-1'), { wrapper: wrapper() });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(houseAdsService.getDetail).toHaveBeenCalledWith('ad-1');
+    expect(result.current.data).toEqual(detail);
   });
 });
 

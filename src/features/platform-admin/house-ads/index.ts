@@ -1,5 +1,5 @@
 export { houseAdsService } from './services/house-ads.service';
-export { houseAdsKeys, useHouseAdsQuery, useHouseAdReportQuery } from './queries/house-ads.queries';
+export { houseAdsKeys, useHouseAdsQuery, useHouseAdQuery, useHouseAdReportQuery } from './queries/house-ads.queries';
 export {
   useCreateHouseAdMutation,
   useUpdateHouseAdMutation,
@@ -19,6 +19,7 @@ export type {
   HouseAdDestination,
   HouseAdFrequencyCapWindow,
   HouseAdListItem,
+  HouseAdDetail,
   HouseAdListResult,
   HouseAdListFilter,
   CreateHouseAdRequest,
