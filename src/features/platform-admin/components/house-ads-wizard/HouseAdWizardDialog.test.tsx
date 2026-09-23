@@ -284,7 +284,7 @@ describe('HouseAdWizardDialog — edit mode', () => {
     format: 'HORIZONTAL_728x90',
     placements: ['FEED'],
     destination: { type: 'EVENT', eventId: 'evt-1' },
-    targetDomains: ['MUSIC'],
+    targetDomains: ['ENTERTAINMENT'],
     targetCategories: ['rock'],
     targetAgeBrackets: [],
     frequencyCapMax: 3,
@@ -329,7 +329,12 @@ describe('HouseAdWizardDialog — edit mode', () => {
     expect(changeStatusMutateAsync).not.toHaveBeenCalled();
   });
 
-  it('changing only the title patches without clearing targeting (exact payload)', async () => {
+  // Regression for the timezone-shift bug: an edit that never touches
+  // startsAt/endsAt must PATCH back the exact same instants it loaded,
+  // regardless of the runner's local timezone. The old `iso.slice(0, 16)`
+  // display bug meant this payload silently drifted by the UTC offset on
+  // every save (and again on every subsequent save).
+  it('changing only the title patches without clearing targeting or shifting the schedule (exact payload)', async () => {
     mockDetailResolved('ad-9', existingAdDetail);
     renderDialog({ ad: existingAd });
 
@@ -351,13 +356,14 @@ describe('HouseAdWizardDialog — edit mode', () => {
         format: 'HORIZONTAL_728x90',
         destination: { type: 'EVENT', eventId: 'evt-1' },
         placements: ['FEED'],
-        targetDomains: ['MUSIC'],
+        targetDomains: ['ENTERTAINMENT'],
         targetCategories: ['rock'],
+        targetAgeBrackets: [],
         frequencyCapMax: 3,
         frequencyCapWindow: 'day',
         housePriority: 'FILL',
-        startsAt: new Date(existingAd.startsAt.slice(0, 16)).toISOString(),
-        endsAt: new Date(existingAd.endsAt.slice(0, 16)).toISOString(),
+        startsAt: existingAd.startsAt,
+        endsAt: existingAd.endsAt,
       },
     });
   });
@@ -373,7 +379,7 @@ describe('HouseAdWizardDialog — edit mode', () => {
 
     fireEvent.click(continueButton());
 
-    expect(screen.getByText('MUSIC ×')).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Entretenimento' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByText('rock ×')).toBeInTheDocument();
     expect(screen.getByLabelText('Máximo de exibições por pessoa')).toHaveValue(3);
   });

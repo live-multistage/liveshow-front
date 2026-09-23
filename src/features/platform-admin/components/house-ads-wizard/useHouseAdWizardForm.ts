@@ -84,8 +84,8 @@ function draftFromAd(ad: HouseAdListItem): WizardDraft {
     destinationEventTitle: '',
     destinationUrl: ad.destination?.type === 'EXTERNAL_URL' ? ad.destination.url : '',
     placements: ad.placements,
-    startsAt: ad.startsAt.slice(0, 16),
-    endsAt: ad.endsAt.slice(0, 16),
+    startsAt: isoToLocal(ad.startsAt),
+    endsAt: isoToLocal(ad.endsAt),
     housePriority: ad.housePriority ?? 'FILL',
   };
 }
@@ -135,8 +135,19 @@ export function step3Valid(draft: WizardDraft): boolean {
 
 // datetime-local ('YYYY-MM-DDTHH:mm') has no timezone; the browser's local
 // zone is what the admin sees and means, so that's what we send.
-function localToIso(local: string): string {
+export function localToIso(local: string): string {
   return new Date(local).toISOString();
+}
+
+// Inverse of localToIso. Bug this replaced: `iso.slice(0, 16)` reused the
+// UTC wall-clock digits as if they were local, so every reopen-then-save
+// round trip shifted startsAt/endsAt by the browser's UTC offset (and again
+// on every subsequent save). Local getters give the actual local wall clock
+// for that instant, matching what localToIso will parse back.
+export function isoToLocal(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function destinationOf(draft: WizardDraft) {
@@ -164,20 +175,30 @@ export function buildCreatePayload(draft: WizardDraft): CreateHouseAdRequest {
 }
 
 // PATCH is Partial on the backend — every field here is optional there.
-// targetDomains/targetCategories only ever get real values from the detail
-// fetch (the list row never carries them), so they're only sent once that
-// fetch has actually loaded; otherwise omitting them means "leave as is"
-// instead of silently wiping them with an empty array. targetAgeBrackets and
-// the frequency cap are already safe: an unloaded/untouched value is falsy
-// and gets omitted the same way.
+// targetDomains/targetCategories/targetAgeBrackets only ever get real values
+// from the detail fetch (the list row never carries them), so they're only
+// sent once that fetch has actually loaded; otherwise omitting them means
+// "leave as is" instead of silently wiping them. targetAgeBrackets is always
+// sent (even []) once loaded, so deselecting every bracket is distinguishable
+// from "never loaded" and actually clears server side.
+// frequencyCapMax/Window can't get the same treatment yet: the backend DTO
+// rejects 0/null for frequencyCapMax (@Min(1)), so an admin who clears the
+// cap still can't save that — omitting it here means "leave as is", not
+// "cleared". That needs a backend change (see ORC follow-up); this payload
+// only sends it when there's a real positive value.
 export function buildUpdatePayload(draft: WizardDraft, targetingLoaded: boolean): UpdateHouseAdRequest {
   return {
     title: draft.title.trim(),
     format: draft.format as HouseAdFormat,
     destination: destinationOf(draft),
     placements: draft.placements,
-    ...(targetingLoaded ? { targetDomains: draft.targetDomains, targetCategories: draft.targetCategories } : {}),
-    ...(draft.targetAgeBrackets.length > 0 ? { targetAgeBrackets: draft.targetAgeBrackets } : {}),
+    ...(targetingLoaded
+      ? {
+          targetDomains: draft.targetDomains,
+          targetCategories: draft.targetCategories,
+          targetAgeBrackets: draft.targetAgeBrackets,
+        }
+      : {}),
     ...(draft.frequencyCapMax ? { frequencyCapMax: Number(draft.frequencyCapMax), frequencyCapWindow: draft.frequencyCapWindow } : {}),
     housePriority: draft.housePriority,
     startsAt: localToIso(draft.startsAt),
@@ -197,6 +218,9 @@ export function useHouseAdWizardForm({ ad, open, onSaved }: UseHouseAdWizardForm
   const [draft, setDraft] = useState<WizardDraft>(() => (ad ? draftFromAd(ad) : EMPTY_DRAFT));
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Set once create() succeeds so a retried submit (upload/publish failed)
+  // resumes on the same ad instead of creating a second DRAFT.
+  const [createdId, setCreatedId] = useState<string | null>(null);
 
   // targetingLoaded gates both the update payload (never send targeting that
   // wasn't actually loaded) and whether the admin can save at all in edit
@@ -219,16 +243,25 @@ export function useHouseAdWizardForm({ ad, open, onSaved }: UseHouseAdWizardForm
     setDraft(ad ? draftFromAd(ad) : EMPTY_DRAFT);
     setStep(1);
     setSubmitError(null);
+    setCreatedId(null);
     setTargetingLoaded(!ad);
   }, [open, ad]);
 
-  // Prefill targeting, frequency cap and the creative preview once the
-  // detail fetch resolves. Never runs for create (isEdit false).
+  // Prefill targeting, frequency cap and the creative preview once the detail
+  // fetch resolves. Never runs for create (isEdit false).
+  //
+  // `open` is in the deps on purpose: the dialog stays mounted between opens,
+  // so on Editar -> Cancelar -> Editar for the SAME ad, React Query returns a
+  // referentially identical cached object and a [isEdit, detailQuery.data]
+  // effect would never re-fire, leaving targetingLoaded stuck at the false
+  // the effect above just set — the submit guard then blocks forever. Keying
+  // on `open` too re-runs this merge on every reopen regardless of whether
+  // the query data object changed.
   useEffect(() => {
-    if (!isEdit || !detailQuery.data) return;
+    if (!open || !isEdit || !detailQuery.data) return;
     setDraft((prev) => mergeDetailIntoDraft(prev, detailQuery.data));
     setTargetingLoaded(true);
-  }, [isEdit, detailQuery.data]);
+  }, [open, isEdit, detailQuery.data]);
 
   function update<K extends keyof WizardDraft>(key: K, value: WizardDraft[K]) {
     setDraft((prev) => ({ ...prev, [key]: value }));
@@ -299,10 +332,25 @@ export function useHouseAdWizardForm({ ad, open, onSaved }: UseHouseAdWizardForm
 
   async function submit() {
     // Belt and suspenders: canProceed already blocks the button, but submit()
-    // itself must never fire an update built from an unloaded draft.
+    // itself must never fire an update built from an unloaded draft, or from
+    // a step 1-3 that stopped being valid (e.g. a fast click-through that
+    // outran the async creative validation — canProceed's snapshot at click
+    // time isn't re-checked by the disabled state on step 4).
     if (isEdit && !targetingLoaded) {
       setSubmitError('Não foi possível carregar os dados do anúncio. Tente novamente.');
       return;
+    }
+    if (!step1Valid(draft, isEdit) || !step2Valid(draft) || !step3Valid(draft)) {
+      setSubmitError('Revise os campos anteriores antes de publicar.');
+      return;
+    }
+    if (draft.creativeFile && draft.format) {
+      const error = await validateCreativeFile(draft.creativeFile, draft.format);
+      if (error) {
+        setDraft((prev) => (prev.creativeFile === draft.creativeFile ? { ...prev, creativeError: error } : prev));
+        setSubmitError(error);
+        return;
+      }
     }
     setSubmitError(null);
     setSubmitting(true);
@@ -312,9 +360,16 @@ export function useHouseAdWizardForm({ ad, open, onSaved }: UseHouseAdWizardForm
         await uploadCreativeIfAny(ad.id);
         toast.success('Alterações salvas.');
       } else {
-        const created = await createAd.mutateAsync(buildCreatePayload(draft));
-        await uploadCreativeIfAny(created.id);
-        await changeStatus.mutateAsync({ id: created.id, action: 'publish' });
+        // Resume from the last completed step on retry: create only runs
+        // once per draft (a failed upload/publish left the DRAFT behind, and
+        // pressing "Publicar" again must not create a second one).
+        let id = createdId;
+        if (!id) {
+          id = (await createAd.mutateAsync(buildCreatePayload(draft))).id;
+          setCreatedId(id);
+        }
+        await uploadCreativeIfAny(id);
+        await changeStatus.mutateAsync({ id, action: 'publish' });
         toast.success('Anúncio publicado.');
       }
       onSaved();
