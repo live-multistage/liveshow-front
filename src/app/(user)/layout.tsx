@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Navbar } from '@/shared/components/Navbar';
-import { Footer } from '@/shared/components/Footer/Footer';
+import { FooterWithFlags } from '@/shared/components/Footer/FooterWithFlags';
 import styles from './layout.module.scss';
 
 export const metadata: Metadata = {
@@ -16,7 +16,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
     <div className={styles.layout}>
       <Navbar />
       {children}
-      <Footer />
+      <FooterWithFlags />
     </div>
   );
 }

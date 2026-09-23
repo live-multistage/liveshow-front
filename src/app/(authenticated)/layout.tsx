@@ -1,5 +1,5 @@
 import { Navbar } from '@/shared/components/Navbar';
-import { Footer } from '@/shared/components/Footer/Footer';
+import { FooterWithFlags } from '@/shared/components/Footer/FooterWithFlags';
 
 // Providers already wraps the whole app from the root layout — this
 // nested wrap was redundant (silently duplicating Toaster/NavigationEvents/
@@ -10,7 +10,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
     <>
       <Navbar />
       {children}
-      <Footer />
+      <FooterWithFlags />
     </>
   );
 }

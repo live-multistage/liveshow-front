@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Logo } from '@live-show/design-system';
-import { fetchFeatureFlags } from '@/features/feature-flags';
 import styles from './Footer.module.scss';
 
 // O e-mail já é público na página de privacidade — não é um canal novo, é o
@@ -19,10 +18,22 @@ const LINKS = [
   { key: 'help', href: '/help' },
 ] as const;
 
-export async function Footer() {
+interface FooterProps {
+  /**
+   * Whether the advertiser platform is on. Defaults to true so a caller that
+   * cannot afford a flag fetch (not-found is prerendered at build time) still
+   * renders, matching DEFAULT_FEATURE_FLAGS. FooterWithFlags resolves the real
+   * value for the layouts.
+   */
+  advertisersEnabled?: boolean;
+}
+
+// Sync on purpose: this component uses a hook (useTranslations), and React
+// forbids hooks in an async component — doing both is what broke the
+// /_not-found prerender with "Expected a suspended thenable".
+export function Footer({ advertisersEnabled = true }: FooterProps) {
   const t = useTranslations('footer');
-  const flags = await fetchFeatureFlags();
-  const links = flags.advertiser_platform ? LINKS : LINKS.filter(({ key }) => key !== 'advertisers');
+  const links = advertisersEnabled ? LINKS : LINKS.filter(({ key }) => key !== 'advertisers');
 
   return (
     <footer className={styles.footer}>

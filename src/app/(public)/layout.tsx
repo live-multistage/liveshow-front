@@ -1,5 +1,5 @@
 import { Navbar } from '@/shared/components/Navbar';
-import { Footer } from '@/shared/components/Footer/Footer';
+import { FooterWithFlags } from '@/shared/components/Footer/FooterWithFlags';
 import styles from './layout.module.scss';
 
 // Providers already wraps the whole app from the root layout — this
@@ -11,7 +11,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     <div className={styles.layout}>
       <Navbar />
       {children}
-      <Footer />
+      <FooterWithFlags />
     </div>
   );
 }
