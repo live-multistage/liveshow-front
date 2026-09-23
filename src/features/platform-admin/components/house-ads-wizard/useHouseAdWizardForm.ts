@@ -8,12 +8,15 @@ import {
   useUploadHouseAdBannerMutation,
   useUploadHouseAdVideoMutation,
   useChangeHouseAdStatusMutation,
+  useHouseAdQuery,
   type CreateHouseAdRequest,
+  type HouseAdDetail,
   type HouseAdFormat,
   type HouseAdListItem,
   type HouseAdPlacement,
   type HouseAdPriority,
   type HouseAdFrequencyCapWindow,
+  type UpdateHouseAdRequest,
 } from '../../house-ads';
 import { isVideoFormat, validateCreativeFile } from './upload-limits';
 
@@ -40,6 +43,9 @@ export interface WizardDraft {
   startsAt: string;
   endsAt: string;
   housePriority: HouseAdPriority;
+  /** Existing banner/video URL from the detail fetch. Display-only — never
+   * sent back; a replacement upload is the only way to change the creative. */
+  existingCreativeUrl: string | null;
 }
 
 const EMPTY_DRAFT: WizardDraft = {
@@ -61,11 +67,13 @@ const EMPTY_DRAFT: WizardDraft = {
   startsAt: '',
   endsAt: '',
   housePriority: 'FILL',
+  existingCreativeUrl: null,
 };
 
-// The list endpoint (the only per-ad data this wizard gets — there's no
-// GET-one) doesn't return targeting, frequency cap or the creative file, so
-// edit mode can only prefill what T2's row actually carries.
+// The list row (the only thing available before the detail fetch resolves)
+// doesn't carry targeting, frequency cap or the creative file, so this only
+// prefills what T2's row actually has. mergeDetailIntoDraft fills the rest
+// once GET /house-ads/:id comes back.
 function draftFromAd(ad: HouseAdListItem): WizardDraft {
   return {
     ...EMPTY_DRAFT,
@@ -79,6 +87,20 @@ function draftFromAd(ad: HouseAdListItem): WizardDraft {
     startsAt: ad.startsAt.slice(0, 16),
     endsAt: ad.endsAt.slice(0, 16),
     housePriority: ad.housePriority ?? 'FILL',
+  };
+}
+
+// Fills in the fields only the detail endpoint carries. Called once the
+// GET /house-ads/:id fetch resolves in edit mode.
+function mergeDetailIntoDraft(draft: WizardDraft, detail: HouseAdDetail): WizardDraft {
+  return {
+    ...draft,
+    targetDomains: detail.targetDomains,
+    targetCategories: detail.targetCategories,
+    targetAgeBrackets: detail.targetAgeBrackets,
+    frequencyCapMax: detail.frequencyCapMax != null ? String(detail.frequencyCapMax) : draft.frequencyCapMax,
+    frequencyCapWindow: detail.frequencyCapWindow ?? draft.frequencyCapWindow,
+    existingCreativeUrl: detail.bannerUrl ?? detail.videoUrl ?? null,
   };
 }
 
@@ -117,17 +139,44 @@ function localToIso(local: string): string {
   return new Date(local).toISOString();
 }
 
-export function buildPayload(draft: WizardDraft): CreateHouseAdRequest {
+function destinationOf(draft: WizardDraft) {
+  return draft.destinationMode === 'EVENT'
+    ? { type: 'EVENT' as const, eventId: draft.destinationEventId }
+    : { type: 'EXTERNAL_URL' as const, url: draft.destinationUrl.trim() };
+}
+
+// Create always sends the full targeting the wizard collected — there's
+// nothing to preserve yet.
+export function buildCreatePayload(draft: WizardDraft): CreateHouseAdRequest {
   return {
     title: draft.title.trim(),
     format: draft.format as HouseAdFormat,
-    destination:
-      draft.destinationMode === 'EVENT'
-        ? { type: 'EVENT', eventId: draft.destinationEventId }
-        : { type: 'EXTERNAL_URL', url: draft.destinationUrl.trim() },
+    destination: destinationOf(draft),
     placements: draft.placements,
     targetDomains: draft.targetDomains,
     targetCategories: draft.targetCategories,
+    ...(draft.targetAgeBrackets.length > 0 ? { targetAgeBrackets: draft.targetAgeBrackets } : {}),
+    ...(draft.frequencyCapMax ? { frequencyCapMax: Number(draft.frequencyCapMax), frequencyCapWindow: draft.frequencyCapWindow } : {}),
+    housePriority: draft.housePriority,
+    startsAt: localToIso(draft.startsAt),
+    endsAt: localToIso(draft.endsAt),
+  };
+}
+
+// PATCH is Partial on the backend — every field here is optional there.
+// targetDomains/targetCategories only ever get real values from the detail
+// fetch (the list row never carries them), so they're only sent once that
+// fetch has actually loaded; otherwise omitting them means "leave as is"
+// instead of silently wiping them with an empty array. targetAgeBrackets and
+// the frequency cap are already safe: an unloaded/untouched value is falsy
+// and gets omitted the same way.
+export function buildUpdatePayload(draft: WizardDraft, targetingLoaded: boolean): UpdateHouseAdRequest {
+  return {
+    title: draft.title.trim(),
+    format: draft.format as HouseAdFormat,
+    destination: destinationOf(draft),
+    placements: draft.placements,
+    ...(targetingLoaded ? { targetDomains: draft.targetDomains, targetCategories: draft.targetCategories } : {}),
     ...(draft.targetAgeBrackets.length > 0 ? { targetAgeBrackets: draft.targetAgeBrackets } : {}),
     ...(draft.frequencyCapMax ? { frequencyCapMax: Number(draft.frequencyCapMax), frequencyCapWindow: draft.frequencyCapWindow } : {}),
     housePriority: draft.housePriority,
@@ -149,11 +198,19 @@ export function useHouseAdWizardForm({ ad, open, onSaved }: UseHouseAdWizardForm
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // targetingLoaded gates both the update payload (never send targeting that
+  // wasn't actually loaded) and whether the admin can save at all in edit
+  // mode. Create mode has nothing to load, so it starts true.
+  const [targetingLoaded, setTargetingLoaded] = useState(!isEdit);
+
   const createAd = useCreateHouseAdMutation();
   const updateAd = useUpdateHouseAdMutation();
   const uploadBanner = useUploadHouseAdBannerMutation();
   const uploadVideo = useUploadHouseAdVideoMutation();
   const changeStatus = useChangeHouseAdStatusMutation();
+  const detailQuery = useHouseAdQuery(ad?.id ?? null);
+  const detailLoading = isEdit && detailQuery.isLoading;
+  const detailError = isEdit && detailQuery.isError;
 
   // Re-seed whenever the dialog is (re)opened for a given ad, so a previous
   // draft never leaks into the next open.
@@ -162,7 +219,16 @@ export function useHouseAdWizardForm({ ad, open, onSaved }: UseHouseAdWizardForm
     setDraft(ad ? draftFromAd(ad) : EMPTY_DRAFT);
     setStep(1);
     setSubmitError(null);
+    setTargetingLoaded(!ad);
   }, [open, ad]);
+
+  // Prefill targeting, frequency cap and the creative preview once the
+  // detail fetch resolves. Never runs for create (isEdit false).
+  useEffect(() => {
+    if (!isEdit || !detailQuery.data) return;
+    setDraft((prev) => mergeDetailIntoDraft(prev, detailQuery.data));
+    setTargetingLoaded(true);
+  }, [isEdit, detailQuery.data]);
 
   function update<K extends keyof WizardDraft>(key: K, value: WizardDraft[K]) {
     setDraft((prev) => ({ ...prev, [key]: value }));
@@ -203,11 +269,15 @@ export function useHouseAdWizardForm({ ad, open, onSaved }: UseHouseAdWizardForm
   }
 
   const canProceed = useMemo(() => {
+    // Never let the admin move forward (or save) on a form that hasn't
+    // loaded the existing ad yet, or failed to — that's exactly the empty
+    // draft that would wipe targeting on submit.
+    if (detailLoading || detailError) return false;
     if (step === 1) return step1Valid(draft, isEdit);
     if (step === 2) return step2Valid(draft);
     if (step === 3) return step3Valid(draft);
     return true;
-  }, [step, draft, isEdit]);
+  }, [step, draft, isEdit, detailLoading, detailError]);
 
   function next() {
     if (!canProceed) return;
@@ -228,15 +298,21 @@ export function useHouseAdWizardForm({ ad, open, onSaved }: UseHouseAdWizardForm
   }
 
   async function submit() {
+    // Belt and suspenders: canProceed already blocks the button, but submit()
+    // itself must never fire an update built from an unloaded draft.
+    if (isEdit && !targetingLoaded) {
+      setSubmitError('Não foi possível carregar os dados do anúncio. Tente novamente.');
+      return;
+    }
     setSubmitError(null);
     setSubmitting(true);
     try {
       if (isEdit && ad) {
-        await updateAd.mutateAsync({ id: ad.id, payload: buildPayload(draft) });
+        await updateAd.mutateAsync({ id: ad.id, payload: buildUpdatePayload(draft, targetingLoaded) });
         await uploadCreativeIfAny(ad.id);
         toast.success('Alterações salvas.');
       } else {
-        const created = await createAd.mutateAsync(buildPayload(draft));
+        const created = await createAd.mutateAsync(buildCreatePayload(draft));
         await uploadCreativeIfAny(created.id);
         await changeStatus.mutateAsync({ id: created.id, action: 'publish' });
         toast.success('Anúncio publicado.');
@@ -255,6 +331,8 @@ export function useHouseAdWizardForm({ ad, open, onSaved }: UseHouseAdWizardForm
     step,
     draft,
     canProceed,
+    detailLoading,
+    detailError,
     submitting,
     submitError,
     update,

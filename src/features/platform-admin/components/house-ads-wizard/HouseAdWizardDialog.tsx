@@ -81,19 +81,29 @@ export function HouseAdWizardDialog({ open, onOpenChange, ad = null, onSaved = (
         </div>
 
         <div className={styles.body}>
-          {form.step === 1 && (
-            <Step1CreativeDestination
-              draft={form.draft}
-              update={form.update}
-              setFormat={form.setFormat}
-              setCreativeFile={form.setCreativeFile}
-            />
+          {form.detailLoading ? (
+            <p className={styles.hint}>Carregando dados do anúncio…</p>
+          ) : form.detailError ? (
+            <p className={styles.error}>
+              Não foi possível carregar os dados do anúncio. Feche e tente novamente.
+            </p>
+          ) : (
+            <>
+              {form.step === 1 && (
+                <Step1CreativeDestination
+                  draft={form.draft}
+                  update={form.update}
+                  setFormat={form.setFormat}
+                  setCreativeFile={form.setCreativeFile}
+                />
+              )}
+              {form.step === 2 && (
+                <Step2PlacementsAudience draft={form.draft} update={form.update} togglePlacement={form.togglePlacement} />
+              )}
+              {form.step === 3 && <Step3PeriodPriority draft={form.draft} update={form.update} />}
+              {form.step === 4 && <Step4Review draft={form.draft} submitError={form.submitError} />}
+            </>
           )}
-          {form.step === 2 && (
-            <Step2PlacementsAudience draft={form.draft} update={form.update} togglePlacement={form.togglePlacement} />
-          )}
-          {form.step === 3 && <Step3PeriodPriority draft={form.draft} update={form.update} />}
-          {form.step === 4 && <Step4Review draft={form.draft} submitError={form.submitError} />}
         </div>
 
         <div className={styles.footer}>
@@ -111,7 +121,7 @@ export function HouseAdWizardDialog({ open, onOpenChange, ad = null, onSaved = (
                 Continuar →
               </Button>
             ) : (
-              <Button type="button" onClick={form.submit} disabled={form.submitting}>
+              <Button type="button" onClick={form.submit} disabled={form.submitting || form.detailLoading || form.detailError}>
                 {form.submitting
                   ? form.isEdit ? 'Salvando…' : 'Publicando…'
                   : form.isEdit ? 'Salvar alterações' : 'Publicar'}

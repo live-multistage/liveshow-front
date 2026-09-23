@@ -2,13 +2,14 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import type { HouseAdListItem } from '../../house-ads';
+import type { HouseAdDetail, HouseAdListItem } from '../../house-ads';
 
 const createMutateAsync = vi.fn();
 const updateMutateAsync = vi.fn();
 const uploadBannerMutateAsync = vi.fn();
 const uploadVideoMutateAsync = vi.fn();
 const changeStatusMutateAsync = vi.fn();
+const houseAdQueryMock = vi.fn();
 const callOrder: string[] = [];
 
 vi.mock('../../house-ads', async () => {
@@ -20,6 +21,7 @@ vi.mock('../../house-ads', async () => {
     useUploadHouseAdBannerMutation: () => ({ mutateAsync: uploadBannerMutateAsync }),
     useUploadHouseAdVideoMutation: () => ({ mutateAsync: uploadVideoMutateAsync }),
     useChangeHouseAdStatusMutation: () => ({ mutateAsync: changeStatusMutateAsync }),
+    useHouseAdQuery: (id: string | null) => houseAdQueryMock(id),
   };
 });
 
@@ -96,6 +98,10 @@ function fillStep3() {
 beforeEach(() => {
   vi.clearAllMocks();
   callOrder.length = 0;
+  // Default: no ad selected (create mode) or, in edit-mode tests that don't
+  // override this, a detail fetch that "hasn't arrived yet" — each edit test
+  // sets its own resolved/loading/error shape explicitly.
+  houseAdQueryMock.mockReturnValue({ data: undefined, isLoading: false, isError: false });
   createMutateAsync.mockImplementation(async (payload) => {
     callOrder.push('create');
     return { id: 'ad-1', status: 'DRAFT', housePriority: payload.housePriority };
@@ -270,7 +276,38 @@ describe('HouseAdWizardDialog — edit mode', () => {
     ctr30d: 0.05,
   };
 
+  // What GET /house-ads/:id returns — the targeting, frequency cap and
+  // creative the list row above never carries.
+  const existingAdDetail: HouseAdDetail = {
+    id: 'ad-9',
+    title: 'Festival Rota Sul',
+    format: 'HORIZONTAL_728x90',
+    placements: ['FEED'],
+    destination: { type: 'EVENT', eventId: 'evt-1' },
+    targetDomains: ['MUSIC'],
+    targetCategories: ['rock'],
+    targetAgeBrackets: [],
+    frequencyCapMax: 3,
+    frequencyCapWindow: 'day',
+    startsAt: '2026-10-01T00:00:00.000Z',
+    endsAt: '2026-10-15T23:59:00.000Z',
+    status: 'PAUSED',
+    housePriority: 'FILL',
+    bannerUrl: 'https://cdn/existing-banner.jpg',
+    videoUrl: null,
+    videoDurationSec: null,
+  };
+
+  function mockDetailResolved(id: string, detail: HouseAdDetail) {
+    houseAdQueryMock.mockImplementation((queriedId: string | null) =>
+      queriedId === id
+        ? { data: detail, isLoading: false, isError: false }
+        : { data: undefined, isLoading: false, isError: false },
+    );
+  }
+
   it('prefills from the ad and patches on save without publishing', async () => {
+    mockDetailResolved('ad-9', existingAdDetail);
     renderDialog({ ad: existingAd });
 
     expect(screen.getByLabelText('Título do anúncio')).toHaveValue('Festival Rota Sul');
@@ -290,5 +327,65 @@ describe('HouseAdWizardDialog — edit mode', () => {
       payload: expect.objectContaining({ title: 'Festival Rota Sul — remarcado' }),
     });
     expect(changeStatusMutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('changing only the title patches without clearing targeting (exact payload)', async () => {
+    mockDetailResolved('ad-9', existingAdDetail);
+    renderDialog({ ad: existingAd });
+
+    // The detail fetch is async — wait for its prefill (visible on step 1 as
+    // the existing-creative link) before touching the form.
+    await screen.findByRole('link', { name: /criativo atual/i });
+
+    fireEvent.change(screen.getByLabelText('Título do anúncio'), { target: { value: 'Festival Rota Sul — remarcado' } });
+    fireEvent.click(continueButton());
+    fireEvent.click(continueButton());
+    fireEvent.click(continueButton());
+    fireEvent.click(screen.getByRole('button', { name: /salvar alterações/i }));
+
+    await waitFor(() => expect(updateMutateAsync).toHaveBeenCalled());
+    expect(updateMutateAsync).toHaveBeenCalledWith({
+      id: 'ad-9',
+      payload: {
+        title: 'Festival Rota Sul — remarcado',
+        format: 'HORIZONTAL_728x90',
+        destination: { type: 'EVENT', eventId: 'evt-1' },
+        placements: ['FEED'],
+        targetDomains: ['MUSIC'],
+        targetCategories: ['rock'],
+        frequencyCapMax: 3,
+        frequencyCapWindow: 'day',
+        housePriority: 'FILL',
+        startsAt: new Date(existingAd.startsAt.slice(0, 16)).toISOString(),
+        endsAt: new Date(existingAd.endsAt.slice(0, 16)).toISOString(),
+      },
+    });
+  });
+
+  it('prefills targeting, frequency cap and the creative preview from the detail response', async () => {
+    mockDetailResolved('ad-9', existingAdDetail);
+    renderDialog({ ad: existingAd });
+
+    expect(await screen.findByRole('link', { name: /criativo atual/i })).toHaveAttribute(
+      'href',
+      'https://cdn/existing-banner.jpg',
+    );
+
+    fireEvent.click(continueButton());
+
+    expect(screen.getByText('MUSIC ×')).toBeInTheDocument();
+    expect(screen.getByText('rock ×')).toBeInTheDocument();
+    expect(screen.getByLabelText('Máximo de exibições por pessoa')).toHaveValue(3);
+  });
+
+  it('shows an error and blocks saving when the detail fetch fails', async () => {
+    houseAdQueryMock.mockImplementation((id: string | null) =>
+      id === 'ad-9' ? { data: undefined, isLoading: false, isError: true } : { data: undefined, isLoading: false, isError: false },
+    );
+    renderDialog({ ad: existingAd });
+
+    expect(await screen.findByText(/não foi possível carregar os dados do anúncio/i)).toBeInTheDocument();
+    expect(continueButton()).toBeDisabled();
+    expect(updateMutateAsync).not.toHaveBeenCalled();
   });
 });

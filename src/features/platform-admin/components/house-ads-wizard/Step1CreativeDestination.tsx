@@ -69,6 +69,10 @@ export function Step1CreativeDestination({ draft, update, setFormat, setCreative
           <div className={styles.dropzoneMeta}>
             {draft.creativeFileName ? (
               <span>{draft.creativeFileName}</span>
+            ) : draft.existingCreativeUrl ? (
+              <a className={styles.muted} href={draft.existingCreativeUrl} target="_blank" rel="noreferrer">
+                Criativo atual (mantido)
+              </a>
             ) : (
               <span className={styles.muted}>Nenhum arquivo selecionado.</span>
             )}
