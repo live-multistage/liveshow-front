@@ -6,6 +6,8 @@ export { VerifyEmailContent } from './components/VerifyEmailContent';
 export { UnsubscribeContent } from './components/UnsubscribeContent';
 export { AccountPageContent } from './components/AccountPageContent';
 export { SettingsPageContent } from './components/SettingsPageContent';
+export { AccountShell } from './components/AccountShell';
+export { NotificationPreferencesPanel } from './components/NotificationPreferencesPanel';
 export { useRegisterMutation } from './mutations/use-register.mutation';
 export { useLoginMutation } from './mutations/use-login.mutation';
 export { useResendVerificationMutation } from './mutations/use-resend-verification.mutation';

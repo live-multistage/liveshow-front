@@ -72,7 +72,7 @@ export function NotificationsDropdown({ triggerClassName }: { triggerClassName?:
         </div>
 
         <div className={styles.footer}>
-          <Link href="/notifications" className={styles.footerLink} onClick={() => setOpen(false)}>
+          <Link href="/account/notifications" className={styles.footerLink} onClick={() => setOpen(false)}>
             Ver todas
           </Link>
         </div>

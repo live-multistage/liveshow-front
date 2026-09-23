@@ -509,6 +509,7 @@
       "EVENT_NOT_PURCHASABLE": "Um dos eventos não está mais disponível para compra.",
       "ALREADY_OWNED": "Você já tem ingresso para este show. Ele está em Meus ingressos.",
       "ORDER_REQUEST_IN_PROGRESS": "Já estamos abrindo seu pagamento. Aguarde um instante — não recarregue a página.",
+      "PENDING_PAYMENT_IN_PROGRESS": "Você já tem um pagamento em andamento. Se acabou de pagar, aguarde alguns instantes: o ingresso aparece em Meus ingressos assim que a confirmação chegar.",
       "GENERIC": "Não foi possível iniciar o pagamento. Tente novamente.",
       "MOBILE_CHECKOUT_DISABLED": "A compra pelo app não está disponível na sua região. Finalize pelo site.",
       "SHEET_FAILED": "Não foi possível abrir o pagamento. Tente novamente.",
@@ -516,13 +517,37 @@
       "PURCHASE_PENDING": "Sua compra ainda está sendo processada pelo Google. Vamos liberar seu ingresso assim que ela for confirmada.",
       "PURCHASE_NOT_VALID": "Não foi possível validar essa compra. Fale com o suporte pela Central de Ajuda.",
       "PLAY_BILLING_DISABLED": "O pagamento pelo Google Play não está disponível aqui. Use o cartão.",
-      "PLAY_UNAVAILABLE": "Não foi possível abrir o Google Play. Tente de novo ou use o cartão."
+      "PLAY_UNAVAILABLE": "Não foi possível abrir o Google Play. Tente de novo ou use o cartão.",
+      "TAX_DOCUMENT_REQUIRED": "Informe seu CPF para pagar com Pix ou cartão.",
+      "ASAAS_NOT_AVAILABLE": "Pix e cartão não estão disponíveis para este pedido. Escolha outra forma de pagamento.",
+      "PAYMENT_GATEWAY_ERROR": "Não conseguimos iniciar o pagamento. Tente novamente em instantes."
     },
     "buyerDocument": {
       "label": "CPF ou CNPJ (opcional)",
       "hint": "Usado na nota fiscal da taxa de serviço.",
       "invalid": "CPF ou CNPJ inválido.",
       "saveError": "Não foi possível salvar o documento."
+    },
+    "pix": {
+      "payWithPix": "Pague com Pix",
+      "totalLabel": "Total a pagar",
+      "qrAlt": "QR Code Pix",
+      "copyButton": "Copiar código Pix",
+      "copied": "Código copiado",
+      "copyError": "Não foi possível copiar o código. Copie manualmente.",
+      "expiresIn": "Expira em",
+      "waiting": "Aguardando pagamento…",
+      "step1": "Abra o app do seu banco",
+      "step2": "Escolha pagar com Pix",
+      "step3": "Leia o QR Code ou cole o código",
+      "backToCheckout": "Voltar ao checkout",
+      "expiredTitle": "O código Pix expirou",
+      "expiredDesc": "Volte ao checkout para gerar um novo pedido.",
+      "expiredBadge": "Código expirado",
+      "generating": "Gerando código Pix…",
+      "errorTitle": "Não foi possível carregar o código Pix.",
+      "errorDesc": "Verifique sua conexão e tente novamente.",
+      "retryButton": "Tentar de novo"
     }
   },
   "carousel": {
@@ -1044,7 +1069,8 @@
       "title": "Minha conta",
       "tickets": "Meus Ingressos",
       "purchases": "Compras",
-      "settings": "Configurações"
+      "settings": "Configurações",
+      "notifications": "Notificações"
     },
     "logout": "Sair da conta",
     "loggingOut": "Saindo...",
@@ -1139,7 +1165,47 @@
       "error": "Não foi possível excluir sua conta agora."
     },
     "connectedWith": "Conectado com {provider}",
-    "taxDocumentInvalid": "CPF ou CNPJ inválido."
+    "taxDocumentInvalid": "CPF ou CNPJ inválido.",
+    "notificationsCenter": {
+      "eyebrow": "Central de avisos",
+      "title": "Notificações",
+      "unreadPill": "{count, plural, one {# NOVA} other {# NOVAS}}",
+      "markAll": "Marcar todas como lidas",
+      "filters": {
+        "all": "Todas",
+        "unread": "Não lidas",
+        "shows": "Shows",
+        "tickets": "Ingressos",
+        "account": "Conta"
+      },
+      "groups": {
+        "today": "Hoje",
+        "yesterday": "Ontem",
+        "thisWeek": "Esta semana",
+        "earlier": "Anteriores"
+      },
+      "categories": {
+        "show": "Show",
+        "ticket": "Ingresso",
+        "payment": "Pagamento",
+        "system": "Sistema",
+        "recommendation": "Recomendação",
+        "collaboration": "Colaboração",
+        "ad": "Anúncio"
+      },
+      "open": "Abrir",
+      "dismiss": "Dispensar",
+      "emptyTitle": "Nenhuma notificação ainda",
+      "emptyDesc": "Quando um show que você segue entrar no ar ou seu ingresso estiver perto de começar, avisamos aqui.",
+      "filterEmptyTitle": "Nada por aqui",
+      "filterEmptyDesc": "Nenhuma notificação neste filtro. Você está em dia.",
+      "explore": "Explorar programação",
+      "loadError": "Não foi possível carregar suas notificações.",
+      "retry": "Tentar de novo",
+      "loadMore": "Carregar mais",
+      "prefsEyebrow": "Preferências",
+      "prefsTitle": "O que você quer receber"
+    }
   },
   "consent": {
     "title": "Privacidade",
@@ -1417,7 +1483,56 @@
     "acceptErrorInvalidToken": "Convite inválido ou já utilizado.",
     "acceptErrorAlreadyMember": "Você já é membro desta organização.",
     "acceptErrorExpired": "Este convite expirou. Peça um novo convite ao administrador da organização.",
-    "acceptErrorGeneric": "Não foi possível aceitar o convite. Tente novamente."
+    "acceptErrorGeneric": "Não foi possível aceitar o convite. Tente novamente.",
+    "asaas": {
+      "title": "Pix e cartão BR (Asaas)",
+      "badgeNotConnected": "NÃO CONECTADA",
+      "badgePending": "EM ANÁLISE",
+      "badgeActive": "ATIVA",
+      "badgeRejected": "RECUSADA",
+      "emptyDescription": "Receba por Pix e cartão brasileiro direto na sua conta Asaas. O valor de cada venda cai na sua conta no momento do pagamento, já com a comissão da plataforma descontada.",
+      "ctaConnect": "Criar conta Asaas",
+      "loadError": "Não foi possível carregar o status da conta Asaas.",
+      "unavailableDescription": "Pix e cartão BR ainda não estão habilitados nesta plataforma.",
+      "pendingDescription": "O Asaas enviou um e-mail para concluir a verificação. Depois de aprovado, Pix e cartão aparecem no checkout dos seus eventos.",
+      "activeDescription": "Sua conta está recebendo. Os saques são feitos dentro do Asaas.",
+      "rejectedDescription": "O Asaas não aprovou este cadastro. Fale com o suporte para entender o motivo.",
+      "walletLabel": "Carteira",
+      "createdAtLabel": "Criada em",
+      "formSubtitle": "Preencha os dados da empresa e do titular.",
+      "formErrorBanner": "Revise os campos destacados abaixo antes de enviar.",
+      "sectionHolder": "TITULAR",
+      "sectionAddress": "ENDEREÇO",
+      "fieldName": "NOME OU RAZÃO SOCIAL",
+      "fieldEmail": "E-MAIL FINANCEIRO",
+      "fieldEmailError": "Informe um e-mail válido.",
+      "fieldCpfCnpj": "CPF OU CNPJ",
+      "fieldCpfCnpjLength": "Informe um CPF (11 dígitos) ou CNPJ (14 dígitos).",
+      "fieldCpfCnpjInvalid": "CPF ou CNPJ inválido. Confira os dígitos.",
+      "fieldRequired": "Campo obrigatório.",
+      "fieldCompanyType": "TIPO DE EMPRESA",
+      "fieldCompanyTypePlaceholder": "Selecione...",
+      "companyTypeMei": "MEI",
+      "companyTypeLimited": "LTDA",
+      "companyTypeIndividual": "Empresário individual",
+      "companyTypeAssociation": "Associação",
+      "fieldBirthDate": "DATA DE NASCIMENTO",
+      "fieldMobilePhone": "CELULAR",
+      "fieldIncomeValue": "FATURAMENTO MENSAL",
+      "fieldIncomeValueHint": "Estimativa do quanto sua organização fatura por mês.",
+      "fieldPostalCode": "CEP",
+      "fieldProvince": "BAIRRO",
+      "fieldAddress": "ENDEREÇO",
+      "fieldAddressNumber": "NÚMERO",
+      "fieldComplement": "COMPLEMENTO",
+      "fieldOptionalHint": "(opcional)",
+      "cancelButton": "Cancelar",
+      "submitButton": "Enviar cadastro",
+      "submitting": "Enviando…",
+      "serverErrorConflict": "Esta organização já tem uma conta Asaas conectada.",
+      "serverErrorUnavailable": "Pix e cartão BR ainda não estão habilitados nesta plataforma.",
+      "serverErrorGeneric": "Não foi possível enviar o cadastro. Tente novamente."
+    }
   },
   "platformAdmin": {
     "tabPending": "Pendentes",

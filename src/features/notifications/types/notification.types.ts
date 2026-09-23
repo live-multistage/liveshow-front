@@ -3,4 +3,7 @@ export type {
   NotificationType,
   NotificationResponse,
   UnreadCountResponse,
+  NotificationFilter,
+  NotificationCounts,
+  NotificationsPageResponse,
 } from '@live-show/api-contracts';

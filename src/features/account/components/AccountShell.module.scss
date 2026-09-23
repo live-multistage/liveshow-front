@@ -1,0 +1,118 @@
+$mono: var(--font-space-mono), 'Space Mono', monospace;
+$sans: var(--font-archivo), 'Archivo', sans-serif;
+$bg: #08080a;
+$card: #101013;
+$line: rgba(255, 255, 255, 0.07);
+$accent: #ff2e9e;
+$accent-soft: #ff5fb4;
+$accent-hi: #ff8ec9;
+$mono-muted: #8f8f97;
+$muted: #9a9aa2;
+$danger: #ef4444;
+
+.page {
+  min-height: 100vh;
+  background: $bg;
+  color: #f4f4f5;
+  max-width: none;
+  margin: 0 auto;
+  padding: 44px 40px 80px;
+
+  @media (max-width: 720px) { padding: 24px 18px 60px; }
+}
+
+.loading { min-height: 60vh; display: flex; align-items: center; justify-content: center; }
+.spinner {
+  width: 26px; height: 26px; border: 2px solid $line; border-top-color: $accent;
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Header ─────────────────────────────────────────────────────── */
+.header { margin-bottom: 34px; }
+.breadcrumb { font-family: $mono; font-size: 11px; letter-spacing: 0.16em; color: $accent-hi; margin-bottom: 10px; }
+.title { margin: 0 0 10px; font-size: 44px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+.subtitle { font-size: 15px; color: $muted; }
+
+/* ── Layout ─────────────────────────────────────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 264px 1fr;
+  gap: 28px;
+  align-items: start;
+
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────── */
+.sidebar {
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  @media (max-width: 900px) { position: static; }
+}
+
+.identityCard {
+  position: relative;
+  overflow: hidden;
+  background: $card;
+  border: 1px solid $line;
+  border-radius: 16px;
+  padding: 20px;
+}
+.identityGlow {
+  position: absolute; top: -34px; right: -34px; width: 110px; height: 110px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 46, 158, 0.2), transparent 70%);
+}
+.identityRow { position: relative; display: flex; align-items: center; gap: 13px; }
+.identityAvatar {
+  width: 52px; height: 52px; border-radius: 50%; flex: none; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #ff2e9e, #9b7bff); color: #0a0a0b;
+  font-family: $mono; font-weight: 700; font-size: 16px;
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+.identityText { min-width: 0; }
+.identityName { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.identityEmail { font-size: 12.5px; color: $mono-muted; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.roleBadge {
+  position: relative; margin-top: 14px; display: inline-flex; align-items: center; gap: 7px;
+  font-family: $mono; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: $accent-hi;
+  background: rgba(255, 46, 158, 0.1); border: 1px solid rgba(255, 46, 158, 0.34); padding: 5px 10px; border-radius: 999px;
+}
+
+.nav {
+  background: $card; border: 1px solid $line; border-radius: 16px; padding: 8px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.navItem {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  background: transparent; border: 1px solid transparent; color: #c7c7cd;
+  padding: 11px 13px; border-radius: 11px; font-family: $sans; font-size: 14px; font-weight: 500;
+  cursor: pointer; text-decoration: none;
+  svg { color: $accent-soft; flex: none; }
+  &:hover { background: rgba(255, 255, 255, 0.04); color: #fff; }
+}
+.navItemActive {
+  background: rgba(255, 46, 158, 0.1); border-color: rgba(255, 46, 158, 0.32); color: #fff;
+  svg { color: $accent-soft; }
+  &:hover { background: rgba(255, 46, 158, 0.1); }
+}
+.navBadge {
+  margin-left: auto; flex: none; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: $mono; font-size: 10px; font-weight: 700; color: #0a0a0b; background: $accent;
+}
+
+.logout {
+  display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%;
+  background: transparent; border: 1px solid rgba(239, 68, 68, 0.4); color: $danger;
+  padding: 12px; border-radius: 12px; font-family: $sans; font-size: 14px; font-weight: 600; cursor: pointer;
+  &:hover { background: rgba(239, 68, 68, 0.08); }
+}
+
+/* ── Main ───────────────────────────────────────────────────────── */
+.main { min-width: 0; display: flex; flex-direction: column; gap: 20px; }

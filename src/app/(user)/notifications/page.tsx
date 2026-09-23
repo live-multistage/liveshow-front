@@ -1,8 +1,6 @@
-import type { Metadata } from 'next';
-import { NotificationsPageContent } from '@/features/notifications';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = { title: 'Notificações' };
-
+// Moved into the account settings screen — see (user)/account/notifications.
 export default function NotificationsPage() {
-  return <NotificationsPageContent />;
+  redirect('/account/notifications');
 }

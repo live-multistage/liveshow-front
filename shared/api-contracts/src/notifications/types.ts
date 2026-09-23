@@ -25,6 +25,24 @@ export interface UnreadCountResponse {
   count: number;
 }
 
+/** Sidebar/pill filter values for the account notifications center. */
+export type NotificationFilter = 'all' | 'unread' | 'shows' | 'tickets' | 'account';
+
+export interface NotificationCounts {
+  all: number;
+  unread: number;
+  shows: number;
+  tickets: number;
+  account: number;
+}
+
+/** `GET /notifications/page` — cursor-paginated feed for the account screen. */
+export interface NotificationsPageResponse {
+  items: NotificationResponse[];
+  nextCursor: string | null;
+  counts: NotificationCounts;
+}
+
 export type NotificationPreferenceKey =
   | 'LIVE_EVENTS'
   | 'TICKET_REMINDERS'
