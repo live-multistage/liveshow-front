@@ -1,12 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Button } from '@live-show/design-system';
+import { AGE_BRACKET_LABELS } from '@live-show/api-contracts';
 import { toast } from 'sonner';
-import { useHouseAdReportQuery } from '../house-ads/queries/house-ads.queries';
+import { useHouseAdQuery, useHouseAdReportQuery } from '../house-ads/queries/house-ads.queries';
 import { useChangeHouseAdStatusMutation } from '../house-ads/mutations/house-ads.mutations';
-import type { HouseAdListItem, HouseAdStatus } from '../house-ads/types/house-ads.types';
+import { HOUSE_AD_FORMAT_LABEL, HOUSE_AD_PLACEMENT_LABEL, HOUSE_AD_PRIORITY_LABEL, HOUSE_AD_STATUS_LABEL, canEditHouseAd } from '../house-ads/labels';
+import type { HouseAdListItem } from '../house-ads/types/house-ads.types';
 import styles from './HouseAdReportDrawer.module.scss';
 
 interface Props {
@@ -15,16 +18,7 @@ interface Props {
   onEdit: (adId: string) => void;
 }
 
-const STATUS_LABELS: Record<HouseAdStatus, string> = {
-  DRAFT: 'RASCUNHO',
-  REVIEW: 'EM REVISÃO',
-  ACTIVE: 'ATIVO',
-  PAUSED: 'PAUSADO',
-  ENDED: 'ENCERRADO',
-  REJECTED: 'REJEITADO',
-};
-
-const STATUS_COLORS: Record<HouseAdStatus, string> = {
+const STATUS_COLORS: Record<string, string> = {
   DRAFT: '#a1a1aa',
   REVIEW: '#ffd166',
   ACTIVE: '#7fe0a0',
@@ -33,23 +27,12 @@ const STATUS_COLORS: Record<HouseAdStatus, string> = {
   REJECTED: '#ff8f8f',
 };
 
-const PRIORITY_LABELS: Record<string, string> = {
-  PRIORITY: 'Prioridade',
-  FILL: 'Preenchimento',
-};
-
-const PLACEMENT_LABELS: Record<string, string> = {
-  FEED: 'Feed',
-  EVENT_DETAIL: 'Detalhe do evento',
-  CHECKOUT: 'Checkout',
-  POST_PURCHASE: 'Pós-compra',
-  PLAYER_PAUSE: 'Pausa no player',
-  PRE_ROLL: 'Pré-roll',
-};
-
+// The API already returns a percentage (see ad-metrics.ts computeCtr:
+// Number((clicks * 10000n) / impressions) / 100 — 2% arrives as `2`, not
+// `0.02`), so this only formats, it never rescales.
 const formatPercent = (value: number | null) => {
   if (value === null || isNaN(value)) return '—';
-  return `${(value * 100).toFixed(2)}%`;
+  return `${value.toFixed(2)}%`;
 };
 
 const formatDate = (iso: string) => {
@@ -57,242 +40,249 @@ const formatDate = (iso: string) => {
   return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
+const list = (arr: string[]) => (arr.length ? arr.join(', ') : null);
+
 export function HouseAdReportDrawer({ ad, onClose, onEdit }: Props) {
   const { data: report, isLoading, isError } = useHouseAdReportQuery(ad?.id ?? null);
+  const { data: detail, isLoading: isDetailLoading } = useHouseAdQuery(ad?.id ?? null);
   const statusMutation = useChangeHouseAdStatusMutation();
   const [endConfirmOpen, setEndConfirmOpen] = useState(false);
-  const drawerRef = useRef<HTMLDivElement>(null);
-
-  // Close on Escape.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
 
   if (!ad) return null;
 
   const handleStatusChange = async (action: 'pause' | 'resume') => {
     try {
       await statusMutation.mutateAsync({ id: ad.id, action });
-      toast.success(`Anúncio ${action === 'pause' ? 'pausado' : 'retomado'} com sucesso`);
+      toast.success(action === 'pause' ? 'Anúncio pausado.' : 'Anúncio retomado.');
     } catch (err) {
-      toast.error('Não foi possível alterar o status do anúncio');
+      toast.error(err instanceof Error ? err.message : 'Não foi possível alterar o status do anúncio.');
     }
   };
 
   const handleEnd = async () => {
     try {
       await statusMutation.mutateAsync({ id: ad.id, action: 'end' });
-      toast.success('Anúncio encerrado com sucesso');
+      toast.success('Anúncio encerrado.');
       setEndConfirmOpen(false);
       onClose();
     } catch (err) {
-      toast.error('Não foi possível encerrar o anúncio');
+      toast.error(err instanceof Error ? err.message : 'Não foi possível encerrar o anúncio.');
     }
   };
 
-  const handleEdit = () => {
-    onEdit(ad.id);
-  };
+  const canEdit = canEditHouseAd(ad.status);
+  const targeting = list([...(detail?.targetDomains ?? []), ...(detail?.targetCategories ?? [])]);
+  const ageBrackets = detail?.targetAgeBrackets.length ? detail.targetAgeBrackets.map((b) => AGE_BRACKET_LABELS[b]).join(', ') : null;
+  const frequency = detail?.frequencyCapMax != null
+    ? `${detail.frequencyCapMax}x / ${detail.frequencyCapWindow === 'day' ? 'dia' : 'total'}`
+    : 'Sem limite';
+
+  // Peak day: the highest-impressions day, not the latest date in the range.
+  const peak = report && report.dailyBreakdown.length > 0
+    ? report.dailyBreakdown.reduce((max, d) => (d.impressions > max.impressions ? d : max))
+    : null;
 
   return (
-    <div className={styles.backdrop} onClick={onClose}>
-      <aside
-        className={styles.drawer}
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-label="Painel de desempenho do anúncio"
-        ref={drawerRef}
-      >
-        <div className={styles.header}>
-          <div>
-            <div className={styles.eyebrow}>DESEMPENHO · 30 DIAS</div>
-            <div className={styles.title}>{ad.title}</div>
-            <div className={styles.subtitle}>{ad.format}</div>
-            {ad.destination && (
-              <div className={styles.destination}>
-                {ad.destination.type === 'EVENT' ? `Evento: ${ad.destination.eventId}` : ad.destination.url}
-              </div>
-            )}
-            <div className={styles.badges}>
-              <span className={styles.statusBadge} style={{ color: STATUS_COLORS[ad.status] }}>
-                <span className={styles.dot} style={{ backgroundColor: STATUS_COLORS[ad.status] }}></span>
-                {STATUS_LABELS[ad.status]}
-              </span>
-              {ad.housePriority && (
-                <span className={styles.priorityBadge}>
-                  <span className={styles.prioIcon}>◆</span>
-                  {PRIORITY_LABELS[ad.housePriority]}
-                </span>
-              )}
-              <span className={styles.period}>
-                {formatDate(ad.startsAt)} – {formatDate(ad.endsAt)}
-              </span>
-            </div>
-          </div>
-          <button className={styles.close} onClick={onClose} aria-label="Fechar">
-            <X size={18} />
-          </button>
-        </div>
-
-        {isLoading && (
-          <div className={styles.body}>
-            <div className={styles.loadingMessage}>Carregando…</div>
-          </div>
-        )}
-
-        {isError && (
-          <div className={styles.body}>
-            <div className={styles.errorMessage}>Não foi possível carregar os dados do anúncio.</div>
-          </div>
-        )}
-
-        {report && (
-          <>
-            {report.impressions === 0 ? (
-              <div className={styles.body}>
-                <div className={styles.emptyState}>
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path>
-                  </svg>
-                  <div className={styles.emptyTitle}>Este anúncio ainda não teve exibições.</div>
-                  <div className={styles.emptyText}>Os números aparecem aqui assim que ele entrar no ar.</div>
+    // Radix Dialog gives us the focus trap, initial focus, focus restore and
+    // scoped Escape handling a hand-rolled <aside role="dialog"> didn't have
+    // — including not stealing Escape from the nested "Encerrar" confirm
+    // dialog below, which is itself a Radix dialog.
+    <DialogPrimitive.Root open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className={styles.backdrop} />
+        <DialogPrimitive.Content className={styles.drawer} aria-describedby={undefined} aria-modal="true">
+          <div className={styles.header}>
+            <div>
+              <div className={styles.eyebrow}>DESEMPENHO · 30 DIAS</div>
+              <DialogPrimitive.Title className={styles.title}>{ad.title}</DialogPrimitive.Title>
+              <div className={styles.subtitle}>{HOUSE_AD_FORMAT_LABEL[ad.format]}</div>
+              {ad.destination && (
+                <div className={styles.destination}>
+                  {ad.destination.type === 'EVENT' ? `Evento: ${ad.destination.eventId}` : ad.destination.url}
                 </div>
+              )}
+              <div className={styles.badges}>
+                <span className={styles.statusBadge} style={{ color: STATUS_COLORS[ad.status] }}>
+                  <span className={styles.dot} style={{ backgroundColor: STATUS_COLORS[ad.status] }}></span>
+                  {HOUSE_AD_STATUS_LABEL[ad.status]}
+                </span>
+                {ad.housePriority && (
+                  <span className={styles.priorityBadge}>
+                    <span className={styles.prioIcon}>◆</span>
+                    {HOUSE_AD_PRIORITY_LABEL[ad.housePriority]}
+                  </span>
+                )}
+                <span className={styles.period}>
+                  {formatDate(ad.startsAt)} – {formatDate(ad.endsAt)}
+                </span>
               </div>
-            ) : (
-              <div className={styles.body}>
-                {/* KPIs */}
-                <div className={styles.kpis}>
-                  <div className={styles.kpi}>
-                    <div className={styles.kpiLabel}>IMPRESSÕES</div>
-                    <div className={styles.kpiValue}>{report.impressions.toLocaleString('pt-BR')}</div>
+            </div>
+            <DialogPrimitive.Close className={styles.close} aria-label="Fechar">
+              <X size={18} />
+            </DialogPrimitive.Close>
+          </div>
+
+          {isLoading && (
+            <div className={styles.body}>
+              <div className={styles.loadingMessage}>Carregando…</div>
+            </div>
+          )}
+
+          {isError && (
+            <div className={styles.body}>
+              <div className={styles.errorMessage}>Não foi possível carregar os dados do anúncio.</div>
+            </div>
+          )}
+
+          {report && (
+            <>
+              {report.impressions === 0 ? (
+                <div className={styles.body}>
+                  <div className={styles.emptyState}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                      <path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path>
+                    </svg>
+                    <div className={styles.emptyTitle}>Este anúncio ainda não teve exibições.</div>
+                    <div className={styles.emptyText}>Os números aparecem aqui assim que ele entrar no ar.</div>
                   </div>
-                  <div className={styles.kpi}>
-                    <div className={styles.kpiLabel}>CLIQUES</div>
-                    <div className={styles.kpiValue}>{report.clicks.toLocaleString('pt-BR')}</div>
-                  </div>
-                  <div className={styles.kpi}>
-                    <div className={styles.kpiLabel}>CTR</div>
-                    <div className={styles.kpiValue} style={{ color: '#ff8ec9' }}>
-                      {formatPercent(report.ctr)}
+                </div>
+              ) : (
+                <div className={styles.body}>
+                  {/* KPIs */}
+                  <div className={styles.kpis}>
+                    <div className={styles.kpi}>
+                      <div className={styles.kpiLabel}>IMPRESSÕES</div>
+                      <div className={styles.kpiValue}>{report.impressions.toLocaleString('pt-BR')}</div>
+                    </div>
+                    <div className={styles.kpi}>
+                      <div className={styles.kpiLabel}>CLIQUES</div>
+                      <div className={styles.kpiValue}>{report.clicks.toLocaleString('pt-BR')}</div>
+                    </div>
+                    <div className={styles.kpi}>
+                      <div className={styles.kpiLabel}>CTR</div>
+                      <div className={styles.kpiValue} style={{ color: '#ff8ec9' }}>
+                        {formatPercent(report.ctr)}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Daily series */}
-                <div className={styles.section}>
-                  <div className={styles.sectionHeader}>
-                    <div className={styles.sectionLabel}>IMPRESSÕES POR DIA</div>
+                  {/* Daily series */}
+                  <div className={styles.section}>
+                    <div className={styles.sectionHeader}>
+                      <div className={styles.sectionLabel}>IMPRESSÕES POR DIA</div>
+                      {peak && (
+                        <div className={styles.peak}>
+                          pico {peak.impressions.toLocaleString('pt-BR')} · {formatDate(peak.date)}
+                        </div>
+                      )}
+                    </div>
+                    <BarChart data={report.dailyBreakdown} />
                     {report.dailyBreakdown.length > 0 && (
-                      <div className={styles.peak}>
-                        pico{' '}
-                        {Math.max(...report.dailyBreakdown.map((d) => d.impressions)).toLocaleString('pt-BR')} ·{' '}
-                        {formatDate(
-                          report.dailyBreakdown.reduce((max, d) =>
-                            new Date(d.date) > new Date(max.date) ? d : max
-                          ).date
-                        )}
+                      <div className={styles.barLabels}>
+                        <span>{formatDate(report.dailyBreakdown[0].date)}</span>
+                        <span>{formatDate(report.dailyBreakdown[Math.floor(report.dailyBreakdown.length / 2)].date)}</span>
+                        <span>{formatDate(report.dailyBreakdown[report.dailyBreakdown.length - 1].date)}</span>
                       </div>
                     )}
                   </div>
-                  <BarChart data={report.dailyBreakdown} />
-                  {report.dailyBreakdown.length > 0 && (
-                    <div className={styles.barLabels}>
-                      <span>{formatDate(report.dailyBreakdown[0].date)}</span>
-                      <span>{formatDate(report.dailyBreakdown[Math.floor(report.dailyBreakdown.length / 2)].date)}</span>
-                      <span>{formatDate(report.dailyBreakdown[report.dailyBreakdown.length - 1].date)}</span>
-                    </div>
-                  )}
-                </div>
 
-                {/* Placement breakdown */}
-                <div className={styles.section}>
-                  <div className={styles.sectionLabel}>POR POSIÇÃO</div>
-                  <div className={styles.placementTable}>
-                    <div className={styles.tableHeader}>
-                      <div>POSIÇÃO</div>
-                      <div>IMPR.</div>
-                      <div>CLIQUES</div>
-                      <div>CTR</div>
-                    </div>
-                    {report.placementBreakdown.map((row) => (
-                      <div key={row.placement} className={styles.tableRow}>
-                        <div className={styles.placementName}>{PLACEMENT_LABELS[row.placement] || row.placement}</div>
-                        <div className={styles.tableCell}>{row.impressions.toLocaleString('pt-BR')}</div>
-                        <div className={styles.tableCell}>{row.clicks.toLocaleString('pt-BR')}</div>
-                        <div className={styles.tableCell} style={{ color: '#ff8ec9' }}>
-                          {formatPercent(row.ctr)}
-                        </div>
+                  {/* Placement breakdown */}
+                  <div className={styles.section}>
+                    <div className={styles.sectionLabel}>POR POSIÇÃO</div>
+                    <div className={styles.placementTable}>
+                      <div className={styles.tableHeader}>
+                        <div>POSIÇÃO</div>
+                        <div>IMPR.</div>
+                        <div>CLIQUES</div>
+                        <div>CTR</div>
                       </div>
-                    ))}
+                      {report.placementBreakdown.map((row) => (
+                        <div key={row.placement} className={styles.tableRow}>
+                          <div className={styles.placementName}>{HOUSE_AD_PLACEMENT_LABEL[row.placement] ?? row.placement}</div>
+                          <div className={styles.tableCell}>{row.impressions.toLocaleString('pt-BR')}</div>
+                          <div className={styles.tableCell}>{row.clicks.toLocaleString('pt-BR')}</div>
+                          <div className={styles.tableCell} style={{ color: '#ff8ec9' }}>
+                            {formatPercent(row.ctr)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Details */}
-                <div className={styles.section}>
-                  <div className={styles.detailsGrid}>
-                    <div>
-                      <span className={styles.detailLabel}>Destino</span>
-                      <span className={styles.detailValue}>
-                        {ad.destination?.type === 'EVENT' ? ad.destination.eventId : ad.destination?.url || '—'}
-                      </span>
-                    </div>
-                    <div>
-                      <span className={styles.detailLabel}>Público</span>
-                      <span className={styles.detailValue}>—</span>
-                    </div>
-                    <div>
-                      <span className={styles.detailLabel}>Frequência</span>
-                      <span className={styles.detailValue}>até 3 por pessoa por dia</span>
+                  {/* Details — only real, fetched values; no invented copy. */}
+                  <div className={styles.section}>
+                    <div className={styles.detailsGrid}>
+                      <div>
+                        <span className={styles.detailLabel}>Destino</span>
+                        <span className={styles.detailValue}>
+                          {ad.destination?.type === 'EVENT' ? ad.destination.eventId : ad.destination?.url || '—'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className={styles.detailLabel}>Segmentação</span>
+                        <span className={styles.detailValue}>
+                          {isDetailLoading ? 'Carregando…' : [targeting, ageBrackets].filter(Boolean).join(' · ') || 'Sem segmentação'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className={styles.detailLabel}>Frequência</span>
+                        <span className={styles.detailValue}>{isDetailLoading ? 'Carregando…' : frequency}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
+            </>
+          )}
+
+          {/* Footer actions */}
+          <div className={styles.footer}>
+            {ad.status === 'ACTIVE' && (
+              <Button
+                variant="outline"
+                size="default"
+                onClick={() => handleStatusChange('pause')}
+                disabled={statusMutation.isPending}
+              >
+                Pausar
+              </Button>
             )}
-          </>
-        )}
-
-        {/* Footer actions */}
-        <div className={styles.footer}>
-          {ad.status === 'ACTIVE' && (
+            {ad.status === 'PAUSED' && (
+              <Button
+                variant="outline"
+                size="default"
+                onClick={() => handleStatusChange('resume')}
+                disabled={statusMutation.isPending}
+              >
+                Retomar
+              </Button>
+            )}
             <Button
               variant="outline"
               size="default"
-              onClick={() => handleStatusChange('pause')}
-              disabled={statusMutation.isPending}
+              onClick={() => onEdit(ad.id)}
+              disabled={!canEdit}
+              title={canEdit ? undefined : 'Pause o anúncio para editar'}
             >
-              Pausar
+              Editar
             </Button>
-          )}
-          {ad.status === 'PAUSED' && (
-            <Button
-              variant="outline"
-              size="default"
-              onClick={() => handleStatusChange('resume')}
-              disabled={statusMutation.isPending}
-            >
-              Retomar
-            </Button>
-          )}
-          <Button variant="outline" size="default" onClick={handleEdit}>
-            Editar
-          </Button>
-          <div style={{ flex: 1 }}></div>
-          {ad.status !== 'ENDED' && (
-            <Button
-              variant="destructive"
-              size="default"
-              onClick={() => setEndConfirmOpen(true)}
-              disabled={statusMutation.isPending}
-            >
-              Encerrar
-            </Button>
-          )}
-        </div>
-      </aside>
+            <div style={{ flex: 1 }}></div>
+            {ad.status !== 'ENDED' && (
+              <Button
+                variant="destructive"
+                size="default"
+                onClick={() => setEndConfirmOpen(true)}
+                disabled={statusMutation.isPending}
+              >
+                Encerrar
+              </Button>
+            )}
+          </div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
 
-      {/* End confirmation dialog */}
+      {/* End confirmation dialog — a separate, nested Radix dialog; its own
+          Escape handling is scoped to itself and won't also close this one. */}
       <Dialog open={endConfirmOpen} onOpenChange={setEndConfirmOpen}>
         <DialogContent>
           <DialogHeader>
@@ -311,7 +301,7 @@ export function HouseAdReportDrawer({ ad, onClose, onEdit }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </DialogPrimitive.Root>
   );
 }
 

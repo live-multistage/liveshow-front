@@ -3,11 +3,17 @@
   inset: 0;
   z-index: 1000;
   background: rgba(0, 0, 0, .55);
-  display: flex;
-  justify-content: flex-end;
 }
 
+// Radix Dialog.Content is a portal sibling of the overlay, not its flex
+// child, so the drawer positions itself (was previously laid out by the
+// backdrop's flex justify-content: flex-end).
 .drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001;
   width: min(560px, 100%);
   height: 100%;
   background: #0d0d10;
@@ -16,6 +22,7 @@
   display: flex;
   flex-direction: column;
   animation: slideIn .18s ease-out;
+  outline: none;
 
   @media (prefers-reduced-motion: reduce) { animation: none; }
 }
@@ -82,6 +89,9 @@
   border-radius: 5px;
   background: rgba(255, 255, 255, .05);
   border: 1px solid rgba(255, 255, 255, .08);
+  // Badge is visually all-caps; the label itself stays the shared Title
+  // Case copy (HOUSE_AD_STATUS_LABEL) instead of a second, drifted map.
+  text-transform: uppercase;
 }
 
 .dot {
