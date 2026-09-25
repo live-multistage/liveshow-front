@@ -260,7 +260,15 @@
       "sortLiveFirst": "Live first",
       "eyebrow": "Catalog",
       "showsFound": "shows found",
-      "liveNow": "live now"
+      "liveNow": "live now",
+      "pagination": {
+        "range": "Showing {from}–{to} of {total} shows",
+        "prev": "Previous",
+        "next": "Next",
+        "nav": "Pagination",
+        "prevAria": "Previous page",
+        "nextAria": "Next page"
+      }
     },
     "detail": {
       "notFound": "Show not found.",

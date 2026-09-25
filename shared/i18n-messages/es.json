@@ -260,7 +260,15 @@
       "sortLiveFirst": "En vivo primero",
       "eyebrow": "Catálogo",
       "showsFound": "shows encontrados",
-      "liveNow": "en vivo"
+      "liveNow": "en vivo",
+      "pagination": {
+        "range": "Mostrando {from}–{to} de {total} shows",
+        "prev": "Anterior",
+        "next": "Siguiente",
+        "nav": "Paginación",
+        "prevAria": "Página anterior",
+        "nextAria": "Página siguiente"
+      }
     },
     "detail": {
       "notFound": "Show no encontrado.",

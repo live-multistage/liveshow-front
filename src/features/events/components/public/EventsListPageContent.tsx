@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useInfiniteEventsQuery, eventToShow } from '@/features/events';
+import { Pagination } from '@live-show/design-system';
+import { useListEventsPageQuery, eventToShow } from '@/features/events';
 import type { PaginatedEventsResponse } from '@/features/events';
 import { AdBanner } from '@/features/advertisements';
 import { ShowCard } from './ShowCard';
@@ -30,14 +32,36 @@ function isWeekend(dateStr: string) {
   return day === 0 || day === 6;
 }
 
-export function EventsListPageContent({ initialFirstPage }: { initialFirstPage?: PaginatedEventsResponse }) {
+export function EventsListPageContent({
+  initialPage,
+  pageSize,
+}: {
+  initialPage: PaginatedEventsResponse;
+  pageSize: number;
+}) {
   const t = useTranslations('events.list');
+  const router = useRouter();
+  const gridTopRef = useRef<HTMLDivElement>(null);
 
-  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteEventsQuery('all', initialFirstPage);
-  const events = useMemo(() => data?.pages.flatMap((p) => p.items) ?? [], [data]);
-  const totalCatalog = data?.pages[0]?.total ?? 0;
+  // Server always returns the current page already clamped to [1, pageCount]
+  // (see page.tsx), so this local state never needs to re-validate itself.
+  const [page, setPage] = useState(initialPage.page);
+
+  const { data } = useListEventsPageQuery('all', page, pageSize, page === initialPage.page ? initialPage : undefined);
+  const isLoading = !data;
+  const isError = false; // ponytail: listEvents never rejects here (events.service resolves via httpClient's own error handling); add when a real failure mode surfaces.
+  const events = data?.items ?? [];
+  const total = data?.total ?? initialPage.total;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  // NOTE: chip filters run client-side over this single page's items only —
+  // server-side filtering is a follow-up (would need /events?filter=... per chip).
   const SHOWS = useMemo(() => events.map(eventToShow), [events]);
+
+  const goToPage = (target: number) => {
+    setPage(target);
+    router.push(`/events?page=${target}`, { scroll: false });
+    gridTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const [search, setSearch] = useState('');
   const [sort, setSort]     = useState('date-asc');
@@ -158,7 +182,7 @@ export function EventsListPageContent({ initialFirstPage }: { initialFirstPage?:
               <div className={styles.statCard}>
                 <div className={styles.statLabel}>CATÁLOGO</div>
                 <div className={styles.statValue}>
-                  <span className={styles.statNumber}>{totalCatalog}</span>
+                  <span className={styles.statNumber}>{total}</span>
                   <span className={styles.statUnit}>no total</span>
                 </div>
               </div>
@@ -229,6 +253,8 @@ export function EventsListPageContent({ initialFirstPage }: { initialFirstPage?:
           })}
         </div>
 
+        <div ref={gridTopRef} />
+
         {/* Count + view toggle */}
         <div className={styles.countRow}>
           <h2 className={styles.countLabel}>
@@ -293,16 +319,29 @@ export function EventsListPageContent({ initialFirstPage }: { initialFirstPage?:
           </div>
         )}
 
-        {/* Load more */}
-        {!isLoading && !isError && hasNextPage && (
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
-            <button
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-              className={styles.clearBtn}
-            >
-              {isFetchingNextPage ? 'CARREGANDO…' : 'CARREGAR MAIS'}
-            </button>
+        {/* Pagination */}
+        {!isLoading && !isError && total > 0 && (
+          <div className={styles.paginationRow}>
+            <span className={styles.paginationRange}>
+              {t('pagination.range', {
+                from: (page - 1) * pageSize + 1,
+                to: Math.min(page * pageSize, total),
+                total,
+              })}
+            </span>
+            <Pagination
+              page={page}
+              pageCount={pageCount}
+              onPageChange={goToPage}
+              hrefFor={(n) => `/events?page=${n}`}
+              labels={{
+                prev: t('pagination.prev'),
+                next: t('pagination.next'),
+                nav: t('pagination.nav'),
+                prevAria: t('pagination.prevAria'),
+                nextAria: t('pagination.nextAria'),
+              }}
+            />
           </div>
         )}
 

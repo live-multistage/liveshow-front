@@ -25,6 +25,17 @@ export const fetchFeedFirstPage = cache(async (): Promise<PaginatedEventsRespons
 // Items-only view of the first page — seeds useListEventsQuery (finite).
 export const fetchFeed = async (): Promise<EventResponse[]> => (await fetchFeedFirstPage()).items;
 
+// Any page of the /events listing — seeds the numbered-pagination client query.
+export const fetchFeedPage = cache(async (page: number, pageSize = 24): Promise<PaginatedEventsResponse> => {
+  try {
+    const res = await fetch(`${apiBase()}/events?filter=all&page=${page}&pageSize=${pageSize}`, { next: { revalidate: 30 } });
+    if (!res.ok) return { ...EMPTY, page, pageSize };
+    return (await res.json()) as PaginatedEventsResponse;
+  } catch {
+    return { ...EMPTY, page, pageSize };
+  }
+});
+
 export interface HomeFeed {
   live: EventResponse[];
   upcoming: EventResponse[];

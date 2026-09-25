@@ -65,6 +65,7 @@ export {
 } from "./ui/dropdown-menu";
 export { Input } from "./ui/input";
 export { Label } from "./ui/label";
+export { Pagination, paginationWindow, type PaginationProps, type PaginationLabels } from "./ui/pagination";
 export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from "./ui/popover";
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "./ui/tooltip";
 export {

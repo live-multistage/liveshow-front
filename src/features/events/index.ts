@@ -12,7 +12,7 @@ export { TicketSection } from './components/dashboard/TicketSection';
 export { useCreateEventMutation } from './mutations/create-event.mutation';
 export { useGetEventQuery, useEventBySlugQuery, useListTicketProductsQuery, useServiceFeeRateQuery, useListEventPhotosQuery, eventKeys } from './queries/get-event';
 export { useMyEventsQuery, MY_EVENTS_KEY } from './queries/get-my-events';
-export { useListEventsQuery, useInfiniteEventsQuery, LIST_EVENTS_KEY, INFINITE_EVENTS_KEY } from './queries/use-list-events';
+export { useListEventsQuery, useListEventsPageQuery, LIST_EVENTS_KEY, LIST_EVENTS_PAGE_KEY } from './queries/use-list-events';
 export { useRecommendedEventsQuery, RECOMMENDED_EVENTS_KEY } from './queries/use-recommended-events';
 export { useEventSchedule, eventScheduleKey } from './hooks/use-event-schedule';
 export { useReplaceEventScheduleMutation } from './mutations/schedule.mutations';
