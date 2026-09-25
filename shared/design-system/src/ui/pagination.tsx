@@ -53,6 +53,9 @@ function Pagination({ page, pageCount, onPageChange, labels, hrefFor, className 
           className={className}
           aria-label={ariaLabel}
           onClick={(e) => {
+            // Plain left click navigates in place; modifier/middle clicks keep
+            // the native anchor behaviour (new tab) — the href is real.
+            if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
             e.preventDefault();
             onPageChange(target);
           }}
