@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { EditorialHome } from '@/features/events/components/public/EditorialHome';
-import { fetchFeed } from '@/features/events/queries/get-feed.server';
+import { fetchHomeFeed } from '@/features/events/queries/get-feed.server';
 import { fetchRecommendedEvents } from '@/features/events/queries/get-recommended-events.server';
 import { fetchReplayCatalog } from '@/features/events/queries/get-replay-catalog.server';
 import { getInitialIsLoggedIn } from '@/features/account/queries/get-auth-state.server';
@@ -23,10 +23,10 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const [flags, initialEvents, initialRecommended, initialReplayCatalog, isLoggedIn] =
+  const [flags, homeFeed, initialRecommended, initialReplayCatalog, isLoggedIn] =
     await Promise.all([
       fetchFeatureFlags(),
-      fetchFeed(),
+      fetchHomeFeed(),
       fetchRecommendedEvents(),
       fetchReplayCatalog(),
       getInitialIsLoggedIn(),
@@ -36,7 +36,8 @@ export default async function Home() {
   const initialChannels = flags.linear_channels ? await fetchChannels() : [];
   return (
     <EditorialHome
-      initialEvents={initialEvents}
+      initialLive={homeFeed.live}
+      initialUpcoming={homeFeed.upcoming}
       initialRecommended={initialRecommended}
       initialReplayCatalog={initialReplayCatalog}
       initialChannels={initialChannels}

@@ -16,7 +16,8 @@ import { ShowCard } from './ShowCard';
 import styles from './EditorialHomeContent.module.scss';
 
 interface Props {
-  initialEvents?: EventResponse[];
+  initialLive?: EventResponse[];
+  initialUpcoming?: EventResponse[];
   initialRecommended?: RecommendedEventsResponse;
   initialReplayCatalog?: RecommendedEventsResponse;
   initialChannels?: ChannelListItem[];
@@ -24,18 +25,18 @@ interface Props {
 }
 
 export function EditorialHome({
-  initialEvents = [], initialRecommended, initialReplayCatalog, initialChannels = [],
+  initialLive = [], initialUpcoming = [], initialRecommended, initialReplayCatalog, initialChannels = [],
   isLoggedIn,
 }: Props) {
   const t = useTranslations('home');
-  const shows = initialEvents.map(eventToShow);
   const recommendedShows = (initialRecommended?.items ?? []).map(eventToShow);
   const onDemandShows = (initialReplayCatalog?.items ?? []).map(eventToShow);
 
-  const liveShows = shows.filter((s) => s.isLive);
-  const upcomingShows = shows
-    .filter((s) => !s.isLive)
-    .sort((a, b) => a.date.localeCompare(b.date));
+  const liveShows = initialLive.map(eventToShow);
+  // Already ASC from the API (starts_at >= now) — sort kept as a guard against
+  // upstream ordering changes.
+  const upcomingShows = initialUpcoming.map(eventToShow).sort((a, b) => a.date.localeCompare(b.date));
+  const shows = [...liveShows, ...upcomingShows];
   const seenIds = new Set<string>();
   const heroSlides = [...liveShows, ...upcomingShows]
     .filter((s) => (seenIds.has(s.id) ? false : (seenIds.add(s.id), true)))
