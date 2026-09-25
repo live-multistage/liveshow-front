@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Pagination } from '@live-show/design-system';
 import { useListEventsPageQuery, eventToShow } from '@/features/events';
@@ -41,15 +41,26 @@ export function EventsListPageContent({
 }) {
   const t = useTranslations('events.list');
   const router = useRouter();
+  const searchParams = useSearchParams();
   const gridTopRef = useRef<HTMLDivElement>(null);
 
-  // Server always returns the current page already clamped to [1, pageCount]
-  // (see page.tsx), so this local state never needs to re-validate itself.
-  const [page, setPage] = useState(initialPage.page);
+  // The URL is the source of truth: page is re-derived on every render, so
+  // browser back/forward (or a hand-edited URL) always renders the right page.
+  const rawPage = Number(searchParams.get('page'));
+  const requestedPage = Number.isFinite(rawPage) && rawPage >= 1 ? Math.floor(rawPage) : 1;
+  // Clamp against the SSR-seeded total — matches page.tsx's own clamp rule.
+  // The catalog size rarely changes between page navigations in a session,
+  // so this stays accurate without a pre-flight fetch just to learn pageCount.
+  const clampPageCount = Math.max(1, Math.ceil(initialPage.total / pageSize));
+  const page = Math.min(requestedPage, clampPageCount);
 
-  const { data } = useListEventsPageQuery('all', page, pageSize, page === initialPage.page ? initialPage : undefined);
-  const isLoading = !data;
-  const isError = false; // ponytail: listEvents never rejects here (events.service resolves via httpClient's own error handling); add when a real failure mode surfaces.
+  const { data, isError, refetch } = useListEventsPageQuery(
+    'all',
+    page,
+    pageSize,
+    page === initialPage.page ? initialPage : undefined,
+  );
+  const isLoading = !data && !isError;
   const events = data?.items ?? [];
   const total = data?.total ?? initialPage.total;
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
@@ -58,7 +69,6 @@ export function EventsListPageContent({
   const SHOWS = useMemo(() => events.map(eventToShow), [events]);
 
   const goToPage = (target: number) => {
-    setPage(target);
     router.push(`/events?page=${target}`, { scroll: false });
     gridTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -288,6 +298,9 @@ export function EventsListPageContent({
         {isError && (
           <div className={styles.empty}>
             <p className={styles.emptyTitle}>{t('error')}</p>
+            <button onClick={() => refetch()} className={styles.clearBtn}>
+              Tentar novamente
+            </button>
           </div>
         )}
 

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { EventsListPageContent } from '@/features/events';
 import { fetchFeedPage } from '@/features/events/queries/get-feed.server';
 
@@ -40,5 +41,11 @@ export default async function Shows({
     initialPage = await fetchFeedPage(pageCount, PAGE_SIZE);
   }
 
-  return <EventsListPageContent initialPage={initialPage} pageSize={PAGE_SIZE} />;
+  return (
+    // EventsListPageContent reads `?page=` via useSearchParams — without
+    // Suspense the build reclaims the whole route into a CSR bailout.
+    <Suspense>
+      <EventsListPageContent initialPage={initialPage} pageSize={PAGE_SIZE} />
+    </Suspense>
+  );
 }
