@@ -1,8 +1,12 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import axios from 'axios';
 import { applyInterceptors, getUiLocale } from './interceptors';
+import { tokenStore } from '@/lib/auth/token-store';
+import { useImpersonationStore } from '@/features/platform-admin/impersonation/impersonation.store';
 
-vi.mock('@/lib/auth/token-store', () => ({ tokenStore: { get: () => null, clear: vi.fn() } }));
+vi.mock('@/lib/auth/token-store', () => ({
+  tokenStore: { get: vi.fn(() => null as string | null), clear: vi.fn() },
+}));
 vi.mock('@/lib/analytics/attribution', () => ({ getAttribution: () => null }));
 vi.mock('@/lib/analytics/consent', () => ({ getAnalyticsConsent: () => null }));
 
@@ -83,5 +87,37 @@ describe('getUiLocale', () => {
   it('returns undefined for an unsupported value', () => {
     document.documentElement.lang = 'fr';
     expect(getUiLocale()).toBeUndefined();
+  });
+});
+
+describe('applyInterceptors — 401 during a support session', () => {
+  function reject401() {
+    const client = axios.create();
+    applyInterceptors(client);
+    const handler = client.interceptors.response.handlers[0].rejected;
+    return handler({
+      config: { headers: new axios.AxiosHeaders() },
+      response: { status: 401 },
+    } as never);
+  }
+
+  /**
+   * The refresh cookie belongs to the admin, so refreshing here would hand the
+   * app the admin's own token while the banner still names the impersonated
+   * user — the session would keep its admin powers behind an organizer UI.
+   */
+  it('does not refresh while impersonating, even with a token present', async () => {
+    vi.mocked(tokenStore.get).mockReturnValue('read-only-token');
+    useImpersonationStore.setState({ active: true });
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+
+    try {
+      await expect(reject401()).rejects.toBeDefined();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      vi.mocked(tokenStore.get).mockReturnValue(null);
+      useImpersonationStore.setState({ active: false });
+      fetchSpy.mockRestore();
+    }
   });
 });

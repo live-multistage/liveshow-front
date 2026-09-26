@@ -1,6 +1,7 @@
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { isLocale } from '@live-show/i18n-messages';
 import { tokenStore } from '@/lib/auth/token-store';
+import { useImpersonationStore } from '@/features/platform-admin/impersonation/impersonation.store';
 import { getAttribution } from '@/lib/analytics/attribution';
 import { getAnalyticsConsent } from '@/lib/analytics/consent';
 import { generateRequestId } from './request-id';
@@ -97,6 +98,16 @@ export function applyInterceptors(client: AxiosInstance) {
       const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
       if (error.response?.status !== 401 || original._retry || !tokenStore.get()) {
+        return Promise.reject(error);
+      }
+
+      // Never refresh out of a support session. The refresh cookie belongs to
+      // the ADMIN, so refreshing here swaps the read-only token for the admin's
+      // own and the app keeps answering with the admin's powers while the
+      // banner still names the impersonated user. The banner's expiry timer
+      // ends the session properly; a 401 before that is an error to surface,
+      // not an identity to silently upgrade.
+      if (useImpersonationStore.getState().active) {
         return Promise.reject(error);
       }
 
