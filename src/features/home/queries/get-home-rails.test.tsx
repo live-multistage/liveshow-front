@@ -14,10 +14,12 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import type { HomeRailsResponse } from '@live-show/api-contracts';
+import { useAuth } from '@/features/account/hooks/use-auth';
 import { homeService } from '../services/home.service';
 import { useHomeRailsQuery } from './get-home-rails';
 
 const railsMock = homeService.rails as ReturnType<typeof vi.fn>;
+const useAuthMock = useAuth as ReturnType<typeof vi.fn>;
 
 function makeWrapper() {
   const queryClient = new QueryClient({
@@ -40,6 +42,7 @@ function makePage(nextCursor: string | null): HomeRailsResponse {
 describe('useHomeRailsQuery', () => {
   beforeEach(() => {
     railsMock.mockReset();
+    useAuthMock.mockReturnValue({ isLoggedIn: false, isLoading: false });
   });
 
   it('fetches the first page with an undefined cursor', async () => {
@@ -49,7 +52,7 @@ describe('useHomeRailsQuery', () => {
     const { result } = renderHook(() => useHomeRailsQuery(), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(railsMock).toHaveBeenCalledWith({ cursor: undefined });
+    expect(railsMock).toHaveBeenCalledWith({ cursor: undefined, limit: 4 });
   });
 
   it('fetchNextPage calls the service with the previous page nextCursor', async () => {
@@ -63,7 +66,7 @@ describe('useHomeRailsQuery', () => {
     await result.current.fetchNextPage();
 
     await waitFor(() => expect(railsMock).toHaveBeenCalledTimes(2));
-    expect(railsMock).toHaveBeenLastCalledWith({ cursor: 'cursor-2' });
+    expect(railsMock).toHaveBeenLastCalledWith({ cursor: 'cursor-2', limit: 4 });
   });
 
   it('hasNextPage is false once nextCursor is null', async () => {
@@ -74,5 +77,15 @@ describe('useHomeRailsQuery', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.hasNextPage).toBe(false);
+  });
+
+  it('fires the query even before auth has hydrated (isLoading: true) — public endpoint, no gate', async () => {
+    useAuthMock.mockReturnValue({ isLoggedIn: false, isLoading: true });
+    railsMock.mockResolvedValue(makePage(null));
+    const { wrapper } = makeWrapper();
+
+    renderHook(() => useHomeRailsQuery(), { wrapper });
+
+    await waitFor(() => expect(railsMock).toHaveBeenCalled());
   });
 });

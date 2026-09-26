@@ -12,9 +12,11 @@ export const homeKeys = {
   rails: (isLoggedIn: boolean) => [...homeKeys.all, 'rails', isLoggedIn] as const,
 };
 
-// Public: no `enabled` gate — same rail feed loads for anonymous visitors.
+// Public: no `enabled` gate — same rail feed loads for anonymous visitors,
+// including before auth has hydrated (isLoggedIn starts false either way,
+// and the queryKey already includes isLoggedIn so login/logout refetches).
 export function useHomeRailsQuery(initialPage?: HomeRailsResponse) {
-  const { isLoggedIn, isLoading } = useAuth();
+  const { isLoggedIn } = useAuth();
   return useInfiniteQuery({
     queryKey: homeKeys.rails(isLoggedIn),
     queryFn: ({ pageParam }) => homeService.rails({ cursor: pageParam, limit: 4 }),
@@ -22,8 +24,5 @@ export function useHomeRailsQuery(initialPage?: HomeRailsResponse) {
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialData: initialPage ? { pages: [initialPage], pageParams: [undefined] } : undefined,
     staleTime: 60_000,
-    // Public endpoint — no auth gate needed, but wait for auth to settle so
-    // the query key (which includes isLoggedIn) doesn't flip mid-flight.
-    enabled: !isLoading,
   });
 }
