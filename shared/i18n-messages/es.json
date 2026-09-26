@@ -729,6 +729,14 @@
         "SUSPENDED": "Suspendida"
       },
       "unavailable": "Programa de socios no disponible por ahora."
+    },
+    "pagination": {
+      "range": "Mostrando {from}–{to} de {total}",
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "nav": "Paginación",
+      "prevAria": "Página anterior",
+      "nextAria": "Página siguiente"
     }
   },
   "eventsPage": {

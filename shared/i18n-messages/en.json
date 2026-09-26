@@ -729,6 +729,14 @@
         "SUSPENDED": "Suspended"
       },
       "unavailable": "Partner programme unavailable right now."
+    },
+    "pagination": {
+      "range": "Showing {from}–{to} of {total}",
+      "prev": "Previous",
+      "next": "Next",
+      "nav": "Pagination",
+      "prevAria": "Previous page",
+      "nextAria": "Next page"
     }
   },
   "eventsPage": {

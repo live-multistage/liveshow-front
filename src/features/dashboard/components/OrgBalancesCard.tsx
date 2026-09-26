@@ -1,7 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { Pagination } from '@live-show/design-system';
 import { useOrgBalancesQuery } from '@/features/platform-admin/queries/get-finance';
 import { usePayoutOrgMutation } from '@/features/platform-admin/mutations/payout-org.mutation';
 import { useSetOrgFeeOverrideMutation } from '@/features/platform-admin/mutations/set-org-fee-override.mutation';
@@ -12,9 +13,27 @@ import styles from './SuperAdminDashboard.module.scss';
 // Org ledger balances (design: "Saldos das organizações"). Financial F3:
 // per-row payout (PAGAR, confirm-gated) and inline fee-rate override — both
 // audited on the backend.
+
+// ponytail: paged client-side. The endpoint returns every org with a ledger
+// entry in one 30s-cached response (hundreds of rows, a small payload) already
+// sorted by balance — the problem this fixes is the page-long scroll, not the
+// transfer. Past a few thousand orgs this wants a server-side page instead.
+const PAGE_SIZE = 10;
+
 export function OrgBalancesCard() {
   const t = useTranslations('dashboard');
   const { data, isLoading } = useOrgBalancesQuery();
+  const [page, setPage] = useState(1);
+
+  const total = data?.length ?? 0;
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  // A refetch that shrinks the list must not strand the view on a page that no
+  // longer exists.
+  const current = Math.min(page, pageCount);
+  const rows = useMemo(
+    () => (data ?? []).slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE),
+    [data, current],
+  );
 
   return (
     <div className={styles.finCard}>
@@ -35,10 +54,34 @@ export function OrgBalancesCard() {
       {!isLoading && !data?.length && <div className={styles.balEmpty}>Nenhum saldo registrado.</div>}
 
       <div>
-        {data?.map((b) => (
+        {rows.map((b) => (
           <BalanceRow key={b.orgId} b={b} />
         ))}
       </div>
+
+      {total > PAGE_SIZE && (
+        <div className={styles.cardPager}>
+          <span className={styles.cardPagerRange}>
+            {t('pagination.range', {
+              from: (current - 1) * PAGE_SIZE + 1,
+              to: Math.min(current * PAGE_SIZE, total),
+              total,
+            })}
+          </span>
+          <Pagination
+            page={current}
+            pageCount={pageCount}
+            onPageChange={setPage}
+            labels={{
+              prev: t('pagination.prev'),
+              next: t('pagination.next'),
+              nav: t('pagination.nav'),
+              prevAria: t('pagination.prevAria'),
+              nextAria: t('pagination.nextAria'),
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

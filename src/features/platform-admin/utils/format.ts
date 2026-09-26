@@ -11,6 +11,18 @@ export function moneyCompact(n: number, currency = 'BRL'): string {
   return `${sym} ${(n / 1_000_000).toFixed(2).replace('.', ',')}M`;
 }
 
+// Exact money, for surfaces where the rounding of moneyCompact would hide the
+// figure being inspected (a chart tooltip: "R$ 36,8k" is the bar you already
+// see, "R$ 36.842,17" is why you hovered it).
+export function moneyExact(n: number, currency = 'BRL'): string {
+  const sym = CURRENCY_SYMBOL[currency] ?? currency;
+  const digits = new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n);
+  return `${sym} ${digits}`;
+}
+
 // Compact BRL — kept for genuinely BRL-only surfaces.
 export function brlCompact(n: number): string {
   return moneyCompact(n, 'BRL');

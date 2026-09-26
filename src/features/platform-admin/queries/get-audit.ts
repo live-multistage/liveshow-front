@@ -21,10 +21,16 @@ export interface AuditSearchParams {
   to?: string;
 }
 
-export function useAuditSearchQuery(params: AuditSearchParams) {
+export function useAuditSearchQuery(
+  params: AuditSearchParams,
+  // The overview card polls the newest page to keep the trail live; a filtered
+  // page deep in the history has nothing to poll for.
+  options: { refetchInterval?: number | false } = {},
+) {
   return useQuery({
     queryKey: ['platform-admin', 'audit-search', params] as const,
     queryFn: () => platformAdminService.searchAuditLog(params),
     staleTime: 15_000,
+    refetchInterval: options.refetchInterval ?? false,
   });
 }

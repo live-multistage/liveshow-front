@@ -174,10 +174,14 @@
 // ── Content rows (viewers card, future siblings) ──────────────────
 .row {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  // minmax(0, …), not a bare fr: `1fr` floors the track at the item's
+  // min-content, so a card with wide content (the revenue chart's 90 date
+  // ticks) grows past its share and squeezes its neighbour to one word per
+  // line. With a 0 floor every row splits the same way regardless of content.
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 20px;
 
-  @media (max-width: 900px) { grid-template-columns: 1fr; }
+  @media (max-width: 900px) { grid-template-columns: minmax(0, 1fr); }
 }
 
 .viewersCard {
@@ -273,10 +277,11 @@
 
 .finHeader {
   display: flex;
-  align-items: flex-start;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 14px;
 }
 
 .finEyebrow {
@@ -310,9 +315,21 @@
   &:hover { text-decoration: underline; }
 }
 
+.finHeadRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 8px;
+}
+
 .finHeadRight {
-  text-align: right;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .finBig {
@@ -323,19 +340,127 @@
   letter-spacing: -.01em;
 }
 
-.finDeltaUp   { font-size: 12px; color: #7fe0a0; margin-top: 2px; }
-.finDeltaDown { font-size: 12px; color: #ff5a4d; margin-top: 2px; }
+.finDeltaUp   { font-size: 12px; color: #7fe0a0; white-space: nowrap; }
+.finDeltaDown { font-size: 12px; color: #ff5a4d; white-space: nowrap; }
+
+.chartLegend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chartSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #ff2e9e, #9b1e6a);
+}
+
+.chartLegendText {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  color: #8a8a93;
+}
+
+.chartArea {
+  display: flex;
+  gap: 10px;
+}
+
+.yAxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 104px;
+  padding-top: 6px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  line-height: 1;
+  color: #6f6f77;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.chartBody {
+  flex: 1;
+  min-width: 0;
+}
+
+// --bar-cols (set inline) = how many bars fit the visible width; the rest
+// scroll. Percentage bases resolve against this box, so the columns size to
+// the viewport, not to the full series.
+.chartScroll {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+
+  &::-webkit-scrollbar { height: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 3px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(255, 95, 180, 0.6);
+    outline-offset: 2px;
+  }
+}
+
+.xAxis {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.xTick {
+  flex: 0 0 calc((100% - (var(--bar-cols, 7) - 1) * 6px) / var(--bar-cols, 7));
+  min-width: 0;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  line-height: 1;
+  color: #6f6f77;
+  text-align: center;
+  white-space: nowrap;
+}
 
 .barChart {
   display: flex;
   align-items: flex-end;
   gap: 6px;
-  height: 150px;
-  padding-top: 8px;
+  height: 104px;
+  padding-top: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bar { min-width: 0; }
+
+// Renders through a Radix portal, outside this subtree — the hashed class name
+// still applies, it travels as a plain string on the portalled element.
+.barTooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.barTooltipDay {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: #b9b9c2;
+}
+
+.barTooltipValue {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .barCol {
-  flex: 1;
+  flex: 0 0 calc((100% - (var(--bar-cols, 7) - 1) * 6px) / var(--bar-cols, 7));
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -360,8 +485,8 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  margin-top: 20px;
-  padding-top: 18px;
+  margin-top: 14px;
+  padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, .06);
 }
 
@@ -377,6 +502,31 @@
   font-size: 16px;
   font-weight: 700;
   margin-top: 5px;
+}
+
+// Inline KPI strip beside the chart legend. Label and value share a baseline
+// here (the old footer stacked them), which is what buys back the card height.
+.finStatStrip {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 0 auto;
+}
+
+.finStat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+
+  dd {
+    margin: 0;
+  }
+
+  .finStatValue {
+    font-size: 13px;
+    margin-top: 0;
+  }
 }
 
 .finStatAccent { color: #ff5fb4; }
@@ -440,6 +590,23 @@
   font-weight: 700;
   text-align: right;
   color: #7fe0a0;
+}
+
+.cardPager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cardPagerRange {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  color: #6f6f77;
 }
 
 .balEmpty {
@@ -1148,11 +1315,9 @@
 }
 
 .finCurrencyTag {
-  display: inline-block;
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: #8f8f97;
-  margin-bottom: 2px;
 }

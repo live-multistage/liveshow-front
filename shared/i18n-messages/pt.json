@@ -729,6 +729,14 @@
         "SUSPENDED": "Suspensa"
       },
       "unavailable": "Programa de parceiros indisponível no momento."
+    },
+    "pagination": {
+      "range": "Mostrando {from}–{to} de {total}",
+      "prev": "Anterior",
+      "next": "Próxima",
+      "nav": "Paginação",
+      "prevAria": "Página anterior",
+      "nextAria": "Próxima página"
     }
   },
   "eventsPage": {
