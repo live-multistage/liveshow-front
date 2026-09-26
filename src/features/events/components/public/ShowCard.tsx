@@ -100,7 +100,7 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
             {show.cameras.length}
           </span>
 
-          {show.category && show.categoryKey !== 'OTHER' && (
+          {!hasProgress && show.category && show.categoryKey !== 'OTHER' && (
             <span className={styles.genreLabel}>{show.category}</span>
           )}
 

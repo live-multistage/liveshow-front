@@ -130,6 +130,26 @@ describe('ShowCard watch progress', () => {
 
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
+
+  // The genre label and the .remaining chip share the bottom-left corner of
+  // the cover — with progress, the rail already names the category, so the
+  // label yields to the progress chip instead of stacking on top of it.
+  it('hides the genre label when progress is given', () => {
+    render(
+      <ShowCard
+        show={makeShow({ category: 'Rock', categoryKey: 'MUSIC' })}
+        progress={{ positionSeconds: 600, durationSeconds: 3600 }}
+      />
+    );
+
+    expect(screen.queryByText('Rock')).not.toBeInTheDocument();
+  });
+
+  it('renders the genre label when progress is omitted', () => {
+    render(<ShowCard show={makeShow({ category: 'Rock', categoryKey: 'MUSIC' })} />);
+
+    expect(screen.getByText('Rock')).toBeInTheDocument();
+  });
 });
 
 describe('ShowCard location meta', () => {
