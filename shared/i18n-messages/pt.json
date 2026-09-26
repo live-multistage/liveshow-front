@@ -406,6 +406,12 @@
       "exploreEvent": "Explorar evento",
       "tickets": "Ingressos · {price}",
       "goToSlide": "Ir para o slide {index} de {count}"
+    },
+    "rails": {
+      "end": "Você chegou ao fim",
+      "loadError": "Não foi possível carregar mais trilhos",
+      "retry": "Tentar de novo",
+      "seeAllEvents": "Ver toda a programação"
     }
   },
   "language": {
@@ -425,7 +431,8 @@
     "replay": "Reprise",
     "watch": "Assistir",
     "details": "Ver mais",
-    "showTag": "Show"
+    "showTag": "Show",
+    "remaining": "RESTAM {minutes} MIN"
   },
   "liveGate": {
     "checkingAccess": "Verificando acesso",

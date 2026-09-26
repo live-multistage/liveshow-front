@@ -406,6 +406,12 @@
       "exploreEvent": "Explorar evento",
       "tickets": "Entradas · {price}",
       "goToSlide": "Ir a la diapositiva {index} de {count}"
+    },
+    "rails": {
+      "end": "Llegaste al final",
+      "loadError": "No se pudieron cargar más filas",
+      "retry": "Intentar de nuevo",
+      "seeAllEvents": "Ver toda la programación"
     }
   },
   "language": {
@@ -425,7 +431,8 @@
     "replay": "Repetición",
     "watch": "Ver",
     "details": "Ver más",
-    "showTag": "Show"
+    "showTag": "Show",
+    "remaining": "QUEDAN {minutes} MIN"
   },
   "liveGate": {
     "checkingAccess": "Verificando acceso",

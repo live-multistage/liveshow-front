@@ -12,6 +12,7 @@ export * from './cart/types';
 export * from './events/types';
 export * from './events/derive';
 export * from './events/format';
+export * from './home/types';
 export * from './channels/types';
 export * from './organizations/types';
 export * from './artists/types';

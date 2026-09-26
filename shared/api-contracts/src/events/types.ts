@@ -12,6 +12,18 @@ export type EventCategory =
   | 'FOOTBALL' | 'MOTORSPORT' | 'CORPORATE'
   | 'TALK' | 'RELIGIOUS' | 'EDUCATION' | 'OTHER';
 
+// Server-side filters for GET /events (all optional, AND-ed).
+export interface ListEventsParams {
+  filter?: ListEventsFilter;
+  category?: EventCategory;
+  subtype?: string;
+  tag?: string;
+  city?: string;
+  free?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
 export const EVENT_CATEGORIES: EventCategory[] = [
   'MUSIC', 'COMEDY', 'THEATER', 'DANCE', 'SPORTS',
   'FOOTBALL', 'MOTORSPORT', 'CORPORATE',

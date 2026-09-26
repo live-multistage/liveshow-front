@@ -406,6 +406,12 @@
       "exploreEvent": "Explore event",
       "tickets": "Tickets · {price}",
       "goToSlide": "Go to slide {index} of {count}"
+    },
+    "rails": {
+      "end": "You've reached the end",
+      "loadError": "Couldn't load more rails",
+      "retry": "Try again",
+      "seeAllEvents": "See the full schedule"
     }
   },
   "language": {
@@ -425,7 +431,8 @@
     "replay": "Replay",
     "watch": "Watch",
     "details": "See more",
-    "showTag": "Show"
+    "showTag": "Show",
+    "remaining": "{minutes} MIN LEFT"
   },
   "liveGate": {
     "checkingAccess": "Checking access",
