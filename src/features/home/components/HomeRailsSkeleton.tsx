@@ -17,7 +17,7 @@ export function HomeRailsSkeleton({ rails }: { rails: number }) {
                 <Skeleton className={styles.poster} />
                 <Skeleton className={styles.lineShort} />
                 <Skeleton className={styles.lineLong} />
-                <Skeleton className={styles.lineShort} />
+                <Skeleton className={styles.lineMedium} />
               </div>
             ))}
           </div>

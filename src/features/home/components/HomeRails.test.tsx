@@ -19,11 +19,16 @@ import { HomeRails } from './HomeRails';
 
 type Cb = (entries: Array<{ isIntersecting: boolean }>) => void;
 let callbacks: Cb[] = [];
+let observerInstances: FakeObserver[] = [];
 
 class FakeObserver {
-  constructor(cb: Cb) { callbacks.push(cb); }
-  observe() {}
-  disconnect() {}
+  observe = vi.fn();
+  disconnect = vi.fn();
+
+  constructor(cb: Cb) {
+    callbacks.push(cb);
+    observerInstances.push(this);
+  }
 }
 
 function rail(key: string): HomeRail {
@@ -33,8 +38,19 @@ function rail(key: string): HomeRail {
 const fetchNextPage = vi.fn();
 const refetch = vi.fn();
 
-function setQuery(over: Record<string, unknown> = {}) {
-  vi.mocked(useHomeRailsQuery).mockReturnValue({
+type HomeRailsQueryResult = ReturnType<typeof useHomeRailsQuery>;
+
+// react-query's return type is a discriminated union (its status-narrowed
+// fields differ per branch), so `Partial<HomeRailsQueryResult>` can't be used
+// as an overrides bag — TS can't merge fields from different branches into
+// one object literal. Only property names are checked here; values are
+// `unknown` and the merged fixture is cast once, at the builder's boundary.
+type QueryOverrides = Partial<Record<keyof HomeRailsQueryResult, unknown>>;
+
+// Typed test double: builds a HomeRailsQueryResult from a base fixture plus
+// overrides, so tests never fall back to `any`.
+function makeQuery(overrides: QueryOverrides = {}): HomeRailsQueryResult {
+  return {
     data: { pages: [], pageParams: [] },
     fetchNextPage,
     refetch,
@@ -42,18 +58,27 @@ function setQuery(over: Record<string, unknown> = {}) {
     isFetchingNextPage: false,
     isError: false,
     isFetching: false,
-    ...over,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any);
+    ...overrides,
+  } as unknown as HomeRailsQueryResult;
 }
 
-function pages(...keysPerPage: string[][]) {
-  return { data: { pages: keysPerPage.map((keys) => ({ rails: keys.map(rail), nextCursor: null })), pageParams: [] } };
+function setQuery(over: QueryOverrides = {}) {
+  vi.mocked(useHomeRailsQuery).mockReturnValue(makeQuery(over));
+}
+
+function pages(...keysPerPage: string[][]): QueryOverrides {
+  return {
+    data: {
+      pages: keysPerPage.map((keys) => ({ rails: keys.map(rail), nextCursor: null, snapshotAt: '' })),
+      pageParams: [],
+    },
+  };
 }
 
 describe('HomeRails', () => {
   beforeEach(() => {
     callbacks = [];
+    observerInstances = [];
     fetchNextPage.mockClear();
     refetch.mockClear();
     vi.stubGlobal('IntersectionObserver', FakeObserver);
@@ -144,6 +169,30 @@ describe('HomeRails', () => {
     render(<HomeRails />);
 
     expect(callbacks).toHaveLength(0);
+  });
+
+  it('disconnects the observer on unmount', () => {
+    setQuery(pages(['a']));
+
+    const { unmount } = render(<HomeRails />);
+    const observer = observerInstances[0];
+
+    unmount();
+
+    expect(observer.disconnect).toHaveBeenCalledTimes(1);
+  });
+
+  it('creates a new observer once hasNextPage flips from false to true', () => {
+    setQuery({ ...pages(['a']), hasNextPage: false });
+
+    const { rerender } = render(<HomeRails />);
+    expect(observerInstances).toHaveLength(0);
+
+    setQuery(pages(['a']));
+    rerender(<HomeRails />);
+
+    expect(observerInstances).toHaveLength(1);
+    expect(observerInstances[0].observe).toHaveBeenCalledTimes(1);
   });
 
   it('renders the empty state when the feed settled with zero rails', () => {

@@ -4,7 +4,10 @@
 .rail {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  // Matches SectionHeader's margin-bottom (real rail's title-to-track gap).
+  gap: 18px;
+  // Matches Carousel's .section padding, so a real rail resolving in place
+  // of this skeleton doesn't shift the page.
   padding: 0.5rem 0;
 }
 
@@ -18,6 +21,8 @@
   display: flex;
   gap: 12px;
   overflow: hidden;
+  // Matches Carousel's .track padding.
+  padding: 4px 0 16px;
 }
 
 .card {
@@ -44,5 +49,11 @@
 .lineLong {
   width: 85%;
   height: 11px;
+  border-radius: 3px;
+}
+
+.lineMedium {
+  width: 60%;
+  height: 8px;
   border-radius: 3px;
 }

@@ -1,16 +1,19 @@
 @use '../../../styles/_variables' as *;
 
 // The gutter every rail, ad, skeleton and message inside the feed inherits.
+$rail-gutter: 40px;
+$rail-gutter-mobile: 20px;
+
 .list {
   display: flex;
   flex-direction: column;
   gap: 40px;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 32px 40px 0;
+  padding: 32px $rail-gutter 0;
 
   @media (max-width: $md - 1) {
-    padding: 24px 20px 0;
+    padding: 24px $rail-gutter-mobile 0;
   }
 }
 
@@ -24,8 +27,7 @@
 // ── Empty ─────────────────────────────────────────────────────────
 
 .empty {
-  margin: 0 40px;
-  padding: 48px;
+  padding: 120px $rail-gutter 140px;
   text-align: center;
   border: 1px dashed $border-hairline;
   border-radius: 16px;
@@ -34,7 +36,7 @@
   color: $text-secondary;
 
   @media (max-width: $md - 1) {
-    margin: 0 20px;
+    padding: 120px $rail-gutter-mobile 140px;
   }
 }
 
