@@ -3,7 +3,9 @@ import type { EventResponse } from '../events/types';
 
 export type HomeRailDimension =
   | 'curated' | 'category' | 'subtype' | 'tag' | 'city' | 'artist' | 'organization'
-  | 'personal' | 'recommended' | 'channels';
+  // Served only when no computed rail qualifies: the plain catalogue, so a home
+  // with content behind it is never blank.
+  | 'personal' | 'recommended' | 'channels' | 'catalog';
 
 export type HomeRailKind = 'events' | 'channels';
 
