@@ -2,6 +2,9 @@ import { getTranslations } from 'next-intl/server';
 import { renderBrandCard, OG_SIZE } from '@/shared/og/BrandCard';
 
 export const runtime = 'nodejs';
+// getTranslations reads the locale cookie; without this the Node build
+// statically optimizes the route and cookies() throws at request time.
+export const dynamic = 'force-dynamic';
 export const alt = 'Termos de Uso — showon.io';
 export const size = OG_SIZE;
 export const contentType = 'image/png';
