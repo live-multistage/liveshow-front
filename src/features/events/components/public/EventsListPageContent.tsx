@@ -2,11 +2,14 @@
 
 import { useState, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Pagination } from '@live-show/design-system';
 import { useListEventsPageQuery, eventToShow } from '@/features/events';
 import type { PaginatedEventsResponse } from '@/features/events';
+import { EVENT_CATEGORY_LABELS } from '../../types/event.types';
 import { AdBanner } from '@/features/advertisements';
+import { parseListParams, hrefForPage } from '../../utils/list-params-from-search';
 import { ShowCard } from './ShowCard';
 import styles from '../../../../app/(public)/events/page.module.scss';
 
@@ -32,6 +35,10 @@ function isWeekend(dateStr: string) {
   return day === 0 || day === 6;
 }
 
+function capitalize(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 export function EventsListPageContent({
   initialPage,
   pageSize,
@@ -40,22 +47,24 @@ export function EventsListPageContent({
   pageSize: number;
 }) {
   const t = useTranslations('events.list');
+  const tFilter = useTranslations('events.activeFilter');
   const router = useRouter();
   const searchParams = useSearchParams();
   const gridTopRef = useRef<HTMLDivElement>(null);
 
-  // The URL is the source of truth: page is re-derived on every render, so
-  // browser back/forward (or a hand-edited URL) always renders the right page.
-  const rawPage = Number(searchParams.get('page'));
-  const requestedPage = Number.isFinite(rawPage) && rawPage >= 1 ? Math.floor(rawPage) : 1;
+  // The URL is the source of truth: filters/page are re-derived on every
+  // render, so browser back/forward (or a hand-edited URL) always renders
+  // the right thing.
+  const urlParams = parseListParams(searchParams, pageSize);
   // Clamp against the SSR-seeded total — matches page.tsx's own clamp rule.
   // The catalog size rarely changes between page navigations in a session,
   // so this stays accurate without a pre-flight fetch just to learn pageCount.
   const clampPageCount = Math.max(1, Math.ceil(initialPage.total / pageSize));
-  const page = Math.min(requestedPage, clampPageCount);
+  const page = Math.min(urlParams.page ?? 1, clampPageCount);
+  const params = { ...urlParams, page };
 
   const { data, isError, refetch } = useListEventsPageQuery(
-    { filter: 'all', page, pageSize },
+    params,
     page === initialPage.page ? initialPage : undefined,
   );
   const isLoading = !data && !isError;
@@ -67,13 +76,31 @@ export function EventsListPageContent({
   const SHOWS = useMemo(() => events.map(eventToShow), [events]);
 
   const goToPage = (target: number) => {
-    router.push(`/events?page=${target}`, { scroll: false });
+    router.push(hrefForPage(searchParams, target), { scroll: false });
     gridTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  // Category/subtype/tag/city come from the URL only — no chip toggles them,
+  // so a single value (the first one present) is shown as an active filter.
+  const activeFilterLabel = params.category
+    ? EVENT_CATEGORY_LABELS[params.category]
+    : params.subtype
+    ? capitalize(params.subtype)
+    : params.tag
+    ? capitalize(params.tag)
+    : params.city
+    ? capitalize(params.city)
+    : null;
+
+  const initialChip: ChipId =
+    urlParams.filter === 'live' ? 'live' :
+    urlParams.filter === 'finished' ? 'replay' :
+    urlParams.free ? 'free' :
+    'all';
+
   const [search, setSearch] = useState('');
   const [sort, setSort]     = useState('date-asc');
-  const [chip, setChip]     = useState<ChipId>('all');
+  const [chip, setChip]     = useState<ChipId>(initialChip);
   const [view, setView]     = useState<ViewMode>('grid');
 
   const liveCount    = useMemo(() => SHOWS.filter((s) => s.isLive).length, [SHOWS]);
@@ -261,6 +288,17 @@ export function EventsListPageContent({
           })}
         </div>
 
+        {/* Active URL filter (category/subtype/tag/city) — chips above don't
+            toggle these, so surface whichever one is set with a way to clear. */}
+        {activeFilterLabel && (
+          <div className={styles.activeFilterRow}>
+            <span className={`${styles.chip} ${styles.chipActive}`}>{activeFilterLabel}</span>
+            <Link href="/events" className={styles.activeFilterClear}>
+              × {tFilter('clear')}
+            </Link>
+          </div>
+        )}
+
         <div ref={gridTopRef} />
 
         {/* Count + view toggle */}
@@ -344,7 +382,7 @@ export function EventsListPageContent({
               page={page}
               pageCount={pageCount}
               onPageChange={goToPage}
-              hrefFor={(n) => `/events?page=${n}`}
+              hrefFor={(n) => hrefForPage(searchParams, n)}
               labels={{
                 prev: t('pagination.prev'),
                 next: t('pagination.next'),

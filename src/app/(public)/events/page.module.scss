@@ -306,6 +306,26 @@
   border-radius: 999px;
 }
 
+// ── Active URL filter pill ────────────────────────────────────────
+
+.activeFilterRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.activeFilterClear {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: #8f8f97;
+  text-decoration: none;
+  transition: color 0.15s;
+
+  &:hover { color: #ff5fb4; }
+}
+
 // ── Count + view toggle ───────────────────────────────────────────
 
 .countRow {

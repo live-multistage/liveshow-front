@@ -301,6 +301,9 @@
       "FINISHED": "Finished",
       "CANCELLED": "Cancelled",
       "DRAFT": "Draft"
+    },
+    "activeFilter": {
+      "clear": "Clear filter"
     }
   },
   "ticketPanel": {

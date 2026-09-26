@@ -26,7 +26,7 @@ describe('fetchFeedPage', () => {
     global.fetch = fetchMock as unknown as typeof fetch;
 
     const { fetchFeedPage } = await import('./get-feed.server');
-    const result = await fetchFeedPage(3, 24);
+    const result = await fetchFeedPage({ page: 3, pageSize: 24 });
 
     expect(result).toEqual(page3);
     const [url] = fetchMock.mock.calls[0];
@@ -37,7 +37,7 @@ describe('fetchFeedPage', () => {
     global.fetch = vi.fn(async () => ({ ok: false, json: async () => emptyPage() } as Response)) as unknown as typeof fetch;
 
     const { fetchFeedPage } = await import('./get-feed.server');
-    const result = await fetchFeedPage(5, 24);
+    const result = await fetchFeedPage({ page: 5, pageSize: 24 });
 
     expect(result).toEqual({ items: [], page: 5, pageSize: 24, total: 0 });
   });
@@ -48,8 +48,19 @@ describe('fetchFeedPage', () => {
     }) as unknown as typeof fetch;
 
     const { fetchFeedPage } = await import('./get-feed.server');
-    const result = await fetchFeedPage(2, 24);
+    const result = await fetchFeedPage({ page: 2, pageSize: 24 });
 
     expect(result).toEqual({ items: [], page: 2, pageSize: 24, total: 0 });
+  });
+
+  it('includes category/subtype/tag/city/free/filter when given', async () => {
+    const fetchMock = vi.fn(async (_url: string) => ({ ok: true, json: async () => emptyPage() } as Response));
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const { fetchFeedPage } = await import('./get-feed.server');
+    await fetchFeedPage({ filter: 'live', category: 'MUSIC', subtype: 'sertanejo', tag: 'rock', city: 'SP', free: true, page: 1, pageSize: 24 });
+
+    const [url] = fetchMock.mock.calls[0];
+    expect(url).toContain('/events?filter=live&category=MUSIC&subtype=sertanejo&tag=rock&city=SP&free=1&page=1&pageSize=24');
   });
 });

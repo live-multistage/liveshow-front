@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { EventsListPageContent } from '@/features/events';
 import { fetchFeedPage } from '@/features/events/queries/get-feed.server';
+import { parseListParams } from '@/features/events/utils/list-params-from-search';
 
 const TITLE = 'Shows';
 const DESCRIPTION = 'Todos os shows, eventos e transmissões ao vivo disponíveis no showon.io.';
@@ -17,9 +18,16 @@ export const metadata: Metadata = {
 
 export const revalidate = 300;
 
-function parsePage(raw: string | string[] | undefined): number {
-  const n = Number(Array.isArray(raw) ? raw[0] : raw);
-  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1;
+// Rebuilds a URLSearchParams from Next's searchParams record (each value is a
+// string or the first of a repeated key) so SSR parses the same shape the
+// client's useSearchParams() gives EventsListPageContent.
+function toURLSearchParams(raw: Record<string, string | string[] | undefined>): URLSearchParams {
+  const sp = new URLSearchParams();
+  for (const [key, value] of Object.entries(raw)) {
+    if (value === undefined) continue;
+    sp.set(key, Array.isArray(value) ? value[0] : value);
+  }
+  return sp;
 }
 
 export default async function Shows({
@@ -27,18 +35,18 @@ export default async function Shows({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = await searchParams;
-  const requestedPage = parsePage(params.page);
+  const rawParams = await searchParams;
+  const params = parseListParams(toURLSearchParams(rawParams), PAGE_SIZE);
 
   // SSR-seed the requested page (cached 30s in Next's Data Cache) so the
   // catalog is in the initial HTML and the client query skips its first
   // refetch — matches the home feed's caching.
-  let initialPage = await fetchFeedPage(requestedPage, PAGE_SIZE);
+  let initialPage = await fetchFeedPage(params);
 
   // Out-of-range page (e.g. ?page=999): clamp to the last real page.
   const pageCount = Math.max(1, Math.ceil(initialPage.total / PAGE_SIZE));
-  if (initialPage.total > 0 && requestedPage > pageCount) {
-    initialPage = await fetchFeedPage(pageCount, PAGE_SIZE);
+  if (initialPage.total > 0 && (params.page ?? 1) > pageCount) {
+    initialPage = await fetchFeedPage({ ...params, page: pageCount });
   }
 
   return (

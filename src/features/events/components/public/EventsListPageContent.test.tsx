@@ -158,4 +158,64 @@ describe('EventsListPageContent pagination', () => {
     fireEvent.click(screen.getByRole('button', { name: /tentar novamente/i }));
     expect(refetch).toHaveBeenCalledTimes(1);
   });
+
+  it('reads category and page from the URL and requests both together', () => {
+    currentSearchParams = new URLSearchParams({ category: 'MUSIC', page: '2' });
+    const initialPage = makePage({ page: 1, total: 240 });
+    const filteredPage = makePage({ page: 2, total: 10 });
+    listEventsPageQueryMock.mockReturnValue({ data: filteredPage, isError: false, refetch: vi.fn() });
+
+    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+
+    expect(listEventsPageQueryMock).toHaveBeenCalledWith(
+      { filter: 'all', category: 'MUSIC', page: 2, pageSize: 24 },
+      undefined,
+    );
+  });
+
+  it('starts on the live chip when the URL has filter=live', () => {
+    currentSearchParams = new URLSearchParams({ filter: 'live' });
+    const initialPage = makePage({ page: 1, total: 2 });
+    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+
+    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+
+    const liveChip = screen.getByRole('button', { name: /AO VIVO/ });
+    expect(liveChip.className).toMatch(/chipActive/);
+  });
+
+  it('shows an active-filter pill with a clear link when category is set', () => {
+    currentSearchParams = new URLSearchParams({ category: 'MUSIC' });
+    const initialPage = makePage({ page: 1, total: 2 });
+    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+
+    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+
+    expect(screen.getByText('Música')).toBeInTheDocument();
+    const clearLink = screen.getByRole('link', { name: /clear/i });
+    expect(clearLink).toHaveAttribute('href', '/events');
+  });
+
+  it('does not show an active-filter pill when only page/filter are set', () => {
+    currentSearchParams = new URLSearchParams({ page: '2' });
+    const initialPage = makePage({ page: 2, total: 48 });
+    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+
+    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+
+    expect(screen.queryByRole('link', { name: /clear/i })).not.toBeInTheDocument();
+  });
+
+  it('preserves other URL params when paginating', () => {
+    currentSearchParams = new URLSearchParams({ category: 'MUSIC', page: '2' });
+    const initialPage = makePage({ page: 1, total: 240 });
+    const filteredPage = makePage({ page: 2, total: 240 });
+    listEventsPageQueryMock.mockReturnValue({ data: filteredPage, isError: false, refetch: vi.fn() });
+
+    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+
+    fireEvent.click(screen.getByText('3'));
+
+    expect(push).toHaveBeenCalledWith('/events?category=MUSIC&page=3', { scroll: false });
+  });
 });
