@@ -58,4 +58,26 @@
     outline: 2px solid $action;
     outline-offset: 2px;
   }
+
+  // Icon-only see-all below tablet: the label text competes with the h2 for
+  // space, so only the arrow remains, inside a round tap target.
+  @media (max-width: 820px) {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    justify-content: center;
+    border: 1.5px solid $border;
+    border-radius: 50%;
+  }
+}
+
+.linkLabel {
+  @media (max-width: 820px) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
 }

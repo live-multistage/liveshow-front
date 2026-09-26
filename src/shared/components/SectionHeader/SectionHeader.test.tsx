@@ -29,10 +29,9 @@ describe('SectionHeader', () => {
   it('renders a see-all link with an aria-hidden icon when seeAllHref is given', () => {
     render(<SectionHeader title="Ao vivo agora" titleId="live-now-heading" seeAllHref="/events" />);
 
-    const link = screen.getByText('seeAll');
-    expect(link.tagName).toBe('A');
+    const link = screen.getByText('seeAll').closest('a');
     expect(link).toHaveAttribute('href', '/events');
-    expect(link.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    expect(link?.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
   });
 
   it('renders no link when seeAllHref is omitted', () => {

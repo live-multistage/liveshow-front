@@ -29,8 +29,8 @@ export function SectionHeader({ title, titleId, eyebrow, seeAllHref }: SectionHe
         <h2 id={titleId} className={styles.title}>{title}</h2>
       </div>
       {seeAllHref && (
-        <Link href={seeAllHref} className={styles.link}>
-          {t('seeAll')}
+        <Link href={seeAllHref} className={styles.link} aria-label={t('seeAll')}>
+          <span className={styles.linkLabel}>{t('seeAll')}</span>
           <ArrowRight size={14} aria-hidden="true" />
         </Link>
       )}
