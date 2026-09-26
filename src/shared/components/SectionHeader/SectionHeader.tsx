@@ -12,9 +12,9 @@ interface SectionHeaderProps {
   seeAllHref?: string;
 }
 
-// Shared header for every home section (rails + GenreGrid). No 'use client' —
-// it renders on the server inside EditorialHome and on the client inside
-// GenreGrid, so it must stay hook-free besides useTranslations.
+// Shared header for every home section. No 'use client' — it renders on the
+// server in server components and on the client inside client islands (the
+// rail feed), so it must stay hook-free besides useTranslations.
 export function SectionHeader({ title, titleId, eyebrow, seeAllHref }: SectionHeaderProps) {
   const t = useTranslations('carousel');
 

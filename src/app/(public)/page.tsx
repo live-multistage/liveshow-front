@@ -1,11 +1,7 @@
 import type { Metadata } from 'next';
 import { EditorialHome } from '@/features/events/components/public/EditorialHome';
-import { fetchHomeFeed } from '@/features/events/queries/get-feed.server';
-import { fetchRecommendedEvents } from '@/features/events/queries/get-recommended-events.server';
-import { fetchReplayCatalog } from '@/features/events/queries/get-replay-catalog.server';
+import { fetchHomeRails } from '@/features/home';
 import { getInitialIsLoggedIn } from '@/features/account/queries/get-auth-state.server';
-import { fetchChannels } from '@/features/channels/queries/get-channels.server';
-import { fetchFeatureFlags } from '@/features/feature-flags';
 
 // Home-specific <title>/description: the layout default is just "showon.io",
 // which says nothing to a search result. `absolute` skips the "· showon.io"
@@ -23,25 +19,8 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const [flags, homeFeed, initialRecommended, initialReplayCatalog, isLoggedIn] =
-    await Promise.all([
-      fetchFeatureFlags(),
-      fetchHomeFeed(),
-      fetchRecommendedEvents(),
-      fetchReplayCatalog(),
-      getInitialIsLoggedIn(),
-    ]);
-  // The channels rail skips its fetch entirely when the flag is off — it
-  // renders nothing anyway (EditorialHome hides empty rails).
-  const initialChannels = flags.linear_channels ? await fetchChannels() : [];
-  return (
-    <EditorialHome
-      initialLive={homeFeed.live}
-      initialUpcoming={homeFeed.upcoming}
-      initialRecommended={initialRecommended}
-      initialReplayCatalog={initialReplayCatalog}
-      initialChannels={initialChannels}
-      isLoggedIn={isLoggedIn}
-    />
-  );
+  // One fetch: the rail feed decides what the home shows (live, channels,
+  // recommendations, categories…) — including which rail headlines the hero.
+  const [initialPage, isLoggedIn] = await Promise.all([fetchHomeRails(), getInitialIsLoggedIn()]);
+  return <EditorialHome initialPage={initialPage} isLoggedIn={isLoggedIn} />;
 }

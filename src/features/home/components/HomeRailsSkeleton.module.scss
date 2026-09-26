@@ -1,0 +1,48 @@
+@use '../../../styles/_variables' as *;
+@use 'rail-card' as *;
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0.5rem 0;
+}
+
+.title {
+  width: 160px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.track {
+  display: flex;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.card {
+  @include rail-card-width;
+
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.poster {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: $card-radius;
+}
+
+.lineShort {
+  width: 40%;
+  height: 8px;
+  border-radius: 3px;
+}
+
+.lineLong {
+  width: 85%;
+  height: 11px;
+  border-radius: 3px;
+}

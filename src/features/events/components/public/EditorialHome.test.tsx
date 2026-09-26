@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import type { HomeRail, HomeRailItem, HomeRailsResponse } from '@live-show/api-contracts';
 import { EditorialHome } from './EditorialHome';
 import type { EventResponse } from '@/features/events';
 
@@ -12,26 +13,16 @@ vi.mock('next/link', () => ({
     <a href={href} {...rest}>{children}</a>
   ),
 }));
-vi.mock('@/features/advertisements/components/AdBanner', () => ({
-  AdBanner: () => null,
+vi.mock('./editorial/EditorialHero', () => ({
+  EditorialHero: ({ slides }: { slides: Array<{ id: string; title: string }> }) => (
+    <div data-testid="hero">{slides.map((s) => s.title).join(',')}</div>
+  ),
 }));
-vi.mock('./ShowCard', () => ({
-  ShowCard: ({ show }: { show: { id: string; title: string } }) => <div>{show.title}</div>,
+vi.mock('@/features/home/components/HomeRails', () => ({
+  HomeRails: ({ initialPage }: { initialPage?: HomeRailsResponse }) => (
+    <div data-testid="home-rails">{(initialPage?.rails ?? []).map((r) => r.key).join(',')}</div>
+  ),
 }));
-
-// Document outline: EditorialHome owns the page's single stable <h1>,
-// rendered unconditionally (visually hidden) regardless of whether there is
-// hero content to show — a rotating carousel or an empty feed must never
-// leave the page without a heading, or duplicate it.
-describe('EditorialHome heading outline', () => {
-  it('renders exactly one <h1> with the headline text when there are zero hero slides', () => {
-    render(<EditorialHome isLoggedIn={false} />);
-
-    const headings = screen.getAllByRole('heading', { level: 1 });
-    expect(headings).toHaveLength(1);
-    expect(headings[0]).toHaveTextContent('headline');
-  });
-});
 
 function makeEvent(overrides: Partial<EventResponse>): EventResponse {
   return {
@@ -65,33 +56,54 @@ function makeEvent(overrides: Partial<EventResponse>): EventResponse {
   };
 }
 
-// Regression: the home used to derive everything from a single `filter=all`
-// page (oldest-first with years of history), so live/upcoming events could
-// be crowded out entirely. It must now be built straight from the
-// pre-split live/upcoming props with no client-side status filtering.
-describe('EditorialHome live/upcoming composition', () => {
-  it('builds the live rail, hero and genre grid from initialLive + initialUpcoming, excluding a finished event that is passed nowhere', () => {
-    const live = makeEvent({ id: 'live-1', title: 'Live Show', status: 'LIVE' });
-    const upcoming = makeEvent({ id: 'upcoming-1', title: 'Upcoming Show', status: 'PUBLISHED', startsAt: '2026-10-01T20:00:00.000Z' });
-    // A finished event is never passed in — simulates the old filter=all
-    // first page being dominated by old finished events. It must not appear.
+function rail(key: string, items: HomeRailItem[]): HomeRail {
+  return { key, dimension: 'curated', kind: 'events', title: key, items, seeAllHref: '/events' };
+}
 
-    render(
-      <EditorialHome
-        isLoggedIn={false}
-        initialLive={[live]}
-        initialUpcoming={[upcoming]}
-      />,
-    );
+function response(rails: HomeRail[]): HomeRailsResponse {
+  return { rails, nextCursor: null, snapshotAt: '2026-09-25T00:00:00.000Z' };
+}
 
-    expect(screen.getAllByText('Live Show').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Upcoming Show').length).toBeGreaterThan(0);
-    expect(screen.getByText('liveNow')).toBeInTheDocument();
+// Document outline: EditorialHome owns the page's single stable <h1>,
+// rendered unconditionally (visually hidden) regardless of whether there is
+// hero content to show — a rotating carousel or an empty feed must never
+// leave the page without a heading, or duplicate it.
+describe('EditorialHome heading outline', () => {
+  it('renders exactly one <h1> with the headline text when there are zero hero slides', () => {
+    render(<EditorialHome initialPage={null} isLoggedIn={false} />);
+
+    const headings = screen.getAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent('headline');
+  });
+});
+
+describe('EditorialHome rails feed', () => {
+  it('builds the hero from the first eligible rail and seeds HomeRails with the SSR page', () => {
+    const page = response([
+      rail('category:MUSIC', [makeEvent({ id: 'cat-1', title: 'Category Show' })]),
+      rail('curated:live', [makeEvent({ id: 'live-1', title: 'Live Show' })]),
+    ]);
+
+    render(<EditorialHome initialPage={page} isLoggedIn={false} />);
+
+    expect(screen.getByTestId('hero')).toHaveTextContent('Live Show');
+    expect(screen.getByTestId('home-rails')).toHaveTextContent('category:MUSIC,curated:live');
   });
 
-  it('renders no live rail and no hero when initialLive and initialUpcoming are both empty', () => {
-    render(<EditorialHome isLoggedIn={false} initialLive={[]} initialUpcoming={[]} />);
+  it('renders no hero when no rail is hero-eligible', () => {
+    const page = response([rail('city:sao-paulo', [makeEvent({ id: 'c-1', title: 'City Show' })])]);
 
-    expect(screen.queryByText('liveNow')).not.toBeInTheDocument();
+    render(<EditorialHome initialPage={page} isLoggedIn={false} />);
+
+    expect(screen.queryByTestId('hero')).not.toBeInTheDocument();
+    expect(screen.getByTestId('home-rails')).toBeInTheDocument();
+  });
+
+  it('renders no hero and an unseeded feed when the SSR fetch failed', () => {
+    render(<EditorialHome initialPage={null} isLoggedIn={false} />);
+
+    expect(screen.queryByTestId('hero')).not.toBeInTheDocument();
+    expect(screen.getByTestId('home-rails')).toHaveTextContent('');
   });
 });

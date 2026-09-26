@@ -35,26 +35,3 @@ export const fetchFeedPage = cache(async (page: number, pageSize = 24): Promise<
     return { ...EMPTY, page, pageSize };
   }
 });
-
-export interface HomeFeed {
-  live: EventResponse[];
-  upcoming: EventResponse[];
-}
-
-const fetchFilter = cache(async (filter: 'live' | 'upcoming'): Promise<EventResponse[]> => {
-  try {
-    const res = await fetch(`${apiBase()}/events?filter=${filter}&pageSize=50`, { next: { revalidate: 30 } });
-    if (!res.ok) return [];
-    return ((await res.json()) as PaginatedEventsResponse).items;
-  } catch {
-    return [];
-  }
-});
-
-// Home feed: live + upcoming only, so years of finished history never crowd
-// out what's actually watchable/bookable today (unlike fetchFeed's
-// filter=all, whose first 50 skew toward the oldest finished events).
-export const fetchHomeFeed = async (): Promise<HomeFeed> => {
-  const [live, upcoming] = await Promise.all([fetchFilter('live'), fetchFilter('upcoming')]);
-  return { live, upcoming };
-};
