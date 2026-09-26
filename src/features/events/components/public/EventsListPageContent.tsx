@@ -55,9 +55,7 @@ export function EventsListPageContent({
   const page = Math.min(requestedPage, clampPageCount);
 
   const { data, isError, refetch } = useListEventsPageQuery(
-    'all',
-    page,
-    pageSize,
+    { filter: 'all', page, pageSize },
     page === initialPage.page ? initialPage : undefined,
   );
   const isLoading = !data && !isError;

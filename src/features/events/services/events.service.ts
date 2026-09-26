@@ -1,10 +1,11 @@
 import { httpClient } from '@/lib/http/client';
-import type { AccessibilityStatus, CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsFilter, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
+import type { AccessibilityStatus, CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsParams, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
 
 export const eventsService = {
-  listEvents: async (filter: ListEventsFilter = 'all', page = 1, pageSize = 50): Promise<PaginatedEventsResponse> => {
+  listEvents: async (params: ListEventsParams = {}): Promise<PaginatedEventsResponse> => {
+    const { filter = 'all', page = 1, pageSize = 50, category, subtype, tag, city, free } = params;
     const { data } = await httpClient.get<PaginatedEventsResponse>('/events', {
-      params: { filter, page, pageSize },
+      params: { filter, page, pageSize, category, subtype, tag, city, free },
     });
     return data;
   },

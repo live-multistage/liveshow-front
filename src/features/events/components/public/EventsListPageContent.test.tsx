@@ -70,7 +70,7 @@ describe('EventsListPageContent pagination', () => {
 
     render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
 
-    expect(listEventsPageQueryMock).toHaveBeenCalledWith('all', 1, 24, initialPage);
+    expect(listEventsPageQueryMock).toHaveBeenCalledWith({ filter: 'all', page: 1, pageSize: 24 }, initialPage);
     expect(screen.getByText('Show 1')).toBeInTheDocument();
   });
 
@@ -91,7 +91,7 @@ describe('EventsListPageContent pagination', () => {
 
     render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
 
-    expect(listEventsPageQueryMock).toHaveBeenCalledWith('all', 3, 24, undefined);
+    expect(listEventsPageQueryMock).toHaveBeenCalledWith({ filter: 'all', page: 3, pageSize: 24 }, undefined);
     const current = screen.getByText('3');
     expect(current).toHaveAttribute('aria-current', 'page');
   });
@@ -108,7 +108,7 @@ describe('EventsListPageContent pagination', () => {
     listEventsPageQueryMock.mockReturnValue({ data: page5, isError: false, refetch: vi.fn() });
     rerender(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
 
-    expect(listEventsPageQueryMock).toHaveBeenLastCalledWith('all', 5, 24, undefined);
+    expect(listEventsPageQueryMock).toHaveBeenLastCalledWith({ filter: 'all', page: 5, pageSize: 24 }, undefined);
     const current = screen.getByText('5');
     expect(current).toHaveAttribute('aria-current', 'page');
   });
@@ -142,7 +142,7 @@ describe('EventsListPageContent pagination', () => {
 
     render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
 
-    expect(listEventsPageQueryMock).toHaveBeenCalledWith('all', 10, 24, undefined);
+    expect(listEventsPageQueryMock).toHaveBeenCalledWith({ filter: 'all', page: 10, pageSize: 24 }, undefined);
     const current = screen.getByText('10');
     expect(current).toHaveAttribute('aria-current', 'page');
   });

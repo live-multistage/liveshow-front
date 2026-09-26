@@ -4,6 +4,7 @@ export type {
   EventStatus,
   EventFormat,
   ListEventsFilter,
+  ListEventsParams,
   EventCategory,
   VenueData,
   EventOrganization,
