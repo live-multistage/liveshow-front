@@ -23,38 +23,13 @@ import type { ChartPoint } from '@/features/analytics/types/analytics.types';
 import { chartLabels } from '@/features/analytics/utils/chart-labels';
 import styles from './OrganizationAnalyticsPage.module.scss';
 
+import { lineChartOptions } from '@/shared/charts/line-chart-options';
+
+const VIEWERS_CHART_OPTIONS = lineChartOptions();
+
 // Registering the same Chart.js components a second time (SalesDashboard
 // already does this) is a documented no-op — chart.js dedupes by name.
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
-
-const VIEWERS_CHART_OPTIONS = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: '#101013',
-      borderColor: 'rgba(255,255,255,.08)',
-      borderWidth: 1,
-      titleColor: '#fff',
-      bodyColor: '#9a9aa2',
-      padding: 10,
-    },
-  },
-  scales: {
-    x: {
-      grid: { color: 'rgba(255,255,255,.04)' },
-      ticks: { color: '#6f6f77', font: { size: 10 } as const },
-      border: { display: false },
-    },
-    y: {
-      grid: { color: 'rgba(255,255,255,.04)' },
-      ticks: { color: '#6f6f77', font: { size: 10 } as const, precision: 0 },
-      border: { display: false },
-      beginAtZero: true,
-    },
-  },
-} as const;
 
 function ViewersChart({ series, isLoading }: { series: ChartPoint[]; isLoading: boolean }) {
   const t = useTranslations('organizations');

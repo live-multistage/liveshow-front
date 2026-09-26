@@ -12,9 +12,13 @@ import {
   Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { useMemo } from 'react';
 import type { EventResponse } from '@/features/events';
 import { useGetMySalesQuery } from '@/features/analytics/hooks/use-my-sales';
+import { lineChartOptions } from '@/shared/charts/line-chart-options';
 import styles from './DashboardCharts.module.scss';
+
+const COUNT_OPTIONS = lineChartOptions();
 
 ChartJS.register(
   CategoryScale,
@@ -26,35 +30,6 @@ ChartJS.register(
   Filler,
   Legend,
 );
-
-const CHART_OPTIONS = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: '#101013',
-      borderColor: '#27272A',
-      borderWidth: 1,
-      titleColor: '#FFFFFF',
-      bodyColor: '#A1A1AA',
-      padding: 10,
-    },
-  },
-  scales: {
-    x: {
-      grid: { color: 'rgba(255,255,255,0.06)' },
-      ticks: { color: '#6f6f77', font: { size: 9, family: "'Space Mono', monospace" } },
-      border: { display: false },
-    },
-    y: {
-      grid: { color: 'rgba(255,255,255,0.06)' },
-      ticks: { color: '#6f6f77', font: { size: 9, family: "'Space Mono', monospace" }, precision: 0 },
-      border: { display: false },
-      beginAtZero: true,
-    },
-  },
-} as const;
 
 function getLast6Months() {
   const now = new Date();
@@ -121,6 +96,14 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
   // The revenue line is the primary currency only (see above), so the axis says
   // which one instead of always claiming reais.
   const primaryCurrency = summaries[0]?.currency ?? 'BRL';
+  // Money needs the currency of the series it belongs to, so these options are
+  // built per render rather than shared like COUNT_OPTIONS.
+  const revenueOptions = useMemo(
+    () => lineChartOptions({
+      formatValue: (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: primaryCurrency }),
+    }),
+    [primaryCurrency],
+  );
 
   const eventsChartData = {
     labels: months,
@@ -184,7 +167,7 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
           <h3 className={styles.chartTitle}>Eventos Realizados</h3>
         </div>
         <div className={styles.chartWrap}>
-          <Line data={eventsChartData} options={CHART_OPTIONS} />
+          <Line data={eventsChartData} options={COUNT_OPTIONS} />
         </div>
       </div>
 
@@ -196,7 +179,7 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
               <h3 className={styles.chartTitle}>Vendas</h3>
             </div>
             <div className={styles.chartWrap}>
-              <Line data={salesChartData} options={CHART_OPTIONS} />
+              <Line data={salesChartData} options={COUNT_OPTIONS} />
             </div>
           </div>
 
@@ -206,7 +189,7 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
               <h3 className={styles.chartTitle}>Receita</h3>
             </div>
             <div className={styles.chartWrap}>
-              <Line data={revenueChartData} options={CHART_OPTIONS} />
+              <Line data={revenueChartData} options={revenueOptions} />
             </div>
           </div>
         </>

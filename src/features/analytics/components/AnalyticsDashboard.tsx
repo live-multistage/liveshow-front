@@ -25,6 +25,10 @@ import type { NotificationBreakdownRow } from '../types/notification-breakdown.t
 import type { SalesOriginResult, SalesChannel } from '../types/sales-origin.types';
 import styles from './AnalyticsDashboard.module.scss';
 
+import { lineChartOptions } from '@/shared/charts/line-chart-options';
+
+const CHART_OPTIONS = lineChartOptions();
+
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
 // ─── Types ────────────────────────────────────────────────────────
@@ -45,35 +49,6 @@ const TICKET_BAR_COLORS = [
   'linear-gradient(90deg,#46d6d8,#7fe0a0)',
   'linear-gradient(90deg,#ffd166,#ff9f45)',
 ];
-
-const CHART_OPTIONS = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: '#101013',
-      borderColor: 'rgba(255,255,255,.08)',
-      borderWidth: 1,
-      titleColor: '#fff',
-      bodyColor: '#9a9aa2',
-      padding: 10,
-    },
-  },
-  scales: {
-    x: {
-      grid: { color: 'rgba(255,255,255,.04)' },
-      ticks: { color: '#6f6f77', font: { size: 10 } as const },
-      border: { display: false },
-    },
-    y: {
-      grid: { color: 'rgba(255,255,255,.04)' },
-      ticks: { color: '#6f6f77', font: { size: 10 } as const, precision: 0 },
-      border: { display: false },
-      beginAtZero: true,
-    },
-  },
-} as const;
 
 // ─── Helpers ──────────────────────────────────────────────────────
 function fmtCurrency(v: number) {

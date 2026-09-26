@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,43 +16,14 @@ import type { EventSalesSeries, SalesGranularity, SalesSummary } from '../types/
 import { EventSalesTable } from './EventSalesTable';
 import styles from './SalesDashboard.module.scss';
 
+import { lineChartOptions } from '@/shared/charts/line-chart-options';
+
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
 const ORDERS_COLOR = '#9b7bff';
 const REVENUE_COLOR = '#ff2e9e';
 // Per-event lines cycle through these; beyond the palette, hues repeat.
 const EVENT_COLORS = ['#ff2e9e', '#9b7bff', '#46d6d8', '#7fe0a0', '#ff7a4d', '#ffd166', '#5aa9ff', '#f28cff'];
-
-const CHART_OPTIONS = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: '#101013',
-      borderColor: '#27272A',
-      borderWidth: 1,
-      titleColor: '#FFFFFF',
-      bodyColor: '#A1A1AA',
-      titleFont: { family: 'Space Mono, monospace', size: 11 },
-      bodyFont: { family: 'Space Mono, monospace', size: 12 },
-      padding: 10,
-    },
-  },
-  scales: {
-    x: {
-      grid: { color: 'rgba(255,255,255,0.06)' },
-      ticks: { color: '#6f6f77', font: { family: 'Space Mono, monospace', size: 11 } },
-      border: { display: false },
-    },
-    y: {
-      grid: { color: 'rgba(255,255,255,0.06)' },
-      ticks: { color: '#6f6f77', font: { family: 'Space Mono, monospace', size: 11 }, precision: 0 },
-      border: { display: false },
-      beginAtZero: true,
-    },
-  },
-} as const;
 
 // No FX conversion — always formatted in the row's own currency.
 function formatCurrency(value: number, currency = 'BRL'): string {
@@ -124,6 +95,14 @@ export function SalesDashboard({ data, byEvent = [], isLoading, granularity, onG
   const [chartSplit, setChartSplit] = useState<ChartSplit>('total');
 
   const isOrders = chartView === 'orders';
+  // The same chart plots counts or money depending on the toggle, so the
+  // tooltip formatter follows the view instead of always claiming reais.
+  const chartOptions = useMemo(
+    () => lineChartOptions(
+      isOrders ? {} : { formatValue: (v: number) => formatCurrency(v, currency) },
+    ),
+    [isOrders, currency],
+  );
   const series = isOrders ? ORDERS_COLOR : REVENUE_COLOR;
   const canSplit = byEvent.length > 1;
   const splitByEvent = canSplit && chartSplit === 'event';
@@ -277,7 +256,7 @@ export function SalesDashboard({ data, byEvent = [], isLoading, granularity, onG
               <span className={styles.spinner} />
             </div>
           ) : (
-            <Line data={chartDataset} options={CHART_OPTIONS} />
+            <Line data={chartDataset} options={chartOptions} />
           )}
         </div>
         {splitByEvent && (
