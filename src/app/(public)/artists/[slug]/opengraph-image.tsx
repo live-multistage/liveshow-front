@@ -1,7 +1,7 @@
 import { renderBrandCard, OG_SIZE } from '@/shared/og/BrandCard';
 import { fetchArtistByParam } from '@/features/artists/queries/get-artist.server';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 export const alt = 'Artista no showon.io';
 export const size = OG_SIZE;
 export const contentType = 'image/png';

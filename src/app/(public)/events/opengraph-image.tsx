@@ -1,6 +1,6 @@
 import { renderBrandCard, OG_SIZE } from '@/shared/og/BrandCard';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 export const alt = 'Shows no showon.io';
 export const size = OG_SIZE;
 export const contentType = 'image/png';

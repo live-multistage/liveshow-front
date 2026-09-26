@@ -1,7 +1,7 @@
 import { renderBrandCard, OG_SIZE } from '@/shared/og/BrandCard';
 import { fetchChannelBySlug } from '@/features/channels/queries/get-channels.server';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 export const alt = 'Canal no showon.io';
 export const size = OG_SIZE;
 export const contentType = 'image/png';

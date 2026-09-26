@@ -1,7 +1,7 @@
 import { renderBrandCard, OG_SIZE } from '@/shared/og/BrandCard';
 import { fetchOrganizationByParam } from '@/features/organizations/queries/get-organization.server';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 export const alt = 'Organização no showon.io';
 export const size = OG_SIZE;
 export const contentType = 'image/png';
