@@ -6,11 +6,11 @@ function item(id: string): HomeRailItem {
   return { id } as HomeRailItem;
 }
 
-function rail(key: string, items: HomeRailItem[]): HomeRail {
+function rail(key: string, items: HomeRailItem[], kind: HomeRail['kind'] = 'events'): HomeRail {
   return {
     key,
     dimension: 'curated',
-    kind: 'events',
+    kind,
     title: key,
     items,
     seeAllHref: '/events',
@@ -45,8 +45,34 @@ describe('pickHeroSlides', () => {
     expect(slides).toHaveLength(5);
   });
 
-  it('returns nothing when no rail is eligible', () => {
-    expect(pickHeroSlides([rail('city:sao-paulo', [item('x')])])).toEqual([]);
+  // A whitelist alone left the home with no hero at all whenever none of the
+  // four preferred rails existed — which is every catalogue with nothing live
+  // or upcoming.
+  it('headlines any events rail rather than showing no hero', () => {
+    expect(
+      pickHeroSlides([rail('city:sao-paulo', [item('x')])]).map((s) => s.id),
+    ).toEqual(['x']);
+    expect(
+      pickHeroSlides([rail('catalog:all', [item('a'), item('b')])]).map((s) => s.id),
+    ).toEqual(['a', 'b']);
+  });
+
+  it('still prefers a live rail over whatever came first', () => {
+    const slides = pickHeroSlides([
+      rail('catalog:all', [item('catalogue-1')]),
+      rail('curated:live', [item('live-1')]),
+    ]);
+
+    expect(slides.map((s) => s.id)).toEqual(['live-1']);
+  });
+
+  // Channels carry `channels`, not `items` — they cannot headline.
+  it('never falls back to a channels rail', () => {
+    expect(pickHeroSlides([rail('channels', [item('ch-1')], 'channels')])).toEqual([]);
+  });
+
+  it('returns nothing when there is nothing to show', () => {
     expect(pickHeroSlides([])).toEqual([]);
+    expect(pickHeroSlides([rail('catalog:all', [])])).toEqual([]);
   });
 });

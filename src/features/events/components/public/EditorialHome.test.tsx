@@ -91,13 +91,21 @@ describe('EditorialHome rails feed', () => {
     expect(screen.getByTestId('home-rails')).toHaveTextContent('category:MUSIC,curated:live');
   });
 
-  it('renders no hero when no rail is hero-eligible', () => {
+  // A catalogue with nothing live or upcoming still gets a hero — the page
+  // used to open on a bare carousel with the navbar floating over nothing.
+  it('headlines whatever rail there is when none is a preferred one', () => {
     const page = response([rail('city:sao-paulo', [makeEvent({ id: 'c-1', title: 'City Show' })])]);
 
     render(<EditorialHome initialPage={page} />);
 
-    expect(screen.queryByTestId('hero')).not.toBeInTheDocument();
+    expect(screen.getByTestId('hero')).toHaveTextContent('City Show');
     expect(screen.getByTestId('home-rails')).toBeInTheDocument();
+  });
+
+  it('renders no hero when there is no show at all', () => {
+    render(<EditorialHome initialPage={response([rail('catalog:all', [])])} />);
+
+    expect(screen.queryByTestId('hero')).not.toBeInTheDocument();
   });
 
   it('renders no hero and an unseeded feed when the SSR fetch failed', () => {
