@@ -162,4 +162,30 @@ describe('HomeRails', () => {
 
     expect(screen.queryByText('noShows')).not.toBeInTheDocument();
   });
+
+  it('does not render the empty state when zero rails settled but a next page is still expected', () => {
+    setQuery({ hasNextPage: true });
+
+    render(<HomeRails />);
+
+    expect(screen.queryByText('noShows')).not.toBeInTheDocument();
+    // The sentinel is observed only when there is a next page to fetch.
+    expect(callbacks).toHaveLength(1);
+  });
+
+  it('dedupes rails repeated across pages after a candidates-refresh restart', () => {
+    setQuery(pages(['a', 'b'], ['b', 'c']));
+
+    render(<HomeRails />);
+
+    expect(screen.getAllByTestId('rail').map((el) => el.textContent)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('shows 2 skeleton rails while the first page itself is still loading', () => {
+    setQuery({ isFetching: true });
+
+    render(<HomeRails />);
+
+    expect(screen.getAllByTestId('rail-skeleton')).toHaveLength(2);
+  });
 });

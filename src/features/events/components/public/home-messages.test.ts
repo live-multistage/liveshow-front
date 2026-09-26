@@ -18,8 +18,8 @@ function keySet(obj: unknown, prefix = ''): Set<string> {
 }
 
 describe('home page message catalogs', () => {
-  it('pt/en/es share the same home, carousel, showCard, and ads keys', () => {
-    const sections = ['home', 'carousel', 'showCard', 'ads'] as const;
+  it('pt/en/es share the same home, carousel, showCard, events, and ads keys', () => {
+    const sections = ['home', 'carousel', 'showCard', 'events', 'ads'] as const;
     for (const section of sections) {
       const [ptKeys, enKeys, esKeys] = [pt, en, es].map((c) =>
         keySet((c as any)[section])
@@ -34,10 +34,12 @@ describe('home page message catalogs', () => {
       // New keys
       'nav.artists',
       'home.headline',
-      'home.allShows',
-      'home.filterByCategory',
-      'home.moreGenres',
-      'home.noShowsInCategory',
+      'home.rails.end',
+      'home.rails.loadError',
+      'home.rails.retry',
+      'home.rails.seeAllEvents',
+      'showCard.remaining',
+      'events.activeFilter.clear',
       'home.hero.live',
       'home.hero.watching',
       'home.hero.watchNow',

@@ -17,6 +17,10 @@ export async function fetchHomeRails(): Promise<HomeRailsResponse | null> {
     const token = (await cookies()).get('access_token')?.value;
     const init = token
       ? withRequestId({ headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' })
+      // ponytail: withRequestId forbids cache: 'no-store' !== undefined fetches
+      // (a random header defeats Next's Data Cache key, see request-id.ts) —
+      // this branch is the shared, cached (revalidate 30s) anonymous response,
+      // so it deliberately stays without a request id.
       : { next: { revalidate: 30 } };
     const res = await fetch(`${apiBase()}/home/rails?limit=4`, init);
     if (!res.ok) return null;

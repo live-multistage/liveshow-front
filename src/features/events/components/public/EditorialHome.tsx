@@ -11,7 +11,6 @@ import styles from './EditorialHomeContent.module.scss';
 
 interface Props {
   initialPage: HomeRailsResponse | null;
-  isLoggedIn: boolean;
 }
 
 export function EditorialHome({ initialPage }: Props) {

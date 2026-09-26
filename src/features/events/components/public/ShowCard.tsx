@@ -114,6 +114,7 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={progressPct}
+                aria-label={t('remaining', { minutes: remainingMinutes })}
               >
                 <div
                   className={styles.progressFill}

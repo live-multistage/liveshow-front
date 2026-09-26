@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { EditorialHome } from '@/features/events/components/public/EditorialHome';
 import { fetchHomeRails } from '@/features/home';
-import { getInitialIsLoggedIn } from '@/features/account/queries/get-auth-state.server';
 
 // Home-specific <title>/description: the layout default is just "showon.io",
 // which says nothing to a search result. `absolute` skips the "· showon.io"
@@ -21,6 +20,6 @@ export const metadata: Metadata = {
 export default async function Home() {
   // One fetch: the rail feed decides what the home shows (live, channels,
   // recommendations, categories…) — including which rail headlines the hero.
-  const [initialPage, isLoggedIn] = await Promise.all([fetchHomeRails(), getInitialIsLoggedIn()]);
-  return <EditorialHome initialPage={initialPage} isLoggedIn={isLoggedIn} />;
+  const initialPage = await fetchHomeRails();
+  return <EditorialHome initialPage={initialPage} />;
 }

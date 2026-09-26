@@ -25,7 +25,9 @@ export function HomeRailSection({ rail }: { rail: HomeRail }) {
         {rail.kind === 'channels'
           ? (rail.channels ?? []).map((channel) => (
               <Carousel.Item key={channel.id} fit="content">
-                <ChannelCard channel={channel} />
+                <div className={styles.channelCard}>
+                  <ChannelCard channel={channel} />
+                </div>
               </Carousel.Item>
             ))
           : rail.items.map((item) => (

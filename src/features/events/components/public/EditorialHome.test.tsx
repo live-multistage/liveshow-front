@@ -70,7 +70,7 @@ function response(rails: HomeRail[]): HomeRailsResponse {
 // leave the page without a heading, or duplicate it.
 describe('EditorialHome heading outline', () => {
   it('renders exactly one <h1> with the headline text when there are zero hero slides', () => {
-    render(<EditorialHome initialPage={null} isLoggedIn={false} />);
+    render(<EditorialHome initialPage={null} />);
 
     const headings = screen.getAllByRole('heading', { level: 1 });
     expect(headings).toHaveLength(1);
@@ -85,7 +85,7 @@ describe('EditorialHome rails feed', () => {
       rail('curated:live', [makeEvent({ id: 'live-1', title: 'Live Show' })]),
     ]);
 
-    render(<EditorialHome initialPage={page} isLoggedIn={false} />);
+    render(<EditorialHome initialPage={page} />);
 
     expect(screen.getByTestId('hero')).toHaveTextContent('Live Show');
     expect(screen.getByTestId('home-rails')).toHaveTextContent('category:MUSIC,curated:live');
@@ -94,14 +94,14 @@ describe('EditorialHome rails feed', () => {
   it('renders no hero when no rail is hero-eligible', () => {
     const page = response([rail('city:sao-paulo', [makeEvent({ id: 'c-1', title: 'City Show' })])]);
 
-    render(<EditorialHome initialPage={page} isLoggedIn={false} />);
+    render(<EditorialHome initialPage={page} />);
 
     expect(screen.queryByTestId('hero')).not.toBeInTheDocument();
     expect(screen.getByTestId('home-rails')).toBeInTheDocument();
   });
 
   it('renders no hero and an unseeded feed when the SSR fetch failed', () => {
-    render(<EditorialHome initialPage={null} isLoggedIn={false} />);
+    render(<EditorialHome initialPage={null} />);
 
     expect(screen.queryByTestId('hero')).not.toBeInTheDocument();
     expect(screen.getByTestId('home-rails')).toHaveTextContent('');

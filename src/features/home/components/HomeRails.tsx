@@ -20,7 +20,15 @@ export function HomeRails({ initialPage }: { initialPage?: HomeRailsResponse }) 
   const t = useTranslations('home.rails');
   const tHome = useTranslations('home');
   const q = useHomeRailsQuery(initialPage);
-  const rails = useMemo(() => (q.data?.pages ?? []).flatMap((page) => page.rails), [q.data]);
+  // A candidates refresh mid-scroll makes the backend restart at rail 0 and
+  // flag snapshotChanged — so page N+1 can repeat a page-1 rail key. Dedupe
+  // by key across pages so a rail (and its React key) never renders twice.
+  const rails = useMemo(() => {
+    const seen = new Set<string>();
+    return (q.data?.pages ?? [])
+      .flatMap((page) => page.rails)
+      .filter((r) => (seen.has(r.key) ? false : (seen.add(r.key), true)));
+  }, [q.data]);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,7 +46,10 @@ export function HomeRails({ initialPage }: { initialPage?: HomeRailsResponse }) 
     return () => io.disconnect();
   }, [q.hasNextPage, q.isFetchingNextPage, q.fetchNextPage]);
 
-  if (!q.isFetching && rails.length === 0 && !q.isError) {
+  // Zero rails with a cursor still pending is documented backend behaviour
+  // (rails with <4 items are skipped server-side) — only render the empty
+  // state once there is truly no next page left to try.
+  if (!q.isFetching && rails.length === 0 && !q.isError && !q.hasNextPage) {
     return <div className={styles.empty}>{tHome('noShows')}</div>;
   }
 
@@ -51,7 +62,9 @@ export function HomeRails({ initialPage }: { initialPage?: HomeRailsResponse }) 
         </Fragment>
       ))}
 
-      {q.isFetchingNextPage && <HomeRailsSkeleton rails={SKELETON_RAILS} />}
+      {(q.isFetchingNextPage || (q.isFetching && rails.length === 0)) && (
+        <HomeRailsSkeleton rails={SKELETON_RAILS} />
+      )}
 
       {q.isError && (
         <div role="alert" className={styles.error}>

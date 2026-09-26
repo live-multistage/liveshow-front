@@ -2,10 +2,6 @@
 @use '../../../styles/_mixins' as *;
 @use 'rail-card' as *;
 
-.rail {
-  padding: 0.5rem 0;
-}
-
 .subtitle {
   margin: -8px 0 0;
   font-family: var(--font-space-mono), 'Space Mono', monospace;
@@ -23,4 +19,13 @@
 
 .card {
   @include rail-card-width;
+}
+
+.channelCard {
+  width: 19rem;
+  height: 100%;
+
+  @media (max-width: $sm) {
+    width: calc(100vw - 32px - 10px);
+  }
 }
