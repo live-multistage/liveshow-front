@@ -5,6 +5,12 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  // The og-image routes read the Archivo woff files from disk at request time
+  // (Node runtime, see src/shared/og/fonts.ts); make sure every function
+  // bundle ships them regardless of how well the tracer follows the readFile.
+  outputFileTracingIncludes: {
+    '/**': ['./src/shared/og/fonts/**/*'],
+  },
   transpilePackages: ['@live-show/api-contracts', '@live-show/design-system', '@live-show/i18n-messages'],
   // Same-origin proxy for LAN clients (phone on https://192.168.x.x:3000):
   // their browser calls /api/* here and the dev server forwards to the local
