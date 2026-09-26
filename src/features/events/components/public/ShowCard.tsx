@@ -20,9 +20,12 @@ interface ShowCardProps {
   // 3/4 image, tighter type, no tag chips, full-width CTA. Default is the
   // wider card used by the home rails, artist page and my-list.
   size?: 'default' | 'compact';
+  // "Continue assistindo" watch progress. Renders a progress bar + remaining
+  // time chip over the cover. Omitted or a non-positive duration renders nothing.
+  progress?: { positionSeconds: number; durationSeconds: number };
 }
 
-export function ShowCard({ show, purchased = false, layout = 'vertical', size = 'default' }: ShowCardProps) {
+export function ShowCard({ show, purchased = false, layout = 'vertical', size = 'default', progress }: ShowCardProps) {
   const t = useTranslations('showCard');
   const locale = useLocale();
   const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
@@ -42,6 +45,14 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
 
   const cardHref = eventHref(show);
   const ctaHref = purchased || show.isLive ? `/live/${show.id}` : eventHref(show);
+
+  const hasProgress = !!progress && progress.durationSeconds > 0;
+  const progressPct = hasProgress
+    ? Math.min(100, Math.max(0, Math.round((progress!.positionSeconds / progress!.durationSeconds) * 100)))
+    : 0;
+  const remainingMinutes = hasProgress
+    ? Math.max(1, Math.round((progress!.durationSeconds - progress!.positionSeconds) / 60))
+    : 0;
 
   return (
     <div
@@ -94,6 +105,25 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
           )}
 
           <WishlistButton eventId={show.id} variant="overlay" className={styles.wishlistButton} />
+
+          {hasProgress && (
+            <>
+              <div
+                className={styles.progressTrack}
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={progressPct}
+              >
+                <div
+                  className={styles.progressFill}
+                  // ponytail: width is data-driven, not a token
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+              <span className={styles.remaining}>{t('remaining', { minutes: remainingMinutes })}</span>
+            </>
+          )}
         </div>
 
         <div className={styles.content}>

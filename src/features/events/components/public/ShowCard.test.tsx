@@ -102,6 +102,36 @@ describe('ShowCard labels', () => {
   });
 });
 
+describe('ShowCard watch progress', () => {
+  it('renders a progressbar and remaining label when progress is given', () => {
+    render(
+      <ShowCard
+        show={makeShow()}
+        size="compact"
+        progress={{ positionSeconds: 600, durationSeconds: 3600 }}
+      />
+    );
+
+    const bar = screen.getByRole('progressbar');
+    expect(bar).toHaveAttribute('aria-valuenow', '17');
+    expect(screen.getByText('remaining')).toBeInTheDocument();
+  });
+
+  it('renders no progressbar when progress is omitted', () => {
+    render(<ShowCard show={makeShow()} />);
+
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  it('renders no progressbar when durationSeconds is 0', () => {
+    render(
+      <ShowCard show={makeShow()} progress={{ positionSeconds: 0, durationSeconds: 0 }} />
+    );
+
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+});
+
 describe('ShowCard location meta', () => {
   it('joins venue and city with a middle dot', () => {
     render(<ShowCard show={makeShow({ venue: 'Arena', city: 'São Paulo' })} />);
