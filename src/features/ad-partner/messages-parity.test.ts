@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { messages } from '@live-show/i18n-messages';
+import { allMessages as messages } from '@live-show/i18n-messages/src/all-messages';
 
 const { pt, en, es } = messages;
 
