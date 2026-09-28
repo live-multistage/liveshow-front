@@ -2,8 +2,9 @@
 
 // Shared by the real rail card (HomeRail) and its skeleton (HomeRailsSkeleton):
 // both must be the same width or the list jumps when a page resolves.
-// 6 cards visible at the 1280px page max width with 32px side gutters and
-// 16px gaps between cards; shrinks proportionally on narrower rails.
+// 6 cards visible at 1280px (the design's reference width) with 32px side
+// gutters and 16px gaps; the 189px ceiling holds on wider viewports, where the
+// full-bleed rail just fits more cards, and it shrinks proportionally below.
 @mixin rail-card-width {
   width: clamp(150px, calc((min(100vw, 1280px) - 64px - 5 * 16px) / 6), 189px);
 

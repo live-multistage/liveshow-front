@@ -4,6 +4,9 @@
 $rail-gutter: 40px;
 $rail-gutter-mobile: 20px;
 
+// Full-bleed like the navbar and hero: no page cap. Cards keep their 189px
+// ceiling (see _rail-card.scss), so a wider viewport simply shows more of
+// them per rail instead of leaving a dead margin on the right.
 .list {
   display: flex;
   flex-direction: column;
