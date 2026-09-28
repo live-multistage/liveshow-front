@@ -135,7 +135,10 @@ describe('HomeRailSection', () => {
 
   it('renders the pulsing live dot only for the curated:live rail', () => {
     render(<HomeRailSection rail={makeRail({ key: 'curated:live', dimension: 'curated' })} />);
-    expect(screen.getByTestId('rail-live-dot')).toBeInTheDocument();
+    const dot = screen.getByTestId('rail-live-dot');
+    // Beside the title, not on an eyebrow line above it.
+    expect(dot.closest('h2')).not.toBeNull();
+    expect(screen.queryByTestId('section-eyebrow')).not.toBeInTheDocument();
   });
 
   it('does not render the live dot for a non-live rail', () => {

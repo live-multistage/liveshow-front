@@ -17,7 +17,7 @@ export function HomeRailSection({ rail }: { rail: HomeRail }) {
       <SectionHeader
         titleId={titleId}
         title={rail.title}
-        eyebrow={isLive ? <span className={styles.liveDot} data-testid="rail-live-dot" aria-hidden /> : undefined}
+        titleAdornment={isLive ? <span className={styles.liveDot} data-testid="rail-live-dot" /> : undefined}
         seeAllHref={rail.seeAllHref}
       />
       {rail.subtitle && <p className={styles.subtitle}>{rail.subtitle}</p>}

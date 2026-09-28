@@ -9,13 +9,15 @@ interface SectionHeaderProps {
   /** id of the <h2>, used by the wrapping <section aria-labelledby>. */
   titleId: string;
   eyebrow?: ReactNode;
+  /** Inline marker rendered beside the title (e.g. a live dot). Purely decorative. */
+  titleAdornment?: ReactNode;
   seeAllHref?: string;
 }
 
 // Shared header for every home section. No 'use client' — it renders on the
 // server in server components and on the client inside client islands (the
 // rail feed), so it must stay hook-free besides useTranslations.
-export function SectionHeader({ title, titleId, eyebrow, seeAllHref }: SectionHeaderProps) {
+export function SectionHeader({ title, titleId, eyebrow, titleAdornment, seeAllHref }: SectionHeaderProps) {
   const t = useTranslations('carousel');
 
   return (
@@ -26,7 +28,14 @@ export function SectionHeader({ title, titleId, eyebrow, seeAllHref }: SectionHe
             {eyebrow}
           </div>
         )}
-        <h2 id={titleId} className={styles.title}>{title}</h2>
+        <h2 id={titleId} className={styles.title}>
+          {titleAdornment && (
+            <span className={styles.titleAdornment} aria-hidden="true">
+              {titleAdornment}
+            </span>
+          )}
+          {title}
+        </h2>
       </div>
       {seeAllHref && (
         <Link href={seeAllHref} className={styles.link} aria-label={t('seeAll')}>

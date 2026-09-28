@@ -35,6 +35,14 @@
   }
 }
 
+// Sits on the title's baseline row; the dot itself is sized by its owner.
+.titleAdornment {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-right: 0.5em;
+}
+
 .link {
   display: inline-flex;
   align-items: center;

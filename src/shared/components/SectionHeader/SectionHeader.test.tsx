@@ -26,6 +26,20 @@ describe('SectionHeader', () => {
     expect(screen.getByTestId('section-eyebrow')).toHaveTextContent('TV linear · 24h');
   });
 
+  it('renders the title adornment inside the heading, hidden from its accessible name', () => {
+    render(
+      <SectionHeader
+        title="Ao vivo agora"
+        titleId="live-now-heading"
+        titleAdornment={<span data-testid="dot" />}
+      />,
+    );
+
+    const heading = screen.getByRole('heading', { level: 2, name: 'Ao vivo agora' });
+    expect(heading).toContainElement(screen.getByTestId('dot'));
+    expect(screen.queryByTestId('section-eyebrow')).not.toBeInTheDocument();
+  });
+
   it('renders a see-all link with an aria-hidden icon when seeAllHref is given', () => {
     render(<SectionHeader title="Ao vivo agora" titleId="live-now-heading" seeAllHref="/events" />);
 
