@@ -1,0 +1,62 @@
+import { useEffect } from 'react';
+import type { TrackingContext } from '@live-show/api-contracts';
+import type { Analytics } from '../core/analytics';
+
+const UTM_STORAGE_KEY = 'sho_utm';
+const UTM_PARAM_TO_CAMPAIGN_KEY: Record<string, keyof NonNullable<TrackingContext['campaign']>> = {
+  utm_source: 'source',
+  utm_medium: 'medium',
+  utm_campaign: 'name',
+  utm_term: 'term',
+  utm_content: 'content',
+};
+
+function parseUtm(search: string): TrackingContext['campaign'] | null {
+  const params = new URLSearchParams(search);
+  let campaign: TrackingContext['campaign'] | undefined;
+  for (const [param, key] of Object.entries(UTM_PARAM_TO_CAMPAIGN_KEY)) {
+    const value = params.get(param);
+    if (!value) continue;
+    campaign = { ...campaign, [key]: value };
+  }
+  return campaign ?? null;
+}
+
+function readStoredCampaign(): TrackingContext['campaign'] | null {
+  try {
+    const raw = sessionStorage.getItem(UTM_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function storeCampaign(campaign: TrackingContext['campaign']): void {
+  try {
+    sessionStorage.setItem(UTM_STORAGE_KEY, JSON.stringify(campaign));
+  } catch {
+    // storage blocked — campaign just won't survive a reload this session
+  }
+}
+
+/** Emits `page()` on mount and on every pathname/search change; captures utm_* once per session. */
+export function useAutoPage(analytics: Pick<Analytics, 'page' | 'setCampaign'>, pathname: string, search: string): void {
+  useEffect(() => {
+    const stored = readStoredCampaign();
+    if (stored) {
+      analytics.setCampaign(stored);
+      return;
+    }
+    const captured = parseUtm(search);
+    if (captured) {
+      storeCampaign(captured);
+      analytics.setCampaign(captured);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- captured once per session, not per navigation
+  }, []);
+
+  useEffect(() => {
+    analytics.page();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- analytics instance is stable (useRef)
+  }, [pathname, search]);
+}

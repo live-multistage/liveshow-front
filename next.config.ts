@@ -11,7 +11,12 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/**': ['./src/shared/og/fonts/**/*'],
   },
-  transpilePackages: ['@live-show/api-contracts', '@live-show/design-system', '@live-show/i18n-messages'],
+  transpilePackages: [
+    '@live-show/analytics-sdk',
+    '@live-show/api-contracts',
+    '@live-show/design-system',
+    '@live-show/i18n-messages',
+  ],
   // sass-loader can drive the native sass-embedded binary instead of the JS
   // `sass` package — same output, much faster compiles for our 300+ SCSS
   // modules. Webpack-only: Turbopack (next dev --turbopack) has its own Sass

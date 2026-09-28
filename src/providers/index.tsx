@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { isServer, QueryClient, QueryClientProvider, HydrationBoundary, type DehydratedState } from '@tanstack/react-query';
 import { captureAttribution } from '@/lib/analytics/attribution';
+import { TrackingProvider } from '@/lib/analytics/tracking';
 import { Toaster } from '@live-show/design-system';
 import { NavigationEvents } from '@/shared/components/NavigationEvents';
 import { NavigationOverlay } from '@/shared/components/NavigationOverlay';
@@ -53,13 +54,15 @@ export function Providers({ children, initialIsLoggedIn, initialUser, dehydrated
     <QueryClientProvider client={queryClient}>
       <HydrationBoundary state={dehydratedState}>
         <AuthProvider initialIsLoggedIn={initialIsLoggedIn} initialUser={initialUser}>
-          {children}
-          <ImpersonationBanner />
-          <Toaster />
-          <NavigationEvents />
-          <NavigationOverlay />
-          <NotificationsStreamListener />
-          <AgePersonalizationPrompt />
+          <TrackingProvider>
+            {children}
+            <ImpersonationBanner />
+            <Toaster />
+            <NavigationEvents />
+            <NavigationOverlay />
+            <NotificationsStreamListener />
+            <AgePersonalizationPrompt />
+          </TrackingProvider>
         </AuthProvider>
       </HydrationBoundary>
     </QueryClientProvider>

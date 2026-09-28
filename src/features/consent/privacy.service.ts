@@ -15,10 +15,16 @@ export const privacyService = {
     return data;
   },
 
-  async deleteAnalyticsData(): Promise<{ deletedEvents: number; deletedViewRecords: number }> {
-    const { data } = await httpClient.delete<{ deletedEvents: number; deletedViewRecords: number }>(
-      '/privacy/analytics-data',
-    );
+  async deleteAnalyticsData(): Promise<{
+    deletedEvents: number;
+    deletedViewRecords: number;
+    deletedTrackingEvents: number;
+  }> {
+    const { data } = await httpClient.delete<{
+      deletedEvents: number;
+      deletedViewRecords: number;
+      deletedTrackingEvents: number;
+    }>('/privacy/analytics-data');
     return data;
   },
 };

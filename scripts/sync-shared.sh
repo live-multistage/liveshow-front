@@ -53,7 +53,7 @@ if [ "$FORCE" -eq 0 ]; then
   check_i18n_no_key_loss
 fi
 
-for p in api-contracts design-system i18n-messages; do
+for p in api-contracts analytics-sdk design-system i18n-messages; do
   rsync -a --delete --exclude node_modules --exclude 'dist' --exclude '*.tsbuildinfo' \
     "../packages/$p/" "shared/$p/"
 done
