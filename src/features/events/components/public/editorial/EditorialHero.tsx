@@ -84,6 +84,9 @@ function SlideContent({ show }: { show: Show }) {
   const tCameras = useTranslations('home');
   const priceLabel = fmtPrice(show);
   const isFree = isFreeShow(show);
+  // Online-only events arrive with empty venue/city; joining here keeps the
+  // whole location item (icon included) out of the row when there is none.
+  const place = [show.venue, show.city].filter(Boolean).join(', ');
   // The slide title is a <p>, not a heading: the page's <h1> is the stable
   // headline rendered once by EditorialHome, so a rotating carousel never
   // changes the document outline and hidden slides never pose as sections.
@@ -115,11 +118,24 @@ function SlideContent({ show }: { show: Show }) {
       )}
 
       <div className={styles.heroV2Meta}>
-        <span>{show.venue}</span>
-        <span className={styles.heroV2MetaDot} aria-hidden="true" />
-        <span>{show.city}</span>
-        <span className={styles.heroV2MetaDot} aria-hidden="true" />
-        <span>{tCameras('cameras', { count: show.cameras.length })}</span>
+        {/* Venue and city are optional — an online-only show has neither, and
+            rendering their separators anyway left orphan dots in the hero. */}
+        {place && (
+          <span className={styles.heroV2MetaItem}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            {place}
+          </span>
+        )}
+        <span className={styles.heroV2MetaItem}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="m16 13 5.2 3A1 1 0 0 0 22 15V9a1 1 0 0 0-1.5-.9L16 11" />
+            <rect x="2" y="6" width="14" height="12" rx="2" />
+          </svg>
+          {tCameras('cameras', { count: show.cameras.length })}
+        </span>
       </div>
 
       <div className={styles.heroV2Actions}>

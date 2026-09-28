@@ -157,19 +157,22 @@
 .heroV2Meta {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
   font-size: 14px;
   color: $text-secondary;
   margin-bottom: 32px;
   flex-wrap: wrap;
 }
 
-.heroV2MetaDot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: $text-muted;
-  flex-shrink: 0;
+.heroV2MetaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  svg {
+    flex-shrink: 0;
+    color: $text-muted;
+  }
 }
 
 .heroV2Actions {

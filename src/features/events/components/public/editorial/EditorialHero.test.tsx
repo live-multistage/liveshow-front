@@ -483,3 +483,16 @@ describe('i18n: free vs paid CTA', () => {
     expect(screen.getByRole('link', { name: /Ingressos ·/ })).toBeInTheDocument();
   });
 });
+
+describe('hero meta: location', () => {
+  it('shows venue and city together when both exist', () => {
+    render(<EditorialHero slides={[makeShow({ id: 'placed' })]} />);
+    expect(screen.getByText('Arena, City')).toBeInTheDocument();
+  });
+
+  it('omits the location entirely for an event with no venue or city', () => {
+    render(<EditorialHero slides={[makeShow({ id: 'online', venue: '', city: '' })]} />);
+    expect(screen.queryByText(/Arena|City/)).not.toBeInTheDocument();
+    expect(screen.getByText('1 câmera')).toBeInTheDocument();
+  });
+});
