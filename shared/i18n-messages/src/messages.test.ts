@@ -1,6 +1,5 @@
 import { test, expect } from 'vitest';
-import { allMessages as messages } from './all-messages';
-import { LOCALES, DEFAULT_LOCALE, isLocale } from './index';
+import { messages, LOCALES, DEFAULT_LOCALE, isLocale } from './index';
 
 function keyPaths(obj: unknown, prefix = ''): string[] {
   if (typeof obj !== 'object' || obj === null) return [prefix];

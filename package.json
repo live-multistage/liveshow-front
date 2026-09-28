@@ -8,8 +8,7 @@
     "*.scss"
   ],
   "scripts": {
-    "dev": "next dev --turbopack",
-    "dev:webpack": "next dev",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "start:https": "node server.mjs",
@@ -75,7 +74,6 @@
     "@types/react-dom": "^18",
     "@vitejs/plugin-react": "^6.0.3",
     "jsdom": "^29.1.1",
-    "sass-embedded": "^1.105.0",
     "typescript": "6.0.3",
     "vitest": "^4.1.10"
   }

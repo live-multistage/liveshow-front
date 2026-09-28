@@ -12,24 +12,6 @@ const nextConfig: NextConfig = {
     '/**': ['./src/shared/og/fonts/**/*'],
   },
   transpilePackages: ['@live-show/api-contracts', '@live-show/design-system', '@live-show/i18n-messages'],
-  // sass-loader can drive the native sass-embedded binary instead of the JS
-  // `sass` package — same output, much faster compiles for our 300+ SCSS
-  // modules. Webpack-only: Turbopack (next dev --turbopack) has its own Sass
-  // pipeline and does not read `sassOptions` at all, so this only affects
-  // `next build` and the `dev:webpack` fallback script.
-  sassOptions: {
-    implementation: 'sass-embedded',
-  },
-  experimental: {
-    // Rewrites named imports from this barrel to their direct module paths,
-    // shrinking the module graph pulled in per page. lucide-react is already
-    // in Next's own default optimizePackageImports list (verified in
-    // node_modules/next/dist/server/config.js), so it isn't repeated here.
-    // Our own `src/features/*/index.ts` barrels are local path aliases, not
-    // resolvable npm packages, which is what this option is documented and
-    // built to target — left out rather than guessing it applies to them too.
-    optimizePackageImports: ['@live-show/design-system'],
-  },
   // Same-origin proxy for LAN clients (phone on https://192.168.x.x:3000):
   // their browser calls /api/* here and the dev server forwards to the local
   // backend — sidesteps both "localhost is the phone" and mixed-content
