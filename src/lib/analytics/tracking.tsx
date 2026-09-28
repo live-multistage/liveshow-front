@@ -27,7 +27,8 @@ function TrackedProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AnalyticsProvider
-      options={{ writeKey: WRITE_KEY as string, endpoint: config.apiUrl, getAuthToken: () => tokenStore.get() }}
+      // TrackedProvider only renders when TrackingProvider's WRITE_KEY guard passed, so it's non-null here.
+      options={{ writeKey: WRITE_KEY!, endpoint: config.apiUrl, getAuthToken: () => tokenStore.get() }}
       // consent is `undefined` before hydration (see useAnalyticsConsent) —
       // held in memory, never sent, until it resolves to granted/denied.
       consent={consent ?? null}

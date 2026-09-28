@@ -41,3 +41,4 @@ export * from './mailing/types';
 export * from './mailing/schemas';
 export * from './blueprints/types';
 export * from './blueprints/schemas';
+export * from './tracking/types';
