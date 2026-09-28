@@ -8,8 +8,6 @@ $rail-gutter-mobile: 20px;
   display: flex;
   flex-direction: column;
   gap: 40px;
-  max-width: 1280px;
-  margin: 0 auto;
   padding: 32px $rail-gutter 0;
 
   @media (max-width: $md - 1) {
