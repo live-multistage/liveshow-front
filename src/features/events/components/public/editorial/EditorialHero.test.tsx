@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createTranslator } from 'use-intl';
-import { messages } from '@live-show/i18n-messages';
+import { allMessages as messages } from '@live-show/i18n-messages/src/all-messages';
 
 // Real ICU translator over the pt catalog (not a key-echo stub): the hero's
 // plural ("1 câmera" / "3 câmeras") and interpolated strings can only be

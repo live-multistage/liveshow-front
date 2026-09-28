@@ -1,5 +1,6 @@
 import { test, expect } from 'vitest';
-import { messages, LOCALES } from '../../../../../shared/i18n-messages/src/index';
+import { LOCALES } from '../../../../../shared/i18n-messages/src/index';
+import { allMessages as messages } from '../../../../../shared/i18n-messages/src/all-messages';
 
 const keys = [
   'eventDetail.schedule.title',
