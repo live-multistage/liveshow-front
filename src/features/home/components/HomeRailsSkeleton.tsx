@@ -1,7 +1,10 @@
 import { Skeleton } from '@live-show/design-system';
 import styles from './HomeRailsSkeleton.module.scss';
 
-const CARDS_PER_RAIL = 6;
+// Enough cards to fill a full-bleed rail on wide screens (12 × ~200px covers
+// ~2500px); the track's overflow: hidden clips whatever doesn't fit, so on
+// narrower viewports this shows exactly what a real rail would.
+const CARDS_PER_RAIL = 12;
 
 // Placeholder for a page of rails that is still in flight. Card widths come
 // from the same mixin the real rail card uses, so the list does not jump.
