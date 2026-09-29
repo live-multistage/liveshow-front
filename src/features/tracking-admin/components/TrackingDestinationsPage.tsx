@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { AlertCircle, ChevronDown, ChevronUp, Inbox } from 'lucide-react';
 import {
   Button,
@@ -33,11 +33,16 @@ interface Props {
 
 const DELIVERY_FILTERS: (DeliveryStatus | 'all')[] = ['all', 'pending', 'delivered', 'failed'];
 
+function fmtDateTime(iso: string, format: ReturnType<typeof useFormatter>): string {
+  return format.dateTime(new Date(iso), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
 // ponytail: no resend-delivery hook exists yet (only test-send + list), so
 // the deliveries log is read-only — no drawer/resend action was built. Add
 // once a resend mutation ships.
 function DeliveriesLog({ destination }: { destination: TrackingDestination }) {
   const t = useTranslations('platformAdmin.tracking.destinations');
+  const format = useFormatter();
   const [limit, setLimit] = useState(50);
   const [filter, setFilter] = useState<DeliveryStatus | 'all'>('all');
   const { data, refetch } = useDestinationDeliveriesQuery(destination.id, limit);
@@ -68,7 +73,7 @@ function DeliveriesLog({ destination }: { destination: TrackingDestination }) {
               {d.lastError ?? '—'}
             </span>
             <span className={`${styles.mono} ${styles.right}`}>{d.messageCount}</span>
-            <span className={`${styles.mono} ${styles.muted} ${styles.right}`}>{d.createdAt}</span>
+            <span className={`${styles.mono} ${styles.muted} ${styles.right}`}>{fmtDateTime(d.createdAt, format)}</span>
           </div>
         ))}
       </div>

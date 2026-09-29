@@ -5,6 +5,11 @@ vi.mock('next-intl', () => ({
     t.rich = (key: string) => key;
     return t;
   },
+  useFormatter: () => ({
+    number: (n: number) => String(n),
+    relativeTime: () => 'agora',
+    dateTime: () => '02/09/2026 10:00',
+  }),
 }));
 vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
@@ -70,5 +75,11 @@ describe('TrackingSourcesPage', () => {
     } as never);
     render(<TrackingSourcesPage trackingEnabled />);
     expect(screen.queryByLabelText('sources.rotate')).not.toBeInTheDocument();
+  });
+
+  it('formats the created date via the formatter instead of rendering the raw ISO string', () => {
+    render(<TrackingSourcesPage trackingEnabled />);
+    expect(document.body.textContent).not.toMatch(/T\d\d:/);
+    expect(screen.getByText('02/09/2026 10:00')).toBeInTheDocument();
   });
 });

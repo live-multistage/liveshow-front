@@ -27,6 +27,10 @@ function messageIcon(type: TrackingMessageType) {
   }
 }
 
+function sourceLabel(id: string, namesById: Map<string, string>): string {
+  return namesById.get(id) ?? id.slice(0, 8);
+}
+
 function frameName(frame: LiveStreamFrame & { kind: 'message' }): string {
   if (frame.status === 'rejected') return '—';
   const m = frame.message;
@@ -42,6 +46,10 @@ export function TrackingDebuggerPage({ trackingEnabled }: Props) {
   const format = useFormatter();
   const searchParams = useSearchParams();
   const { data: sources } = useTrackingSourcesQuery();
+  const sourceNamesById = useMemo(
+    () => new Map((sources ?? []).map((s) => [s.id, s.name] as const)),
+    [sources],
+  );
 
   const [sourceId, setSourceId] = useState<string | undefined>(undefined);
   const [type, setType] = useState<TrackingMessageType | undefined>(undefined);
@@ -92,15 +100,17 @@ export function TrackingDebuggerPage({ trackingEnabled }: Props) {
       )}
 
       <div className={styles.filterBar}>
-        <SimpleCustomSelect
-          value={sourceId ?? 'all'}
-          onValueChange={(v) => setSourceId(v === 'all' ? undefined : v)}
-          placeholder={t('debugger.filters.source')}
-          options={[
-            { value: 'all', label: t('debugger.filters.allSources') },
-            ...(sources ?? []).map((s) => ({ value: s.id, label: s.name })),
-          ]}
-        />
+        <div className={styles.filterSelect}>
+          <SimpleCustomSelect
+            value={sourceId ?? 'all'}
+            onValueChange={(v) => setSourceId(v === 'all' ? undefined : v)}
+            placeholder={t('debugger.filters.source')}
+            options={[
+              { value: 'all', label: t('debugger.filters.allSources') },
+              ...(sources ?? []).map((s) => ({ value: s.id, label: s.name })),
+            ]}
+          />
+        </div>
         <div className={styles.chips}>
           {TYPE_CHIPS.map((tc) => (
             <Chip key={tc ?? 'all'} variant={type === tc ? 'active' : 'default'} onClick={() => setType(tc)}>
@@ -126,15 +136,17 @@ export function TrackingDebuggerPage({ trackingEnabled }: Props) {
           onChange={(e) => setAnonymousId(e.target.value)}
           className={styles.filterInput}
         />
-        <SimpleCustomSelect
-          value={status ?? 'all'}
-          onValueChange={(v) => setStatus(v === 'all' ? undefined : (v as 'accepted' | 'rejected'))}
-          options={[
-            { value: 'all', label: t('debugger.filters.typeAll') },
-            { value: 'accepted', label: t('debugger.inspector.accepted') },
-            { value: 'rejected', label: t('debugger.inspector.rejected') },
-          ]}
-        />
+        <div className={styles.filterSelect}>
+          <SimpleCustomSelect
+            value={status ?? 'all'}
+            onValueChange={(v) => setStatus(v === 'all' ? undefined : (v as 'accepted' | 'rejected'))}
+            options={[
+              { value: 'all', label: t('debugger.filters.typeAll') },
+              { value: 'accepted', label: t('debugger.inspector.accepted') },
+              { value: 'rejected', label: t('debugger.inspector.rejected') },
+            ]}
+          />
+        </div>
       </div>
 
       <div className={styles.body}>
@@ -177,7 +189,9 @@ export function TrackingDebuggerPage({ trackingEnabled }: Props) {
                       </span>
                     )}
                   </div>
-                  <span className={styles.mono}>{rejected ? frame.sourceId : frame.message.sourceId}</span>
+                  <span className={styles.sourceCell}>
+                    {sourceLabel(rejected ? frame.sourceId : frame.message.sourceId, sourceNamesById)}
+                  </span>
                   <span className={`${styles.mono} ${styles.right}`}>
                     {format.dateTime(new Date(frame.receivedAt), { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                   </span>

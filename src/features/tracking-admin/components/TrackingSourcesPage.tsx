@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { AlertCircle, Check, Copy, Inbox, RefreshCw } from 'lucide-react';
 import {
   Button,
@@ -31,8 +31,13 @@ interface Props {
 
 const KINDS: SourceKind[] = ['web', 'server'];
 
+function fmtDateTime(iso: string, format: ReturnType<typeof useFormatter>): string {
+  return format.dateTime(new Date(iso), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
 export function TrackingSourcesPage({ trackingEnabled }: Props) {
   const t = useTranslations('platformAdmin.tracking');
+  const format = useFormatter();
   const { data: sources, isLoading, isError, refetch } = useTrackingSourcesQuery();
   const createSource = useCreateSourceMutation();
   const rotateKey = useRotateSourceKeyMutation();
@@ -157,7 +162,7 @@ export function TrackingSourcesPage({ trackingEnabled }: Props) {
                   {t(s.enabled ? 'sources.status.active' : 'sources.status.disabled')}
                 </span>
               </span>
-              <span className={`${styles.mono} ${styles.muted} ${styles.right}`}>{s.createdAt}</span>
+              <span className={`${styles.mono} ${styles.muted} ${styles.right}`}>{fmtDateTime(s.createdAt, format)}</span>
             </div>
           ))}
         </div>

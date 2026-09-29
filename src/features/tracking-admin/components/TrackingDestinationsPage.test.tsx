@@ -5,6 +5,11 @@ vi.mock('next-intl', () => ({
     t.rich = (key: string) => key;
     return t;
   },
+  useFormatter: () => ({
+    number: (n: number) => String(n),
+    relativeTime: () => 'agora',
+    dateTime: () => '02/09/2026 10:00',
+  }),
 }));
 vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,

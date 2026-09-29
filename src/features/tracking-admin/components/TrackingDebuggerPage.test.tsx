@@ -119,4 +119,30 @@ describe('TrackingDebuggerPage', () => {
     render(<TrackingDebuggerPage trackingEnabled />);
     expect(screen.getByText('debugger.connectionLost')).toBeInTheDocument();
   });
+
+  it('renders the connection pill via one of the three translated connection keys', () => {
+    mockStream([], { status: 'open' });
+    render(<TrackingDebuggerPage trackingEnabled />);
+    const pill = screen.getByText(/^debugger\.connection\.(connecting|open|error)$/);
+    expect(pill.textContent).toBe('debugger.connection.open');
+  });
+
+  it('shows the source name (not the raw id) in the FONTE column when sources are loaded', () => {
+    mockedSources.mockReturnValue({
+      data: [{ id: 'src-abc-123', name: 'checkout-web', kind: 'web', writeKeyPrefix: null, enabled: true, createdAt: '' }],
+    } as never);
+    mockStream([{ ...acceptedFrame, message: { ...acceptedFrame.message, sourceId: 'src-abc-123' } }]);
+    render(<TrackingDebuggerPage trackingEnabled />);
+
+    expect(screen.getByText('checkout-web')).toBeInTheDocument();
+    expect(screen.queryByText('src-abc-123')).not.toBeInTheDocument();
+  });
+
+  it('falls back to the first 8 chars of the source id when the source is unknown', () => {
+    mockedSources.mockReturnValue({ data: [] } as never);
+    mockStream([{ ...acceptedFrame, message: { ...acceptedFrame.message, sourceId: 'src-abc-123' } }]);
+    render(<TrackingDebuggerPage trackingEnabled />);
+
+    expect(screen.getByText('src-abc-')).toBeInTheDocument();
+  });
 });

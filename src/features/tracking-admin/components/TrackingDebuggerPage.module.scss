@@ -62,6 +62,11 @@ $accent: #ec4899;
   width: 160px;
 }
 
+.filterSelect {
+  flex: none;
+  width: 160px;
+}
+
 .body {
   display: grid;
   grid-template-columns: minmax(0, 60fr) minmax(0, 40fr);
@@ -151,6 +156,16 @@ $accent: #ec4899;
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 11px;
   color: #71717a;
+}
+
+.sourceCell {
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #71717a;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .badgeRejected, .badgeViolation, .badgeAccepted {

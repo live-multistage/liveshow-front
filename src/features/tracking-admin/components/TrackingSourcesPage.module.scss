@@ -102,7 +102,7 @@ $warn-text: #e9d38a;
 
 .kindBadge {
   display: inline-flex;
-  align-self: flex-start;
+  justify-self: start;
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: .08em;

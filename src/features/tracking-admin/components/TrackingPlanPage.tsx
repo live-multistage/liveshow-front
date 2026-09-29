@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { isAxiosError } from 'axios';
 import { AlertCircle, Inbox, Trash2, X } from 'lucide-react';
 import {
@@ -45,6 +45,10 @@ interface EditorState {
   properties: DraftProperty[];
 }
 
+function fmtDateTime(iso: string, format: ReturnType<typeof useFormatter>): string {
+  return format.dateTime(new Date(iso), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
 let keySeq = 0;
 function nextKey(): string {
   keySeq += 1;
@@ -78,6 +82,7 @@ function toEditorState(event: PlanEvent | null, prefillName?: string): EditorSta
 
 export function TrackingPlanPage({ trackingEnabled }: Props) {
   const t = useTranslations('platformAdmin.tracking');
+  const format = useFormatter();
   const { data: plan, isLoading, isError, refetch } = useTrackingPlanQuery();
   const { data: unplanned } = useUnplannedEventsQuery();
   const upsert = useUpsertPlanEventMutation();
@@ -290,7 +295,7 @@ export function TrackingPlanPage({ trackingEnabled }: Props) {
                     </span>
                   </div>
                   <div className={`${styles.mono} ${styles.right}`}>{event.properties.length}</div>
-                  <div className={`${styles.mono} ${styles.right} ${styles.muted}`}>{event.updatedAt}</div>
+                  <div className={`${styles.mono} ${styles.right} ${styles.muted}`}>{fmtDateTime(event.updatedAt, format)}</div>
                 </button>
               ))}
             </div>
@@ -306,8 +311,8 @@ export function TrackingPlanPage({ trackingEnabled }: Props) {
               {(unplanned ?? []).map((u) => (
                 <div key={u.name} className={styles.unplannedRow}>
                   <span className={styles.mono}>{u.name}</span>
-                  <span className={`${styles.mono} ${styles.muted}`}>{u.firstSeenAt}</span>
-                  <span className={`${styles.mono} ${styles.muted}`}>{u.lastSeenAt}</span>
+                  <span className={`${styles.mono} ${styles.muted}`}>{fmtDateTime(u.firstSeenAt, format)}</span>
+                  <span className={`${styles.mono} ${styles.muted}`}>{fmtDateTime(u.lastSeenAt, format)}</span>
                   <span className={`${styles.mono} ${styles.right}`}>{u.count}</span>
                   <div className={styles.right}>
                     <Button variant="outline" size="sm" onClick={() => openCreate(u.name)}>

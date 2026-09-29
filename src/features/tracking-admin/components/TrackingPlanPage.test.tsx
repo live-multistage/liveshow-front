@@ -5,6 +5,11 @@ vi.mock('next-intl', () => ({
     t.rich = (key: string) => key;
     return t;
   },
+  useFormatter: () => ({
+    number: (n: number) => String(n),
+    relativeTime: () => 'agora',
+    dateTime: () => '01/09/2026 10:00',
+  }),
 }));
 vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
@@ -107,5 +112,11 @@ describe('TrackingPlanPage', () => {
     fireEvent.click(screen.getByText('plan.addToPlan'));
 
     expect(screen.getByLabelText('plan.editor.name')).toHaveValue('share_clicked');
+  });
+
+  it('formats dates via the formatter instead of rendering raw ISO strings', () => {
+    render(<TrackingPlanPage trackingEnabled />);
+    expect(document.body.textContent).not.toMatch(/T\d\d:/);
+    expect(screen.getByText('01/09/2026 10:00')).toBeInTheDocument();
   });
 });
