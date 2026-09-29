@@ -22,6 +22,9 @@ vi.mock('@/features/streams/queries/streams.queries', () => ({
 vi.mock('@/features/organizations', () => ({ useOrganization: vi.fn(() => ({ data: null })) }));
 vi.mock('@/features/account/hooks/use-auth', () => ({ useAuth: vi.fn(() => ({ user: null })) }));
 vi.mock('../../hooks/use-track-event-view', () => ({ useTrackEventView: vi.fn() }));
+vi.mock('@live-show/analytics-sdk/react', () => ({
+  TrackFeature: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
 vi.mock('@/features/advertisements', () => ({ AdBanner: () => null }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
 vi.mock('./TicketPanel', () => ({ TicketPanel: () => null }));

@@ -13,6 +13,7 @@ import { useAddToCartMutation, useCartQuery } from '@/features/cart';
 import { Button } from '@/shared/components/Button';
 import { useAuth } from '@/features/account';
 import { trackCartAdd } from '@/features/cart/hooks/use-track-cart';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import {
   useLiveAccessQuery,
   useReplayAccessQuery,
@@ -47,7 +48,12 @@ function TicketCapabilityChips({ ticket }: { ticket: TicketProductResponse }) {
 
 export function TicketPanel({ event, tickets }: Props) {
   const router = useRouter();
+  const analytics = useAnalytics();
   const [selected, setSelected] = useState<string | null>(tickets[0]?.id ?? null);
+  const selectTicket = (opt: TicketProductResponse) => {
+    setSelected(opt.id);
+    analytics.track('ticket_tier_selected', { eventId: event.id, tier: opt.name, priceCents: Math.round(opt.price * 100) });
+  };
   const [pendingAction, setPendingAction] = useState<'cart' | 'buy' | null>(null);
   const addToCart = useAddToCartMutation();
   const { isLoggedIn, user } = useAuth();
@@ -247,7 +253,7 @@ export function TicketPanel({ event, tickets }: Props) {
           {purchasableTickets.map((opt) => (
             <button
               key={opt.id}
-              onClick={() => setSelected(opt.id)}
+              onClick={() => selectTicket(opt)}
               className={`${styles.ticketOption} ${selected === opt.id ? styles.ticketOptionSelected : styles.ticketOptionDefault}`}
             >
               <div className={styles.ticketOptionHeader}>

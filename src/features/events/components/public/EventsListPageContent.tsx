@@ -1,17 +1,23 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Pagination } from '@live-show/design-system';
+import { TrackFeature } from '@live-show/analytics-sdk/react';
 import { useListEventsPageQuery, eventToShow } from '@/features/events';
 import type { PaginatedEventsResponse } from '@/features/events';
 import { EVENT_CATEGORY_LABELS } from '../../types/event.types';
 import { AdBanner } from '@/features/advertisements';
 import { parseListParams, hrefForPage } from '../../utils/list-params-from-search';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import { ShowCard } from './ShowCard';
 import styles from '../../../../app/(public)/events/page.module.scss';
+
+// Debounce for search_performed: fires once the user stops typing, not on
+// every keystroke — matches how search analytics is read everywhere else.
+const SEARCH_TRACK_DEBOUNCE_MS = 400;
 
 type ChipId = 'all' | 'live' | 'replay' | 'today' | 'weekend' | 'free';
 type ViewMode = 'grid' | 'list';
@@ -51,6 +57,7 @@ export function EventsListPageContent({
   const router = useRouter();
   const searchParams = useSearchParams();
   const gridTopRef = useRef<HTMLDivElement>(null);
+  const analytics = useAnalytics();
 
   // The URL is the source of truth: filters/page are re-derived on every
   // render, so browser back/forward (or a hand-edited URL) always renders
@@ -189,7 +196,32 @@ export function EventsListPageContent({
 
   const selectedSortLabel = SORT_OPTIONS.find((o) => o.id === sort)?.label ?? SORT_OPTIONS[0].label;
 
+  const resultCount = filtered.length;
+
+  // Debounced so typing doesn't spam search_performed — fires once the user
+  // pauses, skipped entirely for an empty query (nothing was searched).
+  useEffect(() => {
+    if (!search.trim()) return;
+    const timer = setTimeout(() => {
+      analytics.track('search_performed', { query: search.trim().slice(0, 100), resultCount });
+    }, SEARCH_TRACK_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- resultCount/analytics tracked via ref-free closure is fine here; only `search` should restart the debounce
+  }, [search]);
+
+  const handleChipChange = (nextChip: ChipId) => {
+    setChip(nextChip);
+    const nextCount = CHIPS.find((c) => c.id === nextChip)?.count ?? resultCount;
+    analytics.track('events_filtered', { filter: 'chip', value: nextChip, resultCount: nextCount });
+  };
+
+  const handleSortChange = (nextSort: string) => {
+    setSort(nextSort);
+    analytics.track('events_filtered', { filter: 'sort', value: nextSort, resultCount });
+  };
+
   return (
+    <TrackFeature name="search">
     <div className={styles.page}>
       <div className={styles.inner}>
 
@@ -257,7 +289,7 @@ export function EventsListPageContent({
             </svg>
             <select
               value={sort}
-              onChange={(e) => setSort(e.target.value)}
+              onChange={(e) => handleSortChange(e.target.value)}
               className={styles.sortSelect}
               aria-label="Ordenar"
             >
@@ -275,7 +307,7 @@ export function EventsListPageContent({
             return (
               <button
                 key={c.id}
-                onClick={() => setChip(c.id)}
+                onClick={() => handleChipChange(c.id)}
                 className={`${styles.chip} ${isActive ? styles.chipActive : styles.chipInactive}`}
               >
                 {c.icon}
@@ -357,12 +389,14 @@ export function EventsListPageContent({
         {/* Grid */}
         {!isLoading && !isError && filtered.length > 0 && (
           <div className={view === 'grid' ? styles.cardGrid : styles.cardList}>
-            {filtered.map((show) => (
+            {filtered.map((show, index) => (
               <ShowCard
                 key={show.id}
                 show={show}
                 layout={view === 'list' ? 'horizontal' : 'vertical'}
                 size={view === 'grid' ? 'compact' : 'default'}
+                list="events_list"
+                position={(page - 1) * pageSize + index}
               />
             ))}
           </div>
@@ -396,5 +430,6 @@ export function EventsListPageContent({
 
       </div>
     </div>
+    </TrackFeature>
   );
 }

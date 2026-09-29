@@ -10,12 +10,13 @@ import { TicketPanel } from './TicketPanel';
 import { RelatedEvents } from './RelatedEvents';
 import { formatDateShort, formatTime, formatDuration, statusLabel } from '../../utils/event-formatters';
 import { useOrganization } from '@/features/organizations';
-import { useAuth } from '@/features/account/hooks/use-auth';
 import { useTrackEventView } from '../../hooks/use-track-event-view';
 import { AdBanner } from '@/features/advertisements';
 import { ReportButton } from '@/features/reports';
 import { WishlistButton } from '@/features/wishlist';
 import { MediaWithTeaserVideo } from '@/shared/components/MediaWithTeaserVideo';
+import { TrackFeature } from '@live-show/analytics-sdk/react';
+import type { EventResponse } from '../../types/event.types';
 import { EventSchedule } from './EventSchedule';
 import { EventLineupGrid } from './EventLineupGrid';
 import { Skeleton } from '@live-show/design-system';
@@ -25,15 +26,29 @@ interface Props {
   id: string;
 }
 
+// FINISHED events always carry their replay (see eventToShow's hasReplay
+// rule) — the catalog has no separate "replay expired" status yet, so
+// ended/replay collapse to the same value here.
+function toTrackedStatus(status: EventResponse['status']): 'upcoming' | 'live' | 'replay' | 'ended' {
+  if (status === 'LIVE') return 'live';
+  if (status === 'FINISHED') return 'replay';
+  return 'upcoming';
+}
+
 export function EventDetailPageContent({ id }: Props) {
   const t = useTranslations('events.detail');
   const tc = useTranslations('collaborations');
   const { data: event, isLoading, isError, error, refetch } = useGetEventQuery(id);
   const { data: tickets = [] } = useListTicketProductsQuery(id);
   const { data: org, isLoading: orgLoading } = useOrganization(event?.organizationId ?? '');
-  const { user } = useAuth();
   const [heroImgFailed, setHeroImgFailed] = useState(false);
-  useTrackEventView(id, user?.id);
+  useTrackEventView({
+    eventId: event ? id : undefined,
+    status: event ? toTrackedStatus(event.status) : 'upcoming',
+    priceCents: event?.priceFromCents,
+    isFree: event?.isFree,
+    organizationId: event?.organizationId,
+  });
 
   if (isLoading) {
     return (
@@ -71,6 +86,7 @@ export function EventDetailPageContent({ id }: Props) {
   ];
 
   return (
+    <TrackFeature name="event_detail" props={{ eventId: id }}>
     <div className={styles.page}>
       <div className={styles.heroFull}>
         {heroImage
@@ -218,5 +234,6 @@ export function EventDetailPageContent({ id }: Props) {
         <RelatedEvents currentEventId={id} organizationId={event.organizationId} />
       </div>
     </div>
+    </TrackFeature>
   );
 }

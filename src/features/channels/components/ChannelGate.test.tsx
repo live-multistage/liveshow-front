@@ -23,6 +23,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: vi.fn() }) }));
 
 const channelState: {
   data: PublicChannel | undefined;

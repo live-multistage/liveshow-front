@@ -5,6 +5,12 @@ import type { FollowTargetType } from '@live-show/api-contracts';
 import { followsService } from '../services/follows.service';
 import { followKeys } from '../queries/get-follows';
 import { normalizeError } from '@/lib/http/errors';
+import { useAnalytics } from '@/lib/analytics/tracking';
+
+const TRACKED_TARGET_TYPE: Record<FollowTargetType, 'artist' | 'organization'> = {
+  ARTIST: 'artist',
+  ORGANIZATION: 'organization',
+};
 
 interface ToggleFollowArgs {
   targetType: FollowTargetType;
@@ -19,6 +25,7 @@ interface ToggleFollowArgs {
  */
 export function useToggleFollowMutation() {
   const qc = useQueryClient();
+  const analytics = useAnalytics();
 
   return useMutation({
     mutationFn: async ({ targetType, targetId, following }: ToggleFollowArgs) => {
@@ -53,6 +60,13 @@ export function useToggleFollowMutation() {
       }
 
       return { previousIds, previousCount, idsKey, countKey };
+    },
+    onSuccess: (_data, { targetType, targetId, following }) => {
+      // `following` é o estado ANTES do toggle: se já seguia, a mutation deixou de seguir.
+      analytics.track(following ? 'unfollowed' : 'followed', {
+        targetType: TRACKED_TARGET_TYPE[targetType],
+        targetId,
+      });
     },
     onError: (_err, _vars, context) => {
       if (!context) return;

@@ -22,6 +22,7 @@ vi.mock('@/features/channels/components/ChannelCard', () => ({
     <div data-testid="channel-card">{channel.name}</div>
   ),
 }));
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: vi.fn() }) }));
 
 function makeItem(overrides: Partial<HomeRailItem>): HomeRailItem {
   return {

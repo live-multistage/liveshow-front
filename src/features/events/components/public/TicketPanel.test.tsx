@@ -23,6 +23,8 @@ vi.mock('@/features/cart', () => ({
   useCartQuery: () => ({ data: { items: [] } }),
 }));
 vi.mock('@/features/cart/hooks/use-track-cart', () => ({ trackCartAdd: vi.fn() }));
+const trackMock = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: trackMock }) }));
 vi.mock('@/features/account', () => ({ useAuth: () => state.auth }));
 vi.mock('@/features/streaming/queries/live.queries', () => ({
   LIVE_KEYS: {
@@ -237,5 +239,19 @@ describe('TicketPanel direct watch', () => {
     expect(screen.getByRole('link', { name: /watchNow/ })).toHaveAttribute('href', '/live/evt-1');
     expect(screen.getByText('chipLive')).toBeInTheDocument();
     expect(claimFreeTicket).not.toHaveBeenCalled();
+  });
+});
+
+describe('TicketPanel tier tracking', () => {
+  it('tracks ticket_tier_selected with the price in integer cents when a tier is picked', async () => {
+    renderPanel([FREE, PAID]);
+
+    await userEvent.click(screen.getByText('Pro'));
+
+    expect(trackMock).toHaveBeenCalledWith('ticket_tier_selected', {
+      eventId: 'evt-1',
+      tier: 'Pro',
+      priceCents: 3990,
+    });
   });
 });

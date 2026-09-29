@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { wishlistService } from '../services/wishlist.service';
 import { wishlistKeys } from '../queries/get-wishlist';
 import { normalizeError } from '@/lib/http/errors';
+import { useAnalytics } from '@/lib/analytics/tracking';
 
 interface ToggleWishlistArgs {
   eventId: string;
@@ -23,6 +24,7 @@ interface ToggleWishlistArgs {
 export function useToggleWishlistMutation() {
   const qc = useQueryClient();
   const t = useTranslations('wishlist');
+  const analytics = useAnalytics();
 
   return useMutation({
     mutationFn: async ({ eventId, saved }: ToggleWishlistArgs) => {
@@ -51,9 +53,10 @@ export function useToggleWishlistMutation() {
 
       return { previous };
     },
-    onSuccess: (_data, { saved }) => {
+    onSuccess: (_data, { eventId, saved }) => {
       // `saved` é o estado ANTES do toggle: se estava salvo, a mutation removeu.
       toast.success(saved ? t('removedToast') : t('savedToast'));
+      analytics.track(saved ? 'event_unsaved' : 'event_saved', { eventId });
     },
     onError: (_err, _vars, context) => {
       if (context?.previous !== undefined) {

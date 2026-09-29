@@ -13,6 +13,7 @@ import { NotFoundContent } from '@/shared/components/NotFoundContent';
 import type { PlayerAudioState } from '@/features/streaming/hooks/use-player-audio';
 import { useChannelPlaybackQuery, useChannelQuery } from '../queries/channel.queries';
 import { resolveChannelAccess } from '../utils/resolveChannelAccess';
+import { useTrackChannelView } from '../hooks/use-track-channel-view';
 import { ChannelPaywall } from './ChannelPaywall';
 import { ChannelPlayer } from './ChannelPlayer';
 import { OffAirOverlay } from './OffAirOverlay';
@@ -59,6 +60,7 @@ export function ChannelGate({ slug, chatEnabled, adsEnabled }: Props) {
   const searchParams = useSearchParams();
   const { isLoggedIn, isLoading: authLoading } = useAuth();
   const channel = useChannelQuery(slug);
+  useTrackChannelView(channel.data?.id);
 
   const eventId = channel.data?.broadcastEventId ?? '';
   // Canal aberto não passa pelo check de direito: a verificação é JWT-only e

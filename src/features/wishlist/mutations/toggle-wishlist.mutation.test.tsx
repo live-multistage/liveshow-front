@@ -5,6 +5,8 @@ vi.mock('../services/wishlist.service', () => ({
 }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+const trackMock = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: trackMock }) }));
 
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -48,6 +50,7 @@ describe('useToggleWishlistMutation', () => {
     resolveAdd();
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(toast.success).toHaveBeenCalledWith('savedToast');
+    expect(trackMock).toHaveBeenCalledWith('event_saved', { eventId: 'b' });
   });
 
   it('rolls back the cache and toasts an error when the service rejects', async () => {
@@ -82,5 +85,6 @@ describe('useToggleWishlistMutation', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(mockedRemove).toHaveBeenCalledWith('b');
     expect(toast.success).toHaveBeenCalledWith('removedToast');
+    expect(trackMock).toHaveBeenCalledWith('event_unsaved', { eventId: 'b' });
   });
 });

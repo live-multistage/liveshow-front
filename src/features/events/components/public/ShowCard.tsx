@@ -8,6 +8,7 @@ import { formatPriceRange } from '../../utils/event-formatters';
 import { eventHref } from '../../utils/slug';
 import { WishlistButton } from '@/features/wishlist/components/WishlistButton';
 import { useTrackImpression } from '../../hooks/use-track-impression';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import styles from './ShowCard.module.scss';
 
 const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
@@ -23,13 +24,23 @@ interface ShowCardProps {
   // "Continue assistindo" watch progress. Renders a progress bar + remaining
   // time chip over the cover. Omitted or a non-positive duration renders nothing.
   progress?: { positionSeconds: number; durationSeconds: number };
+  // Which listing this card renders in and its position within it — feeds
+  // event_impression/event_clicked. Omitted where the surface isn't
+  // instrumented yet (my-list, tickets, wishlist, recommended overlay).
+  list?: string;
+  position?: number;
 }
 
-export function ShowCard({ show, purchased = false, layout = 'vertical', size = 'default', progress }: ShowCardProps) {
+export function ShowCard({ show, purchased = false, layout = 'vertical', size = 'default', progress, list, position }: ShowCardProps) {
   const t = useTranslations('showCard');
   const locale = useLocale();
   const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
-  const impressionRef = useTrackImpression<HTMLDivElement>(show.id);
+  const impressionRef = useTrackImpression<HTMLDivElement>(show.id, list, position);
+  const analytics = useAnalytics();
+  const handleCardClick = () => {
+    if (!list) return;
+    analytics.track('event_clicked', { eventId: show.id, list, position });
+  };
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + 'T00:00:00');
@@ -57,6 +68,9 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
   return (
     <div
       ref={impressionRef}
+      // Wishlist button stops propagation, so this only fires for clicks that
+      // actually navigate (card body or CTA link), never the heart icon.
+      onClick={handleCardClick}
       className={[
         styles.card,
         layout === 'horizontal' ? styles.cardHorizontal : '',

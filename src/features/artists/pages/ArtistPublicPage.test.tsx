@@ -2,14 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 vi.mock('../hooks/use-artists', () => ({ useArtist: vi.fn(), useArtistEvents: vi.fn() }));
 vi.mock('@/features/follows', () => ({ FollowButton: () => null }));
-vi.mock('@/features/account/hooks/use-auth', () => ({ useAuth: () => ({ user: { id: 'user-1' } }) }));
-vi.mock('@/lib/analytics/analytics-client', () => ({ track: vi.fn() }));
+const trackMock = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: trackMock }) }));
+vi.mock('@/features/wishlist/components/WishlistButton', () => ({ WishlistButton: () => null }));
 
 import { render, screen } from '@testing-library/react';
 import type { ArtistResponse } from '@live-show/api-contracts';
 import { ArtistPublicPage } from './ArtistPublicPage';
 import { useArtist, useArtistEvents } from '../hooks/use-artists';
-import { track } from '@/lib/analytics/analytics-client';
 
 const asMock = (fn: unknown) => fn as ReturnType<typeof vi.fn>;
 
@@ -42,19 +42,14 @@ describe('ArtistPublicPage', () => {
   it('tracks one artist view', () => {
     withArtist();
     render(<ArtistPublicPage slugOrId="anitta" />);
-    expect(track).toHaveBeenCalledTimes(1);
-    expect(track).toHaveBeenCalledWith({
-      eventType: 'event.artist_viewed',
-      entityType: 'artist',
-      entityId: 'a1',
-      userId: 'user-1',
-    });
+    expect(trackMock).toHaveBeenCalledTimes(1);
+    expect(trackMock).toHaveBeenCalledWith('artist_viewed', { artistId: 'a1' });
   });
 
   it('does not track while the artist is still loading', () => {
     asMock(useArtist).mockReturnValue({ data: undefined, isLoading: true, isError: false });
     asMock(useArtistEvents).mockReturnValue({ data: undefined, isLoading: true });
     render(<ArtistPublicPage slugOrId="anitta" />);
-    expect(track).not.toHaveBeenCalled();
+    expect(trackMock).not.toHaveBeenCalled();
   });
 });

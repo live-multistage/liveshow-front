@@ -9,7 +9,6 @@ import { eventToShow } from '@/features/events/utils/event-adapter';
 import { Badge, Skeleton } from '@live-show/design-system';
 import { FollowButton } from '@/features/follows';
 import { SOCIAL_ICONS } from '../components/SocialIcons';
-import { useAuth } from '@/features/account/hooks/use-auth';
 import { useTrackArtistView } from '../hooks/use-track-artist-view';
 import styles from './ArtistPublicPage.module.scss';
 
@@ -33,8 +32,7 @@ export function ArtistPublicPage({ slugOrId }: Props) {
   const { data: artist, isLoading: artistLoading, isError } = useArtist(slugOrId);
   const { data: eventsPage, isLoading: eventsLoading } = useArtistEvents(slugOrId);
 
-  const { user } = useAuth();
-  useTrackArtistView(artist?.id, user?.id);
+  useTrackArtistView(artist?.id);
 
   const events = eventsPage?.items ?? [];
   const shows = events.map(eventToShow);
@@ -203,8 +201,8 @@ export function ArtistPublicPage({ slugOrId }: Props) {
           </div>
         ) : (
           <div className={styles.eventsGrid}>
-            {shows.map((show) => (
-              <ShowCard key={show.id} show={show} />
+            {shows.map((show, index) => (
+              <ShowCard key={show.id} show={show} list={`artist:${artist.id}`} position={index} />
             ))}
           </div>
         )}

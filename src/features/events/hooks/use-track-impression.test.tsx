@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { useTrackImpression } from './use-track-impression';
 
-vi.mock('@/lib/analytics/analytics-client', () => ({ track: vi.fn() }));
-import { track } from '@/lib/analytics/analytics-client';
+const trackMock = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: trackMock }) }));
 
 type Cb = (entries: Array<{ isIntersecting: boolean }>) => void;
 let callbacks: Cb[] = [];
@@ -14,50 +14,42 @@ class FakeObserver {
   disconnect() {}
 }
 
-function Card({ id }: { id: string }) {
-  const ref = useTrackImpression<HTMLDivElement>(id);
+function Card({ id, list, position }: { id: string; list?: string; position?: number }) {
+  const ref = useTrackImpression<HTMLDivElement>(id, list, position);
   return <div ref={ref} />;
 }
 
 describe('useTrackImpression', () => {
   beforeEach(() => {
     callbacks = [];
-    sessionStorage.clear();
-    vi.mocked(track).mockClear();
+    trackMock.mockClear();
     vi.stubGlobal('IntersectionObserver', FakeObserver);
   });
 
-  it('emits event.impression once the card is on screen', () => {
-    render(<Card id="evt-1" />);
-    expect(track).not.toHaveBeenCalled();
+  it('emits event_impression once the card is on screen, with list/position', () => {
+    render(<Card id="evt-1" list="home:rail-1" position={2} />);
+    expect(trackMock).not.toHaveBeenCalled();
     callbacks[0]([{ isIntersecting: true }]);
-    expect(track).toHaveBeenCalledWith(expect.objectContaining({ eventType: 'event.impression', entityId: 'evt-1' }));
+    expect(trackMock).toHaveBeenCalledWith('event_impression', { eventId: 'evt-1', list: 'home:rail-1', position: 2 });
   });
 
   it('does not emit while off screen', () => {
-    render(<Card id="evt-1" />);
+    render(<Card id="evt-1" list="home:rail-1" />);
     callbacks[0]([{ isIntersecting: false }]);
-    expect(track).not.toHaveBeenCalled();
+    expect(trackMock).not.toHaveBeenCalled();
   });
 
-  // Impressions used to be capped at one per session per event while page views
-  // counted every visit, so the funnel compared two different measurements and
-  // could report more views than impressions. Every appearance counts now.
-  it('emits again when the same card comes back on screen', () => {
-    render(<Card id="evt-1" />);
+  it('does not emit again once already tracked for this card instance', () => {
+    render(<Card id="evt-1" list="home:rail-1" />);
     callbacks[0]([{ isIntersecting: true }]);
     callbacks[0]([{ isIntersecting: false }]);
     callbacks[0]([{ isIntersecting: true }]);
-    expect(track).toHaveBeenCalledTimes(2);
+    expect(trackMock).toHaveBeenCalledTimes(1);
   });
 
-  it('emits once per appearance across remounts, per event', () => {
+  it('does not track when no list is given (card outside an instrumented listing)', () => {
     render(<Card id="evt-1" />);
-    callbacks[0]([{ isIntersecting: true }]);
-    render(<Card id="evt-1" />);
-    callbacks[1]([{ isIntersecting: true }]);
-    render(<Card id="evt-2" />);
-    callbacks[2]([{ isIntersecting: true }]);
-    expect(track).toHaveBeenCalledTimes(3);
+    expect(callbacks).toHaveLength(0);
+    expect(trackMock).not.toHaveBeenCalled();
   });
 });

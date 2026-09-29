@@ -57,7 +57,7 @@ export function HomeRails({ initialPage }: { initialPage?: HomeRailsResponse }) 
     <div className={styles.list}>
       {rails.map((rail, index) => (
         <Fragment key={rail.key}>
-          <HomeRailSection rail={rail} />
+          <HomeRailSection rail={rail} position={index} />
           {index === AD_AFTER_RAIL_INDEX && <AdBanner placement="FEED" className={styles.ad} />}
         </Fragment>
       ))}

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ShowCard } from './ShowCard';
 import type { Show } from '../../types/show';
@@ -16,6 +16,8 @@ vi.mock('next/link', () => ({
 vi.mock('@/features/wishlist/components/WishlistButton', () => ({
   WishlistButton: () => null,
 }));
+const trackMock = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: trackMock }) }));
 
 function makeShow(overrides: Partial<Show> = {}): Show {
   return {
@@ -46,6 +48,26 @@ describe('ShowCard', () => {
     render(<ShowCard show={makeShow()} />);
 
     expect(screen.getByText('Episódio 3')).toBeInTheDocument();
+  });
+});
+
+describe('ShowCard click tracking', () => {
+  beforeEach(() => trackMock.mockClear());
+
+  it('tracks event_clicked with list/position when list is given', () => {
+    render(<ShowCard show={makeShow()} list="home:rail-1" position={3} />);
+
+    screen.getByText('Episódio 3').click();
+
+    expect(trackMock).toHaveBeenCalledWith('event_clicked', { eventId: 'evt-1', list: 'home:rail-1', position: 3 });
+  });
+
+  it('does not track a click when no list is given', () => {
+    render(<ShowCard show={makeShow()} />);
+
+    screen.getByText('Episódio 3').click();
+
+    expect(trackMock).not.toHaveBeenCalled();
   });
 });
 

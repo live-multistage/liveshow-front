@@ -7,6 +7,7 @@ import { Building2, Calendar, Radio } from 'lucide-react';
 import { useOrganizationBySlug, useOrganizationEvents } from '../hooks/use-organizations';
 import { OrganizationPublicEventCard } from '../components/OrganizationPublicEventCard';
 import { FollowButton } from '@/features/follows';
+import { useTrackOrganizerView } from '../hooks/use-track-organizer-view';
 import styles from './OrganizationPublicPage.module.scss';
 
 type Tab = 'upcoming' | 'past';
@@ -28,6 +29,7 @@ export function OrganizationPublicPage({ slug }: Props) {
     org?.id ?? '',
     'past',
   );
+  useTrackOrganizerView(org?.id);
 
   if (orgLoading) {
     return (
@@ -110,8 +112,8 @@ export function OrganizationPublicPage({ slug }: Props) {
                   Ao Vivo Agora
                 </h2>
                 <div className={styles.eventList}>
-                  {liveEvents.map((event) => (
-                    <OrganizationPublicEventCard key={event.id} event={event} />
+                  {liveEvents.map((event, index) => (
+                    <OrganizationPublicEventCard key={event.id} event={event} list={`organizer:${org.id}`} position={index} />
                   ))}
                 </div>
               </section>
@@ -147,8 +149,8 @@ export function OrganizationPublicPage({ slug }: Props) {
 
               {!isLoading && activeEvents.length > 0 && (
                 <div className={styles.eventList}>
-                  {activeEvents.map((event) => (
-                    <OrganizationPublicEventCard key={event.id} event={event} />
+                  {activeEvents.map((event, index) => (
+                    <OrganizationPublicEventCard key={event.id} event={event} list={`organizer:${org.id}`} position={index} />
                   ))}
                 </div>
               )}

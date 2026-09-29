@@ -24,6 +24,12 @@ vi.mock('./ShowCard', () => ({
   ShowCard: ({ show }: { show: { id: string; title: string } }) => <div>{show.title}</div>,
 }));
 
+const trackMock = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: trackMock }) }));
+vi.mock('@live-show/analytics-sdk/react', () => ({
+  TrackFeature: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 // The component only pulls useListEventsPageQuery + eventToShow from the
 // feature barrel — mock just those, skipping the barrel's much heavier
 // dashboard-side exports.
@@ -217,5 +223,76 @@ describe('EventsListPageContent pagination', () => {
     fireEvent.click(screen.getByText('3'));
 
     expect(push).toHaveBeenCalledWith('/events?category=MUSIC&page=3', { scroll: false });
+  });
+});
+
+describe('EventsListPageContent tracking', () => {
+  beforeEach(() => {
+    push.mockClear();
+    listEventsPageQueryMock.mockReset();
+    trackMock.mockClear();
+    currentSearchParams = new URLSearchParams();
+  });
+
+  it('tracks events_filtered when a chip is clicked, with the pre-computed count for that filter', () => {
+    const initialPage = makePage({ page: 1, total: 2 });
+    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+
+    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+    fireEvent.click(screen.getByText('AO VIVO'));
+
+    // eventToShow's stub always returns isLive: false, so the live chip's count is 0.
+    expect(trackMock).toHaveBeenCalledWith('events_filtered', { filter: 'chip', value: 'live', resultCount: 0 });
+  });
+
+  it('tracks events_filtered when the sort select changes', () => {
+    const initialPage = makePage({ page: 1, total: 2 });
+    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+
+    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+    fireEvent.change(screen.getByLabelText('Ordenar'), { target: { value: 'name-asc' } });
+
+    expect(trackMock).toHaveBeenCalledWith('events_filtered', { filter: 'sort', value: 'name-asc', resultCount: 2 });
+  });
+
+  it('tracks search_performed once typing settles, with the trimmed query and result count', () => {
+    vi.useFakeTimers();
+    const initialPage = makePage({ page: 1, total: 2 });
+    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+
+    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+    fireEvent.change(screen.getByPlaceholderText('searchPlaceholder'), { target: { value: 'Show 1' } });
+
+    expect(trackMock).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(400);
+
+    expect(trackMock).toHaveBeenCalledWith('search_performed', { query: 'Show 1', resultCount: 1 });
+    vi.useRealTimers();
+  });
+
+  it('trims surrounding whitespace off the tracked query', () => {
+    vi.useFakeTimers();
+    const initialPage = makePage({ page: 1, total: 2 });
+    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+
+    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+    fireEvent.change(screen.getByPlaceholderText('searchPlaceholder'), { target: { value: '  Show 1  ' } });
+    vi.advanceTimersByTime(400);
+
+    expect(trackMock).toHaveBeenCalledWith('search_performed', expect.objectContaining({ query: 'Show 1' }));
+    vi.useRealTimers();
+  });
+
+  it('does not track search_performed for an empty query', () => {
+    vi.useFakeTimers();
+    const initialPage = makePage({ page: 1, total: 2 });
+    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+
+    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+    fireEvent.change(screen.getByPlaceholderText('searchPlaceholder'), { target: { value: '   ' } });
+    vi.advanceTimersByTime(400);
+
+    expect(trackMock).not.toHaveBeenCalled();
+    vi.useRealTimers();
   });
 });

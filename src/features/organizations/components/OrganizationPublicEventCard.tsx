@@ -7,20 +7,30 @@ import { useTranslations, useLocale } from 'next-intl';
 import type { EventResponse } from '@/features/events/types/event.types';
 import { eventHref } from '@/features/events/utils/slug';
 import { WishlistButton } from '@/features/wishlist/components/WishlistButton';
+import { useTrackImpression } from '@/features/events/hooks/use-track-impression';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import styles from './OrganizationPublicEventCard.module.scss';
 
 const LOCALE_CODE: Record<string, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
 
 interface Props {
   event: EventResponse;
+  list?: string;
+  position?: number;
 }
 
-export function OrganizationPublicEventCard({ event }: Props) {
+export function OrganizationPublicEventCard({ event, list, position }: Props) {
   const t = useTranslations('orgEventCard');
   const locale = useLocale();
   const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
   const isLive = event.status === 'LIVE';
   const isFinished = event.status === 'FINISHED';
+  const impressionRef = useTrackImpression<HTMLAnchorElement>(event.id, list, position);
+  const analytics = useAnalytics();
+  const handleClick = () => {
+    if (!list) return;
+    analytics.track('event_clicked', { eventId: event.id, list, position });
+  };
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString(localeCode, { day: '2-digit', month: 'short', year: 'numeric' });
@@ -30,7 +40,9 @@ export function OrganizationPublicEventCard({ event }: Props) {
 
   return (
     <Link
+      ref={impressionRef}
       href={eventHref(event)}
+      onClick={handleClick}
       className={`${styles.card} ${isFinished ? styles.cardFinished : ''}`}
     >
       <div className={styles.thumb}>
