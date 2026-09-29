@@ -30,3 +30,12 @@ describe('/dashboard/advertisement/[id]', () => {
     expect(redirect).not.toHaveBeenCalled();
   });
 });
+
+describe('/dashboard/advertisement/billing', () => {
+  it('forwards to the wallet in the Ads Manager', async () => {
+    const BillingPage = (await import('../billing/page')).default;
+    redirect.mockClear();
+    expect(() => BillingPage()).toThrow('REDIRECT:');
+    expect(redirect).toHaveBeenCalledWith('https://ads.example.com/billing');
+  });
+});
