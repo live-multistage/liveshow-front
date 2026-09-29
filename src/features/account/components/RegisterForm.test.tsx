@@ -178,4 +178,27 @@ describe('RegisterForm — signup_started tracking', () => {
 
     expect(track).toHaveBeenCalledWith('signup_started', { method: 'google', source: undefined });
   });
+
+  it('reduces ?from= to origin+path, dropping the query string', () => {
+    history.pushState(null, '', '/register?from=https%3A%2F%2Fexample.com%2Fcampaign%3Futm_source%3Dx');
+    render(<RegisterForm />);
+    expect(track).toHaveBeenCalledWith('signup_started', {
+      method: 'email',
+      source: 'https://example.com/campaign',
+    });
+    history.pushState(null, '', '/register');
+  });
+
+  it('falls back to document.referrer reduced to origin+path when no ?from=', () => {
+    Object.defineProperty(document, 'referrer', {
+      value: 'https://showon.io/be-partner?utm_campaign=y',
+      configurable: true,
+    });
+    render(<RegisterForm />);
+    expect(track).toHaveBeenCalledWith('signup_started', {
+      method: 'email',
+      source: 'https://showon.io/be-partner',
+    });
+    Object.defineProperty(document, 'referrer', { value: '', configurable: true });
+  });
 });

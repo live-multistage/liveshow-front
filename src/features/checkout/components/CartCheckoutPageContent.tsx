@@ -79,14 +79,15 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
   // is post-discount.
   const trackedCheckoutStarted = useRef(false);
   useEffect(() => {
-    if (trackedCheckoutStarted.current || !cart) return;
+    if (trackedCheckoutStarted.current || !cart || !isLoggedIn) return;
     trackedCheckoutStarted.current = true;
     track('checkout_started', {
       itemCount: items.length,
       totalCents: Math.round(totalAmount * 100),
       isFree: totalAmount === 0,
+      eventIds: items.map((i) => i.eventId),
     });
-  }, [cart, items.length, totalAmount, track]);
+  }, [cart, items.length, totalAmount, track, isLoggedIn]);
 
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [payErrorMsg, setPayErrorMsg] = useState<string | null>(null);
@@ -203,14 +204,18 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
 
   const isLoading = authLoading || cartLoading || paymentMethods.isLoading;
 
+  // The redirect-to-login branch renders outside TrackFeature: it's not a
+  // real view of the checkout screen, so it must not fire feature_viewed.
+  if (!isLoggedIn && !authLoading) {
+    return null;
+  }
+
   // TrackFeature wraps the whole conditional tree below at a stable top
   // level so loading → loaded doesn't unmount/remount it (that produced a
   // duplicate feature_viewed + a spurious near-0ms feature_time).
-  let content: JSX.Element | null;
+  let content: JSX.Element;
 
-  if (!isLoggedIn && !authLoading) {
-    content = null;
-  } else if (isLoading) {
+  if (isLoading) {
     content = (
       <div className={styles.page}>
         <div className={styles.container}>

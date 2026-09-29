@@ -294,10 +294,25 @@ describe('CartCheckoutPageContent — tracking', () => {
     expect(trackFeatureUnmount).not.toHaveBeenCalled();
   });
 
+  it('does not mount TrackFeature while redirecting a logged-out visitor to login', () => {
+    mockedAuth.mockReturnValue({ isLoggedIn: false, isLoading: false, user: null } as ReturnType<typeof useAuth>);
+
+    renderPage();
+
+    expect(mockRouter.replace).toHaveBeenCalledWith('/login?redirect=%2Fcheckout');
+    expect(trackFeatureMount).not.toHaveBeenCalled();
+    expect(track.mock.calls.filter(([name]) => name === 'checkout_started')).toHaveLength(0);
+  });
+
   it('fires checkout_started once on mount, with the cart totals in cents', () => {
     renderPage();
 
-    expect(track).toHaveBeenCalledWith('checkout_started', { itemCount: 1, totalCents: 10000, isFree: false });
+    expect(track).toHaveBeenCalledWith('checkout_started', {
+      itemCount: 1,
+      totalCents: 10000,
+      isFree: false,
+      eventIds: ['evt-1'],
+    });
     expect(track.mock.calls.filter(([name]) => name === 'checkout_started')).toHaveLength(1);
   });
 

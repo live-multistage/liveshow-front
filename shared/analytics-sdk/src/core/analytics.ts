@@ -175,6 +175,15 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
       const effective = getEffective();
       if (effective === 'denied') return;
       userId = userIdArg;
+      if (effective === null) {
+        // Held: dedupe against other held identifies only. lastIdentifiedUserId (persisted
+        // or granted-session state) is compared at grant time, not here — setting it eagerly
+        // would make a legitimately new held identify look like a duplicate once consent
+        // resolves (it was silently dropped instead of sent).
+        if (holding.some((m) => m.type === 'identify' && m.userId === userIdArg)) return;
+        deliver(effective, () => buildMessage({ type: 'identify', traits }));
+        return;
+      }
       if (userIdArg === lastIdentifiedUserId) return; // already identified in this browser
       lastIdentifiedUserId = userIdArg;
       if (currentStore) persistIdentifiedUserId(userIdArg);
@@ -225,13 +234,22 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
         queue.setFlushPolicy({ flushAt: flushAtOpt, flushIntervalMs: flushIntervalMsOpt });
         persistSession(currentStore, session);
         if (holding.length) {
+          // Dedupe held identifies against the persisted/granted-session identity only
+          // (lastIdentifiedUserId, refreshed above unless rotatedByReset) — never against
+          // an in-memory value set while held, since identify() no longer sets one.
+          let lastKnownIdentified = lastIdentifiedUserId;
           for (const m of holding) {
-            // an identify for the now-adopted user was already sent (by this tab pre-grant
-            // or another tab); drop it instead of replaying a duplicate.
-            if (m.type === 'identify' && lastIdentifiedUserId && m.userId === lastIdentifiedUserId) continue;
+            if (m.type === 'identify') {
+              // an identify for the now-adopted user was already sent (by this tab pre-grant
+              // or another tab); drop it instead of replaying a duplicate.
+              if (m.userId && m.userId === lastKnownIdentified) continue;
+              lastKnownIdentified = m.userId ?? lastKnownIdentified;
+            }
             queue.enqueue(adoptPersistedIdentity(m, heldId, heldSessionId));
           }
           holding = [];
+          lastIdentifiedUserId = lastKnownIdentified;
+          if (lastKnownIdentified) persistIdentifiedUserId(lastKnownIdentified);
         }
         void queue.flush();
         return;

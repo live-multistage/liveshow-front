@@ -58,6 +58,12 @@ function useSinglePartWarning(children: ReactNode) {
   }, []);
 }
 
+// live/channel both read as 'live' for analytics — only replay has its own
+// consumption semantics (mode: e(live,replay) in the tracking plan).
+function analyticsMode(mode: 'live' | 'replay' | 'channel'): 'live' | 'replay' {
+  return mode === 'replay' ? 'replay' : 'live';
+}
+
 // Owns the fullscreen/PiP host element and publishes the shell. The mode still
 // calls usePlayerShell itself: its handlers (onEnded, DVR seek) need the shell
 // before this tree exists.
@@ -75,7 +81,7 @@ function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true,
 
   return (
     <PlayerProvider value={value}>
-      <TrackFeature name="player" props={{ eventId: value.playbackEventId, mode }}>
+      <TrackFeature name="player" props={{ eventId: value.playbackEventId, mode: analyticsMode(mode) }}>
         <div ref={shell.containerRef} className={styles.player}>
           {children}
         </div>
@@ -134,12 +140,6 @@ export type PlayerStagePartProps = Pick<
   CameraGridProps,
   'positionMs' | 'seekCommand' | 'onProgress' | 'onEnded' | 'onAutoplayBlocked' | 'dvrActive'
 >;
-
-// live/channel both read as 'live' for analytics — only replay has its own
-// consumption semantics (mode: e(live,replay) in the tracking plan).
-function analyticsMode(mode: 'live' | 'replay' | 'channel'): 'live' | 'replay' {
-  return mode === 'replay' ? 'replay' : 'live';
-}
 
 function Stage(gridProps: PlayerStagePartProps) {
   const { shell, mode, playbackEventId, adsEnabled } = usePlayer();

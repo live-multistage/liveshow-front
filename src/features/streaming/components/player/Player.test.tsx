@@ -29,7 +29,13 @@ vi.mock('@/features/account/hooks/use-auth', () => ({ useAuth: () => ({ isLogged
 const mockTrack = vi.hoisted(() => vi.fn());
 const mockAnalytics = vi.hoisted(() => ({ track: mockTrack }));
 vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => mockAnalytics }));
-vi.mock('@live-show/analytics-sdk/react', () => ({ TrackFeature: ({ children }: { children: unknown }) => children }));
+const trackFeatureCalls = vi.hoisted(() => [] as unknown[]);
+vi.mock('@live-show/analytics-sdk/react', () => ({
+  TrackFeature: ({ props, children }: { props: unknown; children: unknown }) => {
+    trackFeatureCalls.push(props);
+    return children;
+  },
+}));
 vi.mock('../RecommendedOverlay', () => ({ RecommendedOverlay: () => null }));
 const pushMock = vi.hoisted(() => vi.fn());
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: pushMock }) }));
@@ -77,6 +83,7 @@ function Harness({ options, children }: { options: UsePlayerShellOptions; childr
 
 beforeEach(() => {
   h.gridCalls.length = 0;
+  trackFeatureCalls.length = 0;
   pushMock.mockClear();
   mockTrack.mockClear();
   globalThis.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} } as unknown as typeof ResizeObserver;
@@ -121,6 +128,19 @@ describe('Player layout parts', () => {
     }
     render(<ChannelHarness />);
     expect(lastGridProps().mode).toBe('live');
+  });
+
+  it('reports channel mode to TrackFeature as live, not the raw shell mode', () => {
+    function ChannelHarness() {
+      const shell = usePlayerShell({ cameras: [cam('a', 1)], playbackEnabled: false });
+      return (
+        <Player.Root shell={shell} mode="channel" eventId="evt-1" title="Canal">
+          <Player.Stage />
+        </Player.Root>
+      );
+    }
+    render(<ChannelHarness />);
+    expect(trackFeatureCalls[trackFeatureCalls.length - 1]).toEqual({ eventId: 'evt-1', mode: 'live' });
   });
 
   it('renders Aside children and the Overlay without extra chrome', () => {

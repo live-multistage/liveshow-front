@@ -25,8 +25,9 @@ interface ShowCardProps {
   // time chip over the cover. Omitted or a non-positive duration renders nothing.
   progress?: { positionSeconds: number; durationSeconds: number };
   // Which listing this card renders in and its position within it — feeds
-  // event_impression/event_clicked. Omitted where the surface isn't
-  // instrumented yet (my-list, tickets, wishlist, recommended overlay).
+  // event_impression/event_clicked. Every current surface (home rails,
+  // tickets, my-list, wishlist, recommended overlay, artist page, events
+  // list) passes it; optional only for call sites that don't exist yet.
   list?: string;
   position?: number;
 }

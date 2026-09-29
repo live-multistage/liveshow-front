@@ -10,6 +10,7 @@ import { useRegisterMutation } from '../mutations/use-register.mutation';
 import { useResendVerificationMutation } from '../mutations/use-resend-verification.mutation';
 import { config } from '@/config';
 import { useAnalytics } from '@/lib/analytics/tracking';
+import { sanitizeTrackedUrl } from '@/lib/analytics/sanitize-url';
 import { Button, Checkbox, Input, Label } from '@live-show/design-system';
 import { MarketingPanel } from './MarketingPanel';
 import { EmailStatusCard } from './EmailStatusCard';
@@ -21,11 +22,19 @@ interface RegisterFormProps {
 }
 
 // ?from= wins when present (an explicit upstream page tagging its link);
-// otherwise the browser's own referrer, if any.
+// otherwise the browser's own referrer, if any. Reduced to origin+path —
+// never the raw query string, which may carry tracking params or PII.
 function getSignupSource(): string | undefined {
   if (typeof window === 'undefined') return undefined;
   const from = new URLSearchParams(window.location.search).get('from');
-  return from || document.referrer || undefined;
+  const raw = from || document.referrer;
+  if (!raw) return undefined;
+  try {
+    const url = sanitizeTrackedUrl(new URL(raw, window.location.origin));
+    return `${url.origin}${url.pathname}`;
+  } catch {
+    return undefined;
+  }
 }
 
 export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: RegisterFormProps) {

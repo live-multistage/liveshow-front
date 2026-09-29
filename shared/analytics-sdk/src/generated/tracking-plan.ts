@@ -12,7 +12,7 @@ export type TrackingPlan = {
   channel_viewed: { channelId: string };
   chat_message_sent: { eventId: string };
   checkout_pending_viewed: { method?: string; orderId: string };
-  checkout_started: { isFree?: boolean; itemCount: number; totalCents?: number };
+  checkout_started: { eventIds?: Json[]; isFree?: boolean; itemCount: number; totalCents?: number };
   checkout_success_viewed: { orderId: string };
   consent_decided: { choice: 'granted' | 'denied' };
   coupon_applied: { code: string; discountCents?: number };
