@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { Maximize2, Volume2, VolumeX } from 'lucide-react';
@@ -107,8 +107,10 @@ interface VideoPanelProps {
   onProgress?: (currentTime: number, duration: number, live?: LiveWindow) => void;
   onEnded?: () => void;
   // Analytics only — see use-transport-controls. Only threaded in for the
-  // primary/time-source panel by CameraGrid.
-  onPlaying?: (quality: string, latencyMode: string) => void;
+  // primary/time-source panel by CameraGrid. Quality itself isn't passed
+  // here — Player.tsx already has it (shell.quality) — only latencyMode,
+  // which is per-camera.
+  onPlaying?: (latencyMode: string) => void;
   onBuffered?: (durationMs: number) => void;
 }
 
@@ -188,7 +190,23 @@ export function VideoPanel({
   // approximation for analytics only (it doesn't track the internal
   // fallback latch, which low_latency_fallback already reports separately).
   const latencyMode = mode === 'live' && camera.llPath ? 'll' : 'standard';
-  const qualityForAnalytics = typeof selectedLevel === 'number' && selectedLevel >= 0 ? String(selectedLevel) : 'auto';
+
+  // Stable identity is required here: use-transport-controls' playing/waiting
+  // effect subscribes on this function's identity, and onProgress (fed by the
+  // SAME 'timeupdate' event this effect also listens to) drives roughly 4
+  // parent re-renders/sec. An inline `() => onPlaying(...)` would get a new
+  // identity every one of those renders, forcing the effect to
+  // unsubscribe/resubscribe constantly and silently drop any 'waiting' state
+  // that happened to be pending mid-resubscribe. Reading onPlaying/latencyMode
+  // through refs keeps the callback itself referentially stable across
+  // renders; only an isTimeSource flip (rare) changes what's passed in.
+  const onPlayingRef = useRef(onPlaying);
+  onPlayingRef.current = onPlaying;
+  const latencyModeRef = useRef(latencyMode);
+  latencyModeRef.current = latencyMode;
+  const handleTimeSourcePlaying = useCallback(() => {
+    onPlayingRef.current?.(latencyModeRef.current);
+  }, []);
 
   // Transport wiring (paused/seek/progress/ended) for replay AND the live DVR
   // scrubber — see the hook. hlsRef is what makes the live edge (rather than
@@ -205,7 +223,7 @@ export function VideoPanel({
     isTimeSource,
     onProgress,
     onEnded,
-    onPlaying: onPlaying ? () => onPlaying(qualityForAnalytics, latencyMode) : undefined,
+    onPlaying: onPlaying ? handleTimeSourcePlaying : undefined,
     onBuffered,
   });
 

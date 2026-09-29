@@ -12,7 +12,8 @@ function makeHttpError(status: number) {
 }
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: vi.fn() }) }));
+const mockTrack = vi.hoisted(() => vi.fn());
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: mockTrack }) }));
 
 const authState = { isLoggedIn: true, isLoading: false };
 vi.mock('@/features/account/hooks/use-auth', () => ({
@@ -69,15 +70,21 @@ describe('ReplayGate — revoked access on playback refresh', () => {
     prerollState.ad = null;
     prerollState.pending = false;
     playbackState.error = undefined;
+    mockTrack.mockClear();
   });
 
-  it('unmounts the player and shows the no-access state on a 401 refresh', () => {
+  it('unmounts the player and shows the no-access state on a 401 refresh, tracking player_opened(hasAccess:false)', () => {
     playbackState.error = makeHttpError(401);
 
     render(<ReplayGate eventId="evt-1" eventTitle="Show" />);
 
     expect(screen.getByText('accessRequired')).toBeInTheDocument();
     expect(screen.queryByText('replay-player-stub')).not.toBeInTheDocument();
+    expect(mockTrack).toHaveBeenCalledWith('player_opened', {
+      eventId: 'evt-1',
+      mode: 'replay',
+      hasAccess: false,
+    });
   });
 
   it('unmounts the player and shows the no-access state on a 403 refresh', () => {

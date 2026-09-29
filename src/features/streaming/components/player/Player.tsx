@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAnalytics } from '@/lib/analytics/tracking';
 import { TrackFeature } from '@live-show/analytics-sdk/react';
+import { qualityAnalyticsLabel } from '../../hooks/use-quality-levels';
 import type { PlayerShell } from '../../hooks/use-player-shell';
 import { shareCurrentPage } from '../../utils/share-current-page';
 import { CameraGrid, DRAWER_W } from '../CameraGrid';
@@ -146,36 +147,71 @@ function Stage(gridProps: PlayerStagePartProps) {
   const analytics = useAnalytics();
   const trackedMode = analyticsMode(mode);
 
+  // quality is a new object every render (useQualityLevels returns a fresh
+  // literal) — read the current levels through a ref instead of a dep, or
+  // handlePlaying below would get a new identity every render too (see the
+  // StrictMode/timeupdate note further down).
+  const qualityRef = useRef(quality);
+  qualityRef.current = quality;
+
   // player_opened / playback_ended span the whole player mount (this part is
   // rendered exactly once per <Player.Root>, for its whole lifetime, by every
   // mode). playback_started fires once, on the first real 'playing' frame —
   // startupMs is measured against this same mount instant.
   const openedAtRef = useRef(0);
+  const openedFiredRef = useRef(false);
+  const endedFiredRef = useRef(false);
   const startedFiredRef = useRef(false);
   const lastBufferedTrackRef = useRef(0);
+  // Cancels a pending playback_ended from a React StrictMode dev
+  // double-invoke's phantom unmount (mount → cleanup → mount, synchronously,
+  // before any timeout fires) — see the effect below.
+  const pendingEndedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   if (openedAtRef.current === 0) openedAtRef.current = Date.now();
 
   useEffect(() => {
-    analytics.track('player_opened', { eventId: playbackEventId, mode: trackedMode, hasAccess: true });
-    const openedAt = openedAtRef.current;
-    return () => {
+    // This mount proves the previous cleanup (if any) was StrictMode's
+    // phantom unmount, not a real one — cancel its deferred playback_ended.
+    if (pendingEndedTimeoutRef.current !== null) {
+      clearTimeout(pendingEndedTimeoutRef.current);
+      pendingEndedTimeoutRef.current = null;
+    }
+    if (!openedFiredRef.current) {
+      openedFiredRef.current = true;
+      analytics.track('player_opened', { eventId: playbackEventId, mode: trackedMode, hasAccess: true });
+    }
+
+    const emitEndedOnce = () => {
+      if (endedFiredRef.current) return;
+      endedFiredRef.current = true;
       analytics.track('playback_ended', {
         eventId: playbackEventId,
         mode: trackedMode,
-        watchSeconds: Math.floor((Date.now() - openedAt) / 1000),
+        watchSeconds: Math.floor((Date.now() - openedAtRef.current) / 1000),
       });
+    };
+    // pagehide (tab close/navigate away) beats unmount in the browsers that
+    // fire it, and either one wins — emitEndedOnce guards against both.
+    window.addEventListener('pagehide', emitEndedOnce);
+
+    return () => {
+      window.removeEventListener('pagehide', emitEndedOnce);
+      // Deferred: a real unmount lets this fire; a StrictMode phantom
+      // unmount is followed SYNCHRONOUSLY by a remount, which cancels it
+      // above before the (0ms, but still a macrotask) timeout ever runs.
+      pendingEndedTimeoutRef.current = setTimeout(emitEndedOnce, 0);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mount/unmount only
   }, []);
 
   const handlePlaying = useCallback(
-    (qualityLabel: string, latencyMode: string) => {
+    (latencyMode: string) => {
       if (startedFiredRef.current) return;
       startedFiredRef.current = true;
       analytics.track('playback_started', {
         eventId: playbackEventId,
         mode: trackedMode,
-        quality: qualityLabel,
+        quality: qualityAnalyticsLabel(qualityRef.current.currentLevel, qualityRef.current.levels),
         latencyMode,
         startupMs: Date.now() - openedAtRef.current,
       });

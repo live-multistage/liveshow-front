@@ -9,18 +9,9 @@ import { VolumeControl } from '../transport/VolumeControl';
 import { PlayerMenu } from '../transport/PlayerMenu';
 import controls from '../transport/transport-controls.module.scss';
 import { useAnalytics } from '@/lib/analytics/tracking';
+import { AUTO_LEVEL, qualityAnalyticsLabel } from '../../hooks/use-quality-levels';
 import { usePlayer } from './PlayerContext';
 import styles from './Transport.module.scss';
-
-const AUTO_LEVEL = -1;
-
-// The label a level shows in the menu doubles as the analytics `quality`
-// value — same auto/height-p vocabulary the viewer sees.
-function levelLabel(level: number, levels: { index: number; height: number }[]): string {
-  if (level === AUTO_LEVEL) return 'auto';
-  const found = levels.find((l) => l.index === level);
-  return found ? `${found.height}p` : String(level);
-}
 
 // <LiveBadge/> or <ReplayBadge/> — the bar doesn't know which mode it serves.
 function Badge({ children }: { children: ReactNode }) {
@@ -107,8 +98,8 @@ function Quality() {
     if (next !== currentLevel) {
       analytics.track('quality_changed', {
         eventId: playbackEventId,
-        from: levelLabel(currentLevel, levels),
-        to: levelLabel(next, levels),
+        from: qualityAnalyticsLabel(currentLevel, levels),
+        to: qualityAnalyticsLabel(next, levels),
         auto: next === AUTO_LEVEL,
       });
     }

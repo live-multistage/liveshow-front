@@ -18,7 +18,9 @@ vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
 vi.mock('@/features/account/hooks/use-auth', () => ({ useAuth: () => ({ isLoggedIn: true, user: null }) }));
-vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: vi.fn() }) }));
+const mockTrack = vi.hoisted(() => vi.fn());
+const mockAnalytics = vi.hoisted(() => ({ track: mockTrack }));
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => mockAnalytics }));
 vi.mock('@live-show/analytics-sdk/react', () => ({ TrackFeature: ({ children }: { children: unknown }) => children }));
 vi.mock('../RecommendedOverlay', () => ({ RecommendedOverlay: () => null }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
@@ -55,6 +57,7 @@ function Harness({ options, children }: { options: UsePlayerShellOptions; childr
 
 beforeEach(() => {
   globalThis.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} } as unknown as typeof ResizeObserver;
+  mockTrack.mockClear();
 });
 
 describe('Transport controls', () => {
@@ -183,6 +186,29 @@ describe('Transport controls', () => {
     // was already on screen as a menu item before the click.
     const trigger = container.querySelector('[class*="qualityBtn"]')!;
     expect(trigger.textContent).toBe('720p');
+    expect(mockTrack).toHaveBeenCalledWith('quality_changed', {
+      eventId: 'evt-1',
+      from: 'auto',
+      to: '720p',
+      auto: false,
+    });
+  });
+
+  it('Quality does not track when the same level is re-picked', () => {
+    function QualityHarness() {
+      const shell = usePlayerShell({ cameras: [cam('a', 1)] });
+      return (
+        <Player.Root shell={shell} mode="live" eventId="evt-1" title="Show">
+          <Player.Stage />
+          <Player.Transport><Transport.Quality /></Player.Transport>
+        </Player.Root>
+      );
+    }
+    const { getByText } = render(<QualityHarness />);
+    mockTrack.mockClear(); // drop the player_opened call from Player.Stage's own mount effect
+    fireEvent.click(getByText('Auto')); // opens the menu (trigger)
+    fireEvent.click(getByText('qualityAuto')); // re-picks the already-active level (menu item; next-intl mocked to echo the key)
+    expect(mockTrack).not.toHaveBeenCalledWith('quality_changed', expect.anything());
   });
 
   it('Pip and Fullscreen call the shell handlers', () => {

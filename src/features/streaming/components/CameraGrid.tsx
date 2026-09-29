@@ -26,8 +26,10 @@ export interface CameraGridProps {
   eventId?: string;
   // Primary-panel-only analytics: first real 'playing' frame, and
   // waiting→playing stalls. See Player.tsx (Stage), which owns the
-  // player-mount-lifetime state these roll up into.
-  onPlaying?: (quality: string, latencyMode: string) => void;
+  // player-mount-lifetime state these roll up into (including the current
+  // quality label — only latencyMode is per-camera, so that's all this
+  // carries up).
+  onPlaying?: (latencyMode: string) => void;
   onBuffered?: (durationMs: number) => void;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
