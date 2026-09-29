@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const state = vi.hoisted(() => ({
   push: vi.fn(),
+  track: vi.fn(),
+  addToCartMutate: vi.fn(),
   auth: { isLoggedIn: false, user: null as { id: string } | null },
   liveAccess: { data: false as boolean | undefined, isLoading: false },
   replayAccess: { data: false as boolean | undefined, isLoading: false },
@@ -19,12 +21,10 @@ vi.mock('@/features/checkout/services/checkout.service', () => ({
 }));
 vi.mock('../../queries/get-event', () => ({ useServiceFeeRateQuery: () => ({ data: 0 }) }));
 vi.mock('@/features/cart', () => ({
-  useAddToCartMutation: () => ({ mutate: vi.fn(), isPending: false }),
+  useAddToCartMutation: () => ({ mutate: state.addToCartMutate, isPending: false }),
   useCartQuery: () => ({ data: { items: [] } }),
 }));
-vi.mock('@/features/cart/hooks/use-track-cart', () => ({ trackCartAdd: vi.fn() }));
-const trackMock = vi.fn();
-vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: trackMock }) }));
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: state.track }) }));
 vi.mock('@/features/account', () => ({ useAuth: () => state.auth }));
 vi.mock('@/features/streaming/queries/live.queries', () => ({
   LIVE_KEYS: {
@@ -121,6 +121,8 @@ const watchButton = () => screen.getByRole('button', { name: /watch/ });
 
 beforeEach(() => {
   vi.clearAllMocks();
+  state.track.mockClear();
+  state.addToCartMutate.mockReset();
   state.auth = { isLoggedIn: false, user: null };
   state.liveAccess = { data: false, isLoading: false };
   state.replayAccess = { data: false, isLoading: false };
@@ -240,6 +242,54 @@ describe('TicketPanel direct watch', () => {
     expect(screen.getByText('chipLive')).toBeInTheDocument();
     expect(claimFreeTicket).not.toHaveBeenCalled();
   });
+
+  it('fires payment_submitted (FREE) before claiming a sole free ticket', async () => {
+    state.auth = { isLoggedIn: true, user: { id: 'u-1' } };
+    claimFreeTicket.mockResolvedValue({ granted: true } as Awaited<ReturnType<typeof checkoutService.claimFreeTicket>>);
+
+    renderPanel([FREE]);
+    await userEvent.click(watchButton());
+
+    await waitFor(() => expect(claimFreeTicket).toHaveBeenCalled());
+    expect(state.track).toHaveBeenCalledWith('payment_submitted', { method: 'FREE', totalCents: 0 });
+  });
+
+  it('fires cart_item_added on "add to cart", with price converted to cents and the post-add cart size', async () => {
+    state.auth = { isLoggedIn: true, user: { id: 'u-1' } };
+    state.addToCartMutate.mockImplementation(
+      (_id: string, opts: { onSuccess?: (v: { items: unknown[] }) => void }) =>
+        opts.onSuccess?.({ items: [{}] }),
+    );
+
+    renderPanel([PAID]);
+    await userEvent.click(screen.getByRole('button', { name: 'addToCart' }));
+
+    expect(state.track).toHaveBeenCalledWith('cart_item_added', {
+      eventId: 'evt-1',
+      tier: 'Pro',
+      priceCents: 3990,
+      cartSize: 1,
+    });
+  });
+
+  it('fires cart_item_added on "buy now", then routes to checkout', async () => {
+    state.auth = { isLoggedIn: true, user: { id: 'u-1' } };
+    state.addToCartMutate.mockImplementation(
+      (_id: string, opts: { onSuccess?: (v: { items: unknown[] }) => void }) =>
+        opts.onSuccess?.({ items: [{}] }),
+    );
+
+    renderPanel([PAID]);
+    await userEvent.click(screen.getByRole('button', { name: 'buyTicket' }));
+
+    expect(state.track).toHaveBeenCalledWith('cart_item_added', {
+      eventId: 'evt-1',
+      tier: 'Pro',
+      priceCents: 3990,
+      cartSize: 1,
+    });
+    expect(state.push).toHaveBeenCalledWith('/checkout');
+  });
 });
 
 describe('TicketPanel tier tracking', () => {
@@ -248,7 +298,7 @@ describe('TicketPanel tier tracking', () => {
 
     await userEvent.click(screen.getByText('Pro'));
 
-    expect(trackMock).toHaveBeenCalledWith('ticket_tier_selected', {
+    expect(state.track).toHaveBeenCalledWith('ticket_tier_selected', {
       eventId: 'evt-1',
       tier: 'Pro',
       priceCents: 3990,

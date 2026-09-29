@@ -2,6 +2,12 @@ vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
 const mockRouter = { replace: vi.fn(), push: vi.fn() };
 vi.mock('next/navigation', () => ({ useRouter: () => mockRouter }));
+vi.mock('@live-show/analytics-sdk/react', () => ({
+  TrackFeature: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+const { track } = vi.hoisted(() => ({ track: vi.fn() }));
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track }) }));
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -89,6 +95,7 @@ function stubPlaceOrder(mutationFn: (payload: unknown) => Promise<PlaceOrderResp
 describe('CartCheckoutPageContent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    track.mockClear();
     sessionStorage.clear();
     mockedAuth.mockReturnValue({ isLoggedIn: true, isLoading: false, user: null } as ReturnType<typeof useAuth>);
     mockedCart.mockReturnValue({ data: cart, isLoading: false } as ReturnType<typeof useCartQuery>);
@@ -229,6 +236,72 @@ describe('CartCheckoutPageContent', () => {
     renderPage({ fiscalEnabled: true });
 
     expect(screen.getByRole('button', { name: /Processando/i })).toBeDisabled();
+  });
+});
+
+describe('CartCheckoutPageContent — tracking', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    track.mockClear();
+    sessionStorage.clear();
+    mockedAuth.mockReturnValue({ isLoggedIn: true, isLoading: false, user: null } as ReturnType<typeof useAuth>);
+    mockedCart.mockReturnValue({ data: cart, isLoading: false } as ReturnType<typeof useCartQuery>);
+    mockedPaymentMethods.mockReturnValue({
+      data: [method],
+      isLoading: false,
+    } as ReturnType<typeof usePaymentMethodsQuery>);
+    mockedUpdateProfile.mockReturnValue({
+      mutateAsync: vi.fn().mockResolvedValue(undefined),
+    } as unknown as ReturnType<typeof useUpdateProfileMutation>);
+    Object.defineProperty(window, 'location', { value: { href: '' }, writable: true });
+  });
+
+  it('fires checkout_started once on mount, with the cart totals in cents', () => {
+    renderPage();
+
+    expect(track).toHaveBeenCalledWith('checkout_started', { itemCount: 1, totalCents: 10000, isFree: false });
+    expect(track.mock.calls.filter(([name]) => name === 'checkout_started')).toHaveLength(1);
+  });
+
+  it('fires payment_method_selected when a radio is picked', async () => {
+    renderPage();
+
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
+
+    expect(track).toHaveBeenCalledWith('payment_method_selected', { method: 'CREDIT_CARD' });
+  });
+
+  it('fires payment_submitted right before placing the order', async () => {
+    stubPlaceOrder(async () => ({
+      order: { id: 'order-1' } as PlaceOrderResponse['order'],
+      payment: { id: 'pay-1', action: { type: 'COMPLETED', externalReference: 'ref' } },
+    }));
+
+    renderPage();
+
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
+
+    expect(track).toHaveBeenCalledWith('payment_submitted', { method: 'CREDIT_CARD', totalCents: 10000 });
+  });
+
+  it('carries the selected method on the querystring to the pending page', async () => {
+    stubPlaceOrder(async () => ({
+      order: { id: 'order-9' } as PlaceOrderResponse['order'],
+      payment: {
+        id: 'pay-1',
+        action: { type: 'PAYMENT_INTENT' } as PlaceOrderResponse['payment']['action'],
+      },
+    }));
+
+    renderPage();
+
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Pagar/i }));
+
+    await vi.waitFor(() =>
+      expect(mockRouter.push).toHaveBeenCalledWith('/checkout/pending?orderId=order-9&method=CREDIT_CARD'),
+    );
   });
 });
 

@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, Ticket, ArrowRight, Compass } from 'lucide-react';
 import { formatPrice } from '@/features/events';
 import { AdBanner } from '@/features/advertisements';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import styles from './CheckoutSuccessContent.module.scss';
 
 interface Props {
@@ -13,6 +15,7 @@ interface Props {
 
 export function CheckoutSuccessContent(_: Props) {
   const params = useSearchParams();
+  const { track } = useAnalytics();
 
   const orderId = params.get('orderId');
   const name = params.get('name');
@@ -23,6 +26,13 @@ export function CheckoutSuccessContent(_: Props) {
 
   const formattedTotal = totalRaw != null ? formatPrice(Number(totalRaw), currency) : null;
   const hasOrderSummary = name || ticket || formattedTotal;
+
+  const trackedSuccessView = useRef(false);
+  useEffect(() => {
+    if (trackedSuccessView.current || !orderId) return;
+    trackedSuccessView.current = true;
+    track('checkout_success_viewed', { orderId });
+  }, [orderId, track]);
 
   return (
     <div className={styles.page}>

@@ -12,7 +12,6 @@ import { useTranslations } from 'next-intl';
 import { useAddToCartMutation, useCartQuery } from '@/features/cart';
 import { Button } from '@/shared/components/Button';
 import { useAuth } from '@/features/account';
-import { trackCartAdd } from '@/features/cart/hooks/use-track-cart';
 import { useAnalytics } from '@/lib/analytics/tracking';
 import {
   useLiveAccessQuery,
@@ -56,7 +55,8 @@ export function TicketPanel({ event, tickets }: Props) {
   };
   const [pendingAction, setPendingAction] = useState<'cart' | 'buy' | null>(null);
   const addToCart = useAddToCartMutation();
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn } = useAuth();
+  const { track } = useAnalytics();
   const { data: cart } = useCartQuery();
   const isTicketInCart = (ticketId: string) =>
     isLoggedIn && (cart?.items.some((i) => i.ticketProductId === ticketId) ?? false);
@@ -228,6 +228,7 @@ export function TicketPanel({ event, tickets }: Props) {
               }
               // Only navigate once the grant exists; a failed claim leaves the
               // button actionable and the mutation's onError toasts.
+              track('payment_submitted', { method: 'FREE', totalCents: 0 });
               claimFreeTicket.mutate(soleFreeTicket.id, {
                 onSuccess: () => router.push(playerHref),
               });
@@ -302,6 +303,7 @@ export function TicketPanel({ event, tickets }: Props) {
                 router.push(`/login?redirect=${encodeURIComponent(eventHref(event))}`);
                 return;
               }
+              track('payment_submitted', { method: 'FREE', totalCents: 0 });
               claimFreeTicket.mutate(ticket.id);
             }}
           >
@@ -330,8 +332,13 @@ export function TicketPanel({ event, tickets }: Props) {
             }
             setPendingAction('buy');
             addToCart.mutate(ticket.id, {
-              onSuccess: () => {
-                trackCartAdd(event.id, ticket.id, ticket.price, user?.id);
+              onSuccess: (cartView) => {
+                track('cart_item_added', {
+                  eventId: event.id,
+                  tier: ticket.name,
+                  priceCents: Math.round(ticket.price * 100),
+                  cartSize: cartView.items.length,
+                });
                 router.push('/checkout');
               },
               onSettled: () => setPendingAction(null),
@@ -363,7 +370,13 @@ export function TicketPanel({ event, tickets }: Props) {
             }
             setPendingAction('cart');
             addToCart.mutate(ticket.id, {
-              onSuccess: () => trackCartAdd(event.id, ticket.id, ticket.price, user?.id),
+              onSuccess: (cartView) =>
+                track('cart_item_added', {
+                  eventId: event.id,
+                  tier: ticket.name,
+                  priceCents: Math.round(ticket.price * 100),
+                  cartSize: cartView.items.length,
+                }),
               onSettled: () => setPendingAction(null),
             });
           }}

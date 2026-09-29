@@ -1,20 +1,30 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Clock } from 'lucide-react';
 import { useOrderQuery } from '../mutations/checkout.mutations';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import styles from './CheckoutResultContent.module.scss';
 
 interface Props {
   orderId?: string;
+  method?: string;
 }
 
-export function CheckoutPendingContent({ orderId }: Props) {
+export function CheckoutPendingContent({ orderId, method }: Props) {
   const router = useRouter();
+  const { track } = useAnalytics();
 
   const orderQuery = useOrderQuery(orderId ?? null);
+
+  const trackedPendingView = useRef(false);
+  useEffect(() => {
+    if (trackedPendingView.current || !orderId) return;
+    trackedPendingView.current = true;
+    track('checkout_pending_viewed', { orderId, method });
+  }, [orderId, method, track]);
 
   useEffect(() => {
     const status = orderQuery.data?.status;

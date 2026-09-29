@@ -1,14 +1,14 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { useNavigate } from '@/shared/hooks/use-navigate';
 import { useCartQuery } from '../queries/cart.queries';
 import { useRemoveFromCartMutation } from '../mutations/cart.mutations';
-import { trackCartRemove } from '../hooks/use-track-cart';
-import { useAuth } from '@/features/account/hooks/use-auth';
+import { useAnalytics } from '@/lib/analytics/tracking';
+import { TrackFeature } from '@live-show/analytics-sdk/react';
 import { checkoutService } from '@/features/checkout/services/checkout.service';
 import type { CartLineView, CartView } from '../services/cart.service';
 import styles from './CartPageContent.module.scss';
@@ -50,7 +50,7 @@ export function CartPageContent({ initialCart, couponsEnabled = true }: Props) {
   const { data } = useCartQuery(initialCart);
   const removeItem = useRemoveFromCartMutation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { track } = useAnalytics();
 
   const [promoCode, setPromoCode] = useState('');
   const [promoState, setPromoState] = useState<'idle' | 'ok' | 'error'>('idle');
@@ -63,6 +63,17 @@ export function CartPageContent({ initialCart, couponsEnabled = true }: Props) {
   const subtotal = data?.totals.subtotal ?? 0;
   const taxAmount = data?.totals.lines.find((l) => l.key === 'tax')?.amount ?? 0;
   const discount = appliedCoupon?.discountAmount ?? 0;
+
+  // cart_viewed once per page view, as soon as the SSR-seeded/first-fetched cart is available.
+  const trackedView = useRef(false);
+  useEffect(() => {
+    if (trackedView.current || !data) return;
+    trackedView.current = true;
+    track('cart_viewed', {
+      itemCount: data.items.length,
+      totalCents: Math.round(data.totals.total * 100),
+    });
+  }, [data, track]);
 
   const applyPromo = async () => {
     const code = promoCode.trim().toUpperCase();
@@ -81,10 +92,12 @@ export function CartPageContent({ initialCart, couponsEnabled = true }: Props) {
       sessionStorage.setItem('cart:coupon', JSON.stringify({ code }));
       setPromoState('ok');
       setPromoCode('');
+      track('coupon_applied', { code, discountCents: Math.round(result.discountAmount * 100) });
     } catch (err) {
-      const e = err as { response?: { data?: { message?: string } } };
+      const e = err as { response?: { data?: { message?: string; code?: string } } };
       setPromoError(e?.response?.data?.message ?? t('couponInvalid'));
       setPromoState('error');
+      track('coupon_rejected', { code, reason: e?.response?.data?.code ?? 'INVALID' });
     } finally {
       setIsApplying(false);
     }
@@ -116,6 +129,7 @@ export function CartPageContent({ initialCart, couponsEnabled = true }: Props) {
   const multiOrg = orgGroups.length > 1;
 
   return (
+    <TrackFeature name="cart">
     <div className={styles.page}>
       <div className={styles.container}>
         <p className={styles.eyebrow}>CHECKOUT · ETAPA 1 DE 2</p>
@@ -201,7 +215,11 @@ export function CartPageContent({ initialCart, couponsEnabled = true }: Props) {
                                   className={styles.removeBtn}
                                   onClick={() => {
                                     removeItem.mutate(item.eventId, {
-                                      onSuccess: () => trackCartRemove(item.eventId, user?.id),
+                                      onSuccess: (cartView) =>
+                                        track('cart_item_removed', {
+                                          eventId: item.eventId,
+                                          cartSize: cartView.items.length,
+                                        }),
                                     });
                                   }}
                                   disabled={removeItem.isPending}
@@ -395,5 +413,6 @@ export function CartPageContent({ initialCart, couponsEnabled = true }: Props) {
         </div>
       </div>
     </div>
+    </TrackFeature>
   );
 }

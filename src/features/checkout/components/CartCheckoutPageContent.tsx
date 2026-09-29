@@ -15,7 +15,8 @@ import { normalizeError, type AppError } from '@/lib/http/errors';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
 import { BuyerDocumentField } from './BuyerDocumentField';
 import { AdBanner } from '@/features/advertisements';
-import { track } from '@/lib/analytics/analytics-client';
+import { useAnalytics } from '@/lib/analytics/tracking';
+import { TrackFeature } from '@live-show/analytics-sdk/react';
 import styles from './CheckoutPageContent.module.scss';
 import cartStyles from './CartCheckoutPageContent.module.scss';
 
@@ -28,6 +29,14 @@ const PAY_ERROR_KEYS: Record<string, string> = {
   EVENT_NOT_PURCHASABLE: 'errors.EVENT_NOT_PURCHASABLE',
   TICKET_SOLD_OUT: 'errors.EVENT_NOT_PURCHASABLE',
 };
+
+// The tracking plan's payment_method_selected/payment_submitted only cover the
+// methods the web actually offers (Stripe-collected card/PIX); GOOGLE_PAY,
+// APPLE_PAY and STRIPE itself never reach here as a *selected* method.
+type TrackedPaymentMethod = 'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD';
+function isTrackedPaymentMethod(type: string): type is TrackedPaymentMethod {
+  return type === 'PIX' || type === 'CREDIT_CARD' || type === 'DEBIT_CARD';
+}
 
 function payErrorMessage(err: AppError, t: ReturnType<typeof useTranslations>): string {
   const byCode = err.code ? PAY_ERROR_KEYS[err.code] : undefined;
@@ -48,6 +57,7 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
   const { isLoggedIn, isLoading: authLoading, user } = useAuth();
   const { data: cart, isLoading: cartLoading } = useCartQuery();
   const router = useRouter();
+  const { track } = useAnalytics();
 
   // Checkout requires auth. Instead of rendering a blank page, send guests to
   // login and bring them straight back here after they sign in.
@@ -58,20 +68,22 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
   }, [authLoading, isLoggedIn, router]);
 
   const items = cart?.items ?? [];
-
-  // Funnel step "iniciou checkout": once per event in the cart, per page open.
-  const trackedCheckout = useRef<Set<string>>(new Set());
-  useEffect(() => {
-    for (const item of items) {
-      if (trackedCheckout.current.has(item.eventId)) continue;
-      trackedCheckout.current.add(item.eventId);
-      track({ eventType: 'event.checkout_visited', entityType: 'event', entityId: item.eventId, userId: user?.id });
-    }
-  }, [items, user?.id]);
   const totalAmount = cart?.totals.total ?? 0;
   // Cart is mono-currency (POST /cart/items rejects a mismatched currency),
   // so a single currency covers every line here.
   const currency = items[0]?.currency ?? 'BRL';
+
+  // checkout_started once per page open, as soon as the cart has loaded.
+  const trackedCheckoutStarted = useRef(false);
+  useEffect(() => {
+    if (trackedCheckoutStarted.current || !cart) return;
+    trackedCheckoutStarted.current = true;
+    track('checkout_started', {
+      itemCount: items.length,
+      totalCents: Math.round(totalAmount * 100),
+      isFree: totalAmount === 0,
+    });
+  }, [cart, items.length, totalAmount, track]);
 
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [payErrorMsg, setPayErrorMsg] = useState<string | null>(null);
@@ -90,6 +102,14 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
     seededDoc.current = true;
     setDoc({ value: user.taxDocument ?? '', valid: true });
   }, [user]);
+
+  // buyer_info_completed the first time the document field becomes non-empty and valid.
+  const trackedBuyerInfo = useRef(false);
+  useEffect(() => {
+    if (trackedBuyerInfo.current || !fiscalEnabled || !doc.valid || !doc.value) return;
+    trackedBuyerInfo.current = true;
+    track('buyer_info_completed', {});
+  }, [fiscalEnabled, doc, track]);
 
   // Coupon applied on the cart page travels here via sessionStorage;
   // re-validate against the server so a stale/expired code is dropped silently.
@@ -133,6 +153,13 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
       provider: 'STRIPE',
     });
 
+    if (isTrackedPaymentMethod(selectedMethod.type)) {
+      track('payment_submitted', {
+        method: selectedMethod.type,
+        totalCents: Math.round(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)) * 100),
+      });
+    }
+
     placeOrder.mutate(
       // PlaceOrderRequest.provider is now 'STRIPE' | 'GOOGLE_PLAY'. The web
       // stays on STRIPE unconditionally: a browser cannot complete a
@@ -151,7 +178,7 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
             // PAYMENT_INTENT is the in-app sheet: the web never asks for it
             // (it sends no `flow`), and a browser cannot present it. Falling
             // through to pending is correct — the order exists, unpaid.
-            router.push(`/checkout/pending?orderId=${order.id}`);
+            router.push(`/checkout/pending?orderId=${order.id}&method=${selectedMethod.type}`);
           }
         },
         onError: (e) => setPayErrorMsg(payErrorMessage(normalizeError(e), t)),
@@ -189,6 +216,7 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
   }
 
   return (
+    <TrackFeature name="checkout">
     <div className={styles.page}>
       <div className={styles.inner}>
         <h1 className={styles.title}>Finalizar compra</h1>
@@ -217,7 +245,13 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
             <PaymentMethodSelector
               methods={paymentMethods.data ?? []}
               selected={selectedMethodId}
-              onChange={setSelectedMethodId}
+              onChange={(id) => {
+                setSelectedMethodId(id);
+                const method = paymentMethods.data?.find((m) => m.id === id);
+                if (method && isTrackedPaymentMethod(method.type)) {
+                  track('payment_method_selected', { method: method.type });
+                }
+              }}
               isLoading={paymentMethods.isLoading}
             />
 
@@ -274,6 +308,7 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
         </div>
       </div>
     </div>
+    </TrackFeature>
   );
 }
 
