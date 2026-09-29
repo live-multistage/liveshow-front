@@ -1,3 +1,11 @@
+// Design-specific shades with no matching CSS custom property (see
+// src/styles/globals.scss for the token list) — declared once, used below.
+$card-bg: #0f0f0f;
+$accent: #ec4899;
+$accent-light: #ff8ec9;
+$dim: #71717a;
+$muted-text: #a1a1aa;
+
 .rangeBadge {
   display: inline-flex;
   align-items: center;
@@ -5,11 +13,13 @@
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 11px;
   letter-spacing: .1em;
-  color: #a1a1aa;
-  border: 1px solid #27272a;
+  color: $muted-text;
+  border: 1px solid var(--muted);
   border-radius: 6px;
   padding: 9px 12px;
 }
+
+.dimmed { opacity: .4; }
 
 .grid4 {
   display: grid;
@@ -21,8 +31,8 @@
 }
 
 .kpi {
-  background: #0f0f0f;
-  border: 1px solid #27272a;
+  background: $card-bg;
+  border: 1px solid var(--kpi-border, var(--muted));
   border-radius: 12px;
   padding: 16px 18px;
   display: flex;
@@ -34,14 +44,14 @@
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: .1em;
-  color: #71717a;
+  color: $dim;
 }
 
 .kpiValue {
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 28px;
   font-weight: 700;
-  color: #f4f4f5;
+  color: var(--kpi-accent, var(--foreground));
 }
 
 .kpiValueRow {
@@ -53,7 +63,7 @@
 .kpiSub {
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: #71717a;
+  color: var(--kpi-sub-color, #{$dim});
 }
 
 .pill, .pillWarn {
@@ -69,6 +79,11 @@
   white-space: nowrap;
 }
 
+.pill {
+  color: var(--kpi-accent, var(--foreground));
+  border-color: var(--kpi-accent, var(--foreground));
+}
+
 .pillWarn {
   color: #facc15;
   border-color: rgba(234, 179, 8, .4);
@@ -76,8 +91,8 @@
 }
 
 .card {
-  background: #0f0f0f;
-  border: 1px solid #27272a;
+  background: $card-bg;
+  border: 1px solid var(--muted);
   border-radius: 16px;
   padding: 20px 22px;
   margin-bottom: 18px;
@@ -98,10 +113,27 @@
 .mono {
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: #71717a;
+  color: $dim;
 }
 
-.accent { color: #ff8ec9; }
+.accent { color: $accent-light; }
+
+.chartRow {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.yAxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 200px;
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #52525b;
+  text-align: right;
+}
 
 .bars {
   position: relative;
@@ -109,18 +141,19 @@
   display: flex;
   align-items: flex-end;
   gap: 6px;
-  border-bottom: 1px solid #27272a;
+  border-bottom: 1px solid var(--muted);
 }
 
 .bar {
   flex: 1;
+  height: var(--bar-height, 0%);
   background: rgba(236, 72, 153, .5);
   border-radius: 3px 3px 0 0;
   min-height: 2px;
 }
 
-.barPeak { background: #ec4899; }
-.barNow { background: repeating-linear-gradient(45deg, #ec4899 0 4px, rgba(236, 72, 153, .6) 4px 8px); }
+.barPeak { background: $accent; }
+.barNow { background: repeating-linear-gradient(45deg, #{$accent} 0 4px, rgba(236, 72, 153, .6) 4px 8px); }
 
 .twoCol {
   display: grid;
@@ -150,7 +183,7 @@
 .topEventName {
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 13px;
-  color: #f4f4f5;
+  color: var(--foreground);
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -161,7 +194,7 @@
 .topEventCount {
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 13px;
-  color: #a1a1aa;
+  color: $muted-text;
 }
 
 .progressTrack {
@@ -173,7 +206,8 @@
 
 .progressFill {
   height: 100%;
-  background: #ec4899;
+  width: var(--fill-width, 0%);
+  background: $accent;
   border-radius: 999px;
 }
 
@@ -191,13 +225,13 @@
 .sourceName {
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 13px;
-  color: #f4f4f5;
+  color: var(--foreground);
 }
 
 .link {
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: #ff8ec9;
+  color: $accent-light;
 }
 
 .stateBox {
@@ -210,7 +244,7 @@
   gap: 14px;
   text-align: center;
   padding: 40px;
-  background: #08080a;
+  background: var(--background);
   border: 1px solid rgba(255, 255, 255, .08);
   border-radius: 14px;
 }
@@ -227,7 +261,7 @@
 .emptyIcon {
   background: rgba(236, 72, 153, .1);
   border: 1px solid rgba(236, 72, 153, .3);
-  color: #ff8ec9;
+  color: $accent-light;
 }
 
 .errorIcon {
@@ -246,7 +280,7 @@
 
 .stateHint {
   font-size: 14.5px;
-  color: #a1a1aa;
+  color: $muted-text;
   max-width: 36ch;
   line-height: 1.5;
   margin: 0;
@@ -255,7 +289,7 @@
 .emptyLink {
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 12px;
-  color: #ff8ec9;
+  color: $accent-light;
 }
 
 .kpiSkeleton {

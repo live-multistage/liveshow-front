@@ -1,3 +1,8 @@
+// Design-specific shades with no matching CSS custom property.
+$muted-nav: #8f8f97;
+$yellow: #facc15;
+$yellow-text: #e9d38a;
+
 .subNav {
   display: flex;
   flex-wrap: wrap;
@@ -9,7 +14,7 @@
   font-size: 13px;
   padding: 7px 10px;
   border-radius: 6px;
-  color: #8f8f97;
+  color: $muted-nav;
   font-weight: 400;
   text-decoration: none;
 
@@ -31,16 +36,16 @@
   border-radius: 12px;
   padding: 14px 16px;
   margin-bottom: 22px;
-  color: #facc15;
+  color: $yellow;
 
   p {
     margin: 0;
     font-size: 13.5px;
     line-height: 1.5;
-    color: #e9d38a;
+    color: $yellow-text;
   }
 
-  strong { color: #facc15; }
+  strong { color: $yellow; }
 }
 
 .mono {

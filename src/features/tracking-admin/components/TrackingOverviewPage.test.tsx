@@ -65,10 +65,20 @@ describe('TrackingOverviewPage', () => {
     expect(screen.getByText('overview.error')).toBeInTheDocument();
   });
 
-  it('shows the flag-off banner when tracking is disabled', () => {
+  it('shows the flag-off banner and dims the KPIs/chart when tracking is disabled', () => {
     mock(report);
-    render(<TrackingOverviewPage trackingEnabled={false} />);
+    const { container } = render(<TrackingOverviewPage trackingEnabled={false} />);
 
     expect(screen.getByText('shell.flagOffBanner')).toBeInTheDocument();
+    expect(screen.getByText('overview.kpis.events')).toBeInTheDocument();
+    expect(container.querySelector('[class*="dimmed"]')).toBeInTheDocument();
+  });
+
+  it('renders a 4-tick y-axis scale for the hourly chart', () => {
+    mock(report);
+    render(<TrackingOverviewPage trackingEnabled />);
+
+    expect(screen.getByText('100')).toBeInTheDocument(); // top tick == the peak hour's count
+    expect(screen.getByText('0')).toBeInTheDocument();
   });
 });

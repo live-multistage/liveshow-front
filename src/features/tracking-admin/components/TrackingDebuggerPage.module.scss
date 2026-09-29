@@ -1,3 +1,6 @@
+// Design-specific shades with no matching CSS custom property.
+$accent: #ec4899;
+
 .bufferLabel, .droppedLabel {
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 11px;
@@ -66,7 +69,7 @@
   border: 1px solid rgba(255, 255, 255, .08);
   border-radius: 14px;
   overflow: hidden;
-  background: #08080a;
+  background: var(--background);
   min-height: 480px;
 }
 
@@ -109,7 +112,7 @@
   &:hover { background: rgba(255, 255, 255, .02); }
 }
 
-.rowSelected { background: rgba(236, 72, 153, .08); box-shadow: inset 2px 0 0 #ec4899; }
+.rowSelected { background: rgba(236, 72, 153, .08); box-shadow: inset 2px 0 0 #{$accent}; }
 .rowRejected { background: rgba(248, 113, 113, .06); }
 
 .iconWrap {
@@ -130,10 +133,13 @@
 .name {
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 12.5px;
+  color: var(--foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.nameRejected { color: #f3b0b0; }
 
 .reason {
   font-size: 12px;
@@ -179,7 +185,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: #08080a;
+  background: var(--background);
 }
 
 .noSelection {
@@ -244,7 +250,7 @@
   border-radius: 8px;
   padding: 10px 12px;
   font-size: 13px;
-  color: #f4f4f5;
+  color: var(--foreground);
 }
 
 .inspectorReason {
@@ -256,12 +262,12 @@
   padding: 10px 12px;
   margin-bottom: 12px;
   font-size: 13px;
-  color: #f4f4f5;
+  color: var(--foreground);
 }
 
 .rawBlock {
   background: #050406;
-  border: 1px solid #27272a;
+  border: 1px solid var(--muted);
   border-radius: 8px;
   padding: 12px 14px;
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;

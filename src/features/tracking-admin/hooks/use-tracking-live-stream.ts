@@ -16,6 +16,13 @@ export interface LiveFilter {
 
 export type LiveStreamStatus = 'connecting' | 'open' | 'error';
 
+// Frames as stored/rendered: stamped with the client's own receipt time
+// (never drifts on re-render, unlike computing `Date.now()` at render time)
+// and a stable list key. Accepted messages already carry a messageId; a
+// rejected frame has none, so it gets one synthesized from receivedAt + the
+// append order.
+export type LiveStreamFrame = LiveFrame & { receivedAt: string; key: string };
+
 const MAX_FRAMES = 500;
 // Mirrors use-notifications-stream.ts / use-chat.ts: EventSource's own retry
 // is ~3s, matched as the base backoff delay so a dead endpoint (with a
@@ -50,7 +57,7 @@ function buildStreamUrl(filter: LiveFilter, token: string | null): string {
 }
 
 export function useTrackingLiveStream(filter: LiveFilter, options: { paused: boolean }) {
-  const [frames, setFrames] = useState<LiveFrame[]>([]);
+  const [frames, setFrames] = useState<LiveStreamFrame[]>([]);
   const [dropped, setDropped] = useState(0);
   const [status, setStatus] = useState<LiveStreamStatus>('connecting');
 
@@ -58,6 +65,7 @@ export function useTrackingLiveStream(filter: LiveFilter, options: { paused: boo
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pausedRef = useRef(options.paused);
   pausedRef.current = options.paused;
+  const appendCounterRef = useRef(0);
 
   // Only the filter's own values should trigger a reconnect (a new object on
   // every render must not).
@@ -86,7 +94,10 @@ export function useTrackingLiveStream(filter: LiveFilter, options: { paused: boo
             return;
           }
           if (pausedRef.current) return;
-          setFrames((prev) => [frame, ...prev].slice(0, MAX_FRAMES));
+          const receivedAt = new Date().toISOString();
+          const appendIndex = appendCounterRef.current++;
+          const key = frame.status === 'accepted' ? frame.message.messageId : `${receivedAt}-${appendIndex}`;
+          setFrames((prev) => [{ ...frame, receivedAt, key }, ...prev].slice(0, MAX_FRAMES));
         } catch {
           // Malformed frame — ignore, the next one will still arrive fine.
         }

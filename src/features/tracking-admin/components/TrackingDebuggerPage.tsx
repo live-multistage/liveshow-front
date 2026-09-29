@@ -5,9 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { useFormatter, useTranslations } from 'next-intl';
 import { AlertCircle, ArrowRightLeft, Bolt, FileText, Inbox, Loader2, Users, X } from 'lucide-react';
 import { Button, Chip, Input, SimpleCustomSelect } from '@live-show/design-system';
-import type { LiveFrame, TrackingMessageType } from '@live-show/api-contracts';
+import type { TrackingMessageType } from '@live-show/api-contracts';
 import { TrackingShell } from './TrackingShell';
-import { useTrackingLiveStream, type LiveFilter } from '../hooks/use-tracking-live-stream';
+import { useTrackingLiveStream, type LiveFilter, type LiveStreamFrame } from '../hooks/use-tracking-live-stream';
 import { useTrackingSourcesQuery } from '../queries/get-sources';
 import styles from './TrackingDebuggerPage.module.scss';
 
@@ -27,7 +27,7 @@ function messageIcon(type: TrackingMessageType) {
   }
 }
 
-function frameName(frame: LiveFrame & { kind: 'message' }): string {
+function frameName(frame: LiveStreamFrame & { kind: 'message' }): string {
   if (frame.status === 'rejected') return '—';
   const m = frame.message;
   if (m.type === 'track') return m.event;
@@ -50,7 +50,7 @@ export function TrackingDebuggerPage({ trackingEnabled }: Props) {
   const [anonymousId, setAnonymousId] = useState(searchParams.get('anonymousId') ?? '');
   const [status, setStatus] = useState<'accepted' | 'rejected' | undefined>(undefined);
   const [paused, setPaused] = useState(false);
-  const [selected, setSelected] = useState<LiveFrame | null>(null);
+  const [selected, setSelected] = useState<LiveStreamFrame | null>(null);
 
   const filter: LiveFilter = useMemo(() => ({
     sourceId: sourceId || undefined,
@@ -153,20 +153,20 @@ export function TrackingDebuggerPage({ trackingEnabled }: Props) {
                 <p>{connStatus === 'connecting' ? t('debugger.connectingMessage') : t('debugger.empty')}</p>
               </div>
             )}
-            {frames.map((frame, i) => {
+            {frames.map((frame) => {
               if (frame.kind === 'dropped') return null;
               const rejected = frame.status === 'rejected';
               const violations = frame.status === 'accepted' ? frame.message.violations : null;
               const isSelected = selected === frame;
               return (
                 <div
-                  key={i}
+                  key={frame.key}
                   className={`${styles.row} ${isSelected ? styles.rowSelected : ''} ${rejected ? styles.rowRejected : ''}`}
                   onClick={() => setSelected(frame)}
                 >
                   <span className={styles.iconWrap}>{rejected ? <X size={13} /> : messageIcon(frame.message.type)}</span>
                   <div className={styles.nameCol}>
-                    <div className={styles.name} style={{ color: rejected ? '#f3b0b0' : '#f4f4f5' }}>{frameName(frame)}</div>
+                    <div className={`${styles.name} ${rejected ? styles.nameRejected : ''}`}>{frameName(frame)}</div>
                     {rejected && <div className={styles.reason}>{frame.reason}</div>}
                   </div>
                   <div>
@@ -179,7 +179,7 @@ export function TrackingDebuggerPage({ trackingEnabled }: Props) {
                   </div>
                   <span className={styles.mono}>{rejected ? frame.sourceId : frame.message.sourceId}</span>
                   <span className={`${styles.mono} ${styles.right}`}>
-                    {format.dateTime(new Date(rejected ? Date.now() : frame.message.timestamp), { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    {format.dateTime(new Date(frame.receivedAt), { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                   </span>
                 </div>
               );

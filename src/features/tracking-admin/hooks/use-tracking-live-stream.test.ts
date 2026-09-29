@@ -36,15 +36,28 @@ describe('useTrackingLiveStream', () => {
     tokenStore.clear();
   });
 
-  it('appends incoming message frames newest-first', () => {
+  it('appends incoming message frames newest-first, stamped with receivedAt and a stable key', () => {
     const { result } = renderHook(() => useTrackingLiveStream({}, { paused: false }));
     const source = latestSource();
 
-    const frame = { kind: 'message', status: 'accepted', message: { type: 'track', event: 'a' } };
+    const frame = { kind: 'message', status: 'accepted', message: { type: 'track', event: 'a', messageId: 'm1' } };
     act(() => source.emit(frame));
 
     expect(result.current.frames).toHaveLength(1);
-    expect(result.current.frames[0]).toEqual(frame);
+    expect(result.current.frames[0]).toMatchObject(frame);
+    expect(result.current.frames[0].receivedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(result.current.frames[0].key).toBe('m1');
+  });
+
+  it('synthesizes a key from receivedAt + append order for rejected frames (no messageId)', () => {
+    const { result } = renderHook(() => useTrackingLiveStream({}, { paused: false }));
+    const source = latestSource();
+
+    act(() => source.emit({ kind: 'message', status: 'rejected', reason: 'bad json', raw: '{', sourceId: 'web' }));
+
+    expect(result.current.frames).toHaveLength(1);
+    const [frame] = result.current.frames;
+    expect(frame.key).toBe(`${frame.receivedAt}-0`);
   });
 
   it('caps the buffer at 500 frames, keeping the newest first', () => {
