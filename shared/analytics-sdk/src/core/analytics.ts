@@ -96,8 +96,10 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
 
   let userId: string | undefined;
   // Survives reloads via the same cookie+localStorage pair as anonymousId, so a logged-in
-  // user re-opening the site doesn't re-send identify on every page load.
-  let lastIdentifiedUserId: string | null = initialEffective === 'granted' ? readPersistedIdentifiedUserId() : null;
+  // user re-opening the site doesn't re-send identify on every page load. Reading is allowed
+  // under any consent state (only writing is gated); when denied, clearPersistedState() above
+  // already wiped it, so this reads back null.
+  let lastIdentifiedUserId: string | null = readPersistedIdentifiedUserId();
   let session: SessionState = loadSession(currentStore, nowFn());
   if (currentStore) persistSession(currentStore, session);
 
@@ -215,13 +217,20 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
         if (!rotatedByReset) {
           anonymousId = readPersistedAnonymousId() ?? anonymousId;
           session = readFreshSession(currentStore, nowFn()) ?? session;
+          // another tab may have identified since construction; adopt its id too
+          lastIdentifiedUserId = readPersistedIdentifiedUserId() ?? lastIdentifiedUserId;
         }
         persistAnonymousId(anonymousId);
         queue.setStore(currentStore);
         queue.setFlushPolicy({ flushAt: flushAtOpt, flushIntervalMs: flushIntervalMsOpt });
         persistSession(currentStore, session);
         if (holding.length) {
-          for (const m of holding) queue.enqueue(adoptPersistedIdentity(m, heldId, heldSessionId));
+          for (const m of holding) {
+            // an identify for the now-adopted user was already sent (by this tab pre-grant
+            // or another tab); drop it instead of replaying a duplicate.
+            if (m.type === 'identify' && lastIdentifiedUserId && m.userId === lastIdentifiedUserId) continue;
+            queue.enqueue(adoptPersistedIdentity(m, heldId, heldSessionId));
+          }
           holding = [];
         }
         void queue.flush();

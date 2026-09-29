@@ -168,6 +168,22 @@ describe('identify dedup across reloads', () => {
     expect(identifies[1].userId).toBe('user-b');
   });
 
+  it('does not resend identify for the same userId when consent starts null then grants', async () => {
+    localStorage.setItem('sho_uid', 'user-a');
+    const send = vi.fn().mockResolvedValue('ok');
+    const store = memoryStore();
+    const a = createAnalytics({ writeKey: 'wk', endpoint: 'e', consent: null, transport: { send }, store, flushAt: 1 });
+    a.identify('user-a');
+    a.setConsent('granted');
+    await a.flush();
+    expect(sentBatch(send).filter((m: any) => m.type === 'identify')).toHaveLength(0);
+
+    a.reset();
+    a.identify('user-b');
+    await a.flush();
+    expect(sentBatch(send).filter((m: any) => m.type === 'identify')).toHaveLength(1);
+  });
+
   it('clears the persisted identified user on denied', () => {
     const a = createAnalytics({ writeKey: 'wk', endpoint: 'e', consent: 'granted', transport: { send: vi.fn() } });
     a.identify('user-a');
