@@ -23,6 +23,7 @@ import {
   Mic2,
   Mail,
   Workflow,
+  Activity,
 } from 'lucide-react';
 import type { UserRole } from '@/types';
 import type { FeatureFlagKey } from '@/features/feature-flags';
@@ -93,6 +94,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'platformCoupons',       href: '/dashboard/platform/coupons',       icon: Tag,          group: 'OPERACIONAL', flag: 'coupons' },
     { navKey: 'platformMailing',       href: '/dashboard/platform/mailing',       icon: Mail,         group: 'OPERACIONAL', flag: 'mailing' },
     { navKey: 'platformBlueprints',    href: '/dashboard/platform/blueprints',    icon: Workflow,     group: 'OPERACIONAL' }, // not flag-gated: authoring happens with the flag OFF (spec D10)
+    { navKey: 'platformTracking',      href: '/dashboard/platform/tracking',      icon: Activity,     group: 'OPERACIONAL', flag: 'tracking' },
     { navKey: 'platformSettings',      href: '/dashboard/platform/settings',      icon: Settings,     group: 'CONFIG & GOVERNANÇA' },
     { navKey: 'platformAudit',         href: '/dashboard/platform/audit',         icon: ShieldCheck,  group: 'CONFIG & GOVERNANÇA' },
   ],

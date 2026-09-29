@@ -43,4 +43,18 @@ describe('DashboardSidebar — feature flag gating', () => {
 
     expect(screen.queryByText('platformCoupons')).not.toBeInTheDocument();
   });
+
+  it('hides the tracking nav entry for super admin when tracking is off', () => {
+    mockedUseAuth.mockReturnValue({ user: { role: 'SUPER_ADMIN' } } as ReturnType<typeof useAuth>);
+    render(<DashboardSidebar flags={{ ...DEFAULT_FEATURE_FLAGS, tracking: false }} />);
+
+    expect(screen.queryByText('platformTracking')).not.toBeInTheDocument();
+  });
+
+  it('shows the tracking nav entry for super admin when tracking is on', () => {
+    mockedUseAuth.mockReturnValue({ user: { role: 'SUPER_ADMIN' } } as ReturnType<typeof useAuth>);
+    render(<DashboardSidebar flags={{ ...DEFAULT_FEATURE_FLAGS, tracking: true }} />);
+
+    expect(screen.getByText('platformTracking')).toBeInTheDocument();
+  });
 });
