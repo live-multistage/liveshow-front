@@ -90,6 +90,16 @@ describe('TrackingPlanPage', () => {
     expect(screen.getByText('plan.editor.propertyNameError')).toBeInTheDocument();
   });
 
+  it('shows the event-name format error (not the property-name copy) for an invalid name', () => {
+    render(<TrackingPlanPage trackingEnabled />);
+
+    fireEvent.click(screen.getByText('plan.newEvent'));
+    fireEvent.change(screen.getByLabelText('plan.editor.name'), { target: { value: 'Invalid Name!' } });
+
+    expect(screen.getByText('plan.editor.nameFormatError')).toBeInTheDocument();
+    expect(screen.queryByText('plan.editor.propertyNameError')).not.toBeInTheDocument();
+  });
+
   it('prefills the event name when adding an unplanned event to the plan', () => {
     render(<TrackingPlanPage trackingEnabled />);
 

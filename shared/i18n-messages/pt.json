@@ -2762,7 +2762,9 @@
           "propertyNameError": "Propriedade sem nome.",
           "addValue": "+ valor",
           "cancel": "Cancelar",
-          "save": "Salvar"
+          "save": "Salvar",
+          "enumValueRequired": "Adicione ao menos um valor.",
+          "nameFormatError": "Use letras minúsculas, números e underscore (ex.: order_paid)."
         },
         "deprecateConfirm": {
           "title": "Depreciar {name}?",
@@ -2822,7 +2824,8 @@
           "body": "Crie a primeira para começar a coletar eventos.",
           "cta": "+ Nova fonte"
         },
-        "error": "Não foi possível carregar as fontes."
+        "error": "Não foi possível carregar as fontes.",
+        "rotate": "Girar write key"
       },
       "destinations": {
         "title": "Destinos",
@@ -2881,7 +2884,13 @@
           "title": "Nenhum destino cadastrado.",
           "cta": "+ Novo destino"
         },
-        "error": "Não foi possível carregar os destinos."
+        "error": "Não foi possível carregar os destinos.",
+        "secretShown": {
+          "title": "Destino criado.",
+          "body": "Copie o segredo agora — ele não será mostrado novamente.",
+          "label": "SEGREDO · {name}",
+          "close": "Entendi, fechar"
+        }
       },
       "reports": {
         "eyebrow": "RELATÓRIOS",
@@ -2897,7 +2906,8 @@
           "noQuery": "Escolha um evento e rode a consulta.",
           "timeout": "A consulta excedeu o tempo limite. Tente um intervalo menor.",
           "timeoutEmpty": "Nenhum resultado — ajuste o período e rode de novo.",
-          "rangeTooLong": "Intervalo máximo de 90 dias."
+          "rangeTooLong": "Intervalo máximo de 90 dias.",
+          "error": "Não foi possível carregar o relatório."
         },
         "explore": {
           "title": "Explorar",
@@ -2931,7 +2941,8 @@
           },
           "footnote": "janela de conversão: {hours} h ({minutes} min) · área listrada = queda em relação à etapa anterior",
           "minStepsError": "Adicione ao menos 2 etapas.",
-          "empty": "Nenhuma conversão encontrada."
+          "empty": "Nenhuma conversão encontrada.",
+          "windowMaxError": "Máximo para esta unidade: {max}."
         },
         "retention": {
           "title": "Retenção",

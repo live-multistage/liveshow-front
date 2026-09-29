@@ -1,3 +1,6 @@
+// Design-specific warning shade with no matching token, declared once here.
+$warn-text: #e9d38a;
+
 .mono {
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
 }
@@ -209,5 +212,5 @@
   padding: 12px 14px;
   font-size: 13px;
   line-height: 1.5;
-  color: #e9d38a;
+  color: $warn-text;
 }

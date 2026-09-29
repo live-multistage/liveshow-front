@@ -2762,7 +2762,9 @@
           "propertyNameError": "La propiedad no tiene nombre.",
           "addValue": "+ valor",
           "cancel": "Cancelar",
-          "save": "Guardar"
+          "save": "Guardar",
+          "enumValueRequired": "Añade al menos un valor.",
+          "nameFormatError": "Usa letras minúsculas, números y guion bajo (ej.: order_paid)."
         },
         "deprecateConfirm": {
           "title": "¿Marcar {name} como obsoleto?",
@@ -2822,7 +2824,8 @@
           "body": "Crea la primera para empezar a recolectar eventos.",
           "cta": "+ Nueva fuente"
         },
-        "error": "No se pudieron cargar las fuentes."
+        "error": "No se pudieron cargar las fuentes.",
+        "rotate": "Girar write key"
       },
       "destinations": {
         "title": "Destinos",
@@ -2881,7 +2884,13 @@
           "title": "Aún no hay destinos.",
           "cta": "+ Nuevo destino"
         },
-        "error": "No se pudieron cargar los destinos."
+        "error": "No se pudieron cargar los destinos.",
+        "secretShown": {
+          "title": "Destino creado.",
+          "body": "Copia el secreto ahora — no se volverá a mostrar.",
+          "label": "SECRETO · {name}",
+          "close": "Entendido, cerrar"
+        }
       },
       "reports": {
         "eyebrow": "INFORMES",
@@ -2897,7 +2906,8 @@
           "noQuery": "Elige un evento y ejecuta la consulta.",
           "timeout": "La consulta superó el tiempo límite. Prueba un intervalo más corto.",
           "timeoutEmpty": "Sin resultados — ajusta el período y ejecuta de nuevo.",
-          "rangeTooLong": "El intervalo máximo es de 90 días."
+          "rangeTooLong": "El intervalo máximo es de 90 días.",
+          "error": "No se pudo cargar el informe."
         },
         "explore": {
           "title": "Explorar",
@@ -2931,7 +2941,8 @@
           },
           "footnote": "ventana de conversión: {hours} h ({minutes} min) · área rayada = caída respecto a la etapa anterior",
           "minStepsError": "Añade al menos 2 etapas.",
-          "empty": "No se encontraron conversiones."
+          "empty": "No se encontraron conversiones.",
+          "windowMaxError": "Máximo para esta unidad: {max}."
         },
         "retention": {
           "title": "Retención",

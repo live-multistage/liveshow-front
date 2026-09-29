@@ -144,8 +144,8 @@ export function TrackingSourcesPage({ trackingEnabled }: Props) {
                     type="button"
                     className={styles.rotateButton}
                     onClick={() => handleRotate(s)}
-                    aria-label="Girar write key"
-                    title="Girar write key"
+                    aria-label={t('sources.rotate')}
+                    title={t('sources.rotate')}
                   >
                     <RefreshCw size={13} />
                   </button>

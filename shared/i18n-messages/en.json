@@ -2762,7 +2762,9 @@
           "propertyNameError": "Property has no name.",
           "addValue": "+ value",
           "cancel": "Cancel",
-          "save": "Save"
+          "save": "Save",
+          "enumValueRequired": "Add at least one value.",
+          "nameFormatError": "Use lowercase letters, numbers and underscore (e.g. order_paid)."
         },
         "deprecateConfirm": {
           "title": "Deprecate {name}?",
@@ -2822,7 +2824,8 @@
           "body": "Create the first one to start collecting events.",
           "cta": "+ New source"
         },
-        "error": "Couldn't load the sources."
+        "error": "Couldn't load the sources.",
+        "rotate": "Rotate write key"
       },
       "destinations": {
         "title": "Destinations",
@@ -2881,7 +2884,13 @@
           "title": "No destinations yet.",
           "cta": "+ New destination"
         },
-        "error": "Couldn't load the destinations."
+        "error": "Couldn't load the destinations.",
+        "secretShown": {
+          "title": "Destination created.",
+          "body": "Copy the secret now — it won't be shown again.",
+          "label": "SECRET · {name}",
+          "close": "Got it, close"
+        }
       },
       "reports": {
         "eyebrow": "REPORTS",
@@ -2897,7 +2906,8 @@
           "noQuery": "Choose an event and run the query.",
           "timeout": "The query timed out. Try a shorter range.",
           "timeoutEmpty": "No results — adjust the period and run again.",
-          "rangeTooLong": "Maximum range is 90 days."
+          "rangeTooLong": "Maximum range is 90 days.",
+          "error": "Could not load the report."
         },
         "explore": {
           "title": "Explore",
@@ -2931,7 +2941,8 @@
           },
           "footnote": "conversion window: {hours} h ({minutes} min) · striped area = drop from the previous step",
           "minStepsError": "Add at least 2 steps.",
-          "empty": "No conversions found."
+          "empty": "No conversions found.",
+          "windowMaxError": "Maximum for this unit: {max}."
         },
         "retention": {
           "title": "Retention",

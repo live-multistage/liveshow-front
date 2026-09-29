@@ -54,7 +54,7 @@ describe('TrackingSourcesPage', () => {
   it('shows the full write key once after rotating, then hides it after dismissing', async () => {
     render(<TrackingSourcesPage trackingEnabled />);
 
-    fireEvent.click(screen.getByLabelText('Girar write key'));
+    fireEvent.click(screen.getByLabelText('sources.rotate'));
     expect(await screen.findByText('wk_live_8a2f5e91c3d0')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText('sources.keyShown.close'));
@@ -69,6 +69,6 @@ describe('TrackingSourcesPage', () => {
       refetch: vi.fn(),
     } as never);
     render(<TrackingSourcesPage trackingEnabled />);
-    expect(screen.queryByLabelText('Girar write key')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('sources.rotate')).not.toBeInTheDocument();
   });
 });

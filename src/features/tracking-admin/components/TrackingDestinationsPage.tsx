@@ -269,25 +269,22 @@ export function TrackingDestinationsPage({ trackingEnabled }: Props) {
         </DialogContent>
       </Dialog>
 
-      {/* ponytail: no i18n key for the destination secret-reveal copy (task
-          report flags a gap — sources.keyShown exists but is write-key
-          specific wording); hardcoded PT strings mirror that panel's shape. */}
       <Dialog open={secretShown !== null} onOpenChange={(open) => !open && setSecretShown(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Destino criado.</DialogTitle>
-            <DialogDescription>Copie o segredo agora — ele não será mostrado novamente.</DialogDescription>
+            <DialogTitle>{t('destinations.secretShown.title')}</DialogTitle>
+            <DialogDescription>{t('destinations.secretShown.body')}</DialogDescription>
           </DialogHeader>
           {secretShown && (
             <div className={styles.formBody}>
-              <label className={styles.label}>SEGREDO · {secretShown.name}</label>
+              <label className={styles.label}>{t('destinations.secretShown.label', { name: secretShown.name })}</label>
               <div className={styles.keyRow}>
                 <span className={`${styles.mono} ${styles.keyValue}`}>{secretShown.secret}</span>
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button onClick={() => setSecretShown(null)}>Entendi, fechar</Button>
+            <Button onClick={() => setSecretShown(null)}>{t('destinations.secretShown.close')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

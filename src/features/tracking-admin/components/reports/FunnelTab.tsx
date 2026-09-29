@@ -48,7 +48,8 @@ export function FunnelTab() {
   const rangeValid = isRangeValid(from, to);
   const filledSteps = steps.filter((s) => s.event !== '');
   const stepsValid = steps.length >= MIN_STEPS && filledSteps.length === steps.length;
-  const canRun = rangeValid && stepsValid && windowValue >= 1;
+  const windowValid = windowValue >= 1 && windowValue <= maxWindowValue(unit);
+  const canRun = rangeValid && stepsValid && windowValid;
 
   const { data, isLoading, isError, error } = useFunnelReportQuery(req);
   const timeout = isTimeoutError(error);
@@ -110,6 +111,11 @@ export function FunnelTab() {
             value={windowValue}
             onChange={(e) => setWindowValue(Number(e.target.value))}
           />
+          {!windowValid && (
+            <span className={styles.fieldError}>
+              {t('reports.funnels.windowMaxError', { max: maxWindowValue(unit) })}
+            </span>
+          )}
         </div>
         <div className={styles.field}>
           <span className={styles.fieldLabel}>{t('reports.funnels.unit')}</span>
@@ -146,7 +152,7 @@ export function FunnelTab() {
       )}
 
       {!isLoading && !timeout && isError && (
-        <ReportMessageState icon={<Inbox size={30} />} text={t('reports.funnels.empty')} />
+        <ReportMessageState icon={<Inbox size={30} />} text={t('reports.states.error')} />
       )}
 
       {!isLoading && !timeout && !isError && !data && (
@@ -189,7 +195,7 @@ function FunnelResults({ report, windowMinutes }: { report: FunnelReport; window
             const prevCount = i > 0 ? report.steps[i - 1].count : step.count;
             const stripedPct = i > 0 ? Math.max(0, ((prevCount - step.count) / firstCount) * 100) : 0;
             return (
-              <tr key={`${i}-${step.event}`}>
+              <tr key={step.event}>
                 <td>
                   <span className={styles.stepIndex}>{i + 1}</span> {step.event}
                 </td>

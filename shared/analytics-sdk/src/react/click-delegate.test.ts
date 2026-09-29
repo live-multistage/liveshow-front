@@ -29,8 +29,11 @@ describe('click delegate', () => {
   });
   it('does not throw when process is undefined (no explicit onWarn)', () => {
     const original = globalThis.process;
-    // @ts-expect-error -- simulating a non-Node runtime
-    delete globalThis.process;
+    // Cast to an optional property so `delete` type-checks regardless of
+    // whether the consuming tsconfig pulls in @types/node (it varies between
+    // this package and apps that vendor it, so a plain @ts-expect-error is
+    // "unused" in one of them).
+    delete (globalThis as { process?: unknown }).process;
     try {
       document.body.innerHTML = `<button data-track="Bad Name">x</button>`;
       const trackUntyped = vi.fn();

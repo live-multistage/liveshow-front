@@ -89,6 +89,17 @@ describe('FunnelTab', () => {
     expect(mockedFunnel).toHaveBeenLastCalledWith(expect.objectContaining({ windowMinutes: 2880 }));
   });
 
+  it('disables Rodar and shows the inline error when the window exceeds the unit max', () => {
+    const { container } = render(<FunnelTab />);
+    selectAllSteps(container);
+
+    const windowInput = container.querySelector('input[type="number"]') as HTMLInputElement;
+    fireEvent.change(windowInput, { target: { value: '99999' } });
+
+    expect(screen.getByText('reports.funnels.windowMaxError:{"max":720}')).toBeInTheDocument();
+    expect(screen.getByText('reports.run')).toBeDisabled();
+  });
+
   it('disables Rodar and shows the range error when the range is more than 90 days', () => {
     const { container } = render(<FunnelTab />);
     const [fromInput, toInput] = Array.from(container.querySelectorAll('input[type="date"]')) as HTMLInputElement[];

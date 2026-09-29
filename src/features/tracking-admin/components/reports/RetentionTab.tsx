@@ -86,7 +86,7 @@ export function RetentionTab() {
       )}
 
       {!isLoading && !timeout && isError && (
-        <ReportMessageState icon={<Inbox size={30} />} text={t('reports.retention.empty')} />
+        <ReportMessageState icon={<Inbox size={30} />} text={t('reports.states.error')} />
       )}
 
       {!isLoading && !timeout && !isError && !data && (

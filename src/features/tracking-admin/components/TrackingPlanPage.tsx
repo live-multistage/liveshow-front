@@ -149,9 +149,7 @@ export function TrackingPlanPage({ trackingEnabled }: Props) {
   function propertyError(p: DraftProperty, all: DraftProperty[]): string | null {
     if (!p.name.trim() || !PROPERTY_NAME_PATTERN.test(p.name)) return t('plan.editor.propertyNameError');
     if (all.filter((x) => x.name === p.name).length > 1) return t('plan.editor.nameDuplicateError');
-    // ponytail: no dedicated i18n key for "enum needs a value" (reported in
-    // task report) — hardcoded PT fallback, still blocks Save either way.
-    if (p.type === 'enum' && (!p.enumValues || p.enumValues.length === 0)) return 'Adicione ao menos um valor.';
+    if (p.type === 'enum' && (!p.enumValues || p.enumValues.length === 0)) return t('plan.editor.enumValueRequired');
     return null;
   }
 
@@ -355,7 +353,7 @@ export function TrackingPlanPage({ trackingEnabled }: Props) {
                   (editor.originalName === null && plan.some((p) => p.name === editor.name) ? (
                     <div className={styles.fieldError}>{t('plan.editor.nameDuplicateError')}</div>
                   ) : (
-                    <div className={styles.fieldError}>{t('plan.editor.propertyNameError')}</div>
+                    <div className={styles.fieldError}>{t('plan.editor.nameFormatError')}</div>
                   ))}
               </div>
 

@@ -26,14 +26,13 @@ vi.mock('../queries/get-sources', () => ({ useTrackingSourcesQuery: vi.fn() }));
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TrackingDebuggerPage } from './TrackingDebuggerPage';
-import { useTrackingLiveStream } from '../hooks/use-tracking-live-stream';
+import { useTrackingLiveStream, type LiveStreamFrame } from '../hooks/use-tracking-live-stream';
 import { useTrackingSourcesQuery } from '../queries/get-sources';
-import type { LiveFrame } from '@live-show/api-contracts';
 
 const mockedStream = vi.mocked(useTrackingLiveStream);
 const mockedSources = vi.mocked(useTrackingSourcesQuery);
 
-const acceptedFrame: LiveFrame = {
+const acceptedFrame: LiveStreamFrame = {
   kind: 'message',
   status: 'accepted',
   message: {
@@ -42,14 +41,18 @@ const acceptedFrame: LiveFrame = {
     context: { library: { name: 'showon-web', version: '1.0' }, sessionId: 's1' },
     violations: [{ kind: 'wrong_type', property: 'properties.latencyMs', detail: 'esperado number' }],
   },
+  receivedAt: '2026-09-28T21:14:08.200Z',
+  key: 'm1',
 };
 
-const rejectedFrame: LiveFrame = {
+const rejectedFrame: LiveStreamFrame = {
   kind: 'message', status: 'rejected', reason: 'JSON malformado', raw: '{"broken"', sourceId: 'server',
+  receivedAt: '2026-09-28T21:14:09.000Z',
+  key: '2026-09-28T21:14:09.000Z-0',
 };
 
-function mockStream(frames: LiveFrame[], overrides: Record<string, unknown> = {}) {
-  mockedStream.mockReturnValue({ frames, dropped: 0, status: 'open', clear: vi.fn(), ...overrides } as never);
+function mockStream(frames: LiveStreamFrame[], overrides: Partial<ReturnType<typeof useTrackingLiveStream>> = {}) {
+  mockedStream.mockReturnValue({ frames, dropped: 0, status: 'open', clear: vi.fn(), ...overrides });
 }
 
 beforeEach(() => {
