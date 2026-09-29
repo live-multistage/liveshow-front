@@ -64,16 +64,16 @@ export function useFeatureTimer(feature: string, props?: Record<string, Json>): 
   useEffect(() => {
     const timer = new ActiveTimer(Date.now);
     timer.start();
-    analytics.trackUntyped('feature_viewed', { feature, ...propsRef.current });
+    analytics.trackUntyped('feature_viewed', { ...propsRef.current, feature });
 
     let emitted = false;
     const emitFeatureTime = (): void => {
       if (emitted) return;
       emitted = true;
       analytics.trackUntyped('feature_time', {
+        ...propsRef.current,
         feature,
         durationMs: Math.round(timer.elapsed()),
-        ...propsRef.current,
       });
     };
 

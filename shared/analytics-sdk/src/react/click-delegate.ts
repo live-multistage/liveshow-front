@@ -2,8 +2,12 @@ import { isValidEventName, type Json } from '@live-show/api-contracts';
 import type { Analytics } from '../core/analytics';
 
 const defaultWarn = (message: string): void => {
-  if (process.env.NODE_ENV !== 'production') console.warn(message);
+  const isProduction = typeof process !== 'undefined' && process.env.NODE_ENV === 'production';
+  if (!isProduction) console.warn(message);
 };
+
+const isPlainObject = (value: unknown): value is Record<string, Json> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 /**
  * Delegates clicks on any `[data-track]` element to `trackUntyped`.
@@ -29,7 +33,12 @@ export function installClickDelegate(
     const raw = el.getAttribute('data-track-props');
     if (raw) {
       try {
-        props = JSON.parse(raw);
+        const parsed: unknown = JSON.parse(raw);
+        if (isPlainObject(parsed)) {
+          props = parsed;
+        } else {
+          onWarn(`[analytics] ignoring invalid data-track-props JSON on "${name}"`);
+        }
       } catch {
         onWarn(`[analytics] ignoring invalid data-track-props JSON on "${name}"`);
       }
