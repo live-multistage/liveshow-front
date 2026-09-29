@@ -37,12 +37,12 @@ export const trackingAdminService = {
   },
 
   rotateSourceKey: async (id: string): Promise<CreatedSource> => {
-    const { data } = await httpClient.post<CreatedSource>(`/tracking/sources/${id}/rotate-key`);
+    const { data } = await httpClient.post<CreatedSource>(`/tracking/sources/${encodeURIComponent(id)}/rotate-key`);
     return data;
   },
 
   updateSource: async (id: string, patch: { name?: string; enabled?: boolean }): Promise<TrackingSource> => {
-    const { data } = await httpClient.patch<TrackingSource>(`/tracking/sources/${id}`, patch);
+    const { data } = await httpClient.patch<TrackingSource>(`/tracking/sources/${encodeURIComponent(id)}`, patch);
     return data;
   },
 
@@ -60,12 +60,12 @@ export const trackingAdminService = {
     name: string,
     payload: Omit<PlanEvent, 'name' | 'updatedAt'>,
   ): Promise<PlanEvent> => {
-    const { data } = await httpClient.put<PlanEvent>(`/tracking/plan/${name}`, payload);
+    const { data } = await httpClient.put<PlanEvent>(`/tracking/plan/${encodeURIComponent(name)}`, payload);
     return data;
   },
 
   deletePlanEvent: async (name: string): Promise<void> => {
-    await httpClient.delete(`/tracking/plan/${name}`);
+    await httpClient.delete(`/tracking/plan/${encodeURIComponent(name)}`);
   },
 
   getDestinations: async (): Promise<TrackingDestination[]> => {
@@ -89,24 +89,28 @@ export const trackingAdminService = {
     id: string,
     patch: { name?: string; url?: string; eventFilter?: string[]; enabled?: boolean },
   ): Promise<TrackingDestination> => {
-    const { data } = await httpClient.patch<TrackingDestination>(`/tracking/destinations/${id}`, patch);
+    const { data } = await httpClient.patch<TrackingDestination>(
+      `/tracking/destinations/${encodeURIComponent(id)}`,
+      patch,
+    );
     return data;
   },
 
   deleteDestination: async (id: string): Promise<void> => {
-    await httpClient.delete(`/tracking/destinations/${id}`);
+    await httpClient.delete(`/tracking/destinations/${encodeURIComponent(id)}`);
   },
 
   getDestinationDeliveries: async (id: string, limit = 50): Promise<DestinationDelivery[]> => {
-    const { data } = await httpClient.get<DestinationDelivery[]>(`/tracking/destinations/${id}/deliveries`, {
-      params: { limit },
-    });
+    const { data } = await httpClient.get<DestinationDelivery[]>(
+      `/tracking/destinations/${encodeURIComponent(id)}/deliveries`,
+      { params: { limit } },
+    );
     return data;
   },
 
   testDestination: async (id: string): Promise<{ status: number | null; error: string | null }> => {
     const { data } = await httpClient.post<{ status: number | null; error: string | null }>(
-      `/tracking/destinations/${id}/test`,
+      `/tracking/destinations/${encodeURIComponent(id)}/test`,
     );
     return data;
   },
@@ -132,14 +136,15 @@ export const trackingAdminService = {
   },
 
   getUser: async (id: string): Promise<TrackingUserProfile> => {
-    const { data } = await httpClient.get<TrackingUserProfile>(`/tracking/users/${id}`);
+    const { data } = await httpClient.get<TrackingUserProfile>(`/tracking/users/${encodeURIComponent(id)}`);
     return data;
   },
 
   getUserEvents: async (id: string, params: { cursor?: string; limit?: number }): Promise<TrackingUserEventsPage> => {
-    const { data } = await httpClient.get<TrackingUserEventsPage>(`/tracking/users/${id}/events`, {
-      params: { cursor: params.cursor, limit: params.limit ?? 50 },
-    });
+    const { data } = await httpClient.get<TrackingUserEventsPage>(
+      `/tracking/users/${encodeURIComponent(id)}/events`,
+      { params: { cursor: params.cursor, limit: params.limit ?? 50 } },
+    );
     return data;
   },
 };

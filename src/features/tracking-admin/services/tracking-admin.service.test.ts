@@ -137,4 +137,48 @@ describe('trackingAdminService', () => {
       params: { cursor: undefined, limit: 50 },
     });
   });
+
+  it('encodes an id/name with reserved characters in every interpolated path segment', async () => {
+    const raw = 'a/b c';
+    const encoded = encodeURIComponent(raw);
+
+    await trackingAdminService.rotateSourceKey(raw);
+    expect(httpClient.post).toHaveBeenCalledWith(`/tracking/sources/${encoded}/rotate-key`);
+
+    await trackingAdminService.updateSource(raw, { enabled: true });
+    expect(httpClient.patch).toHaveBeenCalledWith(`/tracking/sources/${encoded}`, { enabled: true });
+
+    await trackingAdminService.upsertPlanEvent(raw, {
+      description: 'd',
+      owner: null,
+      properties: [],
+      status: 'draft',
+    });
+    expect(httpClient.put).toHaveBeenCalledWith(`/tracking/plan/${encoded}`, expect.anything());
+
+    await trackingAdminService.deletePlanEvent(raw);
+    expect(httpClient.delete).toHaveBeenCalledWith(`/tracking/plan/${encoded}`);
+
+    await trackingAdminService.updateDestination(raw, { enabled: true });
+    expect(httpClient.patch).toHaveBeenCalledWith(`/tracking/destinations/${encoded}`, { enabled: true });
+
+    await trackingAdminService.deleteDestination(raw);
+    expect(httpClient.delete).toHaveBeenCalledWith(`/tracking/destinations/${encoded}`);
+
+    await trackingAdminService.getDestinationDeliveries(raw);
+    expect(httpClient.get).toHaveBeenCalledWith(`/tracking/destinations/${encoded}/deliveries`, {
+      params: { limit: 50 },
+    });
+
+    await trackingAdminService.testDestination(raw);
+    expect(httpClient.post).toHaveBeenCalledWith(`/tracking/destinations/${encoded}/test`);
+
+    await trackingAdminService.getUser(raw);
+    expect(httpClient.get).toHaveBeenCalledWith(`/tracking/users/${encoded}`);
+
+    await trackingAdminService.getUserEvents(raw, {});
+    expect(httpClient.get).toHaveBeenCalledWith(`/tracking/users/${encoded}/events`, {
+      params: { cursor: undefined, limit: 50 },
+    });
+  });
 });
