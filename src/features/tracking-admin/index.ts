@@ -34,3 +34,6 @@ export { TrackingShell } from './components/TrackingShell';
 export type { TrackingNavKey } from './components/TrackingShell';
 export { TrackingOverviewPage } from './components/TrackingOverviewPage';
 export { TrackingDebuggerPage } from './components/TrackingDebuggerPage';
+export { TrackingPlanPage } from './components/TrackingPlanPage';
+export { TrackingSourcesPage } from './components/TrackingSourcesPage';
+export { TrackingDestinationsPage } from './components/TrackingDestinationsPage';

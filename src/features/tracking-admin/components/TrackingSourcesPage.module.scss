@@ -1,0 +1,213 @@
+.mono {
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+}
+
+.muted { color: var(--muted-foreground); }
+.right { text-align: right; }
+
+.tableSkeletonWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rowSkeleton {
+  height: 56px;
+  border-radius: 8px;
+}
+
+.stateBox {
+  width: 100%;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  padding: 40px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.emptyIcon, .errorIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.errorIcon {
+  border-radius: 50%;
+  border-color: var(--destructive);
+  color: var(--destructive);
+}
+
+.stateTitle {
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.stateHint {
+  font-size: 14.5px;
+  color: var(--muted-foreground);
+  max-width: 40ch;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.card {
+  border: 1px solid var(--muted);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--card);
+}
+
+.headerRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) 100px minmax(0, 1.3fr) 150px 110px;
+  gap: 12px;
+  padding: 13px 20px;
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: .12em;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--muted);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) 100px minmax(0, 1.3fr) 150px 110px;
+  gap: 12px;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.name {
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 13.5px;
+}
+
+.kindBadge {
+  display: inline-flex;
+  align-self: flex-start;
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: var(--foreground);
+  border: 1px solid var(--muted);
+  background: rgba(255, 255, 255, .03);
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+
+.keyCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--muted-foreground);
+}
+
+.rotateButton {
+  background: none;
+  border: none;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.statusCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.statusActive { color: var(--foreground); }
+.statusDisabled { color: var(--muted-foreground); }
+
+.formBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  display: block;
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: .12em;
+  color: var(--muted-foreground);
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.kindGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.kindCard {
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  padding: 12px;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: var(--muted-foreground);
+}
+
+.kindCardActive {
+  border-color: var(--primary);
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+.kindHint {
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+  margin-top: 2px;
+}
+
+.keyRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.keyValue {
+  flex: 1;
+  min-width: 0;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 11px 12px;
+  font-size: 12.5px;
+  color: var(--foreground);
+  word-break: break-all;
+}
+
+.warningBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(234, 179, 8, .08);
+  border: 1px solid rgba(234, 179, 8, .34);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #e9d38a;
+}
