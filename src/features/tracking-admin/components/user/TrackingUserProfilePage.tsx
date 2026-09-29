@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { isAxiosError } from 'axios';
 import { useTranslations, useFormatter } from 'next-intl';
-import { AlertCircle, Bolt, FileText, Inbox, Link2, Search, User, Users } from 'lucide-react';
+import { AlertCircle, Bolt, Copy, FileText, Inbox, Link2, Search, User, Users } from 'lucide-react';
 import { Button, Skeleton } from '@live-show/design-system';
 import type { Json, TrackingMessage, TrackingMessageType, Violation } from '@live-show/api-contracts';
 import { TrackingShell } from '../TrackingShell';
@@ -42,6 +42,14 @@ function timelineProperties(item: TimelineItem): Record<string, Json> | undefine
   return undefined;
 }
 
+function copyToClipboard(text: string): void {
+  try {
+    void navigator.clipboard?.writeText(text);
+  } catch {
+    // ponytail: clipboard access can throw in insecure contexts/older browsers; silently ignore.
+  }
+}
+
 function timelineSummary(item: TimelineItem): string {
   const props = timelineProperties(item);
   if (!props) return '';
@@ -57,7 +65,7 @@ function TraitValue({ value }: { value: Json }) {
   if (value === null || value === undefined) return <span className={styles.traitObject}>—</span>;
   if (typeof value === 'boolean') return <span className={styles.traitBoolean}>{String(value)}</span>;
   if (typeof value === 'number') return <span className={styles.traitNumber}>{value}</span>;
-  if (typeof value === 'string') return <span className={styles.traitString}>{value}</span>;
+  if (typeof value === 'string') return <span className={styles.traitString} title={value}>{value}</span>;
 
   return (
     <div>
@@ -112,7 +120,7 @@ export function TrackingUserProfilePage({ userId, trackingEnabled }: Props) {
 
   if (profile.isLoading) {
     return (
-      <TrackingShell active="user" title={t('user.back')} trackingEnabled={trackingEnabled}>
+      <TrackingShell active="user" title={userId} trackingEnabled={trackingEnabled}>
         <div className={styles.headerSkeleton}>
           <Skeleton className={styles.avatarSkeleton} />
           <Skeleton className={styles.lineSkeleton} />
@@ -131,7 +139,7 @@ export function TrackingUserProfilePage({ userId, trackingEnabled }: Props) {
 
   if (profile.isError && isAxiosError(profile.error) && profile.error.response?.status === 404) {
     return (
-      <TrackingShell active="user" title={t('user.back')} trackingEnabled={trackingEnabled}>
+      <TrackingShell active="user" title={userId} trackingEnabled={trackingEnabled}>
         <div className={styles.stateBox}>
           <div className={styles.emptyIcon}><Search size={28} /></div>
           <p className={styles.stateTitle}>{t('user.notFound')}</p>
@@ -143,7 +151,7 @@ export function TrackingUserProfilePage({ userId, trackingEnabled }: Props) {
 
   if (profile.isError || !profile.data) {
     return (
-      <TrackingShell active="user" title={t('user.back')} trackingEnabled={trackingEnabled}>
+      <TrackingShell active="user" title={userId} trackingEnabled={trackingEnabled}>
         <div className={styles.stateBox}>
           <div className={styles.errorIcon}><AlertCircle size={28} /></div>
           <p className={styles.stateTitle}>{t('user.error')}</p>
@@ -198,6 +206,14 @@ export function TrackingUserProfilePage({ userId, trackingEnabled }: Props) {
           {user.anonymousIds.map((id) => (
             <div key={id} className={styles.anonymousRow}>
               <span className={styles.anonymousId} title={id}>{id}</span>
+              <button
+                type="button"
+                className={styles.copyBtn}
+                aria-label={id}
+                onClick={() => copyToClipboard(id)}
+              >
+                <Copy size={12} />
+              </button>
               <Link href={`/dashboard/platform/tracking/debugger?anonymousId=${encodeURIComponent(id)}`} className={styles.link}>
                 {t('user.viewAsAnonymous')}
               </Link>

@@ -134,6 +134,7 @@ describe('TrackingUserProfilePage', () => {
 
     expect(isAxiosError({ isAxiosError: true, response: { status: 404 } })).toBe(true);
     expect(screen.getByText('user.notFound')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'usr_missing' })).toBeInTheDocument();
   });
 
   it('links "Ver como anônimo" to the debugger filtered by that anonymousId', () => {

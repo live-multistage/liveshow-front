@@ -141,7 +141,16 @@ $tracking-red-border: rgba(248, 113, 113, .4);
   color: $tracking-pink;
 }
 
-.traitString { font-size: 13.5px; color: var(--foreground); }
+.traitString {
+  font-size: 13.5px;
+  color: var(--foreground);
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
 .traitNumber { font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace; font-size: 13px; color: $tracking-purple; }
 .traitBoolean { font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace; font-size: 13px; color: $tracking-green; }
 
@@ -164,7 +173,8 @@ $tracking-red-border: rgba(248, 113, 113, .4);
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 11.5px;
   color: $tracking-zinc-400;
-  overflow-x: auto;
+  overflow: auto;
+  max-height: 260px;
 }
 
 .pills {
@@ -201,6 +211,20 @@ $tracking-red-border: rgba(248, 113, 113, .4);
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+}
+
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: $tracking-zinc-400;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+
+  &:hover { color: var(--foreground); }
 }
 
 .link {
