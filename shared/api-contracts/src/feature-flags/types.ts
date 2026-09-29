@@ -18,7 +18,8 @@ export type FeatureFlagKey =
   | 'fiscal_emission'
   | 'mailing'
   | 'blueprints'
-  | 'advertiser_platform';
+  | 'advertiser_platform'
+  | 'tracking';
 
 export type FeatureFlags = Record<FeatureFlagKey, boolean>;
 
@@ -61,4 +62,6 @@ export const DEFAULT_FEATURE_FLAGS = {
   blueprints: false,
   // Ships on — seeded ON; kill switch for the advertiser platform (/be-advertiser).
   advertiser_platform: true,
+  // Ships off — first-party event tracking platform (ingest, plan, reports).
+  tracking: false,
 } satisfies Record<FeatureFlagKey, boolean>;

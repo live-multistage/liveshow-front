@@ -23,6 +23,7 @@ const ALL_KEYS: FeatureFlagKey[] = [
   'mailing',
   'blueprints',
   'advertiser_platform',
+  'tracking',
 ];
 
 test('DEFAULT_FEATURE_FLAGS covers every FeatureFlagKey', () => {
