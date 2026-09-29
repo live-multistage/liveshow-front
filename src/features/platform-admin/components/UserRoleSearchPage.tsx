@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import Link from 'next/link';
 import { Search, ChevronDown, Check, Lock } from 'lucide-react';
 import {
   DropdownMenu,
@@ -31,8 +32,13 @@ function avatarColor(id: string): string {
   return palette[hash % palette.length];
 }
 
-export function UserRoleSearchPage() {
+interface Props {
+  trackingEnabled?: boolean;
+}
+
+export function UserRoleSearchPage({ trackingEnabled = false }: Props) {
   const t = useTranslations('platformAdmin');
+  const tTracking = useTranslations('platformAdmin.tracking');
   const [query, setQuery] = useState('');
   const { user: currentUser } = useAuth();
   const isCurrentUserSuperAdmin = currentUser?.role === 'SUPER_ADMIN';
@@ -90,6 +96,11 @@ export function UserRoleSearchPage() {
                 <div style={{ minWidth: 0 }}>
                   <div className={styles.name}>{result.displayName}</div>
                   <div className={styles.email}>{result.email}</div>
+                  {trackingEnabled && (
+                    <Link href={`/dashboard/platform/tracking/users/${result.id}`} className={styles.trackingLink}>
+                      {tTracking('user.entryLink')}
+                    </Link>
+                  )}
                 </div>
               </div>
               <div>

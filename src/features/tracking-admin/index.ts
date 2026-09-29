@@ -37,3 +37,4 @@ export { TrackingDebuggerPage } from './components/TrackingDebuggerPage';
 export { TrackingPlanPage } from './components/TrackingPlanPage';
 export { TrackingSourcesPage } from './components/TrackingSourcesPage';
 export { TrackingDestinationsPage } from './components/TrackingDestinationsPage';
+export { TrackingUserProfilePage } from './components/user/TrackingUserProfilePage';

@@ -8,7 +8,7 @@ import { AlertTriangle } from 'lucide-react';
 import { PlatformPageShell } from '@/features/platform-admin/components/PlatformPageShell';
 import styles from './TrackingShell.module.scss';
 
-export type TrackingNavKey = 'overview' | 'debugger' | 'plan' | 'sources' | 'destinations' | 'reports';
+export type TrackingNavKey = 'overview' | 'debugger' | 'plan' | 'sources' | 'destinations' | 'reports' | 'user';
 
 const SUB_NAV: { key: TrackingNavKey; href: string }[] = [
   { key: 'overview', href: '/dashboard/platform/tracking' },
