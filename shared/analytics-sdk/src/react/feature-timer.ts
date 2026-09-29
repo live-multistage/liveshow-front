@@ -61,15 +61,50 @@ export function useFeatureTimer(feature: string, props?: Record<string, Json>): 
   const propsRef = useRef(props);
   propsRef.current = props;
 
-  useEffect(() => {
-    const timer = new ActiveTimer(Date.now);
-    timer.start();
-    analytics.trackUntyped('feature_viewed', { ...propsRef.current, feature });
+  // Survive a React StrictMode (dev) phantom unmount: it runs this effect's
+  // cleanup and then re-runs the effect synchronously, before anything else can
+  // observe the gap — without a guard that emits feature_viewed twice plus a
+  // spurious near-0ms feature_time in between (same failure mode player_opened/
+  // playback_ended guard against in Player.tsx's Stage). Kept across renders via
+  // refs so only a real unmount (not the phantom one) lets the timer end.
+  const timerRef = useRef<ActiveTimer | null>(null);
+  const viewedFiredRef = useRef(false);
+  const timeEmittedRef = useRef(false);
+  const pendingTimeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastFeatureRef = useRef<string | null>(null);
 
-    let emitted = false;
+  useEffect(() => {
+    // A real feature-name change restarts the timer for the new feature — reset
+    // the guards so it tracks as a fresh view instead of being silenced by the
+    // previous feature's state.
+    if (lastFeatureRef.current !== null && lastFeatureRef.current !== feature) {
+      timerRef.current = null;
+      viewedFiredRef.current = false;
+      timeEmittedRef.current = false;
+    }
+    lastFeatureRef.current = feature;
+
+    // This mount proves the previous cleanup (if any) was StrictMode's phantom
+    // unmount, not a real one — cancel its deferred feature_time.
+    if (pendingTimeRef.current !== null) {
+      clearTimeout(pendingTimeRef.current);
+      pendingTimeRef.current = null;
+    }
+
+    if (!timerRef.current) {
+      timerRef.current = new ActiveTimer(Date.now);
+      timerRef.current.start();
+    }
+    const timer = timerRef.current;
+
+    if (!viewedFiredRef.current) {
+      viewedFiredRef.current = true;
+      analytics.trackUntyped('feature_viewed', { ...propsRef.current, feature });
+    }
+
     const emitFeatureTime = (): void => {
-      if (emitted) return;
-      emitted = true;
+      if (timeEmittedRef.current) return;
+      timeEmittedRef.current = true;
       analytics.trackUntyped('feature_time', {
         ...propsRef.current,
         feature,
@@ -99,7 +134,10 @@ export function useFeatureTimer(feature: string, props?: Record<string, Json>): 
       window.removeEventListener('keydown', onActivity);
       window.removeEventListener('scroll', onActivity);
       window.removeEventListener('pagehide', onPageHide);
-      emitFeatureTime();
+      // Deferred: a real unmount lets this fire; a StrictMode phantom unmount is
+      // followed SYNCHRONOUSLY by a remount, which cancels it above before the
+      // (0ms, but still a macrotask) timeout ever runs.
+      pendingTimeRef.current = setTimeout(emitFeatureTime, 0);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- props are read via ref; only a feature-name change restarts the timer
   }, [feature]);
