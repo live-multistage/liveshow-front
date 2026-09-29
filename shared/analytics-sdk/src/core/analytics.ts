@@ -1,17 +1,19 @@
 import type { Json, TrackingContext, TrackingMessage } from '@live-show/api-contracts';
 import type { TrackingPlan } from '../generated/tracking-plan';
-import { buildContext } from './context';
+import { buildContext, type UrlSanitizer } from './context';
 import { effectiveConsent, type ConsentState } from './consent';
 import {
+  clearPersistedIdentity,
   loadSession,
   nextSession,
   persistAnonymousId,
   persistSession,
+  readFreshSession,
   readPersistedAnonymousId,
   resolveAnonymousId,
   type SessionState,
 } from './identity';
-import { MessageQueue } from './queue';
+import { MessageQueue, QUEUE_STORAGE_KEY } from './queue';
 import { browserStore, type KeyValueStore } from './storage';
 import { createFetchTransport, type Transport } from './transport';
 import { randomUUID } from './uuid';
@@ -26,6 +28,8 @@ export interface AnalyticsOptions {
   transport?: Transport;
   store?: KeyValueStore;
   now?: () => number;
+  /** Redacts secret path segments; query params other than utm_* are always dropped. */
+  sanitizeUrl?: UrlSanitizer;
 }
 
 export interface Analytics<P extends Record<string, object> = TrackingPlan> {
@@ -70,7 +74,15 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
   let consentState: ConsentState = o.consent;
   const getEffective = (): ConsentState => effectiveConsent(consentState);
 
+  // LGPD / spec: on denied, the queue and storage are cleared, not just left unsent.
+  function clearPersistedState(): void {
+    const store = o.store ?? browserStore();
+    clearPersistedIdentity(store);
+    store.remove(QUEUE_STORAGE_KEY);
+  }
+
   const initialEffective = getEffective();
+  if (initialEffective === 'denied') clearPersistedState();
   let currentStore: KeyValueStore | null = initialEffective === 'granted' ? (o.store ?? browserStore()) : null;
 
   // Reuse the id persisted by an earlier grant even while consent is unresolved — otherwise
@@ -103,7 +115,7 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
   }
 
   function buildMessage(variant: MessageVariant): TrackingMessage {
-    const context = buildContext(session.id);
+    const context = buildContext(session.id, o.sanitizeUrl);
     const base = {
       messageId: randomUUID(),
       anonymousId,
@@ -112,6 +124,12 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
       ...(userId ? { userId } : {}),
     };
     return { ...base, ...variant } as TrackingMessage;
+  }
+
+  function adoptPersistedIdentity(m: TrackingMessage, heldId: string, heldSessionId: string): TrackingMessage {
+    const withAnon = m.anonymousId === heldId ? { ...m, anonymousId } : m;
+    if (withAnon.context.sessionId !== heldSessionId) return withAnon;
+    return { ...withAnon, context: { ...withAnon.context, sessionId: session.id } };
   }
 
   function deliver(effective: ConsentState, build: () => TrackingMessage): void {
@@ -181,14 +199,18 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
       if (effective === 'granted') {
         currentStore = currentStore ?? o.store ?? browserStore();
         const heldId = anonymousId;
-        // another tab may have granted (and persisted) since construction; a reset() keeps its new id
-        if (!rotatedByReset) anonymousId = readPersistedAnonymousId() ?? anonymousId;
+        const heldSessionId = session.id;
+        // an earlier page load (or another tab) may have persisted an id/session; a reset() keeps its new ones
+        if (!rotatedByReset) {
+          anonymousId = readPersistedAnonymousId() ?? anonymousId;
+          session = readFreshSession(currentStore, nowFn()) ?? session;
+        }
         persistAnonymousId(anonymousId);
         queue.setStore(currentStore);
         queue.setFlushPolicy({ flushAt: flushAtOpt, flushIntervalMs: flushIntervalMsOpt });
         persistSession(currentStore, session);
         if (holding.length) {
-          for (const m of holding) queue.enqueue(m.anonymousId === heldId ? { ...m, anonymousId } : m);
+          for (const m of holding) queue.enqueue(adoptPersistedIdentity(m, heldId, heldSessionId));
           holding = [];
         }
         void queue.flush();
@@ -201,6 +223,7 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
         queue.stop();
         currentStore = null;
         queue.setStore(null);
+        clearPersistedState();
         return;
       }
 

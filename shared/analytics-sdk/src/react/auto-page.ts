@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { TrackingContext } from '@live-show/api-contracts';
 import type { Analytics } from '../core/analytics';
+import { effectiveConsent, type ConsentState } from '../core/consent';
 
 const UTM_STORAGE_KEY = 'sho_utm';
 const UTM_PARAM_TO_CAMPAIGN_KEY: Record<string, keyof NonNullable<TrackingContext['campaign']>> = {
@@ -39,8 +40,27 @@ function storeCampaign(campaign: TrackingContext['campaign']): void {
   }
 }
 
-/** Emits `page()` on mount and on every pathname/search change; captures utm_* once per session. */
-export function useAutoPage(analytics: Pick<Analytics, 'page' | 'setCampaign'>, pathname: string, search: string): void {
+function clearStoredCampaign(): void {
+  try {
+    sessionStorage.removeItem(UTM_STORAGE_KEY);
+  } catch {
+    // storage blocked — nothing was stored
+  }
+}
+
+/**
+ * Emits `page()` on mount and on every pathname/search change; captures utm_* once per session.
+ * The captured campaign stays in memory until consent is granted — only then is it persisted
+ * (sessionStorage) — and is cleared on denied.
+ */
+export function useAutoPage(
+  analytics: Pick<Analytics, 'page' | 'setCampaign'>,
+  pathname: string,
+  search: string,
+  consent: ConsentState,
+): void {
+  const capturedCampaign = useRef<TrackingContext['campaign'] | null>(null);
+
   useEffect(() => {
     const stored = readStoredCampaign();
     if (stored) {
@@ -49,11 +69,20 @@ export function useAutoPage(analytics: Pick<Analytics, 'page' | 'setCampaign'>, 
     }
     const captured = parseUtm(search);
     if (captured) {
-      storeCampaign(captured);
+      capturedCampaign.current = captured;
       analytics.setCampaign(captured);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- captured once per session, not per navigation
   }, []);
+
+  useEffect(() => {
+    const effective = effectiveConsent(consent);
+    if (effective === 'denied') {
+      clearStoredCampaign();
+      return;
+    }
+    if (effective === 'granted' && capturedCampaign.current) storeCampaign(capturedCampaign.current);
+  }, [consent]);
 
   // StrictMode double-invoke / Suspense re-reveal re-run effects with unchanged deps;
   // the ref survives those, so one page per distinct pathname+search.

@@ -2,7 +2,7 @@ import { TRACKING_LIMITS, type TrackingMessage } from '@live-show/api-contracts'
 import type { KeyValueStore } from './storage';
 import type { SendResult, Transport } from './transport';
 
-const STORAGE_KEY = 'sho_q';
+export const QUEUE_STORAGE_KEY = 'sho_q';
 const KEEPALIVE_MAX_BYTES = 60 * 1024; // fetch keepalive body cap is 64KB, leave headroom
 
 export interface QueueOptions {
@@ -48,7 +48,7 @@ export class MessageQueue {
     this.random = o.random ?? Math.random;
 
     if (this.store) {
-      const raw = this.store.get(STORAGE_KEY);
+      const raw = this.store.get(QUEUE_STORAGE_KEY);
       if (raw) {
         try {
           this.queue = JSON.parse(raw) as TrackingMessage[];
@@ -115,7 +115,7 @@ export class MessageQueue {
 
   clear(): void {
     this.queue = [];
-    if (this.store) this.store.remove(STORAGE_KEY);
+    if (this.store) this.store.remove(QUEUE_STORAGE_KEY);
   }
 
   setStore(s: KeyValueStore | null): void {
@@ -151,7 +151,7 @@ export class MessageQueue {
 
   private persist(): void {
     if (!this.store) return;
-    this.store.set(STORAGE_KEY, JSON.stringify(this.queue));
+    this.store.set(QUEUE_STORAGE_KEY, JSON.stringify(this.queue));
   }
 
   private selectBatch(stamped: TrackingMessage[], keepalive: boolean): TrackingMessage[] {

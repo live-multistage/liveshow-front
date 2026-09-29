@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { StrictMode } from 'react';
 import { render } from '@testing-library/react';
-import { AnalyticsProvider, TrackFeature } from './index';
+import { AnalyticsProvider, TrackFeature, useAnalyticsIdentity } from './index';
 
 const opts = (send: any) => ({ writeKey: 'wk', endpoint: 'e', transport: { send }, flushAt: 1 });
 const events = (send: any) => send.mock.calls.flatMap((c: any) => c[0].batch).map((m: any) => m.type === 'track' ? m.event : m.type);
@@ -34,5 +34,50 @@ describe('AnalyticsProvider', () => {
     const { unmount } = render(<AnalyticsProvider options={opts(send)} consent="granted" pathname="/" search=""><TrackFeature name="player"><div /></TrackFeature></AnalyticsProvider>);
     unmount(); await new Promise((r) => setTimeout(r, 0));
     expect(events(send)).toEqual(expect.arrayContaining(['feature_viewed', 'feature_time']));
+  });
+});
+
+describe('UTM capture is consent-gated', () => {
+  beforeEach(() => sessionStorage.clear());
+  const ui = (send: any, consent: 'granted' | 'denied' | null) => (
+    <AnalyticsProvider options={opts(send)} consent={consent} pathname="/" search="utm_source=mail&utm_medium=email"><div /></AnalyticsProvider>
+  );
+
+  it('keeps utm in memory under null and persists it only once granted', async () => {
+    const send = vi.fn().mockResolvedValue('ok');
+    const { rerender } = render(ui(send, null));
+    expect(sessionStorage.getItem('sho_utm')).toBeNull();
+    rerender(ui(send, 'granted'));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(JSON.parse(sessionStorage.getItem('sho_utm')!)).toEqual({ source: 'mail', medium: 'email' });
+    const [page] = send.mock.calls.flatMap((c: any) => c[0].batch);
+    expect(page.context.campaign).toEqual({ source: 'mail', medium: 'email' });
+  });
+
+  it('clears a stored utm on denied', () => {
+    sessionStorage.setItem('sho_utm', JSON.stringify({ source: 'old' }));
+    render(ui(vi.fn(), 'denied'));
+    expect(sessionStorage.getItem('sho_utm')).toBeNull();
+  });
+});
+
+describe('useAnalyticsIdentity', () => {
+  function Identity({ user }: { user: { id: string } | null }) {
+    useAnalyticsIdentity(user);
+    return null;
+  }
+  const ui = (send: any, user: { id: string } | null) => (
+    <AnalyticsProvider options={opts(send)} consent="granted" pathname="/" search=""><Identity user={user} /></AnalyticsProvider>
+  );
+
+  it('resets before identifying a different user (A → B) so B gets a fresh anonymousId', async () => {
+    const send = vi.fn().mockResolvedValue('ok');
+    const { rerender } = render(ui(send, { id: 'user-a' }));
+    rerender(ui(send, { id: 'user-b' }));
+    await new Promise((r) => setTimeout(r, 0));
+    const identifies = send.mock.calls.flatMap((c: any) => c[0].batch).filter((m: any) => m.type === 'identify');
+    expect(identifies.map((m: any) => m.userId)).toEqual(['user-a', 'user-b']);
+    expect(identifies[1].anonymousId).not.toBe(identifies[0].anonymousId);
+    expect(identifies[1].context.sessionId).not.toBe(identifies[0].context.sessionId);
   });
 });

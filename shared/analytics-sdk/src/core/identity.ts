@@ -46,6 +46,18 @@ export function resolveAnonymousId(): string {
   return readPersistedAnonymousId() ?? randomUUID();
 }
 
+/** Denied consent: drop the persisted anonymous id (cookie + localStorage) and session. */
+export function clearPersistedIdentity(store: KeyValueStore): void {
+  if (typeof document !== 'undefined') document.cookie = `${ANON_KEY}=; Max-Age=0; Path=/; SameSite=Lax`;
+  try {
+    localStorage.removeItem(ANON_KEY);
+  } catch {
+    // storage blocked — nothing was persisted there
+  }
+  store.remove(SESSION_ID_KEY);
+  store.remove(SESSION_AT_KEY);
+}
+
 export function persistAnonymousId(id: string): void {
   writeCookie(ANON_KEY, id);
   try {
@@ -55,16 +67,18 @@ export function persistAnonymousId(id: string): void {
   }
 }
 
+/** The persisted session if it hasn't idled out, touched to `now`; null otherwise. */
+export function readFreshSession(store: KeyValueStore | null, now: number): SessionState | null {
+  if (!store) return null;
+  const id = store.get(SESSION_ID_KEY);
+  const at = store.get(SESSION_AT_KEY);
+  const lastActivity = at ? Number(at) : NaN;
+  if (!id || Number.isNaN(lastActivity) || now - lastActivity > SESSION_IDLE_MS) return null;
+  return { id, lastActivity: now };
+}
+
 export function loadSession(store: KeyValueStore | null, now: number): SessionState {
-  if (store) {
-    const id = store.get(SESSION_ID_KEY);
-    const at = store.get(SESSION_AT_KEY);
-    const lastActivity = at ? Number(at) : NaN;
-    if (id && !Number.isNaN(lastActivity)) {
-      return nextSession({ id, lastActivity }, now);
-    }
-  }
-  return nextSession(null, now);
+  return readFreshSession(store, now) ?? nextSession(null, now);
 }
 
 export function persistSession(store: KeyValueStore | null, session: SessionState): void {

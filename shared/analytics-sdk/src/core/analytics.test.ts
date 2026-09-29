@@ -9,6 +9,8 @@ const setup = (consent: 'granted' | 'denied' | null) => {
   return { a, send, store };
 };
 
+const sentBatch = (send: ReturnType<typeof vi.fn>) => send.mock.calls.flatMap((c) => c[0].batch);
+
 describe('consent', () => {
   beforeEach(() => { document.cookie = 'sho_aid=; Max-Age=0'; localStorage.clear(); Object.defineProperty(navigator, 'globalPrivacyControl', { value: undefined, configurable: true }); });
   afterEach(() => { Object.defineProperty(navigator, 'globalPrivacyControl', { value: undefined, configurable: true }); });
@@ -129,5 +131,100 @@ describe('identity', () => {
     await a.flush();
     const [message] = send.mock.calls.flatMap((c) => c[0].batch);
     expect(message.context.campaign).toEqual({ source: 'newsletter', medium: 'email' });
+  });
+});
+
+describe('session continuity across reloads (consent starts null)', () => {
+  beforeEach(() => { document.cookie = 'sho_aid=; Max-Age=0'; localStorage.clear(); });
+
+  const MINUTE = 60 * 1000;
+  const reload = (storedAt: number, now: number) => {
+    const send = vi.fn().mockResolvedValue('ok');
+    const store = memoryStore();
+    store.set('sho_sid', 'stored-sid');
+    store.set('sho_sid_at', String(storedAt));
+    const a = createAnalytics({ writeKey: 'wk', endpoint: 'e', consent: null, transport: { send }, store, flushAt: 1, now: () => now });
+    return { a, send, store };
+  };
+
+  it('adopts a fresh persisted session on grant and rewrites held messages', async () => {
+    const now = 1_000_000_000;
+    const { a, send, store } = reload(now - 5 * MINUTE, now);
+    a.trackUntyped('home_viewed');
+    a.setConsent('granted'); await a.flush();
+    expect(sentBatch(send).map((m: any) => m.context.sessionId)).toEqual(['stored-sid']);
+    expect(a.sessionId).toBe('stored-sid');
+    expect(store.get('sho_sid')).toBe('stored-sid');
+  });
+
+  it('starts a new session when the persisted one is idle for more than 30 minutes', async () => {
+    const now = 1_000_000_000;
+    const { a, send, store } = reload(now - 31 * MINUTE, now);
+    a.trackUntyped('home_viewed');
+    a.setConsent('granted'); await a.flush();
+    const [sent] = sentBatch(send);
+    expect(sent.context.sessionId).not.toBe('stored-sid');
+    expect(store.get('sho_sid')).toBe(sent.context.sessionId);
+  });
+
+  it('reset before grant keeps the rotated session', () => {
+    const now = 1_000_000_000;
+    const { a } = reload(now - MINUTE, now);
+    a.reset();
+    const rotated = a.sessionId;
+    a.setConsent('granted');
+    expect(a.sessionId).toBe(rotated);
+    expect(rotated).not.toBe('stored-sid');
+  });
+});
+
+describe('denied clears persisted identity', () => {
+  beforeEach(() => { document.cookie = 'sho_aid=; Max-Age=0'; localStorage.clear(); Object.defineProperty(navigator, 'globalPrivacyControl', { value: undefined, configurable: true }); });
+  afterEach(() => { Object.defineProperty(navigator, 'globalPrivacyControl', { value: undefined, configurable: true }); });
+
+  // no injected store: exercises the real localStorage-backed persistence
+  const expectIdentityCleared = () => {
+    expect(document.cookie).not.toContain('sho_aid');
+    for (const k of ['sho_aid', 'sho_sid', 'sho_sid_at', 'sho_q']) expect(localStorage.getItem(k)).toBeNull();
+  };
+
+  it('granted → denied removes sho_aid cookie + localStorage and session/queue keys', () => {
+    const send = vi.fn().mockResolvedValue('retry');
+    const a = createAnalytics({ writeKey: 'wk', endpoint: 'e', consent: 'granted', transport: { send }, flushAt: 100 });
+    a.trackUntyped('a1');
+    expect(document.cookie).toContain('sho_aid');
+    for (const k of ['sho_aid', 'sho_sid', 'sho_sid_at', 'sho_q']) expect(localStorage.getItem(k)).not.toBeNull();
+    a.setConsent('denied');
+    expectIdentityCleared();
+  });
+
+  it('constructing under GPC clears identity persisted by an earlier grant', () => {
+    document.cookie = 'sho_aid=old-aid; Path=/';
+    localStorage.setItem('sho_aid', 'old-aid');
+    localStorage.setItem('sho_sid', 'old-sid'); localStorage.setItem('sho_sid_at', '1'); localStorage.setItem('sho_q', '[]');
+    Object.defineProperty(navigator, 'globalPrivacyControl', { value: true, configurable: true });
+    createAnalytics({ writeKey: 'wk', endpoint: 'e', consent: null, transport: { send: vi.fn() } });
+    expectIdentityCleared();
+  });
+
+  it('constructing with consent null keeps the persisted identity', () => {
+    document.cookie = 'sho_aid=old-aid; Path=/';
+    createAnalytics({ writeKey: 'wk', endpoint: 'e', consent: null, transport: { send: vi.fn() }, store: memoryStore() });
+    expect(document.cookie).toContain('sho_aid=old-aid');
+  });
+});
+
+describe('page url sanitization', () => {
+  afterEach(() => history.replaceState(null, '', '/'));
+
+  it('applies the sanitizeUrl option to every message', async () => {
+    history.replaceState(null, '', '/invitations/tok-1?token=x');
+    const send = vi.fn().mockResolvedValue('ok');
+    const sanitizeUrl = (url: URL) => { url.pathname = '/invitations/:token'; return url; };
+    const a = createAnalytics({ writeKey: 'wk', endpoint: 'e', consent: 'granted', transport: { send }, store: memoryStore(), flushAt: 1, sanitizeUrl });
+    a.page(); await a.flush();
+    const [m] = sentBatch(send);
+    expect(m.context.page.path).toBe('/invitations/:token');
+    expect(JSON.stringify(m)).not.toMatch(/tok-1|token=x/);
   });
 });

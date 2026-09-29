@@ -28,7 +28,7 @@ export function AnalyticsProvider(p: {
 
   useEffect(() => installClickDelegate(document, analytics), [analytics]);
 
-  useAutoPage(analytics, p.pathname, p.search);
+  useAutoPage(analytics, p.pathname, p.search, p.consent);
 
   return createElement(AnalyticsContext.Provider, { value: analytics }, p.children);
 }
@@ -39,20 +39,23 @@ export function useAnalytics(): Analytics {
   return analytics;
 }
 
-/** Bridges auth state to identity: null→id identifies (+ groups per org), id→null resets. */
+/**
+ * Bridges auth state to identity: null→id identifies (+ groups per org), id→null resets,
+ * A→B (a different user, e.g. account switch) resets before identifying B so A's
+ * anonymousId/session never get stitched to B.
+ */
 export function useAnalyticsIdentity(user: { id: string; organizationIds?: string[] } | null): void {
   const analytics = useAnalytics();
   const previousUserId = useRef<string | null>(null);
 
   useEffect(() => {
     const userId = user?.id ?? null;
-    if (userId === previousUserId.current) return;
+    const previous = previousUserId.current;
+    if (userId === previous) return;
     previousUserId.current = userId;
 
-    if (!userId) {
-      analytics.reset();
-      return;
-    }
+    if (!userId || previous) analytics.reset();
+    if (!userId) return;
     analytics.identify(userId);
     for (const organizationId of user?.organizationIds ?? []) {
       analytics.group(organizationId);

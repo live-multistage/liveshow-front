@@ -11,6 +11,11 @@ vi.mock('@/features/account', () => ({
   useAuth: () => auth,
 }));
 
+const impersonation = { active: false };
+vi.mock('@/features/platform-admin/impersonation/impersonation.store', () => ({
+  useImpersonationStore: (select: (s: { active: boolean }) => unknown) => select(impersonation),
+}));
+
 let consent: 'granted' | 'denied' | null = 'granted';
 vi.mock('./consent', () => ({
   useAnalyticsConsent: () => ({ consent, setConsent: vi.fn() }),
@@ -28,6 +33,7 @@ async function loadTrackingProvider() {
 describe('TrackingProvider', () => {
   beforeEach(() => {
     auth.user = null;
+    impersonation.active = false;
     consent = 'granted';
     vi.unstubAllEnvs();
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }));
@@ -70,5 +76,27 @@ describe('TrackingProvider', () => {
     const body = JSON.parse(requestInit.body as string);
     expect(body.writeKey).toBe('wk-test');
     expect(body.batch.some((m: { type: string }) => m.type === 'page')).toBe(true);
+  });
+
+  it('does not track while an admin is impersonating, and leaves the admin ids alone', async () => {
+    vi.stubEnv('NEXT_PUBLIC_TRACKING_WRITE_KEY', 'wk-test');
+    document.cookie = 'sho_aid=admin-aid; Path=/';
+    impersonation.active = true;
+    auth.user = { id: 'target-user' };
+    const TrackingProvider = await loadTrackingProvider();
+    vi.useFakeTimers();
+
+    render(
+      <TrackingProvider>
+        <div>content</div>
+      </TrackingProvider>,
+    );
+
+    expect(screen.getByText('content')).toBeInTheDocument();
+    await vi.advanceTimersByTimeAsync(5000);
+    vi.useRealTimers();
+
+    expect(global.fetch).not.toHaveBeenCalled();
+    expect(document.cookie).toContain('sho_aid=admin-aid');
   });
 });
