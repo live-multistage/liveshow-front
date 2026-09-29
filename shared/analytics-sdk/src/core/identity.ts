@@ -30,17 +30,20 @@ function writeCookie(name: string, value: string): void {
   document.cookie = `${name}=${value}; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
 }
 
-/** cookie -> localStorage -> new id, per the consent spec's read order on `granted`. */
-export function resolveAnonymousId(): string {
+/** Previously persisted id (cookie -> localStorage), or null. Reading is allowed pre-consent; only writes are gated. */
+export function readPersistedAnonymousId(): string | null {
   const fromCookie = readCookie(ANON_KEY);
   if (fromCookie) return fromCookie;
   try {
-    const fromStorage = localStorage.getItem(ANON_KEY);
-    if (fromStorage) return fromStorage;
+    return localStorage.getItem(ANON_KEY) || null;
   } catch {
-    // storage blocked — fall through to a fresh id
+    return null; // storage blocked
   }
-  return randomUUID();
+}
+
+/** cookie -> localStorage -> new id, per the consent spec's read order on `granted`. */
+export function resolveAnonymousId(): string {
+  return readPersistedAnonymousId() ?? randomUUID();
 }
 
 export function persistAnonymousId(id: string): void {

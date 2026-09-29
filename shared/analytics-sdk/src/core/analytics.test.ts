@@ -46,6 +46,39 @@ describe('consent', () => {
     expect(batch.map((m: any) => m.event)).toContain('home_viewed');
   });
 
+  it('reuses a previously persisted sho_aid across reloads when consent starts null', async () => {
+    document.cookie = 'sho_aid=existing-aid; Path=/';
+    const first = setup(null);
+    first.a.trackUntyped('home_viewed');
+    first.a.setConsent('granted'); await first.a.flush();
+    const sent = first.send.mock.calls.flatMap((c) => c[0].batch);
+    expect(sent.map((m: any) => m.anonymousId)).toEqual(['existing-aid']);
+
+    const reload = setup(null); // new page load
+    reload.a.setConsent('granted');
+    expect(reload.a.anonymousId).toBe('existing-aid');
+    expect(document.cookie).toContain('sho_aid=existing-aid');
+  });
+
+  it('adopts an id persisted after construction and rewrites held messages on grant', async () => {
+    const { a, send } = setup(null);
+    a.trackUntyped('home_viewed');
+    localStorage.setItem('sho_aid', 'other-tab-aid');
+    a.setConsent('granted'); await a.flush();
+    const [held] = send.mock.calls.flatMap((c) => c[0].batch);
+    expect(held.anonymousId).toBe('other-tab-aid');
+  });
+
+  it('reset before grant keeps the rotated id instead of the persisted one', () => {
+    document.cookie = 'sho_aid=existing-aid; Path=/';
+    const { a } = setup(null);
+    a.reset();
+    const rotated = a.anonymousId;
+    a.setConsent('granted');
+    expect(rotated).not.toBe('existing-aid');
+    expect(a.anonymousId).toBe(rotated);
+  });
+
   it('null → denied discards held messages', async () => {
     const { a, send } = setup(null);
     a.trackUntyped('home_viewed'); a.setConsent('denied'); a.trackUntyped('x'); await a.flush();

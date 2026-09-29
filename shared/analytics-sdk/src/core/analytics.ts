@@ -7,6 +7,7 @@ import {
   nextSession,
   persistAnonymousId,
   persistSession,
+  readPersistedAnonymousId,
   resolveAnonymousId,
   type SessionState,
 } from './identity';
@@ -72,7 +73,10 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
   const initialEffective = getEffective();
   let currentStore: KeyValueStore | null = initialEffective === 'granted' ? (o.store ?? browserStore()) : null;
 
-  let anonymousId = initialEffective === 'granted' ? resolveAnonymousId() : randomUUID();
+  // Reuse the id persisted by an earlier grant even while consent is unresolved — otherwise
+  // every page load (consent undefined→null→granted) mints and persists a fresh id.
+  let anonymousId = resolveAnonymousId();
+  let rotatedByReset = false;
   if (initialEffective === 'granted') persistAnonymousId(anonymousId);
 
   let userId: string | undefined;
@@ -162,6 +166,7 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
       if (effective === 'denied') return;
       void api.flush(); // flush pending under the old identity before rotating it
       anonymousId = randomUUID();
+      rotatedByReset = true;
       userId = undefined;
       session = nextSession(null, nowFn());
       if (currentStore) {
@@ -175,12 +180,15 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
 
       if (effective === 'granted') {
         currentStore = currentStore ?? o.store ?? browserStore();
+        const heldId = anonymousId;
+        // another tab may have granted (and persisted) since construction; a reset() keeps its new id
+        if (!rotatedByReset) anonymousId = readPersistedAnonymousId() ?? anonymousId;
         persistAnonymousId(anonymousId);
         queue.setStore(currentStore);
         queue.setFlushPolicy({ flushAt: flushAtOpt, flushIntervalMs: flushIntervalMsOpt });
         persistSession(currentStore, session);
         if (holding.length) {
-          for (const m of holding) queue.enqueue(m);
+          for (const m of holding) queue.enqueue(m.anonymousId === heldId ? { ...m, anonymousId } : m);
           holding = [];
         }
         void queue.flush();

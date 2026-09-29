@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { TrackingContext } from '@live-show/api-contracts';
 import type { Analytics } from '../core/analytics';
 
@@ -55,7 +55,13 @@ export function useAutoPage(analytics: Pick<Analytics, 'page' | 'setCampaign'>, 
     // eslint-disable-next-line react-hooks/exhaustive-deps -- captured once per session, not per navigation
   }, []);
 
+  // StrictMode double-invoke / Suspense re-reveal re-run effects with unchanged deps;
+  // the ref survives those, so one page per distinct pathname+search.
+  const lastPageKey = useRef<string | null>(null);
   useEffect(() => {
+    const key = `${pathname}?${search}`;
+    if (lastPageKey.current === key) return;
+    lastPageKey.current = key;
     analytics.page();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- analytics instance is stable (useRef)
   }, [pathname, search]);
