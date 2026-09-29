@@ -1,0 +1,306 @@
+// Shared look for the 4 report tabs (Explorar/Funis/Retenção/Recursos).
+// Colors: CSS custom properties where one matches (--foreground, --border,
+// --muted-foreground, --card); design-specific shades with no token are
+// declared once here as local SCSS variables.
+$accent: #ec4899;
+$dim: #52525b;
+$secondary: #a1a1aa;
+$warn-bg: rgba(234, 179, 8, 0.08);
+$warn-border: rgba(234, 179, 8, 0.34);
+$warn-text: #e9d38a;
+$error-border: #f87171;
+
+.tabsRow {
+  display: flex;
+  gap: 22px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+
+.tab {
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--muted-foreground);
+  padding: 10px 2px 12px;
+  border-bottom: 2px solid transparent;
+
+  &.active {
+    color: var(--foreground);
+    font-weight: 600;
+    border-bottom-color: $accent;
+  }
+}
+
+.queryBar {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: $dim;
+  text-transform: uppercase;
+}
+
+.fieldError {
+  font-size: 12px;
+  color: $error-border;
+}
+
+.dateRange {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  input[type='date'] {
+    width: 132px;
+  }
+
+  &.invalid input[type='date'] {
+    border-color: $error-border;
+  }
+}
+
+.select {
+  min-width: 160px;
+}
+
+.runBar {
+  margin-left: auto;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
+
+.cardHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cardTitle {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--foreground);
+}
+
+.mono {
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: $dim;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 12px;
+
+  thead th {
+    text-align: left;
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    color: $dim;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+  }
+
+  th.sortable {
+    cursor: pointer;
+    user-select: none;
+
+    &.active {
+      color: $accent;
+    }
+  }
+
+  td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--foreground);
+  }
+}
+
+.tableScroll {
+  max-height: 252px;
+  overflow: auto;
+}
+
+.totalCell {
+  color: $accent;
+  font-weight: 600;
+}
+
+.seriesLabel {
+  color: var(--series-color, var(--foreground));
+}
+
+.areaFill {
+  fill: rgba(236, 72, 153, 0.1);
+}
+
+.funnelSteps {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.funnelStep {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stepIndex {
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: $accent;
+  font-weight: 700;
+}
+
+.removeStep {
+  background: none;
+  border: none;
+  color: $dim;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    color: var(--foreground);
+  }
+}
+
+.addStepLink {
+  background: none;
+  border: none;
+  color: $accent;
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.funnelBarTrack {
+  position: relative;
+  width: 160px;
+  height: 34px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.funnelBarSolid {
+  position: absolute;
+  inset: 0;
+  width: var(--solid-pct);
+  background: $accent;
+}
+
+.retentionCell {
+  text-align: center;
+  border-radius: 4px;
+  background: rgba(236, 72, 153, calc(0.06 + var(--pct) * 0.9));
+  color: var(--foreground);
+}
+
+.retentionCellLight {
+  color: #ffffff;
+}
+
+.retentionEmptyCell {
+  border: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.funnelBarStripe {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--solid-pct);
+  width: var(--striped-pct);
+  background: repeating-linear-gradient(45deg, rgba(236, 72, 153, 0.16) 0 5px, transparent 5px 10px);
+}
+
+.timeoutBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: $warn-bg;
+  border: 1px solid $warn-border;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  color: $warn-text;
+  font-size: 13.5px;
+}
+
+.stateBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 60px 20px;
+  color: $dim;
+}
+
+.stateIcon {
+  color: $secondary;
+}
+
+.stateTitle {
+  font-size: 15px;
+  color: var(--foreground);
+  max-width: 40ch;
+  margin: 0;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: $dim;
+  margin-top: 12px;
+}
+
+.legendGradient {
+  width: 160px;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(236, 72, 153, 0.06), $accent);
+}
+
+.skeletonBlock {
+  height: 220px;
+  border-radius: 16px;
+}
