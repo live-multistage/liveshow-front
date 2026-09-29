@@ -2674,7 +2674,7 @@
       "debugger": {
         "title": "Debugger",
         "connection": {
-          "live": "Live",
+          "open": "Live",
           "connecting": "Connecting…",
           "error": "Connection error — reconnecting"
         },

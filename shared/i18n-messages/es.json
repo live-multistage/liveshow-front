@@ -2674,7 +2674,7 @@
       "debugger": {
         "title": "Depurador",
         "connection": {
-          "live": "En vivo",
+          "open": "En vivo",
           "connecting": "Conectando…",
           "error": "Error de conexión — reconectando"
         },
