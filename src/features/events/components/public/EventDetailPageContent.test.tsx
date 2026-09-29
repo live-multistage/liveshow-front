@@ -34,7 +34,8 @@ vi.mock('./EventSchedule', () => ({ EventSchedule: () => null }));
 vi.mock('./RelatedEvents', () => ({ RelatedEvents: () => null }));
 
 import { render, screen, fireEvent } from '@testing-library/react';
-import { EventDetailPageContent } from './EventDetailPageContent';
+import { EventDetailPageContent, toTrackedStatus } from './EventDetailPageContent';
+import type { TicketProductResponse } from '../../types/event.types';
 import { useGetEventQuery } from '../../queries/get-event';
 import { useEventCamerasQuery } from '@/features/streams/queries/streams.queries';
 import { useOrganization } from '@/features/organizations';
@@ -241,5 +242,50 @@ describe('EventDetailPageContent attribution', () => {
     const collab2 = screen.getByText('Colaboradora Dois').closest('a');
     expect(collab1).toHaveAttribute('href', '/o/colaboradora-um');
     expect(collab2).toHaveAttribute('href', '/o/colaboradora-dois');
+  });
+});
+
+function makeTicket(overrides: Partial<TicketProductResponse> = {}): TicketProductResponse {
+  return {
+    id: 'tp-1',
+    eventId: 'evt-1',
+    name: 'Ingresso',
+    description: '',
+    price: 0,
+    currency: 'BRL',
+    capabilities: ['LIVE_VIEW'],
+    camerasLimit: null,
+    allowedStageIds: [],
+    capacity: null,
+    remaining: null,
+    soldOut: false,
+    immutable: false,
+    ...overrides,
+  };
+}
+
+describe('toTrackedStatus', () => {
+  it('maps LIVE to live', () => {
+    expect(toTrackedStatus('LIVE', [])).toBe('live');
+  });
+
+  it('maps CANCELLED to ended', () => {
+    expect(toTrackedStatus('CANCELLED', [makeTicket({ capabilities: ['LIVE_VIEW', 'REPLAY_VIEW'] })])).toBe('ended');
+  });
+
+  it('maps FINISHED with a replay-capable ticket to replay', () => {
+    expect(toTrackedStatus('FINISHED', [makeTicket({ capabilities: ['REPLAY_VIEW'] })])).toBe('replay');
+  });
+
+  it('maps FINISHED with no replay-capable ticket to ended', () => {
+    expect(toTrackedStatus('FINISHED', [makeTicket({ capabilities: ['LIVE_VIEW'] })])).toBe('ended');
+  });
+
+  it('maps FINISHED with no tickets at all to ended', () => {
+    expect(toTrackedStatus('FINISHED', [])).toBe('ended');
+  });
+
+  it.each(['DRAFT', 'PUBLISHED', 'SCHEDULED'] as const)('maps %s to upcoming', (status) => {
+    expect(toTrackedStatus(status, [])).toBe('upcoming');
   });
 });

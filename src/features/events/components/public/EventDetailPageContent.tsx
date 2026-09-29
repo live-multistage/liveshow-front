@@ -16,7 +16,7 @@ import { ReportButton } from '@/features/reports';
 import { WishlistButton } from '@/features/wishlist';
 import { MediaWithTeaserVideo } from '@/shared/components/MediaWithTeaserVideo';
 import { TrackFeature } from '@live-show/analytics-sdk/react';
-import type { EventResponse } from '../../types/event.types';
+import type { EventResponse, TicketProductResponse } from '../../types/event.types';
 import { EventSchedule } from './EventSchedule';
 import { EventLineupGrid } from './EventLineupGrid';
 import { Skeleton } from '@live-show/design-system';
@@ -26,12 +26,15 @@ interface Props {
   id: string;
 }
 
-// FINISHED events always carry their replay (see eventToShow's hasReplay
-// rule) — the catalog has no separate "replay expired" status yet, so
-// ended/replay collapse to the same value here.
-function toTrackedStatus(status: EventResponse['status']): 'upcoming' | 'live' | 'replay' | 'ended' {
+export function toTrackedStatus(
+  status: EventResponse['status'],
+  tickets: TicketProductResponse[],
+): 'upcoming' | 'live' | 'replay' | 'ended' {
   if (status === 'LIVE') return 'live';
-  if (status === 'FINISHED') return 'replay';
+  if (status === 'CANCELLED') return 'ended';
+  if (status === 'FINISHED') {
+    return tickets.some((t) => t.capabilities.includes('REPLAY_VIEW')) ? 'replay' : 'ended';
+  }
   return 'upcoming';
 }
 
@@ -44,7 +47,7 @@ export function EventDetailPageContent({ id }: Props) {
   const [heroImgFailed, setHeroImgFailed] = useState(false);
   useTrackEventView({
     eventId: event ? id : undefined,
-    status: event ? toTrackedStatus(event.status) : 'upcoming',
+    status: event ? toTrackedStatus(event.status, tickets) : 'upcoming',
     priceCents: event?.priceFromCents,
     isFree: event?.isFree,
     organizationId: event?.organizationId,

@@ -182,8 +182,8 @@ export function MyListPageContent() {
                 </Link>
               </div>
               <div className={styles.teaserGrid}>
-                {recommendedShows.map((show) => (
-                  <ShowCard key={show.id} show={show} />
+                {recommendedShows.map((show, index) => (
+                  <ShowCard key={show.id} show={show} list="my_list" position={index} />
                 ))}
               </div>
             </div>

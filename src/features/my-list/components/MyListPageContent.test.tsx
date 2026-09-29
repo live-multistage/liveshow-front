@@ -28,8 +28,8 @@ vi.mock('../queries/get-accessible-events', () => ({
 // teste do teaser sobrescreve.
 const useRecommendedEventsQuery = vi.fn(() => ({ data: undefined }));
 vi.mock('@/features/events', () => ({
-  ShowCard: ({ show }: { show: { id: string; title: string } }) => (
-    <a href={`/events/${show.id}`}>{show.title}</a>
+  ShowCard: ({ show, list, position }: { show: { id: string; title: string }; list?: string; position?: number }) => (
+    <a href={`/events/${show.id}`} data-list={list} data-position={position}>{show.title}</a>
   ),
   eventToShow: (event: { id: string; title: string }) => ({ id: event.id, title: event.title }),
   useRecommendedEventsQuery: () => useRecommendedEventsQuery(),
@@ -145,6 +145,18 @@ describe('MyListPageContent', () => {
     expect(screen.getByText('Show 1')).toBeInTheDocument();
     expect(screen.getByText('Show 4')).toBeInTheDocument();
     expect(screen.queryByText('Show 5')).not.toBeInTheDocument();
+  });
+
+  it('tags teaser ShowCards with the my_list list name and their position', () => {
+    state({ data: [] });
+    useRecommendedEventsQuery.mockReturnValue({
+      data: { items: [{ id: 'r1', title: 'Show 1' }, { id: 'r2', title: 'Show 2' }] },
+    });
+    render(<MyListPageContent />);
+
+    expect(screen.getByText('Show 1')).toHaveAttribute('data-list', 'my_list');
+    expect(screen.getByText('Show 1')).toHaveAttribute('data-position', '0');
+    expect(screen.getByText('Show 2')).toHaveAttribute('data-position', '1');
   });
 
   it('hides the teaser when there are no recommended events', () => {

@@ -19,16 +19,40 @@ export function useTrackImpression<T extends HTMLElement>(eventId: string, list?
     const el = ref.current;
     if (!el || typeof IntersectionObserver === 'undefined') return;
 
-    const observer = new IntersectionObserver((entries) => {
+    // A card can be geometrically ≥50% visible in a background tab (the
+    // IntersectionObserver still reports layout for hidden documents) — that
+    // isn't a real impression, so a hit while hidden is held as `pending`
+    // and only emitted once the tab becomes visible again.
+    let pending = false;
+
+    const emit = () => {
       if (tracked.current) return;
-      if (!entries.some((e) => e.isIntersecting)) return;
       tracked.current = true;
       analytics.track('event_impression', { eventId, list, position });
       observer.disconnect();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+
+    const onVisibilityChange = () => {
+      if (pending && document.visibilityState === 'visible') emit();
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      if (tracked.current) return;
+      if (!entries.some((e) => e.isIntersecting)) return;
+      if (document.visibilityState === 'hidden') {
+        pending = true;
+        return;
+      }
+      emit();
     }, { threshold: 0.5 });
 
     observer.observe(el);
-    return () => observer.disconnect();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, [eventId, list, position, analytics]);
 
   return ref;

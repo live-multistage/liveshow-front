@@ -17,7 +17,9 @@ vi.mock('@/features/events/queries/use-recommended-events', () => ({
 }));
 
 vi.mock('@/features/events/components/public/ShowCard', () => ({
-  ShowCard: ({ show }: { show: { id: string; title: string } }) => <div data-testid="show-card">{show.title}</div>,
+  ShowCard: ({ show, list, position }: { show: { id: string; title: string }; list?: string; position?: number }) => (
+    <div data-testid="show-card" data-list={list} data-position={position}>{show.title}</div>
+  ),
 }));
 
 vi.mock('@/features/events/utils/event-adapter', () => ({
@@ -57,6 +59,14 @@ describe('RecommendedOverlay', () => {
     expect(screen.getAllByTestId('show-card')).toHaveLength(1);
     expect(screen.getByText('Outra live')).toBeTruthy();
     expect(screen.queryByText('Atual')).toBeNull();
+  });
+
+  it('tags cards with the recommended list name and their position', () => {
+    setup();
+    fireEvent.click(screen.getByRole('button'));
+    const card = screen.getByTestId('show-card');
+    expect(card).toHaveAttribute('data-list', 'recommended');
+    expect(card).toHaveAttribute('data-position', '0');
   });
 
   it('only enables the query once opened', () => {

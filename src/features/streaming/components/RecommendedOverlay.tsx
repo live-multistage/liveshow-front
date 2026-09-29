@@ -62,9 +62,9 @@ export function RecommendedOverlay({ eventId, containerRef, isFullscreen }: Reco
             <p className={styles.empty}>{t('recommendedEmpty')}</p>
           ) : (
             <div className={styles.rail}>
-              {shows.map((show) => (
+              {shows.map((show, index) => (
                 <div key={show.id} className={styles.card}>
-                  <ShowCard show={show} />
+                  <ShowCard show={show} list="recommended" position={index} />
                 </div>
               ))}
             </div>

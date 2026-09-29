@@ -197,16 +197,21 @@ export function EventsListPageContent({
   const selectedSortLabel = SORT_OPTIONS.find((o) => o.id === sort)?.label ?? SORT_OPTIONS[0].label;
 
   const resultCount = filtered.length;
+  // Read at fire time, not from the closure captured when `search` last
+  // changed — a chip/sort change (or fresh data) between the keystroke and
+  // the debounce firing must not report a stale count.
+  const resultCountRef = useRef(resultCount);
+  resultCountRef.current = resultCount;
 
   // Debounced so typing doesn't spam search_performed — fires once the user
   // pauses, skipped entirely for an empty query (nothing was searched).
   useEffect(() => {
     if (!search.trim()) return;
     const timer = setTimeout(() => {
-      analytics.track('search_performed', { query: search.trim().slice(0, 100), resultCount });
+      analytics.track('search_performed', { query: search.trim().slice(0, 100), resultCount: resultCountRef.current });
     }, SEARCH_TRACK_DEBOUNCE_MS);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- resultCount/analytics tracked via ref-free closure is fine here; only `search` should restart the debounce
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- resultCount is read from the ref at fire time; only `search` should restart the debounce
   }, [search]);
 
   const handleChipChange = (nextChip: ChipId) => {

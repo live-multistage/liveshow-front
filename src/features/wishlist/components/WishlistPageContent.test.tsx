@@ -34,8 +34,8 @@ vi.mock('./WishlistButton', () => ({
 }));
 
 vi.mock('@/features/events/components/public/ShowCard', () => ({
-  ShowCard: ({ show }: { show: { id: string; title: string } }) => (
-    <div>show-card-{show.id}</div>
+  ShowCard: ({ show, list, position }: { show: { id: string; title: string }; list?: string; position?: number }) => (
+    <div data-list={list} data-position={position}>show-card-{show.id}</div>
   ),
 }));
 
@@ -169,6 +169,20 @@ describe('WishlistPageContent', () => {
     render(<WishlistPageContent />);
 
     expect(screen.getAllByText(/show-card-/)).toHaveLength(4);
+  });
+
+  it('tags teaser ShowCards with the wishlist list name and their position', () => {
+    useRecommendedEventsQuery.mockReturnValue({
+      data: { items: [{ id: '1' }, { id: '2' }] },
+      isError: false,
+    });
+    wishlistState({ data: [] });
+    render(<WishlistPageContent />);
+
+    const cards = screen.getAllByText(/show-card-/);
+    expect(cards[0]).toHaveAttribute('data-list', 'wishlist');
+    expect(cards[0]).toHaveAttribute('data-position', '0');
+    expect(cards[1]).toHaveAttribute('data-position', '1');
   });
 
   it('hides the teaser entirely when the recommended query fails', () => {

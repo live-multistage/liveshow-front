@@ -87,8 +87,8 @@ export function MyTicketsPageContent() {
                   </Link>
                 </div>
                 <div className={styles.recoGrid}>
-                  {upcomingShows.map((show) => (
-                    <ShowCard key={show.id} show={show} />
+                  {upcomingShows.map((show, index) => (
+                    <ShowCard key={show.id} show={show} list="tickets" position={index} />
                   ))}
                 </div>
               </div>

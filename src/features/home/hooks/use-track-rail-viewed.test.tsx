@@ -14,6 +14,11 @@ class FakeObserver {
   disconnect() {}
 }
 
+function setVisibility(state: 'visible' | 'hidden') {
+  Object.defineProperty(document, 'visibilityState', { value: state, configurable: true });
+  document.dispatchEvent(new Event('visibilitychange'));
+}
+
 function Rail({ rail, position, itemCount }: { rail: string; position: number; itemCount: number }) {
   const ref = useTrackRailViewed<HTMLDivElement>(rail, position, itemCount);
   return <div ref={ref} />;
@@ -24,6 +29,7 @@ describe('useTrackRailViewed', () => {
     callbacks = [];
     trackMock.mockClear();
     vi.stubGlobal('IntersectionObserver', FakeObserver);
+    setVisibility('visible');
   });
 
   it('emits home_rail_viewed once the rail is ≥50% on screen', () => {
@@ -42,5 +48,16 @@ describe('useTrackRailViewed', () => {
     callbacks[0]([{ isIntersecting: true }]);
 
     expect(trackMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('defers emitting while the tab is hidden, and fires once it becomes visible', () => {
+    setVisibility('hidden');
+    render(<Rail rail="category:music" position={0} itemCount={4} />);
+
+    callbacks[0]([{ isIntersecting: true }]);
+    expect(trackMock).not.toHaveBeenCalled();
+
+    setVisibility('visible');
+    expect(trackMock).toHaveBeenCalledWith('home_rail_viewed', { rail: 'category:music', position: 0, itemCount: 4 });
   });
 });

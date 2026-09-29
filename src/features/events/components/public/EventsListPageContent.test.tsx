@@ -283,6 +283,26 @@ describe('EventsListPageContent tracking', () => {
     vi.useRealTimers();
   });
 
+  it('reads resultCount at fire time, not from the closure captured when search last changed', () => {
+    vi.useFakeTimers();
+    const initialPage = makePage({ page: 1, total: 2 });
+    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+
+    const { rerender } = render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+    fireEvent.change(screen.getByPlaceholderText('searchPlaceholder'), { target: { value: 'Show' } });
+
+    // Data changes (e.g. a background refetch) before the debounce fires,
+    // growing the match count — `search` itself never changes again.
+    const grownPage = makePage({ page: 1, total: 3, items: [makeEvent('1'), makeEvent('2'), makeEvent('3')] });
+    listEventsPageQueryMock.mockReturnValue({ data: grownPage, isError: false, refetch: vi.fn() });
+    rerender(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+
+    vi.advanceTimersByTime(400);
+
+    expect(trackMock).toHaveBeenCalledWith('search_performed', { query: 'Show', resultCount: 3 });
+    vi.useRealTimers();
+  });
+
   it('does not track search_performed for an empty query', () => {
     vi.useFakeTimers();
     const initialPage = makePage({ page: 1, total: 2 });

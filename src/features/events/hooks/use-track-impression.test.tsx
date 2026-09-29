@@ -14,6 +14,11 @@ class FakeObserver {
   disconnect() {}
 }
 
+function setVisibility(state: 'visible' | 'hidden') {
+  Object.defineProperty(document, 'visibilityState', { value: state, configurable: true });
+  document.dispatchEvent(new Event('visibilitychange'));
+}
+
 function Card({ id, list, position }: { id: string; list?: string; position?: number }) {
   const ref = useTrackImpression<HTMLDivElement>(id, list, position);
   return <div ref={ref} />;
@@ -24,6 +29,7 @@ describe('useTrackImpression', () => {
     callbacks = [];
     trackMock.mockClear();
     vi.stubGlobal('IntersectionObserver', FakeObserver);
+    setVisibility('visible');
   });
 
   it('emits event_impression once the card is on screen, with list/position', () => {
@@ -50,6 +56,24 @@ describe('useTrackImpression', () => {
   it('does not track when no list is given (card outside an instrumented listing)', () => {
     render(<Card id="evt-1" />);
     expect(callbacks).toHaveLength(0);
+    expect(trackMock).not.toHaveBeenCalled();
+  });
+
+  it('defers emitting while the tab is hidden, and fires once it becomes visible', () => {
+    setVisibility('hidden');
+    render(<Card id="evt-1" list="home:rail-1" position={1} />);
+
+    callbacks[0]([{ isIntersecting: true }]);
+    expect(trackMock).not.toHaveBeenCalled();
+
+    setVisibility('visible');
+    expect(trackMock).toHaveBeenCalledWith('event_impression', { eventId: 'evt-1', list: 'home:rail-1', position: 1 });
+  });
+
+  it('does not emit on a visibility change with no pending hit', () => {
+    render(<Card id="evt-1" list="home:rail-1" />);
+    setVisibility('hidden');
+    setVisibility('visible');
     expect(trackMock).not.toHaveBeenCalled();
   });
 });

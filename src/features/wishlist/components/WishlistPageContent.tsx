@@ -182,8 +182,8 @@ export function WishlistPageContent() {
               </div>
 
               <div className={styles.teaserGrid}>
-                {teaserShows.map((show) => (
-                  <ShowCard key={show.id} show={show} />
+                {teaserShows.map((show, index) => (
+                  <ShowCard key={show.id} show={show} list="wishlist" position={index} />
                 ))}
               </div>
             </div>
