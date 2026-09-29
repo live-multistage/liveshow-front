@@ -27,20 +27,21 @@ describe('ConsentBanner', () => {
     mockSetConsent.mockImplementation((state: 'granted' | 'denied') => { mockState.consent = state; });
   });
 
-  it('tracks consent_decided before granting', () => {
+  it('tracks consent_decided exactly once when granting', () => {
     render(<ConsentBanner />);
     screen.getByText('accept').click();
 
     expect(mockTrack).toHaveBeenCalledWith('consent_decided', { choice: 'granted' });
+    expect(mockTrack).toHaveBeenCalledTimes(1);
     expect(mockSetConsent).toHaveBeenCalledWith('granted');
     expect(mockSyncConsent).toHaveBeenCalledWith(true);
   });
 
-  it('tracks consent_decided on reject', () => {
+  it('never tracks consent_decided on refusal (from the never-decided state)', () => {
     render(<ConsentBanner />);
     screen.getByText('reject').click();
 
-    expect(mockTrack).toHaveBeenCalledWith('consent_decided', { choice: 'denied' });
+    expect(mockTrack).not.toHaveBeenCalled();
     expect(mockSetConsent).toHaveBeenCalledWith('denied');
     expect(mockSyncConsent).toHaveBeenCalledWith(false);
   });

@@ -15,10 +15,10 @@ export function ConsentBanner() {
   const analytics = useAnalytics();
 
   const choose = (state: ConsentState) => {
-    // Tracked before setConsent flips the SDK's own gate — a `denied` choice
-    // is still dropped downstream (LGPD: no delivery without consent), a
-    // `granted` one flushes once the consent transition lands.
-    analytics.track('consent_decided', { choice: state });
+    // A refusal is never tracked — LGPD: no behavioral event, ever, for a
+    // `denied` choice. Tracked before setConsent so the `granted` case still
+    // lands even though the SDK's queue is only flushed once consent flips.
+    if (state === 'granted') analytics.track('consent_decided', { choice: state });
     setConsent(state);
     privacyService.syncConsent(state === 'granted');
   };

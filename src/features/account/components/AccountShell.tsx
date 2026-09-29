@@ -9,7 +9,6 @@ import { useUnreadCountQuery } from '@/features/notifications';
 import { getMe } from '../queries/get-me';
 import { useAuth } from '../hooks/use-auth';
 import { initials } from '../utils/initials';
-import { useAnalytics } from '@/lib/analytics/tracking';
 import styles from './AccountShell.module.scss';
 
 const ROLE_KEYS = ['USER', 'ARTIST', 'ORGANIZER', 'ADMIN', 'SUPER_ADMIN'] as const;
@@ -32,16 +31,10 @@ interface Props {
 export function AccountShell({ children, activeNav, sectionScroll }: Props) {
   const t = useTranslations('settings');
   const { logout } = useAuth();
-  const analytics = useAnalytics();
   const { data: me, isLoading } = useQuery({ queryKey: ['me'], queryFn: getMe, staleTime: 60_000 });
   const { data: unreadCount = 0 } = useUnreadCountQuery();
 
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  const handleLogout = () => {
-    analytics.track('logged_out', {});
-    logout();
-  };
 
   if (isLoading || !me) {
     return <div className={styles.loading}><span className={styles.spinner} /></div>;
@@ -97,7 +90,7 @@ export function AccountShell({ children, activeNav, sectionScroll }: Props) {
             {sectionNavItem('dispositivos', <Monitor size={18} />, 'Dispositivos')}
           </nav>
 
-          <button className={styles.logout} onClick={handleLogout}><LogOut size={16} />Sair da conta</button>
+          <button className={styles.logout} onClick={logout}><LogOut size={16} />Sair da conta</button>
         </aside>
 
         <div className={styles.main}>{children}</div>

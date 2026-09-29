@@ -14,7 +14,8 @@ vi.mock('../queries/get-notification-preferences', () => ({
   useUpdateNotificationPreferencesMutation: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 const setConsent = vi.fn();
-vi.mock('@/lib/analytics/consent', () => ({ useAnalyticsConsent: () => ({ consent: null, setConsent }) }));
+let mockConsent: 'granted' | 'denied' | null = null;
+vi.mock('@/lib/analytics/consent', () => ({ useAnalyticsConsent: () => ({ consent: mockConsent, setConsent }) }));
 vi.mock('@/features/consent/privacy.service', () => ({ privacyService: { syncConsent: vi.fn(), exportData: vi.fn(), deleteAnalyticsData: vi.fn() } }));
 
 const track = vi.fn();
@@ -72,15 +73,28 @@ describe('SettingsPageContent — consent tracking', () => {
     vi.mocked(useQuery).mockReturnValue({ data: me, isLoading: false } as never);
     track.mockClear();
     setConsent.mockClear();
+    mockConsent = null;
   });
 
-  it('tracks consent_decided before toggling the analytics consent switch', () => {
+  it('tracks consent_decided exactly once when toggling from null (denied) to granted', () => {
     render(<SettingsPageContent twoFactorEnabled={false} />);
 
     const consentToggle = document.querySelector('#privacidade button') as HTMLButtonElement;
     fireEvent.click(consentToggle);
 
     expect(track).toHaveBeenCalledWith('consent_decided', { choice: 'granted' });
+    expect(track).toHaveBeenCalledTimes(1);
     expect(setConsent).toHaveBeenCalledWith('granted');
+  });
+
+  it('never tracks consent_decided when toggling from granted to denied', () => {
+    mockConsent = 'granted';
+    render(<SettingsPageContent twoFactorEnabled={false} />);
+
+    const consentToggle = document.querySelector('#privacidade button') as HTMLButtonElement;
+    fireEvent.click(consentToggle);
+
+    expect(track).not.toHaveBeenCalled();
+    expect(setConsent).toHaveBeenCalledWith('denied');
   });
 });

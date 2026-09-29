@@ -61,7 +61,9 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
       { email: payload.email, password: payload.password, rememberMe: payload.rememberMe },
       {
         onError: (err) => {
-          analytics.track('login_failed', { method: 'password', reason: err.code ?? err.message });
+          // err.code is a stable error key; err.message may carry raw server
+          // text and must never reach analytics.
+          analytics.track('login_failed', { method: 'password', reason: err.code ?? 'unknown_error' });
         },
       },
     );

@@ -110,6 +110,22 @@ describe('LoginForm — login_failed tracking', () => {
     );
   });
 
+  it('falls back to a fixed literal, never the raw server message, when the error has no code', async () => {
+    const mutate = vi.fn((_payload, opts?: { onError?: (e: { code?: string; message: string }) => void }) =>
+      opts?.onError?.({ message: 'some raw backend text that must never reach analytics' }));
+    mockedLogin.mockReturnValue({ mutate, isPending: false, error: null } as never);
+    mockedResend.mockReturnValue({ mutate: vi.fn(), isPending: false, error: null } as never);
+
+    render(<LoginForm />);
+    fireEvent.change(screen.getByLabelText('email'), { target: { value: 'jane@example.com' } });
+    fireEvent.change(screen.getByLabelText('password'), { target: { value: 'wrong' } });
+    fireEvent.click(screen.getByText('submit'));
+
+    await waitFor(() =>
+      expect(track).toHaveBeenCalledWith('login_failed', { method: 'password', reason: 'unknown_error' }),
+    );
+  });
+
   it('tracks login_failed with method google once when redirected back with oauthError', () => {
     mockedLogin.mockReturnValue({ mutate: vi.fn(), isPending: false, error: null } as never);
     mockedResend.mockReturnValue({ mutate: vi.fn(), isPending: false, error: null } as never);

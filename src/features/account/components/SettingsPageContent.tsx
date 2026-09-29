@@ -74,7 +74,8 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
 
   const toggleConsent = () => {
     const next = consent === 'granted' ? 'denied' : 'granted';
-    analytics.track('consent_decided', { choice: next });
+    // A refusal is never tracked — LGPD: no behavioral event for `denied`.
+    if (next === 'granted') analytics.track('consent_decided', { choice: next });
     setConsent(next);
     privacyService.syncConsent(next === 'granted');
   };
