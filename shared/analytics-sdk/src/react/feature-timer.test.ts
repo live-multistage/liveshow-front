@@ -23,6 +23,7 @@ describe('useFeatureTimer via TrackFeature', () => {
   afterEach(() => cleanup());
 
   it('does not let a `feature` or `durationMs` prop override the tracked values', () => {
+    vi.useFakeTimers();
     const trackUntyped = vi.fn();
     vi.spyOn(providerModule, 'useAnalytics').mockReturnValue({
       trackUntyped,
@@ -40,6 +41,8 @@ describe('useFeatureTimer via TrackFeature', () => {
     expect(trackUntyped).toHaveBeenCalledWith('feature_viewed', expect.objectContaining({ feature: 'checkout' }));
 
     unmount();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
 
     const [, timeProps] = trackUntyped.mock.calls.find(([eventName]) => eventName === 'feature_time')!;
     expect(timeProps.feature).toBe('checkout');
