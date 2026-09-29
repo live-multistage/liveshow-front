@@ -74,6 +74,9 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
   const currency = items[0]?.currency ?? 'BRL';
 
   // checkout_started once per page open, as soon as the cart has loaded.
+  // totalCents here is pre-coupon by design (the buyer hasn't confirmed one
+  // yet at this point) — contrast payment_submitted's totalCents below, which
+  // is post-discount.
   const trackedCheckoutStarted = useRef(false);
   useEffect(() => {
     if (trackedCheckoutStarted.current || !cart) return;
@@ -131,14 +134,21 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
   const selectedMethod = paymentMethods.data?.find((m) => m.id === selectedMethodId);
   const submitting = updateProfile.isPending || placeOrder.isPending;
 
+  // `submitting` (mutation isPending) only flips true after the first `await`
+  // below, so a fast second click in that window would sail past it — this
+  // ref is set synchronously, before any await, and is the real re-entry guard.
+  const submittingRef = useRef(false);
+
   const handlePay = async () => {
-    if (!selectedMethod || items.length === 0 || submitting) return;
+    if (!selectedMethod || items.length === 0 || submitting || submittingRef.current) return;
+    submittingRef.current = true;
     setPayErrorMsg(null);
 
     if (fiscalEnabled && doc.value && doc.value !== user?.taxDocument) {
       try {
         await updateProfile.mutateAsync({ taxDocument: doc.value });
       } catch {
+        submittingRef.current = false;
         setPayErrorMsg(t('buyerDocument.saveError'));
         return;
       }
@@ -154,6 +164,8 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
     });
 
     if (isTrackedPaymentMethod(selectedMethod.type)) {
+      // Post-discount: the coupon (if any) is already confirmed by this point,
+      // unlike checkout_started.totalCents below which is pre-coupon by design.
       track('payment_submitted', {
         method: selectedMethod.type,
         totalCents: Math.round(Math.max(0, totalAmount - (coupon?.discountAmount ?? 0)) * 100),
@@ -182,6 +194,9 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
           }
         },
         onError: (e) => setPayErrorMsg(payErrorMessage(normalizeError(e), t)),
+        onSettled: () => {
+          submittingRef.current = false;
+        },
       },
     );
   };

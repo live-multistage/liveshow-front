@@ -10,7 +10,7 @@ const { track } = vi.hoisted(() => ({ track: vi.fn() }));
 vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track }) }));
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CartCheckoutPageContent } from './CartCheckoutPageContent';
@@ -302,6 +302,35 @@ describe('CartCheckoutPageContent — tracking', () => {
     await vi.waitFor(() =>
       expect(mockRouter.push).toHaveBeenCalledWith('/checkout/pending?orderId=order-9&method=CREDIT_CARD'),
     );
+  });
+
+  it('does not double-submit on a fast double-click, even before mutation isPending flips', async () => {
+    // Unresolved until asserted below — `submitting` (mutation isPending)
+    // only flips true after the mutationFn is invoked, so this reproduces the
+    // synchronous re-entry window a fast double-click lands in.
+    const mutationFn = vi.fn(
+      () =>
+        new Promise<PlaceOrderResponse>((resolve) =>
+          resolve({
+            order: { id: 'order-1' } as PlaceOrderResponse['order'],
+            payment: { id: 'pay-1', action: { type: 'COMPLETED', externalReference: 'ref' } },
+          }),
+        ),
+    );
+    stubPlaceOrder(mutationFn);
+
+    renderPage();
+
+    await userEvent.click(screen.getByRole('radio', { name: /Cartão/i }));
+    const payButton = screen.getByRole('button', { name: /Pagar/i });
+    // fireEvent, not userEvent: dispatches synchronously, so both onClick
+    // handlers run in the same tick, before either await inside handlePay
+    // resolves — exactly the race a fast double-click reproduces.
+    fireEvent.click(payButton);
+    fireEvent.click(payButton);
+
+    await vi.waitFor(() => expect(mutationFn).toHaveBeenCalledTimes(1));
+    expect(track.mock.calls.filter(([name]) => name === 'payment_submitted')).toHaveLength(1);
   });
 });
 
