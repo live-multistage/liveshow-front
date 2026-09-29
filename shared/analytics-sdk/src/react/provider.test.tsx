@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { StrictMode } from 'react';
 import { render } from '@testing-library/react';
-import { AnalyticsProvider, TrackFeature, useAnalyticsIdentity } from './index';
+import { AnalyticsProvider, TrackFeature, useAnalytics, useAnalyticsIdentity } from './index';
 
 const opts = (send: any) => ({ writeKey: 'wk', endpoint: 'e', transport: { send }, flushAt: 1 });
 const events = (send: any) => send.mock.calls.flatMap((c: any) => c[0].batch).map((m: any) => m.type === 'track' ? m.event : m.type);
@@ -58,6 +58,28 @@ describe('UTM capture is consent-gated', () => {
     sessionStorage.setItem('sho_utm', JSON.stringify({ source: 'old' }));
     render(ui(vi.fn(), 'denied'));
     expect(sessionStorage.getItem('sho_utm')).toBeNull();
+  });
+});
+
+describe('useAnalytics without a provider', () => {
+  function NoProviderCaller() {
+    const analytics = useAnalytics();
+    analytics.track('feature_viewed' as any, {} as any);
+    return null;
+  }
+
+  it('does not throw and is a no-op', () => {
+    expect(() => render(<NoProviderCaller />)).not.toThrow();
+  });
+
+  it('TrackFeature does not throw without a provider', () => {
+    expect(() =>
+      render(
+        <TrackFeature name="player">
+          <div />
+        </TrackFeature>,
+      ),
+    ).not.toThrow();
   });
 });
 

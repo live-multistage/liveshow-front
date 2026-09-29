@@ -1,10 +1,14 @@
 import { createContext, createElement, useContext, useEffect, useRef, type ReactNode } from 'react';
-import { createAnalytics, type Analytics, type AnalyticsOptions } from '../core/analytics';
+import { createAnalytics, createInertAnalytics, type Analytics, type AnalyticsOptions } from '../core/analytics';
 import type { ConsentState } from '../core/consent';
 import { installClickDelegate } from './click-delegate';
 import { useAutoPage } from './auto-page';
 
 const AnalyticsContext = createContext<Analytics | null>(null);
+
+// ponytail: module-level singleton so every no-provider caller (missing write key,
+// impersonation, Suspense fallback) shares one stable inert object instead of a no-op throw.
+const inertAnalytics = createInertAnalytics();
 
 export function AnalyticsProvider(p: {
   options: Omit<AnalyticsOptions, 'consent'>;
@@ -35,8 +39,7 @@ export function AnalyticsProvider(p: {
 
 export function useAnalytics(): Analytics {
   const analytics = useContext(AnalyticsContext);
-  if (!analytics) throw new Error('useAnalytics must be used within an AnalyticsProvider');
-  return analytics;
+  return analytics ?? inertAnalytics;
 }
 
 /**

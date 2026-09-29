@@ -78,6 +78,26 @@ describe('TrackingProvider', () => {
     expect(body.batch.some((m: { type: string }) => m.type === 'page')).toBe(true);
   });
 
+  it('does not throw when a child calls useAnalytics without a write key configured', async () => {
+    vi.stubEnv('NEXT_PUBLIC_TRACKING_WRITE_KEY', '');
+    const TrackingProvider = await loadTrackingProvider();
+    const { useAnalytics } = await import('./tracking');
+
+    function Child() {
+      useAnalytics().track('feature_viewed' as never, {} as never);
+      return <div>content</div>;
+    }
+
+    expect(() =>
+      render(
+        <TrackingProvider>
+          <Child />
+        </TrackingProvider>,
+      ),
+    ).not.toThrow();
+    expect(screen.getByText('content')).toBeInTheDocument();
+  });
+
   it('does not track while an admin is impersonating, and leaves the admin ids alone', async () => {
     vi.stubEnv('NEXT_PUBLIC_TRACKING_WRITE_KEY', 'wk-test');
     document.cookie = 'sho_aid=admin-aid; Path=/';

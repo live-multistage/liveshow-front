@@ -248,7 +248,7 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
   return api;
 }
 
-function createInertAnalytics<P extends Record<string, object>>(): Analytics<P> {
+export function createInertAnalytics<P extends Record<string, object>>(): Analytics<P> {
   return {
     track: () => {},
     trackUntyped: () => {},
