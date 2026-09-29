@@ -53,23 +53,30 @@ export function EventDetailPageContent({ id }: Props) {
     organizationId: event?.organizationId,
   });
 
+  // TrackFeature wraps the whole conditional tree below at a stable top
+  // level so loading → loaded doesn't unmount/remount it (that produced a
+  // duplicate feature_viewed + a spurious near-0ms feature_time).
   if (isLoading) {
     return (
-      <div className={styles.centered}>
-        <span className={styles.spinner} />
-      </div>
+      <TrackFeature name="event_detail" props={{ eventId: id }}>
+        <div className={styles.centered}>
+          <span className={styles.spinner} />
+        </div>
+      </TrackFeature>
     );
   }
 
   if (isError || !event) {
     const isNotFound = isError && isAxiosError(error) && error.response?.status === 404;
     return (
-      <div className={styles.centered}>
-        <p className={styles.notFound}>{isNotFound ? t('notFound') : t('loadError')}</p>
-        {isNotFound
-          ? <Link href="/" className={styles.backLink}>{t('backToHome')}</Link>
-          : <button onClick={() => refetch()} className={styles.backLink}>{t('retry')}</button>}
-      </div>
+      <TrackFeature name="event_detail" props={{ eventId: id }}>
+        <div className={styles.centered}>
+          <p className={styles.notFound}>{isNotFound ? t('notFound') : t('loadError')}</p>
+          {isNotFound
+            ? <Link href="/" className={styles.backLink}>{t('backToHome')}</Link>
+            : <button onClick={() => refetch()} className={styles.backLink}>{t('retry')}</button>}
+        </div>
+      </TrackFeature>
     );
   }
 

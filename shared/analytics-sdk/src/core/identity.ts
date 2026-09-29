@@ -8,6 +8,7 @@ export interface SessionState {
 
 const SESSION_IDLE_MS = 30 * 60 * 1000;
 const ANON_KEY = 'sho_aid';
+const IDENTIFIED_USER_KEY = 'sho_uid';
 const SESSION_ID_KEY = 'sho_sid';
 const SESSION_AT_KEY = 'sho_sid_at';
 
@@ -56,6 +57,36 @@ export function clearPersistedIdentity(store: KeyValueStore): void {
   }
   store.remove(SESSION_ID_KEY);
   store.remove(SESSION_AT_KEY);
+  clearPersistedIdentifiedUserId();
+}
+
+/** Last userId identify() sent in this browser, or null. Reading is allowed pre-consent; only writes are gated. */
+export function readPersistedIdentifiedUserId(): string | null {
+  const fromCookie = readCookie(IDENTIFIED_USER_KEY);
+  if (fromCookie) return fromCookie;
+  try {
+    return localStorage.getItem(IDENTIFIED_USER_KEY) || null;
+  } catch {
+    return null; // storage blocked
+  }
+}
+
+export function persistIdentifiedUserId(userId: string): void {
+  writeCookie(IDENTIFIED_USER_KEY, userId);
+  try {
+    localStorage.setItem(IDENTIFIED_USER_KEY, userId);
+  } catch {
+    // storage blocked — cookie already carries the id
+  }
+}
+
+export function clearPersistedIdentifiedUserId(): void {
+  if (typeof document !== 'undefined') document.cookie = `${IDENTIFIED_USER_KEY}=; Max-Age=0; Path=/; SameSite=Lax`;
+  try {
+    localStorage.removeItem(IDENTIFIED_USER_KEY);
+  } catch {
+    // storage blocked — nothing was persisted there
+  }
 }
 
 export function persistAnonymousId(id: string): void {

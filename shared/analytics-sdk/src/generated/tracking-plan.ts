@@ -25,8 +25,8 @@ export type TrackingPlan = {
   event_unsaved: { eventId: string };
   event_viewed: { eventId: string; isFree?: boolean; organizationId?: string; priceCents?: number; status: 'upcoming' | 'live' | 'replay' | 'ended' };
   events_filtered: { filter: string; resultCount?: number; value?: string };
-  feature_time: { durationMs: number; feature: string };
-  feature_viewed: { feature: string };
+  feature_time: { durationMs: number; eventId?: string; feature: string; mode?: 'live' | 'replay' };
+  feature_viewed: { eventId?: string; feature: string; mode?: 'live' | 'replay' };
   followed: { targetId: string; targetType: 'artist' | 'organization' | 'channel' };
   home_rail_viewed: { itemCount?: number; position: number; rail: string };
   logged_in: { method: 'password' | 'google' | 'apple' };

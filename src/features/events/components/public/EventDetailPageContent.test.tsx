@@ -22,8 +22,21 @@ vi.mock('@/features/streams/queries/streams.queries', () => ({
 vi.mock('@/features/organizations', () => ({ useOrganization: vi.fn(() => ({ data: null })) }));
 vi.mock('@/features/account/hooks/use-auth', () => ({ useAuth: vi.fn(() => ({ user: null })) }));
 vi.mock('../../hooks/use-track-event-view', () => ({ useTrackEventView: vi.fn() }));
+// Mirrors the real TrackFeature's mount/unmount lifecycle (feature_viewed on
+// mount, feature_time on unmount) so tests can assert it isn't remounted when
+// the page moves between loading/error/loaded branches.
+const { trackFeatureMount, trackFeatureUnmount } = vi.hoisted(() => ({
+  trackFeatureMount: vi.fn(),
+  trackFeatureUnmount: vi.fn(),
+}));
 vi.mock('@live-show/analytics-sdk/react', () => ({
-  TrackFeature: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  TrackFeature: ({ children }: { children: React.ReactNode }) => {
+    React.useEffect(() => {
+      trackFeatureMount();
+      return () => trackFeatureUnmount();
+    }, []);
+    return <>{children}</>;
+  },
 }));
 vi.mock('@/features/advertisements', () => ({ AdBanner: () => null }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
@@ -33,6 +46,7 @@ vi.mock('./TicketPanel', () => ({ TicketPanel: () => null }));
 vi.mock('./EventSchedule', () => ({ EventSchedule: () => null }));
 vi.mock('./RelatedEvents', () => ({ RelatedEvents: () => null }));
 
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { EventDetailPageContent, toTrackedStatus } from './EventDetailPageContent';
 import type { TicketProductResponse } from '../../types/event.types';
@@ -197,6 +211,39 @@ describe('EventDetailPageContent camera topology', () => {
     renderWithEvent(makeEvent({ camerasCount: 0 }));
 
     expect(screen.queryByText(/CÂMERAS/)).toBeNull();
+  });
+});
+
+describe('EventDetailPageContent tracking', () => {
+  beforeEach(() => {
+    trackFeatureMount.mockClear();
+    trackFeatureUnmount.mockClear();
+  });
+
+  it('mounts TrackFeature once when the page moves from loading to loaded', () => {
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+
+    const { rerender } = render(<EventDetailPageContent id="evt-1" />);
+    expect(trackFeatureMount).toHaveBeenCalledTimes(1);
+    expect(trackFeatureUnmount).not.toHaveBeenCalled();
+
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: makeEvent(),
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+    rerender(<EventDetailPageContent id="evt-1" />);
+
+    expect(trackFeatureMount).toHaveBeenCalledTimes(1);
+    expect(trackFeatureUnmount).not.toHaveBeenCalled();
   });
 });
 

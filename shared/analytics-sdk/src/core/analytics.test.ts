@@ -134,6 +134,50 @@ describe('identity', () => {
   });
 });
 
+describe('identify dedup across reloads', () => {
+  beforeEach(() => {
+    document.cookie = 'sho_aid=; Max-Age=0';
+    document.cookie = 'sho_uid=; Max-Age=0';
+    localStorage.clear();
+  });
+
+  it('does not resend identify for the same userId across reloads', async () => {
+    const send1 = vi.fn().mockResolvedValue('ok');
+    const a1 = createAnalytics({ writeKey: 'wk', endpoint: 'e', consent: 'granted', transport: { send: send1 }, flushAt: 1 });
+    a1.identify('user-a');
+    await a1.flush();
+    expect(sentBatch(send1).filter((m: any) => m.type === 'identify')).toHaveLength(1);
+
+    // simulate a page reload: fresh analytics instance, same browser storage
+    const send2 = vi.fn().mockResolvedValue('ok');
+    const a2 = createAnalytics({ writeKey: 'wk', endpoint: 'e', consent: 'granted', transport: { send: send2 }, flushAt: 1 });
+    a2.identify('user-a');
+    await a2.flush();
+    expect(sentBatch(send2).filter((m: any) => m.type === 'identify')).toHaveLength(0);
+  });
+
+  it('resends identify when the user changes (A → B) after reset', async () => {
+    const send = vi.fn().mockResolvedValue('ok');
+    const a = createAnalytics({ writeKey: 'wk', endpoint: 'e', consent: 'granted', transport: { send }, flushAt: 1 });
+    a.identify('user-a');
+    a.reset();
+    a.identify('user-b');
+    await a.flush();
+    const identifies = sentBatch(send).filter((m: any) => m.type === 'identify');
+    expect(identifies).toHaveLength(2);
+    expect(identifies[1].userId).toBe('user-b');
+  });
+
+  it('clears the persisted identified user on denied', () => {
+    const a = createAnalytics({ writeKey: 'wk', endpoint: 'e', consent: 'granted', transport: { send: vi.fn() } });
+    a.identify('user-a');
+    expect(localStorage.getItem('sho_uid')).toBe('user-a');
+    a.setConsent('denied');
+    expect(localStorage.getItem('sho_uid')).toBeNull();
+    expect(document.cookie).not.toContain('sho_uid');
+  });
+});
+
 describe('session continuity across reloads (consent starts null)', () => {
   beforeEach(() => { document.cookie = 'sho_aid=; Max-Age=0'; localStorage.clear(); });
 

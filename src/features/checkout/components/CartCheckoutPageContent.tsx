@@ -203,10 +203,15 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
 
   const isLoading = authLoading || cartLoading || paymentMethods.isLoading;
 
-  if (!isLoggedIn && !authLoading) return null;
+  // TrackFeature wraps the whole conditional tree below at a stable top
+  // level so loading → loaded doesn't unmount/remount it (that produced a
+  // duplicate feature_viewed + a spurious near-0ms feature_time).
+  let content: JSX.Element | null;
 
-  if (isLoading) {
-    return (
+  if (!isLoggedIn && !authLoading) {
+    content = null;
+  } else if (isLoading) {
+    content = (
       <div className={styles.page}>
         <div className={styles.container}>
           <div className={styles.skeleton} />
@@ -214,10 +219,8 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
         </div>
       </div>
     );
-  }
-
-  if (items.length === 0) {
-    return (
+  } else if (items.length === 0) {
+    content = (
       <div className={styles.page}>
         <div className={styles.error}>
           <AlertCircle size={32} />
@@ -228,10 +231,8 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
         </div>
       </div>
     );
-  }
-
-  return (
-    <TrackFeature name="checkout">
+  } else {
+    content = (
     <div className={styles.page}>
       <div className={styles.inner}>
         <h1 className={styles.title}>Finalizar compra</h1>
@@ -323,8 +324,10 @@ export function CartCheckoutPageContent({ couponsEnabled = true, fiscalEnabled =
         </div>
       </div>
     </div>
-    </TrackFeature>
-  );
+    );
+  }
+
+  return <TrackFeature name="checkout">{content}</TrackFeature>;
 }
 
 function CartItemCard({ item }: { item: CartLineView }) {

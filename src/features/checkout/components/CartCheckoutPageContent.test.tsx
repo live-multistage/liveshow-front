@@ -2,14 +2,29 @@ vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
 const mockRouter = { replace: vi.fn(), push: vi.fn() };
 vi.mock('next/navigation', () => ({ useRouter: () => mockRouter }));
+
+// Mirrors the real TrackFeature's mount/unmount lifecycle (feature_viewed on
+// mount, feature_time on unmount) so tests can assert it isn't remounted when
+// the page moves from a loading branch to the loaded one.
+const { trackFeatureMount, trackFeatureUnmount } = vi.hoisted(() => ({
+  trackFeatureMount: vi.fn(),
+  trackFeatureUnmount: vi.fn(),
+}));
 vi.mock('@live-show/analytics-sdk/react', () => ({
-  TrackFeature: ({ children }: { children: React.ReactNode }) => children,
+  TrackFeature: ({ children }: { children: React.ReactNode }) => {
+    React.useEffect(() => {
+      trackFeatureMount();
+      return () => trackFeatureUnmount();
+    }, []);
+    return children;
+  },
 }));
 
 const { track } = vi.hoisted(() => ({ track: vi.fn() }));
 vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track }) }));
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -254,6 +269,29 @@ describe('CartCheckoutPageContent — tracking', () => {
       mutateAsync: vi.fn().mockResolvedValue(undefined),
     } as unknown as ReturnType<typeof useUpdateProfileMutation>);
     Object.defineProperty(window, 'location', { value: { href: '' }, writable: true });
+  });
+
+  it('mounts TrackFeature once when the page moves from loading to loaded', () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    mockedCart.mockReturnValue({ data: undefined, isLoading: true } as unknown as ReturnType<typeof useCartQuery>);
+
+    const { rerender } = render(
+      <QueryClientProvider client={queryClient}>
+        <CartCheckoutPageContent />
+      </QueryClientProvider>,
+    );
+    expect(trackFeatureMount).toHaveBeenCalledTimes(1);
+    expect(trackFeatureUnmount).not.toHaveBeenCalled();
+
+    mockedCart.mockReturnValue({ data: cart, isLoading: false } as ReturnType<typeof useCartQuery>);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <CartCheckoutPageContent />
+      </QueryClientProvider>,
+    );
+
+    expect(trackFeatureMount).toHaveBeenCalledTimes(1);
+    expect(trackFeatureUnmount).not.toHaveBeenCalled();
   });
 
   it('fires checkout_started once on mount, with the cart totals in cents', () => {

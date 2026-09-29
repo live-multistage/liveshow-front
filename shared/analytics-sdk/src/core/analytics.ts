@@ -3,13 +3,16 @@ import type { TrackingPlan } from '../generated/tracking-plan';
 import { buildContext, type UrlSanitizer } from './context';
 import { effectiveConsent, type ConsentState } from './consent';
 import {
+  clearPersistedIdentifiedUserId,
   clearPersistedIdentity,
   loadSession,
   nextSession,
   persistAnonymousId,
+  persistIdentifiedUserId,
   persistSession,
   readFreshSession,
   readPersistedAnonymousId,
+  readPersistedIdentifiedUserId,
   resolveAnonymousId,
   type SessionState,
 } from './identity';
@@ -92,6 +95,9 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
   if (initialEffective === 'granted') persistAnonymousId(anonymousId);
 
   let userId: string | undefined;
+  // Survives reloads via the same cookie+localStorage pair as anonymousId, so a logged-in
+  // user re-opening the site doesn't re-send identify on every page load.
+  let lastIdentifiedUserId: string | null = initialEffective === 'granted' ? readPersistedIdentifiedUserId() : null;
   let session: SessionState = loadSession(currentStore, nowFn());
   if (currentStore) persistSession(currentStore, session);
 
@@ -167,6 +173,9 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
       const effective = getEffective();
       if (effective === 'denied') return;
       userId = userIdArg;
+      if (userIdArg === lastIdentifiedUserId) return; // already identified in this browser
+      lastIdentifiedUserId = userIdArg;
+      if (currentStore) persistIdentifiedUserId(userIdArg);
       deliver(effective, () => buildMessage({ type: 'identify', traits }));
     },
     group(groupId, traits) {
@@ -186,6 +195,8 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
       anonymousId = randomUUID();
       rotatedByReset = true;
       userId = undefined;
+      lastIdentifiedUserId = null;
+      clearPersistedIdentifiedUserId();
       session = nextSession(null, nowFn());
       if (currentStore) {
         persistAnonymousId(anonymousId);
@@ -224,6 +235,7 @@ export function createAnalytics<P extends Record<string, object> = TrackingPlan>
         currentStore = null;
         queue.setStore(null);
         clearPersistedState();
+        lastIdentifiedUserId = null;
         return;
       }
 
