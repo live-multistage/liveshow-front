@@ -608,7 +608,8 @@
       "artists": "Artists",
       "artistsCatalog": "Artist Catalog",
       "platformMailing": "Emails",
-      "platformBlueprints": "Blueprints"
+      "platformBlueprints": "Blueprints",
+      "platformTracking": "Tracking"
     },
     "navMobile": {
       "overview": "Home",
@@ -2612,6 +2613,379 @@
             "hint": "Validate flagged problems; click each one to jump to the node."
           }
         }
+      }
+    },
+    "tracking": {
+      "shell": {
+        "group": "OPERATIONS",
+        "groupSub": "TRACKING",
+        "nav": {
+          "overview": "Overview",
+          "debugger": "Debugger",
+          "plan": "Event plan",
+          "sources": "Sources",
+          "destinations": "Destinations",
+          "reports": "Reports"
+        },
+        "flagOffBanner": "<strong>Collection is off</strong> — the <mono>TRACKING</mono> flag is off. No new events are being accepted.",
+        "timeoutBanner": "The query timed out. Try a shorter range.",
+        "retry": "Try again"
+      },
+      "overview": {
+        "title": "Tracking",
+        "subtitle": "Volume, health and violations of the event plan.",
+        "last24h": "LAST 24H",
+        "viewDebugger": "View debugger",
+        "kpis": {
+          "events": "EVENTS (24H)",
+          "eventsSub": "avg {avg}/h",
+          "violationRate": "VIOLATION RATE",
+          "violationRateSub": "{count} messages",
+          "queue": "QUEUE",
+          "queueSub": "waiting · {failed} failures",
+          "queueFailedPill": "{count} FAILURES",
+          "sources": "ACTIVE SOURCES",
+          "sourcesSub": "last message {when}"
+        },
+        "chart": {
+          "title": "Events per hour",
+          "peak": "peak",
+          "now": "now"
+        },
+        "topEvents": {
+          "title": "Top events",
+          "subtitle": "COUNT · 24H",
+          "unplanned": "UNPLANNED →"
+        },
+        "activeSources": {
+          "title": "Active sources",
+          "viewAll": "View sources →",
+          "never": "never",
+          "lastSeen": "last message: {when}"
+        },
+        "empty": {
+          "title": "No events received yet.",
+          "body": "Check that the {source} source is configured.",
+          "cta": "View sources →"
+        },
+        "error": "Couldn't load the overview."
+      },
+      "debugger": {
+        "title": "Debugger",
+        "connection": {
+          "live": "Live",
+          "connecting": "Connecting…",
+          "error": "Connection error — reconnecting"
+        },
+        "connectionLost": "Connection lost. Reconnecting…",
+        "buffer": "{count} / 500",
+        "pause": "Pause",
+        "resume": "Resume",
+        "resumeWithCount": "Resume · {count} new",
+        "clear": "Clear",
+        "pausedBanner": "Paused — {count} new messages",
+        "resumeLink": "Resume",
+        "filters": {
+          "source": "SOURCE",
+          "allSources": "all",
+          "typeAll": "All",
+          "eventPlaceholder": "Event name",
+          "userIdPlaceholder": "userId",
+          "anonymousIdPlaceholder": "anonymousId",
+          "searchPlaceholder": "Search in body…"
+        },
+        "columns": {
+          "event": "EVENT",
+          "source": "SOURCE",
+          "time": "TIME"
+        },
+        "badges": {
+          "violation": "violation",
+          "violations": "{count} violations",
+          "rejected": "rejected"
+        },
+        "dropped": "{count} messages dropped (buffer full)",
+        "empty": "No messages yet. Interact with the site to see events here.",
+        "connectingMessage": "Connecting to the stream…",
+        "noSelection": "Select a message to inspect.",
+        "inspector": {
+          "accepted": "ACCEPTED",
+          "rejected": "REJECTED",
+          "violationsTitle": "VIOLATIONS ({count})",
+          "bodyUnreadable": "The body could not be parsed.",
+          "rawTitle": "ORIGINAL BODY · RAW",
+          "messageTitle": "MESSAGE",
+          "copyJson": "Copy JSON"
+        },
+        "narrow": {
+          "blockedTitle": "The debugger needs a bigger screen.",
+          "blockedHint": "1280px width minimum",
+          "back": "← Back",
+          "filtersLabel": "Filters ({count}) ▾"
+        }
+      },
+      "plan": {
+        "title": "Event plan",
+        "subtitle": "What the platform expects to receive — names, properties and types.",
+        "newEvent": "+ New event",
+        "tabs": {
+          "planned": "Planned",
+          "unplanned": "Seen but unplanned"
+        },
+        "columns": {
+          "event": "EVENT",
+          "owner": "OWNER",
+          "status": "STATUS",
+          "props": "PROPS",
+          "updated": "UPDATED",
+          "firstSeen": "FIRST SEEN",
+          "lastSeen": "LAST SEEN",
+          "count": "COUNT"
+        },
+        "status": {
+          "draft": "Draft",
+          "live": "Live",
+          "deprecated": "Deprecated"
+        },
+        "addToPlan": "Add to plan",
+        "editor": {
+          "editTitle": "EDIT EVENT",
+          "newTitle": "NEW EVENT",
+          "name": "NAME",
+          "description": "DESCRIPTION",
+          "owner": "OWNER",
+          "status": "STATUS",
+          "propertiesTitle": "PROPERTIES ({count})",
+          "required": "REQ.",
+          "addProperty": "+ Property",
+          "nameDuplicateError": "An event with this name already exists.",
+          "propertyNameError": "Property has no name.",
+          "addValue": "+ value",
+          "cancel": "Cancel",
+          "save": "Save"
+        },
+        "deprecateConfirm": {
+          "title": "Deprecate {name}?",
+          "body": "Deprecated events keep being accepted, but show as a warning in the debugger.",
+          "cancel": "Cancel",
+          "confirm": "Deprecate"
+        },
+        "empty": {
+          "title": "No events planned yet.",
+          "body": "Every received event shows up under 'Seen but unplanned' until it's added here.",
+          "cta": "+ New event"
+        },
+        "error": "Couldn't load the plan."
+      },
+      "sources": {
+        "title": "Sources",
+        "subtitle": "Where events come from.",
+        "newSource": "+ New source",
+        "columns": {
+          "name": "NAME",
+          "kind": "TYPE",
+          "key": "WRITE KEY",
+          "status": "STATUS",
+          "created": "CREATED"
+        },
+        "status": {
+          "active": "Active",
+          "disabled": "Disabled"
+        },
+        "newDialog": {
+          "title": "New source",
+          "name": "NAME",
+          "kind": "TYPE",
+          "web": "web",
+          "webHint": "Browser, public key",
+          "server": "server",
+          "serverHint": "Backend, secret key",
+          "cancel": "Cancel",
+          "create": "Create"
+        },
+        "keyShown": {
+          "title": "Source created.",
+          "body": "Copy the write key now — it won't be shown again.",
+          "label": "WRITE KEY · {name}",
+          "copy": "Copy",
+          "warning": "After closing, only the {prefix} prefix stays visible. The full key cannot be recovered.",
+          "close": "Got it, close"
+        },
+        "disableConfirm": {
+          "title": "Disable {name}?",
+          "body": "Events from this source will start being rejected with 403. Continue?",
+          "cancel": "Cancel",
+          "confirm": "Disable"
+        },
+        "empty": {
+          "title": "No sources yet.",
+          "body": "Create the first one to start collecting events.",
+          "cta": "+ New source"
+        },
+        "error": "Couldn't load the sources."
+      },
+      "destinations": {
+        "title": "Destinations",
+        "subtitle": "Webhooks that get a copy of the events.",
+        "newDestination": "+ New destination",
+        "status": {
+          "active": "ACTIVE",
+          "disabled": "DISABLED"
+        },
+        "testSend": "Send test",
+        "viewDeliveries": "View deliveries",
+        "loadMore": "Load more",
+        "testSuccessToast": "Test sent — check the delivery log.",
+        "testFailureToast": "Send failed: {error}",
+        "deliveryChips": {
+          "all": "All",
+          "pending": "Pending",
+          "delivered": "Delivered",
+          "failed": "Failed"
+        },
+        "deliveryColumns": {
+          "status": "STATUS",
+          "attempts": "ATTEMPTS",
+          "lastError": "LAST ERROR",
+          "messages": "MESSAGES",
+          "created": "CREATED"
+        },
+        "deliveryStatus": {
+          "pending": "PENDING",
+          "delivered": "DELIVERED",
+          "failed": "FAILED"
+        },
+        "newDialog": {
+          "title": "New destination",
+          "name": "NAME",
+          "namePlaceholder": "CRM — HubSpot",
+          "url": "URL",
+          "filter": "EVENT FILTER · ONE PER LINE",
+          "filterHint": "Leave empty to send every event.",
+          "cancel": "Cancel",
+          "create": "Create"
+        },
+        "disableConfirm": {
+          "title": "Disable \"{name}\"?",
+          "body": "Deliveries stop immediately. Continue?",
+          "cancel": "Cancel",
+          "confirm": "Disable"
+        },
+        "deliveryDrawer": {
+          "failed": "FAILED",
+          "attemptsTitle": "ATTEMPTS · {attempts}/{max}",
+          "responseTitle": "DESTINATION RESPONSE",
+          "resend": "Resend delivery"
+        },
+        "empty": {
+          "title": "No destinations yet.",
+          "cta": "+ New destination"
+        },
+        "error": "Couldn't load the destinations."
+      },
+      "reports": {
+        "eyebrow": "REPORTS",
+        "tabs": {
+          "explore": "Explore",
+          "funnels": "Funnels",
+          "retention": "Retention",
+          "features": "Features"
+        },
+        "run": "Run",
+        "period": "PERIOD · MAX. 90 DAYS",
+        "states": {
+          "noQuery": "Choose an event and run the query.",
+          "timeout": "The query timed out. Try a shorter range.",
+          "timeoutEmpty": "No results — adjust the period and run again.",
+          "rangeTooLong": "Maximum range is 90 days."
+        },
+        "explore": {
+          "title": "Explore",
+          "event": "EVENT",
+          "interval": "INTERVAL",
+          "intervalHour": "hour",
+          "intervalDay": "day",
+          "breakdown": "BREAKDOWN (OPTIONAL)",
+          "breakdownPrefix": "properties.",
+          "columns": {
+            "day": "DAY",
+            "hour": "HOUR",
+            "total": "TOTAL"
+          },
+          "empty": "No events found in this period."
+        },
+        "funnels": {
+          "title": "Funnels",
+          "steps": "STEPS (2–8)",
+          "addStep": "+ Step",
+          "window": "CONVERSION WINDOW",
+          "unit": "UNIT",
+          "unitMin": "min",
+          "unitHour": "h",
+          "unitDays": "days",
+          "columns": {
+            "step": "STEP",
+            "count": "COUNT",
+            "fromPrevious": "FROM PREVIOUS",
+            "fromFirst": "FROM FIRST"
+          },
+          "footnote": "conversion window: {hours} h ({minutes} min) · striped area = drop from the previous step",
+          "minStepsError": "Add at least 2 steps.",
+          "empty": "No conversions found."
+        },
+        "retention": {
+          "title": "Retention",
+          "startEvent": "START EVENT",
+          "returnEvent": "RETURN EVENT",
+          "weeks": "WEEKS",
+          "columns": {
+            "cohort": "COHORT",
+            "users": "USERS"
+          },
+          "cohortLabel": "wk {date}",
+          "tooltip": "{returned} of {size} users",
+          "legendHint": "hover to see the absolute number",
+          "empty": "No cohorts in this period."
+        },
+        "features": {
+          "title": "Features",
+          "columns": {
+            "feature": "FEATURE",
+            "sessions": "SESSIONS",
+            "users": "USERS",
+            "medianActive": "ACTIVE TIME (MEDIAN)",
+            "p75Active": "ACTIVE TIME (P75)"
+          },
+          "empty": "No feature usage recorded in this period."
+        }
+      },
+      "user": {
+        "back": "← Back",
+        "lastSeen": "last seen {when}",
+        "traits": "TRAITS",
+        "groups": "GROUPS",
+        "linkedAnonymousIds": "LINKED ANONYMOUS IDS ({count})",
+        "viewAsAnonymous": "View as anonymous",
+        "consent": "CONSENT",
+        "consentValues": {
+          "granted": "Granted",
+          "denied": "Denied",
+          "unknown": "Not informed"
+        },
+        "timeline": {
+          "title": "Event timeline",
+          "mostRecentFirst": "MOST RECENT FIRST",
+          "loadMore": "Load more"
+        },
+        "badges": {
+          "violation": "violation",
+          "violations": "{count} violations"
+        },
+        "empty": "No events recorded for this user.",
+        "notFound": "User not found.",
+        "error": "Couldn't load the profile.",
+        "retry": "Try again",
+        "entryLink": "View tracking profile"
       }
     }
   },

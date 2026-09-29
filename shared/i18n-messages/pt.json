@@ -608,7 +608,8 @@
       "artists": "Artistas",
       "artistsCatalog": "Catálogo de Artistas",
       "platformMailing": "E-mails",
-      "platformBlueprints": "Blueprints"
+      "platformBlueprints": "Blueprints",
+      "platformTracking": "Tracking"
     },
     "navMobile": {
       "overview": "Painel",
@@ -2612,6 +2613,379 @@
             "hint": "Validar apontou problemas; clique em cada um para ir ao nó."
           }
         }
+      }
+    },
+    "tracking": {
+      "shell": {
+        "group": "OPERACIONAL",
+        "groupSub": "TRACKING",
+        "nav": {
+          "overview": "Visão geral",
+          "debugger": "Depurador",
+          "plan": "Plano de eventos",
+          "sources": "Fontes",
+          "destinations": "Destinos",
+          "reports": "Relatórios"
+        },
+        "flagOffBanner": "<strong>Coleta desligada</strong> — a flag <mono>TRACKING</mono> está desligada. Nenhum evento novo está sendo aceito.",
+        "timeoutBanner": "A consulta excedeu o tempo limite. Tente um intervalo menor.",
+        "retry": "Tentar de novo"
+      },
+      "overview": {
+        "title": "Tracking",
+        "subtitle": "Volume, saúde e violações do plano de eventos.",
+        "last24h": "ÚLTIMAS 24H",
+        "viewDebugger": "Ver depurador",
+        "kpis": {
+          "events": "EVENTOS (24H)",
+          "eventsSub": "média {avg}/h",
+          "violationRate": "TAXA DE VIOLAÇÃO",
+          "violationRateSub": "{count} mensagens",
+          "queue": "FILA",
+          "queueSub": "aguardando · {failed} falhas",
+          "queueFailedPill": "{count} FALHAS",
+          "sources": "FONTES ATIVAS",
+          "sourcesSub": "última mensagem {when}"
+        },
+        "chart": {
+          "title": "Eventos por hora",
+          "peak": "pico",
+          "now": "agora"
+        },
+        "topEvents": {
+          "title": "Top eventos",
+          "subtitle": "CONTAGEM · 24H",
+          "unplanned": "NÃO PLANEJADO →"
+        },
+        "activeSources": {
+          "title": "Fontes ativas",
+          "viewAll": "Ver fontes →",
+          "never": "nunca",
+          "lastSeen": "última mensagem: {when}"
+        },
+        "empty": {
+          "title": "Nenhum evento recebido ainda.",
+          "body": "Verifique se a fonte {source} está configurada.",
+          "cta": "Ver fontes →"
+        },
+        "error": "Não foi possível carregar a visão geral."
+      },
+      "debugger": {
+        "title": "Depurador",
+        "connection": {
+          "live": "Ao vivo",
+          "connecting": "Conectando…",
+          "error": "Erro de conexão — tentando reconectar"
+        },
+        "connectionLost": "Conexão perdida. Tentando reconectar…",
+        "buffer": "{count} / 500",
+        "pause": "Pausar",
+        "resume": "Retomar",
+        "resumeWithCount": "Retomar · {count} novas",
+        "clear": "Limpar",
+        "pausedBanner": "Pausado — {count} novas mensagens",
+        "resumeLink": "Retomar",
+        "filters": {
+          "source": "FONTE",
+          "allSources": "todas",
+          "typeAll": "Todos",
+          "eventPlaceholder": "Nome do evento",
+          "userIdPlaceholder": "userId",
+          "anonymousIdPlaceholder": "anonymousId",
+          "searchPlaceholder": "Buscar no corpo…"
+        },
+        "columns": {
+          "event": "EVENTO",
+          "source": "FONTE",
+          "time": "HORA"
+        },
+        "badges": {
+          "violation": "violação",
+          "violations": "{count} violações",
+          "rejected": "rejeitado"
+        },
+        "dropped": "{count} mensagens descartadas (buffer cheio)",
+        "empty": "Nenhuma mensagem ainda. Interaja com o site para ver eventos aqui.",
+        "connectingMessage": "Conectando ao stream…",
+        "noSelection": "Selecione uma mensagem para inspecionar.",
+        "inspector": {
+          "accepted": "ACEITO",
+          "rejected": "REJEITADO",
+          "violationsTitle": "VIOLAÇÕES ({count})",
+          "bodyUnreadable": "Corpo não pôde ser interpretado.",
+          "rawTitle": "CORPO ORIGINAL · RAW",
+          "messageTitle": "MENSAGEM",
+          "copyJson": "Copiar JSON"
+        },
+        "narrow": {
+          "blockedTitle": "O depurador precisa de uma tela maior.",
+          "blockedHint": "mínimo 1280px de largura",
+          "back": "← Voltar",
+          "filtersLabel": "Filtros ({count}) ▾"
+        }
+      },
+      "plan": {
+        "title": "Plano de eventos",
+        "subtitle": "O que a plataforma espera receber — nomes, propriedades e tipos.",
+        "newEvent": "+ Novo evento",
+        "tabs": {
+          "planned": "Planejados",
+          "unplanned": "Vistos mas não planejados"
+        },
+        "columns": {
+          "event": "EVENTO",
+          "owner": "DONO",
+          "status": "STATUS",
+          "props": "PROPS",
+          "updated": "ATUALIZADO",
+          "firstSeen": "PRIMEIRA VEZ",
+          "lastSeen": "ÚLTIMA VEZ",
+          "count": "CONTAGEM"
+        },
+        "status": {
+          "draft": "Rascunho",
+          "live": "Ativo",
+          "deprecated": "Depreciado"
+        },
+        "addToPlan": "Adicionar ao plano",
+        "editor": {
+          "editTitle": "EDITAR EVENTO",
+          "newTitle": "NOVO EVENTO",
+          "name": "NOME",
+          "description": "DESCRIÇÃO",
+          "owner": "DONO",
+          "status": "STATUS",
+          "propertiesTitle": "PROPRIEDADES ({count})",
+          "required": "OBRIG.",
+          "addProperty": "+ Propriedade",
+          "nameDuplicateError": "Já existe um evento com este nome.",
+          "propertyNameError": "Propriedade sem nome.",
+          "addValue": "+ valor",
+          "cancel": "Cancelar",
+          "save": "Salvar"
+        },
+        "deprecateConfirm": {
+          "title": "Depreciar {name}?",
+          "body": "Eventos depreciados continuam sendo aceitos, mas aparecem como aviso no depurador.",
+          "cancel": "Cancelar",
+          "confirm": "Depreciar"
+        },
+        "empty": {
+          "title": "Nenhum evento planejado ainda.",
+          "body": "Todo evento recebido aparece em 'Vistos mas não planejados' até ser adicionado aqui.",
+          "cta": "+ Novo evento"
+        },
+        "error": "Não foi possível carregar o plano."
+      },
+      "sources": {
+        "title": "Fontes",
+        "subtitle": "De onde os eventos chegam.",
+        "newSource": "+ Nova fonte",
+        "columns": {
+          "name": "NOME",
+          "kind": "TIPO",
+          "key": "WRITE KEY",
+          "status": "STATUS",
+          "created": "CRIADA EM"
+        },
+        "status": {
+          "active": "Ativa",
+          "disabled": "Desativada"
+        },
+        "newDialog": {
+          "title": "Nova fonte",
+          "name": "NOME",
+          "kind": "TIPO",
+          "web": "web",
+          "webHint": "Navegador, chave pública",
+          "server": "server",
+          "serverHint": "Backend, chave secreta",
+          "cancel": "Cancelar",
+          "create": "Criar"
+        },
+        "keyShown": {
+          "title": "Fonte criada.",
+          "body": "Copie a write key agora — ela não será mostrada novamente.",
+          "label": "WRITE KEY · {name}",
+          "copy": "Copiar",
+          "warning": "Depois de fechar, só o prefixo {prefix} fica visível. Não há como recuperar a chave completa.",
+          "close": "Entendi, fechar"
+        },
+        "disableConfirm": {
+          "title": "Desativar {name}?",
+          "body": "Eventos desta fonte passam a ser rejeitados com 403. Continuar?",
+          "cancel": "Cancelar",
+          "confirm": "Desativar"
+        },
+        "empty": {
+          "title": "Nenhuma fonte cadastrada.",
+          "body": "Crie a primeira para começar a coletar eventos.",
+          "cta": "+ Nova fonte"
+        },
+        "error": "Não foi possível carregar as fontes."
+      },
+      "destinations": {
+        "title": "Destinos",
+        "subtitle": "Webhooks que recebem uma cópia dos eventos.",
+        "newDestination": "+ Novo destino",
+        "status": {
+          "active": "ATIVO",
+          "disabled": "DESATIVADO"
+        },
+        "testSend": "Testar envio",
+        "viewDeliveries": "Ver entregas",
+        "loadMore": "Carregar mais",
+        "testSuccessToast": "Teste enviado — verifique o log de entregas.",
+        "testFailureToast": "Falha ao enviar: {error}",
+        "deliveryChips": {
+          "all": "Todas",
+          "pending": "Pendentes",
+          "delivered": "Entregues",
+          "failed": "Falhas"
+        },
+        "deliveryColumns": {
+          "status": "STATUS",
+          "attempts": "TENTATIVAS",
+          "lastError": "ÚLTIMO ERRO",
+          "messages": "MENSAGENS",
+          "created": "CRIADA EM"
+        },
+        "deliveryStatus": {
+          "pending": "PENDENTE",
+          "delivered": "ENTREGUE",
+          "failed": "FALHA"
+        },
+        "newDialog": {
+          "title": "Novo destino",
+          "name": "NOME",
+          "namePlaceholder": "CRM — HubSpot",
+          "url": "URL",
+          "filter": "FILTRO DE EVENTOS · UM POR LINHA",
+          "filterHint": "Deixe vazio para enviar todos os eventos.",
+          "cancel": "Cancelar",
+          "create": "Criar"
+        },
+        "disableConfirm": {
+          "title": "Desativar \"{name}\"?",
+          "body": "Entregas param imediatamente. Continuar?",
+          "cancel": "Cancelar",
+          "confirm": "Desativar"
+        },
+        "deliveryDrawer": {
+          "failed": "FALHA",
+          "attemptsTitle": "TENTATIVAS · {attempts}/{max}",
+          "responseTitle": "RESPOSTA DO DESTINO",
+          "resend": "Reenviar entrega"
+        },
+        "empty": {
+          "title": "Nenhum destino cadastrado.",
+          "cta": "+ Novo destino"
+        },
+        "error": "Não foi possível carregar os destinos."
+      },
+      "reports": {
+        "eyebrow": "RELATÓRIOS",
+        "tabs": {
+          "explore": "Explorar",
+          "funnels": "Funis",
+          "retention": "Retenção",
+          "features": "Recursos"
+        },
+        "run": "Rodar",
+        "period": "PERÍODO · MÁX. 90 DIAS",
+        "states": {
+          "noQuery": "Escolha um evento e rode a consulta.",
+          "timeout": "A consulta excedeu o tempo limite. Tente um intervalo menor.",
+          "timeoutEmpty": "Nenhum resultado — ajuste o período e rode de novo.",
+          "rangeTooLong": "Intervalo máximo de 90 dias."
+        },
+        "explore": {
+          "title": "Explorar",
+          "event": "EVENTO",
+          "interval": "INTERVALO",
+          "intervalHour": "hora",
+          "intervalDay": "dia",
+          "breakdown": "QUEBRA (OPCIONAL)",
+          "breakdownPrefix": "properties.",
+          "columns": {
+            "day": "DIA",
+            "hour": "HORA",
+            "total": "TOTAL"
+          },
+          "empty": "Nenhum evento encontrado nesse período."
+        },
+        "funnels": {
+          "title": "Funis",
+          "steps": "ETAPAS (2–8)",
+          "addStep": "+ Etapa",
+          "window": "JANELA DE CONVERSÃO",
+          "unit": "UNIDADE",
+          "unitMin": "min",
+          "unitHour": "h",
+          "unitDays": "dias",
+          "columns": {
+            "step": "ETAPA",
+            "count": "CONTAGEM",
+            "fromPrevious": "DA ANTERIOR",
+            "fromFirst": "DA PRIMEIRA"
+          },
+          "footnote": "janela de conversão: {hours} h ({minutes} min) · área listrada = queda em relação à etapa anterior",
+          "minStepsError": "Adicione ao menos 2 etapas.",
+          "empty": "Nenhuma conversão encontrada."
+        },
+        "retention": {
+          "title": "Retenção",
+          "startEvent": "EVENTO DE INÍCIO",
+          "returnEvent": "EVENTO DE RETORNO",
+          "weeks": "SEMANAS",
+          "columns": {
+            "cohort": "COORTE",
+            "users": "USUÁRIOS"
+          },
+          "cohortLabel": "sem. {date}",
+          "tooltip": "{returned} de {size} usuários",
+          "legendHint": "passe o mouse para ver o número absoluto",
+          "empty": "Nenhuma coorte no período."
+        },
+        "features": {
+          "title": "Recursos",
+          "columns": {
+            "feature": "FEATURE",
+            "sessions": "SESSÕES",
+            "users": "USUÁRIOS",
+            "medianActive": "TEMPO ATIVO (MEDIANA)",
+            "p75Active": "TEMPO ATIVO (P75)"
+          },
+          "empty": "Nenhum uso de feature registrado no período."
+        }
+      },
+      "user": {
+        "back": "← Voltar",
+        "lastSeen": "visto pela última vez {when}",
+        "traits": "TRAITS",
+        "groups": "GRUPOS",
+        "linkedAnonymousIds": "IDS ANÔNIMOS VINCULADOS ({count})",
+        "viewAsAnonymous": "Ver como anônimo",
+        "consent": "CONSENTIMENTO",
+        "consentValues": {
+          "granted": "Concedido",
+          "denied": "Negado",
+          "unknown": "Não informado"
+        },
+        "timeline": {
+          "title": "Timeline de eventos",
+          "mostRecentFirst": "MAIS RECENTE PRIMEIRO",
+          "loadMore": "Carregar mais"
+        },
+        "badges": {
+          "violation": "violação",
+          "violations": "{count} violações"
+        },
+        "empty": "Nenhum evento registrado para este usuário.",
+        "notFound": "Usuário não encontrado.",
+        "error": "Não foi possível carregar o perfil.",
+        "retry": "Tentar de novo",
+        "entryLink": "Ver perfil de tracking"
       }
     }
   },
