@@ -2640,7 +2640,7 @@
           "events": "EVENTOS (24H)",
           "eventsSub": "média {avg}/h",
           "violationRate": "TAXA DE VIOLAÇÃO",
-          "violationRateSub": "{count} mensagens",
+          "violationRateSub": "sobre eventos track",
           "queue": "FILA",
           "queueSub": "aguardando · {failed} falhas",
           "queueFailedPill": "{count} FALHAS",
@@ -2650,7 +2650,8 @@
         "chart": {
           "title": "Eventos por hora",
           "peak": "pico",
-          "now": "agora"
+          "now": "agora",
+          "peakCount": "{count} eventos"
         },
         "topEvents": {
           "title": "Top eventos",

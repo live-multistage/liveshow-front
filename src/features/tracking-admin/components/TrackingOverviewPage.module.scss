@@ -155,6 +155,22 @@ $muted-text: #a1a1aa;
 .barPeak { background: $accent; }
 .barNow { background: repeating-linear-gradient(45deg, #{$accent} 0 4px, rgba(236, 72, 153, .6) 4px 8px); }
 
+.xLabels {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #52525b;
+
+  span {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+.xLabelNow { color: $accent-light; }
+
 .twoCol {
   display: grid;
   grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);

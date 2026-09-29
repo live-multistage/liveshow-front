@@ -2640,7 +2640,7 @@
           "events": "EVENTS (24H)",
           "eventsSub": "avg {avg}/h",
           "violationRate": "VIOLATION RATE",
-          "violationRateSub": "{count} messages",
+          "violationRateSub": "over track events",
           "queue": "QUEUE",
           "queueSub": "waiting · {failed} failures",
           "queueFailedPill": "{count} FAILURES",
@@ -2650,7 +2650,8 @@
         "chart": {
           "title": "Events per hour",
           "peak": "peak",
-          "now": "now"
+          "now": "now",
+          "peakCount": "{count} events"
         },
         "topEvents": {
           "title": "Top events",
