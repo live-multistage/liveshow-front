@@ -8,6 +8,7 @@ import { isPlaybackUnauthorized } from '../utils/is-playback-unauthorized';
 import { usePrerollGate } from '@/features/advertisements/hooks/use-preroll-gate';
 import { PreRollPlayer } from '@/features/advertisements/components/PreRollPlayer';
 import { useReplayAccessQuery, useReplayPlaybackQuery } from '../queries/live.queries';
+import { usePlayerOpened } from '../hooks/use-player-opened';
 import { LiveGateLoading } from './LiveGateLoading';
 import { ReplayComingSoon } from './ReplayComingSoon';
 import { ReplayPlayer } from './ReplayPlayer';
@@ -88,6 +89,7 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
 // Shared by "never had access" and "access refetch came back 401/403" — same
 // user-facing message either way: go get/renew a ticket.
 function ReplayNoAccess({ eventId, eventTitle }: { eventId: string; eventTitle: string }) {
+  usePlayerOpened(eventId, 'replay', false);
   const t = useTranslations('liveGate');
   return (
     <div className={styles.noAccess}>

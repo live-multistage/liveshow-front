@@ -49,7 +49,8 @@ const h = vi.hoisted(() => {
 
 vi.mock('hls.js', () => ({ default: h.MockHls }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
-vi.mock('@/lib/analytics/analytics-client', () => ({ track: vi.fn() }));
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: vi.fn() }) }));
+vi.mock('@live-show/analytics-sdk/react', () => ({ TrackFeature: ({ children }: { children: unknown }) => children }));
 // Needs a React Query provider; not what these tests exercise.
 vi.mock('./RecommendedOverlay', () => ({ RecommendedOverlay: () => null }));
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));

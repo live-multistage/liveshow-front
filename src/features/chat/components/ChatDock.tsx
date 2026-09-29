@@ -11,6 +11,7 @@ import { FloatingReactions } from './FloatingReactions';
 import styles from './ChatDock.module.scss';
 
 interface Props {
+  eventId: string;
   open: boolean;
   onClose: () => void;
   messages: ChatMessage[];
@@ -28,6 +29,7 @@ interface Props {
 }
 
 export function ChatDock({
+  eventId,
   open,
   onClose,
   messages,
@@ -73,11 +75,11 @@ export function ChatDock({
       />
       <div className={styles.reactionArea}>
         <FloatingReactions counts={reactionCounts} />
-        <ReactionBar onReact={onReact} counts={reactionCounts} />
+        <ReactionBar eventId={eventId} onReact={onReact} counts={reactionCounts} />
       </div>
 
       <div className={styles.inputArea}>
-        <ChatInput onSend={onSend} me={me} />
+        <ChatInput eventId={eventId} onSend={onSend} me={me} />
       </div>
     </div>
   );

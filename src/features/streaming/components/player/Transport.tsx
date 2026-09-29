@@ -8,10 +8,19 @@ import { PlayPauseButton } from '../transport/PlayPauseButton';
 import { VolumeControl } from '../transport/VolumeControl';
 import { PlayerMenu } from '../transport/PlayerMenu';
 import controls from '../transport/transport-controls.module.scss';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import { usePlayer } from './PlayerContext';
 import styles from './Transport.module.scss';
 
 const AUTO_LEVEL = -1;
+
+// The label a level shows in the menu doubles as the analytics `quality`
+// value — same auto/height-p vocabulary the viewer sees.
+function levelLabel(level: number, levels: { index: number; height: number }[]): string {
+  if (level === AUTO_LEVEL) return 'auto';
+  const found = levels.find((l) => l.index === level);
+  return found ? `${found.height}p` : String(level);
+}
 
 // <LiveBadge/> or <ReplayBadge/> — the bar doesn't know which mode it serves.
 function Badge({ children }: { children: ReactNode }) {
@@ -86,11 +95,25 @@ function AudioCamera() {
 }
 
 function Quality() {
-  const { shell } = usePlayer();
+  const { shell, playbackEventId } = usePlayer();
   const t = useTranslations('player');
+  const analytics = useAnalytics();
   const { levels, currentLevel, qualityLabel, onSelectLevel } = shell.quality;
 
   if (levels.length === 0) return null;
+
+  const handleSelect = (id: string) => {
+    const next = Number(id);
+    if (next !== currentLevel) {
+      analytics.track('quality_changed', {
+        eventId: playbackEventId,
+        from: levelLabel(currentLevel, levels),
+        to: levelLabel(next, levels),
+        auto: next === AUTO_LEVEL,
+      });
+    }
+    onSelectLevel(next);
+  };
 
   return (
     <PlayerMenu
@@ -99,7 +122,7 @@ function Quality() {
         ...levels.map(({ index, height }) => ({ id: String(index), label: `${height}p` })),
       ]}
       activeId={String(currentLevel)}
-      onSelect={(id) => onSelectLevel(Number(id))}
+      onSelect={handleSelect}
       trigger={qualityLabel}
       triggerClassName={controls.qualityBtn}
     />

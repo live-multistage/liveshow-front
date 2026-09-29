@@ -125,6 +125,10 @@ export interface UseTransportControlsOptions {
   // in live mode.
   onProgress?: (currentTime: number, duration: number, live?: LiveWindow) => void;
   onEnded?: () => void;
+  // Analytics only, time-source panel only (see below): the first 'playing'
+  // frame, and a 'waiting'→'playing' stall's duration.
+  onPlaying?: () => void;
+  onBuffered?: (durationMs: number) => void;
 }
 
 // Transport wiring for one panel: pause/resume, commanded seeks and the
@@ -151,6 +155,8 @@ export function useTransportControls({
   isTimeSource = false,
   onProgress,
   onEnded,
+  onPlaying,
+  onBuffered,
 }: UseTransportControlsOptions): UseTransportControlsResult {
   // Recomputed every render straight from props — not state — so it's never a
   // render behind seekCommand/coverage.
@@ -309,6 +315,32 @@ export function useTransportControls({
     return () => video.removeEventListener('ended', onEnded);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTimeSource, onEnded]);
+
+  // 'waiting' marks the start of a stall; the next 'playing' closes it. Below
+  // 500ms is normal ABR/segment-boundary jitter, not a stall worth reporting.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !isTimeSource || (!onPlaying && !onBuffered)) return;
+    let waitingAt: number | null = null;
+    const handlePlaying = () => {
+      if (waitingAt !== null) {
+        const durationMs = Date.now() - waitingAt;
+        waitingAt = null;
+        if (durationMs > 500) onBuffered?.(durationMs);
+      }
+      onPlaying?.();
+    };
+    const handleWaiting = () => {
+      waitingAt = Date.now();
+    };
+    video.addEventListener('playing', handlePlaying);
+    video.addEventListener('waiting', handleWaiting);
+    return () => {
+      video.removeEventListener('playing', handlePlaying);
+      video.removeEventListener('waiting', handleWaiting);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTimeSource, onPlaying, onBuffered]);
 
   return { outsideCoverage };
 }

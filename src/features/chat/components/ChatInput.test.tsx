@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ChatInput } from './ChatInput';
 import type { ChatMe } from '../types/chat.types';
@@ -17,6 +17,9 @@ vi.mock('@/features/account/hooks/use-auth', () => ({
   useAuth: () => auth,
 }));
 
+const mockTrack = vi.hoisted(() => vi.fn());
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: mockTrack }) }));
+
 const me = (overrides: Partial<ChatMe> = {}): ChatMe => ({
   canWrite: true,
   isMuted: false,
@@ -25,9 +28,11 @@ const me = (overrides: Partial<ChatMe> = {}): ChatMe => ({
 });
 
 describe('ChatInput', () => {
+  beforeEach(() => mockTrack.mockClear());
+
   it('logged in with no bootstrap yet shows a disabled "connecting" input, never the login link', () => {
     auth.isLoggedIn = true;
-    render(<ChatInput onSend={vi.fn()} me={null} />);
+    render(<ChatInput eventId="evt-1" onSend={vi.fn()} me={null} />);
     const input = screen.getByPlaceholderText('connecting') as HTMLInputElement;
     expect(input.disabled).toBe(true);
     expect(screen.queryByText('login')).toBeNull();
@@ -36,13 +41,13 @@ describe('ChatInput', () => {
 
   it('logged in without write access shows a disabled "unavailable" input', () => {
     auth.isLoggedIn = true;
-    render(<ChatInput onSend={vi.fn()} me={me({ canWrite: false })} />);
+    render(<ChatInput eventId="evt-1" onSend={vi.fn()} me={me({ canWrite: false })} />);
     expect((screen.getByPlaceholderText('unavailable') as HTMLInputElement).disabled).toBe(true);
     auth.isLoggedIn = false;
   });
 
   it('anonymous (me === null) shows the join link with returnTo/redirect to the current path', () => {
-    render(<ChatInput onSend={vi.fn()} me={null} />);
+    render(<ChatInput eventId="evt-1" onSend={vi.fn()} me={null} />);
 
     expect(screen.getByText('joinToChat')).toBeInTheDocument();
     const link = screen.getByText('login');
@@ -51,7 +56,7 @@ describe('ChatInput', () => {
   });
 
   it('muted disables the input with the muted placeholder', () => {
-    render(<ChatInput onSend={vi.fn()} me={me({ isMuted: true, canWrite: false })} />);
+    render(<ChatInput eventId="evt-1" onSend={vi.fn()} me={me({ isMuted: true, canWrite: false })} />);
 
     const input = screen.getByPlaceholderText('muted');
     expect(input).toBeDisabled();
@@ -60,7 +65,7 @@ describe('ChatInput', () => {
 
   it('normal state sends the trimmed text and clears the input', () => {
     const onSend = vi.fn();
-    render(<ChatInput onSend={onSend} me={me()} />);
+    render(<ChatInput eventId="evt-1" onSend={onSend} me={me()} />);
 
     const input = screen.getByPlaceholderText('placeholder');
     fireEvent.change(input, { target: { value: '  oi tudo bem  ' } });
@@ -68,5 +73,7 @@ describe('ChatInput', () => {
 
     expect(onSend).toHaveBeenCalledWith('oi tudo bem');
     expect(input).toHaveValue('');
+    expect(mockTrack).toHaveBeenCalledWith('chat_message_sent', { eventId: 'evt-1' });
+    expect(mockTrack).toHaveBeenCalledTimes(1);
   });
 });

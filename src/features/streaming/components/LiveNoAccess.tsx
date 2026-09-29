@@ -14,6 +14,7 @@ import {
   formatDuration,
 } from '@/features/events';
 import { useViewerCount } from '../hooks/use-viewer-count';
+import { usePlayerOpened } from '../hooks/use-player-opened';
 import styles from './LiveNoAccess.module.scss';
 
 interface Props {
@@ -28,6 +29,7 @@ function fmtCompact(v: number): string {
 }
 
 export function LiveNoAccess({ eventId, eventTitle, isLoggedIn }: Props) {
+  usePlayerOpened(eventId, 'live', false);
   const t = useTranslations('liveGate');
   const pathname = usePathname();
   const { data: event } = useGetEventQuery(eventId);

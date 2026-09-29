@@ -12,6 +12,7 @@ function makeHttpError(status: number) {
 }
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: vi.fn() }) }));
 
 const authState = { isLoggedIn: true, isLoading: false };
 vi.mock('@/features/account/hooks/use-auth', () => ({

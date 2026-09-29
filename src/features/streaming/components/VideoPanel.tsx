@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { Maximize2, Volume2, VolumeX } from 'lucide-react';
-import { track } from '@/lib/analytics/analytics-client';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import type { LiveCamera } from '../types/live.types';
 import { useHlsPlayer } from '../hooks/use-hls-player';
 import type { QualityLevel } from '../hooks/use-hls-player';
@@ -24,6 +24,9 @@ export type { QualityLevel } from '../hooks/use-hls-player';
 
 interface VideoPanelProps {
   camera: LiveCamera;
+  // The event actually on screen — required for low_latency_fallback
+  // analytics (fires from any panel, not just the primary one).
+  eventId?: string;
   isActive?: boolean;
   onSelect?: () => void;
   isFocused?: boolean;
@@ -103,10 +106,15 @@ interface VideoPanelProps {
   isTimeSource?: boolean;
   onProgress?: (currentTime: number, duration: number, live?: LiveWindow) => void;
   onEnded?: () => void;
+  // Analytics only — see use-transport-controls. Only threaded in for the
+  // primary/time-source panel by CameraGrid.
+  onPlaying?: (quality: string, latencyMode: string) => void;
+  onBuffered?: (durationMs: number) => void;
 }
 
 export function VideoPanel({
   camera,
+  eventId,
   isActive = false,
   onSelect,
   isFocused = false,
@@ -132,8 +140,11 @@ export function VideoPanel({
   isTimeSource = false,
   onProgress,
   onEnded,
+  onPlaying,
+  onBuffered,
 }: VideoPanelProps) {
   const t = useTranslations('player');
+  const analytics = useAnalytics();
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Full hls.js lifecycle (build/tuning, Safari branch, levels, audio tracks,
@@ -152,12 +163,9 @@ export function VideoPanel({
     onLevelsReady,
     onAutoplayBlocked,
     onLlFallback: (reason, detail) => {
-      track({
-        eventType: 'll_fallback_to_standard',
-        entityType: 'camera',
-        entityId: camera.cameraId,
-        properties: { reason, detail: detail ?? null, cameraName: camera.name },
-      });
+      if (eventId) {
+        analytics.track('low_latency_fallback', { eventId, reason: detail ? `${reason}: ${detail}` : reason });
+      }
       console.warn(`[ll-fallback] camera=${camera.cameraId} reason=${reason} detail=${detail ?? '-'}`);
     },
     onFatalError: () => {
@@ -176,6 +184,12 @@ export function VideoPanel({
     if (videoRef.current) videoRef.current.volume = volume;
   }, [volume]);
 
+  // 'll' vs 'standard' mirrors use-hls-player's own hasLl check — an
+  // approximation for analytics only (it doesn't track the internal
+  // fallback latch, which low_latency_fallback already reports separately).
+  const latencyMode = mode === 'live' && camera.llPath ? 'll' : 'standard';
+  const qualityForAnalytics = typeof selectedLevel === 'number' && selectedLevel >= 0 ? String(selectedLevel) : 'auto';
+
   // Transport wiring (paused/seek/progress/ended) for replay AND the live DVR
   // scrubber — see the hook. hlsRef is what makes the live edge (rather than
   // the seekable end) reportable.
@@ -191,6 +205,8 @@ export function VideoPanel({
     isTimeSource,
     onProgress,
     onEnded,
+    onPlaying: onPlaying ? () => onPlaying(qualityForAnalytics, latencyMode) : undefined,
+    onBuffered,
   });
 
   // Wall-clock sync against the primary panel's PROGRAM-DATE-TIME.

@@ -57,12 +57,12 @@ const h = vi.hoisted(() => {
 
 vi.mock('hls.js', () => ({ default: h.MockHls }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
-vi.mock('@/lib/analytics/analytics-client', () => ({ track: vi.fn() }));
+const mockTrack = vi.hoisted(() => vi.fn());
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: mockTrack }) }));
 // i18n: characterization asserts behavior, not copy — echo the key.
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
 import { toast } from 'sonner';
-import { track } from '@/lib/analytics/analytics-client';
 
 // ── jsdom media stubs ────────────────────────────────────────────────────────
 const playMock = vi.fn<() => Promise<void>>(() => Promise.resolve());
@@ -96,6 +96,7 @@ const cam = (over: Partial<LiveCamera> = {}): LiveCamera => ({
 });
 
 const baseProps = {
+  eventId: 'event-1',
   muted: true,
   onMutedChange: vi.fn(),
 };
@@ -231,13 +232,7 @@ describe('VideoPanel characterization — LL fallback', () => {
     expect(std.loadSource).toHaveBeenCalledWith(expect.stringContaining('/origin/pkg-1/master.m3u8'));
     expect(std.config.lowLatencyMode).toBe(false);
     expect(ll.destroy).toHaveBeenCalled();
-    expect(track).toHaveBeenCalledWith(
-      expect.objectContaining({
-        eventType: 'll_fallback_to_standard',
-        entityId: 'cam-a',
-        properties: expect.objectContaining({ reason: 'stalls' }),
-      }),
-    );
+    expect(mockTrack).toHaveBeenCalledWith('low_latency_fallback', { eventId: 'event-1', reason: 'stalls' });
   });
 
   it('falls back to STANDARD on a fatal LL error (no toast, no error state)', () => {
@@ -248,11 +243,10 @@ describe('VideoPanel characterization — LL fallback', () => {
     expect(h.instances).toHaveLength(2);
     expect(toast.error).not.toHaveBeenCalled();
     expect(queryByText('noSignal')).toBeNull();
-    expect(track).toHaveBeenCalledWith(
-      expect.objectContaining({
-        properties: expect.objectContaining({ reason: 'fatal', detail: 'levelLoadError' }),
-      }),
-    );
+    expect(mockTrack).toHaveBeenCalledWith('low_latency_fallback', {
+      eventId: 'event-1',
+      reason: 'fatal: levelLoadError',
+    });
   });
 
   it('a non-recoverable fatal STANDARD error shows no-signal and the lost-signal toast', () => {

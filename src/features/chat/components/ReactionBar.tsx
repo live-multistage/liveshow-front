@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import type { ReactionEmoji } from '../types/chat.types';
 import { REACTION_EMOJIS } from '../hooks/use-chat';
 import styles from './ReactionBar.module.scss';
 
 interface Props {
+  eventId: string;
   onReact: (emoji: ReactionEmoji) => void;
   counts: Record<ReactionEmoji, number>;
 }
@@ -16,7 +18,8 @@ function fmtCompact(v: number): string {
   return v.toLocaleString('pt-BR');
 }
 
-export function ReactionBar({ onReact, counts }: Props) {
+export function ReactionBar({ eventId, onReact, counts }: Props) {
+  const analytics = useAnalytics();
   // { emoji, nonce }: the nonce keys the inner span so a re-click during the
   // 250ms pulse remounts it and the CSS animation restarts instead of being
   // swallowed by an unchanged className.
@@ -24,6 +27,7 @@ export function ReactionBar({ onReact, counts }: Props) {
 
   function handleClick(emoji: ReactionEmoji) {
     onReact(emoji);
+    analytics.track('reaction_sent', { eventId, reaction: emoji });
     setPulsing((prev) => ({ emoji, nonce: (prev?.nonce ?? 0) + 1 }));
   }
 

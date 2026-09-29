@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { getSessionId } from '@/lib/analytics/session-id';
-import { track } from '@/lib/analytics/analytics-client';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import { viewerTrackingService } from '../services/viewer-tracking.service';
 
 const HEARTBEAT_INTERVAL_MS = 20_000;
@@ -18,8 +18,8 @@ export function useViewerTracking(
   activeCameraIds: string[],
   userId?: string | null,
 ): void {
+  const analytics = useAnalytics();
   const joinedRef = useRef<Set<string>>(new Set());
-  const startMsRef = useRef(Date.now());
 
   // Diffs the visible-camera set against what's already joined, on mount
   // and whenever activeCameraIds changes.
@@ -47,30 +47,26 @@ export function useViewerTracking(
       }
     }
 
-    // One event per grid-change moment (not per camera) — consumers derive
-    // swap vs. pure addition/removal from added.length/removed.length rather
-    // than the frontend pre-classifying the diff. Fires on the initial
-    // mount's empty-to-N join too, which is correct: it's the viewer's
-    // initial camera selection.
-    if (added.length > 0 || removed.length > 0) {
-      track({
-        eventType: 'stream.camera_switched',
-        entityType: 'event',
-        entityId: eventId,
-        userId: userId ?? undefined,
-        properties: { added, removed, gridCameraIds: [...current] },
-      });
+    // camera_switched is a single from/to swap — only a clean 1-for-1
+    // exchange maps to that shape. Composition changes (adding/removing a
+    // camera in a multi-view grid, the initial empty-to-N mount join) aren't
+    // "switches" in that sense, so they're left untracked rather than
+    // guessed at.
+    if (added.length === 1 && removed.length === 1) {
+      analytics.track('camera_switched', { eventId, from: removed[0], to: added[0] });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId, activeCameraIds.join(','), userId]);
 
-  // Player-lifetime concerns (analytics, heartbeat loop, final leave) — tied
-  // to mount/unmount only, reads the live joinedRef so it always heartbeats
-  // whatever's currently active.
+  // Player-lifetime concerns (heartbeat loop, final leave) — tied to
+  // mount/unmount only, reads the live joinedRef so it always heartbeats
+  // whatever's currently active. player_opened/playback_ended (the old
+  // stream.started/stream.ended) now live in Player.tsx, which owns the
+  // whole player's mount span for both live and replay — tracking them here
+  // too would double-fire for every live session.
   useEffect(() => {
     if (!eventId) return;
     const baseSessionId = getSessionId();
-    track({ eventType: 'stream.started', entityType: 'event', entityId: eventId, userId: userId ?? undefined });
 
     const interval = setInterval(() => {
       for (const cameraId of joinedRef.current) {
@@ -90,14 +86,6 @@ export function useViewerTracking(
         viewerTrackingService.leave(eventId, cameraSessionId(baseSessionId, cameraId));
       }
       joinedRef.current.clear();
-      const totalSeconds = Math.floor((Date.now() - startMsRef.current) / 1000);
-      track({
-        eventType: 'stream.ended',
-        entityType: 'event',
-        entityId: eventId,
-        userId: userId ?? undefined,
-        properties: { total_watch_seconds: totalSeconds },
-      });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId, userId]);

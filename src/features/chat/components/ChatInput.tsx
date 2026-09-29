@@ -6,16 +6,19 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import type { ChatMe } from '../types/chat.types';
 import styles from './ChatInput.module.scss';
 
 interface Props {
+  eventId: string;
   onSend: (body: string) => void;
   me: ChatMe | null;
 }
 
-export function ChatInput({ onSend, me }: Props) {
+export function ChatInput({ eventId, onSend, me }: Props) {
   const t = useTranslations('chat');
+  const analytics = useAnalytics();
   const pathname = usePathname();
   const { isLoggedIn } = useAuth();
   const [value, setValue] = useState('');
@@ -39,6 +42,7 @@ export function ChatInput({ onSend, me }: Props) {
     const trimmed = value.trim();
     if (!trimmed) return;
     onSend(trimmed);
+    analytics.track('chat_message_sent', { eventId });
     setValue('');
   };
 

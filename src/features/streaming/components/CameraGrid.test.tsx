@@ -37,7 +37,7 @@ const h = vi.hoisted(() => {
 
 vi.mock('hls.js', () => ({ default: h.MockHls }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
-vi.mock('@/lib/analytics/analytics-client', () => ({ track: vi.fn() }));
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: vi.fn() }) }));
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
 beforeEach(() => {

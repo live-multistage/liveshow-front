@@ -1,10 +1,12 @@
 'use client';
 
-import { Children, isValidElement, useEffect, useRef } from 'react';
+import { Children, isValidElement, useCallback, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useAnalytics } from '@/lib/analytics/tracking';
+import { TrackFeature } from '@live-show/analytics-sdk/react';
 import type { PlayerShell } from '../../hooks/use-player-shell';
 import { shareCurrentPage } from '../../utils/share-current-page';
 import { CameraGrid, DRAWER_W } from '../CameraGrid';
@@ -72,9 +74,11 @@ function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true,
 
   return (
     <PlayerProvider value={value}>
-      <div ref={shell.containerRef} className={styles.player}>
-        {children}
-      </div>
+      <TrackFeature name="player" props={{ eventId: value.playbackEventId, mode }}>
+        <div ref={shell.containerRef} className={styles.player}>
+          {children}
+        </div>
+      </TrackFeature>
     </PlayerProvider>
   );
 }
@@ -130,9 +134,65 @@ export type PlayerStagePartProps = Pick<
   'positionMs' | 'seekCommand' | 'onProgress' | 'onEnded' | 'onAutoplayBlocked' | 'dvrActive'
 >;
 
+// live/channel both read as 'live' for analytics — only replay has its own
+// consumption semantics (mode: e(live,replay) in the tracking plan).
+function analyticsMode(mode: 'live' | 'replay' | 'channel'): 'live' | 'replay' {
+  return mode === 'replay' ? 'replay' : 'live';
+}
+
 function Stage(gridProps: PlayerStagePartProps) {
   const { shell, mode, playbackEventId, adsEnabled } = usePlayer();
   const { audio, quality } = shell;
+  const analytics = useAnalytics();
+  const trackedMode = analyticsMode(mode);
+
+  // player_opened / playback_ended span the whole player mount (this part is
+  // rendered exactly once per <Player.Root>, for its whole lifetime, by every
+  // mode). playback_started fires once, on the first real 'playing' frame —
+  // startupMs is measured against this same mount instant.
+  const openedAtRef = useRef(0);
+  const startedFiredRef = useRef(false);
+  const lastBufferedTrackRef = useRef(0);
+  if (openedAtRef.current === 0) openedAtRef.current = Date.now();
+
+  useEffect(() => {
+    analytics.track('player_opened', { eventId: playbackEventId, mode: trackedMode, hasAccess: true });
+    const openedAt = openedAtRef.current;
+    return () => {
+      analytics.track('playback_ended', {
+        eventId: playbackEventId,
+        mode: trackedMode,
+        watchSeconds: Math.floor((Date.now() - openedAt) / 1000),
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount/unmount only
+  }, []);
+
+  const handlePlaying = useCallback(
+    (qualityLabel: string, latencyMode: string) => {
+      if (startedFiredRef.current) return;
+      startedFiredRef.current = true;
+      analytics.track('playback_started', {
+        eventId: playbackEventId,
+        mode: trackedMode,
+        quality: qualityLabel,
+        latencyMode,
+        startupMs: Date.now() - openedAtRef.current,
+      });
+    },
+    [analytics, playbackEventId, trackedMode],
+  );
+
+  // Stalls >500ms, throttled to at most one report per 10s (see rules.md).
+  const handleBuffered = useCallback(
+    (durationMs: number) => {
+      const now = Date.now();
+      if (now - lastBufferedTrackRef.current < 10_000) return;
+      lastBufferedTrackRef.current = now;
+      analytics.track('playback_buffered', { eventId: playbackEventId, durationMs });
+    },
+    [analytics, playbackEventId],
+  );
 
   return (
     <div className={styles.stage}>
@@ -148,6 +208,9 @@ function Stage(gridProps: PlayerStagePartProps) {
         {shell.activeStage && (
           <CameraGrid
             key={shell.activeStage.stageId}
+            eventId={playbackEventId}
+            onPlaying={handlePlaying}
+            onBuffered={handleBuffered}
             cameras={shell.stageCameras}
             selectedLevel={quality.currentLevel}
             onLevelsReady={quality.onLevelsReady}

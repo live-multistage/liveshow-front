@@ -7,6 +7,7 @@ vi.mock('next/navigation', () => ({ usePathname: () => '/events/evt-1' }));
 vi.mock('@/features/account/hooks/use-auth', () => ({
   useAuth: () => ({ isLoggedIn: false }),
 }));
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: vi.fn() }) }));
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -23,6 +24,7 @@ const me: ChatMe = { canWrite: true, isMuted: false, isModerator: false };
 function renderDock(status: ChatStatus) {
   return render(
     <ChatDock
+      eventId="evt-1"
       open
       onClose={vi.fn()}
       messages={[]}

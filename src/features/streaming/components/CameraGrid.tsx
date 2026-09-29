@@ -20,6 +20,15 @@ export { DRAWER_W } from './camera-layout';
 
 export interface CameraGridProps {
   cameras: LiveCamera[];
+  // The event actually on screen — needed on every panel for
+  // low_latency_fallback (any camera can fall back), and passed through to
+  // the primary panel's playback_started/playback_buffered analytics.
+  eventId?: string;
+  // Primary-panel-only analytics: first real 'playing' frame, and
+  // waiting→playing stalls. See Player.tsx (Stage), which owns the
+  // player-mount-lifetime state these roll up into.
+  onPlaying?: (quality: string, latencyMode: string) => void;
+  onBuffered?: (durationMs: number) => void;
   selectedLevel?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
   globalMuted: boolean;
@@ -66,6 +75,9 @@ export interface CameraGridProps {
 // ever hurts CPU, unmount non-visible panels in Solo and accept a reload there.
 export function CameraGrid({
   cameras,
+  eventId,
+  onPlaying,
+  onBuffered,
   selectedLevel,
   onLevelsReady,
   globalMuted,
@@ -243,6 +255,7 @@ export function CameraGrid({
           >
             <VideoPanel
               camera={cam}
+              eventId={eventId}
               onSelect={role === 'strip' ? undefined : onSelect}
               // Focus (and its live-edge seek) tracks the MAIN video only. Do
               // not couple it to audioCameraId: selecting a non-main camera as
@@ -292,6 +305,8 @@ export function CameraGrid({
               isTimeSource={isPrimary}
               onProgress={isPrimary ? onProgress : undefined}
               onEnded={isPrimary ? onEnded : undefined}
+              onPlaying={isPrimary ? onPlaying : undefined}
+              onBuffered={isPrimary ? onBuffered : undefined}
             />
             {role === 'strip' && (
               <>
