@@ -8,6 +8,9 @@ vi.mock('next/link', () => ({
 }));
 vi.mock('@/shared/components/LanguageSwitcher', () => ({ LanguageSwitcher: () => null }));
 
+const track = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track }) }));
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
@@ -43,6 +46,8 @@ describe('ForgotPasswordForm', () => {
     );
     expect(screen.getByText('jane@example.com')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'sentTitle' })).toHaveFocus();
+    expect(track).toHaveBeenCalledWith('password_reset_requested', {});
+    expect(track).toHaveBeenCalledTimes(1);
   });
 
   it('resends the link to the same address', async () => {
@@ -56,6 +61,8 @@ describe('ForgotPasswordForm', () => {
     expect(mutate).toHaveBeenCalledTimes(2);
     expect(mutate).toHaveBeenLastCalledWith({ email: 'jane@example.com' }, expect.anything());
     expect(screen.getByText('resent')).toBeInTheDocument();
+    // resend uses a separate mutation instance and never re-fires the event
+    expect(track).toHaveBeenCalledTimes(1);
   });
 
   it('does not submit an invalid address', async () => {

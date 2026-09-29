@@ -81,7 +81,12 @@ function HeroCopy({ t, guarantees }: { t: ReturnType<typeof useTranslations>; gu
       </h1>
       <p className={styles.subtitle}>{t('subtitle')}</p>
       <div className={styles.ctaRow}>
-        <a href={ADS_SIGNUP_URL} className={styles.primaryCta}>
+        <a
+          href={ADS_SIGNUP_URL}
+          className={styles.primaryCta}
+          data-track="advertiser_cta_clicked"
+          data-track-props='{"placement":"hero_signup"}'
+        >
           {t('cta')}
           <ArrowRight size={17} strokeWidth={2.4} />
         </a>

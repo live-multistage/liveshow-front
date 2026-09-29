@@ -13,8 +13,15 @@ vi.mock('../queries/get-notification-preferences', () => ({
   useNotificationPreferencesQuery: () => ({ data: undefined }),
   useUpdateNotificationPreferencesMutation: () => ({ mutate: vi.fn(), isPending: false }),
 }));
-vi.mock('@/lib/analytics/consent', () => ({ useAnalyticsConsent: () => ({ consent: null, setConsent: vi.fn() }) }));
+const setConsent = vi.fn();
+vi.mock('@/lib/analytics/consent', () => ({ useAnalyticsConsent: () => ({ consent: null, setConsent }) }));
 vi.mock('@/features/consent/privacy.service', () => ({ privacyService: { syncConsent: vi.fn(), exportData: vi.fn(), deleteAnalyticsData: vi.fn() } }));
+
+const track = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track }) }));
+vi.mock('@live-show/analytics-sdk/react', () => ({
+  TrackFeature: ({ children }: { children: React.ReactNode }) => children,
+}));
 
 let updateProfileMutate: ReturnType<typeof vi.fn>;
 vi.mock('../mutations/update-profile.mutation', () => ({
@@ -56,5 +63,24 @@ describe('SettingsPageContent — taxDocument validation', () => {
 
     await waitFor(() => expect(screen.getByText('CPF ou CNPJ inválido.')).toBeInTheDocument());
     expect(updateProfileMutate).not.toHaveBeenCalled();
+  });
+});
+
+describe('SettingsPageContent — consent tracking', () => {
+  beforeEach(() => {
+    updateProfileMutate = vi.fn();
+    vi.mocked(useQuery).mockReturnValue({ data: me, isLoading: false } as never);
+    track.mockClear();
+    setConsent.mockClear();
+  });
+
+  it('tracks consent_decided before toggling the analytics consent switch', () => {
+    render(<SettingsPageContent twoFactorEnabled={false} />);
+
+    const consentToggle = document.querySelector('#privacidade button') as HTMLButtonElement;
+    fireEvent.click(consentToggle);
+
+    expect(track).toHaveBeenCalledWith('consent_decided', { choice: 'granted' });
+    expect(setConsent).toHaveBeenCalledWith('granted');
   });
 });

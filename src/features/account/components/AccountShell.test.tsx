@@ -5,7 +5,11 @@ vi.mock('next/link', () => ({
   ),
 }));
 vi.mock('@tanstack/react-query', () => ({ useQuery: vi.fn() }));
-vi.mock('../hooks/use-auth', () => ({ useAuth: () => ({ logout: vi.fn() }) }));
+const logout = vi.fn();
+vi.mock('../hooks/use-auth', () => ({ useAuth: () => ({ logout }) }));
+
+const track = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track }) }));
 
 let mockUnreadCount = 0;
 vi.mock('@/features/notifications', () => ({
@@ -80,5 +84,13 @@ describe('AccountShell', () => {
   it('renders the children inside the main area', () => {
     render(<AccountShell sectionScroll>hello world</AccountShell>);
     expect(screen.getByText('hello world')).toBeInTheDocument();
+  });
+
+  it('tracks logged_out and calls logout when "Sair da conta" is clicked', () => {
+    render(<AccountShell sectionScroll>child</AccountShell>);
+    screen.getByRole('button', { name: /Sair da conta/ }).click();
+
+    expect(track).toHaveBeenCalledWith('logged_out', {});
+    expect(logout).toHaveBeenCalledTimes(1);
   });
 });

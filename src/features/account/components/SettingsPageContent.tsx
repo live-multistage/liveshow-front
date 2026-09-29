@@ -21,6 +21,8 @@ import { useRevokeSessionMutation } from '../mutations/revoke-session.mutation';
 import { updateProfileSchema, type UpdateProfileFormValues } from '../schemas/update-profile.schema';
 import { changePasswordSchema, type ChangePasswordFormValues } from '../schemas/change-password.schema';
 import { useAnalyticsConsent } from '@/lib/analytics/consent';
+import { useAnalytics } from '@/lib/analytics/tracking';
+import { TrackFeature } from '@live-show/analytics-sdk/react';
 import { privacyService } from '@/features/consent/privacy.service';
 import { initials } from '../utils/initials';
 import { AccountShell } from './AccountShell';
@@ -58,6 +60,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
   const sessionsTotal = sessionsData?.pages[0]?.total ?? 0;
   const revokeSession = useRevokeSessionMutation();
   const { consent, setConsent } = useAnalyticsConsent();
+  const analytics = useAnalytics();
   const [privacyBusy, setPrivacyBusy] = useState<null | 'export' | 'delete'>(null);
   const [privacyMsg, setPrivacyMsg] = useState<string | null>(null);
 
@@ -71,6 +74,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
 
   const toggleConsent = () => {
     const next = consent === 'granted' ? 'denied' : 'granted';
+    analytics.track('consent_decided', { choice: next });
     setConsent(next);
     privacyService.syncConsent(next === 'granted');
   };
@@ -173,6 +177,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
   const memberYear = me.createdAt ? new Date(me.createdAt).getFullYear() : null;
 
   return (
+    <TrackFeature name="account">
     <AccountShell sectionScroll>
       {/* profile block */}
       <section id="perfil" className={styles.profileCard}>
@@ -417,5 +422,6 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
         </button>
       </section>
     </AccountShell>
+    </TrackFeature>
   );
 }

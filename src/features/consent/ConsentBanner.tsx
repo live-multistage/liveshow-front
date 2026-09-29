@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAnalyticsConsent, type ConsentState } from '@/lib/analytics/consent';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import { privacyService } from './privacy.service';
 import styles from './ConsentBanner.module.scss';
 
@@ -11,8 +12,13 @@ import styles from './ConsentBanner.module.scss';
 export function ConsentBanner() {
   const t = useTranslations('consent');
   const { consent, setConsent } = useAnalyticsConsent();
+  const analytics = useAnalytics();
 
   const choose = (state: ConsentState) => {
+    // Tracked before setConsent flips the SDK's own gate — a `denied` choice
+    // is still dropped downstream (LGPD: no delivery without consent), a
+    // `granted` one flushes once the consent transition lands.
+    analytics.track('consent_decided', { choice: state });
     setConsent(state);
     privacyService.syncConsent(state === 'granted');
   };

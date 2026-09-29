@@ -8,6 +8,9 @@ vi.mock('next-intl', () => ({
 }));
 vi.mock('./MarketingPanel', () => ({ MarketingPanel: () => <div>marketing-panel-stub</div> }));
 
+const track = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track }) }));
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { RegisterForm } from './RegisterForm';
@@ -19,6 +22,8 @@ vi.mock('../mutations/use-resend-verification.mutation', () => ({ useResendVerif
 
 const mockedRegister = vi.mocked(useRegisterMutation);
 const mockedResend = vi.mocked(useResendVerificationMutation);
+
+beforeEach(() => track.mockClear());
 
 function fillAndSubmit() {
   fireEvent.change(screen.getByLabelText('email'), { target: { value: 'jane@example.com' } });
@@ -147,5 +152,30 @@ describe('RegisterForm — terms consent', () => {
         expect.objectContaining({ onSuccess: expect.any(Function) }),
       );
     });
+  });
+});
+
+describe('RegisterForm — signup_started tracking', () => {
+  beforeEach(() => {
+    mockedResend.mockReturnValue({ mutate: vi.fn(), isPending: false, error: null } as never);
+    mockedRegister.mockReturnValue({ mutate: vi.fn(), isPending: false, error: null } as never);
+  });
+
+  it('tracks signup_started with method email once on mount', () => {
+    const { rerender } = render(<RegisterForm />);
+    expect(track).toHaveBeenCalledWith('signup_started', { method: 'email', source: undefined });
+    expect(track).toHaveBeenCalledTimes(1);
+
+    rerender(<RegisterForm />);
+    expect(track).toHaveBeenCalledTimes(1);
+  });
+
+  it('tracks signup_started with method google on social click', () => {
+    render(<RegisterForm />);
+    track.mockClear();
+
+    fireEvent.click(screen.getByText('continueWithGoogle'));
+
+    expect(track).toHaveBeenCalledWith('signup_started', { method: 'google', source: undefined });
   });
 });

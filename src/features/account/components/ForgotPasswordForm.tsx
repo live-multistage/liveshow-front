@@ -9,6 +9,7 @@ import { Button, Input, Label, Logo } from '@live-show/design-system';
 import { LanguageSwitcher } from '@/shared/components/LanguageSwitcher';
 import { emailOnlySchema, type EmailOnlyFormValues } from '../schemas/forgot-password.schema';
 import { useForgotPasswordMutation } from '../mutations/use-forgot-password.mutation';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import styles from './ForgotPasswordForm.module.scss';
 
 const STEPS = ['step1', 'step2', 'step3'] as const;
@@ -43,11 +44,17 @@ export function ForgotPasswordForm() {
   });
 
   const { mutate, isPending, error } = useForgotPasswordMutation();
+  const analytics = useAnalytics();
   // The address the link went to; null while the form is showing.
   const [sentTo, setSentTo] = useState<string | null>(null);
 
   function onSubmit({ email }: EmailOnlyFormValues) {
-    mutate({ email }, { onSuccess: () => setSentTo(email) });
+    mutate({ email }, {
+      onSuccess: () => {
+        setSentTo(email);
+        analytics.track('password_reset_requested', {});
+      },
+    });
   }
 
   return (

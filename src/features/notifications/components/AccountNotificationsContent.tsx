@@ -14,6 +14,7 @@ import { isSafeNotificationLink } from '../utils/safe-link';
 import { groupNotifications } from '../utils/notification-groups';
 import { CATEGORY_KEY_BY_TYPE } from '../utils/notification-category';
 import type { NotificationFilter, NotificationResponse, NotificationType } from '../types/notification.types';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import styles from './AccountNotificationsContent.module.scss';
 
 const FILTER_KEYS: NotificationFilter[] = ['all', 'unread', 'shows', 'tickets', 'account'];
@@ -107,6 +108,7 @@ export function AccountNotificationsContent() {
   const markAsRead = useMarkAsReadMutation();
   const markAllAsRead = useMarkAllAsReadMutation();
   const dismiss = useDismissNotificationMutation();
+  const analytics = useAnalytics();
 
   const pages = data?.pages ?? [];
   const items = pages.flatMap((page) => page.items);
@@ -114,6 +116,7 @@ export function AccountNotificationsContent() {
   const groups = groupNotifications(items);
 
   const handleOpen = (notification: NotificationResponse) => {
+    analytics.track('notification_clicked', { notificationId: notification.id, type: notification.type });
     if (!notification.read) markAsRead.mutate(notification.id);
     if (isSafeNotificationLink(notification.link)) router.push(notification.link!);
   };

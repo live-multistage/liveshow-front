@@ -1,9 +1,11 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { ShoppingBag } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useListEventsQuery, eventToShow, ShowCard } from '@/features/events';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import { TicketList } from './TicketList';
 import { useTickets } from '../hooks/use-tickets';
 import styles from '../../../app/(user)/tickets/page.module.scss';
@@ -12,6 +14,16 @@ export function MyTicketsPageContent() {
   const t = useTranslations('tickets');
   const { tickets, withReplay, withoutReplay, withCamera, isLoading } = useTickets();
   const { data: events = [] } = useListEventsQuery('all');
+  const analytics = useAnalytics();
+
+  const viewedRef = useRef(false);
+  useEffect(() => {
+    if (isLoading || viewedRef.current) return;
+    viewedRef.current = true;
+    analytics.track('tickets_viewed', { ticketCount: tickets.length });
+    // fires once, the first time loading finishes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   const ticketIds = tickets.map((t) => t.event.id);
   const upcomingShows = events

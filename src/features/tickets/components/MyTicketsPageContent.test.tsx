@@ -11,6 +11,9 @@ vi.mock('./TicketList', () => ({ TicketList: () => <div data-testid="ticket-list
 const useTickets = vi.fn();
 vi.mock('../hooks/use-tickets', () => ({ useTickets: () => useTickets() }));
 
+const track = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track }) }));
+
 const useListEventsQuery = vi.fn();
 vi.mock('@/features/events', () => ({
   useListEventsQuery: () => useListEventsQuery(),
@@ -20,7 +23,12 @@ vi.mock('@/features/events', () => ({
   ),
 }));
 
+function ticket(id: string) {
+  return { event: { id }, capabilities: [] };
+}
+
 beforeEach(() => {
+  track.mockClear();
   useTickets.mockReturnValue({
     tickets: [{ event: { id: 'owned-1' } }],
     withReplay: [],
@@ -47,5 +55,31 @@ describe('MyTicketsPageContent recommendations tracking', () => {
     expect(cards[0]).toHaveAttribute('data-list', 'tickets');
     expect(cards[0]).toHaveAttribute('data-position', '0');
     expect(cards[1]).toHaveAttribute('data-position', '1');
+  });
+});
+
+describe('MyTicketsPageContent — tickets_viewed tracking', () => {
+  it('tracks tickets_viewed once loading finishes, with the ticket count', () => {
+    useTickets.mockReturnValue({
+      tickets: [ticket('e1'), ticket('e2')],
+      withReplay: [],
+      withoutReplay: [],
+      withCamera: [],
+      isLoading: false,
+    });
+    const { rerender } = render(<MyTicketsPageContent />);
+
+    expect(track).toHaveBeenCalledWith('tickets_viewed', { ticketCount: 2 });
+    expect(track).toHaveBeenCalledTimes(1);
+
+    rerender(<MyTicketsPageContent />);
+    expect(track).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not track while still loading', () => {
+    useTickets.mockReturnValue({ tickets: [], withReplay: [], withoutReplay: [], withCamera: [], isLoading: true });
+    render(<MyTicketsPageContent />);
+
+    expect(track).not.toHaveBeenCalled();
   });
 });

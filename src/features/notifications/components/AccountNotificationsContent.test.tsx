@@ -20,6 +20,9 @@ vi.mock('../services/notifications.service', () => ({
   },
 }));
 
+const track = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track }) }));
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -139,6 +142,7 @@ describe('AccountNotificationsContent', () => {
 
     await waitFor(() => expect(mockedMarkAsRead).toHaveBeenCalledWith('thisweek'));
     expect(push).toHaveBeenCalledWith('/purchases/1');
+    expect(track).toHaveBeenCalledWith('notification_clicked', { notificationId: 'thisweek', type: 'PAYMENT' });
   });
 
   it('dismisses a notification and removes it from the list', async () => {

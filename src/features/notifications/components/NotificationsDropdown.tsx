@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@live-show/design-syste
 import { useNotificationsQuery, useUnreadCountQuery } from '../queries/get-notifications';
 import { useMarkAllAsReadMutation, useMarkAsReadMutation } from '../mutations/mark-as-read.mutation';
 import type { NotificationResponse } from '../types/notification.types';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import { NotificationItem } from './NotificationItem';
 import styles from './NotificationsDropdown.module.scss';
 
@@ -19,10 +20,12 @@ export function NotificationsDropdown({ triggerClassName }: { triggerClassName?:
 
   const markAsRead = useMarkAsReadMutation();
   const markAllAsRead = useMarkAllAsReadMutation();
+  const analytics = useAnalytics();
 
   const hasNotifications = !!notifications && notifications.length > 0;
 
   const handleSelect = (notification: NotificationResponse) => {
+    analytics.track('notification_clicked', { notificationId: notification.id, type: notification.type });
     if (!notification.read) {
       markAsRead.mutate(notification.id);
     }

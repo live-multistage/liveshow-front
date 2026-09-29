@@ -17,7 +17,12 @@ export function FinalCta() {
         <div className={styles.content}>
           <h2 className={styles.title}>{t('title')}</h2>
           <div className={styles.actions}>
-            <a href={ADS_SIGNUP_URL} className={styles.cta}>
+            <a
+              href={ADS_SIGNUP_URL}
+              className={styles.cta}
+              data-track="advertiser_cta_clicked"
+              data-track-props='{"placement":"final_cta_signup"}'
+            >
               {t('cta')}
               <ArrowRight size={17} strokeWidth={2.4} />
             </a>

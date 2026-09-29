@@ -5,6 +5,9 @@ vi.mock('../mutations/use-login.mutation', () => ({ useLoginMutation: vi.fn() })
 vi.mock('../mutations/use-resend-verification.mutation', () => ({ useResendVerificationMutation: vi.fn() }));
 vi.mock('./MarketingPanel', () => ({ MarketingPanel: () => <div>marketing-panel-stub</div> }));
 
+const track = vi.fn();
+vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track }) }));
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LoginForm } from './LoginForm';
@@ -13,6 +16,8 @@ import { useResendVerificationMutation } from '../mutations/use-resend-verificat
 
 const mockedLogin = vi.mocked(useLoginMutation);
 const mockedResend = vi.mocked(useResendVerificationMutation);
+
+beforeEach(() => track.mockClear());
 
 describe('LoginForm — social login gate', () => {
   beforeEach(() => {
@@ -85,5 +90,35 @@ describe('LoginForm — TOO_MANY_ATTEMPTS', () => {
 
     render(<LoginForm />);
     expect(screen.getByText('errors.TOO_MANY_ATTEMPTS')).toBeInTheDocument();
+  });
+});
+
+describe('LoginForm — login_failed tracking', () => {
+  it('tracks login_failed with the error code on a failed submit', async () => {
+    const mutate = vi.fn((_payload, opts?: { onError?: (e: { code?: string; message: string }) => void }) =>
+      opts?.onError?.({ code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' }));
+    mockedLogin.mockReturnValue({ mutate, isPending: false, error: null } as never);
+    mockedResend.mockReturnValue({ mutate: vi.fn(), isPending: false, error: null } as never);
+
+    render(<LoginForm />);
+    fireEvent.change(screen.getByLabelText('email'), { target: { value: 'jane@example.com' } });
+    fireEvent.change(screen.getByLabelText('password'), { target: { value: 'wrong' } });
+    fireEvent.click(screen.getByText('submit'));
+
+    await waitFor(() =>
+      expect(track).toHaveBeenCalledWith('login_failed', { method: 'password', reason: 'INVALID_CREDENTIALS' }),
+    );
+  });
+
+  it('tracks login_failed with method google once when redirected back with oauthError', () => {
+    mockedLogin.mockReturnValue({ mutate: vi.fn(), isPending: false, error: null } as never);
+    mockedResend.mockReturnValue({ mutate: vi.fn(), isPending: false, error: null } as never);
+
+    const { rerender } = render(<LoginForm oauthError />);
+    expect(track).toHaveBeenCalledWith('login_failed', { method: 'google', reason: 'oauth_failed' });
+    expect(track).toHaveBeenCalledTimes(1);
+
+    rerender(<LoginForm oauthError />);
+    expect(track).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +9,7 @@ import { loginSchema, type LoginFormValues } from '../schemas/login.schema';
 import { useLoginMutation } from '../mutations/use-login.mutation';
 import { useResendVerificationMutation } from '../mutations/use-resend-verification.mutation';
 import { config } from '@/config';
+import { useAnalytics } from '@/lib/analytics/tracking';
 import { Button, Checkbox, Input, Label } from '@live-show/design-system';
 import { MarketingPanel } from './MarketingPanel';
 import styles from './LoginForm.module.scss';
@@ -41,12 +42,29 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
 
   const { mutate, isPending, error } = useLoginMutation(callbackUrl);
   const resend = useResendVerificationMutation();
+  const analytics = useAnalytics();
   const [resent, setResent] = useState(false);
   const typedEmail = watch('email');
 
+  // The redirect back from Google carries oauthError once per page load —
+  // guard against StrictMode's double effect invoke firing it twice.
+  const oauthTrackedRef = useRef(false);
+  useEffect(() => {
+    if (!oauthError || oauthTrackedRef.current) return;
+    oauthTrackedRef.current = true;
+    analytics.track('login_failed', { method: 'google', reason: 'oauth_failed' });
+  }, [oauthError, analytics]);
+
   function onSubmit(payload: LoginFormValues) {
     setResent(false);
-    mutate({ email: payload.email, password: payload.password, rememberMe: payload.rememberMe });
+    mutate(
+      { email: payload.email, password: payload.password, rememberMe: payload.rememberMe },
+      {
+        onError: (err) => {
+          analytics.track('login_failed', { method: 'password', reason: err.code ?? err.message });
+        },
+      },
+    );
   }
 
   // Reads the email straight from the form, not from a separate "last
