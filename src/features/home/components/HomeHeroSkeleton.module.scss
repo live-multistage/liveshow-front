@@ -1,0 +1,44 @@
+@use '../../../styles/_variables' as *;
+
+// Mirrors .heroV2 / .heroV2Content in EditorialHomeContent.module.scss so the
+// real hero resolving in place of this does not shift the page.
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 18px;
+  min-height: 650px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 50px 40px;
+  margin: 0 0 8px;
+
+  @media (max-width: $md - 1) {
+    min-height: 520px;
+    padding: 28px 20px;
+  }
+}
+
+.title {
+  width: min(560px, 80%);
+  height: 64px;
+  border-radius: 8px;
+}
+
+.meta {
+  width: 240px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.button {
+  width: 150px;
+  height: 44px;
+  border-radius: 999px;
+}

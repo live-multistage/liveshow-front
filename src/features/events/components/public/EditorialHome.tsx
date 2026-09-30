@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import type { HomeRailsResponse } from '@live-show/api-contracts';
 import { eventToShow } from '@/features/events/utils/event-adapter';
 import { HomeRails } from '@/features/home/components/HomeRails';
+import { HomeHeroFallback } from '@/features/home/components/HomeHeroFallback';
 import { pickHeroSlides } from '@/features/home/utils/pick-hero-slides';
 import { EditorialHero } from './editorial/EditorialHero';
 import styles from './EditorialHomeContent.module.scss';
@@ -20,7 +21,11 @@ export function EditorialHome({ initialPage }: Props) {
   return (
     <div className={styles.page}>
       <h1 className={styles.visuallyHidden}>{t('headline')}</h1>
-      {heroSlides.length > 0 && <EditorialHero slides={heroSlides} />}
+      {heroSlides.length > 0 ? (
+        <EditorialHero slides={heroSlides} />
+      ) : (
+        <HomeHeroFallback initialPage={initialPage ?? undefined} />
+      )}
       <HomeRails initialPage={initialPage ?? undefined} />
     </div>
   );

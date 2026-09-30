@@ -18,6 +18,9 @@ vi.mock('./editorial/EditorialHero', () => ({
     <div data-testid="hero">{slides.map((s) => s.title).join(',')}</div>
   ),
 }));
+vi.mock('@/features/home/components/HomeHeroFallback', () => ({
+  HomeHeroFallback: () => <div data-testid="hero-fallback" />,
+}));
 vi.mock('@/features/home/components/HomeRails', () => ({
   HomeRails: ({ initialPage }: { initialPage?: HomeRailsResponse }) => (
     <div data-testid="home-rails">{(initialPage?.rails ?? []).map((r) => r.key).join(',')}</div>
@@ -108,10 +111,13 @@ describe('EditorialHome rails feed', () => {
     expect(screen.queryByTestId('hero')).not.toBeInTheDocument();
   });
 
-  it('renders no hero and an unseeded feed when the SSR fetch failed', () => {
+  // The server could not pick a hero, but the client feed still can — and
+  // until it answers the page must not open on a bare rail list.
+  it('hands the hero to the client fallback when the SSR fetch failed', () => {
     render(<EditorialHome initialPage={null} />);
 
     expect(screen.queryByTestId('hero')).not.toBeInTheDocument();
+    expect(screen.getByTestId('hero-fallback')).toBeInTheDocument();
     expect(screen.getByTestId('home-rails')).toHaveTextContent('');
   });
 });
