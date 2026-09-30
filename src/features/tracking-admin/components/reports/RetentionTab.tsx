@@ -9,7 +9,7 @@ import { useRetentionReportQuery } from '../../queries/get-reports';
 import { useTrackingPlanQuery } from '../../queries/get-plan';
 import { DateRangeField } from './DateRangeField';
 import { ReportLoadingSkeleton, ReportMessageState, TimeoutBanner } from './ReportStates';
-import { defaultRange, formatCohortWeek, isRangeValid, isTimeoutError } from './report-utils';
+import { defaultRange, formatCohortWeek, isRangeValid, isTimeoutError, toReportRangeBounds } from './report-utils';
 import styles from './ReportsShared.module.scss';
 
 export function RetentionTab() {
@@ -37,7 +37,7 @@ export function RetentionTab() {
 
   function handleRun() {
     if (!canRun) return;
-    setReq({ from, to, startEvent, returnEvent, weeks });
+    setReq({ ...toReportRangeBounds(from, to), startEvent, returnEvent, weeks });
   }
 
   return (

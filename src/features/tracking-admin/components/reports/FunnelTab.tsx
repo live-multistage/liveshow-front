@@ -14,6 +14,7 @@ import {
   isRangeValid,
   isTimeoutError,
   maxWindowValue,
+  toReportRangeBounds,
   toWindowMinutes,
   type WindowUnit,
 } from './report-utils';
@@ -68,7 +69,11 @@ export function FunnelTab() {
 
   function handleRun() {
     if (!canRun) return;
-    setReq({ from, to, steps: steps.map((s) => s.event), windowMinutes: toWindowMinutes(windowValue, unit) });
+    setReq({
+      ...toReportRangeBounds(from, to),
+      steps: steps.map((s) => s.event),
+      windowMinutes: toWindowMinutes(windowValue, unit),
+    });
   }
 
   return (

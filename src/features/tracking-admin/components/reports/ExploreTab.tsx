@@ -9,7 +9,7 @@ import { useExploreReportQuery } from '../../queries/get-reports';
 import { useTrackingPlanQuery } from '../../queries/get-plan';
 import { DateRangeField } from './DateRangeField';
 import { ReportLoadingSkeleton, ReportMessageState, TimeoutBanner } from './ReportStates';
-import { defaultRange, formatDayOrHour, isRangeValid, isTimeoutError } from './report-utils';
+import { defaultRange, formatDayOrHour, isRangeValid, isTimeoutError, toReportRangeBounds } from './report-utils';
 import styles from './ReportsShared.module.scss';
 
 // design chart palette maps onto the existing --chart-1..4 tokens
@@ -39,7 +39,7 @@ export function ExploreTab() {
 
   function handleRun() {
     if (!canRun) return;
-    setReq({ from, to, event, interval, breakdown: breakdown || undefined });
+    setReq({ ...toReportRangeBounds(from, to), event, interval, breakdown: breakdown || undefined });
   }
 
   return (

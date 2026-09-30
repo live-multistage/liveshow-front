@@ -75,6 +75,20 @@ describe('ExploreTab', () => {
     );
   });
 
+  it('sends inclusive ISO bounds for the picked from/to', () => {
+    const { container } = render(<ExploreTab />);
+    const [fromInput, toInput] = Array.from(container.querySelectorAll('input[type="date"]')) as HTMLInputElement[];
+
+    fireEvent.change(fromInput, { target: { value: '2026-09-01' } });
+    fireEvent.change(toInput, { target: { value: '2026-09-30' } });
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'checkout_started' } });
+    fireEvent.click(screen.getByText('reports.run'));
+
+    expect(mockedExplore).toHaveBeenLastCalledWith(
+      expect.objectContaining({ from: '2026-09-01T00:00:00.000Z', to: '2026-10-01T00:00:00.000Z' }),
+    );
+  });
+
   it('shows the timeout banner on a 422 report_timeout error', () => {
     mockedExplore.mockReturnValue({
       data: undefined,

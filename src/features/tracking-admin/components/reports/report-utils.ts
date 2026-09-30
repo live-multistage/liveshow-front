@@ -1,17 +1,35 @@
 import axios from 'axios';
 
-/** Whole days between two `YYYY-MM-DD` dates (UTC, no DST drift). */
+/**
+ * Inclusive calendar days covered by a `YYYY-MM-DD` `from`/`to` pick (UTC, no
+ * DST drift) — e.g. the same day picked twice is 1 day, not 0. Matches the
+ * span the backend now sees once `toReportRangeBounds` makes the end day
+ * inclusive (see below): `to`'s bound is midnight of the day *after* `to`.
+ */
 export function rangeDays(from: string, to: string): number {
   if (!from || !to) return 0;
   const fromMs = new Date(`${from}T00:00:00Z`).getTime();
   const toMs = new Date(`${to}T00:00:00Z`).getTime();
-  return Math.round((toMs - fromMs) / 86_400_000);
+  return Math.round((toMs - fromMs) / 86_400_000) + 1;
 }
 
-/** Client mirror of the backend rule: from < to and range <= 90 days. */
+/** Client mirror of the backend rule: from <= to and range <= 90 days (inclusive). */
 export function isRangeValid(from: string, to: string): boolean {
   const days = rangeDays(from, to);
-  return days > 0 && days <= 90;
+  return days >= 1 && days <= 90;
+}
+
+/**
+ * Single place every report tab converts a date-only `from`/`to` pick into
+ * the explicit ISO bounds the backend expects. `assertRange` (report-runner.ts)
+ * does `new Date(to)` and queries `< to`, so a bare `to=YYYY-MM-DD` (midnight
+ * UTC) excluded the whole end day — this makes the end day inclusive by
+ * bounding at the *next* day's midnight instead.
+ */
+export function toReportRangeBounds(from: string, to: string): { from: string; to: string } {
+  const toBound = new Date(`${to}T00:00:00.000Z`);
+  toBound.setUTCDate(toBound.getUTCDate() + 1);
+  return { from: `${from}T00:00:00.000Z`, to: toBound.toISOString() };
 }
 
 export function defaultRange(days = 30): { from: string; to: string } {

@@ -8,7 +8,7 @@ import type { FeaturesReport, ReportRange } from '@live-show/api-contracts';
 import { useFeaturesReportQuery } from '../../queries/get-reports';
 import { DateRangeField } from './DateRangeField';
 import { ReportLoadingSkeleton, ReportMessageState, TimeoutBanner } from './ReportStates';
-import { defaultRange, formatDuration, isRangeValid, isTimeoutError } from './report-utils';
+import { defaultRange, formatDuration, isRangeValid, isTimeoutError, toReportRangeBounds } from './report-utils';
 import styles from './ReportsShared.module.scss';
 
 type SortKey = 'feature' | 'sessions' | 'users' | 'p50Ms' | 'p75Ms';
@@ -27,7 +27,7 @@ export function FeaturesTab() {
 
   function handleRun() {
     if (!rangeValid) return;
-    setReq({ from, to });
+    setReq(toReportRangeBounds(from, to));
   }
 
   return (
