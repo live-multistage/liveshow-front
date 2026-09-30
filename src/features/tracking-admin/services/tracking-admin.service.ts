@@ -7,6 +7,7 @@ import type {
   FeaturesReport,
   FunnelReport,
   FunnelRequest,
+  LiveFrame,
   OverviewReport,
   PlanEvent,
   ReportRange,
@@ -19,6 +20,7 @@ import type {
   TrackingUserProfile,
   UnplannedEvent,
 } from '@live-show/api-contracts';
+import type { LiveFilter } from '../hooks/use-tracking-live-stream';
 
 export const trackingAdminService = {
   getOverview: async (): Promise<OverviewReport> => {
@@ -133,6 +135,13 @@ export const trackingAdminService = {
   featuresReport: async (req: ReportRange): Promise<FeaturesReport> => {
     const { data } = await httpClient.post<FeaturesReport>('/tracking/reports/features', req);
     return data;
+  },
+
+  getRecentDebuggerFrames: async (filter: LiveFilter): Promise<LiveFrame[]> => {
+    const { data } = await httpClient.get<{ items: LiveFrame[] }>('/tracking/debugger/recent', {
+      params: filter,
+    });
+    return data.items;
   },
 
   getUser: async (id: string): Promise<TrackingUserProfile> => {

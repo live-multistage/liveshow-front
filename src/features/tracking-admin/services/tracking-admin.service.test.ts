@@ -119,6 +119,16 @@ describe('trackingAdminService', () => {
     expect(httpClient.post).toHaveBeenCalledWith('/tracking/reports/features', req);
   });
 
+  it('getRecentDebuggerFrames() GETs recent with the filter as query params', async () => {
+    vi.mocked(httpClient.get).mockResolvedValueOnce({ data: { items: [] } });
+    const filter = { sourceId: 'src-1', status: 'accepted' as const };
+
+    const result = await trackingAdminService.getRecentDebuggerFrames(filter);
+
+    expect(httpClient.get).toHaveBeenCalledWith('/tracking/debugger/recent', { params: filter });
+    expect(result).toEqual([]);
+  });
+
   it('getUser() GETs the profile by id', async () => {
     await trackingAdminService.getUser('user-1');
     expect(httpClient.get).toHaveBeenCalledWith('/tracking/users/user-1');

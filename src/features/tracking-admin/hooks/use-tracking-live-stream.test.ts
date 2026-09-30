@@ -1,7 +1,14 @@
+vi.mock('../services/tracking-admin.service', () => ({
+  trackingAdminService: { getRecentDebuggerFrames: vi.fn() },
+}));
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useTrackingLiveStream } from './use-tracking-live-stream';
 import { tokenStore } from '@/lib/auth/token-store';
+import { trackingAdminService } from '../services/tracking-admin.service';
+
+const mockedGetRecent = vi.mocked(trackingAdminService.getRecentDebuggerFrames);
 
 class FakeEventSource {
   static instances: FakeEventSource[] = [];
@@ -34,6 +41,7 @@ describe('useTrackingLiveStream', () => {
     FakeEventSource.instances = [];
     (globalThis as unknown as { EventSource: typeof FakeEventSource }).EventSource = FakeEventSource;
     tokenStore.clear();
+    mockedGetRecent.mockReset().mockResolvedValue([]);
   });
 
   it('appends incoming message frames newest-first, stamped with receivedAt and a stable key', () => {
@@ -154,5 +162,62 @@ describe('useTrackingLiveStream', () => {
     expect(first.closed).toBe(true);
     const second = latestSource();
     expect(second.url).toContain('sourceId=src-1');
+  });
+
+  it('backfills recent frames on mount, oldest-to-newest becoming newest-first', async () => {
+    mockedGetRecent.mockResolvedValue([
+      { kind: 'message', status: 'accepted', message: { type: 'track', event: 'old', messageId: 'm1', timestamp: '2026-09-29T00:00:00.000Z' } },
+      { kind: 'message', status: 'accepted', message: { type: 'track', event: 'new', messageId: 'm2', timestamp: '2026-09-29T00:01:00.000Z' } },
+    ] as never);
+
+    const { result } = renderHook(() => useTrackingLiveStream({}, { paused: false }));
+    await act(async () => {});
+
+    expect(result.current.frames).toHaveLength(2);
+    expect(result.current.frames[0]).toMatchObject({ message: { event: 'new' } });
+    expect(result.current.frames[1]).toMatchObject({ message: { event: 'old' } });
+  });
+
+  it('an SSE frame duplicating a recent one appears only once', async () => {
+    mockedGetRecent.mockResolvedValue([
+      { kind: 'message', status: 'accepted', message: { type: 'track', event: 'dup', messageId: 'm1', timestamp: '2026-09-29T00:00:00.000Z' } },
+    ] as never);
+
+    const { result } = renderHook(() => useTrackingLiveStream({}, { paused: false }));
+    await act(async () => {});
+    expect(result.current.frames).toHaveLength(1);
+
+    const source = latestSource();
+    act(() => source.emit({ kind: 'message', status: 'accepted', message: { type: 'track', event: 'dup', messageId: 'm1' } }));
+
+    expect(result.current.frames).toHaveLength(1);
+  });
+
+  it('a failed recent-frames fetch does not break the live stream', async () => {
+    mockedGetRecent.mockRejectedValue(new Error('network down'));
+
+    const { result } = renderHook(() => useTrackingLiveStream({}, { paused: false }));
+    await act(async () => {});
+    expect(result.current.frames).toHaveLength(0);
+
+    const source = latestSource();
+    act(() => source.emit({ kind: 'message', status: 'accepted', message: { type: 'track', event: 'a', messageId: 'm1' } }));
+
+    expect(result.current.frames).toHaveLength(1);
+  });
+
+  it('refetches recent frames when the filter changes', async () => {
+    const { rerender } = renderHook(
+      ({ filter }: { filter: { sourceId?: string } }) => useTrackingLiveStream(filter, { paused: false }),
+      { initialProps: { filter: {} } },
+    );
+    await act(async () => {});
+    expect(mockedGetRecent).toHaveBeenCalledTimes(1);
+
+    rerender({ filter: { sourceId: 'src-1' } });
+    await act(async () => {});
+
+    expect(mockedGetRecent).toHaveBeenCalledTimes(2);
+    expect(mockedGetRecent).toHaveBeenLastCalledWith({ sourceId: 'src-1' });
   });
 });

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { LiveFrame, TrackingMessageType } from '@live-show/api-contracts';
 import { config } from '@/config';
 import { tokenStore } from '@/lib/auth/token-store';
+import { trackingAdminService } from '../services/tracking-admin.service';
 
 export interface LiveFilter {
   sourceId?: string;
@@ -41,6 +42,15 @@ async function refreshAccessToken(): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+// Identifies a frame for dedupe across the SSE stream and the recent-frames
+// backfill: an accepted message's own messageId, or (rejected has none) the
+// raw payload + reason it failed on.
+function dedupeKey(frame: LiveFrame): string {
+  if (frame.kind === 'message' && frame.status === 'accepted') return frame.message.messageId;
+  if (frame.kind === 'message' && frame.status === 'rejected') return JSON.stringify({ raw: frame.raw, reason: frame.reason });
+  return '';
 }
 
 function buildStreamUrl(filter: LiveFilter, token: string | null): string {
@@ -94,10 +104,18 @@ export function useTrackingLiveStream(filter: LiveFilter, options: { paused: boo
             return;
           }
           if (pausedRef.current) return;
-          const receivedAt = new Date().toISOString();
-          const appendIndex = appendCounterRef.current++;
-          const key = frame.status === 'accepted' ? frame.message.messageId : `${receivedAt}-${appendIndex}`;
-          setFrames((prev) => [{ ...frame, receivedAt, key }, ...prev].slice(0, MAX_FRAMES));
+          setFrames((prev) => {
+            // Same frame may already be in the list via the recent-frames
+            // backfill (or, rarely, a stream reconnect replaying it). An
+            // empty dedupe key (no messageId/raw+reason to key on) never
+            // matches anything, so it's always appended.
+            const dedupe = dedupeKey(frame);
+            if (dedupe && prev.some((existing) => dedupeKey(existing) === dedupe)) return prev;
+            const receivedAt = new Date().toISOString();
+            const appendIndex = appendCounterRef.current++;
+            const key = frame.status === 'accepted' ? frame.message.messageId : `${receivedAt}-${appendIndex}`;
+            return [{ ...frame, receivedAt, key }, ...prev].slice(0, MAX_FRAMES);
+          });
         } catch {
           // Malformed frame — ignore, the next one will still arrive fine.
         }
@@ -139,6 +157,37 @@ export function useTrackingLiveStream(filter: LiveFilter, options: { paused: boo
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
       sourceRef.current?.close();
       sourceRef.current = null;
+    };
+  }, [filterKey]);
+
+  // Backfill on mount and whenever the filter changes: the SSE stream has no
+  // history, so without this the list starts empty on every reload.
+  useEffect(() => {
+    let cancelled = false;
+    trackingAdminService
+      .getRecentDebuggerFrames(JSON.parse(filterKey) as LiveFilter)
+      .then((items) => {
+        if (cancelled) return;
+        setFrames((prev) => {
+          const existingKeys = new Set(prev.map(dedupeKey));
+          const additions: LiveStreamFrame[] = [];
+          // Newest first, matching the list's own ordering.
+          for (const frame of [...items].reverse()) {
+            if (frame.kind !== 'message') continue; // the buffer never holds 'dropped' frames
+            const key = dedupeKey(frame);
+            if (existingKeys.has(key)) continue;
+            existingKeys.add(key);
+            const receivedAt = frame.status === 'accepted' ? frame.message.timestamp : new Date().toISOString();
+            additions.push({ ...frame, receivedAt, key: key || `${receivedAt}-${appendCounterRef.current++}` });
+          }
+          return [...additions, ...prev].slice(0, MAX_FRAMES);
+        });
+      })
+      .catch(() => {
+        // A failed backfill must not break the live stream — it just stays empty.
+      });
+    return () => {
+      cancelled = true;
     };
   }, [filterKey]);
 
