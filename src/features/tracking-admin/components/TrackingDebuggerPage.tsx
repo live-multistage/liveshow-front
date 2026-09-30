@@ -91,7 +91,7 @@ export function TrackingDebuggerPage({ trackingEnabled }: Props) {
   );
 
   return (
-    <TrackingShell active="debugger" title={title} actions={<>{connPill}{actions}</>} trackingEnabled={trackingEnabled}>
+    <TrackingShell active="debugger" title={title} actions={<>{connPill}{actions}</>} trackingEnabled={trackingEnabled} fill>
       {connStatus === 'error' && (
         <div className={styles.errorBanner} role="status">
           <AlertCircle size={16} />

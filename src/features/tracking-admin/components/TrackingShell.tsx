@@ -25,6 +25,7 @@ interface Props {
   subtitle?: string;
   actions?: ReactNode;
   trackingEnabled: boolean;
+  fill?: boolean;
   children: ReactNode;
 }
 
@@ -33,7 +34,7 @@ interface Props {
 // overview page is the landing screen for the OPERACIONAL nav group, so it
 // keeps that eyebrow; every other tracking screen shows "TRACKING" as its
 // own breadcrumb (matches the design exactly).
-export function TrackingShell({ active, title, subtitle, actions, trackingEnabled, children }: Props) {
+export function TrackingShell({ active, title, subtitle, actions, trackingEnabled, fill, children }: Props) {
   const t = useTranslations('platformAdmin.tracking');
   const pathname = usePathname();
 
@@ -43,6 +44,7 @@ export function TrackingShell({ active, title, subtitle, actions, trackingEnable
       title={title}
       subtitle={subtitle}
       actions={actions}
+      fill={fill}
     >
       <nav className={styles.subNav} aria-label={t('shell.nav.overview')}>
         {SUB_NAV.map(({ key, href }) => {

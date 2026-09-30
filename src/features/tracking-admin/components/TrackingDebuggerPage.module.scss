@@ -75,11 +75,10 @@ $accent: #ec4899;
   border-radius: 14px;
   overflow: hidden;
   background: var(--background);
-  // Fixed-height panel: the list and the inspector scroll inside it, so
-  // scrolling the stream never pushes the inspector out of view. The offset
-  // is the page header + tabs + filter bar above the panel.
-  height: calc(100dvh - 300px);
-  min-height: 480px;
+  // Takes the height the (fill) page shell leaves over, so the list and the
+  // inspector scroll inside it and the page itself never scrolls.
+  flex: 1 1 auto;
+  min-height: 360px;
 }
 
 .list {
