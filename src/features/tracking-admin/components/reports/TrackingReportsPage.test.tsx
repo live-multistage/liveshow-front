@@ -14,6 +14,7 @@ vi.mock('./ExploreTab', () => ({ ExploreTab: () => <div data-testid="explore-tab
 vi.mock('./FunnelTab', () => ({ FunnelTab: () => <div data-testid="funnel-tab" /> }));
 vi.mock('./RetentionTab', () => ({ RetentionTab: () => <div data-testid="retention-tab" /> }));
 vi.mock('./FeaturesTab', () => ({ FeaturesTab: () => <div data-testid="features-tab" /> }));
+vi.mock('./PathsTab', () => ({ PathsTab: () => <div data-testid="paths-tab" /> }));
 
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -29,5 +30,11 @@ describe('TrackingReportsPage', () => {
   it('shows the flag-off banner when tracking is disabled', () => {
     render(<TrackingReportsPage tab="explore" trackingEnabled={false} />);
     expect(screen.getByText('shell.flagOffBanner')).toBeInTheDocument();
+  });
+
+  it('links the paths tab', () => {
+    render(<TrackingReportsPage tab="paths" trackingEnabled />);
+    expect(screen.getByTestId('paths-tab')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'reports.tabs.paths' })).toHaveAttribute('href', '/dashboard/platform/tracking/paths');
   });
 });

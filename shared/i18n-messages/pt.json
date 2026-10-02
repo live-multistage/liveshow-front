@@ -2899,7 +2899,8 @@
           "explore": "Explorar",
           "funnels": "Funis",
           "retention": "Retenção",
-          "features": "Recursos"
+          "features": "Recursos",
+          "paths": "Caminhos"
         },
         "run": "Rodar",
         "period": "PERÍODO · MÁX. 90 DIAS",
@@ -2969,6 +2970,37 @@
             "p75Active": "TEMPO ATIVO (P75)"
           },
           "empty": "Nenhum uso de feature registrado no período."
+        },
+        "paths": {
+          "title": "Caminhos",
+          "anchor": "Evento âncora",
+          "anchorHint": "Evento do plano ou rota, ex.: page:/events/:id",
+          "direction": "Direção",
+          "directionAfter": "Depois",
+          "directionBefore": "Antes",
+          "directionBoth": "Antes e depois",
+          "steps": "Passos",
+          "run": "Gerar",
+          "sessions": "{count, plural, one {# sessão} other {# sessões}}",
+          "empty": "Nenhuma sessão passou por {anchor} no período.",
+          "nodeExit": "Saiu",
+          "nodeStart": "Início da sessão",
+          "nodeOther": "Outros",
+          "samplesTitle": "Sessões de exemplo",
+          "samplesEmpty": "Nenhuma sessão encontrada.",
+          "openSession": "Ver sessão",
+          "anchorPlaceholder": "Selecione um evento ou rota",
+          "anchorInvalid": "Use um evento do plano ou uma rota no formato page:/caminho.",
+          "noQuery": "Escolha um evento âncora e gere os caminhos.",
+          "timeoutEmpty": "Nenhum resultado — ajuste o período e gere de novo.",
+          "summary": "{count, plural, one {# sessão passou por} other {# sessões passaram por}}",
+          "chartHint": "espessura ∝ sessões · clique num nó ou faixa para ver sessões de exemplo",
+          "columnShare": "{percent} da coluna",
+          "anchorColumn": "ÂNCORA",
+          "samplesMeta": "{shown} de {total} sessões · mais recentes primeiro",
+          "stepsCount": "{count, plural, one {# passo} other {# passos}}",
+          "anonymous": "Anônimo",
+          "close": "Fechar"
         }
       },
       "user": {

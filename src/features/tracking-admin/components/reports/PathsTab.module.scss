@@ -1,0 +1,61 @@
+$accent-soft: #ff8ec9;
+
+.segmented {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.segment {
+  font-size: 13px;
+  padding: 8px 14px;
+  border: none;
+  border-left: 1px solid var(--border);
+  background: none;
+  color: var(--muted-foreground);
+  cursor: pointer;
+
+  &:first-child {
+    border-left: none;
+  }
+
+  &:hover {
+    color: var(--foreground);
+  }
+}
+
+.segmentActive {
+  color: var(--foreground);
+  background: rgba(236, 72, 153, 0.14);
+}
+
+.summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+  font-size: 15px;
+  color: var(--foreground);
+}
+
+.total {
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: $accent-soft;
+}
+
+.anchorChip {
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(236, 72, 153, 0.1);
+  border: 1px solid rgba(236, 72, 153, 0.35);
+}
+
+.chartCard {
+  overflow-x: auto;
+}

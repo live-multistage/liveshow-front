@@ -2899,7 +2899,8 @@
           "explore": "Explorar",
           "funnels": "Embudos",
           "retention": "Retención",
-          "features": "Funciones"
+          "features": "Funciones",
+          "paths": "Rutas"
         },
         "run": "Ejecutar",
         "period": "PERÍODO · MÁX. 90 DÍAS",
@@ -2969,6 +2970,37 @@
             "p75Active": "TIEMPO ACTIVO (P75)"
           },
           "empty": "No se registró uso de funciones en este período."
+        },
+        "paths": {
+          "title": "Rutas",
+          "anchor": "Evento ancla",
+          "anchorHint": "Evento del plan o ruta, ej.: page:/events/:id",
+          "direction": "Dirección",
+          "directionAfter": "Después",
+          "directionBefore": "Antes",
+          "directionBoth": "Antes y después",
+          "steps": "Pasos",
+          "run": "Generar",
+          "sessions": "{count, plural, one {# sesión} other {# sesiones}}",
+          "empty": "Ninguna sesión pasó por {anchor} en el período.",
+          "nodeExit": "Salió",
+          "nodeStart": "Inicio de sesión",
+          "nodeOther": "Otros",
+          "samplesTitle": "Sesiones de ejemplo",
+          "samplesEmpty": "No se encontraron sesiones.",
+          "openSession": "Ver sesión",
+          "anchorPlaceholder": "Selecciona un evento o ruta",
+          "anchorInvalid": "Usa un evento del plan o una ruta con el formato page:/ruta.",
+          "noQuery": "Elige un evento ancla y genera las rutas.",
+          "timeoutEmpty": "Sin resultados — ajusta el período y genera de nuevo.",
+          "summary": "{count, plural, one {# sesión pasó por} other {# sesiones pasaron por}}",
+          "chartHint": "grosor ∝ sesiones · haz clic en un nodo o banda para ver sesiones de ejemplo",
+          "columnShare": "{percent} de la columna",
+          "anchorColumn": "ANCLA",
+          "samplesMeta": "{shown} de {total} sesiones · más recientes primero",
+          "stepsCount": "{count, plural, one {# paso} other {# pasos}}",
+          "anonymous": "Anónimo",
+          "close": "Cerrar"
         }
       },
       "user": {

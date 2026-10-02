@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { isValidEventName } from '@live-show/api-contracts';
 
 /**
  * Inclusive calendar days covered by a `YYYY-MM-DD` `from`/`to` pick (UTC, no
@@ -74,4 +75,9 @@ export function formatDayOrHour(at: string, interval: 'hour' | 'day'): string {
 
 export function formatCohortWeek(week: string): string {
   return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC', day: '2-digit', month: '2-digit' }).format(new Date(week));
+}
+
+/** Paths anchor: a plan event name or a `page:/route` (the API's page-view node key). */
+export function isValidAnchor(anchor: string): boolean {
+  return isValidEventName(anchor) || /^page:\/\S*$/.test(anchor);
 }

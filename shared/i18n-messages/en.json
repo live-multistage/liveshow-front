@@ -2899,7 +2899,8 @@
           "explore": "Explore",
           "funnels": "Funnels",
           "retention": "Retention",
-          "features": "Features"
+          "features": "Features",
+          "paths": "Paths"
         },
         "run": "Run",
         "period": "PERIOD · MAX. 90 DAYS",
@@ -2969,6 +2970,37 @@
             "p75Active": "ACTIVE TIME (P75)"
           },
           "empty": "No feature usage recorded in this period."
+        },
+        "paths": {
+          "title": "Paths",
+          "anchor": "Anchor event",
+          "anchorHint": "Plan event or route, e.g. page:/events/:id",
+          "direction": "Direction",
+          "directionAfter": "After",
+          "directionBefore": "Before",
+          "directionBoth": "Before and after",
+          "steps": "Steps",
+          "run": "Run",
+          "sessions": "{count, plural, one {# session} other {# sessions}}",
+          "empty": "No session reached {anchor} in this range.",
+          "nodeExit": "Left",
+          "nodeStart": "Session start",
+          "nodeOther": "Other",
+          "samplesTitle": "Example sessions",
+          "samplesEmpty": "No sessions found.",
+          "openSession": "Open session",
+          "anchorPlaceholder": "Select an event or route",
+          "anchorInvalid": "Use a plan event or a route like page:/path.",
+          "noQuery": "Pick an anchor event and run the paths.",
+          "timeoutEmpty": "No results — adjust the range and run again.",
+          "summary": "{count, plural, one {# session reached} other {# sessions reached}}",
+          "chartHint": "thickness ∝ sessions · click a node or band to see example sessions",
+          "columnShare": "{percent} of column",
+          "anchorColumn": "ANCHOR",
+          "samplesMeta": "{shown} of {total} sessions · most recent first",
+          "stepsCount": "{count, plural, one {# step} other {# steps}}",
+          "anonymous": "Anonymous",
+          "close": "Close"
         }
       },
       "user": {

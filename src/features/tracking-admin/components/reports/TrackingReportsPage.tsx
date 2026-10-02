@@ -7,15 +7,17 @@ import { ExploreTab } from './ExploreTab';
 import { FunnelTab } from './FunnelTab';
 import { RetentionTab } from './RetentionTab';
 import { FeaturesTab } from './FeaturesTab';
+import { PathsTab } from './PathsTab';
 import styles from './ReportsShared.module.scss';
 
-export type ReportTabKey = 'explore' | 'funnels' | 'retention' | 'features';
+export type ReportTabKey = 'explore' | 'funnels' | 'retention' | 'features' | 'paths';
 
 const TABS: { key: ReportTabKey; href: string }[] = [
   { key: 'explore', href: '/dashboard/platform/tracking/explore' },
   { key: 'funnels', href: '/dashboard/platform/tracking/funnels' },
   { key: 'retention', href: '/dashboard/platform/tracking/retention' },
   { key: 'features', href: '/dashboard/platform/tracking/features' },
+  { key: 'paths', href: '/dashboard/platform/tracking/paths' },
 ];
 
 interface Props {
@@ -48,6 +50,7 @@ export function TrackingReportsPage({ tab, trackingEnabled }: Props) {
       {tab === 'funnels' && <FunnelTab />}
       {tab === 'retention' && <RetentionTab />}
       {tab === 'features' && <FeaturesTab />}
+      {tab === 'paths' && <PathsTab />}
     </TrackingShell>
   );
 }
