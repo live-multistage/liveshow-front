@@ -99,6 +99,19 @@ describe('PathsTab', () => {
     expect(screen.getByText('reports.paths.anchorInvalid')).toBeInTheDocument();
   });
 
+  it('blocks a 32-day period and enables a 31-day one', () => {
+    render(<PathsTab />);
+    typeAnchor('checkout_started');
+    const [fromInput, toInput] = Array.from(document.querySelectorAll('input[type="date"]'));
+    fireEvent.change(fromInput, { target: { value: '2026-09-01' } });
+    fireEvent.change(toInput, { target: { value: '2026-10-02' } });
+    expect(screen.getByText('reports.paths.run')).toBeDisabled();
+    expect(screen.getByText('reports.paths.rangeTooLong')).toBeInTheDocument();
+
+    fireEvent.change(toInput, { target: { value: '2026-10-01' } });
+    expect(screen.getByText('reports.paths.run')).toBeEnabled();
+  });
+
   it('shows the empty message when no session reached the anchor', () => {
     mockedPaths.mockReturnValue(idle({ sessions: 0, columns: [], links: [] }));
     render(<PathsTab />);

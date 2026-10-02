@@ -24,6 +24,12 @@ describe('isRangeValid', () => {
     expect(isRangeValid('2026-01-01', '2026-03-31')).toBe(true);
   });
 
+  it('honors a custom maximum', () => {
+    expect(isRangeValid('2026-09-01', '2026-10-01', 31)).toBe(true);
+    expect(isRangeValid('2026-09-01', '2026-10-02', 31)).toBe(false);
+    expect(isRangeValid('2026-09-01', '2026-10-02')).toBe(true);
+  });
+
   it('rejects an inclusive 91-day pick', () => {
     expect(isRangeValid('2026-01-01', '2026-04-01')).toBe(false);
   });

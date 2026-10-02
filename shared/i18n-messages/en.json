@@ -2991,6 +2991,8 @@
           "openSession": "Open session",
           "anchorPlaceholder": "Select an event or route",
           "anchorInvalid": "Use a plan event or a route like page:/path.",
+          "period": "PERIOD · MAX. 31 DAYS",
+          "rangeTooLong": "Maximum range is 31 days.",
           "noQuery": "Pick an anchor event and run the paths.",
           "timeoutEmpty": "No results — adjust the range and run again.",
           "summary": "{count, plural, one {# session reached} other {# sessions reached}}",

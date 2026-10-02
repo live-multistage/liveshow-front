@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Inbox, Route } from 'lucide-react';
 import { Button, Input } from '@live-show/design-system';
+import { PATHS_MAX_RANGE_DAYS } from '@live-show/api-contracts';
 import type { PathDirection, PathMatch, PathsRequest, PathSessionsRequest } from '@live-show/api-contracts';
 import { usePathsReportQuery } from '../../queries/get-reports';
 import { useTrackingPlanQuery } from '../../queries/get-plan';
@@ -43,7 +44,7 @@ export function PathsTab() {
   const [req, setReq] = useState<PathsRequest | null>(null);
   const [match, setMatch] = useState<PathMatch[] | null>(null);
 
-  const rangeValid = isRangeValid(from, to);
+  const rangeValid = isRangeValid(from, to, PATHS_MAX_RANGE_DAYS);
   const anchorValid = isValidAnchor(anchor);
   const stepsValid = Number.isInteger(steps) && steps >= MIN_STEPS && steps <= MAX_STEPS;
   const canRun = rangeValid && anchorValid && stepsValid;
@@ -109,11 +110,11 @@ export function PathsTab() {
           />
         </div>
         <DateRangeField
-          label={t('reports.period')}
+          label={t('reports.paths.period')}
           from={from}
           to={to}
           invalid={!rangeValid}
-          errorText={t('reports.states.rangeTooLong')}
+          errorText={t('reports.paths.rangeTooLong')}
           onChange={(f, tt) => { setFrom(f); setTo(tt); }}
         />
         <div className={reportStyles.runBar}>

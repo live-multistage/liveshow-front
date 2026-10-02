@@ -95,6 +95,10 @@ export interface TrackingUserEventsPage { items: (TrackingMessage & { ts: string
 export type PathDirection = 'after' | 'before' | 'both';
 export const PATH_NODE = { start: '__start__', exit: '__exit__', other: '__other__' } as const;
 
+// Paths reports scan every event of every session in range; past ~31 days
+// they no longer fit the 10 s report timeout (measured 2026-10-02).
+export const PATHS_MAX_RANGE_DAYS = 31;
+
 export interface PathsRequest extends ReportRange {
   anchor: string;
   direction: PathDirection;

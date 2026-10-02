@@ -14,10 +14,10 @@ export function rangeDays(from: string, to: string): number {
   return Math.round((toMs - fromMs) / 86_400_000) + 1;
 }
 
-/** Client mirror of the backend rule: from <= to and range <= 90 days (inclusive). */
-export function isRangeValid(from: string, to: string): boolean {
+/** Client mirror of the backend rule: from <= to and range <= maxDays (inclusive; 90 for most reports). */
+export function isRangeValid(from: string, to: string, maxDays = 90): boolean {
   const days = rangeDays(from, to);
-  return days >= 1 && days <= 90;
+  return days >= 1 && days <= maxDays;
 }
 
 /**

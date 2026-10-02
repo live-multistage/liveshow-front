@@ -2991,6 +2991,8 @@
           "openSession": "Ver sesión",
           "anchorPlaceholder": "Selecciona un evento o ruta",
           "anchorInvalid": "Usa un evento del plan o una ruta con el formato page:/ruta.",
+          "period": "PERÍODO · MÁX. 31 DÍAS",
+          "rangeTooLong": "El intervalo máximo es de 31 días.",
           "noQuery": "Elige un evento ancla y genera las rutas.",
           "timeoutEmpty": "Sin resultados — ajusta el período y genera de nuevo.",
           "summary": "{count, plural, one {# sesión pasó por} other {# sesiones pasaron por}}",

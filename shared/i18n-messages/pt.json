@@ -2991,6 +2991,8 @@
           "openSession": "Ver sessão",
           "anchorPlaceholder": "Selecione um evento ou rota",
           "anchorInvalid": "Use um evento do plano ou uma rota no formato page:/caminho.",
+          "period": "PERÍODO · MÁX. 31 DIAS",
+          "rangeTooLong": "Intervalo máximo de 31 dias.",
           "noQuery": "Escolha um evento âncora e gere os caminhos.",
           "timeoutEmpty": "Nenhum resultado — ajuste o período e gere de novo.",
           "summary": "{count, plural, one {# sessão passou por} other {# sessões passaram por}}",
