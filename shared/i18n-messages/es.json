@@ -3030,6 +3030,29 @@
         "error": "No se pudo cargar el perfil.",
         "retry": "Intentar de nuevo",
         "entryLink": "Ver perfil de tracking"
+      },
+      "journey": {
+        "title": "Recorrido de la sesión",
+        "step": "Paso {n}",
+        "serverBadge": "servidor",
+        "sincePrevious": "+{duration}",
+        "viewProfile": "Ver perfil",
+        "anonymous": "Anónimo",
+        "notFound": "Sesión no encontrada.",
+        "openSession": "Ver sesión",
+        "back": "Volver",
+        "copyId": "Copiar id",
+        "copied": "Copiado",
+        "started": "INICIO",
+        "ended": "FIN",
+        "duration": "DURACIÓN",
+        "steps": "PASOS",
+        "user": "USUARIO",
+        "timelineTitle": "Línea de tiempo de la sesión",
+        "oldestFirst": "MÁS ANTIGUO PRIMERO",
+        "endNote": "fin de la sesión · {when}",
+        "error": "No se pudo cargar la sesión.",
+        "retry": "Reintentar"
       }
     }
   },

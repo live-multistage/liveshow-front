@@ -52,6 +52,20 @@ function ConsentPill({ consent, t }: { consent: boolean | null; t: ReturnType<ty
 export function TrackingUserProfilePage({ userId, trackingEnabled }: Props) {
   const t = useTranslations('platformAdmin.tracking');
   const format = useFormatter();
+// Server-emitted events carry the synthetic session id 'server': there is no journey to open.
+const sessionLink = (item: { context: { sessionId?: string }; anonymousId: string }) => {
+  const sessionId = item.context.sessionId;
+  if (!sessionId || sessionId === 'server') return undefined;
+  return (
+    <Link
+      href={`/dashboard/platform/tracking/sessions/${encodeURIComponent(sessionId)}?anonymousId=${encodeURIComponent(item.anonymousId)}`}
+      className={styles.link}
+    >
+      {t('journey.openSession')}
+    </Link>
+  );
+};
+
   const profile = useTrackingUserQuery(userId);
   const events = useTrackingUserEventsInfiniteQuery(userId);
 
@@ -181,7 +195,11 @@ export function TrackingUserProfilePage({ userId, trackingEnabled }: Props) {
             </div>
           )}
 
-          {items.map((item) => <TimelineRow key={item.messageId} item={item} />)}
+          {items.map((item) => <TimelineRow
+              key={item.messageId}
+              item={item}
+              extra={sessionLink(item)}
+            />)}
 
           {nextCursor && (
             <div className={styles.loadMoreRow}>

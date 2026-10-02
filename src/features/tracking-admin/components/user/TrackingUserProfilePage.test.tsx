@@ -144,4 +144,17 @@ describe('TrackingUserProfilePage', () => {
     const links = screen.getAllByText('user.viewAsAnonymous');
     expect(links[0]).toHaveAttribute('href', '/dashboard/platform/tracking/debugger?anonymousId=anon_a1');
   });
+
+  it('links each row to its session journey, except server-session rows', () => {
+    mockedProfile.mockReturnValue({ data: profile, isLoading: false, isError: false } as never);
+    mockEventsPage([
+      trackEvent(),
+      trackEvent({ messageId: 'm2', event: 'order_paid_srv', context: { library: { name: 'server', version: '1' }, sessionId: 'server' } }),
+    ]);
+    render(<TrackingUserProfilePage userId="usr_8f2c41" trackingEnabled />);
+
+    const links = screen.getAllByText('journey.openSession');
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAttribute('href', '/dashboard/platform/tracking/sessions/s1?anonymousId=anon_a1');
+  });
 });

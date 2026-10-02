@@ -3030,6 +3030,29 @@
         "error": "Couldn't load the profile.",
         "retry": "Try again",
         "entryLink": "View tracking profile"
+      },
+      "journey": {
+        "title": "Session journey",
+        "step": "Step {n}",
+        "serverBadge": "server",
+        "sincePrevious": "+{duration}",
+        "viewProfile": "View profile",
+        "anonymous": "Anonymous",
+        "notFound": "Session not found.",
+        "openSession": "Open session",
+        "back": "Back",
+        "copyId": "Copy id",
+        "copied": "Copied",
+        "started": "START",
+        "ended": "END",
+        "duration": "DURATION",
+        "steps": "STEPS",
+        "user": "USER",
+        "timelineTitle": "Session timeline",
+        "oldestFirst": "OLDEST FIRST",
+        "endNote": "session ended · {when}",
+        "error": "Could not load the session.",
+        "retry": "Try again"
       }
     }
   },
