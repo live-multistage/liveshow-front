@@ -240,7 +240,15 @@ $tracking-red-border: rgba(248, 113, 113, .4);
   &:last-child { border-bottom: none; }
 }
 
+.timelineLine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .timelineRow {
+  flex: 1;
+  min-width: 0;
   display: grid;
   grid-template-columns: 26px 190px 1fr auto 100px;
   align-items: center;
@@ -271,6 +279,19 @@ $tracking-red-border: rgba(248, 113, 113, .4);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.timelineNameCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.timelineNorm {
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: $tracking-zinc-500;
 }
 
 .timelineSummary {

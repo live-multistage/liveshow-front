@@ -4,10 +4,11 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { isAxiosError } from 'axios';
 import { useTranslations, useFormatter } from 'next-intl';
-import { AlertCircle, Bolt, Copy, FileText, Inbox, Link2, Search, User, Users } from 'lucide-react';
+import { AlertCircle, Copy, Inbox, Search, User } from 'lucide-react';
 import { Button, Skeleton } from '@live-show/design-system';
-import type { Json, TrackingMessage, TrackingMessageType, Violation } from '@live-show/api-contracts';
+import type { Json } from '@live-show/api-contracts';
 import { TrackingShell } from '../TrackingShell';
+import { TimelineRow } from './TimelineRow';
 import { useTrackingUserQuery, useTrackingUserEventsInfiniteQuery } from '../../queries/get-user';
 import styles from './TrackingUserProfilePage.module.scss';
 
@@ -16,47 +17,12 @@ interface Props {
   trackingEnabled: boolean;
 }
 
-type TimelineItem = TrackingMessage & { ts: string; violations: Violation[] | null };
-
-function timelineIcon(type: TrackingMessageType) {
-  switch (type) {
-    case 'track': return <Bolt size={13} />;
-    case 'page': return <FileText size={13} />;
-    case 'identify': return <User size={13} />;
-    case 'group': return <Users size={13} />;
-    case 'alias': return <Link2 size={13} />;
-  }
-}
-
-function timelineName(item: TimelineItem): string {
-  if (item.type === 'track') return item.event;
-  if (item.type === 'page') return item.name ?? item.context.page?.path ?? '—';
-  if (item.type === 'identify') return item.userId ?? item.anonymousId;
-  if (item.type === 'group') return item.groupId;
-  return `${item.previousId} → ${item.userId ?? item.anonymousId}`;
-}
-
-function timelineProperties(item: TimelineItem): Record<string, Json> | undefined {
-  if (item.type === 'track' || item.type === 'page') return item.properties;
-  if (item.type === 'identify' || item.type === 'group') return item.traits;
-  return undefined;
-}
-
 function copyToClipboard(text: string): void {
   try {
     void navigator.clipboard?.writeText(text);
   } catch {
     // ponytail: clipboard access can throw in insecure contexts/older browsers; silently ignore.
   }
-}
-
-function timelineSummary(item: TimelineItem): string {
-  const props = timelineProperties(item);
-  if (!props) return '';
-  return Object.entries(props)
-    .slice(0, 3)
-    .map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : String(v)}`)
-    .join(' · ');
 }
 
 function TraitValue({ value }: { value: Json }) {
@@ -81,31 +47,6 @@ function ConsentPill({ consent, t }: { consent: boolean | null; t: ReturnType<ty
   if (consent === true) return <span className={`${styles.consentPill} ${styles.consentGranted}`}>{t('user.consentValues.granted')}</span>;
   if (consent === false) return <span className={`${styles.consentPill} ${styles.consentDenied}`}>{t('user.consentValues.denied')}</span>;
   return <span className={`${styles.consentPill} ${styles.consentUnknown}`}>{t('user.consentValues.unknown')}</span>;
-}
-
-function ViolationBadge({ violations, t }: { violations: Violation[] | null; t: ReturnType<typeof useTranslations> }) {
-  if (!violations || violations.length === 0) return null;
-  return (
-    <span className={styles.violationBadge}>
-      {violations.length === 1 ? t('user.badges.violation') : t('user.badges.violations', { count: violations.length })}
-    </span>
-  );
-}
-
-function TimelineRow({ item, t, format }: { item: TimelineItem; t: ReturnType<typeof useTranslations>; format: ReturnType<typeof useFormatter> }) {
-  const [expanded, setExpanded] = useState(false);
-  return (
-    <div className={styles.timelineRowWrap}>
-      <button type="button" className={styles.timelineRow} onClick={() => setExpanded((e) => !e)}>
-        <span className={styles.iconWrap}>{timelineIcon(item.type)}</span>
-        <span className={styles.timelineName}>{timelineName(item)}</span>
-        <span className={styles.timelineSummary}>{timelineSummary(item)}</span>
-        <ViolationBadge violations={item.violations} t={t} />
-        <span className={styles.timelineTs}>{format.dateTime(new Date(item.ts), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
-      </button>
-      {expanded && <pre className={styles.jsonBlock}>{JSON.stringify(item, null, 2)}</pre>}
-    </div>
-  );
 }
 
 export function TrackingUserProfilePage({ userId, trackingEnabled }: Props) {
@@ -240,7 +181,7 @@ export function TrackingUserProfilePage({ userId, trackingEnabled }: Props) {
             </div>
           )}
 
-          {items.map((item) => <TimelineRow key={item.messageId} item={item} t={t} format={format} />)}
+          {items.map((item) => <TimelineRow key={item.messageId} item={item} />)}
 
           {nextCursor && (
             <div className={styles.loadMoreRow}>
