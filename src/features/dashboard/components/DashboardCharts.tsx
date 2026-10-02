@@ -1,35 +1,9 @@
 'use client';
 
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Filler,
-  Legend,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
-import { useMemo } from 'react';
 import type { EventResponse } from '@/features/events';
 import { useGetMySalesQuery } from '@/features/analytics/hooks/use-my-sales';
-import { lineChartOptions } from '@/shared/charts/line-chart-options';
+import { SparklineCard } from '@/shared/charts/SparklineCard';
 import styles from './DashboardCharts.module.scss';
-
-const COUNT_OPTIONS = lineChartOptions();
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Filler,
-  Legend,
-);
 
 function getLast6Months() {
   const now = new Date();
@@ -96,102 +70,29 @@ export function DashboardCharts({ events, eventsOnly = false }: Props) {
   // The revenue line is the primary currency only (see above), so the axis says
   // which one instead of always claiming reais.
   const primaryCurrency = summaries[0]?.currency ?? 'BRL';
-  // Money needs the currency of the series it belongs to, so these options are
-  // built per render rather than shared like COUNT_OPTIONS.
-  const revenueOptions = useMemo(
-    () => lineChartOptions({
-      formatValue: (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: primaryCurrency }),
-    }),
-    [primaryCurrency],
-  );
-
-  const eventsChartData = {
-    labels: months,
-    datasets: [
-      {
-        label: 'Eventos',
-        data: eventsData,
-        borderColor: '#ff5a4d',
-        backgroundColor: 'rgba(255,90,77,0.12)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 3.4,
-        pointBackgroundColor: '#ff5a4d',
-        pointBorderColor: '#08080a',
-        pointBorderWidth: 2,
-      },
-    ],
-  };
-
-  const salesChartData = {
-    labels: salesLabels,
-    datasets: [
-      {
-        label: 'Vendas',
-        data: salesValues,
-        borderColor: '#9b7bff',
-        backgroundColor: 'rgba(155,123,255,0.12)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 3.4,
-        pointBackgroundColor: '#9b7bff',
-        pointBorderColor: '#08080a',
-        pointBorderWidth: 2,
-      },
-    ],
-  };
-
-  const revenueChartData = {
-    labels: salesLabels,
-    datasets: [
-      {
-        label: `Receita (${primaryCurrency})`,
-        data: revenueValues,
-        borderColor: '#ff2e9e',
-        backgroundColor: 'rgba(255,46,158,0.12)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 3.4,
-        pointBackgroundColor: '#ff2e9e',
-        pointBorderColor: '#08080a',
-        pointBorderWidth: 2,
-      },
-    ],
-  };
+  const formatRevenue = (value: number) =>
+    value.toLocaleString('pt-BR', { style: 'currency', currency: primaryCurrency });
 
   return (
     <div className={styles.grid}>
-      <div className={styles.chartCard}>
-        <div className={styles.chartHeader}>
-          <span className={`${styles.dot} ${styles.dotRed}`} />
-          <h3 className={styles.chartTitle}>Eventos Realizados</h3>
-        </div>
-        <div className={styles.chartWrap}>
-          <Line data={eventsChartData} options={COUNT_OPTIONS} />
-        </div>
-      </div>
+      <SparklineCard
+        title="Eventos Realizados"
+        color="magenta"
+        data={eventsData}
+        labels={months}
+      />
 
       {!eventsOnly && (
         <>
-          <div className={styles.chartCard}>
-            <div className={styles.chartHeader}>
-              <span className={`${styles.dot} ${styles.dotViolet}`} />
-              <h3 className={styles.chartTitle}>Vendas</h3>
-            </div>
-            <div className={styles.chartWrap}>
-              <Line data={salesChartData} options={COUNT_OPTIONS} />
-            </div>
-          </div>
+          <SparklineCard title="Vendas" color="violet" data={salesValues} labels={salesLabels} />
 
-          <div className={styles.chartCard}>
-            <div className={styles.chartHeader}>
-              <span className={`${styles.dot} ${styles.dotPink}`} />
-              <h3 className={styles.chartTitle}>Receita</h3>
-            </div>
-            <div className={styles.chartWrap}>
-              <Line data={revenueChartData} options={revenueOptions} />
-            </div>
-          </div>
+          <SparklineCard
+            title="Receita"
+            color="amber"
+            data={revenueValues}
+            labels={salesLabels}
+            formatValue={formatRevenue}
+          />
         </>
       )}
     </div>

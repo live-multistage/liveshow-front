@@ -1,0 +1,7 @@
+@use '../../styles/_variables' as *;
+
+.magenta { color: $action; }
+.violet  { color: $violet; }
+.amber   { color: $warning; }
+.pink    { color: $price; }
+.green   { color: $success-light; }

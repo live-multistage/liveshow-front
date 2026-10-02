@@ -1,0 +1,46 @@
+@use '../../styles/_variables' as *;
+
+.card {
+  background: $surface-card;
+  border: 1px solid $border-hairline;
+  border-radius: $card-radius;
+  padding: 18px 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.dot {
+  background-color: currentColor;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.title {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 12px;
+  letter-spacing: .1em;
+  color: $text-primary;
+  font-weight: 400;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.aside {
+  margin-left: auto;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  color: $text-muted;
+}
+
+.plot {
+  position: relative;
+}
