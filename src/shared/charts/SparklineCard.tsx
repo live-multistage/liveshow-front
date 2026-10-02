@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { ChartCard } from './ChartCard';
 import { LineChart } from './LineChart';
 import type { SeriesColor } from './chart-series';
@@ -14,26 +13,24 @@ interface Props {
   height?: number;
 }
 
-// One series in a card. The value in the header follows the hover and falls
-// back to the latest sample, so the chart itself needs no tooltip.
+// One series in a card. The header shows the latest sample; the hover tooltip
+// gives the value of any other month.
 export function SparklineCard({ title, data, labels, color, formatValue, height }: Props) {
-  const [active, setActive] = useState<number | null>(null);
   const format = formatValue ?? ((value: number) => value.toLocaleString('pt-BR'));
-  const shown = data[active ?? data.length - 1];
+  const latest = data[data.length - 1];
 
   return (
     <ChartCard
       title={title}
       color={color}
       height={height}
-      aside={shown == null ? undefined : format(shown)}
+      aside={latest == null ? undefined : format(latest)}
     >
       <LineChart
         series={[{ label: title, data, color, fill: true }]}
         labels={labels}
         formatValue={format}
-        onActiveChange={setActive}
-        tooltip={false}
+        tooltip
       />
     </ChartCard>
   );

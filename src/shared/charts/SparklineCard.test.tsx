@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { SparklineCard } from './SparklineCard';
 
 const LABELS = ['mai.', 'jun.', 'jul.', 'ago.', 'set.', 'out.'];
@@ -30,17 +30,19 @@ describe('SparklineCard', () => {
     expect(screen.getByText('2 ev')).toBeInTheDocument();
   });
 
-  it('follows the hover with the hovered month value', () => {
+  it('shows the hovered month in a tooltip', () => {
     renderCard();
     hover(0.6); // nearest sample: index 3 (ago.)
-    expect(screen.getByText('3 ev')).toBeInTheDocument();
+    const tip = screen.getByRole('status');
+    expect(within(tip).getByText('ago.')).toBeInTheDocument();
+    expect(within(tip).getByText('3 ev')).toBeInTheDocument();
   });
 
-  it('returns to the latest value when the pointer leaves', () => {
+  it('hides the tooltip when the pointer leaves', () => {
     renderCard();
     hover(0.6);
-    fireEvent.pointerLeave(screen.getByTestId('chart-dot').parentElement!);
-    expect(screen.getByText('2 ev')).toBeInTheDocument();
+    fireEvent.pointerLeave(screen.getAllByTestId('chart-dot')[0].parentElement!);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
   it('exposes every value as text, since the drawing is hidden from assistive tech', () => {
