@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ChartCard } from './ChartCard';
-import { Sparkline } from './Sparkline';
+import { LineChart } from './LineChart';
 import type { SeriesColor } from './chart-series';
 
 interface Props {
@@ -14,12 +14,12 @@ interface Props {
   height?: number;
 }
 
-// Card + chart together, since every panel wants the same pairing: the value
-// in the header follows the hover, and falls back to the latest sample.
+// One series in a card. The value in the header follows the hover and falls
+// back to the latest sample, so the chart itself needs no tooltip.
 export function SparklineCard({ title, data, labels, color, formatValue, height }: Props) {
-  const [active, setActive] = useState<{ index: number; value: number } | null>(null);
+  const [active, setActive] = useState<number | null>(null);
   const format = formatValue ?? ((value: number) => value.toLocaleString('pt-BR'));
-  const shown = active?.value ?? data[data.length - 1];
+  const shown = data[active ?? data.length - 1];
 
   return (
     <ChartCard
@@ -28,12 +28,12 @@ export function SparklineCard({ title, data, labels, color, formatValue, height 
       height={height}
       aside={shown == null ? undefined : format(shown)}
     >
-      <Sparkline
-        data={data}
+      <LineChart
+        series={[{ label: title, data, color, fill: true }]}
         labels={labels}
-        color={color}
         formatValue={format}
         onActiveChange={setActive}
+        tooltip={false}
       />
     </ChartCard>
   );

@@ -1,29 +1,15 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Filler,
-  type ScriptableContext,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { useState } from 'react';
 import type { EventSalesSeries, SalesGranularity, SalesSummary } from '../types/sales.types';
 import { EventSalesTable } from './EventSalesTable';
+import { LineChart, type LineSeries } from '@/shared/charts/LineChart';
+import { seriesClass, type SeriesColor } from '@/shared/charts/chart-series';
 import styles from './SalesDashboard.module.scss';
 
-import { lineChartOptions } from '@/shared/charts/line-chart-options';
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
-
-const ORDERS_COLOR = '#9b7bff';
-const REVENUE_COLOR = '#ff2e9e';
-// Per-event lines cycle through these; beyond the palette, hues repeat.
-const EVENT_COLORS = ['#ff2e9e', '#9b7bff', '#46d6d8', '#7fe0a0', '#ff7a4d', '#ffd166', '#5aa9ff', '#f28cff'];
+// Per-event lines cycle through the palette; past its end the hues repeat
+// dashed, so two events never draw an identical line.
+const EVENT_COLORS: SeriesColor[] = ['magenta', 'violet', 'amber', 'green', 'pink'];
 
 // No FX conversion — always formatted in the row's own currency.
 function formatCurrency(value: number, currency = 'BRL'): string {
@@ -38,19 +24,6 @@ function formatLabel(date: string, granularity: SalesGranularity): string {
   const [year, month] = date.split('-');
   const d = new Date(Number(year), Number(month) - 1, 1);
   return d.toLocaleDateString('pt-BR', { month: 'short' });
-}
-
-// Vertical area gradient (0.32 → 0) matching the design's linearGradient.
-function areaGradient(color: string) {
-  return (ctx: ScriptableContext<'line'>) => {
-    const { chart } = ctx;
-    const { ctx: c, chartArea } = chart;
-    if (!chartArea) return 'transparent';
-    const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-    g.addColorStop(0, `${color}52`); // ~0.32 alpha
-    g.addColorStop(1, `${color}00`);
-    return g;
-  };
 }
 
 const ICONS = {
@@ -96,14 +69,10 @@ export function SalesDashboard({ data, byEvent = [], isLoading, granularity, onG
 
   const isOrders = chartView === 'orders';
   // The same chart plots counts or money depending on the toggle, so the
-  // tooltip formatter follows the view instead of always claiming reais.
-  const chartOptions = useMemo(
-    () => lineChartOptions(
-      isOrders ? {} : { formatValue: (v: number) => formatCurrency(v, currency) },
-    ),
-    [isOrders, currency],
-  );
-  const series = isOrders ? ORDERS_COLOR : REVENUE_COLOR;
+  // value formatter follows the view instead of always claiming reais.
+  const formatValue = isOrders
+    ? (v: number) => v.toLocaleString('pt-BR')
+    : (v: number) => formatCurrency(v, currency);
   const canSplit = byEvent.length > 1;
   const splitByEvent = canSplit && chartSplit === 'event';
 
@@ -112,40 +81,21 @@ export function SalesDashboard({ data, byEvent = [], isLoading, granularity, onG
   const labels = data?.data.map((p) => formatLabel(p.date, granularity)) ?? [];
   const chartDataValues = data?.data.map((p) => (isOrders ? p.orders : p.revenue)) ?? [];
 
-  const eventDatasets = byEvent.map((ev, i) => {
-    const color = EVENT_COLORS[i % EVENT_COLORS.length];
-    return {
-      label: ev.eventTitle,
-      data: ev.data.map((p) => (isOrders ? p.orders : p.revenue)),
-      borderColor: color,
-      backgroundColor: color,
-      fill: false,
-      tension: 0.4,
-      pointRadius: 3,
-      pointBackgroundColor: color,
-      pointBorderColor: '#08080a',
-      pointBorderWidth: 2,
-      borderWidth: 2,
-    };
-  });
+  const eventSeries: LineSeries[] = byEvent.map((ev, i) => ({
+    label: ev.eventTitle,
+    data: ev.data.map((p) => (isOrders ? p.orders : p.revenue)),
+    color: EVENT_COLORS[i % EVENT_COLORS.length],
+    dashed: i >= EVENT_COLORS.length,
+  }));
 
-  const chartDataset = {
-    labels,
-    datasets: splitByEvent ? eventDatasets : [
-      {
-        label: isOrders ? 'Vendas' : `Receita (${currency})`,
-        data: chartDataValues,
-        borderColor: series,
-        backgroundColor: areaGradient(series),
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointBackgroundColor: series,
-        pointBorderColor: '#08080a',
-        pointBorderWidth: 2,
-      },
-    ],
-  };
+  const chartSeries: LineSeries[] = splitByEvent ? eventSeries : [
+    {
+      label: isOrders ? 'Vendas' : `Receita (${currency})`,
+      data: chartDataValues,
+      color: isOrders ? 'violet' : 'magenta',
+      fill: true,
+    },
+  ];
 
   const chartSub = `${isOrders ? 'Ingressos vendidos' : `Faturamento em ${currency}`} · ${granularity === 'day' ? 'por dia' : 'por mês'}${splitByEvent ? ' · por evento' : ''}`;
 
@@ -256,14 +206,14 @@ export function SalesDashboard({ data, byEvent = [], isLoading, granularity, onG
               <span className={styles.spinner} />
             </div>
           ) : (
-            <Line data={chartDataset} options={chartOptions} />
+            <LineChart series={chartSeries} labels={labels} formatValue={formatValue} tooltip />
           )}
         </div>
         {splitByEvent && (
           <ul className={styles.legend}>
-            {eventDatasets.map((d) => (
+            {eventSeries.map((d) => (
               <li key={d.label} className={styles.legendItem}>
-                <span className={styles.legendSwatch} style={{ background: d.borderColor }} />
+                <span className={`${styles.legendSwatch} ${seriesClass(d.color)}`} />
                 {d.label}
               </li>
             ))}

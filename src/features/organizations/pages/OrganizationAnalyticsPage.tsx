@@ -2,16 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Filler,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
 import { OrganizationHeader } from '../components/OrganizationHeader';
 import { SectionHeader } from '../components/SectionHeader';
 import { KpiCard } from '../components/KpiCard';
@@ -21,50 +11,11 @@ import { SalesDashboard } from '@/features/analytics/components/SalesDashboard';
 import type { SalesGranularity } from '@/features/analytics/types/sales.types';
 import type { ChartPoint } from '@/features/analytics/types/analytics.types';
 import { chartLabels } from '@/features/analytics/utils/chart-labels';
+import { LineChart } from '@/shared/charts/LineChart';
 import styles from './OrganizationAnalyticsPage.module.scss';
-
-import { lineChartOptions } from '@/shared/charts/line-chart-options';
-
-const VIEWERS_CHART_OPTIONS = lineChartOptions();
-
-// Registering the same Chart.js components a second time (SalesDashboard
-// already does this) is a documented no-op — chart.js dedupes by name.
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
 function ViewersChart({ series, isLoading }: { series: ChartPoint[]; isLoading: boolean }) {
   const t = useTranslations('organizations');
-  const hasData = series.length > 0;
-  const chartData = {
-    labels: hasData ? chartLabels(series) : ['—'],
-    datasets: [
-      {
-        label: t('anViewers'),
-        data: hasData ? series.map((p) => p.viewers) : [0],
-        borderColor: '#ff2e9e',
-        backgroundColor: 'rgba(255,46,158,0.15)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-        pointBackgroundColor: '#ff2e9e',
-        borderWidth: 2.5,
-      },
-      {
-        label: t('anNewAccesses'),
-        data: hasData ? series.map((p) => p.newAccesses) : [0],
-        borderColor: '#bba6ff',
-        backgroundColor: 'transparent',
-        fill: false,
-        tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-        pointBackgroundColor: '#bba6ff',
-        borderWidth: 2,
-        borderDash: [6, 5],
-      },
-    ],
-  };
-
   return (
     <div className={styles.chartWrap}>
       {isLoading ? (
@@ -72,7 +23,13 @@ function ViewersChart({ series, isLoading }: { series: ChartPoint[]; isLoading: 
           <span className={styles.spinner} />
         </div>
       ) : (
-        <Line data={chartData} options={VIEWERS_CHART_OPTIONS} />
+        <LineChart
+          labels={chartLabels(series)}
+          series={[
+            { label: t('anViewers'), data: series.map((p) => p.viewers), color: 'magenta', fill: true },
+            { label: t('anNewAccesses'), data: series.map((p) => p.newAccesses), color: 'violet', dashed: true },
+          ]}
+        />
       )}
     </div>
   );

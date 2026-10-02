@@ -1,10 +1,15 @@
-// Geometry for Sparkline, kept apart from the component so the curve can be
+// Geometry for LineChart, kept apart from the component so the curve can be
 // tested without a DOM. All coordinates are in a 0..100 box on both axes: the
 // SVG is drawn with preserveAspectRatio="none", so the viewBox never has to
 // know the real pixel size of the card.
 export const BOX = 100;
 
-export interface SparklineGeometry {
+export interface Domain {
+  min: number;
+  max: number;
+}
+
+export interface LineGeometry {
   /** Stroke path: the curve itself. */
   line: string;
   /** Fill path: the same curve closed down to the baseline. */
@@ -13,24 +18,25 @@ export interface SparklineGeometry {
   points: Array<{ x: number; y: number }>;
 }
 
-// Y is inverted (SVG grows downward) and the top is padded, so the peak never
-// touches the card edge and a flat series still reads as a line rather than a
-// border.
+// The top is padded so the peak never touches the card edge.
 const TOP_PAD = 8;
 
-export function sparklineGeometry(data: number[]): SparklineGeometry | null {
+/** One scale for every series in a chart, always including zero. */
+export function sharedDomain(series: number[][]): Domain {
+  const all = series.flat();
+  return { min: Math.min(0, ...all), max: Math.max(0, ...all) };
+}
+
+export function lineGeometry(data: number[], domain: Domain = sharedDomain([data])): LineGeometry | null {
   if (data.length === 0) return null;
 
-  const max = Math.max(...data, 0);
-  const min = Math.min(...data, 0);
-  const span = max - min;
-
+  const span = domain.max - domain.min;
   const points = data.map((value, i) => ({
     // A single point sits in the middle instead of dividing by zero.
     x: data.length === 1 ? BOX / 2 : (i / (data.length - 1)) * BOX,
-    // A series with no variation (all zeros is the common one) draws along the
+    // No variation at all (all zeros is the common one) draws along the
     // baseline rather than through the middle of an invented scale.
-    y: span === 0 ? BOX : BOX - ((value - min) / span) * (BOX - TOP_PAD),
+    y: span === 0 ? BOX : BOX - ((value - domain.min) / span) * (BOX - TOP_PAD),
   }));
 
   const line = points.reduce((d, p, i) => {
@@ -55,6 +61,17 @@ export function indexAtRatio(ratio: number, count: number): number {
   if (count <= 1) return 0;
   const clamped = Math.min(Math.max(ratio, 0), 1);
   return Math.round(clamped * (count - 1));
+}
+
+/**
+ * Which x labels to print. A day of hourly samples has 24 labels and they
+ * cannot all fit under a card, so this keeps at most `max`, always including
+ * the first and the last, spread evenly between them.
+ */
+export function visibleLabelIndexes(count: number, max = 7): number[] {
+  if (count <= max) return Array.from({ length: count }, (_, i) => i);
+  const step = (count - 1) / (max - 1);
+  return Array.from({ length: max }, (_, i) => Math.round(i * step));
 }
 
 function r(n: number): number {

@@ -17,7 +17,7 @@ function renderCard(data = [0, 0, 1, 3, 0, 2]) {
 }
 
 function hover(ratio: number) {
-  const plot = screen.getByTestId('sparkline-dot').parentElement!;
+  const plot = screen.getByTestId('chart-dot').parentElement!;
   plot.getBoundingClientRect = () =>
     ({ left: 0, width: 100, top: 0, height: 100, right: 100, bottom: 100, x: 0, y: 0, toJSON: () => ({}) });
   fireEvent.pointerMove(plot, { clientX: ratio * 100 });
@@ -39,13 +39,13 @@ describe('SparklineCard', () => {
   it('returns to the latest value when the pointer leaves', () => {
     renderCard();
     hover(0.6);
-    fireEvent.pointerLeave(screen.getByTestId('sparkline-dot').parentElement!);
+    fireEvent.pointerLeave(screen.getByTestId('chart-dot').parentElement!);
     expect(screen.getByText('2 ev')).toBeInTheDocument();
   });
 
   it('exposes every value as text, since the drawing is hidden from assistive tech', () => {
     renderCard();
-    expect(screen.getByText(/ago\.: 3 ev/)).toBeInTheDocument();
+    expect(screen.getByText(/ago\. 3 ev/)).toBeInTheDocument();
   });
 
   it('says there is no data instead of drawing an empty card', () => {

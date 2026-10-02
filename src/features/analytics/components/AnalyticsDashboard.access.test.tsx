@@ -7,11 +7,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
-vi.mock('chart.js', () => ({
-  Chart: { register: vi.fn() },
-  CategoryScale: {}, LinearScale: {}, PointElement: {}, LineElement: {}, Tooltip: {}, Filler: {},
-}));
-vi.mock('react-chartjs-2', () => ({ Line: () => <div data-testid="chart" /> }));
 
 vi.mock('@/features/events/queries/get-event', () => ({ useGetEventQuery: vi.fn() }));
 vi.mock('@/features/organizations/queries/get-my-organizations', () => ({

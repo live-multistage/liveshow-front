@@ -3,11 +3,6 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Download } from 'lucide-react';
-import {
-  Chart as ChartJS, CategoryScale, LinearScale,
-  PointElement, LineElement, Tooltip, Filler,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
 import { useGetEventSalesQuery } from '../hooks/use-event-sales';
 import { useGetEventMetricsQuery } from '../hooks/use-event-metrics';
 import { useGetEventQuery } from '@/features/events/queries/get-event';
@@ -23,13 +18,8 @@ import type { ViewerAnalyticsResult } from '../types/viewer-analytics.types';
 import type { CameraBreakdownRow } from '../types/camera-breakdown.types';
 import type { NotificationBreakdownRow } from '../types/notification-breakdown.types';
 import type { SalesOriginResult, SalesChannel } from '../types/sales-origin.types';
+import { LineChart } from '@/shared/charts/LineChart';
 import styles from './AnalyticsDashboard.module.scss';
-
-import { lineChartOptions } from '@/shared/charts/line-chart-options';
-
-const CHART_OPTIONS = lineChartOptions();
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
 // ─── Types ────────────────────────────────────────────────────────
 type Range = '24h' | '7d' | 'all';
@@ -228,44 +218,10 @@ interface EngagementChartProps {
 }
 
 function EngagementChart({ series, peakViewers, peakAt, isLoading }: EngagementChartProps) {
-  const hasData = series.length > 0;
   // chartLabels adds the date only when the series really spans more than one
   // day — an hour-only label over a multi-day window is what made this chart
   // look like it ran backwards.
-  const labels = hasData ? chartLabels(series) : ['—'];
-  const viewers = hasData ? series.map((p) => p.viewers) : [0];
-  const newAccesses = hasData ? series.map((p) => p.newAccesses) : [0];
-
-  const chartData = {
-    labels,
-    datasets: [
-      {
-        label: 'Simultâneos',
-        data: viewers,
-        borderColor: '#ff2e9e',
-        backgroundColor: 'rgba(255,46,158,0.18)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-        pointBackgroundColor: '#ff2e9e',
-        borderWidth: 2.5,
-      },
-      {
-        label: 'Novos acessos',
-        data: newAccesses,
-        borderColor: '#bba6ff',
-        backgroundColor: 'transparent',
-        fill: false,
-        tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-        pointBackgroundColor: '#bba6ff',
-        borderWidth: 2,
-        borderDash: [6, 5],
-      },
-    ],
-  };
+  const labels = chartLabels(series);
 
   const peakLabel = peakViewers > 0 && peakAt
     ? `▲ PICO: ${fmtCompact(peakViewers)} ÀS ${formatChartInstant(peakAt)}`
@@ -297,7 +253,15 @@ function EngagementChart({ series, peakViewers, peakAt, isLoading }: EngagementC
         {!isLoading && peakLabel && <div className={styles.chartPeak}>{peakLabel}</div>}
         {isLoading
           ? <div className={styles.loadingRow}>CARREGANDO…</div>
-          : <Line data={chartData} options={CHART_OPTIONS} />
+          : (
+            <LineChart
+              labels={labels}
+              series={[
+                { label: 'Simultâneos', data: series.map((p) => p.viewers), color: 'magenta', fill: true },
+                { label: 'Novos acessos', data: series.map((p) => p.newAccesses), color: 'violet', dashed: true },
+              ]}
+            />
+          )
         }
       </div>
     </div>
@@ -391,29 +355,9 @@ function ViewersSection({ data, isLoading }: ViewersSectionProps) {
   // series really spans more than one day. Printing just the hour over a
   // multi-day window is what made this axis read 03h → 16h → 23h → 17h and
   // look like fabricated data — those are four different days.
-  const hourlyLabels = data && data.hourlyBreakdown.length > 0
-    ? chartLabels(data.hourlyBreakdown.map((p) => ({ at: p.hour })))
-    : ['—'];
+  const hourlyLabels = chartLabels((data?.hourlyBreakdown ?? []).map((p) => ({ at: p.hour })));
 
-  const hourlyViewers = data?.hourlyBreakdown.map((p) => p.viewers) ?? [0];
-
-  const chartData = {
-    labels: hourlyLabels,
-    datasets: [
-      {
-        label: 'Espectadores/hora',
-        data: hourlyViewers,
-        borderColor: '#46d6d8',
-        backgroundColor: 'rgba(70,214,216,0.15)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-        pointBackgroundColor: '#46d6d8',
-        borderWidth: 2.5,
-      },
-    ],
-  };
+  const hourlyViewers = data?.hourlyBreakdown.map((p) => p.viewers) ?? [];
 
   return (
     <div className={styles.card}>
@@ -476,7 +420,13 @@ function ViewersSection({ data, isLoading }: ViewersSectionProps) {
       <div className={styles.chartWrap}>
         {loading
           ? <div className={styles.loadingRow}>CARREGANDO…</div>
-          : <Line data={chartData} options={CHART_OPTIONS} />
+          : (
+            <LineChart
+              labels={hourlyLabels}
+              series={[{ label: 'Espectadores/hora', data: hourlyViewers, color: 'green', fill: true }]}
+              tooltip
+            />
+          )
         }
       </div>
     </div>
