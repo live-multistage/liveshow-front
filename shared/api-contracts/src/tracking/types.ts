@@ -90,3 +90,51 @@ export interface TrackingUserProfile {
   anonymousIds: string[]; analyticsConsent: boolean | null;
 }
 export interface TrackingUserEventsPage { items: (TrackingMessage & { ts: string; violations: Violation[] | null })[]; nextCursor: string | null }
+
+// Paths (Sankey) + session journey — spec 2026-10-02-tracking-paths-design.md
+export type PathDirection = 'after' | 'before' | 'both';
+export const PATH_NODE = { start: '__start__', exit: '__exit__', other: '__other__' } as const;
+
+export interface PathsRequest extends ReportRange {
+  anchor: string;
+  direction: PathDirection;
+  steps: number;
+  topK: number;
+}
+export interface PathNode { key: string; sessions: number }
+export interface PathColumn { offset: number; nodes: PathNode[] }
+export interface PathLink { fromOffset: number; from: string; to: string; sessions: number }
+export interface PathsReport { sessions: number; columns: PathColumn[]; links: PathLink[] }
+
+export interface PathMatch { offset: number; node: string }
+export interface PathSessionsRequest extends ReportRange {
+  anchor: string;
+  direction: PathDirection;
+  steps: number;
+  match: PathMatch[];
+}
+export interface PathSessionSample {
+  sessionId: string;
+  anonymousId: string;
+  userId: string | null;
+  startedAt: string;
+  durationSeconds: number;
+  steps: number;
+}
+export interface PathSessionsReport { sessions: PathSessionSample[] }
+
+export type JourneyItemOrigin = 'client' | 'server';
+export type SessionJourneyItem = TrackingMessage & {
+  ts: string;
+  origin: JourneyItemOrigin;
+  node: string | null;
+  violations: Violation[] | null;
+};
+export interface SessionJourney {
+  sessionId: string;
+  anonymousId: string;
+  userId: string | null;
+  startedAt: string;
+  endedAt: string;
+  items: SessionJourneyItem[];
+}

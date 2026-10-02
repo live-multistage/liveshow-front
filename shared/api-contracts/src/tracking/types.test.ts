@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TRACKING_LIMITS, isValidEventName } from './types';
+import { TRACKING_LIMITS, isValidEventName, PATH_NODE } from './types';
 
 describe('tracking contract', () => {
   it('exposes limits from the spec', () => {
@@ -10,4 +10,10 @@ describe('tracking contract', () => {
   });
   it.each([['checkout_started', true], ['a', false], ['Checkout', false], ['1abc', false], ['a'.repeat(65), false]])(
     'isValidEventName(%s) = %s', (name, ok) => expect(isValidEventName(name)).toBe(ok));
+});
+
+describe('PATH_NODE', () => {
+  it('names the synthetic Sankey nodes', () => {
+    expect(PATH_NODE).toEqual({ start: '__start__', exit: '__exit__', other: '__other__' });
+  });
 });

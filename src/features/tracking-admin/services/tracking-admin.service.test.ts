@@ -148,6 +148,23 @@ describe('trackingAdminService', () => {
     });
   });
 
+  it('pathsReport() POSTs the request body', async () => {
+    const req = { from: 'a', to: 'b', anchor: 'x_y', direction: 'after' as const, steps: 3, topK: 8 };
+    await trackingAdminService.pathsReport(req);
+    expect(httpClient.post).toHaveBeenCalledWith('/tracking/reports/paths', req);
+  });
+
+  it('pathSessions() POSTs the request body', async () => {
+    const req = { from: 'a', to: 'b', anchor: 'x_y', direction: 'after' as const, steps: 3, match: [{ offset: 0, node: 'x_y' }] };
+    await trackingAdminService.pathSessions(req);
+    expect(httpClient.post).toHaveBeenCalledWith('/tracking/reports/paths/sessions', req);
+  });
+
+  it('getSessionJourney() GETs the encoded session with its anonymousId', async () => {
+    await trackingAdminService.getSessionJourney('s/1', 'anon-1');
+    expect(httpClient.get).toHaveBeenCalledWith('/tracking/sessions/s%2F1/events', { params: { anonymousId: 'anon-1' } });
+  });
+
   it('encodes an id/name with reserved characters in every interpolated path segment', async () => {
     const raw = 'a/b c';
     const encoded = encodeURIComponent(raw);

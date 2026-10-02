@@ -9,10 +9,15 @@ import type {
   FunnelRequest,
   LiveFrame,
   OverviewReport,
+  PathsReport,
+  PathsRequest,
+  PathSessionsReport,
+  PathSessionsRequest,
   PlanEvent,
   ReportRange,
   RetentionReport,
   RetentionRequest,
+  SessionJourney,
   SourceKind,
   TrackingDestination,
   TrackingSource,
@@ -153,6 +158,24 @@ export const trackingAdminService = {
     const { data } = await httpClient.get<TrackingUserEventsPage>(
       `/tracking/users/${encodeURIComponent(id)}/events`,
       { params: { cursor: params.cursor, limit: params.limit ?? 50 } },
+    );
+    return data;
+  },
+
+  pathsReport: async (req: PathsRequest): Promise<PathsReport> => {
+    const { data } = await httpClient.post<PathsReport>('/tracking/reports/paths', req);
+    return data;
+  },
+
+  pathSessions: async (req: PathSessionsRequest): Promise<PathSessionsReport> => {
+    const { data } = await httpClient.post<PathSessionsReport>('/tracking/reports/paths/sessions', req);
+    return data;
+  },
+
+  getSessionJourney: async (sessionId: string, anonymousId: string): Promise<SessionJourney> => {
+    const { data } = await httpClient.get<SessionJourney>(
+      `/tracking/sessions/${encodeURIComponent(sessionId)}/events`,
+      { params: { anonymousId } },
     );
     return data;
   },

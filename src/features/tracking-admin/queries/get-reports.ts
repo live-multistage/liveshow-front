@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import type { ExploreRequest, FunnelRequest, ReportRange, RetentionRequest } from '@live-show/api-contracts';
+import type { ExploreRequest, FunnelRequest, PathsRequest, PathSessionsRequest, ReportRange, RetentionRequest } from '@live-show/api-contracts';
 import { trackingAdminService } from '../services/tracking-admin.service';
 import { trackingAdminKeys } from './keys';
 
@@ -33,6 +33,22 @@ export function useFeaturesReportQuery(req: ReportRange | null) {
   return useQuery({
     queryKey: trackingAdminKeys.features(req),
     queryFn: () => trackingAdminService.featuresReport(req as ReportRange),
+    enabled: req !== null,
+  });
+}
+
+export function usePathsReportQuery(req: PathsRequest | null) {
+  return useQuery({
+    queryKey: trackingAdminKeys.paths(req),
+    queryFn: () => trackingAdminService.pathsReport(req as PathsRequest),
+    enabled: req !== null,
+  });
+}
+
+export function usePathSessionsQuery(req: PathSessionsRequest | null) {
+  return useQuery({
+    queryKey: trackingAdminKeys.pathSessions(req),
+    queryFn: () => trackingAdminService.pathSessions(req as PathSessionsRequest),
     enabled: req !== null,
   });
 }
