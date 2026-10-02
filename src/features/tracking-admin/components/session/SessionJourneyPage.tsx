@@ -2,6 +2,7 @@
 
 import { Fragment, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { isAxiosError } from 'axios';
 import { useTranslations, useFormatter } from 'next-intl';
 import { AlertCircle, Copy, Search } from 'lucide-react';
@@ -19,7 +20,7 @@ interface Props {
   trackingEnabled: boolean;
 }
 
-const BACK_HREF = '/dashboard/platform/tracking/explore';
+const PATHS_HREF = '/dashboard/platform/tracking/paths';
 
 // A page node key is `page:/route`; show the normalized route only when it differs from the raw path.
 function normalizedRoute(node: string | null, path: string | undefined): string | undefined {
@@ -48,7 +49,7 @@ function JourneyBody({ journey }: { journey: SessionJourney }) {
     { key: 'started', label: t('journey.started'), value: stampOf(journey.startedAt) },
     { key: 'ended', label: t('journey.ended'), value: stampOf(journey.endedAt) },
     { key: 'duration', label: t('journey.duration'), value: formatGap(Date.parse(journey.endedAt) - Date.parse(journey.startedAt)) },
-    { key: 'steps', label: t('journey.steps'), value: String(steps.filter((s) => s !== null).length) },
+    { key: 'steps', label: t('journey.steps'), value: String(Math.max(0, ...steps.map((s) => s ?? 0))) },
   ];
 
   const copy = () => {
@@ -126,10 +127,13 @@ function JourneyBody({ journey }: { journey: SessionJourney }) {
 
 export function SessionJourneyPage({ sessionId, anonymousId, trackingEnabled }: Props) {
   const t = useTranslations('platformAdmin.tracking');
+  const router = useRouter();
   const query = useSessionJourneyQuery(sessionId, anonymousId);
+  // Back to wherever the admin came from (the Caminhos result, restored from the URL); a direct visit goes to Caminhos.
+  const goBack = () => (window.history.length > 1 ? router.back() : router.push(PATHS_HREF));
   const shell = (children: React.ReactNode) => (
     <TrackingShell active="reports" title={t('journey.title')} trackingEnabled={trackingEnabled}>
-      <Link href={BACK_HREF} className={styles.backLink}>{t('journey.back')}</Link>
+      <button type="button" className={styles.backLink} onClick={goBack}>{t('journey.back')}</button>
       {children}
     </TrackingShell>
   );
@@ -149,6 +153,7 @@ export function SessionJourneyPage({ sessionId, anonymousId, trackingEnabled }: 
         <div className={styles.emptyIcon}><Search size={28} /></div>
         <p className={styles.stateTitle}>{t('journey.notFound')}</p>
         <span className={styles.anonymousId}>{sessionId}</span>
+        <Button variant="outline" size="lg" onClick={goBack}>{t('journey.back')}</Button>
       </div>,
     );
   }

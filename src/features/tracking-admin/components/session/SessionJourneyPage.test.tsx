@@ -10,11 +10,15 @@ vi.mock('next-intl', () => ({
 vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
-vi.mock('next/navigation', () => ({ usePathname: () => '/dashboard/platform/tracking/sessions/s1' }));
+const router = { back: vi.fn(), push: vi.fn() };
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/dashboard/platform/tracking/sessions/s1',
+  useRouter: () => router,
+}));
 vi.mock('../../queries/get-session-journey', () => ({ useSessionJourneyQuery: vi.fn() }));
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { SessionJourneyPage } from './SessionJourneyPage';
 import { useSessionJourneyQuery } from '../../queries/get-session-journey';
 import type { SessionJourney, SessionJourneyItem } from '@live-show/api-contracts';
@@ -50,6 +54,8 @@ function renderPage(data?: SessionJourney, extra: Record<string, unknown> = {}) 
 }
 
 describe('SessionJourneyPage', () => {
+  beforeEach(() => vi.clearAllMocks());
+
   it('numbers steps only for items with a node, in received order', () => {
     renderPage(journey());
     expect(screen.getByText('journey.step:{"n":1}')).toBeInTheDocument();
@@ -83,5 +89,39 @@ describe('SessionJourneyPage', () => {
   it('shows the not-found state on a 404', () => {
     renderPage(undefined, { isError: true, error: { isAxiosError: true, response: { status: 404 } } });
     expect(screen.getByText('journey.notFound')).toBeInTheDocument();
+  });
+
+  it('Voltar goes back in history when there is one', () => {
+    vi.spyOn(window.history, 'length', 'get').mockReturnValue(3);
+    renderPage(journey());
+    fireEvent.click(screen.getByText('journey.back'));
+    expect(router.back).toHaveBeenCalled();
+    expect(router.push).not.toHaveBeenCalled();
+  });
+
+  it('Voltar falls back to Caminhos on a direct visit', () => {
+    vi.spyOn(window.history, 'length', 'get').mockReturnValue(1);
+    renderPage(journey());
+    fireEvent.click(screen.getByText('journey.back'));
+    expect(router.push).toHaveBeenCalledWith('/dashboard/platform/tracking/paths');
+  });
+
+  it('shows a Voltar button in the 404 state that goes back', () => {
+    vi.spyOn(window.history, 'length', 'get').mockReturnValue(3);
+    renderPage(undefined, { isError: true, error: { isAxiosError: true, response: { status: 404 } } });
+    const backs = screen.getAllByText('journey.back'); // shell link + the 404 state's button
+    expect(backs).toHaveLength(2);
+    fireEvent.click(backs[1]);
+    expect(router.back).toHaveBeenCalled();
+  });
+
+  it('counts the PASSOS meta in collapsed steps', () => {
+    renderPage(journey({ items: [
+      item({ messageId: 'm1', node: 'page:/a' }),
+      item({ messageId: 'm2', node: 'page:/a' }),
+      item({ messageId: 'm3', node: 'b' }),
+    ] }));
+    const cell = screen.getByText('journey.steps').parentElement!;
+    expect(cell).toHaveTextContent('2');
   });
 });

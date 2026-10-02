@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { useTranslations, useFormatter } from 'next-intl';
-import { X } from 'lucide-react';
+import { Button, Dialog, DialogContent, DialogTitle } from '@live-show/design-system';
 import type { PathMatch, PathSessionsRequest } from '@live-show/api-contracts';
 import { usePathSessionsQuery } from '../../queries/get-reports';
 import { isSyntheticNode, pathNodeLabel } from '../../utils/path-node';
-import { formatDuration } from './report-utils';
-import { ReportLoadingSkeleton } from './ReportStates';
+import { formatDuration, isTimeoutError } from './report-utils';
+import { ReportLoadingSkeleton, TimeoutBanner } from './ReportStates';
 import styles from './PathSessionsPanel.module.scss';
 
 const SHORT_ID = 8;
@@ -22,21 +22,15 @@ interface Props {
 export function PathSessionsPanel({ request, total, onClose }: Props) {
   const t = useTranslations('platformAdmin.tracking');
   const format = useFormatter();
-  const { data, isLoading } = usePathSessionsQuery(request);
+  const { data, isLoading, isError, error, refetch } = usePathSessionsQuery(request);
   const label = (key: string) => pathNodeLabel(key, t as (k: string) => string);
   const samples = data?.sessions ?? [];
 
   return (
-    <>
-      <div className={styles.scrim} onClick={onClose} aria-hidden="true" />
-      <aside className={styles.panel} aria-label={t('reports.paths.samplesTitle')}>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className={styles.panel} aria-describedby={undefined}>
         <header className={styles.header}>
-          <div className={styles.titleRow}>
-            <h3 className={styles.title}>{t('reports.paths.samplesTitle')}</h3>
-            <button type="button" className={styles.close} onClick={onClose} aria-label={t('reports.paths.close')}>
-              <X size={16} />
-            </button>
-          </div>
+          <DialogTitle className={styles.title}>{t('reports.paths.samplesTitle')}</DialogTitle>
           <div className={styles.chips}>
             {request.match.map((m: PathMatch, i) => (
               <span key={`${m.offset}|${m.node}`} className={styles.chipGroup}>
@@ -54,7 +48,14 @@ export function PathSessionsPanel({ request, total, onClose }: Props) {
 
         <div className={styles.list}>
           {isLoading && <ReportLoadingSkeleton />}
-          {!isLoading && samples.length === 0 && <p className={styles.empty}>{t('reports.paths.samplesEmpty')}</p>}
+          {isError && isTimeoutError(error) && <TimeoutBanner text={t('reports.states.timeout')} />}
+          {isError && !isTimeoutError(error) && (
+            <div className={styles.error}>
+              <p>{t('reports.states.error')}</p>
+              <Button variant="outline" onClick={() => refetch()}>{t('journey.retry')}</Button>
+            </div>
+          )}
+          {!isLoading && !isError && samples.length === 0 && <p className={styles.empty}>{t('reports.paths.samplesEmpty')}</p>}
           {samples.map((s) => (
             <div className={styles.row} key={s.sessionId}>
               <span className={styles.start}>
@@ -76,7 +77,7 @@ export function PathSessionsPanel({ request, total, onClose }: Props) {
             </div>
           ))}
         </div>
-      </aside>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 }

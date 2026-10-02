@@ -16,4 +16,10 @@ describe('stepLabels', () => {
   it('numbers only items with a node', () => {
     expect(stepLabels([{ node: 'a' }, { node: null }, { node: 'b' }])).toEqual([1, null, 2]);
   });
+
+  it('gives consecutive items with the same node the same step', () => {
+    expect(stepLabels([{ node: 'a' }, { node: 'a' }, { node: null }, { node: 'a' }, { node: 'b' }, { node: 'a' }])).toEqual([
+      1, 1, null, 1, 2, 3,
+    ]);
+  });
 });

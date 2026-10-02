@@ -139,6 +139,8 @@ export function SankeyChart({ report, selected = null, onSelect }: Props) {
                 role: 'button',
                 tabIndex: 0,
                 'aria-label': `${label(l.from)} → ${label(l.to)} ${l.sessions}`,
+                onFocus: () => setHover({ kind: 'link', id }),
+                onBlur: () => setHover(null),
                 onClick: select,
                 onKeyDown: onActivate(select),
               })}
@@ -164,6 +166,8 @@ export function SankeyChart({ report, selected = null, onSelect }: Props) {
                 role: 'button',
                 tabIndex: 0,
                 'aria-label': `${text} ${n.sessions}`,
+                onFocus: () => setHover({ kind: 'node', id }),
+                onBlur: () => setHover(null),
                 onClick: select,
                 onKeyDown: onActivate(select),
               })}

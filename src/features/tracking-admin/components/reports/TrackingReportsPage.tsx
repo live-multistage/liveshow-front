@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { TrackingShell } from '../TrackingShell';
@@ -50,7 +51,7 @@ export function TrackingReportsPage({ tab, trackingEnabled }: Props) {
       {tab === 'funnels' && <FunnelTab />}
       {tab === 'retention' && <RetentionTab />}
       {tab === 'features' && <FeaturesTab />}
-      {tab === 'paths' && <PathsTab />}
+      {tab === 'paths' && <Suspense><PathsTab /></Suspense>}
     </TrackingShell>
   );
 }

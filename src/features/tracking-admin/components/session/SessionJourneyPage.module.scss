@@ -161,6 +161,21 @@ $mono: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   background: var(--muted);
 }
 
+.backLink {
+  align-self: flex-start;
+  margin-bottom: 16px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 13px;
+  color: #71717a;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--foreground);
+  }
+}
+
 .stateBox {
   min-height: 260px;
   display: flex;

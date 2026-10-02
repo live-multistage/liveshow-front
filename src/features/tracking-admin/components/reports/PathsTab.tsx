@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Inbox, Route } from 'lucide-react';
 import { Button, Input } from '@live-show/design-system';
@@ -13,7 +14,7 @@ import { DateRangeField } from './DateRangeField';
 import { PathSessionsPanel } from './PathSessionsPanel';
 import { SankeyChart } from './SankeyChart';
 import { ReportLoadingSkeleton, ReportMessageState, TimeoutBanner } from './ReportStates';
-import { defaultRange, isRangeValid, isTimeoutError, isValidAnchor, toReportRangeBounds } from './report-utils';
+import { defaultRange, isRangeValid, isTimeoutError, isValidAnchor, parsePathsParams, toReportRangeBounds } from './report-utils';
 import reportStyles from './ReportsShared.module.scss';
 import styles from './PathsTab.module.scss';
 
@@ -35,13 +36,22 @@ export function PathsTab() {
     [plan],
   );
 
-  const initialRange = useMemo(() => defaultRange(), []);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // A valid query in the URL is a previously submitted one (back/refresh): restore the form and re-request it.
+  const [restored] = useState(() => (searchParams ? parsePathsParams(searchParams) : null));
+  const [initialRange] = useState(() => restored ?? defaultRange());
   const [from, setFrom] = useState(initialRange.from);
   const [to, setTo] = useState(initialRange.to);
-  const [anchor, setAnchor] = useState('');
-  const [direction, setDirection] = useState<PathDirection>('after');
-  const [steps, setSteps] = useState(3);
-  const [req, setReq] = useState<PathsRequest | null>(null);
+  const [anchor, setAnchor] = useState(restored?.anchor ?? '');
+  const [direction, setDirection] = useState<PathDirection>(restored?.direction ?? 'after');
+  const [steps, setSteps] = useState(restored?.steps ?? 3);
+  const [req, setReq] = useState<PathsRequest | null>(() =>
+    restored
+      ? { ...toReportRangeBounds(restored.from, restored.to), anchor: restored.anchor, direction: restored.direction, steps: restored.steps, topK: TOP_K }
+      : null,
+  );
   const [match, setMatch] = useState<PathMatch[] | null>(null);
 
   const rangeValid = isRangeValid(from, to, PATHS_MAX_RANGE_DAYS);
@@ -56,6 +66,8 @@ export function PathsTab() {
     if (!canRun) return;
     setMatch(null);
     setReq({ ...toReportRangeBounds(from, to), anchor, direction, steps, topK: TOP_K });
+    const query = new URLSearchParams({ anchor, direction, steps: String(steps), from, to });
+    router.replace(`${pathname}?${query}`, { scroll: false });
   }
 
   const sessionsRequest: PathSessionsRequest | null =

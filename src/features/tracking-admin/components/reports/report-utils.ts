@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { isValidEventName } from '@live-show/api-contracts';
+import { isValidEventName, PATHS_MAX_RANGE_DAYS } from '@live-show/api-contracts';
+import type { PathDirection } from '@live-show/api-contracts';
 
 /**
  * Inclusive calendar days covered by a `YYYY-MM-DD` `from`/`to` pick (UTC, no
@@ -79,5 +80,30 @@ export function formatCohortWeek(week: string): string {
 
 /** Paths anchor: a plan event name or a `page:/route` (the API's page-view node key). */
 export function isValidAnchor(anchor: string): boolean {
-  return isValidEventName(anchor) || /^page:\/\S*$/.test(anchor);
+  return isValidEventName(anchor) || /^page:\/\S{0,199}$/.test(anchor);
+}
+
+export interface PathsFormParams {
+  anchor: string;
+  direction: PathDirection;
+  steps: number;
+  from: string;
+  to: string;
+}
+
+const PATH_DIRECTIONS: readonly string[] = ['after', 'before', 'both'];
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Restores a submitted Caminhos query from the URL; null unless every param is present and valid. */
+export function parsePathsParams(params: { get(name: string): string | null }): PathsFormParams | null {
+  const anchor = params.get('anchor');
+  const direction = params.get('direction');
+  const steps = Number(params.get('steps'));
+  const from = params.get('from');
+  const to = params.get('to');
+  if (!anchor || !direction || !from || !to) return null;
+  if (!isValidAnchor(anchor) || !PATH_DIRECTIONS.includes(direction)) return null;
+  if (!Number.isInteger(steps) || steps < 1 || steps > 5) return null;
+  if (!DATE_ONLY.test(from) || !DATE_ONLY.test(to) || !isRangeValid(from, to, PATHS_MAX_RANGE_DAYS)) return null;
+  return { anchor, direction: direction as PathDirection, steps, from, to };
 }

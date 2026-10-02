@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isRangeValid, rangeDays, toReportRangeBounds } from './report-utils';
+import { isRangeValid, isValidAnchor, parsePathsParams, rangeDays, toReportRangeBounds } from './report-utils';
 
 describe('rangeDays', () => {
   it('counts a single day pick as 1 (inclusive)', () => {
@@ -52,5 +52,47 @@ describe('toReportRangeBounds', () => {
       from: '2026-09-30T00:00:00.000Z',
       to: '2026-10-01T00:00:00.000Z',
     });
+  });
+});
+
+describe('isValidAnchor', () => {
+  it('accepts event names and real-world page paths', () => {
+    expect(isValidAnchor('checkout_started')).toBe(true);
+    expect(isValidAnchor('page:/events/:id')).toBe(true);
+    expect(isValidAnchor('page:/busca/caf%C3%A9')).toBe(true);
+    expect(isValidAnchor('page:/a,b=c')).toBe(true);
+  });
+
+  it('rejects whitespace, a missing slash and over-long routes', () => {
+    expect(isValidAnchor('page:/has space')).toBe(false);
+    expect(isValidAnchor('page:events')).toBe(false);
+    expect(isValidAnchor(`page:/${'a'.repeat(200)}`)).toBe(false);
+    expect(isValidAnchor(`page:/${'a'.repeat(199)}`)).toBe(true);
+  });
+});
+
+describe('parsePathsParams', () => {
+  const valid = { anchor: 'checkout_started', direction: 'both', steps: '2', from: '2026-09-01', to: '2026-09-20' };
+  const parse = (over: Record<string, string> = {}) =>
+    parsePathsParams(new URLSearchParams({ ...valid, ...over }));
+
+  it('restores a valid query', () => {
+    expect(parse()).toEqual({ anchor: 'checkout_started', direction: 'both', steps: 2, from: '2026-09-01', to: '2026-09-20' });
+  });
+
+  it.each([
+    ['bad anchor', { anchor: 'x y' }],
+    ['bad direction', { direction: 'sideways' }],
+    ['steps out of range', { steps: '9' }],
+    ['non-numeric steps', { steps: 'abc' }],
+    ['non date-only from', { from: '2026-09-01T00:00:00Z' }],
+    ['range over 31 days', { from: '2026-08-01' }],
+    ['inverted range', { from: '2026-09-25' }],
+  ])('returns null for %s', (_, over) => {
+    expect(parse(over)).toBeNull();
+  });
+
+  it('returns null when a param is missing', () => {
+    expect(parsePathsParams(new URLSearchParams({ anchor: 'a_b' }))).toBeNull();
   });
 });

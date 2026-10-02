@@ -67,6 +67,11 @@ $halo: #0f0f0f;
 
   &.clickable {
     cursor: pointer;
+
+    &:focus-visible rect:not(.ring) {
+      stroke: $accent-soft;
+      stroke-width: 2;
+    }
   }
 }
 
