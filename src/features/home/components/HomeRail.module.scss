@@ -19,6 +19,9 @@
 
 .card {
   @include rail-card-width;
+  // Fill the carousel slot (stretched to the tallest card in the row) so every
+  // ShowCard matches its height and the CTA footer lines up at the bottom.
+  height: 100%;
 }
 
 .channelCard {
