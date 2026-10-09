@@ -31,6 +31,9 @@ describe('applySeo', () => {
     expect(out.alternates).toEqual(base.alternates);
   });
 
+  it('keeps an admin title absolute when the base title is absolute', () =>
+    expect(applySeo({ ...base, title: { absolute: 'Home' } }, { ...empty, titleTemplate: 'Novo' }, {}).title).toEqual({ absolute: 'Novo' }));
+
   it('keeps the code default when a template resolves to blank', () =>
     expect(applySeo(base, { ...empty, titleTemplate: '{{event.missing}}' }, {}).title).toBe('Show X'));
 

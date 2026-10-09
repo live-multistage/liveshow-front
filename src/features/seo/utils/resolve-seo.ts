@@ -36,7 +36,9 @@ export function applySeo(base: Metadata, config: ResolvedSeoConfig | null, vars:
   const ogImage = config.ogImageUrl ?? (baseOg.images ? null : config.defaultOgImageUrl);
 
   const out: Metadata = { ...base };
-  if (title) out.title = title;
+  // An absolute base title opts out of the layout template; keep it that way.
+  const absoluteBase = typeof base.title === 'object' && base.title !== null && 'absolute' in base.title;
+  if (title) out.title = absoluteBase ? { absolute: title } : title;
   if (description) out.description = description;
   if (title || description || ogImage) {
     out.openGraph = {
