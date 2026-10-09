@@ -9,10 +9,12 @@ import { getInitialIsLoggedIn, getUserServer, checkAuthServer } from '@/features
 import { ConsentBanner } from '@/features/consent';
 import { JsonLd } from '@/shared/components/JsonLd';
 import { ErrorReportingProvider } from '@/lib/error-reporting/error-reporting-provider';
+import { getSeoGlobal } from '@/features/seo/queries/get-seo.server';
+import { buildRootMetadata, SITE_DESCRIPTION } from '@/features/seo/utils/root-metadata';
+import { resolveGlobalJsonLd } from '@/features/seo/utils/resolve-global-jsonld';
 import '@/styles/globals.scss';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
-const SITE_DESCRIPTION = 'Shows ao vivo de todo o mundo, na palma da sua mão.';
 
 const archivo = Archivo({
   subsets: ['latin'],
@@ -28,28 +30,9 @@ const spaceMono = Space_Mono({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  // Anchors every relative URL in OG/canonical/twitter metadata to the real
-  // host — without it Next resolves them against localhost.
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: 'showon.io',
-    template: '%s · showon.io',
-  },
-  description: SITE_DESCRIPTION,
-  openGraph: {
-    type: 'website',
-    siteName: 'showon.io',
-    url: SITE_URL,
-    title: 'showon.io',
-    description: SITE_DESCRIPTION,
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'showon.io',
-    description: SITE_DESCRIPTION,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return buildRootMetadata(await getSeoGlobal());
+}
 
 // Organization + WebSite schema for the whole site — shows the brand card and
 // establishes the canonical site identity in Google's knowledge graph.
@@ -73,6 +56,7 @@ const WEBSITE_JSON_LD = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const seoGlobal = await getSeoGlobal();
 
   const accessToken = (await cookies()).get('access_token')?.value;
   const initialIsLoggedIn = await getInitialIsLoggedIn();
@@ -95,7 +79,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body>
-        <JsonLd data={[ORG_JSON_LD, WEBSITE_JSON_LD]} />
+        <JsonLd data={resolveGlobalJsonLd(seoGlobal, { organization: ORG_JSON_LD, website: WEBSITE_JSON_LD })} />
         <NextIntlClientProvider messages={messages}>
           <ErrorReportingProvider>
             <Providers

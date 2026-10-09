@@ -5,6 +5,10 @@ vi.mock('@/features/feature-flags', async (importOriginal) => {
   return { ...actual, fetchFeatureFlags: vi.fn() };
 });
 
+vi.mock('@/features/seo/queries/get-seo.server', () => ({
+  getSeoNoindex: vi.fn().mockResolvedValue({ paths: [], pageKeys: ['help'] }),
+}));
+
 import { fetchFeatureFlags, DEFAULT_FEATURE_FLAGS } from '@/features/feature-flags';
 import sitemap from './sitemap';
 
@@ -33,5 +37,11 @@ describe('sitemap', () => {
     mockedFetchFlags.mockResolvedValue({ ...DEFAULT_FEATURE_FLAGS, advertiser_platform: false });
     const entries = await sitemap();
     expect(entries.some((e) => e.url.endsWith('/be-advertiser'))).toBe(false);
+  });
+
+  it('drops pages the admin marked noindex', async () => {
+    mockedFetchFlags.mockResolvedValue({ ...DEFAULT_FEATURE_FLAGS });
+    const entries = await sitemap();
+    expect(entries.some((e) => e.url.endsWith('/help'))).toBe(false);
   });
 });

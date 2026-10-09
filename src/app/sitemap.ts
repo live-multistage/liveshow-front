@@ -4,6 +4,8 @@ import type { ChannelListItem } from '@/features/channels/types/channel.types';
 import type { ArtistListItem } from '@live-show/api-contracts';
 import { eventHref } from '@/features/events/utils/slug';
 import { fetchFeatureFlags } from '@/features/feature-flags';
+import { getSeoNoindex } from '@/features/seo/queries/get-seo.server';
+import { filterNoindex } from '@/features/seo/utils/filter-noindex';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 
@@ -68,11 +70,12 @@ async function fetchList<T>(path: string): Promise<T[]> {
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [events, channels, artists, flags] = await Promise.all([
+  const [events, channels, artists, flags, noindex] = await Promise.all([
     fetchAllEvents(),
     fetchList<ChannelListItem>('/channels'),
     fetchArtists(),
     fetchFeatureFlags(),
+    getSeoNoindex(),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = [
@@ -115,5 +118,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticEntries, ...eventEntries, ...orgEntries, ...channelEntries, ...artistEntries];
+  return filterNoindex(
+    [...staticEntries, ...eventEntries, ...orgEntries, ...channelEntries, ...artistEntries],
+    noindex,
+    SITE_URL,
+  );
 }
