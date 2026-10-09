@@ -9,6 +9,8 @@ export interface AppError {
   // falls back to the header we sent when the response never arrived at all
   // (network error, timeout) and there's no body to read one from.
   requestId?: string;
+  // Structured body for validation failures (e.g. `{ errors: [{ field, message }] }`).
+  details?: unknown;
 }
 
 export function normalizeError(error: unknown): AppError {
@@ -21,6 +23,7 @@ export function normalizeError(error: unknown): AppError {
       status: error.response?.status ?? 0,
       code: error.response?.data?.code,
       ...(requestId ? { requestId } : {}),
+      ...(error.response?.data?.errors ? { details: error.response.data.errors } : {}),
     };
     // Never log the raw axios error: it carries config.headers.Authorization
     // and config.data, which can hold request bodies with PII/credentials.
