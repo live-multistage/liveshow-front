@@ -9,7 +9,7 @@ export const FIXED_DISALLOW = [
   '/my-list/', '/wishlist/', '/notifications/', '/live/', '/watch/', '/replay/',
 ];
 
-const SINGLE_LINE = /^[^\r\n]+$/;
+export const SINGLE_LINE = /^[^\r\n]+$/;
 
 // Code rules first and immutable; admin rules only add groups after them.
 export function buildRobots(extra: SeoRobotsRule[]): MetadataRoute.Robots {

@@ -1,0 +1,16 @@
+@use '../../../../styles/_variables' as *;
+
+.auto {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid $bg-hover;
+  background: $surface;
+}
+
+.type { font-family: var(--font-space-mono), 'Space Mono', monospace; font-size: 0.8125rem; }
+
+.addRow { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }

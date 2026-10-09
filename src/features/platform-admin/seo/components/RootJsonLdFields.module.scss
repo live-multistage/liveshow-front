@@ -1,0 +1,29 @@
+@use '../../../../styles/_variables' as *;
+
+.block { display: flex; flex-direction: column; gap: 0.5rem; }
+.head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.actions { display: flex; align-items: center; gap: 0.375rem; }
+.type { font-family: var(--font-space-mono), 'Space Mono', monospace; font-size: 0.8125rem; }
+
+.badge {
+  padding: 0.125rem 0.4375rem;
+  border: 1px solid rgba($action, 0.5);
+  border-radius: 4px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.5625rem;
+  letter-spacing: 0.08em;
+  color: $accent-text;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.6875rem;
+  color: $error;
+
+  &[data-ok='true'] { color: $success-light; }
+}
+
+.dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }

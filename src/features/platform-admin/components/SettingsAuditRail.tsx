@@ -71,7 +71,9 @@ function AuditRailRow({ entry, locale }: { entry: AuditLogEntry; locale: string 
             ? t('secretSet')
             : entry.action === 'BLUEPRINT_SECRET_DELETED'
               ? t('secretDeleted')
-              : t('feeOverride');
+              : entry.action.startsWith('SEO_')
+                ? t('seoChanged')
+                : t('feeOverride');
 
   return (
     <div className={styles.auditRow}>

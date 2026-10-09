@@ -1,0 +1,61 @@
+@use '../../../../styles/_variables' as *;
+
+$mono: var(--font-space-mono), 'Space Mono', monospace;
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @media (min-width: 1100px) { grid-template-columns: minmax(0, 1fr) 18rem; align-items: start; }
+}
+
+.main { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+
+.fixed { padding: 0.75rem 0.875rem; border-radius: 8px; border: 1px solid $bg-hover; background: $surface; }
+.fixedHead { display: flex; align-items: center; gap: 0.375rem; margin-bottom: 0.625rem; font-size: 0.8125rem; font-weight: 600; }
+.fixedList { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+.fixedPath { padding: 0.1875rem 0.4375rem; border-radius: 4px; background: $bg-hover; font-family: $mono; font-size: 0.6875rem; color: $text-secondary; }
+
+.rule { display: flex; flex-direction: column; gap: 0.375rem; padding: 0.625rem; border-radius: 8px; border: 1px solid $bg-hover; }
+
+.ruleGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1.2fr) auto;
+  gap: 0.625rem;
+  align-items: start;
+
+  @media (max-width: 820px) { grid-template-columns: 1fr; }
+}
+
+.paths { display: flex; flex-direction: column; gap: 0.375rem; min-width: 0; }
+
+.pathChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.375rem;
+  padding: 0.1875rem 0.4375rem;
+  border-radius: 4px;
+  background: $bg-hover;
+  font-family: $mono;
+  font-size: 0.6875rem;
+
+  button { display: grid; place-items: center; padding: 0; border: 0; background: none; color: $text-muted; cursor: pointer; &:hover { color: $text-primary; } }
+}
+
+.preview { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+
+.pre {
+  margin: 0;
+  max-height: 24rem;
+  padding: 0.75rem;
+  overflow: auto;
+  border-radius: 8px;
+  border: 1px solid $bg-hover;
+  background: $surface;
+  font-family: $mono;
+  font-size: 0.6875rem;
+  line-height: 1.55;
+  color: $text-secondary;
+}

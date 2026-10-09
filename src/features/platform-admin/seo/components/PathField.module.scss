@@ -1,0 +1,17 @@
+@use '../../../../styles/_variables' as *;
+
+.input { display: flex; align-items: center; gap: 0.5rem; }
+
+.prefix { font-family: var(--font-space-mono), 'Space Mono', monospace; font-size: 0.8125rem; color: $text-muted; }
+
+.ok { font-size: 0.8125rem; color: $success-light; }
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: $action;
+  text-decoration: underline;
+  cursor: pointer;
+}
