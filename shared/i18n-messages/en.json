@@ -3380,7 +3380,8 @@
             "type": "Use JPEG, PNG, GIF or WebP",
             "size": "Image over 2MB",
             "generic": "Could not upload the image."
-          }
+          },
+          "fileInput": "Image file"
         },
         "advanced": {
           "eyebrow": "CANONICAL · LOCALE · ROBOTS",

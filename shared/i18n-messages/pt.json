@@ -3380,7 +3380,8 @@
             "type": "Use JPEG, PNG, GIF ou WebP",
             "size": "Imagem acima de 2MB",
             "generic": "Não foi possível enviar a imagem."
-          }
+          },
+          "fileInput": "Arquivo da imagem"
         },
         "advanced": {
           "eyebrow": "CANONICAL · LOCALE · ROBOTS",
