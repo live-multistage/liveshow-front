@@ -16,6 +16,7 @@ const fields = {
   titleTemplate: 't',
   descriptionTemplate: null,
   ogImageUrl: null,
+  keywords: null, ogTitle: null, ogDescription: null, twitterTitle: null, twitterDescription: null, canonicalUrl: null, locale: null, jsonLdMode: null,
   robotsIndex: null,
   robotsFollow: null,
   disabledGeneratedJsonLd: [],

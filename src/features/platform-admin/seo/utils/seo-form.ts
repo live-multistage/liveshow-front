@@ -4,6 +4,19 @@ export const TITLE_MAX = 60;
 export const DESCRIPTION_MAX = 160;
 export const MAX_JSONLD_BLOCKS = 5;
 
+export const ADVANCED_KEYS = [
+  'keywords', 'ogTitle', 'ogDescription', 'twitterTitle', 'twitterDescription', 'canonicalUrl', 'locale', 'jsonLdMode',
+] as const;
+export type AdvancedFields = Pick<SeoFields, (typeof ADVANCED_KEYS)[number]>;
+const EMPTY_ADVANCED: AdvancedFields = {
+  keywords: null, ogTitle: null, ogDescription: null, twitterTitle: null,
+  twitterDescription: null, canonicalUrl: null, locale: null, jsonLdMode: null,
+};
+const advancedOf = (f: SeoFields): AdvancedFields => ({
+  keywords: f.keywords, ogTitle: f.ogTitle, ogDescription: f.ogDescription, twitterTitle: f.twitterTitle,
+  twitterDescription: f.twitterDescription, canonicalUrl: f.canonicalUrl, locale: f.locale, jsonLdMode: f.jsonLdMode,
+});
+
 export type Tri = 'default' | 'yes' | 'no';
 
 // Editable shape of SeoFields: text inputs hold '' for "unset", the 3-state controls hold Tri.
@@ -15,6 +28,8 @@ export interface SeoForm {
   follow: Tri;
   disabledGenerated: string[];
   blocks: string[];
+  // Edited elsewhere (UI pending); carried through so a PUT, which replaces, never drops them.
+  advanced: AdvancedFields;
 }
 
 export const EMPTY_FORM: SeoForm = {
@@ -25,6 +40,7 @@ export const EMPTY_FORM: SeoForm = {
   follow: 'default',
   disabledGenerated: [],
   blocks: [],
+  advanced: EMPTY_ADVANCED,
 };
 
 const triOf = (value: boolean | null): Tri => (value === null ? 'default' : value ? 'yes' : 'no');
@@ -38,6 +54,7 @@ export const toForm = (fields: SeoFields): SeoForm => ({
   follow: triOf(fields.robotsFollow),
   disabledGenerated: fields.disabledGeneratedJsonLd,
   blocks: fields.extraJsonLd,
+  advanced: advancedOf(fields),
 });
 
 // Cleared text fields become null: that is how the API un-sets a field (PUT replaces).
@@ -49,6 +66,7 @@ export const toFields = (form: SeoForm): SeoFields => ({
   robotsFollow: boolOf(form.follow),
   disabledGeneratedJsonLd: form.disabledGenerated,
   extraJsonLd: form.blocks,
+  ...form.advanced,
 });
 
 export const isSeoCustomized = (fields: SeoFields): boolean => {

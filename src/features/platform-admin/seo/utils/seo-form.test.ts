@@ -7,6 +7,14 @@ const filled: SeoFields = {
   titleTemplate: 'T',
   descriptionTemplate: 'D',
   ogImageUrl: 'https://x.io/a.png',
+  keywords: 'a, b',
+  ogTitle: 'X',
+  ogDescription: 'OD',
+  twitterTitle: 'TT',
+  twitterDescription: 'TD',
+  canonicalUrl: 'https://showon.io/x',
+  locale: 'en',
+  jsonLdMode: 'REPLACE',
   robotsIndex: false,
   robotsFollow: true,
   disabledGeneratedJsonLd: ['Event'],
@@ -24,7 +32,13 @@ describe('seo form mapping', () => {
       robotsFollow: null,
       disabledGeneratedJsonLd: [],
       extraJsonLd: [],
+      keywords: null, ogTitle: null, ogDescription: null, twitterTitle: null,
+      twitterDescription: null, canonicalUrl: null, locale: null, jsonLdMode: null,
     });
+  });
+  it('keeps advanced fields untouched when the form is saved as loaded', () => {
+    const loaded = toForm({ ...toFields(EMPTY_FORM), ogTitle: 'X' });
+    expect(toFields(loaded).ogTitle).toBe('X');
   });
   it('detects customization', () => {
     expect(isSeoCustomized(toFields(EMPTY_FORM))).toBe(false);

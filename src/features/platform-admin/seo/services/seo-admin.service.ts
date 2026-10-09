@@ -11,6 +11,14 @@ function pickFields(f: SeoFields): SeoFields {
     robotsFollow: f.robotsFollow,
     disabledGeneratedJsonLd: f.disabledGeneratedJsonLd,
     extraJsonLd: f.extraJsonLd,
+    keywords: f.keywords,
+    ogTitle: f.ogTitle,
+    ogDescription: f.ogDescription,
+    twitterTitle: f.twitterTitle,
+    twitterDescription: f.twitterDescription,
+    canonicalUrl: f.canonicalUrl,
+    locale: f.locale,
+    jsonLdMode: f.jsonLdMode,
   };
 }
 

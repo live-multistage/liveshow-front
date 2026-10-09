@@ -17,6 +17,8 @@ describe('an empty SEO config is a no-op', () => {
     const empty: ResolvedSeoConfig = {
       pageKey, defaultOgImageUrl: null, titleTemplate: null, descriptionTemplate: null, ogImageUrl: null,
       robotsIndex: null, robotsFollow: null, disabledGeneratedJsonLd: [], extraJsonLd: [],
+      keywords: null, ogTitle: null, ogDescription: null, twitterTitle: null, twitterDescription: null,
+      canonicalUrl: null, locale: null, jsonLdMode: 'COMPLEMENT',
     };
     expect(applySeo(sample, empty, {})).toEqual(sample);
     expect(resolveJsonLd(blocks, empty, {})).toEqual(blocks);

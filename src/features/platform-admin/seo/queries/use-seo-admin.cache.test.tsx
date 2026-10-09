@@ -28,6 +28,7 @@ const G = ['platform-admin', 'seo', 'global'];
 const fields = {
   titleTemplate: null, descriptionTemplate: null, ogImageUrl: null, robotsIndex: null,
   robotsFollow: null, disabledGeneratedJsonLd: [], extraJsonLd: [],
+  keywords: null, ogTitle: null, ogDescription: null, twitterTitle: null, twitterDescription: null, canonicalUrl: null, locale: null, jsonLdMode: null,
 };
 
 function setup() {

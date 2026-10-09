@@ -61,6 +61,7 @@ const EMPTY = {
   titleTemplate: null,
   descriptionTemplate: null,
   ogImageUrl: null,
+  keywords: null, ogTitle: null, ogDescription: null, twitterTitle: null, twitterDescription: null, canonicalUrl: null, locale: null, jsonLdMode: null,
   robotsIndex: null,
   robotsFollow: null,
   disabledGeneratedJsonLd: [],
@@ -68,8 +69,9 @@ const EMPTY = {
   updatedAt: null,
 };
 const FIELD_KEYS = [
-  'descriptionTemplate', 'disabledGeneratedJsonLd', 'extraJsonLd', 'ogImageUrl',
-  'robotsFollow', 'robotsIndex', 'titleTemplate',
+  'canonicalUrl', 'descriptionTemplate', 'disabledGeneratedJsonLd', 'extraJsonLd', 'jsonLdMode', 'keywords',
+  'locale', 'ogDescription', 'ogImageUrl', 'ogTitle', 'robotsFollow', 'robotsIndex', 'titleTemplate',
+  'twitterDescription', 'twitterTitle',
 ];
 
 beforeEach(() => {
@@ -158,6 +160,7 @@ describe('SEO page templates', () => {
     expect(store.setTemplate.mock.calls[0][0].fields).toEqual({
       titleTemplate: null, descriptionTemplate: null, ogImageUrl: null, robotsIndex: null,
       robotsFollow: null, disabledGeneratedJsonLd: [], extraJsonLd: [],
+      keywords: null, ogTitle: null, ogDescription: null, twitterTitle: null, twitterDescription: null, canonicalUrl: null, locale: null, jsonLdMode: null,
     });
   });
 });
