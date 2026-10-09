@@ -1,5 +1,5 @@
 import type { SeoRobotsRule } from '@live-show/api-contracts';
-import { FIXED_DISALLOW, SINGLE_LINE } from '@/features/seo/utils/build-robots';
+import { FIXED_DISALLOW, SINGLE_LINE, groupDisallow } from '@/features/seo/utils/build-robots';
 
 export const MAX_ROBOTS_RULES = 20;
 
@@ -19,7 +19,7 @@ export function renderRobotsTxt(extra: SeoRobotsRule[]): string {
   for (const rule of extra) {
     lines.push('', `User-agent: ${rule.userAgent}`);
     rule.allow.forEach((p) => lines.push(`Allow: ${p}`));
-    rule.disallow.forEach((p) => lines.push(`Disallow: ${p}`));
+    groupDisallow(rule.disallow).forEach((p) => lines.push(`Disallow: ${p}`));
   }
   return lines.join('\n');
 }

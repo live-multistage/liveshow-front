@@ -23,6 +23,21 @@ describe('buildRobots', () => {
       ]),
     );
     expect(rules).toHaveLength(2);
-    expect(rules[1]).toEqual({ userAgent: 'ok', disallow: [] });
+    expect(rules[1]).toEqual({ userAgent: 'ok', disallow: FIXED_DISALLOW });
+  });
+
+  it('a crawler-specific group keeps every fixed disallow plus its own', () => {
+    const rules = rulesOf(buildRobots([{ userAgent: 'Googlebot', allow: [], disallow: ['/foo', '/checkout'] }]));
+    expect(rules[1].disallow).toEqual([...FIXED_DISALLOW, '/foo']);
+  });
+
+  it('a group with no paths gets the fixed disallows instead of staying bare', () => {
+    const rules = rulesOf(buildRobots([{ userAgent: 'Bingbot', allow: [], disallow: [] }]));
+    expect(rules[1].disallow).toEqual(FIXED_DISALLOW);
+  });
+
+  it('a block-everything group stays "/"', () => {
+    const rules = rulesOf(buildRobots([{ userAgent: 'GPTBot', allow: [], disallow: ['/', '/x'] }]));
+    expect(rules[1].disallow).toEqual(['/']);
   });
 });

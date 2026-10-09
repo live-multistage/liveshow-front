@@ -44,4 +44,10 @@ describe('robots helpers', () => {
     expect(txt.startsWith('User-agent: *\nAllow: /\nDisallow: /api/')).toBe(true);
     expect(txt.endsWith('User-agent: GPTBot\nDisallow: /')).toBe(true);
   });
+  it('previews crawler-specific groups with the fixed disallows, like the real file', () => {
+    const txt = renderRobotsTxt([{ userAgent: 'Googlebot', allow: [], disallow: ['/foo'] }]);
+    const group = txt.split('User-agent: Googlebot\n')[1];
+    expect(group).toContain('Disallow: /dashboard/');
+    expect(group).toContain('Disallow: /foo');
+  });
 });
