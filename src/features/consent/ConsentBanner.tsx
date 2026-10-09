@@ -7,9 +7,17 @@ import { useAnalytics } from '@/lib/analytics/tracking';
 import { privacyService } from './privacy.service';
 import styles from './ConsentBanner.module.scss';
 
+interface ConsentBannerProps {
+  // Server saw no consent cookie: render the banner in the SSR HTML instead of
+  // after hydration, so it paints with the page rather than becoming its LCP.
+  // Client storage still wins once read (a visitor who decided before the
+  // cookie mirror existed sees it only until hydration).
+  undecidedOnServer?: boolean;
+}
+
 // LGPD consent gate. Renders only until the visitor decides. Accept and Reject
 // carry equal visual weight — refusing must be as easy as accepting.
-export function ConsentBanner() {
+export function ConsentBanner({ undecidedOnServer = false }: ConsentBannerProps) {
   const t = useTranslations('consent');
   const { consent, setConsent } = useAnalyticsConsent();
   const analytics = useAnalytics();
@@ -23,7 +31,8 @@ export function ConsentBanner() {
     privacyService.syncConsent(state === 'granted');
   };
 
-  if (consent !== null) return null;
+  const undecided = consent === null || (consent === undefined && undecidedOnServer);
+  if (!undecided) return null;
 
   return (
     <div className={styles.banner} role="dialog" aria-label={t('title')}>

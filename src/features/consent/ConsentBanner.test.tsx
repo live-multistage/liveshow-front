@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const { mockTrack, mockState, mockSetConsent, mockSyncConsent } = vi.hoisted(() => ({
   mockTrack: vi.fn(),
-  mockState: { consent: null as 'granted' | 'denied' | null },
+  mockState: { consent: null as 'granted' | 'denied' | null | undefined },
   mockSetConsent: vi.fn(),
   mockSyncConsent: vi.fn(),
 }));
@@ -48,6 +48,20 @@ describe('ConsentBanner', () => {
 
   it('renders nothing once the visitor has decided', () => {
     mockState.consent = 'granted';
+    const { container } = render(<ConsentBanner />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  // Before storage is read: the server cookie decides, so the banner is in the
+  // SSR HTML for undecided visitors instead of popping in after hydration.
+  it('renders before storage is read when the server saw no consent cookie', () => {
+    mockState.consent = undefined;
+    render(<ConsentBanner undecidedOnServer />);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('renders nothing before storage is read when the server saw a consent cookie', () => {
+    mockState.consent = undefined;
     const { container } = render(<ConsentBanner />);
     expect(container).toBeEmptyDOMElement();
   });

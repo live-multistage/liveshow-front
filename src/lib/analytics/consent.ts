@@ -8,7 +8,14 @@ import { useEffect, useState } from 'react';
 // This gates behavioral analytics only; essential collection (auth, payments,
 // the live viewer-count heartbeat that drives transcode start/stop) is unaffected.
 
+// Same name for the localStorage key and its cookie mirror. The cookie only
+// lets the server render the consent banner in the first HTML (otherwise it
+// paints after hydration and becomes the page LCP); localStorage stays the
+// source of truth.
+// Read by name in the root layout (a server file cannot import from this
+// client module).
 const KEY = 'ls_analytics_consent';
+const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 const CHANGE_EVENT = 'ls-consent-change';
 
 export type ConsentState = 'granted' | 'denied';
@@ -23,9 +30,14 @@ export function hasAnalyticsConsent(): boolean {
   return getAnalyticsConsent() === 'granted';
 }
 
+function writeConsentCookie(state: ConsentState): void {
+  document.cookie = `${KEY}=${state}; path=/; max-age=${ONE_YEAR_SECONDS}; SameSite=Lax`;
+}
+
 export function setAnalyticsConsent(state: ConsentState): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(KEY, state);
+  writeConsentCookie(state);
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
@@ -44,6 +56,10 @@ export function useAnalyticsConsent(): {
   useEffect(() => {
     const sync = () => setState(getAnalyticsConsent());
     sync();
+    // Visitors who decided before the cookie mirror existed: backfill it so the
+    // server stops rendering the banner for them on the next request.
+    const stored = getAnalyticsConsent();
+    if (stored && !document.cookie.includes(`${KEY}=`)) writeConsentCookie(stored);
     window.addEventListener(CHANGE_EVENT, sync);
     window.addEventListener('storage', sync);
     return () => {

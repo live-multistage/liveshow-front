@@ -3,7 +3,10 @@ import { renderHook, act } from '@testing-library/react';
 import { useAnalyticsConsent, setAnalyticsConsent } from './consent';
 
 describe('useAnalyticsConsent', () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => {
+    localStorage.clear();
+    document.cookie = 'ls_analytics_consent=; path=/; max-age=0';
+  });
 
   it('resolves a stored choice without ever reporting "no choice"', () => {
     localStorage.setItem('ls_analytics_consent', 'granted');
@@ -28,5 +31,19 @@ describe('useAnalyticsConsent', () => {
 
     expect(result.current.consent).toBe('denied');
     expect(localStorage.getItem('ls_analytics_consent')).toBe('denied');
+  });
+
+  it('mirrors the choice into a cookie the server can read', () => {
+    act(() => setAnalyticsConsent('granted'));
+
+    expect(document.cookie).toContain('ls_analytics_consent=granted');
+  });
+
+  it('backfills the cookie for a visitor who decided before it existed', () => {
+    localStorage.setItem('ls_analytics_consent', 'denied');
+
+    renderHook(() => useAnalyticsConsent());
+
+    expect(document.cookie).toContain('ls_analytics_consent=denied');
   });
 });

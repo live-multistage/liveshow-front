@@ -15,6 +15,10 @@ import { resolveGlobalJsonLd } from '@/features/seo/utils/resolve-global-jsonld'
 import '@/styles/globals.scss';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
+// Client queries (feed, ads, schedule) hit the API origin right after hydration;
+// warming the connection early takes DNS/TLS off that path. Anonymous pool
+// because the http client sends CORS requests without credentials.
+const API_ORIGIN = new URL(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api').origin;
 
 const archivo = Archivo({
   subsets: ['latin'],
@@ -58,7 +62,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const messages = await getMessages();
   const seoGlobal = await getSeoGlobal();
 
-  const accessToken = (await cookies()).get('access_token')?.value;
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get('access_token')?.value;
+  // Cookie mirror of the analytics consent choice (see src/lib/analytics/consent.ts).
+  const consentUndecided = !cookieStore.has('ls_analytics_consent');
   const initialIsLoggedIn = await getInitialIsLoggedIn();
 
   const qc = new QueryClient();
@@ -77,6 +84,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <link rel="icon" href="/showon-icon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="preconnect" href={API_ORIGIN} crossOrigin="anonymous" />
       </head>
       <body>
         <JsonLd data={resolveGlobalJsonLd(seoGlobal, { organization: ORG_JSON_LD, website: WEBSITE_JSON_LD })} />
@@ -88,7 +96,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               dehydratedState={dehydrate(qc)}
             >
               {children}
-              <ConsentBanner />
+              <ConsentBanner undecidedOnServer={consentUndecided} />
             </Providers>
           </ErrorReportingProvider>
         </NextIntlClientProvider>
