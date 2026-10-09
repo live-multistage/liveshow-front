@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Skeleton } from '@live-show/design-system';
@@ -67,11 +68,16 @@ function RelatedEventCard({ event }: { event: EventResponse }) {
   return (
     <Link href={eventHref(event)} className={styles.card}>
       <div className={styles.thumbWrapper}>
-        {/* eslint-disable-next-line @next/next/no-img-element -- thumbnailUrl/bannerUrl
-            host varies per event (arbitrary CDN), can't be statically allow-listed
-            in next.config images.remotePatterns; mirrors the hero image's own choice
-            in EventDetailPageContent (MediaWithTeaserVideo). */}
-        {image && <img src={image} alt={event.title} className={styles.thumb} />}
+        {image && (
+          <Image
+            src={image}
+            alt={event.title}
+            fill
+            // Grid is minmax(160px, 1fr): two-up on phones, ~200px cells on desktop.
+            sizes="(max-width: 640px) 50vw, 240px"
+            className={styles.thumb}
+          />
+        )}
       </div>
       <h3 className={styles.cardTitle}>{event.title}</h3>
       <span className={styles.cardDate}>{formatDateShort(event.startsAt)}</span>
