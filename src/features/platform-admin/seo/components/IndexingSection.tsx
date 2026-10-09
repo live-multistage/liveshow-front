@@ -28,14 +28,14 @@ export function IndexingSection({ index, follow, onChange }: Props) {
           <div className={common.label}>{t('index')}</div>
           <div className={common.hint}>{t('indexHint')}</div>
         </div>
-        <SegmentedControl label={t('index')} value={index} options={options} onChange={(v) => onChange({ index: v })} />
+        <SegmentedControl label={t('index')} value={index} options={options} warnValue="no" onChange={(v) => onChange({ index: v })} />
       </div>
       <div className={styles.row}>
         <div>
           <div className={common.label}>{t('follow')}</div>
           <div className={common.hint}>{t('followHint')}</div>
         </div>
-        <SegmentedControl label={t('follow')} value={follow} options={options} onChange={(v) => onChange({ follow: v })} />
+        <SegmentedControl label={t('follow')} value={follow} options={options} warnValue="no" onChange={(v) => onChange({ follow: v })} />
       </div>
       {index === 'no' && <div className={styles.warn} role="status">{t('warn')}</div>}
     </>

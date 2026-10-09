@@ -83,7 +83,10 @@ function GlobalForm({ initial }: { initial: SeoGlobal }) {
     setSaving(true);
     setErrors({});
     try {
-      setBase(await save.mutateAsync(current()));
+      const saved = await save.mutateAsync(current());
+      setBase(saved);
+      // The response carries the resolved URL; the form must drop the upload key to stay clean and previewable.
+      setOg(saved.defaultOgImageUrl ?? '');
       setOgPreview('');
       toast.success(t('editor.toast.globalSaved'));
     } catch (err) {

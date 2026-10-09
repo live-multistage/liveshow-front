@@ -31,7 +31,7 @@ export function TwitterSection({ form, ogTitle, ogDescription, errors, onChange 
         inherited={ogTitle}
         inheritedLabel={titleLabel}
         max={SEO_LIMITS.title}
-        range={SEO_OPTIMAL.title}
+        range={SEO_OPTIMAL.twitterTitle}
         error={errors.twitterTitle}
         onChange={(twitterTitle) => onChange({ twitterTitle })}
       />
@@ -42,7 +42,7 @@ export function TwitterSection({ form, ogTitle, ogDescription, errors, onChange 
         inherited={ogDescription}
         inheritedLabel={descLabel}
         max={SEO_LIMITS.description}
-        range={SEO_OPTIMAL.description}
+        range={SEO_OPTIMAL.twitterDescription}
         error={errors.twitterDescription}
         onChange={(twitterDescription) => onChange({ twitterDescription })}
       />

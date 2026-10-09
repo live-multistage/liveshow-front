@@ -221,3 +221,66 @@ describe('JSON-LD mode, counters and inheritance', () => {
     expect(screen.getByRole('textbox', { name: 'Canonical URL' })).toHaveValue('');
   });
 });
+
+describe('OG image URL tab', () => {
+  it('can be typed into character by character and only previews a valid https URL', async () => {
+    const user = await openEventEditor();
+    await user.click(screen.getByRole('tab', { name: 'URL' }));
+    const input = screen.getByRole('textbox', { name: 'URL da imagem' });
+    await user.type(input, 'https://cdn.showon.io/a.jpg');
+    expect(input).toHaveValue('https://cdn.showon.io/a.jpg');
+    expect(screen.getByAltText('Miniatura da imagem OG')).toHaveAttribute('src', 'https://cdn.showon.io/a.jpg');
+    await user.clear(input);
+    await user.type(input, 'htt');
+    expect(input).toHaveValue('htt');
+    expect(screen.getByText('Use uma URL https://.')).toBeInTheDocument();
+    expect(saveButton()).toBeDisabled();
+  });
+
+  it('works the same on the Global tab and saves the typed URL', async () => {
+    store.global = {
+      googleSiteVerification: null, bingSiteVerification: null, defaultOgImageUrl: null,
+      organizationJsonLd: null, websiteJsonLd: null, robotsExtraRules: [],
+    };
+    store.setGlobal.mockImplementation(async (g: unknown) => g);
+    const user = userEvent.setup();
+    render(<SeoAdminPage />);
+    await user.click(screen.getByRole('tab', { name: 'Global' }));
+    await user.click(screen.getByRole('tab', { name: 'URL' }));
+    await user.type(screen.getByRole('textbox', { name: 'URL da imagem' }), 'https://cdn.showon.io/g.jpg');
+    await user.click(saveButton());
+    expect(store.setGlobal.mock.calls[0][0].defaultOgImageUrl).toBe('https://cdn.showon.io/g.jpg');
+  });
+
+  it('Global: after uploading and saving the form is clean and still shows the image', async () => {
+    store.global = {
+      googleSiteVerification: null, bingSiteVerification: null, defaultOgImageUrl: null,
+      organizationJsonLd: null, websiteJsonLd: null, robotsExtraRules: [],
+    };
+    const url = 'https://cdn.showon.io/seo/og/g.jpg';
+    store.upload.mockResolvedValue({ key: 'seo/og/g.jpg', url, width: 1200, height: 630 });
+    store.setGlobal.mockImplementation(async (g: object) => ({ ...g, defaultOgImageUrl: url }));
+    const user = userEvent.setup();
+    render(<SeoAdminPage />);
+    await user.click(screen.getByRole('tab', { name: 'Global' }));
+    await user.upload(screen.getByLabelText('Arquivo da imagem'), new File(['x'], 'g.png', { type: 'image/png' }));
+    await user.click(saveButton());
+    expect(store.setGlobal.mock.calls[0][0].defaultOgImageUrl).toBe('seo/og/g.jpg');
+    expect(await screen.findByAltText('Miniatura da imagem OG')).toHaveAttribute('src', url);
+    expect(saveButton()).toBeDisabled();
+  });
+});
+
+describe('template mode after restore', () => {
+  it('falls back to COMPLEMENT in both the mode control and the generated list', async () => {
+    store.templates = store.templates.map((t) =>
+      (t as { pageKey: string }).pageKey === 'events.detail' ? { ...(t as object), jsonLdMode: 'REPLACE', updatedAt: '2026-09-28T10:00:00Z' } : t,
+    );
+    const user = await openEventEditor();
+    expect(screen.getByText('ignorados no modo Substituir')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Restaurar padrão' }));
+    await user.click(within(screen.getByRole('dialog', { name: 'Restaurar padrão?' })).getByRole('button', { name: 'Restaurar padrão' }));
+    expect(screen.getByRole('radio', { name: 'Complementar' })).toBeChecked();
+    expect(screen.queryByText('ignorados no modo Substituir')).not.toBeInTheDocument();
+  });
+});

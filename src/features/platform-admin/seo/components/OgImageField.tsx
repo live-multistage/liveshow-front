@@ -31,6 +31,8 @@ export function OgImageField({ value, previewUrl, error, onChange }: Props) {
   const [dragging, setDragging] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  // Raw text of the URL tab, so half-typed values stay editable (they are never previewable).
+  const [url, setUrl] = useState(isHttpsUrl(value) ? value : '');
   const input = useRef<HTMLInputElement>(null);
 
   const send = async (file: File | undefined) => {
@@ -57,11 +59,11 @@ export function OgImageField({ value, previewUrl, error, onChange }: Props) {
   const remove = () => {
     setFileName(null);
     setUploadError(null);
+    setUrl('');
     onChange('', '');
   };
 
-  const urlValue = value === '' || isHttpsUrl(value) ? value : '';
-  const urlInvalid = source === 'url' && urlValue !== '' && !isHttpsUrl(urlValue);
+  const urlInvalid = source === 'url' && url !== '' && !isHttpsUrl(url);
   const message = error ?? uploadError ?? (urlInvalid ? t('image.invalidUrl') : undefined);
   const image = previewUrl || (isHttpsUrl(value) ? value : '');
 
@@ -127,11 +129,12 @@ export function OgImageField({ value, previewUrl, error, onChange }: Props) {
             <>
               <Input
                 aria-label={t('image.urlLabel')}
-                value={urlValue}
+                value={url}
                 placeholder="https://"
                 aria-invalid={message ? true : undefined}
-                onChange={(e) => onChange(e.target.value, e.target.value)}
+                onChange={(e) => { setUrl(e.target.value); onChange(e.target.value, ''); }}
               />
+              <span className={common.hint}>{t('image.urlHint')}</span>
               {thumb}
             </>
           )}

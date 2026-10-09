@@ -198,8 +198,8 @@ function SeoEditorBody({
   const metaDescription = fillVariables(form.description, sample);
   const ogTitle = fillVariables(form.ogTitle, sample) || metaTitle;
   const ogDescription = fillVariables(form.ogDescription, sample) || metaDescription;
-  // An override with no mode of its own follows its page's template (null there means COMPLEMENT).
-  const inheritedMode = (pageKey && templates.data?.find((x) => x.pageKey === pageKey)?.jsonLdMode) || 'COMPLEMENT';
+  // Only an override follows its page's template; on a template, null means COMPLEMENT.
+  const inheritedMode = (!isTemplate && pageKey && templates.data?.find((x) => x.pageKey === pageKey)?.jsonLdMode) || 'COMPLEMENT';
   const ogImageSrc = ogPreview || (isHttpsUrl(form.ogImage) ? form.ogImage : '');
   const mainVar = vars.find((v) => !v.startsWith('site.') && v.endsWith('.name')) ?? null;
   const title = isTemplate ? pageName : (target.override?.path ?? t('newOverride'));

@@ -28,5 +28,5 @@
   background: $bg-hover;
   color: $text-primary;
 
-  &[data-tone='no'] { background: rgba($warning, 0.16); color: $warning; }
+  &[data-tone='warn'] { background: rgba($warning, 0.16); color: $warning; }
 }

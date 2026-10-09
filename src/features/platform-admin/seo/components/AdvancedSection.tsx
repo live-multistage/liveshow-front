@@ -72,6 +72,7 @@ export function AdvancedSection({ form, isOverride, errors, onChange }: Props) {
           label={t('advanced.mode')}
           value={mode}
           options={modes}
+          warnValue="REPLACE"
           onChange={(choice) => onChange({ jsonLdMode: choice === 'inherit' ? null : choice })}
         />
       </div>

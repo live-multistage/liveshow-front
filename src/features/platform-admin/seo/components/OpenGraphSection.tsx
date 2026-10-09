@@ -32,7 +32,7 @@ export function OpenGraphSection({ form, metaTitle, metaDescription, previewUrl,
         inherited={metaTitle}
         inheritedLabel={t('counter.inheritedMeta')}
         max={SEO_LIMITS.title}
-        range={SEO_OPTIMAL.title}
+        range={SEO_OPTIMAL.ogTitle}
         error={errors.ogTitle}
         onChange={(ogTitle) => onChange({ ogTitle })}
       />
@@ -43,7 +43,7 @@ export function OpenGraphSection({ form, metaTitle, metaDescription, previewUrl,
         inherited={metaDescription}
         inheritedLabel={t('counter.inheritedMeta')}
         max={SEO_LIMITS.description}
-        range={SEO_OPTIMAL.description}
+        range={SEO_OPTIMAL.ogDescription}
         error={errors.ogDescription}
         onChange={(ogDescription) => onChange({ ogDescription })}
       />
