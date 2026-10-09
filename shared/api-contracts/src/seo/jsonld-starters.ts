@@ -7,7 +7,6 @@ const webPage = {
   '@type': 'WebPage',
   name: '{{site.name}}',
   url: '{{site.url}}',
-  inLanguage: 'pt-BR',
 };
 
 const collectionPage = { '@context': CTX, '@type': 'CollectionPage', name: '{{site.name}}', url: '{{site.url}}' };

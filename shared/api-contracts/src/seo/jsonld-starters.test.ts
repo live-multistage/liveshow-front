@@ -14,4 +14,6 @@ describe('JSONLD_STARTERS', () => {
   });
   it('events.detail covers Event and BreadcrumbList', () =>
     expect(jsonLdTypes(JSON.parse(JSONLD_STARTERS['events.detail']))).toEqual(expect.arrayContaining(['Event', 'BreadcrumbList'])));
+  it('hardcodes no locale; the locale injection adds inLanguage', () =>
+    expect(Object.values(JSONLD_STARTERS).join('')).not.toContain('inLanguage'));
 });

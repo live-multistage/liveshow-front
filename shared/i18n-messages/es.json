@@ -3355,6 +3355,7 @@
         },
         "twitter": {
           "eyebrow": "TWITTER:CARD · SUMMARY_LARGE_IMAGE",
+          "hint": "La imagen de la tarjeta es la misma de Open Graph.",
           "title": "Twitter Card",
           "titleLabel": "Título Twitter",
           "descLabel": "Descripción Twitter"
@@ -3383,7 +3384,7 @@
           "urlHint": "Dirección pública de la imagen, se recomienda 1200×630."
         },
         "advanced": {
-          "eyebrow": "CANONICAL · LOCALE · ROBOTS",
+          "eyebrow": "CANONICAL · LOCALE · ROBOTS · JSON-LD",
           "title": "Configuración avanzada",
           "canonical": "Canonical URL",
           "canonicalHelp": "Si lo dejas vacío, se genera automáticamente",
