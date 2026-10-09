@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Eye, X } from 'lucide-react';
 import { platformAdminService } from '../services/platform-admin.service';
 import { useImpersonationStore } from './impersonation.store';
-import { useAuth } from '@/features/account';
+import { useAuth } from '@/features/account/hooks/use-auth';
 import styles from './ImpersonationBanner.module.scss';
 
 // Persistent, app-wide banner shown while a read-only support session is

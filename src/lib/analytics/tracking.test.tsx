@@ -7,7 +7,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 const auth: { user: { id: string } | null } = { user: null };
-vi.mock('@/features/account', () => ({
+vi.mock('@/features/account/hooks/use-auth', () => ({
   useAuth: () => auth,
 }));
 

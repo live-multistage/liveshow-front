@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { AnalyticsProvider, useAnalyticsIdentity } from '@live-show/analytics-sdk/react';
 import { useAnalyticsConsent } from './consent';
 import { sanitizeTrackedUrl } from './sanitize-url';
-import { useAuth } from '@/features/account';
+import { useAuth } from '@/features/account/hooks/use-auth';
 import { tokenStore } from '@/lib/auth/token-store';
 import { useImpersonationStore } from '@/features/platform-admin/impersonation/impersonation.store';
 import { config } from '@/config';

@@ -34,6 +34,11 @@ const nextConfig: NextConfig = {
     // resolvable npm packages, which is what this option is documented and
     // built to target — left out rather than guessing it applies to them too.
     optimizePackageImports: ['@live-show/design-system'],
+    // The default merges CSS of modules shared by many routes into one ~100KB
+    // file (chat, admin dashboards, player…) that every public page then
+    // render-blocks on. One CSS file per JS chunk ships only what the route
+    // uses: home went from ~214KB to ~73KB of CSS in a local build.
+    cssChunking: false,
   },
   // Same-origin proxy for LAN clients (phone on https://192.168.x.x:3000):
   // their browser calls /api/* here and the dev server forwards to the local
