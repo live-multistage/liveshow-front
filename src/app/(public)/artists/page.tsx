@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { applySeo, getSeoForPage } from '@/features/seo';
+import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { ArtistsListPage } from '@/features/artists';
 import { fetchArtistsFirstPage } from '@/features/artists/queries/get-artist.server';
 
@@ -24,5 +25,10 @@ export default async function ArtistsPage() {
   // SSR-seed the catalog's first page so it's in the initial HTML — matches
   // the events list page's caching (fetchFeedFirstPage).
   const { items } = await fetchArtistsFirstPage();
-  return <ArtistsListPage initialArtists={items} />;
+  return (
+    <>
+      <ArtistsListPage initialArtists={items} />
+      <PageJsonLd pageKey="artists.list" path="/artists" />
+    </>
+  );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { applySeo, getSeoForPage } from '@/features/seo';
+import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { getTranslations } from 'next-intl/server';
 import { AboutPageContent } from '@/features/marketing/components/about/AboutPageContent';
 
@@ -19,5 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function AboutPage() {
-  return <AboutPageContent />;
+  return (
+    <>
+      <AboutPageContent />
+      <PageJsonLd pageKey="about" path="/about" />
+    </>
+  );
 }

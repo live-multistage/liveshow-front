@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { applySeo, getSeoForPage } from '@/features/seo';
+import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { getTranslations } from 'next-intl/server';
 import { fetchFeatureFlags } from '@/features/feature-flags';
 import { OrganizersHero } from '@/features/marketing/components/organizers/OrganizersHero';
@@ -35,6 +36,7 @@ export default async function OrganizersLandingPage() {
 
   return (
     <main className={styles.page}>
+      <PageJsonLd pageKey="be-partner" path="/be-partner" />
       <OrganizersHero applicationsOpen={applicationsOpen} />
       <AudienceStrip />
       <HowItWorks />

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { applySeo, getSeoForPage } from '@/features/seo';
+import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { getTranslations } from 'next-intl/server';
 import { requireFeatureFlag } from '@/features/feature-flags';
 import { AdvertisersHero } from '@/features/marketing/components/advertisers/AdvertisersHero';
@@ -37,6 +38,7 @@ export default async function AdvertisersLandingPage() {
   await requireFeatureFlag('advertiser_platform');
   return (
     <main className={styles.page}>
+      <PageJsonLd pageKey="be-advertiser" path="/be-advertiser" />
       <AdvertisersHero />
       <AudienceStrip />
       <PositionsSection />

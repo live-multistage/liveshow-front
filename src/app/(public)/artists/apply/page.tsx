@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { applySeo, getSeoForPage } from '@/features/seo';
+import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { requireFeatureFlag } from '@/features/feature-flags';
 import { ArtistApplicationContent } from '@/features/artists/pages/ArtistApplicationPage';
 
@@ -16,5 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ArtistApplicationPage() {
   await requireFeatureFlag('artist_applications');
-  return <ArtistApplicationContent />;
+  return (
+    <>
+      <ArtistApplicationContent />
+      <PageJsonLd pageKey="artists.apply" path="/artists/apply" />
+    </>
+  );
 }

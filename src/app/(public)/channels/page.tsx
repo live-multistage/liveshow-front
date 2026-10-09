@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { applySeo, getSeoForPage } from '@/features/seo';
+import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { fetchChannels } from '@/features/channels/queries/get-channels.server';
 import { ChannelsBrowser } from '@/features/channels/components/ChannelsBrowser';
 import styles from './page.module.scss';
@@ -29,6 +30,7 @@ export default async function ChannelsPage() {
 
   return (
     <div className={styles.page}>
+      <PageJsonLd pageKey="channels.list" path="/channels" />
       <ChannelsBrowser channels={channels} />
     </div>
   );

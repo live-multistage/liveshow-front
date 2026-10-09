@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { applySeo, getSeoForPage } from '@/features/seo';
+import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { getTranslations } from 'next-intl/server';
 import { HelpPageContent } from '@/features/help';
 
@@ -18,5 +19,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function HelpPage() {
-  return <HelpPageContent />;
+  return (
+    <>
+      <HelpPageContent />
+      <PageJsonLd pageKey="help" path="/help" />
+    </>
+  );
 }

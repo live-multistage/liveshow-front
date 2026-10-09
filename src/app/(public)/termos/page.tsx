@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { applySeo, getSeoForPage } from '@/features/seo';
+import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { LegalDocumentPage } from '@/features/legal';
 import { fetchLegalDocument } from '@/features/legal/queries/get-legal-document.server';
@@ -22,5 +23,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TermsOfUsePage() {
-  return <LegalDocumentPage kind="terms" doc={await fetchLegalDocument('terms')} isCurrent />;
+  return (
+    <>
+      <LegalDocumentPage kind="terms" doc={await fetchLegalDocument('terms')} isCurrent />
+      <PageJsonLd pageKey="legal.terms" path="/termos" />
+    </>
+  );
 }

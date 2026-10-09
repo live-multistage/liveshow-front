@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { applySeo, getSeoForPage } from '@/features/seo';
+import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { EditorialHome } from '@/features/events/components/public/EditorialHome';
 import { fetchHomeRails } from '@/features/home';
 
@@ -26,5 +27,10 @@ export default async function Home() {
   // One fetch: the rail feed decides what the home shows (live, channels,
   // recommendations, categories…) — including which rail headlines the hero.
   const initialPage = await fetchHomeRails();
-  return <EditorialHome initialPage={initialPage} />;
+  return (
+    <>
+      <EditorialHome initialPage={initialPage} />
+      <PageJsonLd pageKey="home" path="/" />
+    </>
+  );
 }

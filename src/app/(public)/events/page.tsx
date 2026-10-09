@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { applySeo, getSeoForPage } from '@/features/seo';
+import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { Suspense } from 'react';
 import { EventsListPageContent } from '@/features/events';
 import { fetchFeedPage } from '@/features/events/queries/get-feed.server';
@@ -57,8 +58,11 @@ export default async function Shows({
   return (
     // EventsListPageContent reads `?page=` via useSearchParams — without
     // Suspense the build reclaims the whole route into a CSR bailout.
-    <Suspense>
-      <EventsListPageContent initialPage={initialPage} pageSize={PAGE_SIZE} />
-    </Suspense>
+    <>
+      <PageJsonLd pageKey="events.list" path="/events" />
+      <Suspense>
+        <EventsListPageContent initialPage={initialPage} pageSize={PAGE_SIZE} />
+      </Suspense>
+    </>
   );
 }

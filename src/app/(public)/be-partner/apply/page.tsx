@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { applySeo, getSeoForPage } from '@/features/seo';
+import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { requireFeatureFlag } from '@/features/feature-flags';
 import { OrganizerApplicationContent } from '@/features/organizations/pages/OrganizerApplicationPage';
 
@@ -16,5 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function OrganizerApplicationPage() {
   await requireFeatureFlag('organizer_applications');
-  return <OrganizerApplicationContent />;
+  return (
+    <>
+      <OrganizerApplicationContent />
+      <PageJsonLd pageKey="be-partner.apply" path="/be-partner/apply" />
+    </>
+  );
 }
