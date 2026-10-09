@@ -3261,8 +3261,6 @@
           "empty": "Sem título definido: o site usa o padrão do código."
         },
         "indexing": {
-          "eyebrow": "META ROBOTS",
-          "title": "Indexação",
           "index": "Indexar página",
           "follow": "Seguir links",
           "indexHint": "Aparecer nos resultados do Google e no sitemap.",
@@ -3381,7 +3379,8 @@
             "size": "Imagem acima de 2MB",
             "generic": "Não foi possível enviar a imagem."
           },
-          "fileInput": "Arquivo da imagem"
+          "fileInput": "Arquivo da imagem",
+          "urlHint": "Endereço público da imagem, 1200×630 recomendado."
         },
         "advanced": {
           "eyebrow": "CANONICAL · LOCALE · ROBOTS",

@@ -3261,8 +3261,6 @@
           "empty": "No title set: the site uses the code default."
         },
         "indexing": {
-          "eyebrow": "META ROBOTS",
-          "title": "Indexing",
           "index": "Index page",
           "follow": "Follow links",
           "indexHint": "Appear in Google results and the sitemap.",
@@ -3381,7 +3379,8 @@
             "size": "Image over 2MB",
             "generic": "Could not upload the image."
           },
-          "fileInput": "Image file"
+          "fileInput": "Image file",
+          "urlHint": "Public image address, 1200×630 recommended."
         },
         "advanced": {
           "eyebrow": "CANONICAL · LOCALE · ROBOTS",

@@ -3261,8 +3261,6 @@
           "empty": "Sin título definido: el sitio usa el predeterminado del código."
         },
         "indexing": {
-          "eyebrow": "META ROBOTS",
-          "title": "Indexación",
           "index": "Indexar página",
           "follow": "Seguir enlaces",
           "indexHint": "Aparecer en los resultados de Google y en el sitemap.",
@@ -3381,7 +3379,8 @@
             "size": "Imagen de más de 2MB",
             "generic": "No se pudo enviar la imagen."
           },
-          "fileInput": "Archivo de la imagen"
+          "fileInput": "Archivo de la imagen",
+          "urlHint": "Dirección pública de la imagen, se recomienda 1200×630."
         },
         "advanced": {
           "eyebrow": "CANONICAL · LOCALE · ROBOTS",
