@@ -60,6 +60,7 @@ export function OrganizationPublicPage({ slug }: Props) {
             src={org.bannerUrl}
             alt=""
             fill
+            priority
             sizes="100vw"
             className={styles.bannerImg}
           />

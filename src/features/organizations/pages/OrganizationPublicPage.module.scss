@@ -94,7 +94,7 @@
 
 .orgSlug {
   font-size: 0.8rem;
-  color: $text-muted;
+  color: $text-secondary;
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   margin: 0.2rem 0 0;
 }
@@ -183,7 +183,7 @@
 .loadingText,
 .emptyText {
   font-size: 0.875rem;
-  color: $text-muted;
+  color: $text-secondary;
   padding: 1rem 0;
 }
 
