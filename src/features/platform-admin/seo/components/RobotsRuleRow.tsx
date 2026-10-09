@@ -14,17 +14,21 @@ interface Props {
   rule: SeoRobotsRule;
   onChange: (rule: SeoRobotsRule) => void;
   onRemove: () => void;
+  // Save was attempted: show the error even on a still-empty user-agent.
+  showErrors: boolean;
 }
 
 type PathList = 'allow' | 'disallow';
 
 export const USER_AGENT_SUGGESTIONS = ['*', 'GPTBot', 'CCBot', 'Google-Extended'];
 
-export function RobotsRuleRow({ n, rule, onChange, onRemove }: Props) {
+export function RobotsRuleRow({ n, rule, onChange, onRemove, showErrors }: Props) {
   const t = useTranslations('platformAdmin.seo.global.robots');
   const [drafts, setDrafts] = useState<Record<PathList, string>>({ allow: '', disallow: '' });
   const [pathError, setPathError] = useState(false);
-  const agentInvalid = rule.userAgent !== '' && robotsRuleError({ ...rule, allow: [], disallow: [] }) === 'agent';
+  const hasPaths = rule.allow.length + rule.disallow.length > 0;
+  const agentInvalid =
+    robotsRuleError({ ...rule, allow: [], disallow: [] }) === 'agent' && (rule.userAgent !== '' || hasPaths || showErrors);
 
   const commit = (list: PathList) => {
     const value = drafts[list].trim();
@@ -51,6 +55,7 @@ export function RobotsRuleRow({ n, rule, onChange, onRemove }: Props) {
         placeholder={t('pathPlaceholder')}
         value={drafts[list]}
         onChange={(e) => setDrafts({ ...drafts, [list]: e.target.value })}
+        onBlur={() => commit(list)}
         onKeyDown={(e) => {
           if (e.key !== 'Enter') return;
           e.preventDefault();

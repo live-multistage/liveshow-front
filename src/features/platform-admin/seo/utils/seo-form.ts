@@ -101,8 +101,9 @@ export const isPageKey = (value: string): value is SeoPageKey => (SEO_PAGE_KEYS 
 
 const VARIABLE = /\{\{\s*([\w.]+)\s*\}\}/g;
 
-export const fillVariables = (template: string, valueOf: (name: string) => string): string =>
-  template.replace(VARIABLE, (_, name: string) => valueOf(name));
+// Unknown placeholders stay literal so the preview shows what the admin typed.
+export const fillVariables = (template: string, valueOf: (name: string) => string | undefined): string =>
+  template.replace(VARIABLE, (match, name: string) => valueOf(name) ?? match);
 
 export const formatJson = (raw: string): string => {
   try {

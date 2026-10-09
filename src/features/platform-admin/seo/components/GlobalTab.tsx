@@ -47,6 +47,7 @@ function GlobalForm({ initial }: { initial: SeoGlobal }) {
   const [rules, setRules] = useState(base.robotsExtraRules);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [attempted, setAttempted] = useState(false);
 
   const current = (): SeoGlobal => ({
     googleSiteVerification: google.trim() || null,
@@ -71,9 +72,11 @@ function GlobalForm({ initial }: { initial: SeoGlobal }) {
     setSite(base.websiteJsonLd ?? '');
     setRules(base.robotsExtraRules);
     setErrors({});
+    setAttempted(false);
   };
 
   const submit = async () => {
+    if (invalid) return setAttempted(true);
     setSaving(true);
     setErrors({});
     try {
@@ -112,14 +115,14 @@ function GlobalForm({ initial }: { initial: SeoGlobal }) {
         errors={{ organization: errors.organizationJsonLd, website: errors.websiteJsonLd }}
         onChange={(kind, value) => (kind === 'organization' ? setOrg(value) : setSite(value))}
       />
-      <RobotsRulesEditor rules={rules} onChange={setRules} />
+      <RobotsRulesEditor rules={rules} onChange={setRules} showErrors={attempted} />
 
       {unmatched.map(([field, message]) => <div key={field} role="alert" className={common.alert}>{message}</div>)}
 
       <div className={common.footer}>
         <span className={common.footerNote} />
         <Button variant="outline" disabled={!dirty || saving} onClick={reset}>{t('editor.footer.cancel')}</Button>
-        <Button disabled={!dirty || invalid || saving} onClick={submit}>{saving ? t('editor.footer.saving') : t('editor.footer.save')}</Button>
+        <Button disabled={!dirty || saving} onClick={submit}>{saving ? t('editor.footer.saving') : t('editor.footer.save')}</Button>
       </div>
     </div>
   );

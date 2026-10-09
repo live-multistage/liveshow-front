@@ -10,6 +10,7 @@ import {
   pageKeyForPath,
   type SeoFields,
   type SeoPageKey,
+  type SeoPageTemplate,
   type SeoPathOverride,
 } from '@live-show/api-contracts';
 import { Button, Dialog, DialogContent, DialogDescription, DialogTitle } from '@live-show/design-system';
@@ -57,6 +58,8 @@ interface Props {
 }
 
 export function SeoEditorDrawer({ target, onClose, onOpenOverride }: Props) {
+  const templates = useSeoTemplatesQuery();
+  const overrides = useSeoOverridesQuery();
   // The body owns the dirty state; every dismissal (X, Esc, backdrop) goes through its guard.
   const requestClose = useRef<(() => void) | null>(null);
   return (
@@ -64,7 +67,7 @@ export function SeoEditorDrawer({ target, onClose, onOpenOverride }: Props) {
       <DialogContent className={styles.drawer}>
         {target && (
           <SeoEditorBody
-            key={target.kind === 'template' ? target.pageKey : (target.override?.id ?? 'new')}
+            key={editorKey(target, templates.data, overrides.data)}
             target={target}
             requestClose={requestClose}
             onClose={onClose}
@@ -74,6 +77,16 @@ export function SeoEditorDrawer({ target, onClose, onOpenOverride }: Props) {
       </DialogContent>
     </Dialog>
   );
+}
+
+// Remounts the body when a saved version lands, so it never edits a stale snapshot.
+function editorKey(target: EditorTarget, templates?: SeoPageTemplate[], overrides?: SeoPathOverride[]): string {
+  if (target.kind === 'template') {
+    return `${target.pageKey}:${templates?.find((x) => x.pageKey === target.pageKey)?.updatedAt ?? ''}`;
+  }
+  if (!target.override) return 'new';
+  const live = overrides?.find((o) => o.id === target.override?.id) ?? target.override;
+  return `${live.id}:${live.updatedAt}`;
 }
 
 type Confirm = 'restore' | 'discard' | null;
@@ -96,11 +109,13 @@ function SeoEditorBody({
   const updateOverride = useUpdateSeoOverrideMutation();
 
   const isTemplate = target.kind === 'template';
+  const liveOverride =
+    target.kind === 'override' ? (overrides.data?.find((o) => o.id === target.override?.id) ?? target.override) : null;
   const source: (SeoFields & { updatedAt: string | null }) | null = isTemplate
     ? (templates.data?.find((x) => x.pageKey === target.pageKey) ?? null)
-    : target.override;
+    : liveOverride;
   const initialForm = source ? toForm(source) : EMPTY_FORM;
-  const initialPath = target.kind === 'override' ? (target.override?.path ?? '') : '';
+  const initialPath = liveOverride?.path ?? '';
 
   const [form, setForm] = useState<SeoForm>(initialForm);
   const [path, setPath] = useState(initialPath);
@@ -154,9 +169,10 @@ function SeoEditorBody({
   };
 
   const restoreDefault = () => {
+    // Clears the form only (the path of an override stays); the admin still has to press Save.
     setConfirm(null);
     setForm(EMPTY_FORM);
-    void submit(toFields(EMPTY_FORM));
+    setErrors({});
   };
 
   const openExisting = () => {
@@ -186,6 +202,7 @@ function SeoEditorBody({
       </header>
 
       <div className={styles.body}>
+        <div className={styles.fields}>
         {!isTemplate && (
           <PathField
             value={path}
@@ -200,23 +217,24 @@ function SeoEditorBody({
           <div key={field} role="alert" className={common.alert}>{message}</div>
         ))}
         {pageKey && (
-          <div className={styles.columns}>
+          <>
             <SearchSection form={form} vars={vars} errors={errors} onChange={edit} />
+            <SharingSection value={form.ogImage} error={errors.ogImageUrl} onChange={(ogImage) => edit({ ogImage })} />
+            <IndexingSection index={form.index} follow={form.follow} onChange={edit} />
+            <JsonLdSection generatedTypes={GENERATED_JSONLD_TYPES[pageKey]} vars={vars} form={form} errors={errors} onChange={edit} />
+          </>
+        )}
+        </div>
+        {pageKey && (
+          <div className={styles.previewCol}>
             <GooglePreview
               title={fillVariables(form.title, sample)}
               description={fillVariables(form.description, sample)}
               path={previewPath}
               noindex={form.index === 'no'}
-              sampleName={mainVar ? sample(mainVar) : null}
+              sampleName={(mainVar && sample(mainVar)) || null}
             />
           </div>
-        )}
-        {pageKey && (
-          <>
-            <SharingSection value={form.ogImage} error={errors.ogImageUrl} onChange={(ogImage) => edit({ ogImage })} />
-            <IndexingSection index={form.index} follow={form.follow} onChange={edit} />
-            <JsonLdSection generatedTypes={GENERATED_JSONLD_TYPES[pageKey]} vars={vars} form={form} errors={errors} onChange={edit} />
-          </>
         )}
       </div>
 

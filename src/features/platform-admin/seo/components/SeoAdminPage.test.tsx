@@ -148,12 +148,14 @@ describe('SEO page templates', () => {
     expect(fields.extraJsonLd).toEqual([]);
   });
 
-  it('restores the default by sending all-empty fields after confirmation', async () => {
+  it('restore default only clears the form; nothing is sent until Save', async () => {
     const user = await openEventEditor();
     await user.click(screen.getByRole('button', { name: 'Restaurar padrão' }));
     await user.click(within(screen.getByRole('dialog', { name: 'Restaurar padrão?' })).getByRole('button', { name: 'Restaurar padrão' }));
-    const { fields } = store.setTemplate.mock.calls[0][0];
-    expect(fields).toEqual({
+    expect(screen.getByRole('textbox', { name: 'Título' })).toHaveValue('');
+    expect(store.setTemplate).not.toHaveBeenCalled();
+    await user.click(saveButton());
+    expect(store.setTemplate.mock.calls[0][0].fields).toEqual({
       titleTemplate: null, descriptionTemplate: null, ogImageUrl: null, robotsIndex: null,
       robotsFollow: null, disabledGeneratedJsonLd: [], extraJsonLd: [],
     });
@@ -220,7 +222,18 @@ describe('SEO global', () => {
     const user = await openGlobal();
     expect(screen.getByText(/Informe o user-agent, em uma linha só/)).toBeInTheDocument();
     await user.type(screen.getByLabelText('Google Search Console'), 'abc');
-    expect(saveButton()).toBeDisabled();
+    await user.click(saveButton());
+    expect(store.setGlobal).not.toHaveBeenCalled();
+  });
+
+  it('shows the empty user-agent error once the rule has a path, and commits a path on blur', async () => {
+    const user = await openGlobal();
+    await user.click(screen.getByRole('button', { name: 'Adicionar regra' }));
+    expect(screen.queryByText(/Informe o user-agent/)).not.toBeInTheDocument();
+    await user.type(screen.getByRole('textbox', { name: 'Disallow' }), '/x');
+    await user.tab();
+    expect(screen.getByText('/x')).toBeInTheDocument();
+    expect(screen.getByText(/Informe o user-agent/)).toBeInTheDocument();
   });
 
   it('rejects a path without a leading slash and accepts one with it', async () => {

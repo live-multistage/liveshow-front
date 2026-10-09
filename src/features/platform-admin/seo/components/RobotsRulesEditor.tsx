@@ -13,10 +13,11 @@ import styles from './RobotsRulesEditor.module.scss';
 interface Props {
   rules: SeoRobotsRule[];
   onChange: (rules: SeoRobotsRule[]) => void;
+  showErrors: boolean;
 }
 
 // Fixed rules come from code and are shown read-only; the admin can only append extra groups.
-export function RobotsRulesEditor({ rules, onChange }: Props) {
+export function RobotsRulesEditor({ rules, onChange, showErrors }: Props) {
   const t = useTranslations('platformAdmin.seo.global.robots');
   const setRule = (i: number, rule: SeoRobotsRule) => onChange(rules.map((r, j) => (j === i ? rule : r)));
 
@@ -46,7 +47,7 @@ export function RobotsRulesEditor({ rules, onChange }: Props) {
               {USER_AGENT_SUGGESTIONS.map((ua) => <option key={ua} value={ua} />)}
             </datalist>
             {rules.map((rule, i) => (
-              <RobotsRuleRow key={i} n={i + 1} rule={rule} onChange={(r) => setRule(i, r)} onRemove={() => onChange(rules.filter((_, j) => j !== i))} />
+              <RobotsRuleRow key={i} n={i + 1} showErrors={showErrors} rule={rule} onChange={(r) => setRule(i, r)} onRemove={() => onChange(rules.filter((_, j) => j !== i))} />
             ))}
             <div>
               <Button
