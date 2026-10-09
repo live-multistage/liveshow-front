@@ -140,7 +140,8 @@ function SeoEditorBody({
   const dirty = !sameForm(form, initialForm) || path !== initialPath;
   const localInvalid =
     (!isTemplate && !pageKey) ||
-    (form.ogImage !== '' && !isHttpsUrl(form.ogImage) && !ogPreview) ||
+    // A stored value the admin did not touch is left for the backend to judge (legacy http URLs).
+    (form.ogImage !== '' && form.ogImage !== initialForm.ogImage && !isHttpsUrl(form.ogImage) && !ogPreview) ||
     (form.canonicalUrl !== '' && !isHttpsUrl(form.canonicalUrl)) ||
     form.blocks.some((b) => !checkJsonLd(b, vars).ok);
   const canSave = dirty && !localInvalid && !saving;

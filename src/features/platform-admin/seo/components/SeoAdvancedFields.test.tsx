@@ -159,6 +159,19 @@ describe('OG image', () => {
     expect(savedFields().ogImageUrl).toBe('https://cdn.showon.io/x.jpg');
   });
 
+  it('does not lock Save on a stored http image and still shows its thumbnail', async () => {
+    const stored = 'http://localhost:3001/uploads/seo/og/a.jpg';
+    store.templates = store.templates.map((t) =>
+      (t as { pageKey: string }).pageKey === 'events.detail' ? { ...(t as object), ogImageUrl: stored } : t,
+    );
+    const user = await openEventEditor();
+    expect(screen.getByAltText('Miniatura da imagem OG')).toHaveAttribute('src', stored);
+    await user.type(screen.getByRole('textbox', { name: 'Título' }), 'Oi');
+    expect(saveButton()).toBeEnabled();
+    await user.click(saveButton());
+    expect(savedFields().ogImageUrl).toBe(stored);
+  });
+
   it('rejects a wrong type before uploading', async () => {
     await openEventEditor();
     fireEvent.change(screen.getByLabelText('Arquivo da imagem'), {

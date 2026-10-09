@@ -65,7 +65,8 @@ export function OgImageField({ value, previewUrl, error, onChange }: Props) {
 
   const urlInvalid = source === 'url' && url !== '' && !isHttpsUrl(url);
   const message = error ?? uploadError ?? (urlInvalid ? t('image.invalidUrl') : undefined);
-  const image = previewUrl || (isHttpsUrl(value) ? value : '');
+  // Our own resolved URL from the API may be plain http in lab/dev, so any http(s) value previews.
+  const image = previewUrl || (/^https?:\/\//.test(value) ? value : '');
 
   const thumb = image && (
     <div className={styles.thumb}>

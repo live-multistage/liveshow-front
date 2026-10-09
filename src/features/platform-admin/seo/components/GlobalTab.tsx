@@ -61,7 +61,7 @@ function GlobalForm({ initial }: { initial: SeoGlobal }) {
   });
   const dirty = JSON.stringify(current()) !== JSON.stringify(base);
   const invalid =
-    (og !== '' && !isHttpsUrl(og) && !ogPreview) ||
+    (og !== '' && og !== (base.defaultOgImageUrl ?? '') && !isHttpsUrl(og) && !ogPreview) ||
     [org, site].some((text) => text !== '' && !checkJsonLd(text, ROOT_VARS).ok) ||
     rules.length > MAX_ROBOTS_RULES ||
     rules.some((r) => robotsRuleError(r) !== null);

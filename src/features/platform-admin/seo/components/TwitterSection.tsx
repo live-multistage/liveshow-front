@@ -25,6 +25,7 @@ export function TwitterSection({ form, ogTitle, ogDescription, errors, onChange 
         <div className={common.eyebrow}>{t('twitter.eyebrow')}</div>
         <div className={common.cardTitle}>{t('twitter.title')}</div>
       </div>
+      <p className={common.hint}>{t('twitter.hint')}</p>
       <InheritedTextField
         label={t('twitter.titleLabel')}
         value={form.twitterTitle}
