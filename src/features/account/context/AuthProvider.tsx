@@ -27,7 +27,8 @@ let pendingSession: Promise<{ accessToken: string } | null> | null = null;
 function fetchSession(): Promise<{ accessToken: string } | null> {
   if (!pendingSession) {
     pendingSession = fetch('/api/auth/session')
-      .then((res) => (res.ok ? (res.json() as Promise<{ accessToken: string }>) : null))
+      .then((res) => (res.ok ? (res.json() as Promise<{ authenticated: boolean; accessToken?: string }>) : null))
+      .then((body) => (body?.authenticated && body.accessToken ? { accessToken: body.accessToken } : null))
       .catch(() => null)
       .finally(() => { pendingSession = null; });
   }
