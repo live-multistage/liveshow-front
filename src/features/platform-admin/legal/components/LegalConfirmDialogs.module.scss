@@ -1,0 +1,41 @@
+@use '../../../../styles/_variables' as *;
+
+.summaryBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: $surface;
+}
+
+.eyebrow {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  color: $text-muted;
+}
+
+.summary { font-size: 0.9375rem; line-height: 1.5; }
+
+.langs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid $bg-hover;
+  font-size: 0.75rem;
+  color: $text-muted;
+}
+
+.lang {
+  border: 1px solid $text-muted;
+  border-radius: 999px;
+  padding: 0.1875rem 0.5625rem;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.65625rem;
+  font-weight: 700;
+  color: $text-primary;
+}

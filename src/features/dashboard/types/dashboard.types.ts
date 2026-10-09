@@ -24,6 +24,8 @@ import {
   Mail,
   Workflow,
   Activity,
+  Search,
+  Scale,
 } from 'lucide-react';
 import type { UserRole } from '@/types';
 import type { FeatureFlagKey } from '@/features/feature-flags';
@@ -95,6 +97,8 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'platformMailing',       href: '/dashboard/platform/mailing',       icon: Mail,         group: 'OPERACIONAL', flag: 'mailing' },
     { navKey: 'platformBlueprints',    href: '/dashboard/platform/blueprints',    icon: Workflow,     group: 'OPERACIONAL' }, // not flag-gated: authoring happens with the flag OFF (spec D10)
     { navKey: 'platformTracking',      href: '/dashboard/platform/tracking',      icon: Activity,     group: 'OPERACIONAL', flag: 'tracking' },
+    { navKey: 'platformSeo',           href: '/dashboard/platform/seo',           icon: Search,       group: 'CONFIG & GOVERNANÇA' },
+    { navKey: 'platformLegal',         href: '/dashboard/platform/legal',         icon: Scale,        group: 'CONFIG & GOVERNANÇA' },
     { navKey: 'platformSettings',      href: '/dashboard/platform/settings',      icon: Settings,     group: 'CONFIG & GOVERNANÇA' },
     { navKey: 'platformAudit',         href: '/dashboard/platform/audit',         icon: ShieldCheck,  group: 'CONFIG & GOVERNANÇA' },
   ],
