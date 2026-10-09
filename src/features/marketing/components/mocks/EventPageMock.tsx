@@ -43,7 +43,7 @@ export function EventPageMock({
       </div>
 
       <div className={styles.body}>
-        <h3 className={styles.title}>{title}</h3>
+        <div className={styles.title}>{title}</div>
         <div className={styles.meta}>
           {date} · {venue}
         </div>

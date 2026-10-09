@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
-import { Reveal } from '../shared/Reveal';
 import { useIsCompact } from '../../hooks/useStickySteps';
 import { PauseAdMock } from './PauseAdMock';
 import { ADS_SIGNUP_URL, ADS_LOGIN_URL } from '../../constants';
@@ -130,13 +129,14 @@ export function AdvertisersHero() {
       <section className={styles.section}>
         <div className={styles.glowTop} aria-hidden="true" />
         <div className={styles.blob} aria-hidden="true" />
+        {/* No Reveal here: this branch mounts only after hydration (useIsCompact
+            starts false), so a fade-in would hide the already-painted LCP
+            heading and push LCP/Speed Index back by the whole animation. */}
         <div className={styles.container}>
-          <Reveal as="div" className={styles.text}>
-            {copy}
-          </Reveal>
-          <Reveal as="div" delay={120} variant="scale" className={styles.mockCol}>
+          <div className={styles.text}>{copy}</div>
+          <div className={styles.mockCol}>
             <PauseAdMock />
-          </Reveal>
+          </div>
         </div>
       </section>
     );

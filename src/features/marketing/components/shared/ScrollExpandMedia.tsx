@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { motion } from 'motion/react';
 import styles from './ScrollExpandMedia.module.scss';
 
 interface ScrollExpandMediaOverlayState {
@@ -100,14 +99,7 @@ export function ScrollExpandMedia({ media, overlay, hint, background, className 
     >
       <div className={styles.sticky}>
         {background ? (
-          <motion.div
-            className={styles.background}
-            initial={{ opacity: 1 - progress }}
-            animate={{ opacity: 1 - progress }}
-            transition={{ duration: 0.1 }}
-          >
-            {background}
-          </motion.div>
+          <div className={styles.background}>{background}</div>
         ) : null}
 
         <div ref={overlayRef} className={styles.overlay}>
@@ -117,17 +109,10 @@ export function ScrollExpandMedia({ media, overlay, hint, background, className 
         <div className={styles.mediaWrap}>
           <div className={styles.mediaInner}>
             {media}
-            <motion.div
-              className={styles.scrim}
-              initial={{ opacity: 0.5 - progress * 0.3 }}
-              animate={{ opacity: 0.5 - progress * 0.3 }}
-              transition={{ duration: 0.2 }}
-            />
+            <div className={styles.scrim} />
           </div>
           {hint && progress < 0.2 ? (
-            <p className={styles.hint} style={{ opacity: 1 - progress }}>
-              {hint}
-            </p>
+            <p className={styles.hint}>{hint}</p>
           ) : null}
         </div>
       </div>

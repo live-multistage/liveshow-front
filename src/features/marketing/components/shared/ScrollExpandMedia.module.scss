@@ -8,13 +8,13 @@
 
   --w0: min(760px, 88vw);
   --w1: min(1180px, 95vw);
-  --media-top: 76%; // fallback until measured
+  --media-top: 76dvh; // fallback until measured
   --hint-factor: 150vw;
 
   @media (max-width: $md) {
     min-height: 140vh;
     --w0: min(320px, 88vw);
-    --media-top: 70%; // fallback until measured
+    --media-top: 70dvh; // fallback until measured
     --hint-factor: 180vw;
   }
 }
@@ -39,6 +39,8 @@
   position: absolute;
   inset: 0;
   z-index: 0;
+  opacity: calc(1 - var(--p));
+  transition: opacity 0.1s;
 }
 
 .overlay {
@@ -50,12 +52,18 @@
 
 // At p=0 the media's TOP edge sits at --media-top (below the overlay text,
 // cut by the fold like the design); at p=1 its CENTER sits at 50%.
+// `top` stays fixed and the offset lives in `transform`: --media-top is
+// measured after mount, and moving `top` then would register as CLS.
+// .sticky is 100dvh tall, so 50dvh is its vertical center.
 .mediaWrap {
   position: absolute;
   z-index: 1;
   left: 50%;
-  top: calc(var(--media-top) + (50% - var(--media-top)) * var(--p));
-  transform: translate(-50%, calc(-50% * var(--p)));
+  top: 50%;
+  transform: translate(
+    -50%,
+    calc((1 - var(--p)) * (var(--media-top) - 50dvh) - 50% * var(--p))
+  );
   width: calc(var(--w0) + (var(--w1) - var(--w0)) * var(--p));
   display: flex;
   flex-direction: column;
@@ -76,6 +84,8 @@
   inset: 0;
   background: #000;
   pointer-events: none;
+  opacity: calc(0.5 - 0.3 * var(--p));
+  transition: opacity 0.2s;
 }
 
 .hint {
@@ -84,6 +94,7 @@
   font-size: 11px;
   letter-spacing: 0.14em;
   color: $text-muted;
+  opacity: calc(1 - var(--p));
   transform: translateX(calc(var(--p) * var(--hint-factor)));
   white-space: nowrap;
 }

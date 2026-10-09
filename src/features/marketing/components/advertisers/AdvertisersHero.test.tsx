@@ -65,6 +65,12 @@ describe('AdvertisersHero', () => {
     expect(screen.getByRole('link', { name: /cta/ })).toHaveAttribute('href', ADS_SIGNUP_URL);
   });
 
+  it('does not hide the post-hydration narrow hero copy behind a reveal fade (LCP)', () => {
+    mockMatchMedia({ narrow: true });
+    render(<AdvertisersHero />);
+    expect(screen.getByRole('heading', { level: 1 }).closest('[style*="--reveal-delay"]')).toBeNull();
+  });
+
   it('falls back to the non-pinned layout when the user prefers reduced motion', () => {
     mockMatchMedia({ reducedMotion: true });
     const { container } = render(<AdvertisersHero />);

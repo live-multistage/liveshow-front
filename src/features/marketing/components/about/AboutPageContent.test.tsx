@@ -55,6 +55,17 @@ import { render, screen } from '@testing-library/react';
 import { AboutPageContent } from './AboutPageContent';
 
 describe('AboutPageContent', () => {
+  it('renders the hero h1 and manifesto outside any Reveal fade (LCP) and no heading before the first h2', async () => {
+    const { container } = render(await AboutPageContent());
+    const notRevealed = (el: Element) => el.closest('[style*="--reveal-delay"]') === null;
+    // Sanity: Reveal is still used below the fold, so the selector is live.
+    expect(container.querySelector('[style*="--reveal-delay"]')).not.toBeNull();
+    expect(notRevealed(screen.getByRole('heading', { level: 1 }))).toBe(true);
+    MANIFESTO.forEach((paragraph) => expect(notRevealed(screen.getByText(paragraph))).toBe(true));
+    const levels = Array.from(container.querySelectorAll('h1, h2, h3, h4, h5, h6')).map((h) => h.tagName);
+    expect(levels.slice(0, 2)).toEqual(['H1', 'H2']);
+  });
+
   it('renders the three manifesto paragraphs', async () => {
     render(await AboutPageContent());
     MANIFESTO.forEach((paragraph) => {

@@ -97,22 +97,16 @@ export async function AboutPageContent() {
         <div className={styles.blob} aria-hidden="true" />
         <div className={styles.container}>
           <div className={styles.heroText}>
-            <Reveal as="div" className={styles.label}>
-              {t('hero.label')}
-            </Reveal>
-            <Reveal as="h1" delay={100} className={styles.title}>
+            {/* Above the fold and the LCP element: no Reveal, which would keep it
+                at opacity 0 until hydration + IntersectionObserver. */}
+            <div className={styles.label}>{t('hero.label')}</div>
+            <h1 className={styles.title}>
               {t('hero.title')} <span className={styles.accent}>{t('hero.titleAccent')}</span>
-            </Reveal>
+            </h1>
             <div className={styles.manifesto}>
-              <Reveal as="p" delay={160} className={styles.manifestoP}>
-                {manifesto[0]}
-              </Reveal>
-              <Reveal as="p" delay={220} className={styles.manifestoPEmphasis}>
-                {manifesto[1]}
-              </Reveal>
-              <Reveal as="p" delay={280} className={styles.manifestoP}>
-                {manifesto[2]}
-              </Reveal>
+              <p className={styles.manifestoP}>{manifesto[0]}</p>
+              <p className={styles.manifestoPEmphasis}>{manifesto[1]}</p>
+              <p className={styles.manifestoP}>{manifesto[2]}</p>
             </div>
           </div>
           <div className={styles.heroMock}>

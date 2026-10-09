@@ -99,7 +99,7 @@
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: 0.14em;
-  color: $text-muted;
+  color: $text-secondary;
   margin-bottom: 8px;
 }
 
@@ -267,7 +267,7 @@
 .formatCardSpecDim {
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
-  color: $text-muted;
+  color: $text-secondary;
 }
 
 .uploadBox {
@@ -288,7 +288,7 @@
 .uploadHint {
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
-  color: $text-muted;
+  color: $text-secondary;
   margin-top: 3px;
 }
 
@@ -308,7 +308,7 @@
 .bidLabel {
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9px;
-  color: $text-muted;
+  color: $text-secondary;
 }
 
 .bidValue {
@@ -404,7 +404,7 @@
 .approvedMeta {
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
-  color: $text-muted;
+  color: $text-secondary;
   margin-top: 3px;
 }
 
@@ -427,7 +427,7 @@
   font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 8.5px;
   letter-spacing: 0.12em;
-  color: $text-muted;
+  color: $text-secondary;
 }
 
 .kpiValue {
