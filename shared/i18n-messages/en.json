@@ -3242,29 +3242,23 @@
           "inherit": "Empty fields inherit the {type} template. JSON-LD blocks add to the template ones."
         },
         "search": {
-          "eyebrow": "TITLE · META DESCRIPTION",
-          "title": "Search",
+          "eyebrow": "TITLE · META DESCRIPTION · KEYWORDS",
+          "title": "Basic meta tags",
           "titleLabel": "Title",
           "descLabel": "Description",
           "codeDefault": "Code default",
           "reset": "Restore default",
           "vars": "Variables",
           "varsHint": "click to insert at the cursor",
-          "titleLong": "With the sample, the title exceeds {max} characters and Google will truncate it."
+          "titleLong": "With the sample, the title exceeds {max} characters and Google will truncate it.",
+          "keywords": "Keywords",
+          "keywordsHelp": "Comma-separated"
         },
         "preview": {
           "label": "GOOGLE PREVIEW",
           "sample": "sample: {name}",
           "noindex": "With noindex, this result stops appearing.",
           "empty": "No title set: the site uses the code default."
-        },
-        "share": {
-          "eyebrow": "OPEN GRAPH",
-          "title": "Sharing",
-          "ogLabel": "OG image",
-          "help": "Empty = site default image (Global tab) or the automatically generated card.",
-          "invalid": "Use an https:// URL.",
-          "thumb": "OG image thumbnail"
         },
         "indexing": {
           "eyebrow": "META ROBOTS",
@@ -3301,10 +3295,19 @@
           "status": {
             "ok": "Valid JSON",
             "json": "Invalid JSON",
-            "shape": "Missing @context or @type",
-            "placeholder": "Unknown variable: {name}"
+            "shape": "Missing @type",
+            "placeholder": "Unknown variable: {name}",
+            "okType": "Valid JSON · 1 type: {list}",
+            "okTypes": "Valid JSON · {n} types: {list}",
+            "context": "Missing @context",
+            "graph": "Every @graph item needs a @type",
+            "size": "Block over 64KB"
           },
-          "server": "SERVER"
+          "server": "SERVER",
+          "insertTemplate": "Insert template",
+          "scriptRemoved": "<script> tag removed",
+          "replacedByBlock": "replaced by your block",
+          "ignoredInReplace": "ignored in Replace mode"
         },
         "footer": {
           "restore": "Restore default",
@@ -3336,6 +3339,69 @@
           "globalSaved": "Global settings saved.",
           "error": "Could not save. Try again.",
           "deleteError": "Could not delete the override."
+        },
+        "counter": {
+          "chars": "{n}/{max} characters",
+          "optimal": "Optimized",
+          "short": "Short",
+          "long": "Long",
+          "inheritedMeta": "inherited from meta",
+          "inheritedOg": "inherited from Open Graph"
+        },
+        "og": {
+          "eyebrow": "OPEN GRAPH",
+          "title": "Open Graph (social networks)",
+          "titleLabel": "OG title",
+          "descLabel": "OG description",
+          "imageLabel": "OG image"
+        },
+        "twitter": {
+          "eyebrow": "TWITTER:CARD · SUMMARY_LARGE_IMAGE",
+          "title": "Twitter Card",
+          "titleLabel": "Twitter title",
+          "descLabel": "Twitter description"
+        },
+        "image": {
+          "tabs": "Image source",
+          "upload": "Upload",
+          "url": "URL",
+          "urlLabel": "Image URL",
+          "choose": "Choose file",
+          "drop": "or drag the image here",
+          "hint": "JPEG, PNG, GIF or WebP (max 2MB). We crop it to 1200×630.",
+          "uploading": "Uploading…",
+          "current": "Current image",
+          "replace": "Replace",
+          "remove": "Remove",
+          "empty": "No image: the site default image or the generated card is used",
+          "invalidUrl": "Use an https:// URL.",
+          "thumb": "OG image thumbnail",
+          "errors": {
+            "type": "Use JPEG, PNG, GIF or WebP",
+            "size": "Image over 2MB",
+            "generic": "Could not upload the image."
+          }
+        },
+        "advanced": {
+          "eyebrow": "CANONICAL · LOCALE · ROBOTS",
+          "title": "Advanced settings",
+          "canonical": "Canonical URL",
+          "canonicalHelp": "If left empty, it is generated automatically",
+          "canonicalInvalid": "Use an https:// URL.",
+          "locale": "Page language",
+          "localeHelp": "Used in og:locale and structured data",
+          "localeDefault": "Default",
+          "mode": "JSON-LD mode",
+          "modeInherit": "Inherit from template",
+          "modeComplement": "Complement",
+          "modeReplace": "Replace",
+          "modeComplementHelp": "Adds to the generated blocks.",
+          "modeReplaceHelp": "Only your blocks.",
+          "replaceWarn": "Only your blocks will be published. You are responsible for keeping Event, price and dates correct, use the variables."
+        },
+        "social": {
+          "label": "Social preview",
+          "noImage": "No image"
         }
       },
       "sampleData": {

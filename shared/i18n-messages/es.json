@@ -3242,29 +3242,23 @@
           "inherit": "Los campos vacíos heredan la plantilla de {type}. Los bloques JSON-LD se suman a los de la plantilla."
         },
         "search": {
-          "eyebrow": "TITLE · META DESCRIPTION",
-          "title": "Búsqueda",
+          "eyebrow": "TITLE · META DESCRIPTION · KEYWORDS",
+          "title": "Meta tags básicas",
           "titleLabel": "Título",
           "descLabel": "Descripción",
           "codeDefault": "Predeterminado del código",
           "reset": "Restaurar predeterminado",
           "vars": "Variables",
           "varsHint": "clic para insertar en el cursor",
-          "titleLong": "Con el ejemplo, el título supera los {max} caracteres y Google lo cortará."
+          "titleLong": "Con el ejemplo, el título supera los {max} caracteres y Google lo cortará.",
+          "keywords": "Keywords",
+          "keywordsHelp": "Separadas por coma"
         },
         "preview": {
           "label": "VISTA PREVIA DE GOOGLE",
           "sample": "ejemplo: {name}",
           "noindex": "Con noindex, este resultado deja de aparecer.",
           "empty": "Sin título definido: el sitio usa el predeterminado del código."
-        },
-        "share": {
-          "eyebrow": "OPEN GRAPH",
-          "title": "Compartir",
-          "ogLabel": "Imagen OG",
-          "help": "Vacío = imagen predeterminada del sitio (pestaña Global) o la tarjeta generada automáticamente.",
-          "invalid": "Usa una URL https://.",
-          "thumb": "Miniatura de la imagen OG"
         },
         "indexing": {
           "eyebrow": "META ROBOTS",
@@ -3301,10 +3295,19 @@
           "status": {
             "ok": "JSON válido",
             "json": "JSON inválido",
-            "shape": "Falta @context o @type",
-            "placeholder": "Variable desconocida: {name}"
+            "shape": "Falta @type",
+            "placeholder": "Variable desconocida: {name}",
+            "okType": "JSON válido · 1 tipo: {list}",
+            "okTypes": "JSON válido · {n} tipos: {list}",
+            "context": "Falta @context",
+            "graph": "Cada elemento del @graph necesita @type",
+            "size": "Bloque de más de 64KB"
           },
-          "server": "SERVIDOR"
+          "server": "SERVIDOR",
+          "insertTemplate": "Insertar modelo",
+          "scriptRemoved": "Etiqueta <script> eliminada",
+          "replacedByBlock": "reemplazado por tu bloque",
+          "ignoredInReplace": "ignorados en el modo Reemplazar"
         },
         "footer": {
           "restore": "Restaurar predeterminado",
@@ -3336,6 +3339,69 @@
           "globalSaved": "Configuración global guardada.",
           "error": "No se pudo guardar. Inténtalo de nuevo.",
           "deleteError": "No se pudo eliminar el override."
+        },
+        "counter": {
+          "chars": "{n}/{max} caracteres",
+          "optimal": "Optimizado",
+          "short": "Corto",
+          "long": "Largo",
+          "inheritedMeta": "heredado del meta",
+          "inheritedOg": "heredado de Open Graph"
+        },
+        "og": {
+          "eyebrow": "OPEN GRAPH",
+          "title": "Open Graph (redes sociales)",
+          "titleLabel": "Título OG",
+          "descLabel": "Descripción OG",
+          "imageLabel": "Imagen OG"
+        },
+        "twitter": {
+          "eyebrow": "TWITTER:CARD · SUMMARY_LARGE_IMAGE",
+          "title": "Twitter Card",
+          "titleLabel": "Título Twitter",
+          "descLabel": "Descripción Twitter"
+        },
+        "image": {
+          "tabs": "Origen de la imagen",
+          "upload": "Subir",
+          "url": "URL",
+          "urlLabel": "URL de la imagen",
+          "choose": "Elegir archivo",
+          "drop": "o arrastra la imagen aquí",
+          "hint": "JPEG, PNG, GIF o WebP (máx. 2MB). Recortamos a 1200×630.",
+          "uploading": "Enviando…",
+          "current": "Imagen actual",
+          "replace": "Cambiar",
+          "remove": "Quitar",
+          "empty": "Sin imagen: se usa la imagen predeterminada del sitio o la tarjeta generada",
+          "invalidUrl": "Usa una URL https://.",
+          "thumb": "Miniatura de la imagen OG",
+          "errors": {
+            "type": "Usa JPEG, PNG, GIF o WebP",
+            "size": "Imagen de más de 2MB",
+            "generic": "No se pudo enviar la imagen."
+          }
+        },
+        "advanced": {
+          "eyebrow": "CANONICAL · LOCALE · ROBOTS",
+          "title": "Configuración avanzada",
+          "canonical": "Canonical URL",
+          "canonicalHelp": "Si lo dejas vacío, se genera automáticamente",
+          "canonicalInvalid": "Usa una URL https://.",
+          "locale": "Idioma de la página",
+          "localeHelp": "Usado en og:locale y en los datos estructurados",
+          "localeDefault": "Predeterminado",
+          "mode": "Modo del JSON-LD",
+          "modeInherit": "Heredar de la plantilla",
+          "modeComplement": "Complementar",
+          "modeReplace": "Reemplazar",
+          "modeComplementHelp": "Se suma a los bloques generados.",
+          "modeReplaceHelp": "Solo tus bloques.",
+          "replaceWarn": "Solo se publicarán tus bloques. Eres responsable de mantener correctos Event, precio y fechas, usa las variables."
+        },
+        "social": {
+          "label": "Vista previa en redes sociales",
+          "noImage": "Sin imagen"
         }
       },
       "sampleData": {

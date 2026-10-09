@@ -3242,29 +3242,23 @@
           "inherit": "Campos vazios herdam o template de {type}. Blocos JSON-LD se somam aos do template."
         },
         "search": {
-          "eyebrow": "TITLE · META DESCRIPTION",
-          "title": "Busca",
+          "eyebrow": "TITLE · META DESCRIPTION · KEYWORDS",
+          "title": "Meta tags básicas",
           "titleLabel": "Título",
           "descLabel": "Descrição",
           "codeDefault": "Padrão do código",
           "reset": "Restaurar padrão",
           "vars": "Variáveis",
           "varsHint": "clique para inserir no cursor",
-          "titleLong": "Com o exemplo, o título passa de {max} caracteres e deve ser cortado no Google."
+          "titleLong": "Com o exemplo, o título passa de {max} caracteres e deve ser cortado no Google.",
+          "keywords": "Keywords",
+          "keywordsHelp": "Separadas por vírgula"
         },
         "preview": {
           "label": "PRÉVIA DO GOOGLE",
           "sample": "exemplo: {name}",
           "noindex": "Com noindex, este resultado deixa de aparecer.",
           "empty": "Sem título definido: o site usa o padrão do código."
-        },
-        "share": {
-          "eyebrow": "OPEN GRAPH",
-          "title": "Compartilhamento",
-          "ogLabel": "Imagem OG",
-          "help": "Vazio = imagem padrão do site (aba Global) ou o card gerado automaticamente.",
-          "invalid": "Use uma URL https://.",
-          "thumb": "Miniatura da imagem OG"
         },
         "indexing": {
           "eyebrow": "META ROBOTS",
@@ -3301,10 +3295,19 @@
           "status": {
             "ok": "JSON válido",
             "json": "JSON inválido",
-            "shape": "Falta @context ou @type",
-            "placeholder": "Variável desconhecida: {name}"
+            "shape": "Falta @type",
+            "placeholder": "Variável desconhecida: {name}",
+            "okType": "JSON válido · 1 tipo: {list}",
+            "okTypes": "JSON válido · {n} tipos: {list}",
+            "context": "Falta @context",
+            "graph": "Cada item do @graph precisa de @type",
+            "size": "Bloco acima de 64KB"
           },
-          "server": "SERVIDOR"
+          "server": "SERVIDOR",
+          "insertTemplate": "Inserir modelo",
+          "scriptRemoved": "Tag <script> removida",
+          "replacedByBlock": "substituído pelo seu bloco",
+          "ignoredInReplace": "ignorados no modo Substituir"
         },
         "footer": {
           "restore": "Restaurar padrão",
@@ -3336,6 +3339,69 @@
           "globalSaved": "Configurações globais salvas.",
           "error": "Não foi possível salvar. Tente de novo.",
           "deleteError": "Não foi possível excluir o override."
+        },
+        "counter": {
+          "chars": "{n}/{max} caracteres",
+          "optimal": "Otimizado",
+          "short": "Curto",
+          "long": "Longo",
+          "inheritedMeta": "herdado do meta",
+          "inheritedOg": "herdado do Open Graph"
+        },
+        "og": {
+          "eyebrow": "OPEN GRAPH",
+          "title": "Open Graph (redes sociais)",
+          "titleLabel": "Título OG",
+          "descLabel": "Descrição OG",
+          "imageLabel": "Imagem OG"
+        },
+        "twitter": {
+          "eyebrow": "TWITTER:CARD · SUMMARY_LARGE_IMAGE",
+          "title": "Twitter Card",
+          "titleLabel": "Título Twitter",
+          "descLabel": "Descrição Twitter"
+        },
+        "image": {
+          "tabs": "Origem da imagem",
+          "upload": "Upload",
+          "url": "URL",
+          "urlLabel": "URL da imagem",
+          "choose": "Escolher arquivo",
+          "drop": "ou arraste a imagem aqui",
+          "hint": "JPEG, PNG, GIF ou WebP (máx. 2MB). Recortamos para 1200×630.",
+          "uploading": "Enviando…",
+          "current": "Imagem atual",
+          "replace": "Trocar",
+          "remove": "Remover",
+          "empty": "Sem imagem: usa a imagem padrão do site ou o card gerado",
+          "invalidUrl": "Use uma URL https://.",
+          "thumb": "Miniatura da imagem OG",
+          "errors": {
+            "type": "Use JPEG, PNG, GIF ou WebP",
+            "size": "Imagem acima de 2MB",
+            "generic": "Não foi possível enviar a imagem."
+          }
+        },
+        "advanced": {
+          "eyebrow": "CANONICAL · LOCALE · ROBOTS",
+          "title": "Configurações avançadas",
+          "canonical": "Canonical URL",
+          "canonicalHelp": "Se deixar vazio, será gerada automaticamente",
+          "canonicalInvalid": "Use uma URL https://.",
+          "locale": "Idioma da página",
+          "localeHelp": "Usado em og:locale e nos dados estruturados",
+          "localeDefault": "Padrão",
+          "mode": "Modo do JSON-LD",
+          "modeInherit": "Herdar do template",
+          "modeComplement": "Complementar",
+          "modeReplace": "Substituir",
+          "modeComplementHelp": "Soma aos blocos gerados.",
+          "modeReplaceHelp": "Só os seus blocos.",
+          "replaceWarn": "Só os seus blocos serão publicados. Você é responsável por manter Event, preço e datas corretos, use as variáveis."
+        },
+        "social": {
+          "label": "Prévia nas redes sociais",
+          "noImage": "Sem imagem"
         }
       },
       "sampleData": {
