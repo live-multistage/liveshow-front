@@ -38,6 +38,16 @@ describe('POST /api/revalidate', () => {
     expect((await POST(req({}, 'right'))).status).toBe(400);
   });
 
+  it('400 on non-JSON body', async () => {
+    const invalidReq = new Request('http://x/api/revalidate', {
+      method: 'POST',
+      headers: { 'x-revalidate-secret': 'right' },
+      body: 'not json',
+    });
+    expect((await POST(invalidReq)).status).toBe(400);
+    expect(revalidateTag).not.toHaveBeenCalled();
+  });
+
   it('revalidates allowed tags', async () => {
     const res = await POST(req({ tags: ['seo', 'legal'] }, 'right'));
     expect(res.status).toBe(200);
