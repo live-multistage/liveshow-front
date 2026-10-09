@@ -13,6 +13,9 @@ interface Props {
   sampleName: string | null;
 }
 
+// Matches the layout title template (`%s · showon.io`), which every page but home gets.
+const withSiteSuffix = (title: string, path: string) => (path === '/' ? title : `${title} · showon.io`);
+
 const clip = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
 
 // Google keeps the only light surface on purpose: it must not look like our own UI.
@@ -32,7 +35,7 @@ export function GooglePreview({ title, description, path, noindex, sampleName }:
             <div className={styles.url}>https://showon.io{path === '/' ? '' : path}</div>
           </div>
         </div>
-        <div className={styles.title}>{title ? clip(title, TITLE_MAX + 10) : t('empty')}</div>
+        <div className={styles.title}>{title ? clip(withSiteSuffix(title, path), TITLE_MAX + 10) : t('empty')}</div>
         {description && <div className={styles.description}>{clip(description, DESCRIPTION_MAX)}</div>}
         {noindex && <div className={styles.noindex}>{t('noindex')}</div>}
       </div>
