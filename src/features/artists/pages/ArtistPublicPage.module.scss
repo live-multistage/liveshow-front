@@ -30,10 +30,10 @@
 }
 
 .breadcrumbLink {
-  color: #71717a;
+  color: #a1a1aa;
   text-decoration: none;
 
-  &:hover { color: #b9b9c0; }
+  &:hover { color: #f4f4f5; }
 }
 
 .breadcrumbSep { color: #3f3f46; }
@@ -353,7 +353,7 @@
   font-family: var(--font-space-mono);
   font-size: 10.5px;
   letter-spacing: .08em;
-  color: #5c5c66;
+  color: #9a9aa2;
   border: 1px solid rgba(255, 255, 255, .1);
   border-radius: 999px;
   padding: 3px 10px;

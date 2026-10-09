@@ -66,7 +66,7 @@ export function ArtistPublicPage({ slugOrId }: Props) {
         <Link href="/artists" className={styles.breadcrumbLink}>
           {t('breadcrumbRoot')}
         </Link>
-        <span className={styles.breadcrumbSep}>/</span>
+        <span className={styles.breadcrumbSep} aria-hidden>/</span>
         <span className={styles.breadcrumbCurrent}>{artist.name.toUpperCase()}</span>
       </nav>
 
@@ -79,6 +79,7 @@ export function ArtistPublicPage({ slugOrId }: Props) {
             <img
               src={heroBg}
               alt=""
+              fetchPriority="high"
               className={artist.bannerUrl ? styles.heroBannerImg : `${styles.heroBannerImg} ${styles.heroBannerImgBlur}`}
             />
           )}
