@@ -3314,7 +3314,7 @@
         },
         "restoreDialog": {
           "title": "Restore default?",
-          "body": "All {name} fields go back to the code default. The site updates within seconds.",
+          "body": "The {name} fields are cleared and go back to the code default. Nothing is saved until you click Save.",
           "confirm": "Restore default"
         },
         "discardDialog": {

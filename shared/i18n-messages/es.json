@@ -3314,7 +3314,7 @@
         },
         "restoreDialog": {
           "title": "¿Restaurar predeterminado?",
-          "body": "Todos los campos de {name} vuelven al predeterminado del código. El sitio se actualiza en segundos.",
+          "body": "Los campos de {name} se vacían y vuelven al predeterminado del código. No se guarda nada hasta que pulses Guardar.",
           "confirm": "Restaurar predeterminado"
         },
         "discardDialog": {

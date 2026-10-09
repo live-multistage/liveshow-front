@@ -3314,7 +3314,7 @@
         },
         "restoreDialog": {
           "title": "Restaurar padrão?",
-          "body": "Todos os campos de {name} voltam ao padrão do código. O site atualiza em alguns segundos.",
+          "body": "Os campos de {name} são limpos e voltam ao padrão do código. Nada é salvo até você clicar em Salvar.",
           "confirm": "Restaurar padrão"
         },
         "discardDialog": {
