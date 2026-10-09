@@ -10,11 +10,10 @@ export const size = OG_SIZE;
 export const contentType = 'image/png';
 
 export default async function OpengraphImage() {
-  const t = await getTranslations('legal.terms');
+  const t = await getTranslations('legal.ui');
   return renderBrandCard({
     eyebrow: 'TERMOS',
-    title: t('title'),
-    subtitle: t('p1'),
+    title: t('termsTitle'),
     badge: 'LEGAL',
   });
 }

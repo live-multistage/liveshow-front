@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
-import styles from '../privacidade/page.module.scss';
+import { getLocale, getTranslations } from 'next-intl/server';
+import { LegalDocumentPage } from '@/features/legal';
+import { fetchLegalDocument } from '@/features/legal/queries/get-legal-document.server';
+import { firstParagraph } from '@/features/legal/utils/first-paragraph';
+import { pickLocaleContent } from '@/features/legal/utils/pick-locale-content';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('legal.terms');
-  const title = t('title');
-  const description = t('p1');
-
+  const t = await getTranslations('legal.ui');
+  const title = t('termsTitle');
+  const doc = await fetchLegalDocument('terms');
+  const description = doc ? firstParagraph(pickLocaleContent(doc.content, await getLocale())) || undefined : undefined;
   return {
     title,
     description,
@@ -18,44 +20,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TermsOfUsePage() {
-  const t = await getTranslations('legal.terms');
-
-  return (
-    <div className={styles.page}>
-      <div className={styles.content}>
-        <h1 className={styles.title}>{t('title')}</h1>
-        <p className={styles.updated}>{t('updatedAt')}</p>
-
-        <section className={styles.section}>
-          <p>{t('p1')}</p>
-        </section>
-
-        <section className={styles.section}>
-          <p>{t('p2')}</p>
-        </section>
-
-        <section className={styles.section}>
-          <p>{t('p3')}</p>
-        </section>
-
-        <section className={styles.section}>
-          <p>{t('p4')}</p>
-        </section>
-
-        <section className={styles.section}>
-          <p>{t('p5')}</p>
-        </section>
-
-        <section className={styles.section}>
-          <p>
-            {t('p6')}{' '}
-            <Link href="/privacidade" className={styles.link}>
-              {t('privacyLink')}
-            </Link>
-            .
-          </p>
-        </section>
-      </div>
-    </div>
-  );
+  return <LegalDocumentPage kind="terms" doc={await fetchLegalDocument('terms')} isCurrent />;
 }
