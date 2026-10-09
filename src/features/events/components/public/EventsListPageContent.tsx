@@ -402,6 +402,7 @@ export function EventsListPageContent({
                 size={view === 'grid' ? 'compact' : 'default'}
                 list="events_list"
                 position={(page - 1) * pageSize + index}
+                priority={index < 2}
               />
             ))}
           </div>

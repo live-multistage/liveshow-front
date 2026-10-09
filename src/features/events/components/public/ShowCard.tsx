@@ -30,9 +30,11 @@ interface ShowCardProps {
   // list) passes it; optional only for call sites that don't exist yet.
   list?: string;
   position?: number;
+  // Above-the-fold cards (first of a grid) are the page LCP: load eagerly.
+  priority?: boolean;
 }
 
-export function ShowCard({ show, purchased = false, layout = 'vertical', size = 'default', progress, list, position }: ShowCardProps) {
+export function ShowCard({ show, purchased = false, layout = 'vertical', size = 'default', progress, list, position, priority = false }: ShowCardProps) {
   const t = useTranslations('showCard');
   const locale = useLocale();
   const localeCode = LOCALE_CODE[locale] ?? 'pt-BR';
@@ -78,14 +80,16 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
         size === 'compact' ? styles.cardCompact : '',
       ].join(' ')}
     >
-      <Link href={cardHref} className={styles.cardLink} aria-label={show.title}>
+      <Link href={cardHref} className={styles.cardLink}>
         <div className={styles.imageWrapper}>
           <Image
             src={show.image}
             alt={show.title}
             fill
-            // Compact cards sit two-up on phones (see .recommendedItem).
-            sizes={size === 'compact' ? '(max-width: 640px) 50vw, 320px' : '(max-width: 640px) 100vw, 320px'}
+            priority={priority}
+            // Compact cards sit two-up on phones (see .recommendedItem); full
+            // cards span the viewport minus the 20px page gutters.
+            sizes={size === 'compact' ? '(max-width: 640px) 50vw, 320px' : '(max-width: 640px) calc(100vw - 40px), 320px'}
             className={styles.image}
           />
           <div className={styles.imageScrim} />

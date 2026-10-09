@@ -49,6 +49,20 @@ describe('ShowCard', () => {
 
     expect(screen.getByText('Episódio 3')).toBeInTheDocument();
   });
+
+  it('lazy-loads the cover by default and loads it eagerly when it is the LCP card', () => {
+    const { unmount } = render(<ShowCard show={makeShow()} />);
+    expect(screen.getByRole('img')).toHaveAttribute('loading', 'lazy');
+    unmount();
+
+    render(<ShowCard show={makeShow()} priority />);
+    expect(screen.getByRole('img')).not.toHaveAttribute('loading', 'lazy');
+  });
+
+  it('names the card link from its visible content, not an aria-label', () => {
+    render(<ShowCard show={makeShow()} />);
+    expect(screen.getAllByRole('link')[0]).not.toHaveAttribute('aria-label');
+  });
 });
 
 describe('ShowCard click tracking', () => {
