@@ -7,6 +7,8 @@ import { fetchEvent, fetchEventByParam, fetchTicketProducts } from '@/features/e
 import { fetchLiveAccess, fetchReplayAccess, isTokenExpired } from '@/features/streaming/queries/streaming.server';
 import { JsonLd } from '@/shared/components/JsonLd';
 import { buildEventJsonLd } from '@/features/events/utils/event-json-ld';
+import { applySeo, getSeoForPage, resolveJsonLd } from '@/features/seo';
+import { eventSeoVars } from '@/features/seo/utils/event-seo-vars';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 
@@ -37,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const url = `${SITE_URL}/events/${event.slug || event.id}`;
   const description = toDescription(event.description ?? '');
 
-  return {
+  const base: Metadata = {
     title: event.title,
     description,
     // Canonical always points at the slug, never the UUID alias.
@@ -52,6 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       // images here would replace it with the bare banner.
     },
   };
+  return applySeo(base, await getSeoForPage('events.detail', `/events/${event.slug || event.id}`), eventSeoVars(event, url));
 }
 
 export default async function ShowDetail({ params }: Props) {
@@ -65,6 +68,9 @@ export default async function ShowDetail({ params }: Props) {
   // renders its own "not found" state, as it did before slugs existed.
   const id = event?.id ?? param;
   const qc = new QueryClient();
+  const eventUrl = event && `${SITE_URL}/events/${event.slug || event.id}`;
+  // Same cached fetch as generateMetadata.
+  const seo = event ? await getSeoForPage('events.detail', `/events/${event.slug || event.id}`) : null;
 
   // Already fetched above — seed it rather than prefetching the same event a
   // second time. Only the unresolved case still needs a fetch, and that one is
@@ -96,10 +102,11 @@ export default async function ShowDetail({ params }: Props) {
     <HydrationBoundary state={dehydrate(qc)}>
       {event && (
         <JsonLd
-          data={[
-            buildEventJsonLd(event, `${SITE_URL}/events/${event.slug || event.id}`),
-            buildBreadcrumbJsonLd(event),
-          ]}
+          data={resolveJsonLd(
+            [buildEventJsonLd(event, eventUrl), buildBreadcrumbJsonLd(event)],
+            seo,
+            eventSeoVars(event, eventUrl),
+          )}
         />
       )}
       <EventDetailPageContent id={id} />

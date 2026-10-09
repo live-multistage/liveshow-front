@@ -47,6 +47,10 @@ vi.mock('@/features/events', () => ({
 
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+vi.mock('@/features/seo/queries/get-seo.server', () => ({
+  getSeoForPage: vi.fn().mockResolvedValue(null),
+}));
+
 import ShowDetail, { generateMetadata } from './page';
 
 async function renderPage(param: string) {

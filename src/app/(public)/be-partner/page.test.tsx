@@ -21,6 +21,10 @@ vi.mock('@/features/marketing/components/organizers/PaymentSection', () => ({ Pa
 vi.mock('@/features/marketing/components/organizers/FaqSection', () => ({ FaqSection: () => null }));
 vi.mock('@/features/marketing/components/organizers/FinalCta', () => ({ FinalCta: () => null }));
 
+vi.mock('@/features/seo/queries/get-seo.server', () => ({
+  getSeoForPage: vi.fn().mockResolvedValue(null),
+}));
+
 import { generateMetadata } from './page';
 
 describe('/be-partner metadata', () => {

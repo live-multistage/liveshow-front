@@ -18,6 +18,10 @@ vi.mock('next-intl/server', () => ({
 
 vi.mock('@/features/marketing/components/about/AboutPageContent', () => ({ AboutPageContent: () => null }));
 
+vi.mock('@/features/seo/queries/get-seo.server', () => ({
+  getSeoForPage: vi.fn().mockResolvedValue(null),
+}));
+
 import { generateMetadata } from './page';
 
 describe('/about metadata', () => {

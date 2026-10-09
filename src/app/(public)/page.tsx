@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
+import { applySeo, getSeoForPage } from '@/features/seo';
 import { EditorialHome } from '@/features/events/components/public/EditorialHome';
 import { fetchHomeRails } from '@/features/home';
 
 // Home-specific <title>/description: the layout default is just "showon.io",
 // which says nothing to a search result. `absolute` skips the "· showon.io"
 // template so the brand is not repeated.
-export const metadata: Metadata = {
+const BASE_METADATA: Metadata = {
   title: { absolute: 'showon.io · Shows ao vivo em múltiplas câmeras, ingressos e replays' },
   description:
     'Assista shows e festivais ao vivo escolhendo a câmera, compre ingressos digitais e reveja em replay no showon.io.',
@@ -16,6 +17,10 @@ export const metadata: Metadata = {
       'Assista shows e festivais ao vivo escolhendo a câmera, compre ingressos digitais e reveja em replay.',
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return applySeo(BASE_METADATA, await getSeoForPage('home', '/'), {});
+}
 
 export default async function Home() {
   // One fetch: the rail feed decides what the home shows (live, channels,

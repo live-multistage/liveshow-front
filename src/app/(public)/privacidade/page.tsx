@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { applySeo, getSeoForPage } from '@/features/seo';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { LegalDocumentPage } from '@/features/legal';
 import { fetchLegalDocument } from '@/features/legal/queries/get-legal-document.server';
@@ -10,13 +11,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = t('privacyTitle');
   const doc = await fetchLegalDocument('privacy');
   const description = doc ? firstParagraph(pickLocaleContent(doc.content, await getLocale())) || undefined : undefined;
-  return {
+  const base: Metadata = {
     title,
     description,
     alternates: { canonical: '/privacidade' },
     openGraph: { type: 'website', url: '/privacidade', title, description },
     twitter: { card: 'summary_large_image', title, description },
   };
+  return applySeo(base, await getSeoForPage('legal.privacy', '/privacidade'), {});
 }
 
 export default async function PrivacyPolicyPage() {

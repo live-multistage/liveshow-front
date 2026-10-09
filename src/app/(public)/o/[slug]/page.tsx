@@ -6,6 +6,8 @@ import {
   fetchOrganizationEvents,
 } from '@/features/organizations/queries/get-organization.server';
 import { JsonLd } from '@/shared/components/JsonLd';
+import { applySeo, getSeoForPage, resolveJsonLd } from '@/features/seo';
+import { organizationSeoVars } from '@/features/seo/utils/organization-seo-vars';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 
@@ -26,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const url = `${SITE_URL}/o/${org.slug}`;
   const description = toDescription(org.description, org.name);
-  return {
+  const base: Metadata = {
     title: org.name,
     description,
     alternates: { canonical: url },
@@ -39,6 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: { card: 'summary_large_image', title: org.name, description },
   };
+  return applySeo(base, await getSeoForPage('organizations.detail', `/o/${org.slug}`), organizationSeoVars(org, url));
 }
 
 export default async function OrganizationPage({ params }: Props) {
@@ -57,6 +60,8 @@ export default async function OrganizationPage({ params }: Props) {
     qc.setQueryData(['organizations', org.id, 'events', 'upcoming'], upcoming);
     qc.setQueryData(['organizations', org.id, 'events', 'past'], past);
   }
+
+  const seo = org ? await getSeoForPage('organizations.detail', `/o/${org.slug}`) : null;
 
   const orgJsonLd = org && {
     '@context': 'https://schema.org',
@@ -78,8 +83,15 @@ export default async function OrganizationPage({ params }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(qc)}>
-      {orgJsonLd && <JsonLd data={orgJsonLd} />}
-      {breadcrumbJsonLd && <JsonLd data={breadcrumbJsonLd} />}
+      {org && orgJsonLd && breadcrumbJsonLd && (
+        <JsonLd
+          data={resolveJsonLd(
+            [orgJsonLd, breadcrumbJsonLd],
+            seo,
+            organizationSeoVars(org, `${SITE_URL}/o/${org.slug}`),
+          )}
+        />
+      )}
       <OrganizationPublicPage slug={slug} />
     </HydrationBoundary>
   );

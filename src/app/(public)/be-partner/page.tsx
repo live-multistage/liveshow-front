@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { applySeo, getSeoForPage } from '@/features/seo';
 import { getTranslations } from 'next-intl/server';
 import { fetchFeatureFlags } from '@/features/feature-flags';
 import { OrganizersHero } from '@/features/marketing/components/organizers/OrganizersHero';
@@ -18,13 +19,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('organizersPage');
   const title = t('meta.title');
   const description = t('meta.description');
-  return {
+  const base: Metadata = {
     title,
     description,
     alternates: { canonical: '/be-partner' },
     openGraph: { type: 'website', url: '/be-partner', title, description },
     twitter: { card: 'summary_large_image', title, description },
   };
+  return applySeo(base, await getSeoForPage('be-partner', '/be-partner'), {});
 }
 
 export default async function OrganizersLandingPage() {

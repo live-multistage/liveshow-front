@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { applySeo, getSeoForPage } from '@/features/seo';
 import { Suspense } from 'react';
 import { EventsListPageContent } from '@/features/events';
 import { fetchFeedPage } from '@/features/events/queries/get-feed.server';
@@ -8,13 +9,17 @@ const TITLE = 'Shows';
 const DESCRIPTION = 'Todos os shows, eventos e transmissões ao vivo disponíveis no showon.io.';
 const PAGE_SIZE = 24;
 
-export const metadata: Metadata = {
+const BASE_METADATA: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: '/events' },
   openGraph: { type: 'website', url: '/events', title: TITLE, description: DESCRIPTION },
   twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return applySeo(BASE_METADATA, await getSeoForPage('events.list', '/events'), {});
+}
 
 export const revalidate = 300;
 

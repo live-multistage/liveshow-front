@@ -2,6 +2,11 @@ import type { EventResponse } from '../types/event.types';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 
+// Lowest ticket price as a decimal string ("39.90"), null when unknown.
+export function eventLowPrice(event: Pick<EventResponse, 'priceFromCents'>): string | null {
+  return event.priceFromCents == null ? null : (event.priceFromCents / 100).toFixed(2);
+}
+
 // schema.org Event JSON-LD for a streaming (and optionally in-person) event.
 // Enables Google's Event rich result and, via the offers, price snippets.
 // Built from the EventResponse alone — no extra fetch — so any field that
@@ -64,10 +69,10 @@ export function buildEventJsonLd(event: EventResponse, url: string): Record<stri
   const offerBase = { availability: 'https://schema.org/InStock', url };
   if (event.isFree) {
     jsonLd.offers = { '@type': 'Offer', price: '0', priceCurrency: 'BRL', ...offerBase };
-  } else if (event.priceFromCents != null) {
+  } else if (eventLowPrice(event) != null) {
     jsonLd.offers = {
       '@type': 'AggregateOffer',
-      lowPrice: (event.priceFromCents / 100).toFixed(2),
+      lowPrice: eventLowPrice(event),
       highPrice: ((event.priceToCents ?? event.priceFromCents) / 100).toFixed(2),
       priceCurrency: 'BRL',
       offerCount: 1,

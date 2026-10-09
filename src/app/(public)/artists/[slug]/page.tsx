@@ -7,6 +7,8 @@ import {
   fetchArtistEvents,
 } from '@/features/artists/queries/get-artist.server';
 import { JsonLd } from '@/shared/components/JsonLd';
+import { applySeo, getSeoForPage, resolveJsonLd } from '@/features/seo';
+import { artistSeoVars } from '@/features/seo/utils/artist-seo-vars';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 
@@ -27,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const url = `${SITE_URL}/artists/${artist.slug}`;
   const description = toDescription(artist.description, artist.name);
-  return {
+  const base: Metadata = {
     title: artist.name,
     description,
     alternates: { canonical: url },
@@ -40,6 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: { card: 'summary_large_image', title: artist.name, description },
   };
+  return applySeo(base, await getSeoForPage('artists.detail', `/artists/${artist.slug}`), artistSeoVars(artist, url));
 }
 
 export default async function ArtistPage({ params }: Props) {
@@ -55,6 +58,8 @@ export default async function ArtistPage({ params }: Props) {
     const events = await fetchArtistEvents(slug);
     if (events) qc.setQueryData(artistEventsKey(slug), events);
   }
+
+  const seo = artist ? await getSeoForPage('artists.detail', `/artists/${artist.slug}`) : null;
 
   const personJsonLd = artist && {
     '@context': 'https://schema.org',
@@ -80,8 +85,15 @@ export default async function ArtistPage({ params }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(qc)}>
-      {personJsonLd && <JsonLd data={personJsonLd} />}
-      {breadcrumbJsonLd && <JsonLd data={breadcrumbJsonLd} />}
+      {artist && personJsonLd && breadcrumbJsonLd && (
+        <JsonLd
+          data={resolveJsonLd(
+            [personJsonLd, breadcrumbJsonLd],
+            seo,
+            artistSeoVars(artist, `${SITE_URL}/artists/${artist.slug}`),
+          )}
+        />
+      )}
       <ArtistPublicPage slugOrId={slug} />
     </HydrationBoundary>
   );

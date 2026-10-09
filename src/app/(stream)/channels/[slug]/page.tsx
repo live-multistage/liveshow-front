@@ -4,6 +4,8 @@ import { fetchFeatureFlags } from '@/features/feature-flags';
 import { ChannelGate } from '@/features/channels/components/ChannelGate';
 import { fetchChannelBySlug } from '@/features/channels/queries/get-channels.server';
 import { JsonLd } from '@/shared/components/JsonLd';
+import { applySeo, getSeoForPage, resolveJsonLd } from '@/features/seo';
+import { channelSeoVars } from '@/features/seo/utils/channel-seo-vars';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 
@@ -24,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const url = `${SITE_URL}/channels/${channel.slug}`;
   const description = channelDescription(channel.description, channel.name);
-  return {
+  const base: Metadata = {
     title: channel.name,
     description,
     alternates: { canonical: url },
@@ -37,6 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: { card: 'summary_large_image', title: channel.name, description },
   };
+  return applySeo(base, await getSeoForPage('channels.detail', `/channels/${channel.slug}`), channelSeoVars(channel, url));
 }
 
 export default async function ChannelPage({ params }: Props) {
@@ -45,6 +48,8 @@ export default async function ChannelPage({ params }: Props) {
 
   const qc = new QueryClient();
   if (channel) qc.setQueryData(['channels', 'detail', slug], channel);
+
+  const seo = channel ? await getSeoForPage('channels.detail', `/channels/${channel.slug}`) : null;
 
   // schema.org BroadcastService for a linear 24h channel.
   const channelJsonLd = channel && {
@@ -68,8 +73,15 @@ export default async function ChannelPage({ params }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(qc)}>
-      {channelJsonLd && <JsonLd data={channelJsonLd} />}
-      {breadcrumbJsonLd && <JsonLd data={breadcrumbJsonLd} />}
+      {channel && channelJsonLd && breadcrumbJsonLd && (
+        <JsonLd
+          data={resolveJsonLd(
+            [channelJsonLd, breadcrumbJsonLd],
+            seo,
+            channelSeoVars(channel, `${SITE_URL}/channels/${channel.slug}`),
+          )}
+        />
+      )}
       <ChannelGate slug={slug} chatEnabled={flags.chat} adsEnabled={flags.ads_delivery} />
     </HydrationBoundary>
   );

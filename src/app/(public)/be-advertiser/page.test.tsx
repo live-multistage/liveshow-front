@@ -24,6 +24,10 @@ vi.mock('@/features/marketing/components/advertisers/OrganizerCrossSection', () 
 vi.mock('@/features/marketing/components/advertisers/FaqSection', () => ({ FaqSection: () => null }));
 vi.mock('@/features/marketing/components/advertisers/FinalCta', () => ({ FinalCta: () => null }));
 
+vi.mock('@/features/seo/queries/get-seo.server', () => ({
+  getSeoForPage: vi.fn().mockResolvedValue(null),
+}));
+
 import { generateMetadata, default as AdvertisersLandingPage } from './page';
 import { requireFeatureFlag } from '@/features/feature-flags';
 
