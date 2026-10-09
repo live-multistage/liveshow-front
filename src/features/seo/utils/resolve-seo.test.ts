@@ -139,3 +139,26 @@ describe('JSON-LD modes', () => {
     expect(out[2].inLanguage).toBe('es');
   });
 });
+
+describe('pages without a code-level twitter card', () => {
+  const { twitter: _twitter, ...noTwitter } = base;
+  it('builds one from the admin twitter fields', () => {
+    const out = applySeo(noTwitter, { ...empty, twitterTitle: 'TW', ogImageUrl: 'https://cdn/x.jpg' }, {});
+    expect(out.twitter).toMatchObject({ card: 'summary_large_image', title: 'TW', images: ['https://cdn/x.jpg'] });
+  });
+  it('adds no twitter key for an empty config', () =>
+    expect('twitter' in applySeo(noTwitter, empty, {})).toBe(false));
+  it('treats an old-backend response (new fields absent) as a no-op', () => {
+    const legacy = { pageKey: 'home', defaultOgImageUrl: null, titleTemplate: null, descriptionTemplate: null,
+      ogImageUrl: null, robotsIndex: null, robotsFollow: null, disabledGeneratedJsonLd: [], extraJsonLd: [] } as unknown as ResolvedSeoConfig;
+    expect(applySeo(noTwitter, legacy, {})).toEqual(noTwitter);
+    expect(resolveJsonLd([{ '@type': 'Event' }], legacy, {})).toEqual([{ '@type': 'Event' }]);
+  });
+});
+
+describe('legacy primitive extra JSON-LD', () => {
+  it('drops "null" and "42" without throwing', () => {
+    const out = resolveJsonLd([], { ...empty, locale: 'en', extraJsonLd: ['null', '42', '{"@type":"WebPage"}'] }, {});
+    expect(out).toEqual([{ '@type': 'WebPage', inLanguage: 'en' }]);
+  });
+});

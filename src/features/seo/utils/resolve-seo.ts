@@ -57,12 +57,21 @@ export function applySeo(base: Metadata, config: ResolvedSeoConfig | null, vars:
       ...(ogLocale && { locale: ogLocale }),
     };
   }
-  if ((twitterTitle || twitterDescription) && base.twitter) {
-    out.twitter = {
-      ...base.twitter,
-      ...(twitterTitle && { title: twitterTitle }),
-      ...(twitterDescription && { description: twitterDescription }),
-    };
+  if (twitterTitle || twitterDescription) {
+    // Pages without a code-level twitter card would drop the admin fields, so build one.
+    const image = ogImage ?? firstImageUrl(baseOg.images);
+    out.twitter = base.twitter
+      ? {
+          ...base.twitter,
+          ...(twitterTitle && { title: twitterTitle }),
+          ...(twitterDescription && { description: twitterDescription }),
+        }
+      : {
+          card: 'summary_large_image',
+          ...(twitterTitle && { title: twitterTitle }),
+          ...(twitterDescription && { description: twitterDescription }),
+          ...(image && { images: [image] }),
+        };
   }
 
   // A page the code already marked noindex (soft 404) stays noindex.
@@ -72,6 +81,14 @@ export function applySeo(base: Metadata, config: ResolvedSeoConfig | null, vars:
     out.robots = { index: config.robotsIndex ?? true, follow: config.robotsFollow ?? true };
   }
   return out;
+}
+
+function firstImageUrl(images: unknown): string | null {
+  const first = [images].flat()[0];
+  if (typeof first === 'string') return first;
+  if (first instanceof URL) return first.toString();
+  const url = isObject(first) ? first.url : null;
+  return typeof url === 'string' ? url : url instanceof URL ? url.toString() : null;
 }
 
 function escapeForJsonString(value: string): string {
@@ -90,8 +107,9 @@ export function resolveJsonLd(
   const extras = config.extraJsonLd.flatMap((raw) => {
     const filled = raw.replace(PLACEHOLDER, (_, name: string) => escapeForJsonString(valueOf(allVars, name)));
     try {
-      const parsed = JSON.parse(filled) as Record<string, unknown> | Record<string, unknown>[];
-      return Array.isArray(parsed) ? parsed : [parsed];
+      const parsed: unknown = JSON.parse(filled);
+      // A legacy primitive/null must not reach withInLanguage.
+      return [parsed].flat().filter(isObject);
     } catch {
       console.warn(`[seo] dropping unparseable JSON-LD block for ${config.pageKey}`);
       return [];
