@@ -50,6 +50,19 @@ describe('SEO admin cache after saves', () => {
     expect(qc.getQueryData<unknown[]>(T)).toHaveLength(2);
   });
 
+  it('appends the saved template when the cache lacks its pageKey, and leaves an absent cache alone', async () => {
+    const { qc, wrapper } = setup();
+    qc.setQueryData(T, [{ pageKey: 'help', ...fields }]);
+    const saved = { pageKey: 'home', ...fields, titleTemplate: 'new', updatedAt: 'x' };
+    vi.mocked(seoAdminService.setTemplate).mockResolvedValue(saved as never);
+    const { result } = renderHook(() => useSetSeoTemplateMutation(), { wrapper });
+    await result.current.mutateAsync({ pageKey: 'home', fields });
+    expect(qc.getQueryData<{ pageKey: string }[]>(T)!.map((x) => x.pageKey)).toEqual(['help', 'home']);
+    qc.removeQueries({ queryKey: T });
+    await result.current.mutateAsync({ pageKey: 'home', fields });
+    expect(qc.getQueryData(T)).toBeUndefined();
+  });
+
   it('appends, replaces and removes overrides', async () => {
     const { qc, wrapper } = setup();
     qc.setQueryData(O, [{ id: 'a', path: '/a' }]);

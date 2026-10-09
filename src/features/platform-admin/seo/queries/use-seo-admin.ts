@@ -28,9 +28,12 @@ export function useSetSeoTemplateMutation() {
     mutationFn: ({ pageKey, fields }) => run(() => seoAdminService.setTemplate(pageKey, fields)),
     onSuccess: (saved) => {
       // Write the returned row first: a reopened editor must never seed from the pre-save cache.
-      qc.setQueryData<SeoPageTemplate[]>(TEMPLATES_KEY, (old) =>
-        old?.map((x) => (x.pageKey === saved.pageKey ? saved : x)),
-      );
+      qc.setQueryData<SeoPageTemplate[]>(TEMPLATES_KEY, (old) => {
+        if (!old) return old; // no list cached yet: don't invent a partial one
+        return old.some((x) => x.pageKey === saved.pageKey)
+          ? old.map((x) => (x.pageKey === saved.pageKey ? saved : x))
+          : [...old, saved];
+      });
       qc.invalidateQueries({ queryKey: TEMPLATES_KEY });
       qc.invalidateQueries({ queryKey: AUDIT_KEY });
     },
