@@ -1,21 +1,15 @@
-import { SEO_PAGE_KEYS, type SeoFields, type SeoPageKey } from '@live-show/api-contracts';
+import {
+  SEO_PAGE_KEYS,
+  stripJsonLdScriptTag,
+  type JsonLdMode,
+  type SeoFields,
+  type SeoLocale,
+  type SeoPageKey,
+} from '@live-show/api-contracts';
 
 export const TITLE_MAX = 60;
 export const DESCRIPTION_MAX = 160;
 export const MAX_JSONLD_BLOCKS = 5;
-
-export const ADVANCED_KEYS = [
-  'keywords', 'ogTitle', 'ogDescription', 'twitterTitle', 'twitterDescription', 'canonicalUrl', 'locale', 'jsonLdMode',
-] as const;
-export type AdvancedFields = Pick<SeoFields, (typeof ADVANCED_KEYS)[number]>;
-const EMPTY_ADVANCED: AdvancedFields = {
-  keywords: null, ogTitle: null, ogDescription: null, twitterTitle: null,
-  twitterDescription: null, canonicalUrl: null, locale: null, jsonLdMode: null,
-};
-const advancedOf = (f: SeoFields): AdvancedFields => ({
-  keywords: f.keywords, ogTitle: f.ogTitle, ogDescription: f.ogDescription, twitterTitle: f.twitterTitle,
-  twitterDescription: f.twitterDescription, canonicalUrl: f.canonicalUrl, locale: f.locale, jsonLdMode: f.jsonLdMode,
-});
 
 export type Tri = 'default' | 'yes' | 'no';
 
@@ -23,24 +17,39 @@ export type Tri = 'default' | 'yes' | 'no';
 export interface SeoForm {
   title: string;
   description: string;
+  // The stored value: an https URL as loaded, or the upload `key` after an upload (the preview URL lives in the editor).
   ogImage: string;
+  keywords: string;
+  ogTitle: string;
+  ogDescription: string;
+  twitterTitle: string;
+  twitterDescription: string;
+  canonicalUrl: string;
+  locale: SeoLocale | '';
+  // null = inherit (override) / the COMPLEMENT default (template).
+  jsonLdMode: JsonLdMode | null;
   index: Tri;
   follow: Tri;
   disabledGenerated: string[];
   blocks: string[];
-  // Edited elsewhere (UI pending); carried through so a PUT, which replaces, never drops them.
-  advanced: AdvancedFields;
 }
 
 export const EMPTY_FORM: SeoForm = {
   title: '',
   description: '',
   ogImage: '',
+  keywords: '',
+  ogTitle: '',
+  ogDescription: '',
+  twitterTitle: '',
+  twitterDescription: '',
+  canonicalUrl: '',
+  locale: '',
+  jsonLdMode: null,
   index: 'default',
   follow: 'default',
   disabledGenerated: [],
   blocks: [],
-  advanced: EMPTY_ADVANCED,
 };
 
 const triOf = (value: boolean | null): Tri => (value === null ? 'default' : value ? 'yes' : 'no');
@@ -50,11 +59,18 @@ export const toForm = (fields: SeoFields): SeoForm => ({
   title: fields.titleTemplate ?? '',
   description: fields.descriptionTemplate ?? '',
   ogImage: fields.ogImageUrl ?? '',
+  keywords: fields.keywords ?? '',
+  ogTitle: fields.ogTitle ?? '',
+  ogDescription: fields.ogDescription ?? '',
+  twitterTitle: fields.twitterTitle ?? '',
+  twitterDescription: fields.twitterDescription ?? '',
+  canonicalUrl: fields.canonicalUrl ?? '',
+  locale: fields.locale ?? '',
+  jsonLdMode: fields.jsonLdMode,
   index: triOf(fields.robotsIndex),
   follow: triOf(fields.robotsFollow),
   disabledGenerated: fields.disabledGeneratedJsonLd,
   blocks: fields.extraJsonLd,
-  advanced: advancedOf(fields),
 });
 
 // Cleared text fields become null: that is how the API un-sets a field (PUT replaces).
@@ -62,11 +78,18 @@ export const toFields = (form: SeoForm): SeoFields => ({
   titleTemplate: form.title.trim() || null,
   descriptionTemplate: form.description.trim() || null,
   ogImageUrl: form.ogImage.trim() || null,
+  keywords: form.keywords.trim() || null,
+  ogTitle: form.ogTitle.trim() || null,
+  ogDescription: form.ogDescription.trim() || null,
+  twitterTitle: form.twitterTitle.trim() || null,
+  twitterDescription: form.twitterDescription.trim() || null,
+  canonicalUrl: form.canonicalUrl.trim() || null,
+  locale: form.locale || null,
+  jsonLdMode: form.jsonLdMode,
   robotsIndex: boolOf(form.index),
   robotsFollow: boolOf(form.follow),
   disabledGeneratedJsonLd: form.disabledGenerated,
   extraJsonLd: form.blocks,
-  ...form.advanced,
 });
 
 export const isSeoCustomized = (fields: SeoFields): boolean => {
@@ -75,6 +98,14 @@ export const isSeoCustomized = (fields: SeoFields): boolean => {
     f.titleTemplate !== null ||
     f.descriptionTemplate !== null ||
     f.ogImageUrl !== null ||
+    f.keywords !== null ||
+    f.ogTitle !== null ||
+    f.ogDescription !== null ||
+    f.twitterTitle !== null ||
+    f.twitterDescription !== null ||
+    f.canonicalUrl !== null ||
+    f.locale !== null ||
+    f.jsonLdMode !== null ||
     f.robotsIndex !== null ||
     f.robotsFollow !== null ||
     f.disabledGeneratedJsonLd.length > 0 ||
@@ -129,4 +160,10 @@ export const formatJson = (raw: string): string => {
   } catch {
     return raw;
   }
+};
+
+// What lands in a block after a paste or blur: no <script> wrapper, pretty-printed when it parses.
+export const normalizeJsonLd = (raw: string): { text: string; stripped: boolean } => {
+  const withoutTag = stripJsonLdScriptTag(raw);
+  return { text: formatJson(withoutTag), stripped: withoutTag !== raw.trim() };
 };

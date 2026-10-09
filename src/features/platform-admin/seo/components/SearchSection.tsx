@@ -2,8 +2,10 @@
 
 import { useId, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { SEO_LIMITS, SEO_OPTIMAL } from '@live-show/api-contracts';
 import { Input, Textarea } from '@live-show/design-system';
-import { DESCRIPTION_MAX, TITLE_MAX, fillVariables, type SeoForm } from '../utils/seo-form';
+import { TITLE_MAX, fillVariables, type SeoForm } from '../utils/seo-form';
+import { LengthCounter } from './LengthCounter';
 import { useSampleValue } from './use-sample';
 import common from './SeoCommon.module.scss';
 
@@ -20,7 +22,7 @@ type TextField = 'title' | 'description';
 export function SearchSection({ form, vars, errors, onChange }: Props) {
   const t = useTranslations('platformAdmin.seo.editor.search');
   const sample = useSampleValue();
-  const ids = { title: useId(), description: useId() };
+  const ids = { title: useId(), description: useId(), keywords: useId() };
   const refs = { title: useRef<HTMLInputElement>(null), description: useRef<HTMLTextAreaElement>(null) };
   const last = useRef<TextField>('title');
 
@@ -39,6 +41,8 @@ export function SearchSection({ form, vars, errors, onChange }: Props) {
   };
 
   const filledTitleLength = fillVariables(form.title, sample).length;
+  const filledDescriptionLength = fillVariables(form.description, sample).length;
+  const keywordTerms = form.keywords.split(',').map((term) => term.trim()).filter(Boolean);
   const resetLabel = (label: string) => `${t('reset')} (${label})`;
 
   return (
@@ -54,9 +58,7 @@ export function SearchSection({ form, vars, errors, onChange }: Props) {
           {form.title && (
             <button type="button" className={common.resetBtn} aria-label={resetLabel(t('titleLabel'))} onClick={() => onChange({ title: '' })}>↺</button>
           )}
-          <span className={filledTitleLength > TITLE_MAX ? `${common.counter} ${common.counterOver}` : common.counter}>
-            {form.title.length}
-          </span>
+          <LengthCounter length={filledTitleLength} max={SEO_LIMITS.title} range={SEO_OPTIMAL.title} />
         </div>
         <Input
           id={ids.title}
@@ -77,18 +79,36 @@ export function SearchSection({ form, vars, errors, onChange }: Props) {
           {form.description && (
             <button type="button" className={common.resetBtn} aria-label={resetLabel(t('descLabel'))} onClick={() => onChange({ description: '' })}>↺</button>
           )}
+          <LengthCounter length={filledDescriptionLength} max={SEO_LIMITS.description} range={SEO_OPTIMAL.description} />
         </div>
         <Textarea
           id={ids.description}
           ref={refs.description}
           rows={3}
-          max={DESCRIPTION_MAX}
           value={form.description}
           placeholder={t('codeDefault')}
           error={errors.descriptionTemplate}
           onFocus={() => { last.current = 'description'; }}
           onChange={(e) => onChange({ description: e.target.value })}
         />
+      </div>
+
+      <div className={common.field}>
+        <label htmlFor={ids.keywords} className={common.label}>{t('keywords')}</label>
+        <Input
+          id={ids.keywords}
+          value={form.keywords}
+          maxLength={SEO_LIMITS.keywords}
+          aria-invalid={errors.keywords ? true : undefined}
+          onChange={(e) => onChange({ keywords: e.target.value })}
+        />
+        <span className={common.hint}>{t('keywordsHelp')}</span>
+        {errors.keywords && <p role="alert" className={common.error}>{errors.keywords}</p>}
+        {keywordTerms.length > 0 && (
+          <div className={common.chips}>
+            {keywordTerms.map((term, i) => <span key={`${term}-${i}`} className={common.chip}>{term}</span>)}
+          </div>
+        )}
       </div>
 
       <div className={common.field}>

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import {
   GENERATED_JSONLD_TYPES,
+  JSONLD_STARTERS,
   SEO_PAGE_VARIABLES,
   normalizeSeoPath,
   pageKeyForPath,
@@ -38,11 +39,13 @@ import {
 } from '../utils/seo-form';
 import { ConfirmDialog } from './ConfirmDialog';
 import { GooglePreview } from './GooglePreview';
-import { IndexingSection } from './IndexingSection';
+import { AdvancedSection } from './AdvancedSection';
 import { JsonLdSection } from './JsonLdSection';
+import { OpenGraphSection } from './OpenGraphSection';
 import { PathField } from './PathField';
 import { SearchSection } from './SearchSection';
-import { SharingSection } from './SharingSection';
+import { SocialCardPreview } from './SocialCardPreview';
+import { TwitterSection } from './TwitterSection';
 import { useSampleValue } from './use-sample';
 import styles from './SeoEditorDrawer.module.scss';
 import common from './SeoCommon.module.scss';
@@ -90,7 +93,10 @@ function editorKey(target: EditorTarget, templates?: SeoPageTemplate[], override
 }
 
 type Confirm = 'restore' | 'discard' | null;
-const KNOWN_FIELDS = ['titleTemplate', 'descriptionTemplate', 'ogImageUrl', 'path'];
+const KNOWN_FIELDS = [
+  'titleTemplate', 'descriptionTemplate', 'ogImageUrl', 'path', 'keywords', 'ogTitle', 'ogDescription',
+  'twitterTitle', 'twitterDescription', 'canonicalUrl',
+];
 
 function SeoEditorBody({
   target,
@@ -119,6 +125,8 @@ function SeoEditorBody({
 
   const [form, setForm] = useState<SeoForm>(initialForm);
   const [path, setPath] = useState(initialPath);
+  // URL the <img> loads for the stored image; only differs from it right after an upload (the value is then a key).
+  const [ogPreview, setOgPreview] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [conflict, setConflict] = useState(false);
   const [confirm, setConfirm] = useState<Confirm>(null);
@@ -132,7 +140,8 @@ function SeoEditorBody({
   const dirty = !sameForm(form, initialForm) || path !== initialPath;
   const localInvalid =
     (!isTemplate && !pageKey) ||
-    (form.ogImage !== '' && !isHttpsUrl(form.ogImage)) ||
+    (form.ogImage !== '' && !isHttpsUrl(form.ogImage) && !ogPreview) ||
+    (form.canonicalUrl !== '' && !isHttpsUrl(form.canonicalUrl)) ||
     form.blocks.some((b) => !checkJsonLd(b, vars).ok);
   const canSave = dirty && !localInvalid && !saving;
 
@@ -172,6 +181,7 @@ function SeoEditorBody({
     // Clears the form only (the path of an override stays); the admin still has to press Save.
     setConfirm(null);
     setForm(EMPTY_FORM);
+    setOgPreview('');
     setErrors({});
   };
 
@@ -184,6 +194,13 @@ function SeoEditorBody({
   requestClose.current = leave;
   const unmatched = Object.entries(errors).filter(([field]) => !field.startsWith('extraJsonLd[') && !KNOWN_FIELDS.includes(field));
   const previewPath = isTemplate ? PAGE_ROUTES[target.pageKey] : (normalizedPath || '/');
+  const metaTitle = fillVariables(form.title, sample);
+  const metaDescription = fillVariables(form.description, sample);
+  const ogTitle = fillVariables(form.ogTitle, sample) || metaTitle;
+  const ogDescription = fillVariables(form.ogDescription, sample) || metaDescription;
+  // An override with no mode of its own follows its page's template (null there means COMPLEMENT).
+  const inheritedMode = (pageKey && templates.data?.find((x) => x.pageKey === pageKey)?.jsonLdMode) || 'COMPLEMENT';
+  const ogImageSrc = ogPreview || (isHttpsUrl(form.ogImage) ? form.ogImage : '');
   const mainVar = vars.find((v) => !v.startsWith('site.') && v.endsWith('.name')) ?? null;
   const title = isTemplate ? pageName : (target.override?.path ?? t('newOverride'));
 
@@ -219,21 +236,25 @@ function SeoEditorBody({
         {pageKey && (
           <>
             <SearchSection form={form} vars={vars} errors={errors} onChange={edit} />
-            <SharingSection value={form.ogImage} error={errors.ogImageUrl} onChange={(ogImage) => edit({ ogImage })} />
-            <IndexingSection index={form.index} follow={form.follow} onChange={edit} />
-            <JsonLdSection generatedTypes={GENERATED_JSONLD_TYPES[pageKey]} vars={vars} form={form} errors={errors} onChange={edit} />
+            <OpenGraphSection
+              form={form}
+              metaTitle={metaTitle}
+              metaDescription={metaDescription}
+              previewUrl={ogPreview}
+              errors={errors}
+              onChange={edit}
+              onImageChange={(ogImage, previewUrl) => { setOgPreview(previewUrl); edit({ ogImage }); }}
+            />
+            <TwitterSection form={form} ogTitle={ogTitle} ogDescription={ogDescription} errors={errors} onChange={edit} />
+            <AdvancedSection form={form} isOverride={!isTemplate} errors={errors} onChange={edit} />
+            <JsonLdSection generatedTypes={GENERATED_JSONLD_TYPES[pageKey]} mode={form.jsonLdMode ?? inheritedMode} starter={JSONLD_STARTERS[pageKey]} vars={vars} form={form} errors={errors} onChange={edit} />
           </>
         )}
         </div>
         {pageKey && (
           <div className={styles.previewCol}>
-            <GooglePreview
-              title={fillVariables(form.title, sample)}
-              description={fillVariables(form.description, sample)}
-              path={previewPath}
-              noindex={form.index === 'no'}
-              sampleName={(mainVar && sample(mainVar)) || null}
-            />
+            <GooglePreview title={metaTitle} description={metaDescription} path={previewPath} noindex={form.index === 'no'} sampleName={(mainVar && sample(mainVar)) || null} />
+            <SocialCardPreview title={ogTitle} description={ogDescription} imageUrl={ogImageSrc} />
           </div>
         )}
       </div>

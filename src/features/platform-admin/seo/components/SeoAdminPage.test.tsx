@@ -24,7 +24,7 @@ vi.mock('next/link', () => ({
     <a href={href} {...rest}>{children}</a>
   ),
 }));
-vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() } }));
 vi.mock('../../components/SettingsAuditRail', () => ({ SettingsAuditRail: () => null }));
 
 const store = vi.hoisted(() => ({
@@ -36,6 +36,7 @@ const store = vi.hoisted(() => ({
   updateOverride: vi.fn(),
   deleteOverride: vi.fn(),
   setGlobal: vi.fn(),
+  upload: vi.fn(),
 }));
 vi.mock('../queries/use-seo-admin', () => {
   const query = (data: unknown) => ({ data, isLoading: false, isError: false, refetch: vi.fn() });
@@ -49,6 +50,7 @@ vi.mock('../queries/use-seo-admin', () => {
     useUpdateSeoOverrideMutation: () => mutation(store.updateOverride),
     useDeleteSeoOverrideMutation: () => mutation(store.deleteOverride),
     useSetSeoGlobalMutation: () => mutation(store.setGlobal),
+    useUploadOgImageMutation: () => mutation(store.upload),
   };
 });
 

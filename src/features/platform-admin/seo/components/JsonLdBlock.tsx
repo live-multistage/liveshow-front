@@ -2,8 +2,10 @@
 
 import { useTranslations } from 'next-intl';
 import { Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button, Textarea } from '@live-show/design-system';
 import type { JsonLdCheck } from '../utils/check-jsonld';
+import { normalizeJsonLd } from '../utils/seo-form';
 import { useJsonLdStatusText } from './use-jsonld-status';
 import common from './SeoCommon.module.scss';
 import styles from './JsonLdBlock.module.scss';
@@ -23,6 +25,13 @@ export function JsonLdBlock({ n, text, check, serverError, onChange, onFormat, o
   const t = useTranslations('platformAdmin.seo.editor.jsonld');
   const statusText = useJsonLdStatusText();
 
+  // Paste/blur: drop a pasted <script> wrapper and pretty-print when it parses.
+  const normalize = (raw: string) => {
+    const next = normalizeJsonLd(raw);
+    if (next.stripped) toast.info(t('scriptRemoved'));
+    if (next.text !== text) onChange(next.text);
+  };
+
   return (
     <div className={styles.block} data-block={n}>
       <div className={styles.head}>
@@ -41,6 +50,14 @@ export function JsonLdBlock({ n, text, check, serverError, onChange, onFormat, o
         value={text}
         error={serverError}
         onChange={(e) => onChange(e.target.value)}
+        onPaste={(e) => {
+          const pasted = e.clipboardData.getData('text');
+          if (!pasted) return;
+          e.preventDefault();
+          const { selectionStart, selectionEnd } = e.currentTarget;
+          normalize(text.slice(0, selectionStart) + pasted + text.slice(selectionEnd));
+        }}
+        onBlur={() => text.trim() && normalize(text)}
       />
       <div className={styles.status} data-ok={check.ok}>
         <span className={styles.dot} />

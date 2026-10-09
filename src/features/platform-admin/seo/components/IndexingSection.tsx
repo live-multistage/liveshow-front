@@ -12,6 +12,7 @@ interface Props {
   onChange: (patch: Partial<SeoForm>) => void;
 }
 
+// Robots controls; rendered inside the "Configurações avançadas" card.
 export function IndexingSection({ index, follow, onChange }: Props) {
   const t = useTranslations('platformAdmin.seo.editor.indexing');
   const options: { value: Tri; label: string }[] = [
@@ -21,11 +22,7 @@ export function IndexingSection({ index, follow, onChange }: Props) {
   ];
 
   return (
-    <section className={common.card}>
-      <div>
-        <div className={common.eyebrow}>{t('eyebrow')}</div>
-        <div className={common.cardTitle}>{t('title')}</div>
-      </div>
+    <>
       <div className={styles.row}>
         <div>
           <div className={common.label}>{t('index')}</div>
@@ -41,6 +38,6 @@ export function IndexingSection({ index, follow, onChange }: Props) {
         <SegmentedControl label={t('follow')} value={follow} options={options} onChange={(v) => onChange({ follow: v })} />
       </div>
       {index === 'no' && <div className={styles.warn} role="status">{t('warn')}</div>}
-    </section>
+    </>
   );
 }

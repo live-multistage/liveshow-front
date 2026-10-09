@@ -13,7 +13,7 @@ import { isHttpsUrl } from '../utils/seo-form';
 import { MAX_ROBOTS_RULES, robotsRuleError } from '../utils/seo-robots';
 import { RobotsRulesEditor } from './RobotsRulesEditor';
 import { RootJsonLdFields } from './RootJsonLdFields';
-import { SharingSection } from './SharingSection';
+import { OgImageField } from './OgImageField';
 import common from './SeoCommon.module.scss';
 import styles from './SeoLists.module.scss';
 
@@ -42,6 +42,8 @@ function GlobalForm({ initial }: { initial: SeoGlobal }) {
   const [google, setGoogle] = useState(base.googleSiteVerification ?? '');
   const [bing, setBing] = useState(base.bingSiteVerification ?? '');
   const [og, setOg] = useState(base.defaultOgImageUrl ?? '');
+  // URL the <img> loads right after an upload (the stored value is then the key).
+  const [ogPreview, setOgPreview] = useState('');
   const [org, setOrg] = useState(base.organizationJsonLd ?? '');
   const [site, setSite] = useState(base.websiteJsonLd ?? '');
   const [rules, setRules] = useState(base.robotsExtraRules);
@@ -59,7 +61,7 @@ function GlobalForm({ initial }: { initial: SeoGlobal }) {
   });
   const dirty = JSON.stringify(current()) !== JSON.stringify(base);
   const invalid =
-    (og !== '' && !isHttpsUrl(og)) ||
+    (og !== '' && !isHttpsUrl(og) && !ogPreview) ||
     [org, site].some((text) => text !== '' && !checkJsonLd(text, ROOT_VARS).ok) ||
     rules.length > MAX_ROBOTS_RULES ||
     rules.some((r) => robotsRuleError(r) !== null);
@@ -68,6 +70,7 @@ function GlobalForm({ initial }: { initial: SeoGlobal }) {
     setGoogle(base.googleSiteVerification ?? '');
     setBing(base.bingSiteVerification ?? '');
     setOg(base.defaultOgImageUrl ?? '');
+    setOgPreview('');
     setOrg(base.organizationJsonLd ?? '');
     setSite(base.websiteJsonLd ?? '');
     setRules(base.robotsExtraRules);
@@ -81,6 +84,7 @@ function GlobalForm({ initial }: { initial: SeoGlobal }) {
     setErrors({});
     try {
       setBase(await save.mutateAsync(current()));
+      setOgPreview('');
       toast.success(t('editor.toast.globalSaved'));
     } catch (err) {
       const fieldErrors = seoFieldErrors(err as AppError);
@@ -109,7 +113,13 @@ function GlobalForm({ initial }: { initial: SeoGlobal }) {
         </div>
       </section>
 
-      <SharingSection value={og} error={errors.defaultOgImageUrl} onChange={setOg} title={t('global.og.title')} eyebrow={t('global.og.eyebrow')} label={t('global.og.url')} help="" />
+      <section className={common.card}>
+        <div>
+          <div className={common.eyebrow}>{t('global.og.eyebrow')}</div>
+          <div className={common.cardTitle}>{t('global.og.title')}</div>
+        </div>
+        <OgImageField value={og} previewUrl={ogPreview} error={errors.defaultOgImageUrl} onChange={(value, preview) => { setOg(value); setOgPreview(preview); }} />
+      </section>
       <RootJsonLdFields
         values={{ organization: org, website: site }}
         errors={{ organization: errors.organizationJsonLd, website: errors.websiteJsonLd }}

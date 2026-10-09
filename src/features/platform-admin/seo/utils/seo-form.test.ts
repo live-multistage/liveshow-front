@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { SeoFields } from '@live-show/api-contracts';
-import { EMPTY_FORM, isSeoCustomized, toFields, toForm } from './seo-form';
+import { EMPTY_FORM, isSeoCustomized, normalizeJsonLd, toFields, toForm } from './seo-form';
 import { renderRobotsTxt, robotsRuleError } from './seo-robots';
 
 const filled: SeoFields = {
@@ -43,6 +43,16 @@ describe('seo form mapping', () => {
   it('detects customization', () => {
     expect(isSeoCustomized(toFields(EMPTY_FORM))).toBe(false);
     expect(isSeoCustomized(filled)).toBe(true);
+  });
+});
+
+describe('normalizeJsonLd', () => {
+  it('strips the script wrapper and pretty-prints', () => {
+    const out = normalizeJsonLd('<script type="application/ld+json">{"a":1}</script>');
+    expect(out).toEqual({ text: '{\n  "a": 1\n}', stripped: true });
+  });
+  it('leaves text that does not parse untouched', () => {
+    expect(normalizeJsonLd('{bad')).toEqual({ text: '{bad', stripped: false });
   });
 });
 

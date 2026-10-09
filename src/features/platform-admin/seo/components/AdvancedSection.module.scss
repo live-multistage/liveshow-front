@@ -1,0 +1,18 @@
+@use '../../../../styles/_variables' as *;
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.warn {
+  padding: 0.625rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba($warning, 0.4);
+  background: rgba($warning, 0.1);
+  font-size: 0.8125rem;
+  color: $warning;
+}

@@ -9,8 +9,22 @@
   border-radius: 8px;
   border: 1px solid $bg-hover;
   background: $surface;
+
+  &[data-dimmed='true'] { opacity: 0.5; }
 }
 
 .type { font-family: var(--font-space-mono), 'Space Mono', monospace; font-size: 0.8125rem; }
 
 .addRow { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+
+.note { font-family: var(--font-space-mono), 'Space Mono', monospace; font-size: 0.625rem; color: $warning; }
+
+.replaced {
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.375rem;
+  border: 1px solid rgba($action, 0.4);
+  border-radius: 4px;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  color: $action;
+}
