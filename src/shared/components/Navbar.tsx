@@ -103,7 +103,7 @@ export function Navbar() {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className={styles.avatarBtn}>
+                  <button type="button" className={styles.avatarBtn}>
                     <Avatar className={styles.avatar}>
                       <AvatarFallback className={styles.avatarFallback}>
                         {user ? getInitials(user.displayName) : <User size={14} />}
@@ -173,7 +173,13 @@ export function Navbar() {
             {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
           </Link>
 
-          <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
+          <button
+            type="button"
+            onClick={() => setMenuOpen(!menuOpen)}
+            className={styles.menuToggle}
+            aria-label={menuOpen ? t('closeMenu') : t('openMenu')}
+            aria-expanded={menuOpen}
+          >
             {menuOpen ? <X size={16} /> : <Menu size={16} />}
           </button>
         </div>

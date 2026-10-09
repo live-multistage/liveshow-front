@@ -39,7 +39,9 @@
     "help": "Ayuda",
     "search": "Buscar",
     "organizers": "Sé un socio",
-    "artists": "Artistas"
+    "artists": "Artistas",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú"
   },
   "auth": {
     "login": {
