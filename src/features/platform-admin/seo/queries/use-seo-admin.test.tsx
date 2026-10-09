@@ -5,12 +5,12 @@ import type { ReactNode } from 'react';
 import { AxiosError, AxiosHeaders } from 'axios';
 
 vi.mock('../services/seo-admin.service', () => ({
-  seoAdminService: { setTemplate: vi.fn() },
+  seoAdminService: { setTemplate: vi.fn(), uploadOgImage: vi.fn() },
 }));
 
 import { seoAdminService } from '../services/seo-admin.service';
 import { seoFieldErrors } from '../utils/seo-field-errors';
-import { useSetSeoTemplateMutation } from './use-seo-admin';
+import { useSetSeoTemplateMutation, useUploadOgImageMutation } from './use-seo-admin';
 
 const fields = {
   titleTemplate: 't',
@@ -53,5 +53,21 @@ describe('useSetSeoTemplateMutation', () => {
     const thrown = await result.current.mutateAsync({ pageKey: 'home', fields }).catch((e) => e);
     expect(thrown.status).toBe(400);
     expect(seoFieldErrors(thrown)).toEqual({ titleTemplate: 'too long' });
+  });
+});
+
+describe('useUploadOgImageMutation', () => {
+  it('surfaces a 400 as AppError with the server message', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const err = new AxiosError('x', undefined, { headers: new AxiosHeaders() } as never, undefined, {
+      status: 400,
+      data: { message: 'Imagem acima de 2MB' },
+    } as never);
+    vi.mocked(seoAdminService.uploadOgImage).mockRejectedValueOnce(err);
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useUploadOgImageMutation(), { wrapper });
+    const thrown = await result.current.mutateAsync(new File(['x'], 'a.png')).catch((e) => e);
+    expect(thrown.status).toBe(400);
+    expect(thrown.message).toBe('Imagem acima de 2MB');
   });
 });

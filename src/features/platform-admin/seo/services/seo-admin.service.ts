@@ -33,6 +33,13 @@ function pickGlobal(g: SeoGlobal): SeoGlobal {
   };
 }
 
+export interface OgImageUploadResult {
+  key: string;
+  url: string;
+  width: number;
+  height: number;
+}
+
 export type SeoOverrideInput = SeoFields & { path: string };
 
 const overrideBody = (o: SeoOverrideInput) => ({ path: o.path, ...pickFields(o) });
@@ -61,4 +68,13 @@ export const seoAdminService = {
 
   setGlobal: async (global: SeoGlobal): Promise<SeoGlobal> =>
     (await httpClient.put<SeoGlobal>('/platform/seo/global', pickGlobal(global))).data,
+
+  uploadOgImage: async (file: File): Promise<OgImageUploadResult> => {
+    const form = new FormData();
+    form.append('file', file);
+    const { data } = await httpClient.post<OgImageUploadResult>('/platform/seo/og-image', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data;
+  },
 };

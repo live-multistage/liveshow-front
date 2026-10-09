@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { SeoFields, SeoGlobal, SeoPageKey, SeoPageTemplate, SeoPathOverride } from '@live-show/api-contracts';
 import { normalizeError, type AppError } from '@/lib/http/errors';
-import { seoAdminService, type SeoOverrideInput } from '../services/seo-admin.service';
+import { seoAdminService, type OgImageUploadResult, type SeoOverrideInput } from '../services/seo-admin.service';
 
 const TEMPLATES_KEY = ['platform-admin', 'seo', 'templates'] as const;
 const OVERRIDES_KEY = ['platform-admin', 'seo', 'overrides'] as const;
@@ -93,5 +93,12 @@ export function useSetSeoGlobalMutation() {
       qc.invalidateQueries({ queryKey: GLOBAL_KEY });
       qc.invalidateQueries({ queryKey: AUDIT_KEY });
     },
+  });
+}
+
+// No cache writes: the key is only persisted when the form is saved.
+export function useUploadOgImageMutation() {
+  return useMutation<OgImageUploadResult, AppError, File>({
+    mutationFn: (file) => run(() => seoAdminService.uploadOgImage(file)),
   });
 }

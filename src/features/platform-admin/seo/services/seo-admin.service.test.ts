@@ -38,4 +38,14 @@ describe('seoAdminService request bodies', () => {
     expect(put.mock.calls[0][0]).toBe('/platform/seo/overrides/9');
     expect(Object.keys(put.mock.calls[0][1]).sort()).toEqual([...FIELD_KEYS, 'path'].sort());
   });
+
+  it('uploadOgImage posts multipart FormData with field "file"', async () => {
+    post.mockResolvedValueOnce({ data: { key: 'k', url: 'u', width: 1200, height: 630 } });
+    const file = new File(['x'], 'og.png', { type: 'image/png' });
+    const res = await seoAdminService.uploadOgImage(file);
+    expect(res.key).toBe('k');
+    expect(post.mock.calls[0][0]).toBe('/platform/seo/og-image');
+    expect((post.mock.calls[0][1] as FormData).get('file')).toBe(file);
+    expect(post.mock.calls[0][2]).toEqual({ headers: { 'Content-Type': 'multipart/form-data' } });
+  });
 });
