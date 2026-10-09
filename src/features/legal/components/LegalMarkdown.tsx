@@ -5,7 +5,7 @@ import styles from './LegalMarkdown.module.scss';
 
 const components: Components = {
   a: ({ href = '', children }) =>
-    href.startsWith('/') ? (
+    href.startsWith('/') && !href.startsWith('//') ? (
       <Link href={href} className={styles.link}>
         {children}
       </Link>

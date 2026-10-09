@@ -21,6 +21,13 @@ describe('LegalMarkdown', () => {
     expect(container.querySelector('a')?.getAttribute('rel')).toBe('noopener noreferrer');
   });
 
+  it('treats protocol-relative links as external', () => {
+    const { container } = render(<LegalMarkdown source={'[x](//evil.example/x)'} />);
+    const a = container.querySelector('a');
+    expect(a?.getAttribute('rel')).toBe('noopener noreferrer');
+    expect(a?.getAttribute('target')).toBe('_blank');
+  });
+
   it('neutralizes javascript: links', () => {
     const { container } = render(<LegalMarkdown source={'[x](javascript:alert(1))'} />);
     expect(container.querySelector('a')?.getAttribute('href') ?? '').not.toMatch(/^javascript:/);
