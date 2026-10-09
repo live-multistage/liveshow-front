@@ -1828,7 +1828,8 @@
         "httpAllowlistSet": "HTTP allowlist updated",
         "secretSet": "secret set",
         "secretDeleted": "secret deleted",
-        "seoChanged": "SEO updated"
+        "seoChanged": "SEO updated",
+        "legalPublished": "Legal document published"
       },
       "how": {
         "eyebrow": "HOW IT WORKS",

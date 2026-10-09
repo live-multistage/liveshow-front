@@ -1828,7 +1828,8 @@
         "httpAllowlistSet": "lista de hosts HTTP actualizada",
         "secretSet": "secreto definido",
         "secretDeleted": "secreto eliminado",
-        "seoChanged": "SEO actualizado"
+        "seoChanged": "SEO actualizado",
+        "legalPublished": "Documento legal publicado"
       },
       "how": {
         "eyebrow": "CÓMO FUNCIONA",

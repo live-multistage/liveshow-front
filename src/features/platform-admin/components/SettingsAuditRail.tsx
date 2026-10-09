@@ -73,7 +73,9 @@ function AuditRailRow({ entry, locale }: { entry: AuditLogEntry; locale: string 
               ? t('secretDeleted')
               : entry.action.startsWith('SEO_')
                 ? t('seoChanged')
-                : t('feeOverride');
+                : entry.action === 'LEGAL_DOCUMENT_PUBLISHED'
+                  ? t('legalPublished')
+                  : t('feeOverride');
 
   return (
     <div className={styles.auditRow}>
