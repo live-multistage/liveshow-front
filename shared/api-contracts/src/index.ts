@@ -44,4 +44,7 @@ export * from './blueprints/schemas';
 export * from './tracking/types';
 export * from './seo/page-keys';
 export * from './seo/types';
+export * from './seo/limits';
+export * from './seo/jsonld';
+export * from './seo/jsonld-starters';
 export * from './legal/types';
