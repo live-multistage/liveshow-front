@@ -1,0 +1,59 @@
+@use '../styles/_variables' as *;
+
+.list {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid $border;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  padding: 0 0.875rem;
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: $text-secondary;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover:not(:disabled) { color: $text-primary; border-bottom-color: rgba(255, 255, 255, 0.2); }
+  &:focus-visible { outline: 2px solid $action; outline-offset: -2px; }
+  &:disabled { color: $text-muted; opacity: 0.6; cursor: not-allowed; }
+}
+
+.active {
+  color: $text-primary;
+  border-bottom-color: $action;
+
+  &:hover:not(:disabled) { border-bottom-color: $action; }
+}
+
+.mono {
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $warning;
+}
+
+.badge {
+  font-family: var(--font-archivo), 'Archivo', sans-serif;
+  font-size: 0.65625rem;
+  font-weight: 600;
+  color: $text-secondary;
+  border: 1px solid $border;
+  border-radius: 4px;
+  padding: 1px 5px;
+}

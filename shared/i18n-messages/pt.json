@@ -597,6 +597,8 @@
       "platformStreams": "Saúde dos streams",
       "platformAds": "Anúncios",
       "platformCoupons": "Cupons",
+      "platformSeo": "SEO",
+      "platformLegal": "Documentos legais",
       "platformSettings": "Configurações",
       "platformAudit": "Audit log",
       "channels": "Canais",
@@ -3056,6 +3058,92 @@
         "endNote": "fim da sessão · {when}",
         "error": "Não foi possível carregar a sessão.",
         "retry": "Tentar novamente"
+      }
+    },
+    "legal": {
+      "title": "Documentos legais",
+      "subtitle": "Termos de Uso e Política de Privacidade. Cada publicação cria uma versão nova; as anteriores ficam no histórico público.",
+      "docs": {
+        "terms": "Termos de Uso",
+        "privacy": "Política de Privacidade"
+      },
+      "versionBadge": "VERSÃO {n}",
+      "publishedOn": "Publicada em {date}",
+      "languages": "Idiomas",
+      "langFallback": "Idiomas apagados mostram o texto em PT.",
+      "langFallbackTitle": "Sem texto próprio: mostra o PT",
+      "viewPublic": "Ver página pública",
+      "edit": "Editar",
+      "history": "Histórico",
+      "loadError": "Não foi possível carregar os documentos.",
+      "retry": "Tentar de novo",
+      "empty": {
+        "title": "Nenhuma versão publicada",
+        "text": "A página pública fica fora do ar até a primeira publicação.",
+        "cta": "Publicar primeira versão"
+      },
+      "rail": {
+        "recent": "MUDANÇAS RECENTES",
+        "empty": "Nenhuma publicação ainda.",
+        "howEyebrow": "COMO FUNCIONA",
+        "howText": "Publicar é irreversível: cada versão fica disponível como prova do que cada usuário aceitou. Novos cadastros passam a aceitar a versão vigente."
+      },
+      "editor": {
+        "breadcrumbRoot": "Documentos legais",
+        "editingFrom": "Editando a partir da versão {n}",
+        "firstVersion": "Primeira versão deste documento",
+        "languagesLabel": "Idioma do texto",
+        "required": "obrigatório",
+        "changedDot": "Difere da versão vigente",
+        "fallbackHelp": "Vazio = mostra o texto em PT",
+        "markdown": "Markdown",
+        "noHtml": "HTML não é aceito",
+        "edit": "Editar",
+        "preview": "Prévia",
+        "markdownLabel": "MARKDOWN · {lang}",
+        "previewLabel": "PRÉVIA · {path}",
+        "placeholder": "Escreva o texto em markdown…",
+        "previewUpdated": "Atualizada em {date} · Versão {n}",
+        "previousVersions": "Versões anteriores",
+        "summaryLabel": "Resumo da mudança",
+        "summaryRequired": "obrigatório",
+        "summaryPlaceholder": "Ex.: inclui o novo operador de pagamentos",
+        "discard": "Descartar",
+        "publish": "Publicar versão {n}",
+        "publishing": "Publicando…",
+        "noChanges": "Nada mudou desde a versão {n}",
+        "needPt": "O texto em PT é obrigatório",
+        "needSummary": "Preencha o resumo da mudança",
+        "publishError": "Não foi possível publicar. Tente novamente.",
+        "conflict": "Outra versão foi publicada enquanto você editava. Recarregue para ver a versão {n} antes de publicar.",
+        "reload": "Recarregar",
+        "draftRestored": "Rascunho restaurado.",
+        "draftRestoredText": "Recuperamos o texto que você editava neste navegador.",
+        "discardDraft": "Descartar rascunho"
+      },
+      "confirm": {
+        "title": "Publicar versão {n} de {doc}?",
+        "body": "Ela passa a valer imediatamente para novos cadastros. Versões publicadas não podem ser editadas nem apagadas — a versão {prev} continua disponível no histórico público.",
+        "bodyFirst": "Ela passa a valer imediatamente. Versões publicadas não podem ser editadas nem apagadas.",
+        "summary": "RESUMO DA MUDANÇA",
+        "included": "Idiomas incluídos",
+        "cancel": "Cancelar",
+        "confirm": "Publicar versão {n}"
+      },
+      "discardDialog": {
+        "title": "Descartar alterações?",
+        "body": "O texto e o resumo que você editou serão perdidos.",
+        "keep": "Continuar editando",
+        "confirm": "Descartar"
+      },
+      "toast": "Versão {n} de {doc} publicada.",
+      "historyDrawer": {
+        "title": "Histórico de versões",
+        "close": "Fechar",
+        "current": "VIGENTE",
+        "open": "Abrir",
+        "single": "Esta é a primeira versão.",
+        "loadError": "Não foi possível carregar o histórico."
       }
     }
   },

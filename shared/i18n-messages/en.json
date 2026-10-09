@@ -597,6 +597,8 @@
       "platformStreams": "Stream health",
       "platformAds": "Advertisements",
       "platformCoupons": "Coupons",
+      "platformSeo": "SEO",
+      "platformLegal": "Legal documents",
       "platformSettings": "Settings",
       "platformAudit": "Audit log",
       "channels": "Channels",
@@ -3056,6 +3058,92 @@
         "endNote": "session ended · {when}",
         "error": "Could not load the session.",
         "retry": "Try again"
+      }
+    },
+    "legal": {
+      "title": "Legal documents",
+      "subtitle": "Terms of Use and Privacy Policy. Each publication creates a new version; earlier ones stay in the public history.",
+      "docs": {
+        "terms": "Terms of Use",
+        "privacy": "Privacy Policy"
+      },
+      "versionBadge": "VERSION {n}",
+      "publishedOn": "Published on {date}",
+      "languages": "Languages",
+      "langFallback": "Empty languages show the PT text.",
+      "langFallbackTitle": "No own text: shows PT",
+      "viewPublic": "View public page",
+      "edit": "Edit",
+      "history": "History",
+      "loadError": "Could not load the documents.",
+      "retry": "Try again",
+      "empty": {
+        "title": "No version published",
+        "text": "The public page stays offline until the first publication.",
+        "cta": "Publish first version"
+      },
+      "rail": {
+        "recent": "RECENT CHANGES",
+        "empty": "Nothing published yet.",
+        "howEyebrow": "HOW IT WORKS",
+        "howText": "Publishing is irreversible: every version stays available as proof of what each user accepted. New sign-ups accept the current version."
+      },
+      "editor": {
+        "breadcrumbRoot": "Legal documents",
+        "editingFrom": "Editing from version {n}",
+        "firstVersion": "First version of this document",
+        "languagesLabel": "Text language",
+        "required": "required",
+        "changedDot": "Differs from the current version",
+        "fallbackHelp": "Empty = shows the PT text",
+        "markdown": "Markdown",
+        "noHtml": "HTML is not accepted",
+        "edit": "Edit",
+        "preview": "Preview",
+        "markdownLabel": "MARKDOWN · {lang}",
+        "previewLabel": "PREVIEW · {path}",
+        "placeholder": "Write the text in markdown…",
+        "previewUpdated": "Updated on {date} · Version {n}",
+        "previousVersions": "Previous versions",
+        "summaryLabel": "Change summary",
+        "summaryRequired": "required",
+        "summaryPlaceholder": "E.g.: adds the new payment operator",
+        "discard": "Discard",
+        "publish": "Publish version {n}",
+        "publishing": "Publishing…",
+        "noChanges": "Nothing changed since version {n}",
+        "needPt": "The PT text is required",
+        "needSummary": "Fill in the change summary",
+        "publishError": "Could not publish. Please try again.",
+        "conflict": "Another version was published while you were editing. Reload to see version {n} before publishing.",
+        "reload": "Reload",
+        "draftRestored": "Draft restored.",
+        "draftRestoredText": "We recovered the text you were editing in this browser.",
+        "discardDraft": "Discard draft"
+      },
+      "confirm": {
+        "title": "Publish version {n} of {doc}?",
+        "body": "It takes effect immediately for new sign-ups. Published versions cannot be edited or deleted — version {prev} stays available in the public history.",
+        "bodyFirst": "It takes effect immediately. Published versions cannot be edited or deleted.",
+        "summary": "CHANGE SUMMARY",
+        "included": "Languages included",
+        "cancel": "Cancel",
+        "confirm": "Publish version {n}"
+      },
+      "discardDialog": {
+        "title": "Discard changes?",
+        "body": "The text and summary you edited will be lost.",
+        "keep": "Keep editing",
+        "confirm": "Discard"
+      },
+      "toast": "Version {n} of {doc} published.",
+      "historyDrawer": {
+        "title": "Version history",
+        "close": "Close",
+        "current": "CURRENT",
+        "open": "Open",
+        "single": "This is the first version.",
+        "loadError": "Could not load the history."
       }
     }
   },

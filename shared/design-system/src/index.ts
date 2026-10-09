@@ -81,6 +81,8 @@ export {
   SelectValue,
 } from "./ui/select";
 export { Skeleton } from "./ui/skeleton";
+export { Tabs, type TabItem, type TabsProps } from "./ui/tabs";
+export { Textarea, type TextareaProps } from "./ui/textarea";
 export { Toaster } from "./ui/sonner";
 export { Switch } from "./ui/switch";
 export { cn } from "./ui/utils";
