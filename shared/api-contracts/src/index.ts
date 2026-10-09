@@ -42,3 +42,6 @@ export * from './mailing/schemas';
 export * from './blueprints/types';
 export * from './blueprints/schemas';
 export * from './tracking/types';
+export * from './seo/page-keys';
+export * from './seo/types';
+export * from './legal/types';
