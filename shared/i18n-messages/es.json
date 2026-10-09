@@ -1827,7 +1827,8 @@
         "empty": "Sin cambios recientes.",
         "httpAllowlistSet": "lista de hosts HTTP actualizada",
         "secretSet": "secreto definido",
-        "secretDeleted": "secreto eliminado"
+        "secretDeleted": "secreto eliminado",
+        "seoChanged": "SEO actualizado"
       },
       "how": {
         "eyebrow": "CÓMO FUNCIONA",
@@ -3149,6 +3150,271 @@
         "open": "Abrir",
         "single": "Esta es la primera versión.",
         "loadError": "No se pudo cargar el historial."
+      }
+    },
+    "seo": {
+      "title": "SEO",
+      "subtitle": "Cómo aparecen las páginas públicas en Google y en las redes. Los cambios se publican en segundos.",
+      "actions": {
+        "robots": "Ver robots.txt",
+        "audit": "Auditoría"
+      },
+      "tabsLabel": "Secciones de SEO",
+      "tabs": {
+        "pages": "Páginas",
+        "urls": "Por URL",
+        "global": "Global"
+      },
+      "pageNames": {
+        "home": "Inicio",
+        "events_list": "Lista de eventos",
+        "events_detail": "Evento",
+        "artists_list": "Lista de artistas",
+        "artists_detail": "Artista",
+        "artists_apply": "Solicitud de artista",
+        "organizations_detail": "Organización",
+        "channels_list": "Lista de canales",
+        "channels_detail": "Canal",
+        "about": "Acerca de",
+        "help": "Ayuda",
+        "be-partner": "Sé socio",
+        "be-partner_apply": "Solicitud de socio",
+        "be-advertiser": "Sé anunciante",
+        "legal_privacy": "Privacidad",
+        "legal_terms": "Términos de uso"
+      },
+      "status": {
+        "custom": "PERSONALIZADO",
+        "default": "PREDETERMINADO",
+        "noindex": "NOINDEX",
+        "jsonld": "{n} JSON-LD"
+      },
+      "loadError": "No se pudo cargar el SEO.",
+      "retry": "Reintentar",
+      "pages": {
+        "eyebrow": "SEO · PLANTILLAS POR TIPO",
+        "heading": "Tipos de página indexables",
+        "customCount": "{n} PERSONALIZADOS",
+        "noindexCount": "{n} NOINDEX",
+        "cols": {
+          "page": "PÁGINA",
+          "state": "ESTADO",
+          "jsonld": "JSON-LD",
+          "updated": "ACTUALIZADO"
+        },
+        "updatedOn": "Actualizado el {date}"
+      },
+      "urls": {
+        "eyebrow": "SEO · OVERRIDES POR RUTA EXACTA",
+        "heading": "Overrides por URL",
+        "search": "Buscar por ruta…",
+        "new": "Nuevo override",
+        "cols": {
+          "path": "RUTA",
+          "type": "TIPO",
+          "state": "ESTADO",
+          "updated": "ACTUALIZADO"
+        },
+        "actions": "Acciones del override {path}",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "noMatch": "Ningún override coincide con la búsqueda.",
+        "emptyTitle": "Ningún override por URL.",
+        "emptyText": "Úsalo cuando una página específica necesite un título, descripción o JSON-LD distintos del predeterminado del tipo."
+      },
+      "editor": {
+        "eyebrowPage": "SEO · PLANTILLA",
+        "eyebrowOverride": "SEO · OVERRIDE POR URL",
+        "newOverride": "Nuevo override",
+        "unsaved": "● SIN GUARDAR",
+        "close": "Cerrar",
+        "description": "Editor de SEO",
+        "path": {
+          "label": "Ruta",
+          "placeholder": "/events/nome-do-evento",
+          "hint": "Ruta exacta, desde la barra. Se quitan la query string y la barra final.",
+          "detected": "{type} ({route})",
+          "invalid": "No es una página indexable",
+          "normalized": "Se guardará como",
+          "conflict": "Ya existe un override para esta ruta.",
+          "openExisting": "Abrir existente",
+          "inherit": "Los campos vacíos heredan la plantilla de {type}. Los bloques JSON-LD se suman a los de la plantilla."
+        },
+        "search": {
+          "eyebrow": "TITLE · META DESCRIPTION",
+          "title": "Búsqueda",
+          "titleLabel": "Título",
+          "descLabel": "Descripción",
+          "codeDefault": "Predeterminado del código",
+          "reset": "Restaurar predeterminado",
+          "vars": "Variables",
+          "varsHint": "clic para insertar en el cursor",
+          "titleLong": "Con el ejemplo, el título supera los {max} caracteres y Google lo cortará."
+        },
+        "preview": {
+          "label": "VISTA PREVIA DE GOOGLE",
+          "sample": "ejemplo: {name}",
+          "noindex": "Con noindex, este resultado deja de aparecer.",
+          "empty": "Sin título definido: el sitio usa el predeterminado del código."
+        },
+        "share": {
+          "eyebrow": "OPEN GRAPH",
+          "title": "Compartir",
+          "ogLabel": "Imagen OG",
+          "help": "Vacío = imagen predeterminada del sitio (pestaña Global) o la tarjeta generada automáticamente.",
+          "invalid": "Usa una URL https://.",
+          "thumb": "Miniatura de la imagen OG"
+        },
+        "indexing": {
+          "eyebrow": "META ROBOTS",
+          "title": "Indexación",
+          "index": "Indexar página",
+          "follow": "Seguir enlaces",
+          "indexHint": "Aparecer en los resultados de Google y en el sitemap.",
+          "followHint": "Permitir que los buscadores sigan los enlaces de la página.",
+          "default": "Predeterminado",
+          "yes": "Sí",
+          "no": "No",
+          "warn": "Esta página sale de Google y del sitemap."
+        },
+        "jsonld": {
+          "eyebrow": "APPLICATION/LD+JSON",
+          "title": "Datos estructurados (JSON-LD)",
+          "auto": "GENERADOS AUTOMÁTICAMENTE",
+          "autoOff": "Este bloque no se publicará.",
+          "autoDesc": {
+            "Event": "Nombre, fechas, lugar virtual y oferta desde el precio más bajo.",
+            "BreadcrumbList": "Ruta Inicio › sección › página.",
+            "Person": "Nombre, imagen y enlaces del artista.",
+            "Organization": "Nombre, logo y enlaces de la organización.",
+            "BroadcastService": "Canal de transmisión y su descripción."
+          },
+          "extra": "BLOQUES EXTRA",
+          "block": "BLOQUE {n}",
+          "blockLabel": "JSON-LD del bloque {n}",
+          "format": "Formatear",
+          "remove": "Quitar bloque {n}",
+          "add": "Añadir bloque",
+          "max": "Máximo de 5 bloques",
+          "help": "Variables solo entre comillas, p. ej.:",
+          "status": {
+            "ok": "JSON válido",
+            "json": "JSON inválido",
+            "shape": "Falta @context o @type",
+            "placeholder": "Variable desconocida: {name}"
+          },
+          "server": "SERVIDOR"
+        },
+        "footer": {
+          "restore": "Restaurar predeterminado",
+          "cancel": "Cancelar",
+          "save": "Guardar",
+          "saving": "Guardando…",
+          "changedAt": "modificado el {date}"
+        },
+        "restoreDialog": {
+          "title": "¿Restaurar predeterminado?",
+          "body": "Todos los campos de {name} vuelven al predeterminado del código. El sitio se actualiza en segundos.",
+          "confirm": "Restaurar predeterminado"
+        },
+        "discardDialog": {
+          "title": "¿Descartar cambios?",
+          "body": "Este editor tiene cambios sin guardar que se perderán.",
+          "keep": "Seguir editando",
+          "confirm": "Descartar"
+        },
+        "deleteDialog": {
+          "title": "¿Eliminar el override de {path}?",
+          "body": "La página vuelve a usar la plantilla de {type}.",
+          "cancel": "Cancelar",
+          "confirm": "Eliminar"
+        },
+        "toast": {
+          "saved": "SEO de {name} guardado. El sitio se actualiza en segundos.",
+          "deleted": "Override eliminado.",
+          "globalSaved": "Configuración global guardada.",
+          "error": "No se pudo guardar. Inténtalo de nuevo.",
+          "deleteError": "No se pudo eliminar el override."
+        }
+      },
+      "sampleData": {
+        "site": {
+          "name": "showon.io",
+          "url": "https://showon.io"
+        },
+        "event": {
+          "name": "Rock in Rio 2026",
+          "description": "El mayor festival de música del mundo, en vivo desde todos los escenarios con multicámara y repetición.",
+          "startsAt": "2026-09-12T16:00:00-03:00",
+          "endsAt": "2026-09-21T23:59:00-03:00",
+          "imageUrl": "https://cdn.showon.io/e/rock-in-rio-2026.jpg",
+          "url": "https://showon.io/events/rock-in-rio-2026",
+          "priceFrom": "R$ 89,00"
+        },
+        "organization": {
+          "name": "Rock World",
+          "description": "Productora de Rock in Rio y The Town.",
+          "logoUrl": "https://cdn.showon.io/o/rock-world.png",
+          "url": "https://showon.io/o/rock-world"
+        },
+        "artist": {
+          "name": "Iron Maiden",
+          "bio": "Banda británica de heavy metal formada en Londres en 1975.",
+          "imageUrl": "https://cdn.showon.io/a/iron-maiden.jpg",
+          "url": "https://showon.io/artists/iron-maiden"
+        },
+        "channel": {
+          "name": "Showon Clássicos",
+          "description": "Shows históricos remasterizados, las 24 horas.",
+          "imageUrl": "https://cdn.showon.io/c/classicos.jpg",
+          "url": "https://showon.io/channels/showon-classicos"
+        }
+      },
+      "global": {
+        "verification": {
+          "eyebrow": "META · SITE-VERIFICATION",
+          "title": "Verificación de buscadores",
+          "google": "Google Search Console",
+          "bing": "Bing Webmaster",
+          "help": "Pega solo el código del content de la meta tag."
+        },
+        "og": {
+          "eyebrow": "OG:IMAGE · PREDETERMINADA",
+          "title": "Imagen predeterminada para compartir",
+          "url": "URL de la imagen"
+        },
+        "root": {
+          "eyebrow": "JSON-LD · RAÍZ",
+          "title": "Organización y sitio (JSON-LD raíz)",
+          "help": "Cuando se rellenan, reemplazan los predeterminados. Variables aceptadas: site.name, site.url.",
+          "organization": "Organization",
+          "website": "WebSite",
+          "usingDefault": "Usando el predeterminado del código.",
+          "custom": "PERSONALIZADO",
+          "customize": "Personalizar",
+          "reset": "Restaurar predeterminado",
+          "format": "Formatear",
+          "label": "JSON-LD {type}"
+        },
+        "robots": {
+          "eyebrow": "/ROBOTS.TXT",
+          "title": "robots.txt",
+          "fixedTitle": "Reglas fijas (no editables)",
+          "fixedCount": "{n} rutas bloqueadas",
+          "extraTitle": "Reglas extra",
+          "userAgent": "User-agent",
+          "allow": "Allow",
+          "disallow": "Disallow",
+          "pathPlaceholder": "/ruta ↵",
+          "removePath": "Quitar {path}",
+          "addRule": "Añadir regla",
+          "removeRule": "Quitar regla {n}",
+          "errors": {
+            "agent": "Indica el user-agent, en una sola línea.",
+            "path": "La ruta debe empezar con / y ser de una sola línea."
+          },
+          "preview": "VISTA PREVIA · ROBOTS.TXT"
+        }
       }
     }
   },

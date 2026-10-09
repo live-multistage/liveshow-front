@@ -1827,7 +1827,8 @@
         "empty": "No recent changes.",
         "httpAllowlistSet": "HTTP allowlist updated",
         "secretSet": "secret set",
-        "secretDeleted": "secret deleted"
+        "secretDeleted": "secret deleted",
+        "seoChanged": "SEO updated"
       },
       "how": {
         "eyebrow": "HOW IT WORKS",
@@ -3149,6 +3150,271 @@
         "open": "Open",
         "single": "This is the first version.",
         "loadError": "Could not load the history."
+      }
+    },
+    "seo": {
+      "title": "SEO",
+      "subtitle": "How public pages appear on Google and social networks. Changes go live within seconds.",
+      "actions": {
+        "robots": "View robots.txt",
+        "audit": "Audit"
+      },
+      "tabsLabel": "SEO sections",
+      "tabs": {
+        "pages": "Pages",
+        "urls": "By URL",
+        "global": "Global"
+      },
+      "pageNames": {
+        "home": "Home",
+        "events_list": "Events list",
+        "events_detail": "Event",
+        "artists_list": "Artists list",
+        "artists_detail": "Artist",
+        "artists_apply": "Artist application",
+        "organizations_detail": "Organization",
+        "channels_list": "Channels list",
+        "channels_detail": "Channel",
+        "about": "About",
+        "help": "Help",
+        "be-partner": "Become a partner",
+        "be-partner_apply": "Partner application",
+        "be-advertiser": "Become an advertiser",
+        "legal_privacy": "Privacy",
+        "legal_terms": "Terms of use"
+      },
+      "status": {
+        "custom": "CUSTOM",
+        "default": "DEFAULT",
+        "noindex": "NOINDEX",
+        "jsonld": "{n} JSON-LD"
+      },
+      "loadError": "Could not load SEO.",
+      "retry": "Try again",
+      "pages": {
+        "eyebrow": "SEO · TEMPLATES BY TYPE",
+        "heading": "Indexable page types",
+        "customCount": "{n} CUSTOM",
+        "noindexCount": "{n} NOINDEX",
+        "cols": {
+          "page": "PAGE",
+          "state": "STATE",
+          "jsonld": "JSON-LD",
+          "updated": "UPDATED"
+        },
+        "updatedOn": "Updated on {date}"
+      },
+      "urls": {
+        "eyebrow": "SEO · EXACT-PATH OVERRIDES",
+        "heading": "Overrides by URL",
+        "search": "Search by path…",
+        "new": "New override",
+        "cols": {
+          "path": "PATH",
+          "type": "TYPE",
+          "state": "STATE",
+          "updated": "UPDATED"
+        },
+        "actions": "Actions for override {path}",
+        "edit": "Edit",
+        "delete": "Delete",
+        "noMatch": "No override matches the search.",
+        "emptyTitle": "No URL overrides.",
+        "emptyText": "Use it when a specific page needs a title, description or JSON-LD different from its type default."
+      },
+      "editor": {
+        "eyebrowPage": "SEO · TEMPLATE",
+        "eyebrowOverride": "SEO · URL OVERRIDE",
+        "newOverride": "New override",
+        "unsaved": "● UNSAVED",
+        "close": "Close",
+        "description": "SEO editor",
+        "path": {
+          "label": "Path",
+          "placeholder": "/events/nome-do-evento",
+          "hint": "Exact path, starting at the slash. Query string and trailing slash are removed.",
+          "detected": "{type} ({route})",
+          "invalid": "Not an indexable page",
+          "normalized": "Will be saved as",
+          "conflict": "An override for this path already exists.",
+          "openExisting": "Open existing",
+          "inherit": "Empty fields inherit the {type} template. JSON-LD blocks add to the template ones."
+        },
+        "search": {
+          "eyebrow": "TITLE · META DESCRIPTION",
+          "title": "Search",
+          "titleLabel": "Title",
+          "descLabel": "Description",
+          "codeDefault": "Code default",
+          "reset": "Restore default",
+          "vars": "Variables",
+          "varsHint": "click to insert at the cursor",
+          "titleLong": "With the sample, the title exceeds {max} characters and Google will truncate it."
+        },
+        "preview": {
+          "label": "GOOGLE PREVIEW",
+          "sample": "sample: {name}",
+          "noindex": "With noindex, this result stops appearing.",
+          "empty": "No title set: the site uses the code default."
+        },
+        "share": {
+          "eyebrow": "OPEN GRAPH",
+          "title": "Sharing",
+          "ogLabel": "OG image",
+          "help": "Empty = site default image (Global tab) or the automatically generated card.",
+          "invalid": "Use an https:// URL.",
+          "thumb": "OG image thumbnail"
+        },
+        "indexing": {
+          "eyebrow": "META ROBOTS",
+          "title": "Indexing",
+          "index": "Index page",
+          "follow": "Follow links",
+          "indexHint": "Appear in Google results and the sitemap.",
+          "followHint": "Let search engines follow the page links.",
+          "default": "Default",
+          "yes": "Yes",
+          "no": "No",
+          "warn": "This page leaves Google and the sitemap."
+        },
+        "jsonld": {
+          "eyebrow": "APPLICATION/LD+JSON",
+          "title": "Structured data (JSON-LD)",
+          "auto": "AUTOMATICALLY GENERATED",
+          "autoOff": "This block will not be published.",
+          "autoDesc": {
+            "Event": "Name, dates, virtual venue and offer from the lowest price.",
+            "BreadcrumbList": "Breadcrumb trail Home › section › page.",
+            "Person": "Artist name, image and links.",
+            "Organization": "Organization name, logo and links.",
+            "BroadcastService": "Broadcast channel and its description."
+          },
+          "extra": "EXTRA BLOCKS",
+          "block": "BLOCK {n}",
+          "blockLabel": "JSON-LD of block {n}",
+          "format": "Format",
+          "remove": "Remove block {n}",
+          "add": "Add block",
+          "max": "Maximum of 5 blocks",
+          "help": "Variables only inside quotes, e.g.:",
+          "status": {
+            "ok": "Valid JSON",
+            "json": "Invalid JSON",
+            "shape": "Missing @context or @type",
+            "placeholder": "Unknown variable: {name}"
+          },
+          "server": "SERVER"
+        },
+        "footer": {
+          "restore": "Restore default",
+          "cancel": "Cancel",
+          "save": "Save",
+          "saving": "Saving…",
+          "changedAt": "changed on {date}"
+        },
+        "restoreDialog": {
+          "title": "Restore default?",
+          "body": "All {name} fields go back to the code default. The site updates within seconds.",
+          "confirm": "Restore default"
+        },
+        "discardDialog": {
+          "title": "Discard changes?",
+          "body": "This editor has unsaved changes that will be lost.",
+          "keep": "Keep editing",
+          "confirm": "Discard"
+        },
+        "deleteDialog": {
+          "title": "Delete the override for {path}?",
+          "body": "The page goes back to using the {type} template.",
+          "cancel": "Cancel",
+          "confirm": "Delete"
+        },
+        "toast": {
+          "saved": "SEO for {name} saved. The site updates within seconds.",
+          "deleted": "Override deleted.",
+          "globalSaved": "Global settings saved.",
+          "error": "Could not save. Try again.",
+          "deleteError": "Could not delete the override."
+        }
+      },
+      "sampleData": {
+        "site": {
+          "name": "showon.io",
+          "url": "https://showon.io"
+        },
+        "event": {
+          "name": "Rock in Rio 2026",
+          "description": "The biggest music festival in the world, live from every stage with multicam and replay.",
+          "startsAt": "2026-09-12T16:00:00-03:00",
+          "endsAt": "2026-09-21T23:59:00-03:00",
+          "imageUrl": "https://cdn.showon.io/e/rock-in-rio-2026.jpg",
+          "url": "https://showon.io/events/rock-in-rio-2026",
+          "priceFrom": "R$ 89,00"
+        },
+        "organization": {
+          "name": "Rock World",
+          "description": "Producer of Rock in Rio and The Town.",
+          "logoUrl": "https://cdn.showon.io/o/rock-world.png",
+          "url": "https://showon.io/o/rock-world"
+        },
+        "artist": {
+          "name": "Iron Maiden",
+          "bio": "British heavy metal band formed in London in 1975.",
+          "imageUrl": "https://cdn.showon.io/a/iron-maiden.jpg",
+          "url": "https://showon.io/artists/iron-maiden"
+        },
+        "channel": {
+          "name": "Showon Clássicos",
+          "description": "Remastered classic shows, 24 hours a day.",
+          "imageUrl": "https://cdn.showon.io/c/classicos.jpg",
+          "url": "https://showon.io/channels/showon-classicos"
+        }
+      },
+      "global": {
+        "verification": {
+          "eyebrow": "META · SITE-VERIFICATION",
+          "title": "Search engine verification",
+          "google": "Google Search Console",
+          "bing": "Bing Webmaster",
+          "help": "Paste only the content code of the meta tag."
+        },
+        "og": {
+          "eyebrow": "OG:IMAGE · DEFAULT",
+          "title": "Default sharing image",
+          "url": "Image URL"
+        },
+        "root": {
+          "eyebrow": "JSON-LD · ROOT",
+          "title": "Organization and site (root JSON-LD)",
+          "help": "When filled in, they replace the defaults. Accepted variables: site.name, site.url.",
+          "organization": "Organization",
+          "website": "WebSite",
+          "usingDefault": "Using the code default.",
+          "custom": "CUSTOM",
+          "customize": "Customize",
+          "reset": "Restore default",
+          "format": "Format",
+          "label": "{type} JSON-LD"
+        },
+        "robots": {
+          "eyebrow": "/ROBOTS.TXT",
+          "title": "robots.txt",
+          "fixedTitle": "Fixed rules (not editable)",
+          "fixedCount": "{n} blocked routes",
+          "extraTitle": "Extra rules",
+          "userAgent": "User-agent",
+          "allow": "Allow",
+          "disallow": "Disallow",
+          "pathPlaceholder": "/path ↵",
+          "removePath": "Remove {path}",
+          "addRule": "Add rule",
+          "removeRule": "Remove rule {n}",
+          "errors": {
+            "agent": "Enter the user-agent, on a single line.",
+            "path": "The path must start with / and be a single line."
+          },
+          "preview": "PREVIEW · ROBOTS.TXT"
+        }
       }
     }
   },
