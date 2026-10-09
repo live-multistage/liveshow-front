@@ -3119,7 +3119,12 @@
         "reload": "Recarregar",
         "draftRestored": "Rascunho restaurado.",
         "draftRestoredText": "Recuperamos o texto que você editava neste navegador.",
-        "discardDraft": "Descartar rascunho"
+        "discardDraft": "Descartar rascunho",
+        "needReload": "Recarregue antes de publicar",
+        "helpHeading": "## Título",
+        "helpBold": "**negrito**",
+        "helpList": "- lista",
+        "helpLink": "[texto](/caminho)"
       },
       "confirm": {
         "title": "Publicar versão {n} de {doc}?",

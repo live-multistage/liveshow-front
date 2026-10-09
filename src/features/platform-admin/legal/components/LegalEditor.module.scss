@@ -124,7 +124,7 @@
 
 .conflict {
   border-bottom: 1px solid $warning;
-  background: rgba(251, 191, 36, 0.07);
+  background: rgba($warning, 0.07);
   color: $warning;
 
   span { flex: 1; min-width: 15rem; }

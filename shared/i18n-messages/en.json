@@ -3119,7 +3119,12 @@
         "reload": "Reload",
         "draftRestored": "Draft restored.",
         "draftRestoredText": "We recovered the text you were editing in this browser.",
-        "discardDraft": "Discard draft"
+        "discardDraft": "Discard draft",
+        "needReload": "Reload before publishing",
+        "helpHeading": "## Heading",
+        "helpBold": "**bold**",
+        "helpList": "- list",
+        "helpLink": "[text](/path)"
       },
       "confirm": {
         "title": "Publish version {n} of {doc}?",

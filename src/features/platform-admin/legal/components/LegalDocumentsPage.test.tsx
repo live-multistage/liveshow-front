@@ -31,9 +31,23 @@ const store = vi.hoisted(() => ({
   docs: {} as Record<string, unknown>,
   versions: {} as Record<string, unknown[]>,
   publish: vi.fn(),
+  listeners: new Set<() => void>(),
 }));
 vi.mock('../queries/use-legal-admin', () => ({
-  useLegalCurrentQuery: (kind: string) => ({ data: store.docs[kind], isLoading: false, isError: false, refetch: vi.fn() }),
+  useLegalCurrentQuery: (kind: string) => {
+    const [, setTick] = React.useState(0);
+    React.useEffect(() => {
+      const listener = () => setTick((n) => n + 1);
+      store.listeners.add(listener);
+      return () => void store.listeners.delete(listener);
+    }, []);
+    // Like react-query: refetch resolves with the fresh data and re-renders every subscriber.
+    const refetch = async () => {
+      store.listeners.forEach((l) => l());
+      return { data: store.docs[kind] };
+    };
+    return { data: store.docs[kind], isLoading: false, isError: false, refetch };
+  },
   useLegalVersionsQuery: (kind: string) => ({ data: store.versions[kind], isLoading: false, isError: false, refetch: vi.fn() }),
   usePublishLegalVersionMutation: () => ({ mutateAsync: store.publish, isPending: false }),
 }));
@@ -159,6 +173,27 @@ describe('LegalDocumentsPage editor', () => {
 
     expect(await screen.findByText(/Outra versão foi publicada enquanto você editava/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Recarregar' })).toBeInTheDocument();
+    // a retry would overwrite the other admin's version: blocked until reload
+    expect(publishButton()).toBeDisabled();
+  });
+
+  it('Recarregar discards the draft and shows the version published by the other admin', async () => {
+    store.publish.mockRejectedValue({ status: 409, message: 'conflict' });
+    const user = await openPrivacyEditor();
+    await user.type(markdownBox(), 'minha edição');
+    await user.type(screen.getByLabelText(/Resumo da mudança/), 'S');
+    await user.click(publishButton());
+    await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Publicar versão 4' }));
+    await screen.findByText(/Outra versão foi publicada/);
+
+    const V4 = '## Quem somos\n\nTexto da versão 4.';
+    store.docs.privacy = { ...summary(4, 'Outro admin'), document: 'privacy', content: { pt: V4 } };
+    await user.click(screen.getByRole('button', { name: 'Recarregar' }));
+
+    expect(await screen.findByText(/Editando a partir da versão 4/)).toBeInTheDocument();
+    expect(markdownBox()).toHaveValue(V4);
+    expect(screen.queryByText(/Outra versão foi publicada/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Rascunho restaurado.')).not.toBeInTheDocument();
   });
 
   it('shows the server message on 400', async () => {

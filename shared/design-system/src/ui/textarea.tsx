@@ -17,6 +17,7 @@ function Textarea({
   mono = false,
   max,
   error,
+  "aria-describedby": describedBy,
   value,
   defaultValue,
   onChange,
@@ -42,7 +43,7 @@ function Textarea({
           value={value}
           defaultValue={defaultValue}
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? errorId : undefined}
+          aria-describedby={[describedBy, error ? errorId : undefined].filter(Boolean).join(" ") || undefined}
           onChange={(e) => {
             setTyped(e.target.value.length);
             onChange?.(e);

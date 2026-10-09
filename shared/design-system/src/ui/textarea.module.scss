@@ -24,7 +24,7 @@
   &:focus-visible {
     outline: none;
     border-color: $action;
-    box-shadow: 0 0 0 3px rgba(255, 46, 158, 0.18);
+    box-shadow: 0 0 0 3px rgba($action, 0.18);
   }
 
   &[aria-invalid='true'] { border-color: $error; }
@@ -38,7 +38,7 @@
 
 .withCounter { padding-bottom: 1.625rem; }
 
-.over { border-color: rgba(251, 191, 36, 0.55); }
+.over { border-color: rgba($warning, 0.55); }
 
 .mono {
   font-family: var(--font-space-mono), 'Space Mono', monospace;

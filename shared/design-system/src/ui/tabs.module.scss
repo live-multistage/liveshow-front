@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../styles/_variables' as *;
 
 .list {
@@ -23,7 +24,7 @@
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
 
-  &:hover:not(:disabled) { color: $text-primary; border-bottom-color: rgba(255, 255, 255, 0.2); }
+  &:hover:not(:disabled) { color: $text-primary; border-bottom-color: color.mix($text-primary, $border, 10%); }
   &:focus-visible { outline: 2px solid $action; outline-offset: -2px; }
   &:disabled { color: $text-muted; opacity: 0.6; cursor: not-allowed; }
 }
@@ -57,3 +58,17 @@
   border-radius: 4px;
   padding: 1px 5px;
 }
+
+// Numeric count pill (e.g. "Páginas 12"); inactive tabs dim it.
+.count {
+  border: 1px solid $border;
+  border-radius: 999px;
+  background: $surface-dark;
+  padding: 1px 7px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.65625rem;
+  font-weight: 400;
+  color: $text-muted;
+}
+
+.active .count { color: $text-primary; }

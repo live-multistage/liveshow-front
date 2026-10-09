@@ -84,7 +84,9 @@ function LegalEditorForm({ kind, current, onClose, onOpenHistory, onPublished }:
     saveDraft(kind, changed.length > 0 ? texts : null);
   }, [kind, texts, changed.length]);
 
-  const blocker = changed.length === 0 ? t('editor.noChanges', { n: current?.version ?? 0 })
+  // After a 409 the body has no base version: publishing again would overwrite the other admin's version.
+  const blocker = conflict ? t('editor.needReload')
+    : changed.length === 0 ? t('editor.noChanges', { n: current?.version ?? 0 })
     : texts.pt.trim() === '' ? t('editor.needPt')
     : summary.trim() === '' ? t('editor.needSummary')
     : '';
@@ -103,8 +105,12 @@ function LegalEditorForm({ kind, current, onClose, onOpenHistory, onPublished }:
   };
 
   const reload = async () => {
+    // Drop the local draft first: the refetch changes the version, which remounts this form
+    // from the new current text (and would otherwise restore the stale draft).
+    saveDraft(kind, null);
     const [fresh] = await Promise.all([currentQuery.refetch(), versionsQuery.refetch()]);
-    if (fresh.data) setTexts(toTexts(fresh.data.content));
+    if (fresh.data?.version !== current?.version) return; // remounted from the new current
+    setTexts(base);
     setSummary('');
     setConflict(false);
   };
@@ -188,7 +194,7 @@ function LegalEditorForm({ kind, current, onClose, onOpenHistory, onPublished }:
 
       {helpOpen && (
         <div className={styles.help}>
-          <code>## Título</code><code>**negrito**</code><code>- lista</code><code>[texto](/caminho)</code>
+          <code>{t('editor.helpHeading')}</code><code>{t('editor.helpBold')}</code><code>{t('editor.helpList')}</code><code>{t('editor.helpLink')}</code>
           <span className={styles.helpWarn}><Info size={12} /> {t('editor.noHtml')}</span>
         </div>
       )}

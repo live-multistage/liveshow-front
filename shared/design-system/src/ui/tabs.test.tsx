@@ -52,4 +52,14 @@ describe('Tabs', () => {
     render(<Tabs items={items} label="Idioma" />);
     expect(screen.getByRole('tab', { name: /EN/ })).toHaveAttribute('tabindex', '-1');
   });
+
+  it('renders a count pill', () => {
+    render(<Tabs items={[{ value: 'a', label: 'Páginas', count: 12 }]} label="x" />);
+    expect(screen.getByText('12')).toBeInTheDocument();
+  });
+
+  it('omits aria-controls when there is no panel', () => {
+    render(<Tabs items={items} label="Idioma" />);
+    expect(screen.getByRole('tab', { name: /PT/ })).not.toHaveAttribute('aria-controls');
+  });
 });

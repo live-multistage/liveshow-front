@@ -32,4 +32,9 @@ describe('Textarea', () => {
     render(<Textarea aria-label="t" disabled mono />);
     expect(screen.getByLabelText('t')).toBeDisabled();
   });
+
+  it('keeps the consumer aria-describedby next to the error id', () => {
+    render(<><p id="hint">hint</p><Textarea aria-label="t" aria-describedby="hint" error="Erro" /></>);
+    expect(screen.getByLabelText('t')).toHaveAccessibleDescription('hint Erro');
+  });
 });

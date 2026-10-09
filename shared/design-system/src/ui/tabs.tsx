@@ -8,8 +8,10 @@ import styles from "./tabs.module.scss";
 type TabItem = {
   value: string;
   label: React.ReactNode;
-  /** Small tag after the label, e.g. a count or "required". */
+  /** Small text tag after the label, e.g. "required". */
   badge?: React.ReactNode;
+  /** Numeric count pill after the label. */
+  count?: number;
   /** "Changed" dot after the label. */
   dot?: boolean;
   dotLabel?: string;
@@ -66,6 +68,7 @@ function Tabs({
 
   const tabId = (v: string) => `${baseId}-tab-${v}`;
   const panelId = `${baseId}-panel`;
+  const hasPanel = children != null;
 
   return (
     <div className={className}>
@@ -82,7 +85,7 @@ function Tabs({
               role="tab"
               id={tabId(item.value)}
               aria-selected={selected}
-              aria-controls={panelId}
+              aria-controls={hasPanel ? panelId : undefined}
               tabIndex={selected ? 0 : -1}
               disabled={item.disabled}
               className={cn(styles.tab, variant === "mono" && styles.mono, selected && styles.active)}
@@ -91,12 +94,13 @@ function Tabs({
             >
               {item.label}
               {item.dot && <span className={styles.dot} role="img" aria-label={item.dotLabel} title={item.dotLabel} />}
+              {item.count != null && <span className={styles.count}>{item.count}</span>}
               {item.badge != null && <span className={styles.badge}>{item.badge}</span>}
             </button>
           );
         })}
       </div>
-      {children != null && (
+      {hasPanel && (
         <div role="tabpanel" id={panelId} aria-labelledby={tabId(active)} tabIndex={-1}>
           {typeof children === "function" ? children(active) : children}
         </div>
