@@ -26,7 +26,11 @@ export function useSetSeoTemplateMutation() {
   const qc = useQueryClient();
   return useMutation<SeoPageTemplate, AppError, { pageKey: SeoPageKey; fields: SeoFields }>({
     mutationFn: ({ pageKey, fields }) => run(() => seoAdminService.setTemplate(pageKey, fields)),
-    onSuccess: () => {
+    onSuccess: (saved) => {
+      // Write the returned row first: a reopened editor must never seed from the pre-save cache.
+      qc.setQueryData<SeoPageTemplate[]>(TEMPLATES_KEY, (old) =>
+        old?.map((x) => (x.pageKey === saved.pageKey ? saved : x)),
+      );
       qc.invalidateQueries({ queryKey: TEMPLATES_KEY });
       qc.invalidateQueries({ queryKey: AUDIT_KEY });
     },
@@ -41,7 +45,8 @@ export function useCreateSeoOverrideMutation() {
   const qc = useQueryClient();
   return useMutation<SeoPathOverride, AppError, SeoOverrideInput>({
     mutationFn: (input) => run(() => seoAdminService.createOverride(input)),
-    onSuccess: () => {
+    onSuccess: (saved) => {
+      qc.setQueryData<SeoPathOverride[]>(OVERRIDES_KEY, (old) => (old ? [...old, saved] : old));
       qc.invalidateQueries({ queryKey: OVERRIDES_KEY });
       qc.invalidateQueries({ queryKey: AUDIT_KEY });
     },
@@ -52,7 +57,8 @@ export function useUpdateSeoOverrideMutation() {
   const qc = useQueryClient();
   return useMutation<SeoPathOverride, AppError, { id: string; input: SeoOverrideInput }>({
     mutationFn: ({ id, input }) => run(() => seoAdminService.updateOverride(id, input)),
-    onSuccess: () => {
+    onSuccess: (saved) => {
+      qc.setQueryData<SeoPathOverride[]>(OVERRIDES_KEY, (old) => old?.map((x) => (x.id === saved.id ? saved : x)));
       qc.invalidateQueries({ queryKey: OVERRIDES_KEY });
       qc.invalidateQueries({ queryKey: AUDIT_KEY });
     },
@@ -63,7 +69,8 @@ export function useDeleteSeoOverrideMutation() {
   const qc = useQueryClient();
   return useMutation<void, AppError, string>({
     mutationFn: (id) => run(() => seoAdminService.deleteOverride(id)),
-    onSuccess: () => {
+    onSuccess: (_void, id) => {
+      qc.setQueryData<SeoPathOverride[]>(OVERRIDES_KEY, (old) => old?.filter((x) => x.id !== id));
       qc.invalidateQueries({ queryKey: OVERRIDES_KEY });
       qc.invalidateQueries({ queryKey: AUDIT_KEY });
     },
@@ -78,7 +85,8 @@ export function useSetSeoGlobalMutation() {
   const qc = useQueryClient();
   return useMutation<SeoGlobal, AppError, SeoGlobal>({
     mutationFn: (global) => run(() => seoAdminService.setGlobal(global)),
-    onSuccess: () => {
+    onSuccess: (saved) => {
+      qc.setQueryData<SeoGlobal>(GLOBAL_KEY, saved);
       qc.invalidateQueries({ queryKey: GLOBAL_KEY });
       qc.invalidateQueries({ queryKey: AUDIT_KEY });
     },
