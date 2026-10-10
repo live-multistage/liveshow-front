@@ -3,24 +3,21 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Ticket, Menu, X, Search, User, LogOut, Settings, LayoutGrid, ShoppingCart, LibraryBig, Heart } from 'lucide-react';
-import { Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Logo } from '@live-show/design-system';
+import dynamic from 'next/dynamic';
+import { Menu, X, ShoppingCart } from 'lucide-react';
+import { Logo } from '@live-show/design-system';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { useAuthCheck } from '@/features/account/hooks/use-auth-check';
-import { NotificationsDropdown } from '@/features/notifications/components/NotificationsDropdown';
 import { useCartCount } from '@/features/cart/hooks/use-cart-count';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import styles from './Navbar.module.scss';
 
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-}
+// Still server-rendered for signed-in users; only its chunk is split off, so
+// signed-out pages never load the Radix menu/popover it pulls in.
+const NavbarUserActions = dynamic(() =>
+  import('./NavbarUserActions').then((m) => m.NavbarUserActions),
+);
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -85,78 +82,7 @@ export function Navbar() {
 
         <div className={styles.actions}>
           {isLoggedIn ? (
-            <>
-              {canAccessDashboard && (
-                <Link href="/dashboard" className={styles.iconBtn} aria-label="Dashboard">
-                  <LayoutGrid size={19} />
-                </Link>
-              )}
-
-              <span className={styles.hideMobile}>
-                <NotificationsDropdown />
-              </span>
-
-              <Link href="/tickets" className={styles.ticketsBtn}>
-                <Ticket size={15} />
-                {t('tickets')}
-              </Link>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button type="button" className={styles.avatarBtn}>
-                    <Avatar className={styles.avatar}>
-                      <AvatarFallback className={styles.avatarFallback}>
-                        {user ? getInitials(user.displayName) : <User size={14} />}
-                      </AvatarFallback>
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className={styles.dropdownContent}>
-                  <DropdownMenuLabel className={styles.dropdownLabel}>
-                    <p className={styles.dropdownLabelName}>{user?.displayName}</p>
-                    <p className={styles.dropdownLabelEmail}>{user?.email}</p>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className={styles.dropdownSeparator} />
-                  {canAccessDashboard && (
-                    <DropdownMenuItem asChild className={styles.dropdownItem}>
-                      <Link href="/dashboard">
-                        <LayoutGrid size={14} style={{ marginRight: '0.5rem' }} />
-                        {t('dashboard')}
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem asChild className={styles.dropdownItem}>
-                    <Link href="/account">
-                      <Settings size={14} style={{ marginRight: '0.5rem' }} />
-                      {t('account')}
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className={styles.dropdownItem}>
-                    <Link href="/my-list">
-                      <LibraryBig size={14} style={{ marginRight: '0.5rem' }} />
-                      {t('myList')}
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className={styles.dropdownItem}>
-                    <Link href="/wishlist">
-                      <Heart size={14} style={{ marginRight: '0.5rem' }} />
-                      {t('wishlist')}
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className={styles.dropdownItem}>
-                    <Link href="/tickets">
-                      <Ticket size={14} style={{ marginRight: '0.5rem' }} />
-                      {t('myTickets')}
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className={styles.dropdownSeparator} />
-                  <DropdownMenuItem onClick={logout} className={styles.dropdownItemDestructive}>
-                    <LogOut size={14} style={{ marginRight: '0.5rem' }} />
-                    {t('logout')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
+            <NavbarUserActions user={user} canAccessDashboard={canAccessDashboard} logout={logout} />
           ) : (
             <>
               <Link href={`/login?redirect=${encodeURIComponent(pathname)}`} className={styles.loginLink}>{t('login')}</Link>
