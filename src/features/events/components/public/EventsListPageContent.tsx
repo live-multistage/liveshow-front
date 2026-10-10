@@ -4,7 +4,14 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Pagination } from '@live-show/design-system';
+import {
+  CustomSelect,
+  CustomSelectContent,
+  CustomSelectItem,
+  CustomSelectTrigger,
+  CustomSelectValue,
+  Pagination,
+} from '@live-show/design-system';
 import { TrackFeature } from '@live-show/analytics-sdk/react';
 import { useListEventsPageQuery, eventToShow } from '@/features/events';
 import type { PaginatedEventsResponse } from '@/features/events';
@@ -194,8 +201,6 @@ export function EventsListPageContent({
     return 0;
   });
 
-  const selectedSortLabel = SORT_OPTIONS.find((o) => o.id === sort)?.label ?? SORT_OPTIONS[0].label;
-
   const resultCount = filtered.length;
   // Read at fire time, not from the closure captured when `search` last
   // changed — a chip/sort change (or fresh data) between the keystroke and
@@ -248,7 +253,7 @@ export function EventsListPageContent({
                 </div>
                 <div className={styles.statValue}>
                   <span className={styles.statNumber}>{liveCount}</span>
-                  <span className={styles.statUnit}>shows</span>
+                  <span className={styles.statUnit}>eventos</span>
                 </div>
               </div>
               <div className={styles.statCard}>
@@ -284,24 +289,24 @@ export function EventsListPageContent({
             )}
           </div>
 
-          <div className={styles.sortBtn}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 6h18M6 12h12M10 18h4" />
-            </svg>
-            <span className={styles.sortLabel}>{selectedSortLabel}</span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-            <select
-              value={sort}
-              onChange={(e) => handleSortChange(e.target.value)}
-              className={styles.sortSelect}
-              aria-label="Ordenar"
-            >
-              {SORT_OPTIONS.map((opt) => (
-                <option key={opt.id} value={opt.id}>{opt.label}</option>
-              ))}
-            </select>
+          <div className={styles.sort}>
+            <CustomSelect value={sort} onValueChange={handleSortChange}>
+              <CustomSelectTrigger
+                aria-label="Ordenar"
+                leadingIcon={
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M3 6h18M6 12h12M10 18h4" />
+                  </svg>
+                }
+              >
+                <CustomSelectValue />
+              </CustomSelectTrigger>
+              <CustomSelectContent align="end">
+                {SORT_OPTIONS.map((opt) => (
+                  <CustomSelectItem key={opt.id} value={opt.id}>{opt.label}</CustomSelectItem>
+                ))}
+              </CustomSelectContent>
+            </CustomSelect>
           </div>
         </div>
 
@@ -342,7 +347,7 @@ export function EventsListPageContent({
         <div className={styles.countRow}>
           <h2 className={styles.countLabel}>
             <span className={styles.countNum}>{isLoading ? '—' : filtered.length}</span>
-            {' SHOWS ENCONTRADOS'}
+            {' EVENTOS ENCONTRADOS'}
           </h2>
           <div className={styles.viewToggle}>
             <button
@@ -380,7 +385,7 @@ export function EventsListPageContent({
         {/* Empty state */}
         {!isLoading && !isError && filtered.length === 0 && (
           <div className={styles.empty}>
-            <p className={styles.emptyTitle}>Nenhum show encontrado</p>
+            <p className={styles.emptyTitle}>Nenhum evento encontrado</p>
             <p className={styles.emptySubtitle}>Tente outra busca ou remova os filtros.</p>
             <button onClick={() => { setSearch(''); setChip('all'); }} className={styles.clearBtn}>
               {t('clearFilters')}

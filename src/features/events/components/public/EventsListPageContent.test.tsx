@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { EventsListPageContent } from './EventsListPageContent';
 import type { PaginatedEventsResponse, EventResponse } from '@/features/events';
 
@@ -23,6 +24,13 @@ vi.mock('@/features/advertisements', () => ({
 vi.mock('./ShowCard', () => ({
   ShowCard: ({ show }: { show: { id: string; title: string } }) => <div>{show.title}</div>,
 }));
+
+// Radix Select (DS CustomSelect) needs these pointer/scroll APIs jsdom lacks.
+beforeAll(() => {
+  window.HTMLElement.prototype.hasPointerCapture = vi.fn().mockReturnValue(false);
+  window.HTMLElement.prototype.releasePointerCapture = vi.fn();
+  window.HTMLElement.prototype.scrollIntoView = vi.fn();
+});
 
 const trackMock = vi.fn();
 vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: trackMock }) }));
@@ -245,12 +253,13 @@ describe('EventsListPageContent tracking', () => {
     expect(trackMock).toHaveBeenCalledWith('events_filtered', { filter: 'chip', value: 'live', resultCount: 0 });
   });
 
-  it('tracks events_filtered when the sort select changes', () => {
+  it('tracks events_filtered when the sort select changes', async () => {
     const initialPage = makePage({ page: 1, total: 2 });
     listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
 
     render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
-    fireEvent.change(screen.getByLabelText('Ordenar'), { target: { value: 'name-asc' } });
+    await userEvent.click(screen.getByRole('combobox', { name: 'Ordenar' }));
+    await userEvent.click(screen.getByRole('option', { name: 'NOME (A → Z)' }));
 
     expect(trackMock).toHaveBeenCalledWith('events_filtered', { filter: 'sort', value: 'name-asc', resultCount: 2 });
   });
