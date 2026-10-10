@@ -84,7 +84,13 @@ export const platformAdminService = {
   },
 
   getGlobalFlags: async (): Promise<Record<string, boolean>> => {
-    const { data } = await httpClient.get<Record<string, boolean>>('/feature-flags');
+    // GET /feature-flags is public and micro-cached by nginx (s-maxage=60 +
+    // stale-while-revalidate=300), so the refetch after a toggle would read the
+    // old value and the switch would snap back. The cache key includes the
+    // query string: a unique param makes the admin panel always read the origin.
+    const { data } = await httpClient.get<Record<string, boolean>>('/feature-flags', {
+      params: { fresh: Date.now() },
+    });
     return data;
   },
 
