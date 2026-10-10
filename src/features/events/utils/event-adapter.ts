@@ -18,7 +18,7 @@ const CAMERA_COLORS = [
 
 // Events happen in Brazil. Pinning the zone keeps the server (UTC) and the
 // browser rendering identical text — otherwise React hydration fails (#418).
-const EVENT_TIME_ZONE = 'America/Sao_Paulo';
+export const EVENT_TIME_ZONE = 'America/Sao_Paulo';
 // en-CA formats as YYYY-MM-DD.
 const eventDayFormatter = new Intl.DateTimeFormat('en-CA', { timeZone: EVENT_TIME_ZONE });
 const eventTimeFormatter = new Intl.DateTimeFormat('pt-BR', { timeZone: EVENT_TIME_ZONE, hour: '2-digit', minute: '2-digit' });

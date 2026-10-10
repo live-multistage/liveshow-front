@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import type { EventResponse } from '@/features/events/types/event.types';
+import { EVENT_TIME_ZONE } from '@/features/events/utils/event-adapter';
 import { eventHref } from '@/features/events/utils/slug';
 import { WishlistButton } from '@/features/wishlist/components/WishlistButton';
 import { useTrackImpression } from '@/features/events/hooks/use-track-impression';
@@ -33,10 +34,10 @@ export function OrganizationPublicEventCard({ event, list, position }: Props) {
   };
 
   const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString(localeCode, { day: '2-digit', month: 'short', year: 'numeric' });
+    new Date(iso).toLocaleDateString(localeCode, { day: '2-digit', month: 'short', year: 'numeric', timeZone: EVENT_TIME_ZONE });
 
   const formatTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString(localeCode, { hour: '2-digit', minute: '2-digit' });
+    new Date(iso).toLocaleTimeString(localeCode, { hour: '2-digit', minute: '2-digit', timeZone: EVENT_TIME_ZONE });
 
   return (
     <Link

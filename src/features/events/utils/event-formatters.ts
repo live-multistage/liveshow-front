@@ -1,18 +1,20 @@
+import { EVENT_TIME_ZONE } from './event-adapter';
+
 export function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('pt-BR', {
-    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
+    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', timeZone: EVENT_TIME_ZONE,
   });
 }
 
 
 export function formatDateShort(iso: string) {
   return new Date(iso).toLocaleDateString('pt-BR', {
-    weekday: 'short', day: '2-digit', month: 'short', year: 'numeric',
+    weekday: 'short', day: '2-digit', month: 'short', year: 'numeric', timeZone: EVENT_TIME_ZONE,
   });
 }
 
 export function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: EVENT_TIME_ZONE });
 }
 
 export function formatDuration(startsAt: string, endsAt: string) {
