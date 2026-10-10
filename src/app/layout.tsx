@@ -7,6 +7,7 @@ import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { Providers } from '@/providers';
 import { getInitialIsLoggedIn, getUserServer, checkAuthServer } from '@/features/account/queries/get-auth-state.server';
 import { ConsentBanner } from '@/features/consent';
+import { omitRouteScopedMessages } from '@/i18n/client-messages';
 import { JsonLd } from '@/shared/components/JsonLd';
 import { ErrorReportingProvider } from '@/lib/error-reporting/error-reporting-provider';
 import { getSeoGlobal } from '@/features/seo/queries/get-seo.server';
@@ -88,7 +89,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <JsonLd data={resolveGlobalJsonLd(seoGlobal, { organization: ORG_JSON_LD, website: WEBSITE_JSON_LD })} />
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider messages={omitRouteScopedMessages(messages)}>
           <ErrorReportingProvider>
             <Providers
               initialIsLoggedIn={initialIsLoggedIn}

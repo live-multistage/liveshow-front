@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
 import { Navbar } from '@/shared/components/Navbar';
 import { FooterWithFlags } from '@/shared/components/Footer/FooterWithFlags';
 import styles from './layout.module.scss';
@@ -13,10 +14,13 @@ export const metadata: Metadata = {
 // independent AuthProvider that never gets the SSR-seeded login state).
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={styles.layout}>
-      <Navbar />
-      {children}
-      <FooterWithFlags />
-    </div>
+    // Full messages: the root provider omits this group's namespaces.
+    <NextIntlClientProvider>
+      <div className={styles.layout}>
+        <Navbar />
+        {children}
+        <FooterWithFlags />
+      </div>
+    </NextIntlClientProvider>
   );
 }

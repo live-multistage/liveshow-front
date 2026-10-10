@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
 import { DashboardGuard, DashboardSidebar, DashboardMobileNav } from '@/features/dashboard';
 import { Toaster } from '@live-show/design-system';
 import { fetchFeatureFlags } from '@/features/feature-flags';
@@ -10,18 +11,21 @@ export const metadata: Metadata = {
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const flags = await fetchFeatureFlags();
+  // Full messages: the root provider omits this group's namespaces.
   return (
-    <DashboardGuard>
-      <div className={styles.layout}>
-        <div className={styles.inner}>
-          <DashboardSidebar flags={flags} />
-          <div className={styles.content}>
-            <DashboardMobileNav flags={flags} />
-            <main className={styles.main}>{children}</main>
+    <NextIntlClientProvider>
+      <DashboardGuard>
+        <div className={styles.layout}>
+          <div className={styles.inner}>
+            <DashboardSidebar flags={flags} />
+            <div className={styles.content}>
+              <DashboardMobileNav flags={flags} />
+              <main className={styles.main}>{children}</main>
+            </div>
           </div>
         </div>
-      </div>
-      <Toaster />
-    </DashboardGuard>
+        <Toaster />
+      </DashboardGuard>
+    </NextIntlClientProvider>
   );
 }
