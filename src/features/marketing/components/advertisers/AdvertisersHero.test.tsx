@@ -51,31 +51,44 @@ describe('AdvertisersHero', () => {
     expect(screen.getByRole('link', { name: 'secondary' })).toHaveAttribute('href', '#posicoes');
   });
 
-  it('pins on a wide viewport with motion allowed', () => {
-    mockMatchMedia({ narrow: false, reducedMotion: false });
-    const { container } = render(<AdvertisersHero />);
-    expect(container.querySelector('[data-testid="pinned-hero"]')).toBeInTheDocument();
-  });
-
-  it('falls back to the non-pinned stacked layout at <=900px', () => {
+  it('renders the same tree whatever the viewport, so hydration never remounts the LCP heading', () => {
+    mockMatchMedia({ narrow: false });
+    const wide = render(<AdvertisersHero />).container.innerHTML;
+    cleanup();
     mockMatchMedia({ narrow: true });
-    const { container } = render(<AdvertisersHero />);
-    expect(container.querySelector('[data-testid="pinned-hero"]')).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /cta/ })).toHaveAttribute('href', ADS_SIGNUP_URL);
+    const narrow = render(<AdvertisersHero />).container.innerHTML;
+    cleanup();
+    mockMatchMedia({ reducedMotion: true });
+    const reduced = render(<AdvertisersHero />).container.innerHTML;
+    expect(narrow).toBe(wide);
+    expect(reduced).toBe(wide);
   });
 
-  it('does not hide the post-hydration narrow hero copy behind a reveal fade (LCP)', () => {
+  it('does not hide the hero copy behind a reveal fade (LCP)', () => {
     mockMatchMedia({ narrow: true });
     render(<AdvertisersHero />);
     expect(screen.getByRole('heading', { level: 1 }).closest('[style*="--reveal-delay"]')).toBeNull();
   });
 
-  it('falls back to the non-pinned layout when the user prefers reduced motion', () => {
-    mockMatchMedia({ reducedMotion: true });
+  it('writes the scroll-driven mock scale to --hero-scale without re-rendering', () => {
+    mockMatchMedia();
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0);
+      return 0;
+    });
+    const rectSpy = vi
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ top: 0, height: window.innerHeight * 2 } as DOMRect);
     const { container } = render(<AdvertisersHero />);
-    expect(container.querySelector('[data-testid="pinned-hero"]')).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
+    const section = container.querySelector('section') as HTMLElement;
+    expect(section.style.getPropertyValue('--hero-scale')).toBe('0.92');
+
+    rectSpy.mockReturnValue({
+      top: -window.innerHeight,
+      height: window.innerHeight * 2,
+    } as DOMRect);
+    window.dispatchEvent(new Event('scroll'));
+    expect(section.style.getPropertyValue('--hero-scale')).toBe('1');
   });
 });
 

@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { ArrowRight, Check } from 'lucide-react';
 import { SectionHeader } from '../shared/SectionHeader';
-import { useIsCompact, useActiveStep } from '../../hooks/useStickySteps';
+import { useActiveStep } from '../../hooks/useStickySteps';
 import styles from './HowItWorks.module.scss';
 
 interface StepData {
@@ -144,7 +144,6 @@ function StepScreen({ step, visual }: { step: number; visual: VisualCopy }) {
 
 export function HowItWorks() {
   const t = useTranslations('organizersPage');
-  const isCompact = useIsCompact();
   const steps = t.raw('howItWorks.steps') as StepData[];
   const [activeStep, setStepRef] = useActiveStep(steps.length);
 
@@ -183,53 +182,53 @@ export function HowItWorks() {
           <SectionHeader label={t('howItWorks.label')} title={t('howItWorks.title')} maxTitleCh={18} />
         </div>
 
-        {isCompact ? (
-          <div className={styles.compactList}>
+        {/* Both layouts ship in the HTML; CSS shows one per breakpoint
+            (_how-it-works-layout.scss). A JS breakpoint would SSR the desktop
+            grid and remount everything on mobile right after hydration. */}
+        <div className={styles.compactList}>
+          {steps.map((step, index) => (
+            <div key={step.title} className={styles.compactItem}>
+              <div className={styles.stepNum}>{`0${index + 1} / 0${steps.length}`}</div>
+              <h3 className={styles.stepTitle}>{step.title}</h3>
+              <p className={styles.stepText}>{step.text}</p>
+              <div className={styles.compactScreen}>
+                <StepScreen step={index} visual={visual} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className={styles.grid}>
+          <div className={styles.steps}>
             {steps.map((step, index) => (
-              <div key={step.title} className={styles.compactItem}>
-                <div className={styles.stepNum}>{`0${index + 1} / 0${steps.length}`}</div>
+              <div
+                key={step.title}
+                data-step={index}
+                ref={(el) => setStepRef(index, el)}
+                className={[styles.step, index === activeStep ? styles.active : ''].join(' ').trim()}
+              >
+                <div className={[styles.stepNum, index === activeStep ? styles.active : ''].join(' ').trim()}>
+                  {`0${index + 1} / 0${steps.length}`}
+                </div>
                 <h3 className={styles.stepTitle}>{step.title}</h3>
                 <p className={styles.stepText}>{step.text}</p>
-                <div className={styles.compactScreen}>
-                  <StepScreen step={index} visual={visual} />
-                </div>
               </div>
             ))}
           </div>
-        ) : (
-          <div className={styles.grid}>
-            <div className={styles.steps}>
-              {steps.map((step, index) => (
+
+          <div className={styles.visualWrap}>
+            <div className={styles.glow} />
+            <div className={styles.panel} aria-hidden="true">
+              {steps.map((_, index) => (
                 <div
-                  key={step.title}
-                  data-step={index}
-                  ref={(el) => setStepRef(index, el)}
-                  className={[styles.step, index === activeStep ? styles.active : ''].join(' ').trim()}
+                  key={index}
+                  className={[styles.screen, index === activeStep ? styles.active : ''].join(' ').trim()}
                 >
-                  <div className={[styles.stepNum, index === activeStep ? styles.active : ''].join(' ').trim()}>
-                    {`0${index + 1} / 0${steps.length}`}
-                  </div>
-                  <h3 className={styles.stepTitle}>{step.title}</h3>
-                  <p className={styles.stepText}>{step.text}</p>
+                  <StepScreen step={index} visual={visual} />
                 </div>
               ))}
             </div>
-
-            <div className={styles.visualWrap}>
-              <div className={styles.glow} />
-              <div className={styles.panel} aria-hidden="true">
-                {steps.map((_, index) => (
-                  <div
-                    key={index}
-                    className={[styles.screen, index === activeStep ? styles.active : ''].join(' ').trim()}
-                  >
-                    <StepScreen step={index} visual={visual} />
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
-        )}
+        </div>
       </div>
     </section>
   );

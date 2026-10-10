@@ -57,17 +57,19 @@ describe('HowItWorks', () => {
     expect(container.querySelector('#como-funciona')).not.toBeNull();
   });
 
-  it('renders all four step titles', () => {
+  it('renders all four step titles in both the compact list and the sticky grid (CSS picks one)', () => {
     render(<HowItWorks />);
     steps.forEach((step) => {
-      expect(screen.getByText(step.title)).toBeInTheDocument();
+      expect(screen.getAllByText(step.title)).toHaveLength(2);
     });
   });
 
   it('marks the first step as active initially', () => {
     render(<HowItWorks />);
-    const firstTitle = screen.getByText(steps[0].title);
-    const stepEl = firstTitle.closest('[data-step]');
+    const stepEl = screen
+      .getAllByText(steps[0].title)
+      .map((el) => el.closest('[data-step]'))
+      .find(Boolean);
     expect(stepEl?.getAttribute('data-step')).toBe('0');
     expect(stepEl?.className).toMatch(/active/);
   });

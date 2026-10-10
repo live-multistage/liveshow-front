@@ -19,6 +19,8 @@
   padding: 80px 0 40px;
 }
 
+// Grid (sticky steps) above $lg, compact list at/below it — the same
+// 1024px cut, in pure CSS so the SSR markup matches the client.
 %hiwGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
@@ -26,7 +28,7 @@
   align-items: start;
 
   @media (max-width: $lg) {
-    grid-template-columns: 1fr;
+    display: none;
   }
 }
 
@@ -89,6 +91,10 @@
   flex-direction: column;
   gap: 56px;
   padding-bottom: 64px;
+
+  @media (min-width: $lg + 1) {
+    display: none;
+  }
 }
 
 %hiwCompactItem {

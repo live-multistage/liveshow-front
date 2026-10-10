@@ -170,31 +170,36 @@
   min-width: 0;
 }
 
-// ── Pinned hero (>900px) ────────────────────────────────────────────
-// Mirrors the static .section/.container above but pins for a tall scroll
-// runway while the mock scales up (see AdvertisersHero.tsx's heroScale).
-.pinnedSection {
-  position: relative;
-  height: 175vh;
-}
+// ── Pinned hero (>900px, motion allowed) ────────────────────────────
+// Pure CSS switch (no JS breakpoint) so SSR and hydration render the same
+// layout: a tall scroll runway whose sticky pane pins while the mock scales
+// up via --hero-scale (written by AdvertisersHero.tsx on scroll). Below
+// 900px or with reduced motion, .sticky is a plain block and the stacked
+// .section/.container rules above apply untouched.
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .section {
+    height: 175vh;
+    padding: 0;
+    // overflow on an ancestor would become the sticky pane's scroll container
+    overflow: visible;
+  }
 
-.pinnedSticky {
-  position: sticky;
-  top: 0;
-  min-height: 100vh;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-}
+  .sticky {
+    position: sticky;
+    top: 0;
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
 
-.pinnedContainer {
-  position: relative;
-  max-width: 1440px;
-  margin: 0 auto;
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 48px;
-  padding: 96px 40px 40px;
+  .container {
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    padding: 96px 40px 40px;
+  }
+
+  .mockCol {
+    transform: scale(var(--hero-scale, 0.92));
+  }
 }

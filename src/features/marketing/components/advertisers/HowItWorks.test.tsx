@@ -20,17 +20,19 @@ import { render, screen } from '@testing-library/react';
 import { HowItWorks } from './HowItWorks';
 
 describe('advertisers HowItWorks', () => {
-  it('renders all five step titles', () => {
+  it('renders all five step titles in both the compact list and the sticky grid (CSS picks one)', () => {
     render(<HowItWorks />);
     STEPS.forEach((step) => {
-      expect(screen.getByText(step.title)).toBeInTheDocument();
+      expect(screen.getAllByText(step.title)).toHaveLength(2);
     });
   });
 
   it('marks the first step as active initially', () => {
     render(<HowItWorks />);
-    const firstTitle = screen.getByText(STEPS[0].title);
-    const stepEl = firstTitle.closest('[data-step]');
+    const stepEl = screen
+      .getAllByText(STEPS[0].title)
+      .map((el) => el.closest('[data-step]'))
+      .find(Boolean);
     expect(stepEl?.getAttribute('data-step')).toBe('0');
     expect(stepEl?.className).toMatch(/active/);
   });
