@@ -38,7 +38,8 @@ export function ReplayChaptersEditor({ eventId, chapters, window, readOnly }: Pr
   const multiStage = stages.length > 1;
   const hasSchedule = (schedule?.length ?? 0) > 0;
 
-  const form = useReplayChaptersForm({ eventId, chapters, window, multiStage });
+  const stageIds = useMemo(() => stages.map((s) => s.id), [stages]);
+  const form = useReplayChaptersForm({ eventId, chapters, window, multiStage, stageIds });
 
   const spanMs = window.endsAtMs - window.startsAtMs;
   const replayDuration = formatOffset(spanMs, spanMs);
@@ -65,7 +66,7 @@ export function ReplayChaptersEditor({ eventId, chapters, window, readOnly }: Pr
     );
   }
 
-  const invalidKeys = new Set(form.drafts.filter((d, i) => form.errors[i].length > 0 || form.serverError?.key === d.key).map((d) => d.key));
+  const invalidKeys = new Set(form.drafts.filter((d, i) => form.errors[i].length > 0 || form.serverError === d.key || form.unknownStageKeys.has(d.key)).map((d) => d.key));
   const preview = (
     <ChapterPreview
       drafts={form.drafts}
@@ -134,7 +135,8 @@ export function ReplayChaptersEditor({ eventId, chapters, window, readOnly }: Pr
                 draft={d}
                 index={i}
                 error={form.errors[i][0] ?? null}
-                serverMessage={form.serverError?.key === d.key ? form.serverError.message : null}
+                serverRejected={form.serverError === d.key}
+                unknownStage={form.unknownStageKeys.has(d.key)}
                 multiStage={multiStage}
                 stages={stageOptions}
                 lineup={lineupOptions}

@@ -24,7 +24,9 @@ interface Props {
   draft: ChapterDraft;
   index: number;
   error: DraftError | null;
-  serverMessage: string | null;
+  // The server refused this row without saying which field, so no field is flagged.
+  serverRejected: boolean;
+  unknownStage: boolean;
   multiStage: boolean;
   stages: NamedOption[];
   lineup: NamedOption[];
@@ -35,7 +37,7 @@ interface Props {
   onTimeBlur: () => void;
 }
 
-type Field = 'start' | 'end' | 'title' | 'description';
+type Field = 'start' | 'end' | 'title' | 'description' | 'stage';
 
 const TITLE_COUNTER_FROM = 100;
 
@@ -63,8 +65,9 @@ const ERROR_FIELD: Record<keyof typeof ERROR_KEY, Field> = {
   DESCRIPTION_TOO_LONG: 'description',
 };
 
+// NO_END_TIME has two copies, picked in warningKey().
 const WARNING_KEY: Record<ReplayChapterSuggestionIssue, string> = {
-  NO_END_TIME: 'warnNoEndTime',
+  NO_END_TIME: '',
   OUTSIDE_TIMELINE: 'warnOutsideTimeline',
   MULTI_STAGE: 'warnMultiStage',
   OVERLAP: 'warnOverlap',
@@ -78,15 +81,24 @@ function fieldOf(error: DraftError | null): Field | null {
 export const chapterNumber = (index: number) => String(index + 1).padStart(2, '0');
 
 export function ChapterCard({
-  draft, index, error, serverMessage, multiStage, stages, lineup, artistNames, replayDuration,
+  draft, index, error, serverRejected, unknownStage, multiStage, stages, lineup, artistNames, replayDuration,
   onChange, onRemove, onTimeBlur,
 }: Props) {
   const t = useTranslations('replayChaptersEditor');
   const uid = useId();
   const label = t('chapterLabel', { n: chapterNumber(index) });
 
-  const field: Field | null = serverMessage ? 'end' : fieldOf(error);
-  const message = serverMessage ?? errorMessage(error);
+  const errId = `${uid}-error`;
+  const messagesId = `${uid}-messages`;
+  const fieldError = fieldOf(error);
+  const field: Field | null = fieldError ?? (!serverRejected && unknownStage ? 'stage' : null);
+  const message = errorMessage(error) ?? (serverRejected ? t('errServerRow') : unknownStage ? t('errUnknownStage') : null);
+  const describe = (f: Field) => (field === f ? errId : undefined);
+
+  function warningText(issue: ReplayChapterSuggestionIssue): string {
+    if (issue === 'NO_END_TIME') return t(draft.endText.trim() ? 'warnNoEndTimeFilled' : 'warnNoEndTimeEmpty');
+    return t(WARNING_KEY[issue]);
+  }
 
   function durationText(): string {
     const start = parseOffset(draft.startText);
@@ -112,6 +124,7 @@ export function ChapterCard({
     <div
       role="group"
       aria-label={label}
+      aria-describedby={message || draft.importIssues.length ? messagesId : undefined}
       className={`${styles.card} ${message ? styles.cardError : draft.importIssues.length ? styles.cardWarn : ''}`}
     >
       <div className={styles.top}>
@@ -131,6 +144,7 @@ export function ChapterCard({
             placeholder="0:00:00"
             value={draft.startText}
             aria-invalid={invalid('start')}
+            aria-describedby={describe('start')}
             onChange={(e) => onChange({ startText: e.target.value })}
             onBlur={onTimeBlur}
           />
@@ -143,6 +157,7 @@ export function ChapterCard({
             placeholder="0:00:00"
             value={draft.endText}
             aria-invalid={invalid('end')}
+            aria-describedby={describe('end')}
             onChange={(e) => onChange({ endText: e.target.value })}
             onBlur={onTimeBlur}
           />
@@ -163,6 +178,7 @@ export function ChapterCard({
             maxLength={TITLE_MAX}
             value={draft.title}
             aria-invalid={invalid('title')}
+            aria-describedby={describe('title')}
             onChange={(e) => onChange({ title: e.target.value })}
           />
         </div>
@@ -174,9 +190,12 @@ export function ChapterCard({
                 id={`${uid}-stage`}
                 className={`${styles.select} ${draft.stageId ? styles.selectActive : ''}`}
                 value={draft.stageId ?? ''}
+                aria-invalid={invalid('stage')}
+                aria-describedby={describe('stage')}
                 onChange={(e) => onChange({ stageId: e.target.value || null })}
               >
                 <option value="">{t('allStages')}</option>
+                {unknownStage && draft.stageId && <option value={draft.stageId}>{t('unknownStageOption')}</option>}
                 {stages.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
               <ChevronDown size={13} className={styles.chevron} aria-hidden />
@@ -226,17 +245,21 @@ export function ChapterCard({
         rows={2}
         maxLength={DESCRIPTION_MAX}
         placeholder={t('descriptionPlaceholder')}
-        aria-label={t('descriptionPlaceholder')}
+        aria-label={t('descriptionLabel')}
+        aria-invalid={invalid('description')}
+        aria-describedby={describe('description')}
         value={draft.description}
         onChange={(e) => onChange({ description: e.target.value })}
       />
 
-      {message && (
-        <p className={styles.errorLine}><AlertCircle size={13} aria-hidden />{message}</p>
-      )}
-      {draft.importIssues.map((issue) => (
-        <p key={issue} className={styles.warnLine}><TriangleAlert size={13} aria-hidden />{t(WARNING_KEY[issue])}</p>
-      ))}
+      <div id={messagesId} role="status" aria-live="polite">
+        {message && (
+          <p id={errId} className={styles.errorLine}><AlertCircle size={13} aria-hidden />{message}</p>
+        )}
+        {draft.importIssues.map((issue) => (
+          <p key={issue} className={styles.warnLine}><TriangleAlert size={13} aria-hidden />{warningText(issue)}</p>
+        ))}
+      </div>
     </div>
   );
 }

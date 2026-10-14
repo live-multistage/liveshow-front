@@ -5267,7 +5267,6 @@
     "errTitleTooLong": "The title can have at most {max} characters.",
     "errDescriptionTooLong": "The description can have at most {max} characters.",
     "errOverlap": "Overlaps chapter {n}.",
-    "warnNoEndTime": "No end time in the schedule — we used the start of the next item.",
     "warnOutsideTimeline": "This item falls outside the replay.",
     "warnMultiStage": "Item on several stages — set to All stages.",
     "warnOverlap": "Overlaps another schedule item.",
@@ -5278,6 +5277,12 @@
     "saved": "Chapters saved.",
     "saveError": "Could not save the chapters. Try again.",
     "importError": "Could not import the schedule. Try again.",
-    "importEmpty": "The schedule has no items to import."
+    "importEmpty": "The schedule has no items to import.",
+    "errServerRow": "The server rejected this chapter. Review its fields.",
+    "errUnknownStage": "This stage no longer exists on this event. Pick another.",
+    "unknownStageOption": "Removed stage",
+    "warnNoEndTimeFilled": "No end time in the schedule — we used the start of the next item.",
+    "warnNoEndTimeEmpty": "No end time in the schedule and no next item — enter the end.",
+    "descriptionLabel": "Chapter description"
   }
 }

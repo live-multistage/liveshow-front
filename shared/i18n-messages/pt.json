@@ -5267,7 +5267,6 @@
     "errTitleTooLong": "O título pode ter no máximo {max} caracteres.",
     "errDescriptionTooLong": "A descrição pode ter no máximo {max} caracteres.",
     "errOverlap": "Sobrepõe o capítulo {n}.",
-    "warnNoEndTime": "Sem horário de fim na programação — usamos o início do próximo item.",
     "warnOutsideTimeline": "Este item fica fora do replay.",
     "warnMultiStage": "Item em vários palcos — ficou como Todos os palcos.",
     "warnOverlap": "Sobrepõe outro item da programação.",
@@ -5278,6 +5277,12 @@
     "saved": "Capítulos salvos.",
     "saveError": "Não foi possível salvar os capítulos. Tente de novo.",
     "importError": "Não foi possível importar a programação. Tente de novo.",
-    "importEmpty": "A programação não tem itens para importar."
+    "importEmpty": "A programação não tem itens para importar.",
+    "errServerRow": "Este capítulo foi recusado pelo servidor. Revise os campos.",
+    "errUnknownStage": "Este palco não existe mais neste evento. Escolha outro.",
+    "unknownStageOption": "Palco removido",
+    "warnNoEndTimeFilled": "Sem horário de fim na programação — usamos o início do próximo item.",
+    "warnNoEndTimeEmpty": "Sem horário de fim na programação e sem próximo item — informe o fim.",
+    "descriptionLabel": "Descrição do capítulo"
   }
 }

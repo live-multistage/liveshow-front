@@ -126,6 +126,35 @@ describe('ReplayChaptersSection', () => {
     expect(saveBtn()).toBeDisabled();
   });
 
+  it('links a field error to its input through aria-describedby', async () => {
+    const user = userEvent.setup();
+    setup(loaded([chapter('1', 0, 12)]));
+    renderSection();
+
+    await user.clear(titles()[0]);
+
+    const input = titles()[0];
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(document.getElementById(input.getAttribute('aria-describedby')!)).toHaveTextContent('errTitleRequired');
+    expect(starts()[0]).not.toHaveAttribute('aria-invalid');
+    expect(screen.getByLabelText('descriptionLabel')).toBeInTheDocument();
+  });
+
+  it('flags a stage that no longer exists and blocks save', async () => {
+    const user = userEvent.setup();
+    setup(loaded([chapter('1', 0, 12, { stageId: 'gone' })]), { stages: 2 });
+    renderSection();
+
+    expect(screen.getByText('errUnknownStage')).toBeInTheDocument();
+    expect(screen.getByLabelText('stageLabel')).toHaveAttribute('aria-invalid', 'true');
+    await user.type(titles()[0], '!');
+    expect(saveBtn()).toBeDisabled();
+
+    await user.selectOptions(screen.getByLabelText('stageLabel'), 'st1');
+    expect(screen.queryByText('errUnknownStage')).not.toBeInTheDocument();
+    expect(saveBtn()).toBeEnabled();
+  });
+
   it('reports an overlap against the other chapter number', async () => {
     const user = userEvent.setup();
     setup(loaded([chapter('1', 0, 12), chapter('2', 15, 20)]));
@@ -240,8 +269,13 @@ describe('ReplayChaptersSection', () => {
       await user.click(saveBtn());
 
       const cards = await screen.findAllByRole('group', { name: /^chapterLabel/ });
-      expect(within(cards[1]).getByText('runs past the replay')).toBeInTheDocument();
-      expect(within(cards[0]).queryByText(/runs past/)).not.toBeInTheDocument();
+      expect(within(cards[1]).getByText('errServerRow')).toBeInTheDocument();
+      expect(within(cards[0]).queryByText('errServerRow')).not.toBeInTheDocument();
+      expect(screen.queryByText(/runs past/)).not.toBeInTheDocument();
+      // The server names no field, so no input is flagged, but the card points at the message.
+      expect(within(cards[1]).getAllByRole('textbox').some((i) => i.getAttribute('aria-invalid') === 'true')).toBe(false);
+      const messages = cards[1].getAttribute('aria-describedby')!;
+      expect(document.getElementById(messages)).toHaveTextContent('errServerRow');
       expect(toast.error).not.toHaveBeenCalled();
       expect(screen.getByText('dirty')).toBeInTheDocument();
     });
@@ -297,6 +331,21 @@ describe('ReplayChaptersSection', () => {
       expect(await screen.findByDisplayValue('Aurora set')).toBeInTheDocument();
       expect(screen.getByText('warnMultiStage')).toBeInTheDocument();
       expect(screen.getByText('dirty')).toBeInTheDocument();
+    });
+
+    it('uses a different no-end-time copy depending on whether the end was prefilled', async () => {
+      const user = userEvent.setup();
+      suggestionsAsync.mockResolvedValue([
+        suggestion({ title: 'A', issues: ['NO_END_TIME'] }),
+        suggestion({ sourceScheduleItemId: 'si2', title: 'B', startsAtMs: at(50 * MIN), endsAtMs: null, issues: ['NO_END_TIME'] }),
+      ]);
+      setup(loaded([]));
+      renderSection();
+
+      await user.click(screen.getByRole('button', { name: 'import' }));
+
+      expect(await screen.findByText('warnNoEndTimeFilled')).toBeInTheDocument();
+      expect(screen.getByText('warnNoEndTimeEmpty')).toBeInTheDocument();
     });
 
     it('asks for confirmation before replacing existing chapters', async () => {

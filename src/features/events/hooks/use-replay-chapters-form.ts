@@ -29,18 +29,11 @@ interface Options {
   chapters: ReplayChapter[];
   window: ReplayEventTimeline;
   multiStage: boolean;
+  stageIds: string[];
 }
 
-interface ServerRowError {
-  key: string;
-  message: string;
-}
 
-// The backend prefixes its 400s with the position; the card already says which
-// chapter it is, so only the reason is shown.
-const reasonOf = (message: string) => message.replace(/^chapter at position \d+:\s*/, '');
-
-export function useReplayChaptersForm({ eventId, chapters, window, multiStage }: Options) {
+export function useReplayChaptersForm({ eventId, chapters, window, multiStage, stageIds }: Options) {
   const t = useTranslations('replayChaptersEditor');
   const replace = useReplaceReplayChaptersMutation(eventId);
   const suggestions = useReplayChapterSuggestionsMutation(eventId);
@@ -49,7 +42,7 @@ export function useReplayChaptersForm({ eventId, chapters, window, multiStage }:
   const [drafts, setDrafts] = useState<ChapterDraft[]>(() => draftsFromChapters(chapters, window));
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [serverError, setServerError] = useState<ServerRowError | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
   const [replayGone, setReplayGone] = useState(false);
   const [pendingImport, setPendingImport] = useState<ChapterDraft[] | null>(null);
   const newKey = useRef(0);
@@ -66,7 +59,14 @@ export function useReplayChaptersForm({ eventId, chapters, window, multiStage }:
     () => validateDrafts(drafts, window, { multiStage }),
     [drafts, window, multiStage],
   );
-  const invalidCount = errors.filter((e) => e.length > 0).length + (serverError ? 1 : 0);
+  // A stage deleted after the chapter was saved: the server would refuse it.
+  const unknownStageKeys = useMemo(
+    () => new Set(multiStage ? drafts.filter((d) => d.stageId && !stageIds.includes(d.stageId)).map((d) => d.key) : []),
+    [drafts, multiStage, stageIds],
+  );
+  const invalidCount = drafts.filter(
+    (d, i) => errors[i].length > 0 || unknownStageKeys.has(d.key) || serverError === d.key,
+  ).length;
   const atLimit = drafts.length >= MAX_CHAPTERS;
   const canSave = dirty && !saving && invalidCount === 0;
 
@@ -144,7 +144,7 @@ export function useReplayChaptersForm({ eventId, chapters, window, multiStage }:
       const { status, message } = e as AppError;
       const index = status === 400 ? serverErrorIndex(message) : null;
       if (status === 409) setReplayGone(true);
-      else if (index !== null && sorted[index]) setServerError({ key: sorted[index].key, message: reasonOf(message) });
+      else if (index !== null && sorted[index]) setServerError(sorted[index].key);
       else toast.error(t('saveError'));
     } finally {
       setSaving(false);
@@ -155,6 +155,7 @@ export function useReplayChaptersForm({ eventId, chapters, window, multiStage }:
     drafts,
     errors,
     serverError,
+    unknownStageKeys,
     invalidCount,
     dirty,
     saving,
