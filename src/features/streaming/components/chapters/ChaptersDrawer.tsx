@@ -1,0 +1,138 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import { ArrowUpRight, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { chapterAt } from '@live-show/api-contracts';
+import { Skeleton } from '@live-show/design-system';
+import type { ReplayChapter, ReplayEventTimeline } from '../../types/live.types';
+import { chapterDuration, chapterProgressPct, formatClock } from '../../utils/chapter-track';
+import styles from './ChaptersDrawer.module.scss';
+
+const SKELETON_ITEMS = 3;
+
+interface Props {
+  open: boolean;
+  // First fetch in flight: skeletons, no count (design 2b).
+  loading: boolean;
+  // visibleChapters() output for the stage on screen.
+  chapters: ReplayChapter[];
+  positionMs: number;
+  timeline: ReplayEventTimeline;
+  // Stage id → name when the event has more than one stage; null hides the tags.
+  stageNames: Record<string, string> | null;
+  onSeek: (absoluteMs: number) => void;
+  onClose: () => void;
+}
+
+// Right drawer (bottom sheet ≤820px) listing the replay's chapters. Picking
+// one seeks and leaves the drawer open so the viewer can keep browsing.
+export function ChaptersDrawer({ open, loading, chapters, positionMs, timeline, stageNames, onSeek, onClose }: Props) {
+  const t = useTranslations('player');
+  const currentRef = useRef<HTMLLIElement>(null);
+  const current = chapterAt(chapters, positionMs);
+  const spanMs = timeline.endsAtMs - timeline.startsAtMs;
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
+  // Keep the playing chapter in view on open and as playback moves on.
+  useEffect(() => {
+    if (open) currentRef.current?.scrollIntoView?.({ block: 'nearest' });
+  }, [open, current?.id]);
+
+  if (!open) return null;
+
+  return (
+    <aside className={styles.drawer} aria-label={t('chapters.label')}>
+      <div className={styles.handle} aria-hidden="true" />
+      <div className={styles.header}>
+        <span className={styles.eyebrow}>{t('chapters.label')}</span>
+        {!loading && <span className={styles.count}>{chapters.length}</span>}
+        <button type="button" className={styles.close} onClick={onClose} aria-label={t('chapters.close')}>
+          <X size={16} />
+        </button>
+      </div>
+
+      {loading ? (
+        <div className={styles.list} aria-busy="true">
+          {Array.from({ length: SKELETON_ITEMS }, (_, i) => (
+            <div key={i} className={styles.skeletonItem}>
+              <Skeleton className={styles.skeletonTime} />
+              <Skeleton className={styles.skeletonTitle} />
+              <Skeleton className={styles.skeletonLine} />
+              <Skeleton className={styles.skeletonLineShort} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <ol className={styles.list}>
+          {chapters.map((chapter) => {
+            const isCurrent = current?.id === chapter.id;
+            const time = formatClock(chapter.startsAtMs - timeline.startsAtMs, spanMs);
+            const duration = chapterDuration(chapter.endsAtMs - chapter.startsAtMs);
+            const stageName = chapter.stageId ? stageNames?.[chapter.stageId] : undefined;
+            return (
+              <li
+                key={chapter.id}
+                ref={isCurrent ? currentRef : undefined}
+                className={styles.item}
+                data-current={isCurrent || undefined}
+              >
+                <button
+                  type="button"
+                  className={styles.jump}
+                  onClick={() => onSeek(chapter.startsAtMs)}
+                  aria-current={isCurrent || undefined}
+                  aria-label={t('chapters.goTo', { title: chapter.title, time })}
+                >
+                  {isCurrent && (
+                    <span className={styles.nowPlaying}>
+                      <span className={styles.dot} />
+                      {t('chapters.nowPlaying')}
+                    </span>
+                  )}
+                  <span className={styles.meta}>
+                    <span className={styles.time}>{time}</span>
+                    <span className={styles.duration}>
+                      {duration.unit === 'min'
+                        ? t('chapters.durationMin', { count: duration.count })
+                        : t('chapters.durationSec', { count: duration.count })}
+                    </span>
+                    {stageName && <span className={styles.stageTag}>{stageName}</span>}
+                  </span>
+                  <span className={styles.title}>{chapter.title}</span>
+                  {chapter.description && <span className={styles.description}>{chapter.description}</span>}
+                </button>
+
+                {chapter.artists.length > 0 && (
+                  <div className={styles.artists}>
+                    {chapter.artists.map((artist) => (
+                      // New tab: following an artist must not interrupt the video.
+                      <a key={artist.id} href={`/artists/${artist.slug}`} target="_blank" rel="noopener noreferrer" className={styles.artist}>
+                        {artist.name}
+                        <ArrowUpRight size={11} />
+                      </a>
+                    ))}
+                  </div>
+                )}
+
+                {isCurrent && (
+                  <div className={styles.progress}>
+                    <div className={styles.progressFill} style={{ '--pct': `${chapterProgressPct(chapter, positionMs)}%` } as React.CSSProperties} />
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      )}
+    </aside>
+  );
+}
