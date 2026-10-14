@@ -1,4 +1,5 @@
 @use '../../../../styles/_variables' as *;
+@use '../chapters/chapters' as ch;
 
 // Full-bleed video stage: Header / bottomStack / chat all float as absolute
 // overlays on top of a video layer that always fills the whole viewport,
@@ -60,4 +61,14 @@
   border: 1px solid $border;
   border-radius: 12px;
   flex-shrink: 0;
+
+  // The current chapter title floats above the segmented track; give it room
+  // inside the boxed bar, and let the track wrap onto its own row when compact.
+  &:has([data-chapter-track]) {
+    padding-top: 1.75rem;
+
+    @media (max-width: ch.$compact) {
+      flex-wrap: wrap;
+    }
+  }
 }

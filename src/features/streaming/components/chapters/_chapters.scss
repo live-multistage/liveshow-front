@@ -1,0 +1,5 @@
+// Geometry shared by the replay chapters UI: drawer, chrome insets, compact layout.
+$drawer-w: 352px; // sibling of the design's MULTICAM drawer
+$sheet-h: 60%;    // ≤ $compact the drawer is a bottom sheet; the video keeps the rest
+$compact: 820px;  // same breakpoint as the dashboard mobile chrome
+$ease: cubic-bezier(0.4, 0, 0.2, 1);

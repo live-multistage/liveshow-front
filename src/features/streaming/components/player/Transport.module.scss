@@ -1,4 +1,5 @@
 @use '../../../../styles/_variables' as *;
+@use '../chapters/chapters' as ch;
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
@@ -74,6 +75,23 @@
   gap: 0.5rem;
   flex: 1;
   min-width: 0;
+
+  // <=820px with chapters: the track takes its own full-width row above the
+  // controls, the time labels sit under its ends.
+  @media (max-width: ch.$compact) {
+    &:has([data-chapter-track]) {
+      order: -1;
+      flex-basis: 100%;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-areas: 'track track' 'lead trail';
+      row-gap: 0.5rem;
+
+      > :nth-child(1) { grid-area: lead; justify-self: start; text-align: left; }
+      > :nth-child(2) { grid-area: track; }
+      > :nth-child(3) { grid-area: trail; justify-self: end; text-align: right; }
+    }
+  }
 }
 
 .timeLabel {
