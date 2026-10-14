@@ -49,7 +49,7 @@ describe('ChapterTrack', () => {
 
   it('hovering shows the time and chapter under the cursor and thickens that segment', () => {
     const { track, getByRole, queryByRole } = renderTrack(T0);
-    fireEvent.mouseMove(track, { clientX: 350 }); // 35 % of 2 h = 42 min → Intervalo
+    fireEvent.pointerMove(track, { pointerType: 'mouse', clientX: 350 }); // 35 % of 2 h = 42 min → Intervalo
 
     const tooltip = getByRole('tooltip');
     expect(within(tooltip).getByText('0:42:00')).toBeTruthy();
@@ -58,13 +58,13 @@ describe('ChapterTrack', () => {
     expect(hot).toHaveLength(1);
     expect(hot[0].getAttribute('data-kind')).toBe('chapter');
 
-    fireEvent.mouseLeave(track);
+    fireEvent.pointerLeave(track, { pointerType: 'mouse' });
     expect(queryByRole('tooltip')).toBeNull();
   });
 
   it('hovering an uncovered stretch shows only the time', () => {
     const { track, getByRole } = renderTrack(T0);
-    fireEvent.mouseMove(track, { clientX: 125 }); // 15 min → gap
+    fireEvent.pointerMove(track, { pointerType: 'mouse', clientX: 125 }); // 15 min → gap
     const tooltip = getByRole('tooltip');
     expect(tooltip.textContent).toBe('0:15:00');
   });
@@ -78,6 +78,12 @@ describe('ChapterTrack', () => {
     expect(queryByRole('tooltip')).toBeNull();
   });
 
+  it('ignores the emulated pointer moves a tap produces on touch', () => {
+    const { track, queryByRole } = renderTrack(T0);
+    fireEvent.pointerMove(track, { pointerType: 'touch', clientX: 350 });
+    expect(queryByRole('tooltip')).toBeNull();
+  });
+
   it('keeps the native range on top: its changes still reach the seek handler', () => {
     const { getByLabelText, onSeek } = renderTrack(T0);
     fireEvent.change(getByLabelText('seek'), { target: { value: String(T0 + 20 * MIN) } });
@@ -86,7 +92,7 @@ describe('ChapterTrack', () => {
 
   it('floors a fractional window end so labels and the last segment are stable', () => {
     const { track, getByRole } = renderTrack(T0, vi.fn(), MAX + 0.6);
-    fireEvent.mouseMove(track, { clientX: 1000 });
+    fireEvent.pointerMove(track, { pointerType: 'mouse', clientX: 1000 });
     expect(getByRole('tooltip').textContent).toBe('2:00:00');
     expect(track.querySelectorAll('[data-kind]')).toHaveLength(5);
   });

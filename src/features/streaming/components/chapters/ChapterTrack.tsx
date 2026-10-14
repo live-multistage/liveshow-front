@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { CSSProperties, MouseEvent, ReactNode } from 'react';
+import type { CSSProperties, PointerEvent, ReactNode } from 'react';
 import { chapterAt } from '@live-show/api-contracts';
 import type { ReplayChapter } from '../../types/live.types';
 import { chapterTrackSegments, formatClock, pointerToMs } from '../../utils/chapter-track';
@@ -33,7 +33,9 @@ export function ChapterTrack({ chapters, min, max: rawMax, value, children }: Pr
   const current = chapterAt(chapters, value);
   const probeChapter = probeMs === null ? null : chapterAt(chapters, probeMs);
 
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+  const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    // A tap emits emulated pointer moves; hover is for mouse/pen only.
+    if (e.pointerType === 'touch') return;
     const rect = e.currentTarget.getBoundingClientRect();
     setHoverMs(pointerToMs(e.clientX, rect.left, rect.width, min, max));
   };
@@ -43,8 +45,8 @@ export function ChapterTrack({ chapters, min, max: rawMax, value, children }: Pr
       className={styles.track}
       data-chapter-track=""
       data-dragging={dragging || undefined}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => setHoverMs(null)}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={() => setHoverMs(null)}
       onTouchStart={() => setDragging(true)}
       onTouchEnd={() => setDragging(false)}
       onTouchCancel={() => setDragging(false)}
