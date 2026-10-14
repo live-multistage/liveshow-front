@@ -235,3 +235,29 @@ describe('Transport controls', () => {
     expect(toggleFullscreen).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Transport.Scrubber — chapters', () => {
+  const base = { min: 0, max: 600_000, value: 0, onSeek: vi.fn(), leadingLabel: '0:00' };
+  const options = { cameras: [cam('a', 1)] };
+
+  it('stays the plain track when no chapters are passed (live never passes any)', () => {
+    const { container } = render(<Harness options={options}><Transport.Scrubber {...base} /></Harness>);
+    expect(container.querySelector('[data-chapter-track]')).toBeNull();
+    expect(container.querySelector('input[type="range"]')).not.toBeNull();
+  });
+
+  it('stays the plain track for an empty chapter list', () => {
+    const { container } = render(<Harness options={options}><Transport.Scrubber {...base} chapters={[]} /></Harness>);
+    expect(container.querySelector('[data-chapter-track]')).toBeNull();
+  });
+
+  it('segments the track around the same native range when chapters are passed', () => {
+    const chapters = [{ id: 'c1', stageId: null, startsAtMs: 0, endsAtMs: 60_000, title: 'Intro', description: null, artists: [] }];
+    const { container, getByText } = render(
+      <Harness options={options}><Transport.Scrubber {...base} chapters={chapters} /></Harness>,
+    );
+    const track = container.querySelector('[data-chapter-track]')!;
+    expect(track.querySelector('input[type="range"][aria-label="seekPosition"]')).not.toBeNull();
+    expect(getByText('Intro')).toBeTruthy();
+  });
+});

@@ -1,4 +1,5 @@
 @use '../../../styles/_variables' as *;
+@use './chapters/chapters' as ch;
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
@@ -242,4 +243,23 @@
   transition: color 0.15s, background-color 0.15s;
 
   &:hover { color: $text-primary; background-color: rgba(255, 255, 255, 0.12); }
+}
+
+// ≤820px the chapters pill collapses to a 44px icon button (design 3a).
+.chaptersBtn {
+  @media (max-width: ch.$compact) {
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+
+    svg { width: 18px; height: 18px; }
+  }
+}
+
+.drawerBtnLabel {
+  @media (max-width: ch.$compact) {
+    display: none;
+  }
 }

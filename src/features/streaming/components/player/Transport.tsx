@@ -4,6 +4,8 @@ import type { ReactNode } from 'react';
 import { Settings, PictureInPicture, Maximize, Minimize } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { SeekSlider } from '../SeekSlider';
+import type { ReplayChapter } from '../../types/live.types';
+import { ChapterTrack } from '../chapters/ChapterTrack';
 import { PlayPauseButton } from '../transport/PlayPauseButton';
 import { VolumeControl } from '../transport/VolumeControl';
 import { PlayerMenu } from '../transport/PlayerMenu';
@@ -32,14 +34,24 @@ export interface TransportScrubber {
   onSeek: (value: number) => void;
   leadingLabel: string;
   trailingLabel?: string;
+  // Replay chapters already narrowed to the stage on screen. Absent or
+  // empty → the plain track (live never passes any).
+  chapters?: ReplayChapter[];
 }
 
-function Scrubber({ min, max, value, onSeek, leadingLabel, trailingLabel }: TransportScrubber) {
+function Scrubber({ min, max, value, onSeek, leadingLabel, trailingLabel, chapters }: TransportScrubber) {
   const t = useTranslations('player');
+  const slider = <SeekSlider min={min} max={max} value={value} onSeek={onSeek} ariaLabel={t('seekPosition')} />;
   return (
     <div className={styles.seekGroup}>
       <span className={styles.timeLabel}>{leadingLabel}</span>
-      <SeekSlider min={min} max={max} value={value} onSeek={onSeek} ariaLabel={t('seekPosition')} />
+      {chapters && chapters.length > 0 ? (
+        <ChapterTrack chapters={chapters} min={min} max={max} value={value}>
+          {slider}
+        </ChapterTrack>
+      ) : (
+        slider
+      )}
       {trailingLabel && <span className={styles.timeLabel}>{trailingLabel}</span>}
     </div>
   );

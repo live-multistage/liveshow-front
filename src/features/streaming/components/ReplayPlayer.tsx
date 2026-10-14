@@ -2,14 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import type { ReplayCameraPlayback, ReplayEventTimeline, ReplayStagePlayback, LiveCamera } from '../types/live.types';
+import type { ReplayCameraPlayback, ReplayChapter, ReplayEventTimeline, ReplayStagePlayback, LiveCamera } from '../types/live.types';
 import { ReplayBadge } from './transport/ReplayBadge';
-import { formatTime } from './transport/live-scrubber';
 import { localToAbsolute } from '../utils/replay-timeline';
 import { useTrackPlaybackProgress, usePlaybackProgressQuery } from '@/features/playback-progress';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { usePlayerShell } from '../hooks/use-player-shell';
-import type { PlayerStageLike } from '../hooks/use-player-stages';
+import { MAIN_STAGE_ID, type PlayerStageLike } from '../hooks/use-player-stages';
+import { visibleChapters } from '@live-show/api-contracts';
+import { formatClock } from '../utils/chapter-track';
+import { ChaptersDrawer } from './chapters/ChaptersDrawer';
 import { Player, Transport } from './player';
 import styles from './Player.module.scss';
 
@@ -28,6 +30,9 @@ interface ReplayPlayerProps {
   // Gates the pause-ad takeover — off must skip PauseAdTakeover entirely so
   // /ads/serve is never called, not just hide the result.
   adsEnabled?: boolean;
+  // Chapters marked on the replay (GET /events/:id/replay-chapters). Undefined
+  // or empty renders the player exactly as without the feature.
+  chapters?: ReplayChapter[];
 }
 
 // CameraGrid/VideoPanel consume LiveCamera (manifestPath), not
@@ -61,7 +66,7 @@ const firstPlayable = (list: LiveCamera[]) => list.find((c) => c.manifestPath !=
 // camera is still its own independent VOD timeline underneath (no frame-
 // accurate cross-camera sync), a real, harder problem deliberately left for
 // later.
-export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCameraId = null, librasCameraId = null, title, eventId, timeline, adsEnabled = true }: ReplayPlayerProps) {
+export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCameraId = null, librasCameraId = null, title, eventId, timeline, adsEnabled = true, chapters }: ReplayPlayerProps) {
   const t = useTranslations('player');
 
   const cameras = useMemo(() => rawCameras.map(toLiveCamera), [rawCameras]);
@@ -82,6 +87,26 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     initialPaused: true,
     pickInitialCamera: firstPlayable,
   });
+
+  // Chapters follow the stage on screen: event-wide ones plus that stage's.
+  // The synthetic main stage (event without stages) sees only event-wide ones.
+  const chapterStageId = shell.activeStageId === MAIN_STAGE_ID ? null : shell.activeStageId;
+  const shownChapters = useMemo(
+    () => (timeline && chapters ? visibleChapters(chapters, chapterStageId, timeline) : []),
+    [chapters, chapterStageId, timeline],
+  );
+  // Pill and drawer only exist once chapters loaded and this stage has any.
+  const chaptersAvailable = shownChapters.length > 0;
+  const { setChaptersOpen } = shell;
+  // A stage switch can leave nothing to list; close the drawer with it or the
+  // chrome would stay inset beside a drawer that no longer renders.
+  useEffect(() => {
+    if (!chaptersAvailable) setChaptersOpen(false);
+  }, [chaptersAvailable, setChaptersOpen]);
+  const stageNames = useMemo(
+    () => (shell.stages.length > 1 ? Object.fromEntries(shell.stages.map((s) => [s.stageId, s.name])) : null),
+    [shell.stages],
+  );
 
   // The absolute instant (ms, event timeline) playback is currently at — NOT
   // a camera's local media time. Each camera's <video> only knows its own
@@ -152,7 +177,7 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
 
   return (
     <Player.Root shell={shell} mode="replay" eventId={eventId} title={title} adsEnabled={adsEnabled}>
-      <Player.Header badge="replay" />
+      <Player.Header badge="replay" chapters={chaptersAvailable ? { count: shownChapters.length } : undefined} />
 
       <Player.Stage
         // Sem isto o painel julgaria a cobertura pelo último seek, e uma
@@ -182,8 +207,9 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
           max={timeline.endsAtMs}
           value={positionMs}
           onSeek={handleSeek}
-          leadingLabel={formatTime((positionMs - timeline.startsAtMs) / 1000)}
-          trailingLabel={formatTime((timeline.endsAtMs - timeline.startsAtMs) / 1000)}
+          leadingLabel={formatClock(positionMs - timeline.startsAtMs, timeline.endsAtMs - timeline.startsAtMs)}
+          trailingLabel={formatClock(timeline.endsAtMs - timeline.startsAtMs, timeline.endsAtMs - timeline.startsAtMs)}
+          chapters={shownChapters}
         />
         <Transport.Volume />
         <Transport.AudioCamera />
@@ -191,6 +217,20 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
         <Transport.Pip />
         <Transport.Fullscreen />
       </Player.Transport>
+
+      {chaptersAvailable && (
+        <Player.Aside>
+          <ChaptersDrawer
+            open={shell.chaptersOpen}
+            chapters={shownChapters}
+            positionMs={positionMs}
+            timeline={timeline}
+            stageNames={stageNames}
+            onSeek={handleSeek}
+            onClose={() => setChaptersOpen(false)}
+          />
+        </Player.Aside>
+      )}
 
       <Player.Overlay />
     </Player.Root>

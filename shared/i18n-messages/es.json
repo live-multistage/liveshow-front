@@ -1306,7 +1306,16 @@
       "login": "Iniciar sesión"
     },
     "compositionFull": "Límite de 4 cámaras en la composición",
-    "viewModeGridNeedsFour": "La cuadrícula necesita 4 cámaras"
+    "viewModeGridNeedsFour": "La cuadrícula necesita 4 cámaras",
+    "chapters": {
+      "label": "Capítulos",
+      "open": "Abrir capítulos",
+      "close": "Cerrar capítulos",
+      "nowPlaying": "Reproduciendo ahora",
+      "durationMin": "{count} min",
+      "durationSec": "{count} s",
+      "goTo": "Ir a {title}, {time}"
+    }
   },
   "ads": {
     "sponsored": "Patrocinado",
