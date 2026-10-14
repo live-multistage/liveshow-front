@@ -267,19 +267,3 @@ $archivo: var(--font-archivo), 'Archivo', sans-serif;
   width: var(--pct);
   background: $action;
 }
-
-// Nested so these beat the DS skeleton's own background regardless of
-// stylesheet order.
-.skeletonItem {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 11px;
-
-  .skeletonTime { width: 96px; height: 10px; border-radius: 3px; background: rgba(255, 255, 255, 0.07); }
-  .skeletonTitle { width: 70%; height: 15px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); }
-  .skeletonLine { width: 92%; height: 10px; border-radius: 3px; background: rgba(255, 255, 255, 0.06); }
-  .skeletonLineShort { width: 64%; height: 10px; border-radius: 3px; background: rgba(255, 255, 255, 0.06); }
-}

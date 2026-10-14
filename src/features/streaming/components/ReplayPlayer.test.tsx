@@ -297,7 +297,7 @@ describe('ReplayPlayer — chapters', () => {
     expect(container.querySelector('video')!.currentTime).toBe(120);
     expect(within(drawer()).getByText('Banda Aurora').closest('button')).toHaveAttribute('aria-current', 'true');
     // The pill flips to its close label (the drawer's own close button shares it).
-    expect(container.querySelector('header [aria-label="chapters.close"]')).not.toBeNull();
+    expect(container.querySelector('header [aria-label="chapters.open"][aria-expanded="true"]')).not.toBeNull();
   });
 
   it('lists event-wide chapters plus the current stage, and follows a stage switch', () => {
@@ -338,6 +338,20 @@ describe('ReplayPlayer — chapters', () => {
     expect(queryByRole('complementary', { name: 'chapters.label' })).toBeNull();
   });
 
+  it('does not pull focus back to the pill when Câmeras closes the drawer', () => {
+    const { getByLabelText, getByTitle } = render(
+      <ReplayPlayer cameras={[camA, camB]} title="Show" eventId="evt-1" timeline={timeline} chapters={[chapter('c1', 'Abertura', 0, 60)]} />,
+    );
+    const pill = getByLabelText('chapters.open');
+    pill.focus();
+    fireEvent.click(pill);
+    const cameras = getByTitle('toggleCameras');
+    cameras.focus();
+    fireEvent.click(cameras);
+    expect(document.activeElement).not.toBe(pill);
+    expect(document.activeElement).toBe(cameras);
+  });
+
   it('keeps one side drawer at a time: opening chapters closes cameras', () => {
     const { getByLabelText, getByTitle, container } = render(
       <ReplayPlayer cameras={[camA, camB]} title="Show" eventId="evt-1" timeline={timeline} chapters={[chapter('c1', 'Abertura', 0, 60)]} />,
@@ -346,13 +360,6 @@ describe('ReplayPlayer — chapters', () => {
     fireEvent.click(getByLabelText('chapters.open'));
     expect(container.querySelector('[data-chapters-open]')).not.toBeNull();
     expect(getByTitle('toggleCameras').className).not.toMatch(/drawerBtnActive/);
-  });
-
-  it('hides the pill while chapters load', () => {
-    const { queryByLabelText } = render(
-      <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} chaptersLoading />,
-    );
-    expect(queryByLabelText('chapters.open')).toBeNull();
   });
 
   it('closes the drawer on Escape', () => {

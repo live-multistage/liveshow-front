@@ -34,8 +34,8 @@ interface Props {
   chatOpen?: boolean;
   onToggleChat?: () => void;
   chatMessageCount?: number;
-  // Replay with chapters. count null = still loading (pill shown, no count).
-  chapters?: { open: boolean; onToggle: () => void; count: number | null };
+  // Replay with at least one visible chapter.
+  chapters?: { open: boolean; onToggle: () => void; count: number };
   onShare: () => void;
 }
 
@@ -120,14 +120,12 @@ export function Header({
           <button
             className={`${styles.drawerBtn} ${styles.chaptersBtn} ${chapters.open ? styles.drawerBtnActive : ''}`}
             onClick={chapters.onToggle}
-            aria-label={chapters.open ? t('chapters.close') : t('chapters.open')}
+            aria-label={t('chapters.open')}
             aria-expanded={chapters.open}
           >
             <List size={13} />
             <span className={styles.drawerBtnLabel}>{t('chapters.label')}</span>
-            {chapters.count !== null && (
-              <span className={`${styles.badge} ${styles.drawerBtnLabel}`}>{chapters.count}</span>
-            )}
+            <span className={`${styles.badge} ${styles.drawerBtnLabel}`}>{chapters.count}</span>
           </button>
         )}
         <button

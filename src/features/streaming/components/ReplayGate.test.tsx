@@ -56,8 +56,8 @@ vi.mock('@/features/advertisements/components/PreRollPlayer', () => ({
 }));
 
 vi.mock('./ReplayPlayer', () => ({
-  ReplayPlayer: ({ chapters, chaptersLoading }: { chapters?: unknown[]; chaptersLoading?: boolean }) => (
-    <div data-testid="replay-player" data-chapter-count={chapters?.length ?? 'none'} data-chapters-loading={String(!!chaptersLoading)}>
+  ReplayPlayer: ({ chapters }: { chapters?: unknown[] }) => (
+    <div data-testid="replay-player" data-chapter-count={chapters?.length ?? 'none'}>
       replay-player-stub
     </div>
   ),
@@ -144,13 +144,8 @@ describe('ReplayGate — chapters', () => {
     expect(screen.getByTestId('replay-player')).toHaveAttribute('data-chapter-count', '2');
   });
 
-  it('never blocks the player on chapters: still loading or failed, the player renders', () => {
-    chaptersState.isLoading = true;
-    const { unmount } = render(<ReplayGate eventId="evt-1" eventTitle="Show" />);
-    expect(screen.getByTestId('replay-player')).toHaveAttribute('data-chapters-loading', 'true');
-    unmount();
-
-    chaptersState.isLoading = false; // failed query: no data, not loading
+  it('never blocks the player on chapters: no data yet or failed, the player renders', () => {
+    // Still loading or failed: no data.
     render(<ReplayGate eventId="evt-1" eventTitle="Show" />);
     expect(screen.getByTestId('replay-player')).toHaveAttribute('data-chapter-count', 'none');
   });

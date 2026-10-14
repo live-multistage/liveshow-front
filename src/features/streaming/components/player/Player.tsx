@@ -99,7 +99,7 @@ export interface PlayerHeaderProps {
   currentViewers?: number;
   chat?: { open: boolean; onToggle: () => void; messageCount: number };
   // Replay only in practice: shows the "Capítulos" pill. count null = loading.
-  chapters?: { count: number | null };
+  chapters?: { count: number };
 }
 
 function PlayerHeader({ badge, exitHref, metaLine, currentViewers, chat, chapters }: PlayerHeaderProps) {

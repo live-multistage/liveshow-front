@@ -27,7 +27,6 @@ const goTo = (title: string, time: string) => `chapters.goTo ${JSON.stringify({ 
 function renderDrawer(overrides: Partial<Parameters<typeof ChaptersDrawer>[0]> = {}) {
   const props = {
     open: true,
-    loading: false,
     chapters,
     positionMs: T0 + 27 * MIN + 14_000,
     timeline,
@@ -93,12 +92,17 @@ describe('ChaptersDrawer', () => {
     expect(single.queryByText('Palco A')).toBeNull();
   });
 
-  it('shows three skeleton items and no count while loading', () => {
-    const { container, queryByText, queryAllByRole } = renderDrawer({ loading: true, chapters: [] });
-    // 3 items × 4 bars each (time, title, two description lines).
-    expect(container.querySelectorAll('[data-slot="skeleton"]')).toHaveLength(12);
-    expect(queryByText('0')).toBeNull();
-    expect(queryAllByRole('button', { name: /chapters.goTo/ })).toHaveLength(0);
+  it('leaves focus alone when the drawer closes with focus on another control', () => {
+    const trigger = document.createElement('button');
+    const other = document.createElement('button');
+    document.body.append(trigger, other);
+    trigger.focus();
+    const { rerender, props } = renderDrawer();
+    other.focus();
+    rerender(<ChaptersDrawer {...props} open={false} />);
+    expect(document.activeElement).toBe(other);
+    trigger.remove();
+    other.remove();
   });
 
   it('closes on Escape and on the close button', () => {
@@ -120,11 +124,8 @@ describe('ChaptersDrawer', () => {
     trigger.remove();
   });
 
-  it('focuses the close button when no chapter is playing or while loading', () => {
+  it('focuses the close button when no chapter is playing', () => {
     const idle = renderDrawer({ positionMs: T0 + 15 * MIN });
     expect(document.activeElement).toBe(idle.getByLabelText('chapters.close'));
-    idle.unmount();
-    const loading = renderDrawer({ loading: true, chapters: [] });
-    expect(document.activeElement).toBe(loading.getByLabelText('chapters.close'));
   });
 });

@@ -20,6 +20,7 @@
   pointer-events: none;
 }
 
+// Only a hook: lets the [data-chapters-open] rule below out-specify the header's own `right`.
 .headerInset {
   transition: right 0.15s ch.$ease;
 }

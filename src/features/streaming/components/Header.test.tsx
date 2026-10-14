@@ -115,13 +115,9 @@ describe('Header — chapters pill', () => {
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
 
-  it('labels itself as the close action while open', () => {
+  it('keeps a stable name and conveys state with aria-expanded', () => {
     const { getByLabelText } = render(<Header {...baseProps} chapters={{ open: true, onToggle: vi.fn(), count: 6 }} />);
-    expect(getByLabelText('chapters.close')).toHaveAttribute('aria-expanded', 'true');
+    expect(getByLabelText('chapters.open')).toHaveAttribute('aria-expanded', 'true');
   });
 
-  it('hides the count while chapters are still loading', () => {
-    const { getByLabelText } = render(<Header {...baseProps} chapters={{ open: false, onToggle: vi.fn(), count: null }} />);
-    expect(getByLabelText('chapters.open').textContent).toBe('chapters.label');
-  });
 });

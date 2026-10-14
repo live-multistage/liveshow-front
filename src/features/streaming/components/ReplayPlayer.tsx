@@ -33,8 +33,6 @@ interface ReplayPlayerProps {
   // Chapters marked on the replay (GET /events/:id/replay-chapters). Undefined
   // or empty renders the player exactly as without the feature.
   chapters?: ReplayChapter[];
-  // First fetch still in flight: the pill shows without a count (design 2b).
-  chaptersLoading?: boolean;
 }
 
 // CameraGrid/VideoPanel consume LiveCamera (manifestPath), not
@@ -68,7 +66,7 @@ const firstPlayable = (list: LiveCamera[]) => list.find((c) => c.manifestPath !=
 // camera is still its own independent VOD timeline underneath (no frame-
 // accurate cross-camera sync), a real, harder problem deliberately left for
 // later.
-export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCameraId = null, librasCameraId = null, title, eventId, timeline, adsEnabled = true, chapters, chaptersLoading = false }: ReplayPlayerProps) {
+export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCameraId = null, librasCameraId = null, title, eventId, timeline, adsEnabled = true, chapters }: ReplayPlayerProps) {
   const t = useTranslations('player');
 
   const cameras = useMemo(() => rawCameras.map(toLiveCamera), [rawCameras]);
@@ -97,8 +95,8 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     () => (timeline && chapters ? visibleChapters(chapters, chapterStageId, timeline) : []),
     [chapters, chapterStageId, timeline],
   );
-  // Resolved and non-empty for this stage: no pill (and no drawer) while loading.
-  const chaptersAvailable = !chaptersLoading && shownChapters.length > 0;
+  // Pill and drawer only exist once chapters loaded and this stage has any.
+  const chaptersAvailable = shownChapters.length > 0;
   const { setChaptersOpen } = shell;
   // A stage switch can leave nothing to list; close the drawer with it or the
   // chrome would stay inset beside a drawer that no longer renders.
@@ -224,7 +222,6 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
         <Player.Aside>
           <ChaptersDrawer
             open={shell.chaptersOpen}
-            loading={false}
             chapters={shownChapters}
             positionMs={positionMs}
             timeline={timeline}

@@ -86,7 +86,6 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
       timeline={playback.data.timeline}
       adsEnabled={adsEnabled}
       chapters={chapters.data}
-      chaptersLoading={chapters.isLoading}
     />
   );
 }
