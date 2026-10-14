@@ -7,7 +7,7 @@ import { useAuth } from '@/features/account/hooks/use-auth';
 import { isPlaybackUnauthorized } from '../utils/is-playback-unauthorized';
 import { usePrerollGate } from '@/features/advertisements/hooks/use-preroll-gate';
 import { PreRollPlayer } from '@/features/advertisements/components/PreRollPlayer';
-import { useReplayAccessQuery, useReplayPlaybackQuery } from '../queries/live.queries';
+import { useReplayAccessQuery, useReplayChaptersQuery, useReplayPlaybackQuery } from '../queries/live.queries';
 import { usePlayerOpened } from '../hooks/use-player-opened';
 import { LiveGateLoading } from './LiveGateLoading';
 import { ReplayComingSoon } from './ReplayComingSoon';
@@ -26,6 +26,9 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
   const { isLoading: authLoading } = useAuth();
   const access = useReplayAccessQuery(eventId, !authLoading);
   const playback = useReplayPlaybackQuery(eventId, access.data === true);
+  // Fetched next to playback and never awaited: the player must not wait
+  // for (or fail on) chapters.
+  const chapters = useReplayChaptersQuery(eventId, access.data === true);
   const preroll = usePrerollGate(eventId, adsEnabled);
   const [prerollDone, setPrerollDone] = useState(false);
 
@@ -82,6 +85,8 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
       // atrasada saber onde ela cai no evento.
       timeline={playback.data.timeline}
       adsEnabled={adsEnabled}
+      chapters={chapters.data}
+      chaptersLoading={chapters.isLoading}
     />
   );
 }

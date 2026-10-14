@@ -9,6 +9,7 @@ export const LIVE_KEYS = {
   replayAccess: (eventId: string) => ['live', 'replay-access', eventId] as const,
   playback: (eventId: string) => ['live', 'playback', eventId] as const,
   replayPlayback: (eventId: string) => ['live', 'replay-playback', eventId] as const,
+  replayChapters: (eventId: string) => ['live', 'replay-chapters', eventId] as const,
 };
 
 // One-shot (cached) live entitlement check. `enabled` lets callers skip it when
@@ -66,5 +67,18 @@ export function useReplayPlaybackQuery(eventId: string, enabled: boolean) {
     // Same reasoning as useLivePlaybackQuery: a 401/403/dead-refresh means
     // the entitlement is gone, not that the request hiccuped — don't retry.
     retry: (count, error) => !isPlaybackUnauthorized(error) && count < 3,
+  });
+}
+
+// Optional garnish on the replay: a failure just leaves the player without
+// chapters, so one retry is enough — longer would keep the pill in its
+// loading state for nothing.
+export function useReplayChaptersQuery(eventId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: LIVE_KEYS.replayChapters(eventId),
+    queryFn: () => streamingService.getReplayChapters(eventId),
+    enabled,
+    staleTime: 5 * 60_000,
+    retry: 1,
   });
 }

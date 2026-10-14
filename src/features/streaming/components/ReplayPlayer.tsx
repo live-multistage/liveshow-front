@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import type { ReplayCameraPlayback, ReplayEventTimeline, ReplayStagePlayback, LiveCamera } from '../types/live.types';
+import type { ReplayCameraPlayback, ReplayChapter, ReplayEventTimeline, ReplayStagePlayback, LiveCamera } from '../types/live.types';
 import { ReplayBadge } from './transport/ReplayBadge';
 import { formatTime } from './transport/live-scrubber';
 import { localToAbsolute } from '../utils/replay-timeline';
@@ -28,6 +28,11 @@ interface ReplayPlayerProps {
   // Gates the pause-ad takeover — off must skip PauseAdTakeover entirely so
   // /ads/serve is never called, not just hide the result.
   adsEnabled?: boolean;
+  // Chapters marked on the replay (GET /events/:id/replay-chapters). Undefined
+  // or empty renders the player exactly as without the feature.
+  chapters?: ReplayChapter[];
+  // First fetch still in flight: the pill shows without a count (design 2b).
+  chaptersLoading?: boolean;
 }
 
 // CameraGrid/VideoPanel consume LiveCamera (manifestPath), not

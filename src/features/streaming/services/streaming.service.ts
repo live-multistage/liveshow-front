@@ -1,5 +1,5 @@
 import { httpClient } from '@/lib/http/client';
-import type { LivePlaybackResponse, LiveAccessResponse, ReplayPlaybackResponse } from '../types/live.types';
+import type { LivePlaybackResponse, LiveAccessResponse, ReplayChapter, ReplayChaptersResponse, ReplayPlaybackResponse } from '../types/live.types';
 
 export const streamingService = {
   // Whether the logged-in user is entitled to watch this event live.
@@ -27,5 +27,12 @@ export const streamingService = {
   getReplayPlayback: async (eventId: string): Promise<ReplayPlaybackResponse> => {
     const { data } = await httpClient.get<ReplayPlaybackResponse>(`/shows/${eventId}/replay-playback`);
     return data;
+  },
+
+  // Public: chapters marked by the organization on the replay timeline
+  // (absolute instants, same domain as the replay timeline).
+  getReplayChapters: async (eventId: string): Promise<ReplayChapter[]> => {
+    const { data } = await httpClient.get<ReplayChaptersResponse>(`/events/${eventId}/replay-chapters`);
+    return data.chapters;
   },
 };

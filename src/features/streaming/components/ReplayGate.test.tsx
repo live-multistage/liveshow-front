@@ -21,6 +21,7 @@ vi.mock('@/features/account/hooks/use-auth', () => ({
 }));
 
 const accessState = { data: true, isLoading: false };
+const chaptersState: { data: unknown; isLoading: boolean } = { data: undefined, isLoading: false };
 const playbackState: { data: unknown; isLoading: boolean; error: unknown } = {
   data: {
     available: true,
@@ -34,6 +35,7 @@ const playbackState: { data: unknown; isLoading: boolean; error: unknown } = {
 vi.mock('../queries/live.queries', () => ({
   useReplayAccessQuery: () => accessState,
   useReplayPlaybackQuery: () => playbackState,
+  useReplayChaptersQuery: () => chaptersState,
 }));
 
 const prerollState: { ad: unknown; pending: boolean; markSeen: () => void } = {
@@ -54,7 +56,11 @@ vi.mock('@/features/advertisements/components/PreRollPlayer', () => ({
 }));
 
 vi.mock('./ReplayPlayer', () => ({
-  ReplayPlayer: () => <div>replay-player-stub</div>,
+  ReplayPlayer: ({ chapters, chaptersLoading }: { chapters?: unknown[]; chaptersLoading?: boolean }) => (
+    <div data-testid="replay-player" data-chapter-count={chapters?.length ?? 'none'} data-chapters-loading={String(!!chaptersLoading)}>
+      replay-player-stub
+    </div>
+  ),
 }));
 
 vi.mock('./LiveGateLoading', () => ({
@@ -71,6 +77,8 @@ describe('ReplayGate — revoked access on playback refresh', () => {
     prerollState.pending = false;
     playbackState.error = undefined;
     mockTrack.mockClear();
+    chaptersState.data = undefined;
+    chaptersState.isLoading = false;
   });
 
   it('unmounts the player and shows the no-access state on a 401 refresh, tracking player_opened(hasAccess:false)', () => {
@@ -121,5 +129,29 @@ describe('ReplayGate — revoked access on playback refresh', () => {
 
     expect(screen.getByText('replay-player-stub')).toBeInTheDocument();
     expect(screen.queryByText('accessRequired')).not.toBeInTheDocument();
+  });
+});
+
+describe('ReplayGate — chapters', () => {
+  beforeEach(() => {
+    chaptersState.data = undefined;
+    chaptersState.isLoading = false;
+  });
+
+  it('hands the fetched chapters to the player', () => {
+    chaptersState.data = [{ id: 'c1' }, { id: 'c2' }];
+    render(<ReplayGate eventId="evt-1" eventTitle="Show" />);
+    expect(screen.getByTestId('replay-player')).toHaveAttribute('data-chapter-count', '2');
+  });
+
+  it('never blocks the player on chapters: still loading or failed, the player renders', () => {
+    chaptersState.isLoading = true;
+    const { unmount } = render(<ReplayGate eventId="evt-1" eventTitle="Show" />);
+    expect(screen.getByTestId('replay-player')).toHaveAttribute('data-chapters-loading', 'true');
+    unmount();
+
+    chaptersState.isLoading = false; // failed query: no data, not loading
+    render(<ReplayGate eventId="evt-1" eventTitle="Show" />);
+    expect(screen.getByTestId('replay-player')).toHaveAttribute('data-chapter-count', 'none');
   });
 });

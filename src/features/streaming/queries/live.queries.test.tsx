@@ -6,6 +6,7 @@ vi.mock('../services/streaming.service', () => ({
     checkReplayAccess: vi.fn().mockResolvedValue(true),
     getLivePlayback: vi.fn().mockResolvedValue(null),
     getReplayPlayback: vi.fn().mockResolvedValue(null),
+    getReplayChapters: vi.fn().mockResolvedValue([{ id: 'c1' }]),
   },
 }));
 
@@ -24,10 +25,10 @@ vi.mock('@tanstack/react-query', async () => {
 });
 
 import { AxiosError, AxiosHeaders } from 'axios';
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { useLivePlaybackQuery, useReplayPlaybackQuery } from './live.queries';
+import { useLivePlaybackQuery, useReplayChaptersQuery, useReplayPlaybackQuery } from './live.queries';
 
 function makeHttpError(status: number) {
   return new AxiosError('Request failed', undefined, { headers: new AxiosHeaders() } as never, undefined, {
@@ -89,5 +90,27 @@ describe('useLivePlaybackQuery', () => {
     expect(retry(0, makeHttpError(403))).toBe(false);
     expect(retry(0, makeHttpError(500))).toBe(true);
     expect(retry(3, makeHttpError(500))).toBe(false);
+  });
+});
+
+describe('useReplayChaptersQuery', () => {
+  it('resolves to the chapter list and retries a failure only once (chapters are optional)', async () => {
+    const { wrapper } = makeWrapper();
+
+    const { result } = renderHook(() => useReplayChaptersQuery('my-event', true), { wrapper });
+
+    await waitFor(() => expect(result.current.data).toEqual([{ id: 'c1' }]));
+    expect(useQuerySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ queryKey: ['live', 'replay-chapters', 'my-event'], retry: 1 }),
+    );
+  });
+
+  it('does not fetch while disabled', () => {
+    const { wrapper } = makeWrapper();
+
+    const { result } = renderHook(() => useReplayChaptersQuery('my-event', false), { wrapper });
+
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(result.current.data).toBeUndefined();
   });
 });
