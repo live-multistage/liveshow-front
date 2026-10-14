@@ -153,3 +153,14 @@ export function serverErrorIndex(message: string): number | null {
   const m = /chapter at position (\d+):/.exec(message);
   return m ? Number(m[1]) : null;
 }
+
+// Rows with an unreadable start sink to the bottom so the one being typed
+// doesn't jump around; Array.sort is stable, ties keep their order.
+export function sortDraftsByStart(drafts: ChapterDraft[]): ChapterDraft[] {
+  const startOf = (d: ChapterDraft) => parseOffset(d.startText) ?? Infinity;
+  return [...drafts].sort((a, b) => {
+    const x = startOf(a);
+    const y = startOf(b);
+    return x === y ? 0 : x < y ? -1 : 1;
+  });
+}

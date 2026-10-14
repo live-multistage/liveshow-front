@@ -56,6 +56,11 @@ vi.mock('./EventArtistsSection', () => ({
   ),
 }));
 vi.mock('./EventScheduleEditor', () => ({ EventScheduleEditor: () => <div>schedule-editor</div> }));
+vi.mock('./ReplayChaptersSection', () => ({
+  ReplayChaptersSection: (props: { isVod: boolean; readOnly: boolean }) => (
+    <div>replay-chapters{props.isVod ? '-vod' : ''}{props.readOnly ? '-readonly' : ''}</div>
+  ),
+}));
 vi.mock('../public/EventSchedule', () => ({ EventSchedule: () => <div>schedule-view</div> }));
 
 import { render, screen, waitFor } from '@testing-library/react';
@@ -139,6 +144,36 @@ describe('EventDashboardDetailContent ownership gate', () => {
 
     expect(screen.getByText('header-actions')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Show Alheio' })).toBeInTheDocument();
+  });
+
+  describe('replay chapters section', () => {
+    const withEvent = (over: Partial<EventResponse>) =>
+      vi.mocked(useGetEventQuery).mockReturnValue({
+        data: { ...EVENT, ...over },
+        isLoading: false,
+        isError: false,
+      } as unknown as ReturnType<typeof useGetEventQuery>);
+
+    it('is hidden until the event is finished', () => {
+      mockOrgs([makeOrg('org-owner', 'ADMIN')]);
+      withEvent({ status: 'LIVE' });
+      renderPage();
+      expect(screen.queryByText(/replay-chapters/)).toBeNull();
+    });
+
+    it('shows for a finished event, editable for an admin', () => {
+      mockOrgs([makeOrg('org-owner', 'ADMIN')]);
+      withEvent({ status: 'FINISHED' });
+      renderPage();
+      expect(screen.getByText('replay-chapters')).toBeInTheDocument();
+    });
+
+    it('is read-only for a collaborator org and flags VOD events', () => {
+      mockOrgs([]);
+      withEvent({ status: 'FINISHED', format: 'VOD', collaborationRole: 'COLLABORATOR' });
+      renderPage();
+      expect(screen.getByText('replay-chapters-vod-readonly')).toBeInTheDocument();
+    });
   });
 
   it('renders the management UI for the org owner', () => {

@@ -1,0 +1,153 @@
+@use './replay-chapters' as *;
+
+.preview {
+  @include rc-panel;
+  padding: 16px 18px 14px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+// Stacked stage tracks need room for the label column on narrow screens.
+.multi {
+  @media (max-width: $rc-mobile) {
+    min-width: 560px;
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.title {
+  font-family: $mono;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.count {
+  font-family: $mono;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.track,
+.axis {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.trackLabeled {
+  grid-template-columns: 130px minmax(0, 1fr);
+
+  @media (max-width: $rc-mobile) {
+    grid-template-columns: 84px minmax(0, 1fr);
+  }
+}
+
+.trackLabel {
+  font-family: $mono;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $text-secondary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar {
+  position: relative;
+  height: 16px;
+}
+
+.rail {
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 6px;
+  transform: translateY(-50%);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+// 3px gap between neighbours, never thinner than 4px so a short chapter
+// stays visible.
+.segment {
+  position: absolute;
+  top: 50%;
+  left: var(--left);
+  width: max(4px, calc(var(--width) - 3px));
+  height: 8px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background: rgba(255, 46, 158, 0.62);
+  transition: height 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.segmentHot {
+  height: 12px;
+  background: $action;
+}
+
+.segmentInvalid {
+  background: rgba(248, 113, 113, 0.6);
+}
+
+.tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: clamp(90px, var(--center), calc(100% - 90px));
+  transform: translateX(-50%);
+  z-index: 5;
+  width: max-content;
+  max-width: 220px;
+  padding: 7px 10px;
+  background: rgba(12, 12, 14, 0.97);
+  border: 1px solid $rc-ghost-border;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.tipTime {
+  font-family: $mono;
+  font-size: 10.5px;
+  color: $accent-text;
+}
+
+.tipTimeInvalid {
+  color: $error;
+}
+
+.tipTitle {
+  margin-top: 2px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.axis {
+  margin-top: 8px;
+}
+
+.axisLabels {
+  display: flex;
+  justify-content: space-between;
+  font-family: $mono;
+  font-size: 10px;
+  color: $text-muted;
+}

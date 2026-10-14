@@ -1,0 +1,252 @@
+@use './replay-chapters' as *;
+
+.card {
+  @include rc-panel;
+  padding: 16px;
+}
+
+.cardError {
+  border-color: $rc-error-border;
+}
+
+.cardWarn {
+  border-color: $rc-amber-border;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.ord {
+  @include rc-label;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.duration {
+  flex: 1;
+  font-family: $mono;
+  font-size: 10px;
+  color: $text-muted;
+}
+
+.remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid $rc-field-border;
+  border-radius: 9px;
+  color: $text-muted;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: $rc-error-border;
+    color: $error;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 130px 130px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+
+  @media (max-width: $rc-mobile) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.gridMulti {
+  grid-template-columns: 124px 124px minmax(0, 1fr) 170px;
+
+  @media (max-width: $rc-mobile) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.full {
+  @media (max-width: $rc-mobile) {
+    grid-column: 1 / -1;
+  }
+}
+
+.label {
+  @include rc-label;
+}
+
+.required::after {
+  content: ' *';
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.counter,
+.counterFull {
+  font-family: $mono;
+  font-size: 9px;
+  color: $text-secondary;
+}
+
+.counterFull {
+  color: $error;
+}
+
+// Compound selectors out-rank the design-system primitives' own single-class
+// rules regardless of stylesheet order.
+.field .input {
+  @include rc-field;
+
+  &[aria-invalid='true'] {
+    border-color: $error;
+  }
+}
+
+.mono {
+  font-family: $mono;
+  font-size: 13px;
+}
+
+.selectWrap,
+.artistAdd {
+  position: relative;
+}
+
+.select {
+  @include rc-field;
+  appearance: none;
+  padding-right: 34px;
+  color: $text-secondary;
+  cursor: pointer;
+}
+
+.selectActive {
+  border-color: rgba(255, 46, 158, 0.35);
+  color: $accent-text;
+}
+
+.chevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.artists {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.artistBox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 6px;
+  background: $rc-field-bg;
+  border: 1px solid $rc-field-border;
+  border-radius: 9px;
+}
+
+.artistChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 11px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: $accent-text;
+  background: $action-bg;
+  border: 1px solid rgba(255, 46, 158, 0.3);
+  border-radius: 999px;
+}
+
+.artistRemove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: $accent-text;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 46, 158, 0.2);
+  }
+}
+
+.artistAdd {
+  flex: 1;
+  min-width: 150px;
+}
+
+.artistSelect {
+  width: 100%;
+  appearance: none;
+  padding: 6px 26px 6px 6px;
+  font-size: 13px;
+  color: $text-muted;
+  background: transparent;
+  border: 0;
+  outline: none;
+  cursor: pointer;
+
+  option {
+    background: $rc-field-bg;
+    color: $text-primary;
+  }
+}
+
+.card .description {
+  @include rc-field;
+  display: block;
+  min-height: 0;
+  margin-top: 12px;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.errorLine,
+.warnLine {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.errorLine {
+  color: $error;
+}
+
+.warnLine {
+  margin-top: 8px;
+  color: $rc-amber;
+}

@@ -5,6 +5,7 @@ import {
   formatOffset,
   parseOffset,
   serverErrorIndex,
+  sortDraftsByStart,
   toReplaceRequest,
   validateDrafts,
   type ChapterDraft,
@@ -164,5 +165,17 @@ describe('serverErrorIndex', () => {
   it('parses the position from the backend message', () => {
     expect(serverErrorIndex('chapter at position 3: end must be after start')).toBe(3);
     expect(serverErrorIndex('something else')).toBeNull();
+  });
+});
+
+describe('sortDraftsByStart', () => {
+  it('orders by start offset and keeps unparseable starts last, stable', () => {
+    const sorted = sortDraftsByStart([
+      draft({ key: 'bad', startText: 'x' }),
+      draft({ key: 'late', startText: '1:00:00' }),
+      draft({ key: 'blank', startText: '' }),
+      draft({ key: 'early', startText: '0:05:00' }),
+    ]);
+    expect(sorted.map((d) => d.key)).toEqual(['early', 'late', 'bad', 'blank']);
   });
 });

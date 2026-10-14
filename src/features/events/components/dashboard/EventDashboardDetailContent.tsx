@@ -24,6 +24,7 @@ import { PhotosSection } from './PhotosSection';
 import { EventCollaboratorsSection } from './EventCollaboratorsSection';
 import { EventArtistsSection } from './EventArtistsSection';
 import { EventScheduleEditor } from './EventScheduleEditor';
+import { ReplayChaptersSection } from './ReplayChaptersSection';
 import { EventSchedule } from '../public/EventSchedule';
 import { VodUploadCard } from '../VodUploadCard/VodUploadCard';
 import { EventMetadataSection } from '@/features/metadata';
@@ -286,6 +287,11 @@ export function EventDashboardDetailContent({
             </div>
           </aside>
         </div>
+      )}
+
+      {/* Chapters only make sense once there is a replay to cut up. */}
+      {event.status === 'FINISHED' && (
+        <ReplayChaptersSection eventId={id} isVod={event.format === 'VOD'} readOnly={readOnly} />
       )}
     </div>
   );
