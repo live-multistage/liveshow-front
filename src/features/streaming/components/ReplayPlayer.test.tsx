@@ -5,10 +5,10 @@
  * HTMLMediaElement.prototype.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, act, fireEvent } from '@testing-library/react';
+import { render, act, fireEvent, within, screen } from '@testing-library/react';
 import { ReplayPlayer } from './ReplayPlayer';
 import { DRAWER_W } from './CameraGrid';
-import type { ReplayCameraPlayback, ReplayStagePlayback } from '../types/live.types';
+import type { ReplayCameraPlayback, ReplayChapter, ReplayStagePlayback } from '../types/live.types';
 
 // ── hls.js mock ──────────────────────────────────────────────────────────────
 const h = vi.hoisted(() => {
@@ -251,5 +251,116 @@ describe('ReplayPlayer — shared chrome', () => {
     expect(getAllByText('REPLAY').length).toBeGreaterThan(0);
     expect(queryByTitle('toggleChat')).toBeNull();
     expect(container.querySelector('svg.lucide-users')).toBeNull();
+  });
+});
+
+// Chapters are optional replay data: no chapters → today's player; with
+// chapters → segmented track, title, pill and drawer, all following the stage.
+describe('ReplayPlayer — chapters', () => {
+  const chapter = (id: string, title: string, startSec: number, endSec: number, stageId: string | null = null): ReplayChapter => ({
+    id, stageId, title, description: null, artists: [],
+    startsAtMs: CAM_A_START_MS + startSec * 1000,
+    endsAtMs: CAM_A_START_MS + endSec * 1000,
+  });
+  const twoStages: ReplayStagePlayback[] = [
+    { stageId: 's1', name: 'Palco A', slug: 'a', position: 0, cameras: [camA] },
+    { stageId: 's2', name: 'Palco B', slug: 'b', position: 1, cameras: [camB] },
+  ];
+  const drawer = () => screen.getByRole('complementary', { name: 'chapters.label' });
+
+  it('renders exactly as before when the event has no chapters', () => {
+    const { queryByLabelText, container } = render(
+      <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} chapters={[]} />,
+    );
+    expect(queryByLabelText('chapters.open')).toBeNull();
+    expect(container.querySelector('[data-chapter-track]')).toBeNull();
+  });
+
+  it('segments the scrubber and titles the chapter playing now', () => {
+    const { container, getByText, getByLabelText } = render(
+      <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} chapters={[chapter('c1', 'Abertura', 0, 60), chapter('c2', 'Banda Aurora', 120, 300)]} />,
+    );
+    expect(container.querySelector('[data-chapter-track]')).not.toBeNull();
+    expect(getByText('Abertura')).toBeTruthy(); // position seeds at the timeline start
+    expect(getByLabelText('chapters.open').textContent).toContain('2');
+  });
+
+  it('jumps to a chapter from the drawer, keeps it open and moves the highlight', () => {
+    const { getByLabelText, container } = render(
+      <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} chapters={[chapter('c1', 'Abertura', 0, 60), chapter('c2', 'Banda Aurora', 120, 300)]} />,
+    );
+    fireEvent.click(getByLabelText('chapters.open'));
+    expect(container.querySelector('[data-chapters-open]')).not.toBeNull();
+
+    fireEvent.click(within(drawer()).getByText('Banda Aurora').closest('button')!);
+
+    expect(container.querySelector('video')!.currentTime).toBe(120);
+    expect(within(drawer()).getByText('Banda Aurora').closest('button')).toHaveAttribute('aria-current', 'true');
+    // The pill flips to its close label (the drawer's own close button shares it).
+    expect(container.querySelector('header [aria-label="chapters.close"]')).not.toBeNull();
+  });
+
+  it('lists event-wide chapters plus the current stage, and follows a stage switch', () => {
+    const chapters = [chapter('all', 'Abertura', 0, 60), chapter('a', 'Banda Aurora', 60, 180, 's1'), chapter('b', 'Trio Maré', 60, 180, 's2')];
+    const { getByLabelText, getByRole } = render(
+      <ReplayPlayer cameras={[camA, camB]} stages={twoStages} title="Show" eventId="evt-1" timeline={timeline} chapters={chapters} />,
+    );
+    fireEvent.click(getByLabelText('chapters.open'));
+    expect(within(drawer()).getByText('Banda Aurora')).toBeTruthy();
+    expect(within(drawer()).queryByText('Trio Maré')).toBeNull();
+    expect(within(drawer()).getByText('Palco A')).toBeTruthy(); // stage tag
+
+    fireEvent.click(getByRole('tab', { name: /Palco B/ }));
+
+    expect(within(drawer()).getByText('Trio Maré')).toBeTruthy();
+    expect(within(drawer()).queryByText('Banda Aurora')).toBeNull();
+    expect(within(drawer()).getByText('Abertura')).toBeTruthy();
+  });
+
+  it('closes the drawer and drops the pill when a stage switch leaves nothing to list', () => {
+    const { getByLabelText, getByRole, queryByRole, queryByLabelText, container } = render(
+      <ReplayPlayer cameras={[camA, camB]} stages={twoStages} title="Show" eventId="evt-1" timeline={timeline} chapters={[chapter('a', 'Banda Aurora', 0, 60, 's1')]} />,
+    );
+    fireEvent.click(getByLabelText('chapters.open'));
+    fireEvent.click(getByRole('tab', { name: /Palco B/ }));
+
+    expect(queryByRole('complementary', { name: 'chapters.label' })).toBeNull();
+    expect(queryByLabelText('chapters.open')).toBeNull();
+    expect(container.querySelector('[data-chapters-open]')).toBeNull();
+  });
+
+  it('keeps one side drawer at a time: opening cameras closes chapters', () => {
+    const { getByLabelText, getByTitle, queryByRole } = render(
+      <ReplayPlayer cameras={[camA, camB]} title="Show" eventId="evt-1" timeline={timeline} chapters={[chapter('c1', 'Abertura', 0, 60)]} />,
+    );
+    fireEvent.click(getByLabelText('chapters.open'));
+    fireEvent.click(getByTitle('toggleCameras'));
+    expect(queryByRole('complementary', { name: 'chapters.label' })).toBeNull();
+  });
+
+  it('keeps one side drawer at a time: opening chapters closes cameras', () => {
+    const { getByLabelText, getByTitle, container } = render(
+      <ReplayPlayer cameras={[camA, camB]} title="Show" eventId="evt-1" timeline={timeline} chapters={[chapter('c1', 'Abertura', 0, 60)]} />,
+    );
+    fireEvent.click(getByTitle('toggleCameras'));
+    fireEvent.click(getByLabelText('chapters.open'));
+    expect(container.querySelector('[data-chapters-open]')).not.toBeNull();
+    expect(getByTitle('toggleCameras').className).not.toMatch(/drawerBtnActive/);
+  });
+
+  it('hides the pill while chapters load', () => {
+    const { queryByLabelText } = render(
+      <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} chaptersLoading />,
+    );
+    expect(queryByLabelText('chapters.open')).toBeNull();
+  });
+
+  it('closes the drawer on Escape', () => {
+    const { getByLabelText, queryByRole } = render(
+      <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} chapters={[chapter('c1', 'Abertura', 0, 60)]} />,
+    );
+    fireEvent.click(getByLabelText('chapters.open'));
+    act(() => { fireEvent.keyDown(window, { key: 'Escape' }); });
+    expect(queryByRole('complementary', { name: 'chapters.label' })).toBeNull();
   });
 });

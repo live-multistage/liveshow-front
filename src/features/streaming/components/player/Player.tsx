@@ -82,7 +82,7 @@ function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true,
   return (
     <PlayerProvider value={value}>
       <TrackFeature name="player" props={{ eventId: value.playbackEventId, mode: analyticsMode(mode) }}>
-        <div ref={shell.containerRef} className={styles.player}>
+        <div ref={shell.containerRef} className={styles.player} data-chapters-open={shell.chaptersOpen || undefined}>
           {children}
         </div>
       </TrackFeature>
@@ -98,16 +98,18 @@ export interface PlayerHeaderProps {
   // Live-only chrome; omitted for replay.
   currentViewers?: number;
   chat?: { open: boolean; onToggle: () => void; messageCount: number };
+  // Replay only in practice: shows the "Capítulos" pill. count null = loading.
+  chapters?: { count: number | null };
 }
 
-function PlayerHeader({ badge, exitHref, metaLine, currentViewers, chat }: PlayerHeaderProps) {
+function PlayerHeader({ badge, exitHref, metaLine, currentViewers, chat, chapters }: PlayerHeaderProps) {
   const { shell, eventId, title } = usePlayer();
   const t = useTranslations('player');
   const router = useRouter();
 
   return (
     <HeaderBar
-      className={shell.pauseAdVisible ? styles.headerHidden : undefined}
+      className={`${styles.headerInset} ${shell.pauseAdVisible ? styles.headerHidden : ''}`}
       // Constrain the bar's own box to stop before the camera drawer's
       // DRAWER_W-wide strip — padding alone left the (transparent, but still
       // hit-testable) right edge of the bar sitting over the drawer's
@@ -125,6 +127,7 @@ function PlayerHeader({ badge, exitHref, metaLine, currentViewers, chat }: Playe
       cameraCount={shell.stageCameras.length}
       cameraStripOpen={shell.cameraStripOpen}
       onToggleCameraStrip={shell.toggleCameraStrip}
+      chapters={chapters ? { open: shell.chaptersOpen, onToggle: shell.toggleChapters, count: chapters.count } : undefined}
       chatEnabled={!!chat}
       chatOpen={chat?.open}
       onToggleChat={chat?.onToggle}

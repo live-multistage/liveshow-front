@@ -98,3 +98,30 @@ describe('Header — badge and optional live-only chrome', () => {
     expect(queryByTitle('toggleChat')).toBeNull();
   });
 });
+
+describe('Header — chapters pill', () => {
+  it('is absent unless the player passes chapters', () => {
+    const { queryByLabelText } = render(<Header {...baseProps} />);
+    expect(queryByLabelText('chapters.open')).toBeNull();
+  });
+
+  it('shows the visible-chapter count and toggles the drawer', () => {
+    const onToggle = vi.fn();
+    const { getByLabelText, getByText } = render(
+      <Header {...baseProps} chapters={{ open: false, onToggle, count: 6 }} />,
+    );
+    expect(getByText('6')).toBeTruthy();
+    fireEvent.click(getByLabelText('chapters.open'));
+    expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+
+  it('labels itself as the close action while open', () => {
+    const { getByLabelText } = render(<Header {...baseProps} chapters={{ open: true, onToggle: vi.fn(), count: 6 }} />);
+    expect(getByLabelText('chapters.close')).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('hides the count while chapters are still loading', () => {
+    const { getByLabelText } = render(<Header {...baseProps} chapters={{ open: false, onToggle: vi.fn(), count: null }} />);
+    expect(getByLabelText('chapters.open').textContent).toBe('chapters.label');
+  });
+});

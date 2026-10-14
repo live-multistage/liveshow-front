@@ -66,7 +66,17 @@ export function usePlayerShell({
   const [pauseAdVisible, setPauseAdVisible] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
   const [cameraStripOpen, setCameraStripOpen] = useState(false);
-  const toggleCameraStrip = () => setCameraStripOpen((o) => !o);
+  // Cameras and chapters share the right edge: opening one closes the other.
+  // Live never shows the chapters pill, so chaptersOpen simply stays false there.
+  const [chaptersOpen, setChaptersOpen] = useState(false);
+  const toggleCameraStrip = () => {
+    setCameraStripOpen((o) => !o);
+    setChaptersOpen(false);
+  };
+  const toggleChapters = () => {
+    setChaptersOpen((o) => !o);
+    setCameraStripOpen(false);
+  };
 
   const { stages, activeStage, activeStageId, setActiveStageId } = usePlayerStages(cameras, rawStages, primaryCameraId);
   const stageCameras = activeStage?.cameras ?? [];
@@ -144,6 +154,9 @@ export function usePlayerShell({
     cameraStripOpen,
     setCameraStripOpen,
     toggleCameraStrip,
+    chaptersOpen,
+    setChaptersOpen,
+    toggleChapters,
     stages,
     activeStage,
     activeStageId,

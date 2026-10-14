@@ -20,6 +20,10 @@
   pointer-events: none;
 }
 
+.headerInset {
+  transition: right 0.15s ch.$ease;
+}
+
 .stage {
   position: absolute;
   inset: 0;
@@ -32,6 +36,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  transition: right 0.15s ch.$ease;
   // Above the CameraGrid overlays (PiP slot z:21, picker drawer z:21 + its
   // add-tiles z:22) so the transport bar's audio/quality popover menus — which
   // are trapped in .bar's backdrop-filter stacking context and can't escape via
@@ -69,6 +74,24 @@
 
     @media (max-width: ch.$compact) {
       flex-wrap: wrap;
+    }
+  }
+}
+
+// Chapters drawer open. Wide screens: the HUD and the transport stop at
+// the drawer's edge so the track stays visible (design 2a). Compact: the
+// drawer is a bottom sheet and the video moves into the space above it (3c).
+.player[data-chapters-open] {
+  @media (min-width: #{ch.$compact + 1px}) {
+    .bottomStack,
+    .headerInset {
+      right: ch.$drawer-w;
+    }
+  }
+
+  @media (max-width: ch.$compact) {
+    .stage {
+      bottom: ch.$sheet-h;
     }
   }
 }

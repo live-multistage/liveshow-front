@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft, Users, Video, MessageSquare, Share2 } from 'lucide-react';
+import { ChevronLeft, Users, Video, MessageSquare, Share2, List } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
 import { ReportButton } from '@/features/reports';
@@ -34,6 +34,8 @@ interface Props {
   chatOpen?: boolean;
   onToggleChat?: () => void;
   chatMessageCount?: number;
+  // Replay with chapters. count null = still loading (pill shown, no count).
+  chapters?: { open: boolean; onToggle: () => void; count: number | null };
   onShare: () => void;
 }
 
@@ -63,6 +65,7 @@ export function Header({
   chatOpen = false,
   onToggleChat,
   chatMessageCount = 0,
+  chapters,
   onShare,
 }: Props) {
   const t = useTranslations('player');
@@ -112,6 +115,20 @@ export function Header({
             <Users size={12} />
             {fmtCompact(currentViewers)}
           </div>
+        )}
+        {chapters && (
+          <button
+            className={`${styles.drawerBtn} ${styles.chaptersBtn} ${chapters.open ? styles.drawerBtnActive : ''}`}
+            onClick={chapters.onToggle}
+            aria-label={chapters.open ? t('chapters.close') : t('chapters.open')}
+            aria-expanded={chapters.open}
+          >
+            <List size={13} />
+            <span className={styles.drawerBtnLabel}>{t('chapters.label')}</span>
+            {chapters.count !== null && (
+              <span className={`${styles.badge} ${styles.drawerBtnLabel}`}>{chapters.count}</span>
+            )}
+          </button>
         )}
         <button
           className={`${styles.drawerBtn} ${cameraStripOpen ? styles.drawerBtnActive : ''}`}
