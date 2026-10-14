@@ -1306,7 +1306,16 @@
       "login": "Entrar"
     },
     "compositionFull": "Limite de 4 câmeras na composição",
-    "viewModeGridNeedsFour": "Grade precisa de 4 câmeras"
+    "viewModeGridNeedsFour": "Grade precisa de 4 câmeras",
+    "chapters": {
+      "label": "Capítulos",
+      "open": "Abrir capítulos",
+      "close": "Fechar capítulos",
+      "nowPlaying": "Tocando agora",
+      "durationMin": "{count} min",
+      "durationSec": "{count} s",
+      "goTo": "Ir para {title}, {time}"
+    }
   },
   "ads": {
     "sponsored": "Patrocinado",

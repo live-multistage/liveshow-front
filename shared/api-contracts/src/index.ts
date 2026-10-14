@@ -23,6 +23,7 @@ export * from './playback/media-url';
 export * from './playback/replay-timeline';
 export * from './playback/camera-selection';
 export * from './playback/progress-throttle';
+export * from './playback/replay-chapters';
 export * from './viewers/types';
 export * from './ads/types';
 export * from './playback-progress/types';

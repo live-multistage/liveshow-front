@@ -9,4 +9,7 @@ export type {
   ReplayStagePlayback,
   ReplayPlaybackResponse,
   LiveAccessResponse,
+  ReplayChapter,
+  ReplayChapterArtist,
+  ReplayChaptersResponse,
 } from '@live-show/api-contracts';

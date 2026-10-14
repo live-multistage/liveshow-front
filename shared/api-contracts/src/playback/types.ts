@@ -117,3 +117,54 @@ export interface ReplayPlaybackResponse {
   // domínio do scrubber. Null quando nenhuma câmera tem replay arquivado.
   timeline: ReplayEventTimeline | null;
 }
+
+// Replay chapters — instants are absolute epoch ms, the same domain as
+// ReplayEventTimeline, so one list serves every camera and stage.
+export interface ReplayChapterArtist {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface ReplayChapter {
+  id: string;
+  // Null = applies to the whole event; otherwise only to that stage.
+  stageId: string | null;
+  startsAtMs: number;
+  endsAtMs: number;
+  title: string;
+  description: string | null;
+  artists: ReplayChapterArtist[];
+}
+
+export interface ReplayChaptersResponse {
+  chapters: ReplayChapter[];
+}
+
+export interface ReplaceReplayChaptersRequest {
+  chapters: {
+    stageId?: string | null;
+    startsAtMs: number;
+    endsAtMs: number;
+    title: string;
+    description?: string | null;
+    artistIds?: string[];
+  }[];
+}
+
+export type ReplayChapterSuggestionIssue = 'NO_END_TIME' | 'OUTSIDE_TIMELINE' | 'MULTI_STAGE' | 'OVERLAP';
+
+export interface ReplayChapterSuggestion {
+  sourceScheduleItemId: string;
+  stageId: string | null;
+  startsAtMs: number;
+  endsAtMs: number | null;
+  title: string;
+  description: string | null;
+  artistIds: string[];
+  issues: ReplayChapterSuggestionIssue[];
+}
+
+export interface ReplayChapterSuggestionsResponse {
+  suggestions: ReplayChapterSuggestion[];
+}
