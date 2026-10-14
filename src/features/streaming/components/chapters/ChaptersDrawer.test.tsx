@@ -108,4 +108,23 @@ describe('ChaptersDrawer', () => {
     fireEvent.click(getByLabelText('chapters.close'));
     expect(props.onClose).toHaveBeenCalledTimes(2);
   });
+
+  it('moves focus to the playing chapter on open and back to the trigger after Escape', () => {
+    const trigger = document.createElement('button');
+    document.body.appendChild(trigger);
+    trigger.focus();
+    const { getByRole, rerender, props } = renderDrawer();
+    expect(document.activeElement).toBe(getByRole('button', { name: goTo('Banda Aurora', '0:20:00') }));
+    rerender(<ChaptersDrawer {...props} open={false} />);
+    expect(document.activeElement).toBe(trigger);
+    trigger.remove();
+  });
+
+  it('focuses the close button when no chapter is playing or while loading', () => {
+    const idle = renderDrawer({ positionMs: T0 + 15 * MIN });
+    expect(document.activeElement).toBe(idle.getByLabelText('chapters.close'));
+    idle.unmount();
+    const loading = renderDrawer({ loading: true, chapters: [] });
+    expect(document.activeElement).toBe(loading.getByLabelText('chapters.close'));
+  });
 });

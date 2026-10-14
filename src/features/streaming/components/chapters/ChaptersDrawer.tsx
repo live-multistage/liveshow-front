@@ -30,6 +30,8 @@ interface Props {
 export function ChaptersDrawer({ open, loading, chapters, positionMs, timeline, stageNames, onSeek, onClose }: Props) {
   const t = useTranslations('player');
   const currentRef = useRef<HTMLLIElement>(null);
+  const drawerRef = useRef<HTMLElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const current = chapterAt(chapters, positionMs);
   const spanMs = timeline.endsAtMs - timeline.startsAtMs;
 
@@ -42,6 +44,17 @@ export function ChaptersDrawer({ open, loading, chapters, positionMs, timeline, 
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
+  // Keyboard users reach the drawer from the pill and land back on it after closing.
+  useEffect(() => {
+    if (!open) return;
+    const trigger = document.activeElement;
+    const target = drawerRef.current?.querySelector<HTMLElement>('[aria-current="true"]') ?? closeRef.current;
+    target?.focus();
+    return () => {
+      if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus();
+    };
+  }, [open]);
+
   // Keep the playing chapter in view on open and as playback moves on.
   useEffect(() => {
     if (open) currentRef.current?.scrollIntoView?.({ block: 'nearest' });
@@ -50,12 +63,12 @@ export function ChaptersDrawer({ open, loading, chapters, positionMs, timeline, 
   if (!open) return null;
 
   return (
-    <aside className={styles.drawer} aria-label={t('chapters.label')}>
+    <aside ref={drawerRef} className={styles.drawer} aria-label={t('chapters.label')}>
       <div className={styles.handle} aria-hidden="true" />
       <div className={styles.header}>
         <span className={styles.eyebrow}>{t('chapters.label')}</span>
         {!loading && <span className={styles.count}>{chapters.length}</span>}
-        <button type="button" className={styles.close} onClick={onClose} aria-label={t('chapters.close')}>
+        <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label={t('chapters.close')}>
           <X size={16} />
         </button>
       </div>
