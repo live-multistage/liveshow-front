@@ -139,6 +139,8 @@ export interface ReplayChapter {
 
 export interface ReplayChaptersResponse {
   chapters: ReplayChapter[];
+  // Null = replay unavailable (no timeline yet).
+  window: ReplayEventTimeline | null;
 }
 
 export interface ReplaceReplayChaptersRequest {

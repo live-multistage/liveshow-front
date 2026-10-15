@@ -1,0 +1,383 @@
+@use './replay-chapters' as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  margin-top: 40px;
+}
+
+// ── Header ───────────────────────────────────────────────────────────
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.headerText {
+  max-width: 540px;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: $text-secondary;
+}
+
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.dirty {
+  font-family: $mono;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.dirtyOn {
+  color: $rc-amber;
+}
+
+.readOnlyBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  font-family: $mono;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $text-secondary;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+
+// ── Unavailable ──────────────────────────────────────────────────────
+.unavailable {
+  @include rc-panel;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 40px 32px;
+  border-radius: 16px;
+
+  @media (max-width: $rc-mobile) {
+    padding: 28px 20px;
+  }
+}
+
+.unavailableIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  color: $text-secondary;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+}
+
+.unavailableBody {
+  max-width: 520px;
+}
+
+.unavailableTitle {
+  margin: 0 0 6px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.unavailableText,
+.unavailableTextStrong {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: $text-secondary;
+}
+
+.unavailableTextStrong {
+  color: $text-primary;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 16px;
+  padding: 6px 12px;
+  font-family: $mono;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #d4d4d8;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+
+.loadError {
+  margin: 0;
+  font-size: 14px;
+  color: $error;
+}
+
+// ── Loading ──────────────────────────────────────────────────────────
+.skeletons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeletonCard {
+  @include rc-panel;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.skelLabel {
+  width: 110px;
+  height: 10px;
+}
+
+.skelBar {
+  height: 10px;
+}
+
+.skelGrid {
+  display: grid;
+  grid-template-columns: 130px 130px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.skelField {
+  height: 40px;
+  border-radius: 9px;
+}
+
+.skelArea {
+  height: 56px;
+  border-radius: 9px;
+}
+
+// ── Empty ────────────────────────────────────────────────────────────
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 56px 32px;
+  text-align: center;
+  border: 1px dashed $rc-ghost-border;
+  border-radius: 16px;
+}
+
+.emptyIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  color: $accent-text;
+  background: $action-dim;
+  border: 1px solid rgba(255, 46, 158, 0.28);
+  border-radius: 15px;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.emptyText {
+  margin: 0;
+  font-size: 13.5px;
+  color: $text-secondary;
+}
+
+.emptyActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+// ── Cards + footer ───────────────────────────────────────────────────
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.addCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 15px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #c7c7cd;
+  background: transparent;
+  border: 1.5px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: $accent-selected-border;
+    color: $text-primary;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.limitHint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: $text-muted;
+  text-align: center;
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 26px;
+  padding: 18px 0 0;
+  border-top: 1px solid $hairline;
+  background: linear-gradient(to top, $bg 60%, transparent);
+
+  @media (max-width: $rc-mobile) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.spacer {
+  flex: 1;
+
+  @media (max-width: $rc-mobile) {
+    display: none;
+  }
+}
+
+.pending {
+  font-family: $mono;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $rc-amber;
+  text-align: center;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: $text-primary;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ── Read-only list ───────────────────────────────────────────────────
+.readList {
+  @include rc-panel;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+}
+
+.readRow {
+  display: grid;
+  grid-template-columns: 96px 200px minmax(0, 1fr);
+  gap: 16px;
+  align-items: baseline;
+  padding: 16px 20px;
+  border-bottom: 1px solid $hairline;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  @media (max-width: $rc-mobile) {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+.ord {
+  @include rc-label;
+  font-size: 10px;
+}
+
+.range {
+  font-family: $mono;
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+.readTitle {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.readDescription {
+  margin-top: 3px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: $text-secondary;
+}
+
+.readArtists {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.readArtist {
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #d4d4d8;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}

@@ -1,0 +1,48 @@
+// Shared look of the replay-chapters editor, lifted from the Claude Design
+// canvas (design-editor-capitulos.dc.html). Values with no global token are
+// named here once instead of repeated as raw colours.
+@forward '../../../../styles/_dashboard-forms';
+@use '../../../../styles/_dashboard-forms' as *;
+
+$rc-amber: #f0a04b; // warnings + "unsaved" label, same amber as the design
+$rc-amber-border: rgba(240, 160, 75, 0.3);
+$rc-field-bg: #141417;
+$rc-field-border: rgba(255, 255, 255, 0.11);
+$rc-error-border: rgba(248, 113, 113, 0.4);
+$rc-ghost-border: rgba(255, 255, 255, 0.14);
+$rc-hover-fill: rgba(255, 255, 255, 0.06);
+$rc-mobile: 820px;
+
+@mixin rc-label {
+  font-family: $mono;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+@mixin rc-field {
+  width: 100%;
+  height: auto;
+  background: $rc-field-bg;
+  border: 1px solid $rc-field-border;
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  color: $text-primary;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &:focus,
+  &:focus-visible {
+    border-color: $action;
+    box-shadow: none;
+  }
+}
+
+@mixin rc-panel {
+  background: $surface;
+  border: 1px solid $border-hairline;
+  border-radius: 14px;
+}
