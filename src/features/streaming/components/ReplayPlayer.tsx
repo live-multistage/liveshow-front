@@ -161,6 +161,21 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     setSeekCommand({ time: absoluteMs, token: Date.now() });
   };
 
+  // Each camera is its own VOD timeline, so the one taking over sits wherever
+  // it was left — or never loaded at all. Without a seek a switch jumped back
+  // in the event or froze on a black frame. Re-seek to the instant on screen.
+  const positionRef = useRef(positionMs);
+  useEffect(() => {
+    positionRef.current = positionMs;
+  }, [positionMs]);
+  const mainCameraId = shell.effectiveMainCameraId;
+  const previousMainCameraId = useRef(mainCameraId);
+  useEffect(() => {
+    if (previousMainCameraId.current === mainCameraId) return;
+    previousMainCameraId.current = mainCameraId;
+    setSeekCommand({ time: positionRef.current, token: Date.now() });
+  }, [mainCameraId]);
+
   // ponytail: `!timeline` derruba o replay de VOD junto. O backend devolve
   // timeline null para VOD (asset único, sem costura de pacotes), então um VOD
   // com vídeo pronto cai aqui e anuncia "indisponível" — regressão conhecida,

@@ -243,6 +243,25 @@ describe('ReplayPlayer — shared chrome', () => {
     expect(lastHls().loadSource).toHaveBeenCalledWith(expect.stringContaining('pkg-b'));
   });
 
+  it('carries the instant being watched to the camera that takes over', () => {
+    const stages: ReplayStagePlayback[] = [
+      { stageId: 's1', name: 'Palco A', slug: 'a', position: 0, cameras: [camA] },
+      { stageId: 's2', name: 'Palco B', slug: 'b', position: 1, cameras: [camB] },
+    ];
+    const { getByRole, container } = render(
+      <ReplayPlayer cameras={[camA, camB]} stages={stages} title="Show" eventId="evt-1" timeline={timeline} />,
+    );
+    const videoA = container.querySelector('video')!;
+    Object.defineProperty(videoA, 'currentTime', { value: 400, configurable: true });
+    Object.defineProperty(videoA, 'duration', { value: 600, configurable: true });
+    fireEvent(videoA, new Event('timeupdate'));
+
+    fireEvent.click(getByRole('tab', { name: /Palco B/ }));
+
+    // A 400s is B 100s: B joined the event 300s late.
+    expect(container.querySelector('video')!.currentTime).toBe(100);
+  });
+
   it('exposes share and the REPLAY badge, with no chat or viewer chrome', () => {
     const { getByLabelText, getAllByText, queryByTitle, container } = render(
       <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} />,
