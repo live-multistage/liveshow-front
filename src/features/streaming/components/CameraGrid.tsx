@@ -274,7 +274,7 @@ export function CameraGrid({
               selectedAudioCameraId={isPrimary ? audioCameraId ?? undefined : undefined}
               onMutedChange={onMutedChange}
               onAutoplayBlocked={onAutoplayBlocked ?? (() => onGlobalMutedChange(true))}
-              clockRole={mode === 'live' ? (isPrimary ? 'master' : 'follower') : undefined}
+              clockRole={isPrimary ? 'master' : 'follower'}
               clockRef={clockRef}
               volume={volume}
               selectedLevel={selectedLevel}

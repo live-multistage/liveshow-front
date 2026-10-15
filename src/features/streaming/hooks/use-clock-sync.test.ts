@@ -2,10 +2,14 @@ import { describe, it, expect } from 'vitest';
 import { resolveClockCorrection } from './use-clock-sync';
 
 describe('resolveClockCorrection', () => {
-  it('leaves followers alone inside the dead zone (±120ms)', () => {
+  it('leaves followers alone within one frame (±40ms)', () => {
     expect(resolveClockCorrection(0)).toEqual({ type: 'none' });
-    expect(resolveClockCorrection(0.1)).toEqual({ type: 'none' });
-    expect(resolveClockCorrection(-0.12)).toEqual({ type: 'none' });
+    expect(resolveClockCorrection(0.03)).toEqual({ type: 'none' });
+    expect(resolveClockCorrection(-0.04)).toEqual({ type: 'none' });
+  });
+
+  it('corrects a follower two frames off', () => {
+    expect(resolveClockCorrection(0.08)).toEqual({ type: 'rate', rate: 1.05 });
   });
 
   it('speeds up a follower that is behind the master', () => {

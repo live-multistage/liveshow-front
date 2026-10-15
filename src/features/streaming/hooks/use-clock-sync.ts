@@ -3,6 +3,8 @@
 import { useEffect } from 'react';
 import type { MutableRefObject, RefObject } from 'react';
 import type Hls from 'hls.js';
+import { localToAbsolute } from '../utils/replay-timeline';
+import type { ReplaySegmentCoverage } from '../utils/replay-timeline';
 
 // Wall-clock sync between camera panels. Every rendition carries
 // EXT-X-PROGRAM-DATE-TIME (ffmpeg `program_date_time` flag), which hls.js
@@ -12,6 +14,10 @@ import type Hls from 'hls.js';
 // that corrects its playback position until its playingDate matches the
 // master's — so a guitarist on camera B stays in time with the audio coming
 // from camera A, instead of each panel drifting up to a segment apart.
+//
+// Replay runs the same loop on the event's absolute timeline: each <video> is
+// its own VOD, seeked together but started whenever its own buffer filled, so
+// without this two cameras sat 100-200ms apart for the whole replay.
 
 export interface ClockSample {
   // Master's playingDate at the moment of sampling.
@@ -23,10 +29,10 @@ export interface ClockSample {
 
 export type ClockRole = 'master' | 'follower';
 
-// Followers within this of the master are left alone — correcting inside the
-// dead zone just makes the tile shimmer for no perceptual gain (musical sync
-// perception starts breaking down past ~120ms).
-const DEAD_ZONE_SEC = 0.12;
+// Followers within one frame (25fps) of the master are left alone: closer
+// than that there is nothing left to see. A wider zone (it was 120ms, the
+// musical-perception limit) left a hit landing visibly apart across cameras.
+const DEAD_ZONE_SEC = 0.04;
 // Beyond this, rate-nudging would take too long — hard seek instead.
 const SEEK_THRESHOLD_SEC = 1.5;
 // Followers are always muted (audio comes only from the master's panel), so a
@@ -55,16 +61,33 @@ export interface UseClockSyncOptions {
   mode: 'live' | 'replay';
   role?: ClockRole;
   clockRef?: MutableRefObject<ClockSample | null>;
+  // Replay: this camera's coverage, which maps its local media time to the
+  // event's absolute instant (replay has no live PROGRAM-DATE-TIME to read).
+  coverage?: ReplaySegmentCoverage[];
 }
 
-export function useClockSync({ videoRef, hlsRef, mode, role, clockRef }: UseClockSyncOptions): void {
+// Absolute wall-clock ms of the frame on screen, null when unknown.
+function positionMs(
+  video: HTMLVideoElement,
+  hls: Hls | null,
+  mode: 'live' | 'replay',
+  coverage?: ReplaySegmentCoverage[],
+): number | null {
+  if (mode === 'replay') return coverage ? localToAbsolute(coverage, video.currentTime) : null;
+  return hls?.playingDate?.getTime() ?? null;
+}
+
+export function useClockSync({ videoRef, hlsRef, mode, role, clockRef, coverage }: UseClockSyncOptions): void {
   useEffect(() => {
-    if (mode !== 'live' || !role || !clockRef) return;
+    if (!role || !clockRef) return;
 
     if (role === 'master') {
       const publish = () => {
-        const date = hlsRef.current?.playingDate;
-        if (date) clockRef.current = { epochMs: date.getTime(), sampledAt: performance.now() };
+        const video = videoRef.current;
+        // A paused or seeking master isn't advancing, so followers must not
+        // extrapolate it forward: publish nothing and let them hold.
+        const at = video && !video.paused && !video.seeking ? positionMs(video, hlsRef.current, mode, coverage) : null;
+        clockRef.current = at === null ? null : { epochMs: at, sampledAt: performance.now() };
       };
       publish();
       const interval = setInterval(publish, MASTER_PUBLISH_MS);
@@ -79,11 +102,12 @@ export function useClockSync({ videoRef, hlsRef, mode, role, clockRef }: UseCloc
       const video = videoRef.current;
       const hls = hlsRef.current;
       const sample = clockRef.current;
-      const mine = hls?.playingDate;
-      if (!video || !hls || !sample || !mine) return;
+      if (!video || !sample || video.paused || video.seeking) return;
+      const mine = positionMs(video, hls, mode, coverage);
+      if (mine === null) return;
 
       const masterNowMs = sample.epochMs + (performance.now() - sample.sampledAt);
-      const driftSec = (masterNowMs - mine.getTime()) / 1000;
+      const driftSec = (masterNowMs - mine) / 1000;
       const correction = resolveClockCorrection(driftSec);
 
       if (correction.type === 'seek') {
@@ -108,5 +132,5 @@ export function useClockSync({ videoRef, hlsRef, mode, role, clockRef }: UseCloc
       if (video && video.playbackRate !== 1) video.playbackRate = 1;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, role, clockRef]);
+  }, [mode, role, clockRef, coverage]);
 }

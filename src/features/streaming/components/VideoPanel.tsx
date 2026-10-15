@@ -52,7 +52,7 @@ interface VideoPanelProps {
   // Fired when best-effort unmuted autoplay is blocked by the browser and this
   // panel falls back to muted — lets the parent sync its global mute UI.
   onAutoplayBlocked?: () => void;
-  // Wall-clock camera sync (live): 'master' publishes its PROGRAM-DATE-TIME
+  // Wall-clock camera sync (live and replay): 'master' publishes its PROGRAM-DATE-TIME
   // position into clockRef; 'follower' corrects its playback against it so
   // every camera shows the same real-world instant. See use-clock-sync.
   clockRole?: ClockRole;
@@ -227,8 +227,9 @@ export function VideoPanel({
     onBuffered,
   });
 
-  // Wall-clock sync against the primary panel's PROGRAM-DATE-TIME.
-  useClockSync({ videoRef, hlsRef, mode, role: clockRole, clockRef });
+  // Wall-clock sync against the primary panel (live PROGRAM-DATE-TIME, replay
+  // absolute timeline via coverage).
+  useClockSync({ videoRef, hlsRef, mode, role: clockRole, clockRef, coverage });
 
   const panelClass = [
     styles.panel,
