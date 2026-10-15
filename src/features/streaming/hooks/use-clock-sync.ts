@@ -29,18 +29,21 @@ export interface ClockSample {
 
 export type ClockRole = 'master' | 'follower';
 
-// Followers within one frame (25fps) of the master are left alone: closer
-// than that there is nothing left to see. A wider zone (it was 120ms, the
-// musical-perception limit) left a hit landing visibly apart across cameras.
-const DEAD_ZONE_SEC = 0.04;
+// Followers within half a frame (24fps) of the master are left alone: closer
+// than that there is nothing left to see (cameras without genlock never
+// capture closer than half a frame anyway). It was 40ms, then 120ms.
+const DEAD_ZONE_SEC = 0.02;
 // Beyond this, rate-nudging would take too long — hard seek instead.
 const SEEK_THRESHOLD_SEC = 1.5;
-// Followers are always muted (audio comes only from the master's panel), so a
-// 5% rate change is invisible — no pitch artifacts to worry about.
-const NUDGE_RATE = 0.05;
+// The rate is proportional to the drift, so a follower closes it over about
+// this long and never overshoots the 20ms zone between two checks (a fixed 5%
+// moved 25ms per check). Followers are always muted, so no pitch artifacts.
+const CATCH_UP_SEC = 2;
+const MIN_NUDGE = 0.01;
+const MAX_NUDGE = 0.05;
 
-const MASTER_PUBLISH_MS = 500;
-const FOLLOWER_CHECK_MS = 1_000;
+const MASTER_PUBLISH_MS = 250;
+const FOLLOWER_CHECK_MS = 500;
 
 export type ClockCorrection =
   | { type: 'none' }
@@ -52,7 +55,8 @@ export function resolveClockCorrection(driftSec: number): ClockCorrection {
   const abs = Math.abs(driftSec);
   if (abs <= DEAD_ZONE_SEC) return { type: 'none' };
   if (abs >= SEEK_THRESHOLD_SEC) return { type: 'seek' };
-  return { type: 'rate', rate: driftSec > 0 ? 1 + NUDGE_RATE : 1 - NUDGE_RATE };
+  const nudge = Math.min(MAX_NUDGE, Math.max(MIN_NUDGE, abs / CATCH_UP_SEC));
+  return { type: 'rate', rate: 1 + Math.sign(driftSec) * nudge };
 }
 
 export interface UseClockSyncOptions {
