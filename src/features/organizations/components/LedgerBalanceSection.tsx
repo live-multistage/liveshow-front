@@ -192,11 +192,18 @@ export function LedgerBalanceSection({ orgId }: Props) {
                     {t(sale.settlement === 'PAID_AT_SOURCE' ? 'ledgerSalePaidAtSource' : 'ledgerSalePlatformBalance')}
                   </span>
                   <span className={styles.saleAmounts}>
-                    {t('ledgerSaleAmounts', {
-                      gross: formatPrice(sale.gross, sale.currency),
-                      fee: formatPrice(sale.fee, sale.currency),
-                      net: formatPrice(sale.net, sale.currency),
-                    })}
+                    {sale.storeFee
+                      ? t('ledgerSaleAmountsWithStoreFee', {
+                          gross: formatPrice(sale.gross, sale.currency),
+                          fee: formatPrice(sale.fee, sale.currency),
+                          storeFee: formatPrice(sale.storeFee, sale.currency),
+                          net: formatPrice(sale.net, sale.currency),
+                        })
+                      : t('ledgerSaleAmounts', {
+                          gross: formatPrice(sale.gross, sale.currency),
+                          fee: formatPrice(sale.fee, sale.currency),
+                          net: formatPrice(sale.net, sale.currency),
+                        })}
                   </span>
                 </li>
               ))}

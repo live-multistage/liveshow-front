@@ -377,6 +377,15 @@ describe('LedgerBalanceSection', () => {
       expect(screen.queryByText('ledgerSalesEmpty')).not.toBeInTheDocument();
     });
 
+    it('breaks out the app-store fee when the sale bore one', () => {
+      renderWith({
+        sales: [baseSale, { ...baseSale, paymentId: 'p3', provider: 'GOOGLE_PLAY', storeFee: 13.5 }],
+      });
+
+      expect(screen.getByText('ledgerSaleAmounts')).toBeInTheDocument();
+      expect(screen.getByText('ledgerSaleAmountsWithStoreFee')).toBeInTheDocument();
+    });
+
     it('shows the empty state only when sales is an empty list', () => {
       renderWith({ sales: [] });
       expect(screen.getByText('ledgerSalesEmpty')).toBeInTheDocument();

@@ -183,6 +183,9 @@ export interface OrganizationSale {
   settlement: 'PLATFORM_BALANCE' | 'PAID_AT_SOURCE';
   gross: number;
   fee: number;
+  // App-store fee (Google Play) the organization bore on this sale; absent
+  // from older API responses. gross − fee − storeFee = net.
+  storeFee?: number;
   net: number;
   commissionRate: number;
 }

@@ -1473,6 +1473,7 @@
     "ledgerSalePaidAtSource": "Received directly in your account",
     "ledgerSalePlatformBalance": "Counts toward your balance",
     "ledgerSaleAmounts": "Gross {gross} · Fee {fee} · Net {net}",
+    "ledgerSaleAmountsWithStoreFee": "Gross {gross} · Fee {fee} · Store fee {storeFee} · Net {net}",
     "ledgerStripeOk": "Your Stripe account is connected. You can withdraw this balance whenever you want.",
     "ledgerStripePending": "Sales made before connecting Stripe are held. Connect your Stripe account above to receive this amount.",
     "ledgerLoading": "Loading held balance...",

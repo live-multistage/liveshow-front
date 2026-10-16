@@ -1473,6 +1473,7 @@
     "ledgerSalePaidAtSource": "Recibido directo en tu cuenta",
     "ledgerSalePlatformBalance": "Forma parte de tu saldo",
     "ledgerSaleAmounts": "Bruto {gross} · Comisión {fee} · Neto {net}",
+    "ledgerSaleAmountsWithStoreFee": "Bruto {gross} · Comisión {fee} · Tarifa de la tienda {storeFee} · Neto {net}",
     "ledgerStripeOk": "Tu cuenta de Stripe está conectada. Puedes retirar este saldo cuando quieras.",
     "ledgerStripePending": "Las ventas hechas antes de conectar Stripe quedan retenidas. Conecta tu cuenta de Stripe arriba para recibir este monto.",
     "ledgerLoading": "Cargando saldo retenido...",
