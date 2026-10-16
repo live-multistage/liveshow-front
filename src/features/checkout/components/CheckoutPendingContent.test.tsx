@@ -5,7 +5,7 @@ const { track } = vi.hoisted(() => ({ track: vi.fn() }));
 vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track }) }));
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { CheckoutPendingContent } from './CheckoutPendingContent';
 import { useOrderQuery } from '../mutations/checkout.mutations';
 import type { OrderStatus } from '../types/checkout.types';
@@ -14,9 +14,10 @@ vi.mock('../mutations/checkout.mutations', () => ({ useOrderQuery: vi.fn() }));
 
 const mockedOrderQuery = vi.mocked(useOrderQuery);
 
-function renderWithStatus(status: OrderStatus | undefined, method?: string) {
+function renderWithStatus(status: OrderStatus | undefined, method?: string, pollingExpired = false) {
   mockedOrderQuery.mockReturnValue({
     data: status ? { id: 'order-1', status } : undefined,
+    pollingExpired,
   } as unknown as ReturnType<typeof useOrderQuery>);
   render(<CheckoutPendingContent orderId="order-1" method={method} />);
 }
@@ -47,5 +48,11 @@ describe('CheckoutPendingContent', () => {
     renderWithStatus('PENDING', 'PIX');
     expect(track).toHaveBeenCalledWith('checkout_pending_viewed', { orderId: 'order-1', method: 'PIX' });
     expect(track.mock.calls.filter(([name]) => name === 'checkout_pending_viewed')).toHaveLength(1);
+  });
+
+  it('stops showing "verificando" once polling gave up', () => {
+    renderWithStatus('PENDING', undefined, true);
+    expect(screen.queryByText('Verificando pagamento…')).not.toBeInTheDocument();
+    expect(screen.getByText(/Ainda não recebemos a confirmação/)).toBeInTheDocument();
   });
 });

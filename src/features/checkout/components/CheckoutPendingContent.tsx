@@ -49,10 +49,17 @@ export function CheckoutPendingContent({ orderId, method }: Props) {
           O pagamento está sendo processado. Você receberá uma confirmação assim que for aprovado.
         </p>
 
-        <div className={styles.pendingNote}>
-          <span className={styles.pendingDot} />
-          Verificando pagamento…
-        </div>
+        {orderQuery.pollingExpired ? (
+          <p className={styles.desc}>
+            Ainda não recebemos a confirmação. Seus ingressos aparecem em Meus ingressos assim que o pagamento for
+            aprovado.
+          </p>
+        ) : (
+          <div className={styles.pendingNote}>
+            <span className={styles.pendingDot} />
+            Verificando pagamento…
+          </div>
+        )}
 
         <div className={styles.actions}>
           <Link href="/checkout" className={styles.secondary}>
