@@ -40,8 +40,8 @@ const USD_BALANCE = 250;
 
 const ledger: OrganizationLedgerResponse = {
   balances: [
-    { currency: 'BRL', balance: BRL_BALANCE },
-    { currency: 'USD', balance: USD_BALANCE },
+    { currency: 'BRL', balance: BRL_BALANCE, available: BRL_BALANCE, pending: 0 },
+    { currency: 'USD', balance: USD_BALANCE, available: USD_BALANCE, pending: 0 },
   ],
   entries: [],
 };
@@ -106,7 +106,7 @@ describe('LedgerBalanceSection', () => {
 
   it('does not render a withdraw button for a non-positive balance', () => {
     mockedLedger.mockReturnValue({
-      data: { balances: [{ currency: 'BRL', balance: 0 }], entries: [] },
+      data: { balances: [{ currency: 'BRL', balance: 0, available: 0, pending: 0 }], entries: [] },
       isLoading: false,
       isError: false,
     } as ReturnType<typeof useOrganizationLedger>);
@@ -223,5 +223,117 @@ describe('LedgerBalanceSection', () => {
     const buttons = screen.getAllByText('withdrawButton');
     expect(buttons.length).toBeGreaterThan(0);
     buttons.forEach((button) => expect(button).toBeDisabled());
+  });
+
+  describe('settlement hold', () => {
+    const AVAILABLE = 400;
+    const PENDING = 600;
+    const held: OrganizationLedgerResponse = {
+      balances: [{ currency: 'BRL', balance: AVAILABLE + PENDING, available: AVAILABLE, pending: PENDING }],
+      entries: [],
+    };
+
+    function renderLedger(data: OrganizationLedgerResponse) {
+      mockedLedger.mockReturnValue({
+        data,
+        isLoading: false,
+        isError: false,
+      } as ReturnType<typeof useOrganizationLedger>);
+      render(<LedgerBalanceSection orgId="org-1" />);
+    }
+
+    it('shows the withdrawable amount, not the total balance, and flags the pending part', () => {
+      renderLedger(held);
+
+      expect(screen.getByText(normalized(formatPrice(AVAILABLE, 'BRL')))).toBeInTheDocument();
+      expect(screen.queryByText(normalized(formatPrice(AVAILABLE + PENDING, 'BRL')))).not.toBeInTheDocument();
+      expect(screen.getByText('ledgerPendingLabel')).toBeInTheDocument();
+      expect(screen.getByText('ledgerPendingHint')).toBeInTheDocument();
+    });
+
+    it('offers no withdraw when everything is still pending', () => {
+      renderLedger({
+        balances: [{ currency: 'BRL', balance: PENDING, available: 0, pending: PENDING }],
+        entries: [],
+      });
+
+      expect(screen.queryByText('withdrawButton')).not.toBeInTheDocument();
+      expect(screen.getByText('ledgerPendingLabel')).toBeInTheDocument();
+    });
+
+    it('hides the pending line when nothing is held', () => {
+      renderLedger(ledger);
+
+      expect(screen.queryByText('ledgerPendingLabel')).not.toBeInTheDocument();
+      expect(screen.queryByText('ledgerPendingHint')).not.toBeInTheDocument();
+    });
+
+    it('explains a withdraw that paid nothing because the balance is still pending', async () => {
+      const user = userEvent.setup();
+      const mutate = mutateReturning({
+        payouts: [],
+        failed: [],
+        negativeBalances: [],
+        pendingBalances: [{ currency: 'BRL', pending: PENDING }],
+      });
+      mockedWithdraw.mockReturnValue({ mutate, isPending: false } as unknown as ReturnType<
+        typeof useWithdrawLedgerBalance
+      >);
+      renderLedger(held);
+
+      await user.click(screen.getByText('withdrawButton'));
+      await screen.findByRole('dialog');
+      await user.click(screen.getByText('withdrawConfirmAction'));
+
+      expect(toast.error).toHaveBeenCalledWith('withdrawErrorPending');
+    });
+  });
+
+  describe('statement', () => {
+    function entry(id: string, type: string, amount: number) {
+      return {
+        id,
+        organizationId: 'org-1',
+        type,
+        amount,
+        currency: 'BRL',
+        orderId: null,
+        paymentId: null,
+        transferId: null,
+        gross: null,
+        buyerFee: null,
+        commissionRate: null,
+        commissionAmount: null,
+        createdAt: '2026-10-01T12:00:00.000Z',
+      } as OrganizationLedgerResponse['entries'][number];
+    }
+
+    it.each(['SALE', 'REFUND', 'PAYOUT', 'CLAWBACK', 'AD_REVENUE', 'DISPUTE'])(
+      'labels a %s entry with its translation',
+      (type) => {
+        mockedLedger.mockReturnValue({
+          data: { balances: ledger.balances, entries: [entry('e1', type, -10)] },
+          isLoading: false,
+          isError: false,
+        } as ReturnType<typeof useOrganizationLedger>);
+
+        render(<LedgerBalanceSection orgId="org-1" />);
+
+        expect(screen.getByText(`ledger${type}`)).toBeInTheDocument();
+      },
+    );
+
+    it('never shows a raw type the screen does not know yet', () => {
+      mockedLedger.mockReturnValue({
+        data: { balances: ledger.balances, entries: [entry('e1', 'SOMETHING_NEW', 5)] },
+        isLoading: false,
+        isError: false,
+      } as ReturnType<typeof useOrganizationLedger>);
+
+      render(<LedgerBalanceSection orgId="org-1" />);
+
+      expect(screen.queryByText('SOMETHING_NEW')).not.toBeInTheDocument();
+      expect(screen.getByText('ledgerOTHER')).toBeInTheDocument();
+    });
   });
 });

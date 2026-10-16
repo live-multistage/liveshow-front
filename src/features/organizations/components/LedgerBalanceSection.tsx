@@ -17,7 +17,7 @@ import { useOrganizationLedger } from '../hooks/use-organization-ledger';
 import { useStripeStatus } from '../hooks/use-stripe-status';
 import { useWithdrawLedgerBalance, classifyWithdrawError } from '../hooks/use-withdraw-ledger-balance';
 import { formatPrice } from '@/features/events/utils/event-formatters';
-import type { OrganizationPayoutResult } from '../types/organization.types';
+import type { OrganizationLedgerEntryType, OrganizationPayoutResult } from '../types/organization.types';
 import type { AppError } from '@/lib/http/errors';
 import styles from './LedgerBalanceSection.module.scss';
 
@@ -25,7 +25,14 @@ interface Props {
   orgId: string;
 }
 
-const LEDGER_TYPE_KEYS = ['SALE', 'REFUND', 'PAYOUT'];
+const LEDGER_TYPES: readonly string[] = [
+  'SALE',
+  'REFUND',
+  'PAYOUT',
+  'CLAWBACK',
+  'AD_REVENUE',
+  'DISPUTE',
+] satisfies OrganizationLedgerEntryType[];
 
 const MAX_ENTRIES = 5;
 
@@ -45,8 +52,9 @@ export function LedgerBalanceSection({ orgId }: Props) {
   }
 
   const stripeReady = Boolean(stripeStatus?.hasAccount && stripeStatus?.onboardingComplete);
-  const balances = ledger.balances.length > 0 ? ledger.balances : [{ currency: 'BRL', balance: 0 }];
+  const balances = ledger.balances.length > 0 ? ledger.balances : [{ currency: 'BRL', balance: 0, available: 0, pending: 0 }];
   const hasBalance = ledger.balances.some((b) => b.balance > 0);
+  const hasPending = ledger.balances.some((b) => b.pending > 0);
   const hasDebt = ledger.balances.some((b) => b.balance < 0);
   const recentEntries = ledger.entries.slice(0, MAX_ENTRIES);
   const pendingRow = withdraw.isPending ? withdrawCurrency : null;
@@ -77,6 +85,10 @@ export function LedgerBalanceSection({ orgId }: Props) {
           toast.error(t('withdrawErrorHeld'));
           return;
         }
+        if (result.pendingBalances?.some((p) => p.currency === currency)) {
+          toast.error(t('withdrawErrorPending'));
+          return;
+        }
         toast.error(t('withdrawErrorUnexpected'));
       },
       onError: (error: AppError) => {
@@ -100,11 +112,16 @@ export function LedgerBalanceSection({ orgId }: Props) {
           </span>
           <div className={styles.balanceInfo}>
             <span className={styles.balanceLabel}>{t('ledgerBalanceLabel', { currency: b.currency })}</span>
-            <span className={styles.balanceValue} data-negative={b.balance < 0 || undefined}>
-              {formatPrice(b.balance, b.currency)}
+            <span className={styles.balanceValue} data-negative={b.available < 0 || undefined}>
+              {formatPrice(b.available, b.currency)}
             </span>
+            {b.pending > 0 && (
+              <span className={styles.pendingValue}>
+                {t('ledgerPendingLabel', { amount: formatPrice(b.pending, b.currency) })}
+              </span>
+            )}
           </div>
-          {b.balance > 0 && (
+          {b.available > 0 && (
             <Button
               variant="outline"
               size="sm"
@@ -126,6 +143,12 @@ export function LedgerBalanceSection({ orgId }: Props) {
         </p>
       )}
 
+      {hasPending && (
+        <p className={styles.notice} data-variant="pending">
+          {t('ledgerPendingHint')}
+        </p>
+      )}
+
       {hasDebt && (
         <p className={styles.notice} data-variant="debt">
           {t('ledgerDebtNotice')}
@@ -137,7 +160,7 @@ export function LedgerBalanceSection({ orgId }: Props) {
           {recentEntries.map((entry) => (
             <li key={entry.id} className={styles.entry}>
               <span className={styles.entryType} data-type={entry.type}>
-                {LEDGER_TYPE_KEYS.includes(entry.type) ? t(`ledger${entry.type}`) : entry.type}
+                {t(LEDGER_TYPES.includes(entry.type) ? `ledger${entry.type}` : 'ledgerOTHER')}
               </span>
               <span className={styles.entryDate}>
                 {new Date(entry.createdAt).toLocaleDateString('pt-BR')}
@@ -156,7 +179,7 @@ export function LedgerBalanceSection({ orgId }: Props) {
             <DialogTitle>{t('withdrawConfirmTitle')}</DialogTitle>
             <DialogDescription>
               {dialogBalance
-                ? t('withdrawConfirmBody', { amount: formatPrice(dialogBalance.balance, dialogBalance.currency) })
+                ? t('withdrawConfirmBody', { amount: formatPrice(dialogBalance.available, dialogBalance.currency) })
                 : null}
             </DialogDescription>
           </DialogHeader>

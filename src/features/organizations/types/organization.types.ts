@@ -134,7 +134,14 @@ export interface StripeAccountStatus {
   requirements: StripeAccountRequirements;
 }
 
-export type OrganizationLedgerEntryType = 'SALE' | 'REFUND' | 'PAYOUT';
+// Mirrors the orchestrator's LedgerEntryType (payments/domain/ledger-entry.ts).
+export type OrganizationLedgerEntryType =
+  | 'SALE'
+  | 'REFUND'
+  | 'PAYOUT'
+  | 'CLAWBACK'
+  | 'AD_REVENUE'
+  | 'DISPUTE';
 
 export interface OrganizationLedgerEntry {
   id: string;
@@ -152,9 +159,13 @@ export interface OrganizationLedgerEntry {
   createdAt: string;
 }
 
+// balance = available + pending. Only `available` can be withdrawn now;
+// `pending` is sales still inside the settlement hold.
 export interface OrganizationLedgerBalance {
   currency: string;
   balance: number;
+  available: number;
+  pending: number;
 }
 
 export interface OrganizationLedgerResponse {
@@ -171,4 +182,5 @@ export interface OrganizationPayoutResult {
   failed: Array<{ currency: string; amount: number; error: string }>;
   negativeBalances: Array<{ currency: string; balance: number }>;
   heldCurrencies?: Array<{ currency: string; balance: number }>;
+  pendingBalances?: Array<{ currency: string; pending: number }>;
 }
