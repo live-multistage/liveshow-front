@@ -21,6 +21,7 @@ import { parseListParams, hrefForPage } from '../../utils/list-params-from-searc
 import { useAnalytics } from '@/lib/analytics/tracking';
 import { ShowCard } from './ShowCard';
 import styles from '../../../../app/(public)/events/page.module.scss';
+import { formatCount } from '@/shared/utils/format-count';
 
 // Debounce for search_performed: fires once the user stops typing, not on
 // every keystroke — matches how search analytics is read everywhere else.
@@ -259,7 +260,9 @@ export function EventsListPageContent({
               <div className={styles.statCard}>
                 <div className={styles.statLabel}>CATÁLOGO</div>
                 <div className={styles.statValue}>
-                  <span className={styles.statNumber}>{total}</span>
+                  <span className={styles.statNumber} title={total.toLocaleString('pt-BR')}>
+                    {formatCount(total)}
+                  </span>
                   <span className={styles.statUnit}>no total</span>
                 </div>
               </div>
