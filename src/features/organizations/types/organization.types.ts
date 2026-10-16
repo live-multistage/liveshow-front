@@ -141,7 +141,9 @@ export type OrganizationLedgerEntryType =
   | 'PAYOUT'
   | 'CLAWBACK'
   | 'AD_REVENUE'
-  | 'DISPUTE';
+  | 'DISPUTE'
+  | 'ASAAS_SPLIT'
+  | 'ASAAS_SPLIT_REVERSAL';
 
 export interface OrganizationLedgerEntry {
   id: string;
@@ -168,9 +170,28 @@ export interface OrganizationLedgerBalance {
   pending: number;
 }
 
+// PAID_AT_SOURCE sales (Stripe destination / Asaas split) reach the org
+// directly and never count in balances; PLATFORM_BALANCE sales do.
+export interface OrganizationSale {
+  orderId: string;
+  paymentId: string;
+  soldAt: string;
+  currency: string;
+  status: 'PAID' | 'REFUNDED';
+  provider: string;
+  rail: 'PLATFORM_LEDGER' | 'STRIPE_DESTINATION' | 'ASAAS_SPLIT';
+  settlement: 'PLATFORM_BALANCE' | 'PAID_AT_SOURCE';
+  gross: number;
+  fee: number;
+  net: number;
+  commissionRate: number;
+}
+
 export interface OrganizationLedgerResponse {
   balances: OrganizationLedgerBalance[];
   entries: OrganizationLedgerEntry[];
+  // Absent on APIs that predate the sales list.
+  sales?: OrganizationSale[];
 }
 
 // Mirrors PayoutOrganizationLedgerUseCase's return shape

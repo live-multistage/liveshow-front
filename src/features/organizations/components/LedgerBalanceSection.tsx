@@ -32,6 +32,8 @@ const LEDGER_TYPES: readonly string[] = [
   'CLAWBACK',
   'AD_REVENUE',
   'DISPUTE',
+  'ASAAS_SPLIT',
+  'ASAAS_SPLIT_REVERSAL',
 ] satisfies OrganizationLedgerEntryType[];
 
 const MAX_ENTRIES = 5;
@@ -171,6 +173,36 @@ export function LedgerBalanceSection({ orgId }: Props) {
             </li>
           ))}
         </ul>
+      )}
+
+      {ledger.sales && (
+        <section className={styles.sales}>
+          <h3 className={styles.salesTitle}>{t('ledgerSalesTitle')}</h3>
+          {ledger.sales.length === 0 ? (
+            <p className={styles.zeroHint}>{t('ledgerSalesEmpty')}</p>
+          ) : (
+            <ul className={styles.entries}>
+              {ledger.sales.map((sale) => (
+                <li key={sale.paymentId} className={styles.sale}>
+                  <span className={styles.entryDate}>{new Date(sale.soldAt).toLocaleDateString('pt-BR')}</span>
+                  <span className={styles.entryType} data-type={sale.status === 'PAID' ? 'SALE' : undefined}>
+                    {t(sale.status === 'PAID' ? 'ledgerSalePaid' : 'ledgerSaleRefunded')}
+                  </span>
+                  <span className={styles.saleSettlement}>
+                    {t(sale.settlement === 'PAID_AT_SOURCE' ? 'ledgerSalePaidAtSource' : 'ledgerSalePlatformBalance')}
+                  </span>
+                  <span className={styles.saleAmounts}>
+                    {t('ledgerSaleAmounts', {
+                      gross: formatPrice(sale.gross, sale.currency),
+                      fee: formatPrice(sale.fee, sale.currency),
+                      net: formatPrice(sale.net, sale.currency),
+                    })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       )}
 
       <Dialog open={withdrawCurrency !== null} onOpenChange={(open) => !open && closeDialog()}>

@@ -336,4 +336,68 @@ describe('LedgerBalanceSection', () => {
       expect(screen.getByText('ledgerOTHER')).toBeInTheDocument();
     });
   });
+
+  describe('sales list', () => {
+    const baseSale = {
+      orderId: 'o1',
+      paymentId: 'p1',
+      soldAt: '2026-10-10T12:00:00Z',
+      currency: 'BRL',
+      status: 'PAID' as const,
+      provider: 'STRIPE',
+      rail: 'PLATFORM_LEDGER' as const,
+      settlement: 'PLATFORM_BALANCE' as const,
+      gross: 100,
+      fee: 10,
+      net: 90,
+      commissionRate: 0.1,
+    };
+
+    function renderWith(partial: Partial<OrganizationLedgerResponse>) {
+      mockedLedger.mockReturnValue({
+        data: { balances: [], entries: [], ...partial },
+        isLoading: false,
+        isError: false,
+      } as ReturnType<typeof useOrganizationLedger>);
+      render(<LedgerBalanceSection orgId="org-1" />);
+    }
+
+    it('shows how each sale was settled and its status', () => {
+      renderWith({
+        sales: [
+          baseSale,
+          { ...baseSale, paymentId: 'p2', settlement: 'PAID_AT_SOURCE', rail: 'ASAAS_SPLIT', provider: 'ASAAS', status: 'REFUNDED' },
+        ],
+      });
+
+      expect(screen.getByText('ledgerSalePlatformBalance')).toBeInTheDocument();
+      expect(screen.getByText('ledgerSalePaidAtSource')).toBeInTheDocument();
+      expect(screen.getByText('ledgerSalePaid')).toBeInTheDocument();
+      expect(screen.getByText('ledgerSaleRefunded')).toBeInTheDocument();
+      expect(screen.queryByText('ledgerSalesEmpty')).not.toBeInTheDocument();
+    });
+
+    it('shows the empty state only when sales is an empty list', () => {
+      renderWith({ sales: [] });
+      expect(screen.getByText('ledgerSalesEmpty')).toBeInTheDocument();
+    });
+
+    it('renders no sales section when the API predates sales', () => {
+      renderWith({});
+      expect(screen.queryByText('ledgerSalesEmpty')).not.toBeInTheDocument();
+      expect(screen.queryByText('ledgerSalesTitle')).not.toBeInTheDocument();
+    });
+
+    it('labels the Asaas split entries', () => {
+      const entry = { id: 'e', organizationId: 'org-1', currency: 'BRL', orderId: null, paymentId: null, transferId: null, gross: null, buyerFee: null, commissionRate: null, commissionAmount: null, createdAt: '2026-10-10T12:00:00Z' };
+      renderWith({
+        entries: [
+          { ...entry, id: 'e1', type: 'ASAAS_SPLIT', amount: -90 },
+          { ...entry, id: 'e2', type: 'ASAAS_SPLIT_REVERSAL', amount: 90 },
+        ],
+      });
+      expect(screen.getByText('ledgerASAAS_SPLIT')).toBeInTheDocument();
+      expect(screen.getByText('ledgerASAAS_SPLIT_REVERSAL')).toBeInTheDocument();
+    });
+  });
 });

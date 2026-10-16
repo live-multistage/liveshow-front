@@ -148,3 +148,35 @@
   font-size: 0.8rem;
   color: $text-secondary;
 }
+
+.sales {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.salesTitle {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $text-secondary;
+}
+
+.sale {
+  @extend .entry;
+  flex-wrap: wrap;
+}
+
+.saleSettlement {
+  font-size: 0.8rem;
+  color: $text-secondary;
+}
+
+.saleAmounts {
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $text-primary;
+}
