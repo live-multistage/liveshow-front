@@ -18,7 +18,7 @@ interface Props {
 function toDescription(text: string | undefined, name: string): string {
   const clean = (text ?? '').replace(/\s+/g, ' ').trim();
   if (clean) return clean.length <= 160 ? clean : `${clean.slice(0, 160).replace(/\s+\S*$/, '')}…`;
-  return `Eventos, shows e transmissões ao vivo de ${name} no showon.io.`;
+  return `Eventos e transmissões ao vivo de ${name} no showon.io.`;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

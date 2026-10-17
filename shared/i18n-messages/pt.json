@@ -31,7 +31,7 @@
     "logout": "Sair",
     "login": "Entrar",
     "register": "Cadastrar",
-    "searchPlaceholder": "Buscar shows...",
+    "searchPlaceholder": "Buscar eventos...",
     "cart": "Carrinho",
     "loggingOut": "Saindo...",
     "myList": "Minha lista",
@@ -80,7 +80,7 @@
     },
     "register": {
       "title": "Criar conta",
-      "subtitle": "Junte-se ao showon.io e assista shows ao vivo de todo o mundo.",
+      "subtitle": "Junte-se ao showon.io e assista eventos ao vivo de todo o mundo.",
       "email": "E-mail",
       "emailPlaceholder": "seu@email.com",
       "displayName": "Nome de exibição",
@@ -111,7 +111,7 @@
         "backToLogin": "Voltar para o login"
       },
       "acceptTerms": "Li e concordo com os <terms>Termos de Uso</terms> e a <privacy>Política de Privacidade</privacy>.",
-      "marketingOptIn": "Quero receber novidades, shows e promoções por e-mail."
+      "marketingOptIn": "Quero receber novidades, eventos e promoções por e-mail."
     },
     "forgotPassword": {
       "title": "Esqueceu a senha?",
@@ -137,7 +137,7 @@
       "aside": {
         "badge": "Recuperação de acesso",
         "title": "Vamos recuperar <accent>sua conta.</accent>",
-        "description": "Enviamos um link seguro para o seu e-mail. Em poucos cliques você volta a assistir seus shows ao vivo.",
+        "description": "Enviamos um link seguro para o seu e-mail. Em poucos cliques você volta a assistir seus eventos ao vivo.",
         "howItWorks": "Como funciona",
         "step1": "Digite o e-mail da sua conta",
         "step2": "Abra o link que enviamos por e-mail",
@@ -173,7 +173,7 @@
       "success": {
         "eyebrow": "E-mail confirmado",
         "title": "Tudo certo!",
-        "message": "Seu e-mail foi confirmado com sucesso. Sua conta está ativa e pronta para assistir shows ao vivo.",
+        "message": "Seu e-mail foi confirmado com sucesso. Sua conta está ativa e pronta para assistir eventos ao vivo.",
         "primary": "Entrar na minha conta",
         "secondary": "Explorar a programação"
       },
@@ -238,8 +238,8 @@
   "events": {
     "list": {
       "title": "Programação",
-      "subtitle": "Shows ao vivo de todo o mundo, na palma da sua mão",
-      "searchPlaceholder": "Buscar por show, artista ou cidade...",
+      "subtitle": "Eventos ao vivo de todo o mundo, na palma da sua mão",
+      "searchPlaceholder": "Buscar por evento, artista ou cidade...",
       "all": "Todos",
       "liveOnly": "Somente ao vivo",
       "withReplay": "Com reprise",
@@ -273,7 +273,7 @@
       }
     },
     "detail": {
-      "notFound": "Show não encontrado.",
+      "notFound": "Evento não encontrado.",
       "backToHome": "Voltar ao início",
       "loadError": "Não conseguimos carregar o evento.",
       "retry": "Tentar novamente",
@@ -288,7 +288,7 @@
       "organization": "Organização",
       "viewProfile": "Ver perfil →",
       "collaborators": "Com participação de",
-      "about": "Sobre o Show",
+      "about": "Sobre o evento",
       "availableCameras": "Câmeras Disponíveis ({count})",
       "watching": "{count} watching",
       "cameraViews": "{count} camera views",
@@ -348,11 +348,11 @@
   },
   "tickets": {
     "title": "Meus Ingressos",
-    "subtitle": "Acesse todos os shows que você comprou",
+    "subtitle": "Acesse todos os eventos que você comprou",
     "empty": {
       "title": "Nenhum ingresso ainda",
       "desc": "Explore a programação e compre seu primeiro ingresso!",
-      "cta": "Ver Shows"
+      "cta": "Ver eventos"
     },
     "stats": {
       "count": "{count, plural, one {# ingresso} other {# ingressos}}",
@@ -382,7 +382,7 @@
   },
   "home": {
     "loading": "Carregando eventos...",
-    "headline": "Shows ao vivo em múltiplas câmeras — assista de onde estiver",
+    "headline": "Eventos ao vivo em múltiplas câmeras — assista de onde estiver",
     "liveNow": "Ao vivo agora",
     "liveForYou": "Ao Vivo para você",
     "findByGenre": "Filtrar por\ncategoria",
@@ -391,7 +391,7 @@
     "recommendedForYou": "Recomendados para você",
     "trendingNow": "Em alta agora",
     "replaysAvailable": "Reprises disponíveis",
-    "noShows": "Nenhum show disponível no momento.",
+    "noShows": "Nenhum evento disponível no momento.",
     "viewEvent": "Ver evento",
     "tickets": "Ingressos",
     "eyebrowNow": "AGORA",
@@ -436,7 +436,7 @@
     "replay": "Reprise",
     "watch": "Assistir",
     "details": "Ver mais",
-    "showTag": "Show",
+    "showTag": "Evento",
     "remaining": "RESTAM {minutes} MIN"
   },
   "liveGate": {
@@ -510,11 +510,11 @@
     "cancelled": "Pagamento cancelado. Seu carrinho continua aqui.",
     "retry": "Tentar de novo",
     "unavailableInApp": "Compra disponível no site",
-    "unavailableInAppBody": "Finalize sua compra pelo site para acessar este show.",
+    "unavailableInAppBody": "Finalize sua compra pelo site para acessar este evento.",
     "success": {
       "title": "Pagamento aprovado!",
       "body": "Seu ingresso já está liberado.",
-      "cta": "Ir para o show"
+      "cta": "Ir para o evento"
     },
     "pending": {
       "title": "Confirmando o pagamento…",
@@ -527,7 +527,7 @@
     },
     "errors": {
       "EVENT_NOT_PURCHASABLE": "Um dos eventos não está mais disponível para compra.",
-      "ALREADY_OWNED": "Você já tem ingresso para este show. Ele está em Meus ingressos.",
+      "ALREADY_OWNED": "Você já tem ingresso para este evento. Ele está em Meus ingressos.",
       "ORDER_REQUEST_IN_PROGRESS": "Já estamos abrindo seu pagamento. Aguarde um instante — não recarregue a página.",
       "PENDING_PAYMENT_IN_PROGRESS": "Você já tem um pagamento em andamento. Se acabou de pagar, aguarde alguns instantes: o ingresso aparece em Meus ingressos assim que a confirmação chegar.",
       "GENERIC": "Não foi possível iniciar o pagamento. Tente novamente.",
@@ -1029,7 +1029,7 @@
     "priceLabel": "Preço (R$) *",
     "currencyLabel": "Moeda",
     "descLabel": "Descrição do Ingresso *",
-    "descPlaceholder": "Ex: Acesso ao show ao vivo",
+    "descPlaceholder": "Ex: Acesso ao evento ao vivo",
     "accessLabel": "Tipo de Acesso *",
     "liveView": "Ao Vivo",
     "replayView": "Replay",
@@ -1075,7 +1075,7 @@
     "roleADMIN": "Administrador",
     "roleSUPER_ADMIN": "Plataforma",
     "prefLIVE_EVENTS": "Eventos ao vivo",
-    "prefLIVE_EVENTSDesc": "Avisar quando um show que você segue entrar no ar",
+    "prefLIVE_EVENTSDesc": "Avisar quando um evento que você segue entrar no ar",
     "prefTICKET_REMINDERS": "Lembretes de ingresso",
     "prefTICKET_REMINDERSDesc": "Notificação 1 hora antes do evento começar",
     "prefNEWS_PROMOS": "Novidades e promoções",
@@ -1083,7 +1083,7 @@
     "prefEMAIL_DIGEST": "Resumo por e-mail",
     "prefEMAIL_DIGESTDesc": "Relatório semanal dos seus eventos",
     "privacyAnalyticsTitle": "Analytics e recomendações",
-    "privacyAnalyticsDesc": "Uso não essencial: comportamento de navegação e perfil de interesses para personalizar o conteúdo. Desligar não afeta compras nem acesso aos shows.",
+    "privacyAnalyticsDesc": "Uso não essencial: comportamento de navegação e perfil de interesses para personalizar o conteúdo. Desligar não afeta compras nem acesso aos eventos.",
     "privacyDataTitle": "Meus dados",
     "privacyDataDesc": "Baixe uma cópia dos seus dados ou exclua o histórico de uso e o perfil de recomendações.",
     "privacyPolicyLink": "Política de Privacidade",
@@ -1136,7 +1136,7 @@
       "accessUntil": "Acesso até {date}",
       "ended": "Encerrada",
       "noSubscriptionToManage": "Nenhuma assinatura para gerenciar",
-      "manageOnWeb": "Assinaturas são gerenciadas no site do Live Show.",
+      "manageOnWeb": "Assinaturas são gerenciadas no site do showon.io.",
       "nextCharge": "Próxima cobrança em {date}"
     },
     "title": "Minha Conta",
@@ -1180,7 +1180,7 @@
     "notifications": "Notificações",
     "language": "Idioma",
     "analyticsConsent": "Analytics e recomendações",
-    "analyticsConsentDesc": "Uso não essencial para personalizar o conteúdo. Desligar não afeta compras nem acesso aos shows.",
+    "analyticsConsentDesc": "Uso não essencial para personalizar o conteúdo. Desligar não afeta compras nem acesso aos eventos.",
     "consentError": "Não foi possível salvar sua preferência.",
     "help": "Ajuda",
     "privacy": "Privacidade",
@@ -1206,7 +1206,7 @@
       "filters": {
         "all": "Todas",
         "unread": "Não lidas",
-        "shows": "Shows",
+        "shows": "Eventos",
         "tickets": "Ingressos",
         "account": "Conta"
       },
@@ -1217,7 +1217,7 @@
         "earlier": "Anteriores"
       },
       "categories": {
-        "show": "Show",
+        "show": "Evento",
         "ticket": "Ingresso",
         "payment": "Pagamento",
         "system": "Sistema",
@@ -1228,7 +1228,7 @@
       "open": "Abrir",
       "dismiss": "Dispensar",
       "emptyTitle": "Nenhuma notificação ainda",
-      "emptyDesc": "Quando um show que você segue entrar no ar ou seu ingresso estiver perto de começar, avisamos aqui.",
+      "emptyDesc": "Quando um evento que você segue entrar no ar ou seu ingresso estiver perto de começar, avisamos aqui.",
       "filterEmptyTitle": "Nada por aqui",
       "filterEmptyDesc": "Nenhuma notificação neste filtro. Você está em dia.",
       "explore": "Explorar programação",
@@ -4175,7 +4175,7 @@
     "viewSchedule": "Ver programação"
   },
   "search": {
-    "placeholder": "Buscar shows, artistas, cidades",
+    "placeholder": "Buscar eventos, artistas, cidades",
     "minChars": "Digite pelo menos 2 caracteres",
     "recent": "Buscas recentes",
     "empty": "Nenhum resultado para \"{q}\"",
@@ -4233,11 +4233,11 @@
     },
     "push": {
       "title": "Notificações push",
-      "body": "Avisamos quando um show que você comprou entra ao vivo.",
+      "body": "Avisamos quando um evento que você comprou entra ao vivo.",
       "denied": "Bloqueadas nos ajustes do aparelho",
       "openSettings": "Abrir ajustes",
       "promptAfterPurchase": {
-        "title": "Quer saber quando o show começar?",
+        "title": "Quer saber quando o evento começar?",
         "body": "Ative as notificações e avisamos no minuto em que a transmissão entrar no ar.",
         "yes": "Ativar notificações",
         "no": "Agora não"
@@ -4274,7 +4274,7 @@
   "replaySoon": {
     "back": "VOLTAR AO EVENTO",
     "badge": "REPLAY EM PREPARAÇÃO",
-    "title": "Em breve, o <accent>replay</accent> deste show",
+    "title": "Em breve, o <accent>replay</accent> deste evento",
     "body": "A transmissão foi encerrada e estamos preparando a gravação. Seu ingresso já cobre o replay — ele aparece aqui assim que estiver no ar.",
     "ended": "TRANSMISSÃO ENCERRADA",
     "processing": "PROCESSANDO REPLAY",
@@ -4626,13 +4626,13 @@
   "advertisersPage": {
     "meta": {
       "title": "Anuncie na showon.io",
-      "description": "Coloque sua marca nos shows ao vivo e replays da showon.io: banners, pre-roll e anúncio de pausa, com segmentação, orçamento controlado e relatórios."
+      "description": "Coloque sua marca nos eventos ao vivo e replays da showon.io: banners, pre-roll e anúncio de pausa, com segmentação, orçamento controlado e relatórios."
     },
     "hero": {
       "label": "SHOWON ADS",
       "title": "Anuncie onde o público está",
       "titleAccent": "ao vivo.",
-      "subtitle": "Coloque sua marca dentro dos shows transmitidos na showon.io — do feed ao player — e pague só pelo que for entregue.",
+      "subtitle": "Coloque sua marca dentro dos eventos transmitidos na showon.io — do feed ao player — e pague só pelo que for entregue.",
       "cta": "Criar conta de anunciante",
       "secondary": "Ver onde os anúncios aparecem ↓",
       "login": "Já anuncia? <link>Entrar</link>",
@@ -4656,13 +4656,13 @@
     "audiences": {
       "brands": "Marcas",
       "producers": "Produtoras e promotores de eventos",
-      "sponsors": "Patrocinadores de shows",
+      "sponsors": "Patrocinadores de eventos",
       "local": "Negócios locais"
     },
     "positions": {
       "label": "POSIÇÕES",
       "title": "Sua marca em toda a jornada do fã",
-      "subtitle": "Do momento em que ele descobre o show até depois da compra — e dentro do player.",
+      "subtitle": "Do momento em que ele descobre o evento até depois da compra — e dentro do player.",
       "items": [
         {
           "title": "Feed",
@@ -4670,7 +4670,7 @@
         },
         {
           "title": "Página do evento",
-          "text": "Ao lado das informações do show."
+          "text": "Ao lado das informações do evento."
         },
         {
           "title": "Checkout",
@@ -4778,7 +4778,7 @@
       "destinations": [
         {
           "title": "Um evento da showon.io",
-          "text": "Promova um show da plataforma; o clique leva direto à página dele."
+          "text": "Promova um evento da plataforma; o clique leva direto à página dele."
         },
         {
           "title": "Link externo",
@@ -4927,7 +4927,7 @@
       ]
     },
     "finalCta": {
-      "title": "Pronto para colocar sua marca no show?",
+      "title": "Pronto para colocar sua marca no evento?",
       "cta": "Criar conta de anunciante",
       "login": "Já anuncia? Entrar",
       "watermark": "SHOWON ADS"

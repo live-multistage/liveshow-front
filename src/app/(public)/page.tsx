@@ -8,14 +8,14 @@ import { fetchHomeRails } from '@/features/home';
 // which says nothing to a search result. `absolute` skips the "· showon.io"
 // template so the brand is not repeated.
 const BASE_METADATA: Metadata = {
-  title: { absolute: 'showon.io · Shows ao vivo em múltiplas câmeras, ingressos e replays' },
+  title: { absolute: 'showon.io · Eventos ao vivo em múltiplas câmeras, ingressos e replays' },
   description:
-    'Assista shows e festivais ao vivo escolhendo a câmera, compre ingressos digitais e reveja em replay no showon.io.',
+    'Assista shows, jogos, conferências e muito mais ao vivo escolhendo a câmera, compre ingressos digitais e reveja em replay no showon.io.',
   alternates: { canonical: '/' },
   openGraph: {
-    title: 'showon.io · Shows ao vivo em múltiplas câmeras',
+    title: 'showon.io · Eventos ao vivo em múltiplas câmeras',
     description:
-      'Assista shows e festivais ao vivo escolhendo a câmera, compre ingressos digitais e reveja em replay.',
+      'Assista shows, jogos, conferências e muito mais ao vivo escolhendo a câmera, compre ingressos digitais e reveja em replay.',
   },
 };
 

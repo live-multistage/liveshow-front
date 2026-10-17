@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'showon.io',
     short_name: 'showon',
-    description: 'Shows ao vivo de todo o mundo, na palma da sua mão.',
+    description: 'Eventos ao vivo de todo o mundo, na palma da sua mão.',
     start_url: '/',
     display: 'standalone',
     background_color: '#08080a',

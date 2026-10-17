@@ -9,6 +9,6 @@ export default function OpengraphImage() {
   return renderBrandCard({
     eyebrow: 'CANAIS',
     title: 'Canais',
-    subtitle: 'Canais 24h ao vivo — programação contínua de shows e eventos no showon.io.',
+    subtitle: 'Canais 24h ao vivo — programação contínua de eventos no showon.io.',
   });
 }

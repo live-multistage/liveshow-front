@@ -6,7 +6,7 @@ import { ChannelsBrowser } from '@/features/channels/components/ChannelsBrowser'
 import styles from './page.module.scss';
 
 const TITLE = 'Canais';
-const DESCRIPTION = 'Canais 24h ao vivo — programação contínua de shows e eventos no showon.io.';
+const DESCRIPTION = 'Canais 24h ao vivo — programação contínua de eventos no showon.io.';
 
 const BASE_METADATA: Metadata = {
   title: TITLE,

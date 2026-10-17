@@ -6,7 +6,7 @@ const empty: SeoGlobal = {
   googleSiteVerification: null, bingSiteVerification: null, defaultOgImageUrl: null,
   organizationJsonLd: null, websiteJsonLd: null, robotsExtraRules: [],
 };
-const DESC = 'Shows ao vivo de todo o mundo, na palma da sua mão.';
+const DESC = 'Eventos ao vivo de todo o mundo, na palma da sua mão.';
 const legacy = {
   metadataBase: new URL('https://showon.io'),
   title: { default: 'showon.io', template: '%s · showon.io' },

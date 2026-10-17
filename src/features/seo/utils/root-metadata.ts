@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { SeoGlobal } from '@live-show/api-contracts';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
-export const SITE_DESCRIPTION = 'Shows ao vivo de todo o mundo, na palma da sua mão.';
+export const SITE_DESCRIPTION = 'Eventos ao vivo de todo o mundo, na palma da sua mão.';
 
 // Empty/absent admin global leaves the code defaults untouched.
 export function buildRootMetadata(global: SeoGlobal | null): Metadata {

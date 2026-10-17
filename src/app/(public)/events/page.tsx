@@ -6,8 +6,8 @@ import { EventsListPageContent } from '@/features/events';
 import { fetchFeedPage } from '@/features/events/queries/get-feed.server';
 import { parseListParams } from '@/features/events/utils/list-params-from-search';
 
-const TITLE = 'Shows';
-const DESCRIPTION = 'Todos os shows, eventos e transmissões ao vivo disponíveis no showon.io.';
+const TITLE = 'Programação';
+const DESCRIPTION = 'Todos os eventos e transmissões ao vivo disponíveis no showon.io.';
 const PAGE_SIZE = 24;
 
 const BASE_METADATA: Metadata = {
