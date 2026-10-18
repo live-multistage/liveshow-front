@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ChatInput } from './ChatInput';
 import type { ChatMe } from '../types/chat.types';
@@ -136,6 +136,11 @@ describe('ChatInput — mentions', () => {
     await user.type(input, '@');
     await user.click(screen.getByRole('option', { name: 'mentions.optionLabel:{"username":"marina.v"}' }));
     expect(input).toHaveValue('@marina.v ');
+    await act(async () => {
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+    });
+    expect(input).toHaveFocus();
+    expect((input as HTMLInputElement).selectionStart).toBe('@marina.v '.length);
 
     await user.type(input, '@m');
     await user.keyboard('{Escape}');
@@ -148,5 +153,7 @@ describe('ChatInput — mentions', () => {
     expect(screen.getByRole('combobox')).toBeDisabled();
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     await user.click(screen.getByRole('combobox'));
+    await user.keyboard('@');
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 });

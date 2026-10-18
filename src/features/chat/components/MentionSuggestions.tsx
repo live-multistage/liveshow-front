@@ -1,5 +1,6 @@
 'use client';
 
+import type { CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
 import type { ChatParticipant } from '@live-show/api-contracts';
 import { avatarColor, initialsFromName } from '../utils/avatar';
@@ -15,6 +16,8 @@ interface Props {
   empty: boolean;
   onSelect: (option: ChatParticipant) => void;
 }
+
+const SKELETON_WIDTHS = ['62%', '48%', '70%'];
 
 function Handle({ username, query }: { username: string; query: string }) {
   if (!query || !username.toLowerCase().startsWith(query.toLowerCase())) return <>@{username}</>;
@@ -35,11 +38,11 @@ export function MentionSuggestions({ id, query, options, activeIndex, optionId, 
       <p className={styles.heading}>{t('mentions.heading')}</p>
       <ul id={id} role="listbox" aria-label={t('mentions.listLabel')} className={styles.list}>
         {loading &&
-          [0, 1, 2].map((i) => (
-            <li key={i} className={styles.skeletonRow} aria-hidden="true">
+          SKELETON_WIDTHS.map((width) => (
+            <li key={width} className={styles.skeletonRow} aria-hidden="true">
               <span className={styles.skeletonAvatar} />
               <span className={styles.skeletonLines}>
-                <span className={styles.skeletonName} />
+                <span className={styles.skeletonName} style={{ '--skeleton-width': width } as CSSProperties} />
                 <span className={styles.skeletonHandle} />
               </span>
             </li>
