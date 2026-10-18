@@ -83,7 +83,7 @@ describe('Transport.AudioTrack', () => {
     expect(getByText('audioTrackDefault')).toBeTruthy();
     expect(queryByText('por')).toBeNull();
     fireEvent.click(getByText('English'));
-    expect(localStorage.getItem('ls_audio_language')).toBe('eng');
+    expect(JSON.parse(localStorage.getItem('ls_audio_language') ?? '{}')).toEqual({ language: 'eng', index: 1 });
   });
 
   it('switches without rebuilding the player', () => {
