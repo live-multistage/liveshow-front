@@ -152,6 +152,7 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, s
         <Player.Aside>
           <ChatDock
             eventId={eventId}
+            streamId={isChannel ? null : shell.activeStreamId}
             open={chatOpen}
             onClose={() => setChatOpen(false)}
             messages={chat.messages}
