@@ -49,6 +49,7 @@ $ok: #7fe0a0;
   &:hover:not(:disabled) { border-color: rgba(255, 46, 158, 0.45); }
   &:disabled { opacity: 0.6; cursor: default; }
 }
+.btnSave:disabled { opacity: 0.4; } // canvas Profile: disabled Save
 
 /* forms */
 .formGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; @media (max-width: 620px) { grid-template-columns: 1fr; } }

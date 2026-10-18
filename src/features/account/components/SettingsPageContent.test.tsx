@@ -138,6 +138,34 @@ describe('SettingsPageContent — username', () => {
     expect(updateProfileMutate).not.toHaveBeenCalled();
   });
 
+  it('shows a generic error when the username save fails with an unmapped error', async () => {
+    Object.assign(usernameField, { dirty: true, canSave: true, save: vi.fn().mockRejectedValue({ status: 500, message: 'boom' }) });
+    render(<SettingsPageContent twoFactorEnabled={false} />);
+    submit();
+
+    expect(await screen.findByText('boom')).toBeInTheDocument();
+    expect(updateProfileMutate).not.toHaveBeenCalled();
+  });
+
+  it('stays silent for mapped failures (the field shows them)', async () => {
+    Object.assign(usernameField, { dirty: true, canSave: true, save: vi.fn().mockRejectedValue({ status: 409, code: 'USERNAME_TAKEN', message: 'x' }) });
+    render(<SettingsPageContent twoFactorEnabled={false} />);
+    submit();
+
+    await waitFor(() => expect(usernameField.save).toHaveBeenCalled());
+    expect(screen.queryByText('x')).not.toBeInTheDocument();
+  });
+
+  it('shows only the username banner when it changed', async () => {
+    updateProfileMutate = vi.fn((_v, o?: { onSuccess?: () => void }) => o?.onSuccess?.());
+    Object.assign(usernameField, { dirty: true, canSave: true });
+    render(<SettingsPageContent twoFactorEnabled={false} />);
+    submit();
+
+    expect(await screen.findByText('saved')).toBeInTheDocument();
+    expect(screen.queryByText('Perfil atualizado.')).not.toBeInTheDocument();
+  });
+
   it('does not save an untouched username', async () => {
     render(<SettingsPageContent twoFactorEnabled={false} />);
     submit();
