@@ -96,6 +96,14 @@ describe('ChatMessageItem — usernames and mentions', () => {
     expect(screen.getByText('@bob')).toBeInTheDocument();
   });
 
+  it('shows no @handle when the author has no username (old accounts)', () => {
+    render(
+      <ChatMessageItem message={message({ authorUsername: null })} isModerator={false} currentUserId="user-1" onDelete={vi.fn()} onMute={vi.fn()} />,
+    );
+    expect(screen.getByText('Bob')).toBeInTheDocument();
+    expect(screen.queryByText(/^@/)).not.toBeInTheDocument();
+  });
+
   it('highlights only resolved mentions', () => {
     render(
       <ChatMessageItem
