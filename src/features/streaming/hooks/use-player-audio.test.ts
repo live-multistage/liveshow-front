@@ -102,4 +102,11 @@ describe('usePlayerAudio — audio language', () => {
     rerender({ fb: 'b' });
     expect(result.current.effectiveAudioTrackIndex).toBe(2);
   });
+
+  it('exposes no tracks while the audio camera plays the LL path', () => {
+    const cam = { ...withTracks('a', ['por', 'eng']), llPath: '/ll/a/index.m3u8' };
+    const { result } = renderHook(() => usePlayerAudio({ cameras: [cam], fallbackCameraId: 'a' }));
+    expect(result.current.audioTracks).toHaveLength(0);
+    expect(result.current.effectiveAudioTrackIndex).toBe(0);
+  });
 });

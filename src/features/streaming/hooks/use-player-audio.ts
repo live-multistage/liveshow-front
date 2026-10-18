@@ -99,8 +99,10 @@ export function usePlayerAudio({
   // camera without it plays its default track.
   const [choice, setChoice] = useState<AudioChoice | null>(readStoredChoice);
   const preferredLanguage = choice?.language ?? null;
-  const audioTracks =
-    cameras.find((c) => c.cameraId === effectiveAudioCameraId)?.audioTracks ?? NO_TRACKS;
+  const audioCamera = cameras.find((c) => c.cameraId === effectiveAudioCameraId);
+  // The LL-HLS (MediaMTX) path doesn't carry the stage master's per-camera
+  // audio renditions, so a selector there would do nothing.
+  const audioTracks = audioCamera?.llPath ? NO_TRACKS : (audioCamera?.audioTracks ?? NO_TRACKS);
   const remembered = choice?.index == null ? undefined : audioTracks.find((t) => t.index === choice.index);
   const effectiveAudioTrackIndex =
     remembered && remembered.language === choice?.language
