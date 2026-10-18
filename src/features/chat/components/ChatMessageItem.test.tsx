@@ -86,3 +86,55 @@ describe('ChatMessageItem', () => {
     expect(onMute).not.toHaveBeenCalled();
   });
 });
+
+describe('ChatMessageItem — usernames and mentions', () => {
+  it('shows the author @username next to the display name', () => {
+    render(
+      <ChatMessageItem message={message({ authorUsername: 'bob' })} isModerator={false} currentUserId="user-1" onDelete={vi.fn()} onMute={vi.fn()} />,
+    );
+    expect(screen.getByText('Bob')).toBeInTheDocument();
+    expect(screen.getByText('@bob')).toBeInTheDocument();
+  });
+
+  it('highlights only resolved mentions', () => {
+    render(
+      <ChatMessageItem
+        message={message({ body: 'oi @Carla e @zé', mentions: [{ userId: 'user-3', username: 'carla' }] })}
+        isModerator={false}
+        currentUserId="user-1"
+        onDelete={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('@Carla')).toHaveAttribute('data-mention-user', 'user-3');
+    expect(screen.queryByText('mentions.you')).not.toBeInTheDocument();
+  });
+
+  it('marks the whole row and shows the VOCÊ chip when the viewer is mentioned', () => {
+    const { container } = render(
+      <ChatMessageItem
+        message={message({ body: 'valeu @ana.', mentions: [{ userId: 'user-1', username: 'ana' }] })}
+        isModerator={false}
+        currentUserId="user-1"
+        onDelete={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+    expect(container.firstChild).toHaveAttribute('data-mentions-me', 'true');
+    expect(screen.getByText('mentions.you')).toBeInTheDocument();
+    expect(screen.getByText('@ana')).toHaveAttribute('data-mention-user', 'user-1');
+  });
+
+  it('an anonymous viewer never gets the own-mention row', () => {
+    const { container } = render(
+      <ChatMessageItem
+        message={message({ body: '@ana', mentions: [{ userId: 'user-1', username: 'ana' }] })}
+        isModerator={false}
+        currentUserId={null}
+        onDelete={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+    expect(container.firstChild).not.toHaveAttribute('data-mentions-me');
+  });
+});

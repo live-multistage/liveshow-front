@@ -6,6 +6,18 @@
   gap: 0.5625rem;
 }
 
+.itemMentioned {
+  // Bleeds to the dock edges (dock padding is 14px).
+  margin: 0 -0.875rem;
+  padding: 0.5rem 0.875rem 0.5rem 0.75rem;
+  background: rgba(255, 46, 158, 0.06);
+  border-left: 2px solid $action;
+
+  .text {
+    color: #d4d4d8;
+  }
+}
+
 .avatar {
   width: 1.625rem;
   height: 1.625rem;
@@ -22,10 +34,12 @@
 
 .body {
   min-width: 0;
+  flex: 1;
 }
 
 .meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 0.375rem;
   margin-bottom: 0.125rem;
@@ -35,6 +49,29 @@
   font-size: 0.71875rem;
   font-weight: 700;
   color: $text-primary;
+}
+
+.username {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.59375rem;
+  color: $text-muted;
+}
+
+.youChip {
+  margin-left: auto;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.53125rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: $accent-text;
+  background: rgba(255, 46, 158, 0.14);
+  border-radius: 4px;
+  padding: 0.125rem 0.3125rem;
+}
+
+.mention {
+  color: $accent-text;
+  font-weight: 600;
 }
 
 .time {
