@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Tv2, RotateCcw, CheckCircle2, Play } from 'lucide-react';
+import { Tv2, RotateCcw, CheckCircle2, Play, Check } from 'lucide-react';
 import { formatPrice } from '../../utils/event-formatters';
 import { eventHref } from '../../utils/slug';
-import { useServiceFeeRateQuery } from '../../queries/get-event';
+import { useServiceFeeRateQuery, useMyEventTicketsQuery } from '../../queries/get-event';
 import type { EventResponse, TicketProductResponse } from '../../types/event.types';
 import { useTranslations } from 'next-intl';
 import { useAddToCartMutation, useCartQuery } from '@/features/cart';
@@ -19,6 +19,7 @@ import {
   useLivePlaybackQuery,
 } from '@/features/streaming/queries/live.queries';
 import { useClaimFreeTicketMutation } from '@/features/streaming/mutations/free-ticket.mutations';
+import { buildTicketPanelView } from '../../utils/ticket-panel-view';
 import { getSoleFreeTicketProduct } from '../../utils/sole-free-ticket';
 import styles from './TicketPanel.module.scss';
 
@@ -76,19 +77,26 @@ export function TicketPanel({ event, tickets }: Props) {
   // case where the purchase ceremony can collapse into a direct watch action.
   const soleFreeTicket = getSoleFreeTicketProduct(tickets);
 
-  const purchasableTickets = isFinished
-    ? tickets.filter((t) => t.capabilities.includes('REPLAY_VIEW'))
-    : tickets;
-
-  const ticket = purchasableTickets.find((t) => t.id === selected) ?? purchasableTickets[0];
-  // Both re-entry checks key off the selected ticket product id (the cart stores ticketProductId).
-  const isInCart = ticket ? isTicketInCart(ticket.id) : false;
-  const soldOut = ticket?.soldOut ?? false;
-
   const ownsLive = liveAccess.data === true;
   const ownsReplay = replayAccess.data === true;
   const owns = isLoggedIn && (ownsLive || ownsReplay);
   const accessLoading = isLoggedIn && (liveAccess.isLoading || replayAccess.isLoading);
+
+  // Amendment 2026-10-18: ownership is per product. Owning the free coverage
+  // must never hide the paid full event. While the owned list is unknown we
+  // pass hasAccess=false: an empty list plus access would read as "granted
+  // outside orders" (secured) and flash before flipping to the real state.
+  const myTickets = useMyEventTicketsQuery(event.id, isLoggedIn);
+  const view = buildTicketPanelView(tickets, myTickets.data ?? [], {
+    isFinished,
+    hasAccess: owns && !myTickets.isLoading,
+  });
+  const ownsSome = view.tiers.some((tier) => tier.state === 'owned');
+  const ticket = view.buyable.find((t) => t.id === selected) ?? view.buyable[0];
+
+  // Both re-entry checks key off the selected ticket product id (the cart stores ticketProductId).
+  const isInCart = ticket ? isTicketInCart(ticket.id) : false;
+  const soldOut = ticket?.soldOut ?? false;
 
   const claimFreeTicket = useClaimFreeTicketMutation(event.id);
 
@@ -101,7 +109,7 @@ export function TicketPanel({ event, tickets }: Props) {
   // Mobile sticky buy bar: only rendered in the purchase state below, hidden
   // while the panel itself is on screen.
   const showPurchaseUI =
-    event.status !== 'CANCELLED' && !accessLoading && !owns && purchasableTickets.length > 0;
+    event.status !== 'CANCELLED' && !accessLoading && !view.secured && view.buyable.length > 0;
   const panelRef = useRef<HTMLDivElement>(null);
   const [panelInView, setPanelInView] = useState(true);
   useEffect(() => {
@@ -139,7 +147,7 @@ export function TicketPanel({ event, tickets }: Props) {
     );
   }
 
-  if (owns) {
+  if (view.secured) {
     return (
       <div className={styles.panel}>
         <div className={styles.glow} aria-hidden />
@@ -185,7 +193,7 @@ export function TicketPanel({ event, tickets }: Props) {
   }
 
 
-  if (purchasableTickets.length === 0) {
+  if (view.buyable.length === 0) {
     return (
       <div className={styles.panel}>
         <div className={styles.glow} aria-hidden />
@@ -251,22 +259,35 @@ export function TicketPanel({ event, tickets }: Props) {
         </h2>
 
         <div className={styles.ticketOptions}>
-          {purchasableTickets.map((opt) => (
-            <button
-              key={opt.id}
-              onClick={() => selectTicket(opt)}
-              className={`${styles.ticketOption} ${selected === opt.id ? styles.ticketOptionSelected : styles.ticketOptionDefault}`}
-            >
-              <div className={styles.ticketOptionHeader}>
-                <span className={styles.ticketOptionName}>{opt.name}</span>
-                <span className={styles.ticketOptionPrice}>{opt.price === 0 ? t('free') : formatPrice(opt.price, opt.currency)}</span>
+          {view.tiers.map(({ ticket: opt, state }) =>
+            state === 'owned' ? (
+              <div key={opt.id} data-owned className={`${styles.ticketOption} ${styles.ticketOptionOwned}`}>
+                <div className={styles.ticketOptionHeader}>
+                  <span className={styles.ticketOptionName}>{opt.name}</span>
+                  <span className={styles.ownedTag}>
+                    <Check size={12} aria-hidden />
+                    {t('yourTicket')}
+                  </span>
+                </div>
+                <TicketCapabilityChips ticket={opt} />
+                {opt.description && <p className={styles.ticketOptionDesc}>{opt.description}</p>}
               </div>
-              <TicketCapabilityChips ticket={opt} />
-              {opt.description && (
-                <p className={styles.ticketOptionDesc}>{opt.description}</p>
-              )}
-            </button>
-          ))}
+            ) : (
+              <button
+                key={opt.id}
+                aria-pressed={ticket?.id === opt.id}
+                onClick={() => selectTicket(opt)}
+                className={`${styles.ticketOption} ${ticket?.id === opt.id ? styles.ticketOptionSelected : styles.ticketOptionDefault}`}
+              >
+                <div className={styles.ticketOptionHeader}>
+                  <span className={styles.ticketOptionName}>{opt.name}</span>
+                  <span className={styles.ticketOptionPrice}>{opt.price === 0 ? t('free') : formatPrice(opt.price, opt.currency)}</span>
+                </div>
+                <TicketCapabilityChips ticket={opt} />
+                {opt.description && <p className={styles.ticketOptionDesc}>{opt.description}</p>}
+              </button>
+            ),
+          )}
         </div>
 
         <div className={styles.divider} />
@@ -290,7 +311,7 @@ export function TicketPanel({ event, tickets }: Props) {
                 <span className={styles.totalAmount}>{formatPrice(ticket.price + serviceFee, ticket.currency)}</span>
               </div>
             </div>
-            <p className={styles.totalNote}>{t('validFor')}</p>
+            <p className={styles.totalNote}>{ownsSome ? t('upgradeNote') : t('validFor')}</p>
           </>
         )}
 
@@ -359,9 +380,14 @@ export function TicketPanel({ event, tickets }: Props) {
           )}
         </button>
 
+        {isInCart ? (
+          <Link href="/checkout" className={styles.cartLink}>
+            {t('inCartGoToCheckout')}
+          </Link>
+        ) : (
         <button
           className={styles.cartBtn}
-          disabled={addToCart.isPending || isInCart || soldOut}
+          disabled={addToCart.isPending || soldOut}
           onClick={() => {
             if (!ticket || soldOut) return;
             if (!isLoggedIn) {
@@ -383,13 +409,6 @@ export function TicketPanel({ event, tickets }: Props) {
         >
           {pendingAction === 'cart' ? (
             <><span className={styles.btnSpinner} />{t('adding')}</>
-          ) : isInCart ? (
-            <>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-              {t('alreadyInCart')}
-            </>
           ) : (
             <>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -401,6 +420,7 @@ export function TicketPanel({ event, tickets }: Props) {
             </>
           )}
         </button>
+        )}
           </>
         )}
 
