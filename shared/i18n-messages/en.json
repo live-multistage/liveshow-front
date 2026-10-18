@@ -1322,6 +1322,8 @@
     "transmissionOffline": "Offline",
     "transmissionLive": "Live",
     "switchTransmission": "Switch transmission",
+    "transmissionNotStartedTitle": "Transmission hasn't started yet",
+    "transmissionNotStartedBody": "The {title} transmission goes live soon. You can switch to another transmission in the meantime.",
     "closePanel": "Close"
   },
   "ads": {

@@ -140,6 +140,10 @@ $dot-off: #6f6f77;
   font-size: 0.6875rem;
   font-weight: 700;
   color: $text-primary;
+
+  @media (max-width: ch.$compact) {
+    display: none;
+  }
 }
 
 .closeBtn {
@@ -221,6 +225,9 @@ $dot-off: #6f6f77;
 
   @media (max-width: ch.$compact) {
     font-size: 1rem;
+    font-weight: 600;
+
+    .rowActive & { font-weight: 700; }
   }
 }
 

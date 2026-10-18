@@ -91,13 +91,24 @@ export function usePlayerShell({
   // Cameras and chapters share the right edge: opening one closes the other.
   // Live never shows the chapters pill, so chaptersOpen simply stays false there.
   const [chaptersOpen, setChaptersOpen] = useState(false);
+  // The transmission sheet (≤820px) sits in the header's stacking context, under
+  // the camera/chapters sheets — so it is exclusive with both instead.
+  const [transmissionsOpen, setTransmissionsOpenState] = useState(false);
+  const setTransmissionsOpen = (open: boolean) => {
+    setTransmissionsOpenState(open);
+    if (!open) return;
+    setCameraStripOpen(false);
+    setChaptersOpen(false);
+  };
   const toggleCameraStrip = () => {
     setCameraStripOpen((o) => !o);
     setChaptersOpen(false);
+    setTransmissionsOpenState(false);
   };
   const toggleChapters = () => {
     setChaptersOpen((o) => !o);
     setCameraStripOpen(false);
+    setTransmissionsOpenState(false);
   };
 
   const orderedStreams = useMemo(
@@ -202,6 +213,8 @@ export function usePlayerShell({
     chaptersOpen,
     setChaptersOpen,
     toggleChapters,
+    transmissionsOpen,
+    setTransmissionsOpen,
     stages,
     activeStage,
     activeStageId,

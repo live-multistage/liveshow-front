@@ -1322,6 +1322,8 @@
     "transmissionOffline": "Fora do ar",
     "transmissionLive": "Ao vivo",
     "switchTransmission": "Trocar transmissão",
+    "transmissionNotStartedTitle": "Transmissão ainda não começou",
+    "transmissionNotStartedBody": "A transmissão {title} entra no ar em breve. Você pode voltar para outra transmissão enquanto isso.",
     "closePanel": "Fechar"
   },
   "ads": {

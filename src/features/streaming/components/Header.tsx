@@ -43,6 +43,9 @@ interface Props {
   streams?: SelectorStream[];
   activeStreamId?: string | null;
   onStreamChange?: (streamId: string) => void;
+  // Owned by the player shell so the selector and the side drawers exclude each other.
+  transmissionsOpen?: boolean;
+  onTransmissionsOpenChange?: (open: boolean) => void;
 }
 
 // Duplicated on purpose, see ReactionsTicker.tsx for why — this codebase
@@ -76,6 +79,8 @@ export function Header({
   streams = [],
   activeStreamId = null,
   onStreamChange,
+  transmissionsOpen,
+  onTransmissionsOpenChange,
 }: Props) {
   const t = useTranslations('player');
   const multiStream = streams.length >= 2 && !!onStreamChange;
@@ -148,7 +153,13 @@ export function Header({
           </button>
         )}
         {multiStream && onStreamChange && (
-          <TransmissionSelector streams={streams} activeStreamId={activeStreamId} onStreamChange={onStreamChange} />
+          <TransmissionSelector
+            streams={streams}
+            activeStreamId={activeStreamId}
+            onStreamChange={onStreamChange}
+            open={transmissionsOpen}
+            onOpenChange={onTransmissionsOpenChange}
+          />
         )}
         <button
           className={`${styles.drawerBtn} ${cameraStripOpen ? styles.drawerBtnActive : ''}`}

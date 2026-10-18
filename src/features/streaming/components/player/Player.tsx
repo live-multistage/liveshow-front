@@ -15,6 +15,7 @@ import type { CameraGridProps } from '../CameraGrid';
 import { Header as HeaderBar } from '../Header';
 import { PlayerStage as StageFrame } from '../PlayerStage';
 import { RecommendedOverlay } from '../RecommendedOverlay';
+import { TransmissionOfflineState } from '../TransmissionOfflineState';
 import { PlayerProvider, usePlayer } from './PlayerContext';
 import type { PlayerContextValue, PlayerMode } from './PlayerContext';
 import styles from './PlayerParts.module.scss';
@@ -125,6 +126,8 @@ function PlayerHeader({ badge, exitHref, metaLine, currentViewers, chat, chapter
       streams={shell.streams}
       activeStreamId={shell.activeStreamId}
       onStreamChange={shell.setActiveStreamId}
+      transmissionsOpen={shell.transmissionsOpen}
+      onTransmissionsOpenChange={shell.setTransmissionsOpen}
       onExit={() => router.push(exitHref ?? `/events/${eventId}`)}
       currentViewers={currentViewers}
       cameraCount={shell.stageCameras.length}
@@ -152,6 +155,9 @@ function Stage(gridProps: PlayerStagePartProps) {
   const { audio, quality } = shell;
   const analytics = useAnalytics();
   const trackedMode = analyticsMode(mode);
+  // Replay streams carry no `live`, so this never fires in replay.
+  const activeStream = shell.streams.find((s) => s.id === shell.activeStreamId);
+  const offlineStream = activeStream?.live === false ? activeStream : null;
 
   // quality is a new object every render (useQualityLevels returns a fresh
   // literal) — read the current levels through a ref instead of a dep, or
@@ -247,7 +253,8 @@ function Stage(gridProps: PlayerStagePartProps) {
         onPauseAdVisibleChange={shell.setPauseAdVisible}
         adsEnabled={adsEnabled}
       >
-        {shell.activeStage && (
+        {offlineStream && <TransmissionOfflineState title={offlineStream.title} />}
+        {shell.activeStage && !offlineStream && (
           <CameraGrid
             key={shell.activeStage.stageId}
             eventId={playbackEventId}

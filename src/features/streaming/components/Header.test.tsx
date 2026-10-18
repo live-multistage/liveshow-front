@@ -132,7 +132,7 @@ describe('Header — transmission selector', () => {
     const { queryByLabelText, queryByText } = render(
       <Header {...baseProps} streams={[streams[0]]} activeStreamId="main" onStreamChange={vi.fn()} />,
     );
-    expect(queryByLabelText('switchTransmission')).toBeNull();
+    expect(queryByLabelText(/^switchTransmission/)).toBeNull();
     expect(queryByText('Principal')).toBeNull();
   });
 
@@ -140,8 +140,41 @@ describe('Header — transmission selector', () => {
     const { getByLabelText, container } = render(
       <Header {...baseProps} streams={streams} activeStreamId="vip" onStreamChange={vi.fn()} />,
     );
-    expect(getByLabelText('switchTransmission').textContent).toContain('VIP');
+    expect(getByLabelText(/^switchTransmission/).textContent).toContain('VIP');
     expect(container.querySelector('header')!.textContent).toContain('VIP · Palco principal');
+  });
+
+  it('names the trigger with the visible title (WCAG 2.5.3)', () => {
+    const { getByLabelText } = render(
+      <Header {...baseProps} streams={streams} activeStreamId="vip" onStreamChange={vi.fn()} />,
+    );
+    expect(getByLabelText('switchTransmission: VIP')).toBeTruthy();
+  });
+
+  it('closes when focus moves outside the selector, not on a click inside the panel', () => {
+    const { getByLabelText, getByRole, queryByRole } = render(
+      <Header {...baseProps} streams={streams} activeStreamId="main" onStreamChange={vi.fn()} />,
+    );
+    fireEvent.click(getByLabelText(/^switchTransmission/));
+    const panel = getByRole('dialog', { name: 'transmissions' });
+    fireEvent.blur(within(panel).getByRole('button', { pressed: true }), { relatedTarget: null });
+    expect(queryByRole('dialog')).not.toBeNull();
+    fireEvent.blur(within(panel).getByRole('button', { pressed: true }), { relatedTarget: getByLabelText('share') });
+    expect(queryByRole('dialog')).toBeNull();
+  });
+
+  it('follows a controlled open state and reports open changes', () => {
+    const onOpenChange = vi.fn();
+    const { getByLabelText, queryByRole, rerender } = render(
+      <Header {...baseProps} streams={streams} activeStreamId="main" onStreamChange={vi.fn()} transmissionsOpen={false} onTransmissionsOpenChange={onOpenChange} />,
+    );
+    fireEvent.click(getByLabelText(/^switchTransmission/));
+    expect(onOpenChange).toHaveBeenCalledWith(true);
+    expect(queryByRole('dialog')).toBeNull();
+    rerender(
+      <Header {...baseProps} streams={streams} activeStreamId="main" onStreamChange={vi.fn()} transmissionsOpen onTransmissionsOpenChange={onOpenChange} />,
+    );
+    expect(queryByRole('dialog')).not.toBeNull();
   });
 
   it('lists the granted transmissions, marks the offline one, and reports a switch', () => {
@@ -149,7 +182,7 @@ describe('Header — transmission selector', () => {
     const { getByLabelText, getByRole, queryByRole } = render(
       <Header {...baseProps} streams={streams} activeStreamId="main" onStreamChange={onStreamChange} />,
     );
-    const trigger = getByLabelText('switchTransmission');
+    const trigger = getByLabelText(/^switchTransmission/);
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
     expect(queryByRole('dialog')).toBeNull();
 
@@ -175,7 +208,7 @@ describe('Header — transmission selector', () => {
     const { getByLabelText, getByRole, queryByRole } = render(
       <Header {...baseProps} streams={streams} activeStreamId="vip" onStreamChange={vi.fn()} />,
     );
-    const trigger = getByLabelText('switchTransmission');
+    const trigger = getByLabelText(/^switchTransmission/);
     fireEvent.click(trigger);
     const panel = getByRole('dialog', { name: 'transmissions' });
     expect(document.activeElement).toBe(within(panel).getByRole('button', { pressed: true }));
@@ -189,7 +222,7 @@ describe('Header — transmission selector', () => {
     const { getByLabelText, getByRole, queryByRole, getByTestId } = render(
       <Header {...baseProps} streams={streams} activeStreamId="main" onStreamChange={vi.fn()} />,
     );
-    const trigger = getByLabelText('switchTransmission');
+    const trigger = getByLabelText(/^switchTransmission/);
     fireEvent.click(trigger);
     fireEvent.click(within(getByRole('dialog')).getByLabelText('closePanel'));
     expect(queryByRole('dialog')).toBeNull();
@@ -208,7 +241,7 @@ describe('Header — transmission selector', () => {
     const { getByLabelText, getByRole } = render(
       <Header {...baseProps} badge="replay" streams={replayStreams} activeStreamId="main" onStreamChange={vi.fn()} />,
     );
-    fireEvent.click(getByLabelText('switchTransmission'));
+    fireEvent.click(getByLabelText(/^switchTransmission/));
     const panel = getByRole('dialog', { name: 'transmissions' });
     expect(within(panel).getByText('REPLAY · 2h 14min')).toBeTruthy();
     expect(within(panel).getByText('REPLAY · 48min')).toBeTruthy();
