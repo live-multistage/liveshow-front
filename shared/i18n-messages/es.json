@@ -294,7 +294,13 @@
       "cameraViews": "{count} vistas de cámara",
       "related": {
         "title": "También te puede interesar"
-      }
+      },
+      "enableSound": "Activar sonido",
+      "muteSound": "Desactivar sonido",
+      "openPlayer": "Abrir reproductor",
+      "watchingChip": "Estás en {transmission}",
+      "watchingTransmission": "Viendo la transmisión {transmission}.",
+      "upsellNote": "Las demás transmisiones de este evento están en la entrada {offer}."
     },
     "status": {
       "PUBLISHED": "Próximamente",
@@ -344,7 +350,10 @@
     "securePurchase": "COMPRA 100% SEGURA",
     "mobileTicket": "ENTRADA",
     "mobileReplay": "REPETICIÓN",
-    "mobileBuy": "Comprar entrada"
+    "mobileBuy": "Comprar entrada",
+    "yourTicket": "Tu entrada",
+    "inCartGoToCheckout": "En el carrito · ir al checkout →",
+    "upgradeNote": "Se libera al instante, sin perder tu transmisión actual"
   },
   "tickets": {
     "title": "Mis Entradas",
@@ -1324,7 +1333,9 @@
     "switchTransmission": "Cambiar transmisión",
     "transmissionNotStartedTitle": "La transmisión aún no comenzó",
     "transmissionNotStartedBody": "La transmisión {title} sale al aire pronto. Mientras tanto, puedes volver a otra transmisión.",
-    "closePanel": "Cerrar"
+    "closePanel": "Cerrar",
+    "availableToBuy": "Disponible para comprar",
+    "unlockFullEvent": "Desbloquear el evento completo"
   },
   "ads": {
     "sponsored": "Patrocinado",

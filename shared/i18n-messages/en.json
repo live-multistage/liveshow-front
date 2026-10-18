@@ -294,7 +294,13 @@
       "cameraViews": "{count} camera views",
       "related": {
         "title": "You might also like"
-      }
+      },
+      "enableSound": "Turn sound on",
+      "muteSound": "Turn sound off",
+      "openPlayer": "Open player",
+      "watchingChip": "You're on {transmission}",
+      "watchingTransmission": "Watching the {transmission} transmission.",
+      "upsellNote": "This event's other transmissions come with the {offer} ticket."
     },
     "status": {
       "PUBLISHED": "Coming Soon",
@@ -344,7 +350,10 @@
     "securePurchase": "100% SECURE CHECKOUT",
     "mobileTicket": "TICKET",
     "mobileReplay": "REPLAY",
-    "mobileBuy": "Buy ticket"
+    "mobileBuy": "Buy ticket",
+    "yourTicket": "Your ticket",
+    "inCartGoToCheckout": "In your cart · go to checkout →",
+    "upgradeNote": "Unlocks right away, without losing your current transmission"
   },
   "tickets": {
     "title": "My Tickets",
@@ -1324,7 +1333,9 @@
     "switchTransmission": "Switch transmission",
     "transmissionNotStartedTitle": "Transmission hasn't started yet",
     "transmissionNotStartedBody": "The {title} transmission goes live soon. You can switch to another transmission in the meantime.",
-    "closePanel": "Close"
+    "closePanel": "Close",
+    "availableToBuy": "Available to buy",
+    "unlockFullEvent": "Unlock the full event"
   },
   "ads": {
     "sponsored": "Sponsored",

@@ -70,6 +70,18 @@ export interface LivePlaybackStream {
   librasCameraId: string | null;
 }
 
+// A transmission this viewer is not granted but can buy (amendment
+// 2026-10-18). Never playable: no cameras, stages, paths or token entry.
+export interface LockedStreamOffer {
+  id: string;
+  title: string;
+  position: number;
+  // Live: at least one of its cameras is transcoding. Always false on replay.
+  live: boolean;
+  // The cheapest on-sale ticket product of the event that grants it.
+  offer: { ticketProductId: string; name: string; priceCents: number; currency: string };
+}
+
 export interface LivePlaybackResponse {
   eventId: string;
   // Any granted transmission is live.
@@ -79,6 +91,9 @@ export interface LivePlaybackResponse {
   streams?: LivePlaybackStream[];
   // First live stream by position, else the first. Null when nothing is visible.
   defaultStreamId?: string | null;
+  // Transmissions for sale to this viewer, shown locked in the selector.
+  // Absent on older servers; empty when fully granted.
+  lockedStreams?: LockedStreamOffer[];
   /** @deprecated flattened view of `defaultStreamId` — read `streams`; removed one release after web ships. */
   stages?: LiveStage[];
   /** @deprecated see `stages`. */
@@ -146,6 +161,9 @@ export interface ReplayPlaybackResponse {
   streams?: ReplayPlaybackStream[];
   // First live stream by position, else the first. Null when nothing is visible.
   defaultStreamId?: string | null;
+  // Transmissions for sale to this viewer, shown locked in the selector.
+  // Absent on older servers; empty when fully granted.
+  lockedStreams?: LockedStreamOffer[];
   /** @deprecated flattened view of defaultStreamId. */
   stages: ReplayStagePlayback[];
   /** @deprecated flattened view of defaultStreamId. */
