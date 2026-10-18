@@ -17,7 +17,7 @@ import { DRAWER_W } from '../CameraGrid';
 import type { CameraGridProps } from '../CameraGrid';
 import type { LiveCamera } from '../../types/live.types';
 
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
 vi.mock('@/features/account/hooks/use-auth', () => ({ useAuth: () => ({ isLoggedIn: true, user: null }) }));

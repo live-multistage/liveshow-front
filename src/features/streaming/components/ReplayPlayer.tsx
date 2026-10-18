@@ -301,6 +301,7 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
         />
         <Transport.Volume />
         <Transport.AudioCamera />
+        <Transport.AudioTrack />
         <Transport.Quality />
         <Transport.Pip />
         <Transport.Fullscreen />

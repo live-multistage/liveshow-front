@@ -14,7 +14,7 @@ import type { UsePlayerShellOptions } from '../../hooks/use-player-shell';
 import type { QualityLevel } from '../../hooks/use-hls-player';
 import type { LiveCamera } from '../../types/live.types';
 
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
 vi.mock('@/features/account/hooks/use-auth', () => ({ useAuth: () => ({ isLoggedIn: true, user: null }) }));
@@ -46,10 +46,10 @@ const cam = (cameraId: string, priority: number): LiveCamera => ({
   cameraId, name: `Cam ${cameraId}`, slug: cameraId, priority, manifestPath: `/live/${cameraId}.m3u8`, llPath: null, live: true, thumbnailUrl: null, coverage: [],
 });
 
-function Harness({ options, children }: { options: UsePlayerShellOptions; children: ReactNode }) {
+function Harness({ options, children, mode = 'live' }: { options: UsePlayerShellOptions; children: ReactNode; mode?: 'live' | 'replay' }) {
   const shell = usePlayerShell(options);
   return (
-    <Player.Root shell={shell} mode="live" eventId="evt-1" title="Show">
+    <Player.Root shell={shell} mode={mode} eventId="evt-1" title="Show">
       <Player.Transport>{children}</Player.Transport>
     </Player.Root>
   );
@@ -58,6 +58,60 @@ function Harness({ options, children }: { options: UsePlayerShellOptions; childr
 beforeEach(() => {
   globalThis.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} } as unknown as typeof ResizeObserver;
   mockTrack.mockClear();
+});
+
+const camWithTracks = (cameraId: string, languages: string[]): LiveCamera => ({
+  ...cam(cameraId, 1),
+  audioTracks: languages.map((language, index) => ({ index, language, label: null, default: index === 0 })),
+});
+
+describe('Transport.AudioTrack', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('is hidden when the audio camera has a single track', () => {
+    const { queryByLabelText } = render(
+      <Harness options={{ cameras: [cam('a', 1)] }}><Transport.AudioTrack /></Harness>,
+    );
+    expect(queryByLabelText('chooseAudioTrack')).toBeNull();
+  });
+
+  it('lists tracks by language name, marks the default and stores the pick', () => {
+    const { getByLabelText, getByText, queryByText } = render(
+      <Harness options={{ cameras: [camWithTracks('a', ['por', 'eng'])] }}><Transport.AudioTrack /></Harness>,
+    );
+    fireEvent.click(getByLabelText('chooseAudioTrack'));
+    expect(getByText('audioTrackDefault')).toBeTruthy();
+    expect(queryByText('por')).toBeNull();
+    fireEvent.click(getByText('English'));
+    expect(localStorage.getItem('ls_audio_language')).toBe('eng');
+  });
+
+  it('switches without rebuilding the player', () => {
+    const { getByLabelText, getByText } = render(
+      <Harness options={{ cameras: [camWithTracks('a', ['por', 'eng'])] }}>
+        <Transport.AudioTrack />
+      </Harness>,
+    );
+    const trigger = getByLabelText('chooseAudioTrack');
+    fireEvent.click(trigger);
+    fireEvent.click(getByText('English'));
+    expect(getByLabelText('chooseAudioTrack')).toBe(trigger); // same node: the tree was not remounted
+  });
+
+  it('falls back to "Track N" for a track with no language', () => {
+    const { getByLabelText, getByText } = render(
+      <Harness options={{ cameras: [camWithTracks('a', ['por', 'und'])] }}><Transport.AudioTrack /></Harness>,
+    );
+    fireEvent.click(getByLabelText('chooseAudioTrack'));
+    expect(getByText('audioTrackN')).toBeTruthy();
+  });
+
+  it('is available in replay mode too', () => {
+    const { getByLabelText } = render(
+      <Harness mode="replay" options={{ cameras: [camWithTracks('a', ['por', 'eng'])] }}><Transport.AudioTrack /></Harness>,
+    );
+    expect(getByLabelText('chooseAudioTrack')).toBeTruthy();
+  });
 });
 
 describe('Transport controls', () => {

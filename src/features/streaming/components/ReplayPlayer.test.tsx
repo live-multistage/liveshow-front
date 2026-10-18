@@ -54,7 +54,7 @@ vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: vi.fn
 vi.mock('@live-show/analytics-sdk/react', () => ({ TrackFeature: ({ children }: { children: unknown }) => children }));
 // Needs a React Query provider; not what these tests exercise.
 vi.mock('./RecommendedOverlay', () => ({ RecommendedOverlay: () => null }));
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
