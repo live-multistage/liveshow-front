@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 import { activeMentionQuery, insertMention, mentionsUser, splitMentionSegments } from './mentions';
 
@@ -74,5 +75,11 @@ describe('mentionsUser', () => {
     expect(mentionsUser([{ userId: 'u1', username: 'a' }], 'u1')).toBe(true);
     expect(mentionsUser([{ userId: 'u1', username: 'a' }], null)).toBe(false);
     expect(mentionsUser([], 'u1')).toBe(false);
+  });
+});
+
+describe('mentions source', () => {
+  it('uses no regex lookbehind (Safari < 16.4 fails at parse time)', () => {
+    expect(readFileSync(`${__dirname}/mentions.ts`, 'utf8')).not.toContain('(?<');
   });
 });

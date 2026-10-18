@@ -11,8 +11,9 @@ export type MentionSegment =
 
 // "@…" right before the caret, not glued to a username char (no e-mails).
 const ACTIVE_MENTION = /(?:^|[^a-z0-9._])@([a-z0-9._]{0,30})$/i;
+// No lookbehind (Safari < 16.4 fails at parse time); group 1 is the char before '@'.
 // Same token rule the server uses (chat/domain/mentions.ts): the whole run, trailing '.' is punctuation, 3-30 chars.
-const MENTION_TOKEN = /(?<![a-z0-9._])@([a-z0-9._]+)/gi;
+const MENTION_TOKEN = /(^|[^a-z0-9._])@([a-z0-9._]+)/gi;
 const USERNAME_SHAPE = /^[a-z0-9._]{3,30}$/i;
 
 // Works for any caret position: only the text before the caret is considered.
@@ -39,13 +40,14 @@ export function splitMentionSegments(body: string, mentions: readonly ChatMentio
   const segments: MentionSegment[] = [];
   let last = 0;
   for (const match of body.matchAll(MENTION_TOKEN)) {
-    const handle = match[1].replace(/\.+$/, '');
+    const handle = match[2].replace(/\.+$/, '');
     if (!USERNAME_SHAPE.test(handle)) continue;
     const userId = byUsername.get(handle.toLowerCase());
     if (!userId || match.index === undefined) continue;
-    const end = match.index + 1 + handle.length;
-    if (match.index > last) segments.push({ kind: 'text', text: body.slice(last, match.index) });
-    segments.push({ kind: 'mention', text: body.slice(match.index, end), userId });
+    const start = match.index + match[1].length;
+    const end = start + 1 + handle.length;
+    if (start > last) segments.push({ kind: 'text', text: body.slice(last, start) });
+    segments.push({ kind: 'mention', text: body.slice(start, end), userId });
     last = end;
   }
   if (last < body.length) segments.push({ kind: 'text', text: body.slice(last) });
