@@ -105,3 +105,28 @@
     background-color: rgba(255, 255, 255, 0.08);
   }
 }
+
+@media (max-width: 639px) {
+  .item {
+    gap: 0.625rem;
+  }
+
+  .avatar {
+    width: 1.875rem;
+    height: 1.875rem;
+    font-size: 0.65625rem;
+  }
+
+  .author {
+    font-size: 0.8125rem;
+  }
+
+  .username {
+    font-size: 0.65625rem;
+  }
+
+  .text {
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+}
