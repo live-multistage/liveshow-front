@@ -8,7 +8,8 @@ import { useEventStreamsQuery } from '../queries/streams.queries';
 import { useOnAirCamera, useStreamStatsQuery } from '../queries/ingest.queries';
 import { useViewerCount } from '@/features/streaming';
 import { formatElapsed } from '../utils/format-elapsed';
-import { useCreateStreamMutation } from '../mutations/stream.mutations';
+import { useCreateStreamMutation, useReorderStreamsMutation } from '../mutations/stream.mutations';
+import { sortStreamsByPosition, reorderStreams } from '../utils/reorder-streams';
 import { StreamCard } from './StreamCard';
 import { StreamBuilder } from './StreamBuilder';
 import { StreamSetupTutorial } from './StreamSetupTutorial';
@@ -43,7 +44,7 @@ function StatsStrip({ stream, eventId }: { stream: StreamResponse; eventId: stri
   const { onAir } = useOnAirCamera(stream.id, isLive);
   const timer = useLiveClock(onAir?.startedAt);
   const { data: stats } = useStreamStatsQuery(stream.id, monitorable);
-  const { currentViewers } = useViewerCount(isLive ? eventId : undefined);
+  const { currentViewers } = useViewerCount(isLive ? eventId : undefined, stream.id);
 
   const healthClass =
     stats?.health === 'CRITICA' ? styles.healthDotBad
@@ -165,6 +166,9 @@ export function StreamsPageContent() {
   const [showTutorial, setShowTutorial]       = useState(false);
 
   const { data: streams = [], isLoading: streamsLoading } = useEventStreamsQuery(selectedEventId);
+  const orderedStreams = sortStreamsByPosition(streams);
+  const reorder = useReorderStreamsMutation(selectedEventId);
+  const selectedIndex = selectedStream ? orderedStreams.findIndex((s) => s.id === selectedStream.id) : -1;
 
   // useMyEventsQuery omite containers de canal (format=CHANNEL), então o evento
   // vindo da URL pode não estar na lista. Sem uma opção sintética o seletor cai
@@ -267,7 +271,7 @@ export function StreamsPageContent() {
             {selectedEventId && !streamsLoading && streams.length === 0 && !showCreate && (
               <p className={styles.emptyList}>Nenhuma stream criada.</p>
             )}
-            {streams.map((stream) => (
+            {orderedStreams.map((stream) => (
               <StreamCard
                 key={stream.id}
                 stream={stream}
@@ -299,6 +303,9 @@ export function StreamsPageContent() {
               eventTitle={activeEvent?.title}
               onStreamUpdated={handleStreamUpdated}
               onStreamDeleted={() => setSelectedStream(null)}
+              onMove={(direction) => reorder.mutate(reorderStreams(streams, selectedStream.id, direction))}
+              canMoveUp={selectedIndex > 0}
+              canMoveDown={selectedIndex >= 0 && selectedIndex < orderedStreams.length - 1}
             />
           ) : (
             <div className={styles.placeholder}>

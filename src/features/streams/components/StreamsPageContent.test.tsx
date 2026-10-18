@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { StreamsPageContent } from './StreamsPageContent';
 
@@ -27,8 +27,9 @@ vi.mock('@/features/events/queries/get-my-events', () => ({
   }),
 }));
 
+let streamsData: unknown[] = [];
 vi.mock('../queries/streams.queries', () => ({
-  useEventStreamsQuery: () => ({ data: [], isLoading: false }),
+  useEventStreamsQuery: () => ({ data: streamsData, isLoading: false }),
 }));
 
 vi.mock('../queries/ingest.queries', () => ({
@@ -37,8 +38,13 @@ vi.mock('../queries/ingest.queries', () => ({
 }));
 
 vi.mock('@/features/streaming', () => ({ useViewerCount: () => ({ currentViewers: 0 }) }));
-vi.mock('../mutations/stream.mutations', () => ({ useCreateStreamMutation: () => ({}) }));
-vi.mock('./StreamCard', () => ({ StreamCard: () => null }));
+vi.mock('../mutations/stream.mutations', () => ({
+  useCreateStreamMutation: () => ({}),
+  useReorderStreamsMutation: () => ({ mutate: vi.fn(), isPending: false }),
+}));
+vi.mock('./StreamCard', () => ({
+  StreamCard: ({ stream }: { stream: { title: string } }) => <div data-testid="stream-card">{stream.title}</div>,
+}));
 vi.mock('./StreamBuilder', () => ({ StreamBuilder: () => null }));
 vi.mock('./StreamSetupTutorial', () => ({ StreamSetupTutorial: () => null }));
 vi.mock('./StreamsHowItWorks', () => ({ StreamsHowItWorks: () => null }));
@@ -70,6 +76,8 @@ vi.mock('@live-show/design-system', () => ({
 }));
 
 describe('StreamsPageContent event selector', () => {
+  beforeEach(() => { streamsData = []; });
+
   it('keeps an URL-seeded event selectable even when it is absent from the list', () => {
     render(<StreamsPageContent />);
 
@@ -84,5 +92,16 @@ describe('StreamsPageContent event selector', () => {
     expect(select.value).toBe('ev-normal');
     fireEvent.change(select, { target: { value: CHANNEL_EVENT } });
     expect(select.value).toBe(CHANNEL_EVENT);
+  });
+
+  it('lists the transmissions in position order', () => {
+    streamsData = [
+      { id: 'b', eventId: CHANNEL_EVENT, programId: null, title: 'VIP', status: 'READY', position: 1, createdAt: '2026-01-01', updatedAt: '2026-01-01' },
+      { id: 'a', eventId: CHANNEL_EVENT, programId: null, title: 'Principal', status: 'READY', position: 0, createdAt: '2026-01-02', updatedAt: '2026-01-02' },
+    ];
+
+    render(<StreamsPageContent />);
+
+    expect(screen.getAllByTestId('stream-card').map((n) => n.textContent)).toEqual(['Principal', 'VIP']);
   });
 });
