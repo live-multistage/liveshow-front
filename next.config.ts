@@ -4,6 +4,9 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
+  // scripts/agent-env runs a second `next dev` in this checkout for agent
+  // testing; its own build dir keeps it off the developer's `.next`.
+  distDir: process.env.NEXT_DIST_DIR ?? '.next',
   output: 'standalone',
   // The og-image routes read the Archivo woff files from disk at request time
   // (Node runtime, see src/shared/og/fonts.ts); make sure every function
