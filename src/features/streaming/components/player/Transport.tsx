@@ -130,7 +130,7 @@ function AudioTrack() {
       activeId={activeId}
       onSelect={(id) => {
         const track = audioTracks.find((x) => String(x.index) === id);
-        if (track) handleAudioLanguageChange(track.language);
+        if (track) handleAudioLanguageChange(track.language, track.index);
       }}
       trigger={<Headphones size={16} />}
       triggerClassName={controls.iconBtn}

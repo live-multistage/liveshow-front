@@ -10,17 +10,29 @@ import type { LiveCamera } from '../types/live.types';
 // then simply lasts for this session.
 const AUDIO_LANGUAGE_KEY = 'ls_audio_language';
 
-function readStoredLanguage(): string | null {
+// Stored as {language, index}: several tracks can share a language (untagged
+// sources are all `und`), so the language alone cannot say which one was picked.
+interface AudioChoice {
+  language: string;
+  index: number | null;
+}
+
+function readStoredChoice(): AudioChoice | null {
   try {
-    return localStorage.getItem(AUDIO_LANGUAGE_KEY);
+    const raw = localStorage.getItem(AUDIO_LANGUAGE_KEY);
+    if (!raw) return null;
+    if (!raw.startsWith('{')) return { language: raw, index: null }; // legacy: bare language
+    const parsed = JSON.parse(raw) as Partial<AudioChoice>;
+    if (typeof parsed.language !== 'string') return null;
+    return { language: parsed.language, index: typeof parsed.index === 'number' ? parsed.index : null };
   } catch {
     return null;
   }
 }
 
-function storeLanguage(language: string): void {
+function storeChoice(choice: AudioChoice): void {
   try {
-    localStorage.setItem(AUDIO_LANGUAGE_KEY, language);
+    localStorage.setItem(AUDIO_LANGUAGE_KEY, JSON.stringify(choice));
   } catch {
     // session-only choice, see above
   }
@@ -85,13 +97,19 @@ export function usePlayerAudio({
   // The language follows the viewer, not the camera: it survives camera (and
   // transmission) switches and applies wherever that language exists; a
   // camera without it plays its default track.
-  const [preferredLanguage, setPreferredLanguage] = useState<string | null>(readStoredLanguage);
+  const [choice, setChoice] = useState<AudioChoice | null>(readStoredChoice);
+  const preferredLanguage = choice?.language ?? null;
   const audioTracks =
     cameras.find((c) => c.cameraId === effectiveAudioCameraId)?.audioTracks ?? NO_TRACKS;
-  const effectiveAudioTrackIndex = pickAudioTrackIndex(audioTracks, preferredLanguage);
-  const handleAudioLanguageChange = (language: string) => {
-    setPreferredLanguage(language);
-    storeLanguage(language);
+  const remembered = choice?.index == null ? undefined : audioTracks.find((t) => t.index === choice.index);
+  const effectiveAudioTrackIndex =
+    remembered && remembered.language === choice?.language
+      ? remembered.index
+      : pickAudioTrackIndex(audioTracks, preferredLanguage);
+  const handleAudioLanguageChange = (language: string, index: number | null = null) => {
+    const next = { language, index };
+    setChoice(next);
+    storeChoice(next);
   };
 
   // Picking an audio source is an explicit "I want to hear this" — unmute.

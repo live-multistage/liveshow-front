@@ -81,4 +81,25 @@ describe('usePlayerAudio — audio language', () => {
     getItem.mockRestore();
     setItem.mockRestore();
   });
+
+  it.each([['und'], ['eng']])('plays the picked track when two tracks share the %s language', (lang) => {
+    const cam = withTracks('a', [lang, lang]);
+    const first = renderHook(() => usePlayerAudio({ cameras: [cam], fallbackCameraId: 'a' }));
+    act(() => first.result.current.handleAudioLanguageChange(lang, 1));
+    expect(first.result.current.effectiveAudioTrackIndex).toBe(1);
+    first.unmount();
+
+    const second = renderHook(() => usePlayerAudio({ cameras: [cam], fallbackCameraId: 'a' }));
+    expect(second.result.current.effectiveAudioTrackIndex).toBe(1);
+  });
+
+  it('falls back to the first track of the language when the remembered index has another language', () => {
+    const { result, rerender } = renderHook(({ fb }) => usePlayerAudio({
+      cameras: [withTracks('a', ['por', 'eng', 'eng']), withTracks('b', ['eng', 'por', 'eng'])], fallbackCameraId: fb,
+    }), { initialProps: { fb: 'a' } });
+    act(() => result.current.handleAudioLanguageChange('eng', 2));
+    expect(result.current.effectiveAudioTrackIndex).toBe(2);
+    rerender({ fb: 'b' });
+    expect(result.current.effectiveAudioTrackIndex).toBe(2);
+  });
 });
