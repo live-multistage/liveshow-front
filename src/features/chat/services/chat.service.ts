@@ -1,6 +1,6 @@
 import { httpClient } from '@/lib/http/client';
 import { config } from '@/config';
-import type { ChatMessage, ChatRecentResponse, ReactionEmoji } from '@live-show/api-contracts';
+import type { ChatMessage, ChatParticipant, ChatRecentResponse, ReactionEmoji } from '@live-show/api-contracts';
 
 export const chatService = {
   recent: (eventId: string, streamId?: string | null) =>
@@ -11,6 +11,13 @@ export const chatService = {
   send: (eventId: string, body: string, streamId?: string | null) =>
     httpClient
       .post<ChatMessage>(`/chat/events/${eventId}/messages${streamId ? `?streamId=${streamId}` : ''}`, { body })
+      .then((r) => r.data),
+
+  participants: (eventId: string, q: string, streamId?: string | null) =>
+    httpClient
+      .get<ChatParticipant[]>(`/chat/events/${eventId}/participants`, {
+        params: { q, ...(streamId ? { streamId } : {}) },
+      })
       .then((r) => r.data),
 
   react: (eventId: string, emoji: ReactionEmoji) =>

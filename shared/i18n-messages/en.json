@@ -1105,7 +1105,10 @@
     "deleteConfirm": "Delete your analytics data and recommendation profile? Purchases and tickets are not affected.",
     "disableAccountConfirm": "Delete your account? You will be signed out. Signing in again within 30 days reactivates it; after that your personal data is permanently erased. Orders and tax invoices are kept as required by law.",
     "deleteDone": "Removed {count} usage events.",
-    "deleteError": "Could not delete right now. Try again."
+    "deleteError": "Could not delete right now. Try again.",
+    "prefCHAT_MENTIONS": "Chat mentions",
+    "prefCHAT_MENTIONSDesc": "Alert me when someone mentions me in a transmission's chat",
+    "prefCHAT_MENTIONSNew": "NEW"
   },
   "account": {
     "nav": {
@@ -1234,7 +1237,8 @@
         "system": "System",
         "recommendation": "Recommendation",
         "collaboration": "Collaboration",
-        "ad": "Ad"
+        "ad": "Ad",
+        "chat": "Chat"
       },
       "open": "Open",
       "dismiss": "Dismiss",
@@ -1247,7 +1251,19 @@
       "retry": "Try again",
       "loadMore": "Load more",
       "prefsEyebrow": "Preferences",
-      "prefsTitle": "What you want to receive"
+      "prefsTitle": "What you want to receive",
+      "openTransmission": "Open transmission"
+    },
+    "username": {
+      "label": "Username",
+      "help": "This is how people mention you in the chat.",
+      "available": "Available",
+      "checking": "Checking…",
+      "taken": "That username is already taken.",
+      "reserved": "That username can't be used.",
+      "invalid": "Use 3 to 30 characters: lowercase letters, numbers, dot or _.",
+      "cooldown": "{days, plural, one {You can change it again in # day.} other {You can change it again in # days.}}",
+      "saved": "Username updated."
     }
   },
   "consent": {
@@ -4255,7 +4271,8 @@
       "PAYMENT": "Payment",
       "SYSTEM": "System",
       "ADVERTISEMENT": "Advertisement",
-      "COLLABORATION": "Collaboration"
+      "COLLABORATION": "Collaboration",
+      "CHAT_MENTION": "Mention"
     },
     "push": {
       "title": "Push notifications",
@@ -5123,7 +5140,15 @@
     "title": "Chat",
     "unmuteUser": "Unmute {name}",
     "connecting": "Connecting…",
-    "unavailable": "Chat is unavailable for you in this event"
+    "unavailable": "Chat is unavailable for you in this event",
+    "mentions": {
+      "listLabel": "Mention suggestions",
+      "heading": "PEOPLE IN THIS CHAT",
+      "optionLabel": "Mention @{username}",
+      "noResults": "No one with that name in this chat",
+      "hint": "↑↓ navigate · Enter choose · Esc close",
+      "you": "YOU"
+    }
   },
   "artists": {
     "listTitle": "Artists",

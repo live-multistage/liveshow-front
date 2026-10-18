@@ -3,7 +3,10 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { LiveGate } from './LiveGate';
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/live/evt-1' }));
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }), usePathname: () => '/live/evt-1',
+  useSearchParams: () => new URLSearchParams(),
+}));
 vi.mock('@/features/account/hooks/use-auth', () => ({ useAuth: () => ({ isLoggedIn: true, isLoading: false }) }));
 vi.mock('@/features/advertisements/hooks/use-preroll-gate', () => ({
   usePrerollGate: () => ({ ad: null, pending: false, markSeen: vi.fn() }),

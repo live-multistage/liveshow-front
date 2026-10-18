@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Bell, CheckCheck, CheckCircle2, Lock, Radio, Tag, Ticket as TicketIcon, UserPlus, X } from 'lucide-react';
+import { AtSign, Bell, CheckCheck, CheckCircle2, Lock, Radio, Tag, Ticket as TicketIcon, UserPlus, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button, Skeleton } from '@live-show/design-system';
 import { useMarkAllAsReadMutation, useMarkAsReadMutation } from '../mutations/mark-as-read.mutation';
@@ -28,6 +28,7 @@ const TYPE_META: Record<NotificationType, { icon: LucideIcon; iconClass: string 
   SYSTEM: { icon: Lock, iconClass: styles.iconSystem },
   // Same visual treatment as RECOMMENDATION per the design brief.
   ADVERTISEMENT: { icon: Tag, iconClass: styles.iconRecommendation },
+  CHAT_MENTION: { icon: AtSign, iconClass: styles.iconChatMention },
 };
 
 interface RowProps {
@@ -70,7 +71,7 @@ function NotificationRow({ notification, onOpen, onDismiss, t }: RowProps) {
         <div className={styles.footer}>
           <span className={styles.time}>{formatRelativeTime(notification.createdAt)}</span>
           <span className={styles.chip}>{t(`categories.${categoryKey}`)}</span>
-          {safe && <span className={styles.open}>{t('open')} →</span>}
+          {safe && <span className={styles.open}>{notification.type === 'CHAT_MENTION' ? t('openTransmission') : t('open')} →</span>}
         </div>
       </div>
       <button

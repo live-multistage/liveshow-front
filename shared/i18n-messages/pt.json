@@ -1105,7 +1105,10 @@
     "disableAccountConfirm": "Excluir sua conta? Você será desconectado. Se entrar de novo em até 30 dias, a conta é reativada; depois disso seus dados pessoais são apagados de forma definitiva. Pedidos e notas fiscais são mantidos por obrigação legal.",
     "deleteDone": "Removidos {count} eventos de uso.",
     "deleteError": "Não foi possível excluir agora. Tente novamente.",
-    "subscriptionsNav": "Minhas assinaturas"
+    "subscriptionsNav": "Minhas assinaturas",
+    "prefCHAT_MENTIONS": "Menções no chat",
+    "prefCHAT_MENTIONSDesc": "Avisar quando alguém mencionar você no chat de uma transmissão",
+    "prefCHAT_MENTIONSNew": "NOVO"
   },
   "account": {
     "nav": {
@@ -1234,7 +1237,8 @@
         "system": "Sistema",
         "recommendation": "Recomendação",
         "collaboration": "Colaboração",
-        "ad": "Anúncio"
+        "ad": "Anúncio",
+        "chat": "Chat"
       },
       "open": "Abrir",
       "dismiss": "Dispensar",
@@ -1247,7 +1251,19 @@
       "retry": "Tentar de novo",
       "loadMore": "Carregar mais",
       "prefsEyebrow": "Preferências",
-      "prefsTitle": "O que você quer receber"
+      "prefsTitle": "O que você quer receber",
+      "openTransmission": "Abrir transmissão"
+    },
+    "username": {
+      "label": "Nome de usuário",
+      "help": "É assim que as pessoas mencionam você no chat.",
+      "available": "Disponível",
+      "checking": "Verificando…",
+      "taken": "Esse nome de usuário já está em uso.",
+      "reserved": "Esse nome de usuário não pode ser usado.",
+      "invalid": "Use 3 a 30 caracteres: letras minúsculas, números, ponto ou _.",
+      "cooldown": "{days, plural, one {Você poderá trocar de novo em # dia.} other {Você poderá trocar de novo em # dias.}}",
+      "saved": "Nome de usuário atualizado."
     }
   },
   "consent": {
@@ -4255,7 +4271,8 @@
       "PAYMENT": "Pagamento",
       "SYSTEM": "Sistema",
       "ADVERTISEMENT": "Anúncio",
-      "COLLABORATION": "Colaboração"
+      "COLLABORATION": "Colaboração",
+      "CHAT_MENTION": "Menção"
     },
     "push": {
       "title": "Notificações push",
@@ -5123,7 +5140,15 @@
     "title": "Chat",
     "unmuteUser": "Reativar {name}",
     "connecting": "Conectando…",
-    "unavailable": "Chat indisponível para você neste evento"
+    "unavailable": "Chat indisponível para você neste evento",
+    "mentions": {
+      "listLabel": "Sugestões de menção",
+      "heading": "PESSOAS NESTE CHAT",
+      "optionLabel": "Mencionar @{username}",
+      "noResults": "Ninguém com esse nome neste chat",
+      "hint": "↑↓ navegar · Enter escolher · Esc fechar",
+      "you": "VOCÊ"
+    }
   },
   "artists": {
     "listTitle": "Artistas",

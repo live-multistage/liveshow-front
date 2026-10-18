@@ -12,6 +12,7 @@ import styles from './ChatDock.module.scss';
 
 interface Props {
   eventId: string;
+  streamId?: string | null;
   open: boolean;
   onClose: () => void;
   messages: ChatMessage[];
@@ -30,6 +31,7 @@ interface Props {
 
 export function ChatDock({
   eventId,
+  streamId = null,
   open,
   onClose,
   messages,
@@ -79,7 +81,7 @@ export function ChatDock({
       </div>
 
       <div className={styles.inputArea}>
-        <ChatInput eventId={eventId} onSend={onSend} me={me} />
+        <ChatInput eventId={eventId} streamId={streamId} onSend={onSend} me={me} />
       </div>
     </div>
   );

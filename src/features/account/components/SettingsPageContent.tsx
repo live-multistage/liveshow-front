@@ -24,6 +24,10 @@ import { useAnalyticsConsent } from '@/lib/analytics/consent';
 import { useAnalytics } from '@/lib/analytics/tracking';
 import { TrackFeature } from '@live-show/analytics-sdk/react';
 import { privacyService } from '@/features/consent/privacy.service';
+import { useUsernameField } from '../hooks/use-username-field';
+import { UsernameField } from './UsernameField';
+import { USERNAME_COOLDOWN_CODE, stateFromErrorCode } from '../utils/username-field-state';
+import type { AppError } from '@/lib/http/errors';
 import { initials } from '../utils/initials';
 import { AccountShell } from './AccountShell';
 import { NotificationPreferencesPanel } from './NotificationPreferencesPanel';
@@ -42,6 +46,8 @@ interface Props {
 
 export function SettingsPageContent({ twoFactorEnabled }: Props) {
   const t = useTranslations('settings');
+  const tUsername = useTranslations('account.username');
+  const tAccount = useTranslations('account');
   const { logout } = useAuth();
 
   const { data: me, isLoading } = useQuery({ queryKey: ['me'], queryFn: getMe, staleTime: 60_000 });
@@ -112,7 +118,10 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
     }
   };
 
+  const username = useUsernameField(me);
   const [profileSaved, setProfileSaved] = useState(false);
+  const [usernameSaved, setUsernameSaved] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [passwordSaved, setPasswordSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -138,12 +147,31 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
     defaultValues: { currentPassword: '', newPassword: '', confirmNewPassword: '' },
   });
 
-  const onProfileSubmit = (values: UpdateProfileFormValues) => {
+  const onProfileSubmit = async (values: UpdateProfileFormValues) => {
     setProfileSaved(false);
+    setUsernameSaved(false);
+    setUsernameError(null);
+    let usernameChanged = false;
+    if (username.dirty) {
+      if (!username.canSave) return;
+      try {
+        await username.save();
+        usernameChanged = true;
+      } catch (error) {
+        const e = error as AppError;
+        // Mapped failures (username codes, rename cooldown) are shown by the field itself.
+        if (e.code !== USERNAME_COOLDOWN_CODE && !stateFromErrorCode(e.code)) setUsernameError(tAccount('saveError'));
+        return;
+      }
+    }
     updateProfile.mutate(values, {
       onSuccess: () => {
-        setProfileSaved(true);
-        setTimeout(() => setProfileSaved(false), 4000);
+        if (usernameChanged) setUsernameSaved(true);
+        else setProfileSaved(true);
+        setTimeout(() => {
+          setProfileSaved(false);
+          setUsernameSaved(false);
+        }, 4000);
       },
     });
   };
@@ -212,6 +240,9 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
         <div className={styles.cardTitle}>Informações do perfil</div>
         <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
           <div className={styles.formGrid}>
+            <div className={`${styles.field} ${styles.fieldSpan}`}>
+              <UsernameField field={username} />
+            </div>
             <div className={styles.field}>
               <label className={styles.fieldLabel}>Nome completo</label>
               <input className={styles.input} {...profileForm.register('displayName')} />
@@ -240,12 +271,21 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
             </div>
           </div>
           {updateProfile.error && <p className={styles.errorBanner}>{updateProfile.error.message}</p>}
+          {usernameError && <p className={styles.errorBanner}>{usernameError}</p>}
+          {usernameSaved && <p className={styles.successBanner}>{tUsername('saved')}</p>}
           {profileSaved && <p className={styles.successBanner}>Perfil atualizado.</p>}
           <div className={styles.formActions}>
-            <button type="button" className={styles.btnGhost} onClick={() => me && profileForm.reset({
-              displayName: me.displayName, phone: me.phone ?? '', taxDocument: me.taxDocument ?? '', bio: me.bio ?? '',
-            })}>Cancelar</button>
-            <button type="submit" className={styles.btnPrimary} disabled={updateProfile.isPending}>
+            <button type="button" className={styles.btnGhost} onClick={() => {
+              username.reset();
+              if (me) profileForm.reset({
+                displayName: me.displayName, phone: me.phone ?? '', taxDocument: me.taxDocument ?? '', bio: me.bio ?? '',
+              });
+            }}>Cancelar</button>
+            <button
+              type="submit"
+              className={`${styles.btnPrimary} ${styles.btnSave}`}
+              disabled={updateProfile.isPending || username.saving || (username.dirty && !username.canSave)}
+            >
               <Check size={15} />{updateProfile.isPending ? 'Salvando...' : 'Salvar alterações'}
             </button>
           </div>
@@ -285,7 +325,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
               <div className={styles.prefTitle}>{t('privacyAnalyticsTitle')}</div>
               <div className={styles.prefDesc}>{t('privacyAnalyticsDesc')}</div>
             </div>
-            <Toggle on={consent === 'granted'} onClick={toggleConsent} />
+            <Toggle on={consent === 'granted'} onClick={toggleConsent} label={t('privacyAnalyticsTitle')} />
           </div>
 
           <div className={styles.prefRow}>

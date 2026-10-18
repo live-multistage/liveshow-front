@@ -5,6 +5,7 @@ export * from './common/client-platform';
 export * from './auth/age-bracket';
 export * from './auth/types';
 export * from './auth/schemas';
+export * from './auth/username';
 export * from './orders/types';
 export * from './orders/schemas';
 export * from './payments/types';

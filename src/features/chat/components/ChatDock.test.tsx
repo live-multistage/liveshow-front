@@ -2,6 +2,9 @@ vi.mock('next-intl', () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${JSON.stringify(values)}` : key,
 }));
+vi.mock('../hooks/use-chat-participants', () => ({
+  useChatParticipants: () => ({ data: undefined, isFetching: false, isSuccess: false }),
+}));
 vi.mock('next/navigation', () => ({ usePathname: () => '/events/evt-1' }));
 
 vi.mock('@/features/account/hooks/use-auth', () => ({

@@ -55,6 +55,10 @@ export interface AuthUser {
   authProviders?: SocialProvider[];
   /** False for an account created through a social provider — hide "change password". */
   hasPassword?: boolean;
+  /** Mention handle (`@username`). Absent on responses that predate it. */
+  username?: string | null;
+  /** ISO time a rename is allowed again; null when allowed now (30-day cooldown). */
+  usernameChangeAvailableAt?: string | null;
 }
 
 export interface AuthResponse {
