@@ -46,7 +46,7 @@ interface ReplayPlayerProps {
 // ReplayCameraPlayback (replayPath) — same shape, different field name for
 // the two playback kinds. Map once here rather than renaming the field
 // throughout the shared grid components.
-function toLiveCamera(c: ReplayCameraPlayback): LiveCamera {
+export function toLiveCamera(c: ReplayCameraPlayback): LiveCamera {
   return {
     cameraId: c.cameraId,
     name: c.name,
@@ -59,6 +59,8 @@ function toLiveCamera(c: ReplayCameraPlayback): LiveCamera {
     llPath: null, // LL-HLS is a live-only mode; replay always plays the standard ABR ladder
     live: c.available,
     thumbnailUrl: c.thumbnailUrl,
+    // Replay mirrors live: same audio selector, same tracks.
+    audioTracks: c.audioTracks,
   };
 }
 

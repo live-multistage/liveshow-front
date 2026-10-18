@@ -153,6 +153,8 @@ export interface UseHlsPlayerOptions {
   selectedLevel?: number;
   lowQuality: boolean;
   selectedAudioCameraId?: string;
+  // Source track of the selected audio camera (language). 0 = program audio.
+  selectedAudioTrackIndex?: number;
   onLevelsReady?: (levels: QualityLevel[]) => void;
   onAutoplayBlocked?: () => void;
   // Side-effect callbacks — the hook owns playback lifecycle only; analytics
@@ -191,6 +193,7 @@ export function useHlsPlayer({
   selectedLevel,
   lowQuality,
   selectedAudioCameraId,
+  selectedAudioTrackIndex = 0,
   onLevelsReady,
   onAutoplayBlocked,
   onLlFallback,
@@ -223,6 +226,8 @@ export function useHlsPlayer({
   // against an empty track list.
   const selectedAudioCameraIdRef = useRef(selectedAudioCameraId);
   selectedAudioCameraIdRef.current = selectedAudioCameraId;
+  const selectedAudioTrackIndexRef = useRef(selectedAudioTrackIndex);
+  selectedAudioTrackIndexRef.current = selectedAudioTrackIndex;
   // Callback refs: the callers pass inline lambdas; routing them through refs
   // keeps the build effect's dep list stable ([srcBase, hasLl]).
   const onLevelsReadyRef = useRef(onLevelsReady);
@@ -441,6 +446,7 @@ export function useHlsPlayer({
       const idx = audioTrackIndexForCamera(
         hls.audioTracks.map((t) => ({ id: t.id, name: t.name })),
         selectedAudioCameraIdRef.current,
+        selectedAudioTrackIndexRef.current,
       );
       if (idx >= 0 && hls.audioTrack !== idx) hls.audioTrack = idx;
     });
@@ -543,10 +549,11 @@ export function useHlsPlayer({
     const idx = audioTrackIndexForCamera(
       hls.audioTracks.map((t) => ({ id: t.id, name: t.name })),
       selectedAudioCameraId,
+      selectedAudioTrackIndex,
     );
     if (idx >= 0 && hls.audioTrack !== idx) hls.audioTrack = idx;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAudioCameraId]);
+  }, [selectedAudioCameraId, selectedAudioTrackIndex]);
 
   return { connecting, error, hlsRef };
 }

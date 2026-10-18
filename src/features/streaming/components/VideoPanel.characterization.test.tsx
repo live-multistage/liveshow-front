@@ -209,6 +209,23 @@ describe('VideoPanel characterization — audio track selection', () => {
     rerender(<VideoPanel camera={cam()} {...baseProps} selectedAudioCameraId="cam-b" />);
     expect(hls.audioTrack).toBe(1);
   });
+
+  it('switches to the language track in place, without rebuilding the player (keeps position)', () => {
+    const { rerender } = render(
+      <VideoPanel camera={cam()} {...baseProps} selectedAudioCameraId="cam-a" selectedAudioTrackIndex={1} />,
+    );
+    const hls = lastHls();
+    hls.audioTracks = [
+      { id: 0, name: 'cam-a' },
+      { id: 1, name: 'cam-a:1' },
+    ];
+    act(() => hls.emit(h.MockHls.Events.AUDIO_TRACKS_UPDATED));
+    expect(hls.audioTrack).toBe(1);
+
+    rerender(<VideoPanel camera={cam()} {...baseProps} selectedAudioCameraId="cam-a" selectedAudioTrackIndex={0} />);
+    expect(hls.audioTrack).toBe(0);
+    expect(h.instances).toHaveLength(1);
+  });
 });
 
 describe('VideoPanel characterization — LL fallback', () => {

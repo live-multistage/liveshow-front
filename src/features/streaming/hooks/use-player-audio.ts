@@ -1,7 +1,32 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { pickAudioTrackIndex } from '@live-show/api-contracts';
+import type { AudioTrackInfo } from '@live-show/api-contracts';
 import type { LiveCamera } from '../types/live.types';
+
+// Per-viewer audio language (ISO 639 code). A convenience, not state anyone
+// else reads: storage can be missing or throw (private mode), and the choice
+// then simply lasts for this session.
+const AUDIO_LANGUAGE_KEY = 'ls_audio_language';
+
+function readStoredLanguage(): string | null {
+  try {
+    return localStorage.getItem(AUDIO_LANGUAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function storeLanguage(language: string): void {
+  try {
+    localStorage.setItem(AUDIO_LANGUAGE_KEY, language);
+  } catch {
+    // session-only choice, see above
+  }
+}
+
+const NO_TRACKS: AudioTrackInfo[] = [];
 
 export interface PlayerAudioState {
   muted: boolean;
@@ -57,6 +82,18 @@ export function usePlayerAudio({
       ? audioCameraId
       : fallbackCameraId;
 
+  // The language follows the viewer, not the camera: it survives camera (and
+  // transmission) switches and applies wherever that language exists; a
+  // camera without it plays its default track.
+  const [preferredLanguage, setPreferredLanguage] = useState<string | null>(readStoredLanguage);
+  const audioTracks =
+    cameras.find((c) => c.cameraId === effectiveAudioCameraId)?.audioTracks ?? NO_TRACKS;
+  const effectiveAudioTrackIndex = pickAudioTrackIndex(audioTracks, preferredLanguage);
+  const handleAudioLanguageChange = (language: string) => {
+    setPreferredLanguage(language);
+    storeLanguage(language);
+  };
+
   // Picking an audio source is an explicit "I want to hear this" — unmute.
   const handleAudioCameraChange = (id: string) => {
     setAudioCameraId(id);
@@ -70,5 +107,9 @@ export function usePlayerAudio({
     setVolume,
     effectiveAudioCameraId,
     handleAudioCameraChange,
+    audioTracks,
+    effectiveAudioTrackIndex,
+    preferredLanguage,
+    handleAudioLanguageChange,
   };
 }

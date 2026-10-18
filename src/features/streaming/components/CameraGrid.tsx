@@ -39,6 +39,7 @@ export interface CameraGridProps {
   // autoplay — LivePlayer uses it to show the "tap for sound" prompt.
   onAutoplayBlocked?: () => void;
   audioCameraId: string | null;
+  audioTrackIndex?: number;
   onAudioCameraChange: (cameraId: string) => void;
   volume: number;
   viewMode: ViewMode;
@@ -86,6 +87,7 @@ export function CameraGrid({
   onGlobalMutedChange,
   onAutoplayBlocked,
   audioCameraId,
+  audioTrackIndex,
   onAudioCameraChange,
   volume,
   viewMode,
@@ -272,6 +274,7 @@ export function CameraGrid({
               // track (hls.audioTrack), not from unmuting a background element.
               muted={globalMuted || !isPrimary}
               selectedAudioCameraId={isPrimary ? audioCameraId ?? undefined : undefined}
+              selectedAudioTrackIndex={isPrimary ? audioTrackIndex : undefined}
               onMutedChange={onMutedChange}
               onAutoplayBlocked={onAutoplayBlocked ?? (() => onGlobalMutedChange(true))}
               clockRole={isPrimary ? 'master' : 'follower'}
