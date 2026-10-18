@@ -38,6 +38,15 @@ beforeEach(() => {
 });
 
 describe('useMentionAutocomplete', () => {
+  it('never suggests the viewer', () => {
+    const value = 'oi @ma';
+    const { result } = renderHook(() =>
+      useMentionAutocomplete({ eventId: 'e1', streamId: 's1', value, onValueChange: vi.fn(), viewerId: 'u1' }),
+    );
+    act(() => result.current.track(value, value.length));
+    expect(result.current.options.map((o) => o.userId)).toEqual(['u2']);
+  });
+
   it('opens with the typed query, scoped to the room', () => {
     const { result } = setup();
     expect(result.current.open).toBe(true);

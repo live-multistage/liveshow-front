@@ -13,6 +13,8 @@ interface Options {
   onValueChange: (value: string, caret: number) => void;
   // false when the viewer can't read/write the chat: never opens, never queries.
   enabled?: boolean;
+  // Defense in depth: the API already drops the caller, a stale cache may not.
+  viewerId?: string;
 }
 
 const fold = (text: string) => text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
@@ -27,7 +29,7 @@ function matchesQuery(person: ChatParticipant, query: string): boolean {
 // Combobox state for the chat composer (role="combobox" + role="listbox").
 // The input owns the text; this owns which mention is being typed and which
 // suggestion is active.
-export function useMentionAutocomplete({ eventId, streamId, value, onValueChange, enabled = true }: Options) {
+export function useMentionAutocomplete({ eventId, streamId, value, onValueChange, enabled = true, viewerId }: Options) {
   const [tracked, setTracked] = useState<ActiveMention | null>(null);
   // Esc dismisses this exact mention; typing changes the query and re-opens.
   const [dismissed, setDismissed] = useState<ActiveMention | null>(null);
@@ -43,8 +45,8 @@ export function useMentionAutocomplete({ eventId, streamId, value, onValueChange
   const data = participants.data;
   const query = mention?.query ?? '';
   const options = useMemo<ChatParticipant[]>(
-    () => (open ? (data ?? []).filter((p) => matchesQuery(p, query)) : []),
-    [open, data, query],
+    () => (open ? (data ?? []).filter((p) => p.userId !== viewerId && matchesQuery(p, query)) : []),
+    [open, data, query, viewerId],
   );
   const current = Math.min(activeIndex, Math.max(options.length - 1, 0));
   const optionId = useCallback((index: number) => `${listboxId}-opt-${index}`, [listboxId]);
