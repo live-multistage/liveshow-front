@@ -1,5 +1,7 @@
 @use '../../../../styles/_variables' as *;
 
+$cart-accent: #ff5fb4;
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
 // ── Panel container ──────────────────────────────────────────────
@@ -232,7 +234,7 @@
   font-family: var(--font-archivo), 'Archivo', sans-serif;
   transition: border-color .15s, color .15s;
 
-  &:hover:not(:disabled) { border-color: $action; color: #ff5fb4; }
+  &:hover:not(:disabled) { border-color: $action; color: $cart-accent; }
   &:disabled { opacity: .5; cursor: not-allowed; }
   svg { flex-shrink: 0; }
 }
@@ -399,7 +401,7 @@
   padding: 14px;
   border: 1px solid $action;
   border-radius: 14px;
-  color: $accent-text;
+  color: $cart-accent;
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;

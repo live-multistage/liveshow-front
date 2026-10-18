@@ -385,39 +385,39 @@ export function TicketPanel({ event, tickets }: Props) {
             {t('inCartGoToCheckout')}
           </Link>
         ) : (
-        <button
-          className={styles.cartBtn}
-          disabled={addToCart.isPending || soldOut}
-          onClick={() => {
-            if (!ticket || soldOut) return;
-            if (!isLoggedIn) {
-              router.push(`/login?redirect=${encodeURIComponent(eventHref(event))}`);
-              return;
-            }
-            setPendingAction('cart');
-            addToCart.mutate(ticket.id, {
-              onSuccess: (cartView) =>
-                track('cart_item_added', {
-                  eventId: event.id,
-                  tier: ticket.name,
-                  priceCents: Math.round(ticket.price * 100),
-                  cartSize: cartView.items.length,
-                }),
-              onSettled: () => setPendingAction(null),
-            });
-          }}
-        >
-          {pendingAction === 'cart' ? (
-            <><span className={styles.btnSpinner} />{t('adding')}</>
-          ) : (
-            <>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 4h2l2.5 12h11l2-8H6.5"/>
-                <circle cx="9" cy="20" r="1.4"/>
-                <circle cx="18" cy="20" r="1.4"/>
-              </svg>
-              {t('addToCart')}
-            </>
+          <button
+            className={styles.cartBtn}
+            disabled={addToCart.isPending || soldOut}
+            onClick={() => {
+              if (!ticket || soldOut) return;
+              if (!isLoggedIn) {
+                router.push(`/login?redirect=${encodeURIComponent(eventHref(event))}`);
+                return;
+              }
+              setPendingAction('cart');
+              addToCart.mutate(ticket.id, {
+                onSuccess: (cartView) =>
+                  track('cart_item_added', {
+                    eventId: event.id,
+                    tier: ticket.name,
+                    priceCents: Math.round(ticket.price * 100),
+                    cartSize: cartView.items.length,
+                  }),
+                onSettled: () => setPendingAction(null),
+              });
+            }}
+          >
+            {pendingAction === 'cart' ? (
+              <><span className={styles.btnSpinner} />{t('adding')}</>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M3 4h2l2.5 12h11l2-8H6.5"/>
+                  <circle cx="9" cy="20" r="1.4"/>
+                  <circle cx="18" cy="20" r="1.4"/>
+                </svg>
+                {t('addToCart')}
+              </>
           )}
         </button>
         )}
