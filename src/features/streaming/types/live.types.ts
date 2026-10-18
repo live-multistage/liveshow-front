@@ -11,6 +11,7 @@ export type {
   ReplayStagePlayback,
   ReplayPlaybackResponse,
   LiveAccessResponse,
+  LockedStreamOffer,
   ReplayChapter,
   ReplayChapterArtist,
   ReplayChaptersResponse,

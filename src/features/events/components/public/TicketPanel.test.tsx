@@ -19,7 +19,10 @@ vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock('@/features/checkout/services/checkout.service', () => ({
   checkoutService: { claimFreeTicket: vi.fn() },
 }));
-vi.mock('../../queries/get-event', () => ({ useServiceFeeRateQuery: () => ({ data: 0 }) }));
+vi.mock('../../queries/get-event', () => ({
+  useServiceFeeRateQuery: () => ({ data: 0 }),
+  eventKeys: { myTickets: (id: string) => ['events', 'my-tickets', id] },
+}));
 vi.mock('@/features/cart', () => ({
   useAddToCartMutation: () => ({ mutate: state.addToCartMutate, isPending: false }),
   useCartQuery: () => ({ data: { items: [] } }),
@@ -30,6 +33,8 @@ vi.mock('@/features/streaming/queries/live.queries', () => ({
   LIVE_KEYS: {
     access: (id: string) => ['live', 'access', id],
     replayAccess: (id: string) => ['live', 'replay-access', id],
+    playback: (id: string) => ['live', 'playback', id],
+    replayPlayback: (id: string) => ['live', 'replay-playback', id],
   },
   useLiveAccessQuery: () => state.liveAccess,
   useReplayAccessQuery: () => state.replayAccess,
