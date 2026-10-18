@@ -1039,7 +1039,7 @@
     "camerasLimitPlaceholder": "Vacío = acceso a todas",
     "camerasLimitHint": "Deja en blanco para permitir todas las cámaras. Ingresa un número para limitar por índice de prioridad.",
     "stagesLabel": "Acceso a Escenarios",
-    "stagesHint": "Sin selección = acceso a todos los escenarios.",
+    "stagesHint": "Ninguno marcado libera todos los escenarios.",
     "allCameras": "Todas las cámaras",
     "cameras": "{count, plural, one {# cámara} other {# cámaras}}",
     "empty": "Ninguna entrada agregada aún.",
@@ -1047,8 +1047,8 @@
     "errorAdd": "Error al agregar entrada.",
     "errorSave": "Error al guardar entrada.",
     "replayTicketDesc": "Acceso a la grabación después del evento",
-    "streamsLabel": "Transmisiones con acceso",
-    "streamsHint": "Sin selección = acceso a todas las transmisiones."
+    "streamsLabel": "Transmisiones",
+    "streamsHint": "Ninguna marcada libera todas las transmisiones."
   },
   "settings": {
     "heading": "Configuración",

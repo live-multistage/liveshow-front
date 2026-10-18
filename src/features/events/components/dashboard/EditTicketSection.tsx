@@ -340,8 +340,8 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
       )}
 
       {showStreamSelector && (
-        <div className={styles.field}>
-          <label className={styles.label}>{t('streamsLabel')}</label>
+        <fieldset className={styles.fieldset}>
+          <legend className={styles.label}>{t('streamsLabel')}</legend>
           <Controller
             control={control}
             name="allowedStreamIds"
@@ -372,12 +372,12 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
             )}
           />
           <p className={styles.inputHint}>{t('streamsHint')}</p>
-        </div>
+        </fieldset>
       )}
 
       {showStageSelector && (
-        <div className={styles.field}>
-          <label className={styles.label}>{t('stagesLabel')}</label>
+        <fieldset className={styles.fieldset}>
+          <legend className={styles.label}>{t('stagesLabel')}</legend>
           <Controller
             control={control}
             name="allowedStageIds"
@@ -408,8 +408,13 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
               return (
                 <>
                   {stageGroups.map(({ stream, stages: groupStages }) => (
-                    <div key={stream.id} className={styles.stageGroup}>
-                      <span className={styles.stageGroupTitle}>{stream.title}</span>
+                    <div
+                      key={stream.id}
+                      role="group"
+                      aria-labelledby={`stage-group-${stream.id}`}
+                      className={styles.stageGroup}
+                    >
+                      <span id={`stage-group-${stream.id}`} className={styles.stageGroupTitle}>{stream.title}</span>
                       {renderStages(groupStages)}
                     </div>
                   ))}
@@ -418,7 +423,7 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
             }}
           />
           <p className={styles.inputHint}>{t('stagesHint')}</p>
-        </div>
+        </fieldset>
       )}
 
       {createMutation.isError && (

@@ -309,7 +309,7 @@ describe('EditTicketSection — transmissions', () => {
     fillRequiredFields();
     fireEvent.click(screen.getByLabelText('Palco'));
 
-    fireEvent.click(screen.getByLabelText('VIP'));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'VIP' }));
 
     expect(screen.queryByLabelText('Palco')).toBeNull();
     expect(screen.getByLabelText('Backstage')).toBeTruthy();
@@ -318,5 +318,29 @@ describe('EditTicketSection — transmissions', () => {
     const payload = createEventMutate.mock.calls.at(-1)![0];
     expect(payload.allowedStreamIds).toEqual([VIP]);
     expect(payload.allowedStageIds).toBeUndefined();
+  });
+
+  it('unchecking a transmission drops the stage picks it scoped', () => {
+    render(<EditTicketSection eventId="evt-1" tickets={[]} />);
+    fireEvent.click(screen.getByLabelText('liveView'));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Principal' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'VIP' }));
+    fireEvent.click(screen.getByLabelText('Backstage'));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'VIP' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'VIP' }));
+    expect((screen.getByLabelText('Backstage') as HTMLInputElement).checked).toBe(false);
+  });
+
+  it('renders no transmission group heading with a single transmission', () => {
+    useEventStreamsQueryMock.mockReturnValue({ data: [stream(MAIN, 'Principal', 0)], isLoading: false });
+    render(<EditTicketSection eventId="evt-1" tickets={[]} />);
+    fireEvent.click(screen.getByLabelText('liveView'));
+    expect(screen.queryByRole('group', { name: 'Principal' })).toBeNull();
+  });
+
+  it('labels each stage sub-card with its transmission', () => {
+    render(<EditTicketSection eventId="evt-1" tickets={[]} />);
+    fireEvent.click(screen.getByLabelText('liveView'));
+    expect(screen.getByRole('group', { name: 'VIP' })).toBeTruthy();
   });
 });

@@ -1039,7 +1039,7 @@
     "camerasLimitPlaceholder": "Empty = access to all",
     "camerasLimitHint": "Leave blank to allow all cameras. Enter a number to limit by priority index.",
     "stagesLabel": "Stage Access",
-    "stagesHint": "No selection = access to all stages.",
+    "stagesHint": "None selected unlocks every stage.",
     "allCameras": "All cameras",
     "cameras": "{count, plural, one {# camera} other {# cameras}}",
     "empty": "No tickets added yet.",
@@ -1047,8 +1047,8 @@
     "errorAdd": "Error adding ticket.",
     "errorSave": "Error saving ticket.",
     "replayTicketDesc": "Access to the recording after the event",
-    "streamsLabel": "Transmissions included",
-    "streamsHint": "No selection = access to every transmission."
+    "streamsLabel": "Transmissions",
+    "streamsHint": "None selected unlocks every transmission."
   },
   "settings": {
     "heading": "Settings",

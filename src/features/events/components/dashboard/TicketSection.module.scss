@@ -111,6 +111,21 @@
   gap: 6px;
 }
 
+.fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    padding: 0;
+    margin-bottom: 6px;
+  }
+}
+
 .label {
   font-size: 0.75rem;
   font-weight: 500;
