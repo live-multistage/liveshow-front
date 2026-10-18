@@ -288,6 +288,7 @@ function Stage(gridProps: PlayerStagePartProps) {
             globalMuted={audio.globalMuted}
             onGlobalMutedChange={audio.setGlobalMuted}
             audioCameraId={audio.effectiveAudioCameraId}
+            audioTrackIndex={audio.effectiveAudioTrackIndex}
             onAudioCameraChange={audio.handleAudioCameraChange}
             volume={audio.volume}
             paused={shell.paused}

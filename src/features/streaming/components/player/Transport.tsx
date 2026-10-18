@@ -1,8 +1,8 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { Settings, PictureInPicture, Maximize, Minimize } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { Settings, Headphones, PictureInPicture, Maximize, Minimize } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 import { SeekSlider } from '../SeekSlider';
 import type { ReplayChapter } from '../../types/live.types';
 import { ChapterTrack } from '../chapters/ChapterTrack';
@@ -97,6 +97,57 @@ function AudioCamera() {
   );
 }
 
+// Display name of an ISO 639 code in the viewer's locale; null for 'und' or a
+// code the runtime can't name (the caller shows "Faixa N" instead).
+function languageName(code: string, locale: string): string | null {
+  if (code === 'und') return null;
+  try {
+    const name = new Intl.DisplayNames([locale], { type: 'language' }).of(code);
+    return name && name !== code ? name : null;
+  } catch {
+    return null;
+  }
+}
+
+function AudioTrack() {
+  const { shell } = usePlayer();
+  const t = useTranslations('player');
+  const locale = useLocale();
+  const { audioTracks, effectiveAudioTrackIndex, handleAudioLanguageChange } = shell.audio;
+
+  if (audioTracks.length < 2) return null;
+
+  const defaultTrack = audioTracks.find((track) => track.default);
+  const items = audioTracks.map((track) => ({
+    id: String(track.index),
+    label: track.label ?? languageName(track.language, locale) ?? t('audioTrackN', { n: track.index + 1 }),
+  }));
+  const activeId = String(effectiveAudioTrackIndex);
+
+  return (
+    <PlayerMenu
+      items={items}
+      activeId={activeId}
+      onSelect={(id) => {
+        const track = audioTracks.find((x) => String(x.index) === id);
+        if (track) handleAudioLanguageChange(track.language, track.index);
+      }}
+      trigger={<Headphones size={16} />}
+      triggerClassName={controls.iconBtn}
+      ariaLabel={t('chooseAudioTrack')}
+      title={t('chooseAudioTrack')}
+      panel={{
+        eyebrow: t('chooseAudioTrack'),
+        defaultId: defaultTrack && String(defaultTrack.index),
+        defaultTag: t('audioTrackDefault'),
+        openTriggerClassName: controls.iconBtnOpen,
+        closeLabel: t('closePanel'),
+        triggerLabel: items.find((item) => item.id === activeId)?.label,
+      }}
+    />
+  );
+}
+
 function Quality() {
   const { shell, playbackEventId } = usePlayer();
   const t = useTranslations('player');
@@ -160,4 +211,4 @@ function Fullscreen() {
   );
 }
 
-export const Transport = { Badge, Play, Scrubber, Spacer, Volume, AudioCamera, Quality, Pip, Fullscreen };
+export const Transport = { Badge, Play, Scrubber, Spacer, Volume, AudioCamera, AudioTrack, Quality, Pip, Fullscreen };

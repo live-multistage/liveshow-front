@@ -6,7 +6,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, act, fireEvent, within, screen } from '@testing-library/react';
-import { ReplayPlayer } from './ReplayPlayer';
+import { ReplayPlayer, toLiveCamera } from './ReplayPlayer';
 import { DRAWER_W } from './CameraGrid';
 import type { ReplayCameraPlayback, ReplayChapter, ReplayStagePlayback } from '../types/live.types';
 
@@ -54,7 +54,7 @@ vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: vi.fn
 vi.mock('@live-show/analytics-sdk/react', () => ({ TrackFeature: ({ children }: { children: unknown }) => children }));
 // Needs a React Query provider; not what these tests exercise.
 vi.mock('./RecommendedOverlay', () => ({ RecommendedOverlay: () => null }));
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
@@ -509,5 +509,19 @@ describe('ReplayPlayer — transmissions, progress and switching', () => {
     );
 
     expect(slider(container).min).toBe(String(vipTimeline.startsAtMs));
+  });
+});
+
+describe('toLiveCamera', () => {
+  it('forwards the audio tracks so replay offers the same selector as live', () => {
+    const audioTracks = [
+      { index: 0, language: 'por', label: null, default: true },
+      { index: 1, language: 'eng', label: null, default: false },
+    ];
+    const live = toLiveCamera({
+      cameraId: 'c1', name: 'Main', slug: 'main', priority: 1, replayPath: '/r.m3u8',
+      coverage: [], available: true, thumbnailUrl: null, audioTracks,
+    });
+    expect(live.audioTracks).toEqual(audioTracks);
   });
 });

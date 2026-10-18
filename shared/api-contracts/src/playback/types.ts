@@ -1,3 +1,4 @@
+import type { AudioTrackInfo } from './audio-tracks';
 export type LatencyMode = 'STANDARD' | 'LOW';
 
 /**
@@ -46,6 +47,9 @@ export interface LiveCamera {
   // Poster shown when `live` is false (or while connecting). Null falls back
   // to the showon.io logo.
   thumbnailUrl?: string | null;
+  // Present only when the camera carries 2+ audio tracks; absent = one default
+  // track and no audio selector.
+  audioTracks?: AudioTrackInfo[];
 }
 
 export interface LiveStage {
@@ -123,6 +127,9 @@ export interface ReplayCameraPlayback {
   available: boolean;
   // Poster shown when `available` is false. Null falls back to the showon.io logo.
   thumbnailUrl?: string | null;
+  // Present only when the camera carries 2+ audio tracks; absent = one default
+  // track and no audio selector.
+  audioTracks?: AudioTrackInfo[];
 }
 
 // The event's absolute replay timeline — the domain every camera's coverage

@@ -177,6 +177,7 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, s
         <Transport.Volume />
         {!scrubber && <Transport.Spacer />}
         <Transport.AudioCamera />
+        <Transport.AudioTrack />
         <Transport.Quality />
         <Transport.Pip />
         <Transport.Fullscreen />
