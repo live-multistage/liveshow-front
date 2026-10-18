@@ -325,7 +325,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
               <div className={styles.prefTitle}>{t('privacyAnalyticsTitle')}</div>
               <div className={styles.prefDesc}>{t('privacyAnalyticsDesc')}</div>
             </div>
-            <Toggle on={consent === 'granted'} onClick={toggleConsent} />
+            <Toggle on={consent === 'granted'} onClick={toggleConsent} label={t('privacyAnalyticsTitle')} />
           </div>
 
           <div className={styles.prefRow}>
