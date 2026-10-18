@@ -225,6 +225,26 @@ describe('Player chrome', () => {
     expect(getByRole('tab', { name: /Palco B/ }).getAttribute('aria-selected')).toBe('true');
   });
 
+  it('switches transmission from the header selector and the stage follows', () => {
+    const stream = (id: string, title: string, position: number, c: LiveCamera) => ({
+      id, title, position, live: true, stages: [], cameras: [c], primaryCameraId: c.cameraId, librasCameraId: null,
+    });
+    const { getByLabelText, getByRole } = render(
+      <Harness
+        options={{
+          cameras: [],
+          streams: [stream('main', 'Principal', 0, cam('a', 1)), stream('vip', 'VIP', 1, cam('v', 1))],
+          defaultStreamId: 'main',
+        }}
+      />,
+    );
+    expect(lastGridProps().cameras.map((c) => c.cameraId)).toEqual(['a']);
+    fireEvent.click(getByLabelText('switchTransmission'));
+    fireEvent.click(getByRole('button', { name: /VIP/, pressed: false }));
+    expect(lastGridProps().cameras.map((c) => c.cameraId)).toEqual(['v']);
+    expect(getByLabelText('switchTransmission').textContent).toContain('VIP');
+  });
+
   it('shows chat and viewer chrome only when given', () => {
     const onToggle = vi.fn();
     const withChat = render(

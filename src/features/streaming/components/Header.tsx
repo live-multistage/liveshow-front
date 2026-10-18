@@ -5,6 +5,8 @@ import type { CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
 import { ReportButton } from '@/features/reports';
 import type { LiveStage } from '../types/live.types';
+import { TransmissionSelector } from './TransmissionSelector';
+import type { SelectorStream } from './TransmissionSelector';
 import styles from './Header.module.scss';
 
 interface Props {
@@ -37,6 +39,10 @@ interface Props {
   // Replay with at least one visible chapter.
   chapters?: { open: boolean; onToggle: () => void; count: number };
   onShare: () => void;
+  // Granted transmissions; the selector shows only with two or more.
+  streams?: SelectorStream[];
+  activeStreamId?: string | null;
+  onStreamChange?: (streamId: string) => void;
 }
 
 // Duplicated on purpose, see ReactionsTicker.tsx for why — this codebase
@@ -67,8 +73,13 @@ export function Header({
   chatMessageCount = 0,
   chapters,
   onShare,
+  streams = [],
+  activeStreamId = null,
+  onStreamChange,
 }: Props) {
   const t = useTranslations('player');
+  const multiStream = streams.length >= 2 && !!onStreamChange;
+  const activeStreamTitle = multiStream ? (streams.find((s) => s.id === activeStreamId) ?? streams[0]).title : null;
   return (
     <header className={`${styles.header} ${className ?? ''}`} style={style}>
       <button onClick={onExit} className={styles.backBtn} aria-label={t('back')}>
@@ -86,7 +97,15 @@ export function Header({
         )}
         <div>
           {eventTitle && <div className={styles.title}>{eventTitle}</div>}
-          <div className={styles.meta}>{metaLine}</div>
+          <div className={styles.meta}>
+            {activeStreamTitle && (
+              <>
+                <span className={styles.metaStream}>{activeStreamTitle}</span>
+                {metaLine && ' · '}
+              </>
+            )}
+            {metaLine}
+          </div>
         </div>
       </div>
 
@@ -127,6 +146,9 @@ export function Header({
             <span className={styles.drawerBtnLabel}>{t('chapters.label')}</span>
             <span className={`${styles.badge} ${styles.drawerBtnLabel}`}>{chapters.count}</span>
           </button>
+        )}
+        {multiStream && onStreamChange && (
+          <TransmissionSelector streams={streams} activeStreamId={activeStreamId} onStreamChange={onStreamChange} />
         )}
         <button
           className={`${styles.drawerBtn} ${cameraStripOpen ? styles.drawerBtnActive : ''}`}

@@ -84,6 +84,7 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     () =>
       rawStreams?.map((s) => ({
         ...s,
+        durationMs: s.timeline ? s.timeline.endsAtMs - s.timeline.startsAtMs : undefined,
         cameras: s.cameras.map(toLiveCamera),
         stages: s.stages.map((st) => ({ ...st, cameras: st.cameras.map(toLiveCamera) })),
       })),

@@ -21,6 +21,8 @@ export interface PlayerStreamLike<C extends { cameraId: string; priority: number
   title: string;
   position: number;
   live?: boolean;
+  // Replay only: length of this transmission's replay window (the selector shows it).
+  durationMs?: number;
   stages: PlayerStageLike<C>[];
   cameras: C[];
   primaryCameraId: string | null;

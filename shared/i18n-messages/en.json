@@ -1319,7 +1319,10 @@
       "goTo": "Go to {title}, {time}"
     },
     "transmissions": "Transmissions",
-    "transmissionOffline": "Offline"
+    "transmissionOffline": "Offline",
+    "transmissionLive": "Live",
+    "switchTransmission": "Switch transmission",
+    "closePanel": "Close"
   },
   "ads": {
     "sponsored": "Sponsored",

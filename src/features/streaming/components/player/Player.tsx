@@ -122,6 +122,9 @@ function PlayerHeader({ badge, exitHref, metaLine, currentViewers, chat, chapter
       stages={shell.stages}
       activeStageId={shell.activeStageId}
       onStageChange={shell.setActiveStageId}
+      streams={shell.streams}
+      activeStreamId={shell.activeStreamId}
+      onStreamChange={shell.setActiveStreamId}
       onExit={() => router.push(exitHref ?? `/events/${eventId}`)}
       currentViewers={currentViewers}
       cameraCount={shell.stageCameras.length}

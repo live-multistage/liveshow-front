@@ -1319,7 +1319,10 @@
       "goTo": "Ir a {title}, {time}"
     },
     "transmissions": "Transmisiones",
-    "transmissionOffline": "Fuera del aire"
+    "transmissionOffline": "Fuera del aire",
+    "transmissionLive": "En vivo",
+    "switchTransmission": "Cambiar transmisión",
+    "closePanel": "Cerrar"
   },
   "ads": {
     "sponsored": "Patrocinado",
