@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import { normalizeUsername } from '@live-show/api-contracts';
+import type { AppError } from '@/lib/http/errors';
 import type { AuthUser } from '../types/account.types';
 import { useUsernameAvailability } from './use-username-availability';
 import { useUpdateUsernameMutation } from '../mutations/update-username.mutation';
 import { usernameFieldState } from '../utils/username-field-state';
+
+const ISO_DATE = /\d{4}-\d{2}-\d{2}T[\d:.]+Z/;
 
 // `me` may still be loading (SettingsPageContent calls hooks before its
 // loading guard). `edited === null` means untouched, so the field shows the
@@ -15,12 +18,16 @@ export function useUsernameField(me: AuthUser | undefined) {
   const [edited, setEdited] = useState<string | null>(null);
   const draft = edited ?? current ?? '';
   const availability = useUsernameAvailability(draft, current);
+  // Set on a 429 so Save stays locked until /auth/me brings the real date.
+  const [tooSoon, setTooSoon] = useState<{ until: string | null } | null>(null);
   const mutation = useUpdateUsernameMutation();
 
   const state = usernameFieldState({
     current,
     draft,
-    changeAvailableAt: me?.usernameChangeAvailableAt ?? null,
+    changeAvailableAt: me?.usernameChangeAvailableAt ?? tooSoon?.until ?? null,
+    rateLimited: tooSoon !== null,
+    availabilityFailed: availability.isError,
     now: new Date(),
     availability: availability.data,
     checking: availability.isChecking,
@@ -37,14 +44,21 @@ export function useUsernameField(me: AuthUser | undefined) {
     setDraft,
     state,
     dirty: state.kind !== 'current' && state.kind !== 'cooldown',
-    canSave: state.kind === 'available' && !mutation.isPending,
+    canSave: (state.kind === 'available' || state.kind === 'unverified') && !mutation.isPending,
     saving: mutation.isPending,
     save: async () => {
-      const updated = await mutation.mutateAsync({ username: normalizeUsername(draft) });
-      setEdited(null);
-      return updated;
+      try {
+        const updated = await mutation.mutateAsync({ username: normalizeUsername(draft) });
+        setEdited(null);
+        return updated;
+      } catch (error) {
+        const e = error as AppError;
+        if (e.status === 429) setTooSoon({ until: e.message?.match(ISO_DATE)?.[0] ?? null });
+        throw error;
+      }
     },
     reset: () => {
+      setTooSoon(null);
       mutation.reset();
       setEdited(null);
     },

@@ -8,6 +8,8 @@ export type UsernameFieldState =
   | { kind: 'current' }
   | { kind: 'checking' }
   | { kind: 'available' }
+  // availability lookup failed (429/network): no status shown, the PATCH decides
+  | { kind: 'unverified' }
   | { kind: 'taken' }
   | { kind: 'reserved' }
   | { kind: 'invalid' }
@@ -42,8 +44,11 @@ export function usernameFieldState(input: {
   availability: UsernameAvailabilityResponse | undefined;
   checking: boolean;
   serverError?: string;
+  availabilityFailed?: boolean;
+  // PATCH answered 429 before `changeAvailableAt` is known: still a cooldown
+  rateLimited?: boolean;
 }): UsernameFieldState {
-  const days = cooldownDays(input.changeAvailableAt, input.now);
+  const days = cooldownDays(input.changeAvailableAt, input.now) || (input.rateLimited ? 1 : 0);
   if (days > 0) return { kind: 'cooldown', days };
 
   const draft = normalizeUsername(input.draft);
@@ -56,6 +61,7 @@ export function usernameFieldState(input: {
   const fromServer = stateFromErrorCode(input.serverError);
   if (fromServer) return fromServer;
 
+  if (input.availabilityFailed) return { kind: 'unverified' };
   if (input.checking || !input.availability) return { kind: 'checking' };
   const { availability } = input;
   if (availability.available === true) return { kind: 'available' };

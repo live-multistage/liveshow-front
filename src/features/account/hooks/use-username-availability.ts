@@ -22,5 +22,6 @@ export function useUsernameAvailability(draft: string, current: string | null) {
   return {
     data: pending || !shouldCheck ? undefined : query.data,
     isChecking: pending || (shouldCheck && query.isFetching),
+    isError: !pending && shouldCheck && query.isError && !query.isFetching,
   };
 }

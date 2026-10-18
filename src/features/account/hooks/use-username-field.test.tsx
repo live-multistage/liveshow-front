@@ -58,4 +58,28 @@ describe('useUsernameField', () => {
     expect(accountService.updateUsername).toHaveBeenCalledWith('joana.martins');
     expect(login).toHaveBeenCalledWith(expect.objectContaining({ username: 'joana.martins' }));
   });
+
+  it('an availability error is not "checking" and still allows saving (the PATCH decides)', async () => {
+    vi.mocked(accountService.usernameAvailability).mockRejectedValue({ status: 429 });
+    const { result } = renderHook(() => useUsernameField(me), { wrapper });
+    act(() => result.current.setDraft('joana.martins'));
+    await waitFor(() => expect(result.current.state).toEqual({ kind: 'unverified' }));
+    expect(result.current.canSave).toBe(true);
+  });
+
+  it('a 429 on save goes straight to cooldown and keeps Save disabled', async () => {
+    vi.mocked(accountService.usernameAvailability).mockResolvedValue({ available: true });
+    vi.mocked(accountService.updateUsername).mockRejectedValue({ status: 429, message: 'too soon' });
+    const { result } = renderHook(() => useUsernameField(me), { wrapper });
+    act(() => result.current.setDraft('joana.martins'));
+    await waitFor(() => expect(result.current.canSave).toBe(true));
+    await act(async () => {
+      await result.current.save().catch(() => undefined);
+    });
+    expect(result.current.state.kind).toBe('cooldown');
+    expect(result.current.canSave).toBe(false);
+    act(() => result.current.setDraft('joana.outra'));
+    expect(result.current.state.kind).toBe('cooldown');
+    expect(result.current.canSave).toBe(false);
+  });
 });
