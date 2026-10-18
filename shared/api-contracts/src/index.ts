@@ -19,6 +19,7 @@ export * from './artists/types';
 export * from './feature-flags/types';
 export * from './access/types';
 export * from './playback/types';
+export * from './playback/audio-tracks';
 export * from './playback/media-url';
 export * from './playback/replay-timeline';
 export * from './playback/camera-selection';
