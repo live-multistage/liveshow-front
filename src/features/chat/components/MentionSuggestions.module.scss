@@ -16,6 +16,16 @@ $active-border: rgba(255, 46, 158, 0.3);
   padding: 6px;
 }
 
+.heading {
+  margin: 0;
+  padding: 6px 8px 4px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: $text-muted;
+}
+
 .list {
   list-style: none;
   margin: 0;
@@ -46,7 +56,6 @@ $active-border: rgba(255, 46, 158, 0.3);
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: $accent-text;
   color: $ink;
   display: flex;
   align-items: center;

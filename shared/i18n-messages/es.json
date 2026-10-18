@@ -5138,6 +5138,7 @@
     "unavailable": "El chat no está disponible para ti en este evento",
     "mentions": {
       "listLabel": "Sugerencias de mención",
+      "heading": "PERSONAS EN ESTE CHAT",
       "optionLabel": "Mencionar a @{username}",
       "noResults": "Nadie con ese nombre en este chat",
       "hint": "↑↓ navegar · Enter elegir · Esc cerrar",

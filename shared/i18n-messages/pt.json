@@ -5138,6 +5138,7 @@
     "unavailable": "Chat indisponível para você neste evento",
     "mentions": {
       "listLabel": "Sugestões de menção",
+      "heading": "PESSOAS NESTE CHAT",
       "optionLabel": "Mencionar @{username}",
       "noResults": "Ninguém com esse nome neste chat",
       "hint": "↑↓ navegar · Enter escolher · Esc fechar",

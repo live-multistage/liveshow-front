@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import type { ChatParticipant } from '@live-show/api-contracts';
+import { avatarColor, initialsFromName } from '../utils/avatar';
 import styles from './MentionSuggestions.module.scss';
 
 interface Props {
@@ -13,10 +14,6 @@ interface Props {
   loading: boolean;
   empty: boolean;
   onSelect: (option: ChatParticipant) => void;
-}
-
-function initials(name: string): string {
-  return name.trim().slice(0, 2).toUpperCase() || '??';
 }
 
 function Handle({ username, query }: { username: string; query: string }) {
@@ -35,6 +32,7 @@ export function MentionSuggestions({ id, query, options, activeIndex, optionId, 
   const t = useTranslations('chat');
   return (
     <div className={styles.popover}>
+      <p className={styles.heading}>{t('mentions.heading')}</p>
       <ul id={id} role="listbox" aria-label={t('mentions.listLabel')} className={styles.list}>
         {loading &&
           [0, 1, 2].map((i) => (
@@ -60,8 +58,8 @@ export function MentionSuggestions({ id, query, options, activeIndex, optionId, 
               onSelect(option);
             }}
           >
-            <span className={styles.avatar}>
-              {option.avatarUrl ? <img src={option.avatarUrl} alt="" /> : initials(option.displayName)}
+            <span className={styles.avatar} style={{ backgroundColor: avatarColor(option.displayName) }}>
+              {option.avatarUrl ? <img src={option.avatarUrl} alt="" /> : initialsFromName(option.displayName)}
             </span>
             <span className={styles.text}>
               <span className={styles.name}>{option.displayName}</span>

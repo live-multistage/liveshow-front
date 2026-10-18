@@ -15,10 +15,10 @@ import { tokenStore } from '@/lib/auth/token-store';
 import { normalizeError } from '@/lib/http/errors';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { chatService } from '../services/chat.service';
+import { avatarColor, initialsFromName } from '../utils/avatar';
 import { chatKeys } from '../queries/chat.keys';
 import type { ChatMessage } from '../types/chat.types';
 
-const AVATAR_COLORS = ['#46d6d8', '#9b7bff', '#7fe0a0', '#ff7a4d', '#bba6ff', '#ffd166'];
 const MAX_MESSAGES = 500;
 // EventSource's own default retry interval is ~3s; matched here as the base
 // delay so a dead SSE endpoint (with a healthy refresh route) can't turn into
@@ -35,26 +35,11 @@ const MAX_CONSECUTIVE_FAILURES = 5;
 // unrelated feature-flags module, so both are compared as raw strings here.
 const CHAT_DISABLED_ERROR_CODES = new Set<string>([CHAT_ERROR_CODES.FORBIDDEN, 'FEATURE_DISABLED']);
 
-function hashString(value: string): number {
-  let hash = 0;
-  for (let i = 0; i < value.length; i++) {
-    hash = (hash * 31 + value.charCodeAt(i)) | 0;
-  }
-  return Math.abs(hash);
-}
-
-function initialsFromName(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '??';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[1][0]).toUpperCase();
-}
-
 function decorate(message: ContractChatMessage): ChatMessage {
   return {
     ...message,
     authorInitials: initialsFromName(message.authorName),
-    authorColor: AVATAR_COLORS[hashString(message.authorName) % AVATAR_COLORS.length],
+    authorColor: avatarColor(message.authorName),
   };
 }
 
