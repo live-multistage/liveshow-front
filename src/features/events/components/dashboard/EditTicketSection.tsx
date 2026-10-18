@@ -164,7 +164,7 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
           ticketId: editingId,
           payload: {
             ...basePayload,
-            allowedStageIds: allowedStageIds.length ? allowedStageIds : undefined,
+            allowedStageIds,
             allowedStreamIds,
           },
         },
@@ -175,7 +175,7 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
         {
           ...basePayload,
           allowedStageIds: allowedStageIds.length ? allowedStageIds : undefined,
-            allowedStreamIds,
+          allowedStreamIds,
         },
         { onSuccess: () => reset(EMPTY_FORM) },
       );

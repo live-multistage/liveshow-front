@@ -222,4 +222,55 @@ describe('EditTicketSection', () => {
     await waitFor(() => expect(updateEventMutate).toHaveBeenCalled());
     expect(updateEventMutate.mock.calls.at(-1)![0].payload.allowedStreamIds).toEqual([VIP]);
   });
+
+  describe('stage scoping on update', () => {
+    const MAIN = '33333333-3333-4333-8333-333333333333';
+    const VIP = '22222222-2222-4222-8222-222222222222';
+    const PALCO = '11111111-1111-4111-8111-111111111111';
+    const BACK = '44444444-4444-4444-8444-444444444444';
+    const stage = (id: string, streamId: string, name: string) => ({ ...STAGES[0], id, streamId, name });
+    const ticket = (allowedStageIds: string[], allowedStreamIds: string[]) => ({
+      id: 't1',
+      name: 'VIP',
+      description: 'Acesso VIP',
+      price: 10,
+      currency: 'BRL',
+      capabilities: ['LIVE_VIEW' as const],
+      camerasLimit: null,
+      allowedStageIds,
+      allowedStreamIds,
+      capacity: null,
+      immutable: false,
+    });
+    const save = async (t: ReturnType<typeof ticket>) => {
+      useEventStagesQueryMock.mockReturnValue({
+        stages: [stage(PALCO, MAIN, 'Palco'), stage(BACK, VIP, 'Back')],
+        isLoading: false,
+      });
+      render(<EditTicketSection eventId="evt-1" tickets={[t]} />);
+      fireEvent.click(screen.getByLabelText('edit'));
+      return t;
+    };
+    const savedPayload = async () => {
+      fireEvent.click(screen.getByText('save'));
+      await waitFor(() => expect(updateEventMutate).toHaveBeenCalled());
+      return updateEventMutate.mock.calls.at(-1)![0].payload;
+    };
+
+    it('prunes stage picks outside the ticket transmissions', async () => {
+      await save(ticket([PALCO, BACK], [VIP]));
+      expect((await savedPayload()).allowedStageIds).toEqual([BACK]);
+    });
+
+    it('sends [] when pruning leaves no stage, so the old restriction is cleared', async () => {
+      await save(ticket([PALCO], [VIP]));
+      expect((await savedPayload()).allowedStageIds).toEqual([]);
+    });
+
+    it('sends [] when every stage is unchecked', async () => {
+      await save(ticket([PALCO], []));
+      fireEvent.click(screen.getByText('Palco'));
+      expect((await savedPayload()).allowedStageIds).toEqual([]);
+    });
+  });
 });
