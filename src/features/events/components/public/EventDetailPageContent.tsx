@@ -90,8 +90,11 @@ export function EventDetailPageContent({ id }: Props) {
   const isFinished = event.status === 'FINISHED';
   // A viewer who can already watch sees their own transmission in the hero
   // instead of the poster.
-  const livePlayback = liveAccess.data === true && isLive && playback.data?.live ? playback.data : null;
-  const watching = livePlayback?.streams?.find((s) => s.id === livePlayback.defaultStreamId) ?? null;
+  const granted = liveAccess.data === true && isLive && playback.data?.live ? playback.data : null;
+  const defaultStream = granted?.streams?.find((s) => s.id === granted.defaultStreamId) ?? null;
+  // The default transmission must be on air; otherwise keep the poster.
+  const livePlayback = defaultStream?.live === false ? null : granted;
+  const watching = livePlayback ? defaultStream : null;
   const upsell = livePlayback?.lockedStreams?.[0]?.offer ?? null;
   const heroImage = heroImgFailed ? null : event.bannerUrl ?? event.thumbnailUrl;
   // The production topology (streams → stages → feeds → cameras) is org-admin

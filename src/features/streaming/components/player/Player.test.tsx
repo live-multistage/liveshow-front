@@ -333,6 +333,43 @@ describe('Player chrome', () => {
 // playback_started, playback_buffered, playback_ended) — CameraGrid is
 // stubbed above, so onPlaying/onBuffered are invoked directly off the
 // captured props, the same way the real primary VideoPanel would call them.
+describe('Player root passthroughs', () => {
+  it('puts className on the player box', () => {
+    function ClassHarness() {
+      const shell = usePlayerShell({ cameras: [cam('a', 1)] });
+      return (
+        <Player.Root shell={shell} mode="live" eventId="evt-1" title="Evento" className="hero-box">
+          <Player.Stage />
+        </Player.Root>
+      );
+    }
+    const { container } = render(<ClassHarness />);
+
+    expect(container.firstElementChild!.className).toMatch(/\bhero-box\b/);
+  });
+});
+
+describe('Player preview', () => {
+  it('fires no player_opened, no playback events and no player feature view', () => {
+    function PreviewHarness() {
+      const shell = usePlayerShell({ cameras: [cam('a', 1)], hotkeysEnabled: false });
+      return (
+        <Player.Root shell={shell} mode="live" eventId="evt-1" title="Evento" preview>
+          <Player.Stage />
+        </Player.Root>
+      );
+    }
+    vi.useFakeTimers();
+    const { unmount } = render(<PreviewHarness />);
+    unmount();
+    act(() => { vi.runAllTimers(); });
+    vi.useRealTimers();
+
+    expect(mockTrack).not.toHaveBeenCalled();
+    expect(trackFeatureCalls).toHaveLength(0);
+  });
+});
+
 describe('Player analytics', () => {
   beforeEach(() => {
     vi.useFakeTimers();

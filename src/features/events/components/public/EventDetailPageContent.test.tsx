@@ -392,6 +392,16 @@ describe('EventDetailPageContent — live hero for viewers with access', () => {
     expect(screen.queryByTestId('live-preview')).toBeNull();
   });
 
+  it('keeps the poster when the default transmission is offline', () => {
+    live.access = { data: true };
+    live.playback = { data: { ...playbackData, streams: [{ ...playbackData.streams[0], live: false }] } };
+
+    renderWithEvent(makeEvent({ status: 'LIVE' }));
+
+    expect(screen.queryByTestId('live-preview')).toBeNull();
+    expect(screen.queryByText('watchingChip')).toBeNull();
+  });
+
   it('keeps the poster while nothing granted is on air', () => {
     live.access = { data: true };
     live.playback = { data: { ...playbackData, live: false } };

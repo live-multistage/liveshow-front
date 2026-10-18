@@ -32,6 +32,9 @@ export interface PlayerRootProps {
   // Extra class on the player box — the event-page preview sizes it to its
   // hero instead of the viewport.
   className?: string;
+  // Event-page hero preview: skips every player analytics event and the
+  // "player" feature view. Default: a real player.
+  preview?: boolean;
   children: ReactNode;
 }
 
@@ -68,10 +71,15 @@ function analyticsMode(mode: 'live' | 'replay' | 'channel'): 'live' | 'replay' {
   return mode === 'replay' ? 'replay' : 'live';
 }
 
+function FeatureView({ enabled, eventId, mode, children }: { enabled: boolean; eventId: string; mode: 'live' | 'replay'; children: ReactNode }) {
+  if (!enabled) return <>{children}</>;
+  return <TrackFeature name="player" props={{ eventId, mode }}>{children}</TrackFeature>;
+}
+
 // Owns the fullscreen/PiP host element and publishes the shell. The mode still
 // calls usePlayerShell itself: its handlers (onEnded, DVR seek) need the shell
 // before this tree exists.
-function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true, className, children }: PlayerRootProps) {
+function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true, className, preview = false, children }: PlayerRootProps) {
   const value: PlayerContextValue = {
     shell,
     mode,
@@ -79,17 +87,18 @@ function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true,
     title,
     playbackEventId: playbackEventId ?? eventId,
     adsEnabled,
+    preview,
   };
 
   useSinglePartWarning(children);
 
   return (
     <PlayerProvider value={value}>
-      <TrackFeature name="player" props={{ eventId: value.playbackEventId, mode: analyticsMode(mode) }}>
+      <FeatureView enabled={!preview} eventId={value.playbackEventId} mode={analyticsMode(mode)}>
         <div ref={shell.containerRef} className={`${styles.player} ${className ?? ''}`} data-chapters-open={shell.chaptersOpen || undefined}>
           {children}
         </div>
-      </TrackFeature>
+      </FeatureView>
     </PlayerProvider>
   );
 }
@@ -154,7 +163,7 @@ export type PlayerStagePartProps = Pick<
 >;
 
 function Stage(gridProps: PlayerStagePartProps) {
-  const { shell, mode, playbackEventId, adsEnabled } = usePlayer();
+  const { shell, mode, playbackEventId, adsEnabled, preview } = usePlayer();
   const { audio, quality } = shell;
   const analytics = useAnalytics();
   const trackedMode = analyticsMode(mode);
@@ -191,6 +200,7 @@ function Stage(gridProps: PlayerStagePartProps) {
       clearTimeout(pendingEndedTimeoutRef.current);
       pendingEndedTimeoutRef.current = null;
     }
+    if (preview) return;
     if (!openedFiredRef.current) {
       openedFiredRef.current = true;
       analytics.track('player_opened', { eventId: playbackEventId, mode: trackedMode, hasAccess: true });
@@ -221,7 +231,7 @@ function Stage(gridProps: PlayerStagePartProps) {
 
   const handlePlaying = useCallback(
     (latencyMode: string) => {
-      if (startedFiredRef.current) return;
+      if (preview || startedFiredRef.current) return;
       startedFiredRef.current = true;
       analytics.track('playback_started', {
         eventId: playbackEventId,
@@ -231,18 +241,19 @@ function Stage(gridProps: PlayerStagePartProps) {
         startupMs: Date.now() - openedAtRef.current,
       });
     },
-    [analytics, playbackEventId, trackedMode],
+    [analytics, playbackEventId, trackedMode, preview],
   );
 
   // Stalls >500ms, throttled to at most one report per 10s (see rules.md).
   const handleBuffered = useCallback(
     (durationMs: number) => {
+      if (preview) return;
       const now = Date.now();
       if (now - lastBufferedTrackRef.current < 10_000) return;
       lastBufferedTrackRef.current = now;
       analytics.track('playback_buffered', { eventId: playbackEventId, durationMs });
     },
-    [analytics, playbackEventId],
+    [analytics, playbackEventId, preview],
   );
 
   return (

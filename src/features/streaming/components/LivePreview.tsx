@@ -33,7 +33,7 @@ export function LivePreview({ eventId, title, playback }: Props) {
 
   return (
     <div className={styles.preview}>
-      <Player.Root shell={shell} mode="live" eventId={eventId} title={title} adsEnabled={false} className={styles.root}>
+      <Player.Root shell={shell} mode="live" eventId={eventId} title={title} adsEnabled={false} preview className={styles.root}>
         <Player.Stage />
       </Player.Root>
       <div className={styles.actions}>
