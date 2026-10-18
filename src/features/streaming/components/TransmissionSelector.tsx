@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { FocusEvent } from 'react';
 import { Check, ChevronDown, ChevronUp, Radio, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import type { LockedStreamOffer } from '../types/live.types';
+import { LockedStreamItem } from './LockedStreamItem';
 import styles from './TransmissionSelector.module.scss';
 
 // Live streams carry `live`; replay streams don't and may carry their window length.
@@ -22,6 +24,11 @@ interface Props {
   // falls back to local state when omitted.
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  // Transmissions for sale, listed after the granted ones; never selectable.
+  lockedStreams?: LockedStreamOffer[];
+  onUnlockStream?: (locked: LockedStreamOffer) => void;
+  unlockPending?: boolean;
+  replay?: boolean;
 }
 
 function formatWindow(ms: number): string {
@@ -35,7 +42,7 @@ function formatWindow(ms: number): string {
 // Header pill + anchored popover (bottom sheet ≤820px) to switch transmission.
 // Not the design-system DropdownMenu: that portals to <body>, which is
 // invisible while the player container is the fullscreen element.
-export function TransmissionSelector({ streams, activeStreamId, onStreamChange, open: openProp, onOpenChange }: Props) {
+export function TransmissionSelector({ streams, activeStreamId, onStreamChange, open: openProp, onOpenChange, lockedStreams = [], onUnlockStream, unlockPending = false, replay = false }: Props) {
   const t = useTranslations('player');
   const [localOpen, setLocalOpen] = useState(false);
   const open = openProp ?? localOpen;
@@ -113,7 +120,7 @@ export function TransmissionSelector({ streams, activeStreamId, onStreamChange, 
             <span className={styles.handle} aria-hidden="true" />
             <div className={styles.panelHeader}>
               <span className={styles.eyebrow}>{t('transmissions')}</span>
-              <span className={styles.count}>{streams.length}</span>
+              <span className={styles.count}>{streams.length + lockedStreams.length}</span>
               <button className={styles.closeBtn} onClick={close} aria-label={t('closePanel')}>
                 <X size={16} aria-hidden="true" />
               </button>
@@ -140,6 +147,20 @@ export function TransmissionSelector({ streams, activeStreamId, onStreamChange, 
                 </button>
               );
             })}
+            {lockedStreams.length > 0 && onUnlockStream && (
+              <div className={styles.lockedGroup} role="group" aria-label={t('availableToBuy')}>
+                <span className={styles.lockedEyebrow}>{t('availableToBuy')}</span>
+                {lockedStreams.map((locked) => (
+                  <LockedStreamItem
+                    key={locked.id}
+                    locked={locked}
+                    status={replay ? t('replay') : locked.live ? t('live') : t('transmissionOffline')}
+                    pending={unlockPending}
+                    onUnlock={onUnlockStream}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </>
       )}

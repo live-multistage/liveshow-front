@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import type { ReplayCameraPlayback, ReplayChapter, ReplayEventTimeline, ReplayStagePlayback, ReplayPlaybackStream, LiveCamera } from '../types/live.types';
+import type { ReplayCameraPlayback, ReplayChapter, ReplayEventTimeline, ReplayStagePlayback, ReplayPlaybackStream, LiveCamera, LockedStreamOffer } from '../types/live.types';
 import { ReplayBadge } from './transport/ReplayBadge';
 import { localToAbsolute } from '../utils/replay-timeline';
 import { useTrackPlaybackProgress, usePlaybackProgressQuery } from '@/features/playback-progress';
 import { useAuth } from '@/features/account/hooks/use-auth';
+import { useStreamUnlock } from '../hooks/use-stream-unlock';
 import { usePlayerShell, type PlayerStreamLike } from '../hooks/use-player-shell';
 import { MAIN_STAGE_ID, type PlayerStageLike } from '../hooks/use-player-stages';
 import { pickActiveStream, visibleChapters } from '@live-show/api-contracts';
@@ -37,6 +38,8 @@ interface ReplayPlayerProps {
   // flattened props above (the default stream's view).
   streams?: ReplayPlaybackStream[];
   defaultStreamId?: string | null;
+  // Transmissions for sale to this viewer.
+  lockedStreams?: LockedStreamOffer[];
 }
 
 // CameraGrid/VideoPanel consume LiveCamera (manifestPath), not
@@ -72,7 +75,7 @@ const clampToWindow = (ms: number, w: ReplayEventTimeline) => Math.min(Math.max(
 // camera is still its own independent VOD timeline underneath (no frame-
 // accurate cross-camera sync), a real, harder problem deliberately left for
 // later.
-export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCameraId = null, librasCameraId = null, title, eventId, timeline: eventTimeline, adsEnabled = true, chapters, streams: rawStreams, defaultStreamId }: ReplayPlayerProps) {
+export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCameraId = null, librasCameraId = null, title, eventId, timeline: eventTimeline, adsEnabled = true, chapters, streams: rawStreams, defaultStreamId, lockedStreams }: ReplayPlayerProps) {
   const t = useTranslations('player');
 
   const cameras = useMemo(() => rawCameras.map(toLiveCamera), [rawCameras]);
@@ -116,6 +119,7 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     initialPaused: true,
     pickInitialCamera: firstPlayable,
   });
+  const unlock = useStreamUnlock({ eventId, streams: shell.streams, setActiveStreamId: shell.setActiveStreamId });
 
   // Each transmission has its own replay window. A stream with no replay at
   // all keeps the default stream's window (or the first one with a replay)
@@ -250,7 +254,13 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
 
   return (
     <Player.Root shell={shell} mode="replay" eventId={eventId} title={title} adsEnabled={adsEnabled}>
-      <Player.Header badge="replay" chapters={chaptersAvailable ? { count: shownChapters.length } : undefined} />
+      <Player.Header
+        badge="replay"
+        chapters={chaptersAvailable ? { count: shownChapters.length } : undefined}
+        lockedStreams={lockedStreams}
+        onUnlockStream={unlock.unlock}
+        unlockPending={unlock.pending}
+      />
 
       <Player.Stage
         // Sem isto o painel julgaria a cobertura pelo último seek, e uma

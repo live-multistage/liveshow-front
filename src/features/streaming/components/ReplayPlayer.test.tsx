@@ -47,6 +47,7 @@ const h = vi.hoisted(() => {
   return { MockHls, instances };
 });
 
+vi.mock('../hooks/use-stream-unlock', () => ({ useStreamUnlock: () => ({ unlock: vi.fn(), pending: false }) }));
 vi.mock('hls.js', () => ({ default: h.MockHls }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: vi.fn() }) }));

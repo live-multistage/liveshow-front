@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Volume2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import type { LiveCamera, LiveStage, LivePlaybackStream } from '../types/live.types';
+import type { LiveCamera, LiveStage, LivePlaybackStream, LockedStreamOffer } from '../types/live.types';
 import { Player, Transport } from './player';
 import { LiveBadge } from './transport/LiveBadge';
 import { liveScrubber } from './transport/live-scrubber';
@@ -15,6 +15,7 @@ import { useViewerCount } from '../hooks/use-viewer-count';
 import type { PlayerAudioState } from '../hooks/use-player-audio';
 import { useLiveDvr } from '../hooks/use-live-dvr';
 import { usePlayerShell } from '../hooks/use-player-shell';
+import { useStreamUnlock } from '../hooks/use-stream-unlock';
 import styles from './Player.module.scss';
 
 interface LivePlayerProps {
@@ -27,6 +28,8 @@ interface LivePlayerProps {
   // chat/viewer count follow it. Absent = legacy flattened props above.
   streams?: LivePlaybackStream[];
   defaultStreamId?: string | null;
+  // Transmissions for sale to this viewer; ignored on a channel.
+  lockedStreams?: LockedStreamOffer[];
   title: string;
   // Chat's room and the header/exit target — the channel passes its own
   // persistent broadcast event here, which doesn't move when a channel's
@@ -63,7 +66,7 @@ interface LivePlayerProps {
 
 // Live = the shared player shell + DVR, viewer tracking/count, chat and the
 // "tap for sound" prompt.
-export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, streams, defaultStreamId, title, eventId, trackingEventId, chatEnabled, adsEnabled = true, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
+export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, streams, defaultStreamId, lockedStreams, title, eventId, trackingEventId, chatEnabled, adsEnabled = true, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
   const t = useTranslations('player');
   const isChannel = variant === 'channel';
   const { user } = useAuth();
@@ -96,6 +99,7 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, s
     onStageChange: () => resetForStageChange(),
   });
   const { audio } = shell;
+  const unlock = useStreamUnlock({ eventId, streams: shell.streams, setActiveStreamId: shell.setActiveStreamId });
   const { dvr, dvrSeeking, seekCommand, atLive, handleProgress, handleSeek, endRewind, resetForStageChange, clearRewindIntent } =
     useLiveDvr(shell.effectiveMainCameraId);
 
@@ -131,6 +135,9 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, s
         exitHref={exitHref}
         metaLine={metaLineOverride}
         currentViewers={currentViewers}
+        lockedStreams={isChannel ? undefined : lockedStreams}
+        onUnlockStream={unlock.unlock}
+        unlockPending={unlock.pending}
         chat={chatEnabled ? { open: chatOpen, onToggle: () => setChatOpen((o) => !o), messageCount: chat.messages.length } : undefined}
       />
 

@@ -4,7 +4,7 @@ import { ChevronLeft, Users, Video, MessageSquare, Share2, List } from 'lucide-r
 import type { CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
 import { ReportButton } from '@/features/reports';
-import type { LiveStage } from '../types/live.types';
+import type { LiveStage, LockedStreamOffer } from '../types/live.types';
 import { TransmissionSelector } from './TransmissionSelector';
 import type { SelectorStream } from './TransmissionSelector';
 import styles from './Header.module.scss';
@@ -39,13 +39,17 @@ interface Props {
   // Replay with at least one visible chapter.
   chapters?: { open: boolean; onToggle: () => void; count: number };
   onShare: () => void;
-  // Granted transmissions; the selector shows only with two or more.
+  // Granted transmissions; the selector shows with two or more transmissions, granted or for sale.
   streams?: SelectorStream[];
   activeStreamId?: string | null;
   onStreamChange?: (streamId: string) => void;
   // Owned by the player shell so the selector and the side drawers exclude each other.
   transmissionsOpen?: boolean;
   onTransmissionsOpenChange?: (open: boolean) => void;
+  // Transmissions the viewer can buy, listed after the granted ones.
+  lockedStreams?: LockedStreamOffer[];
+  onUnlockStream?: (locked: LockedStreamOffer) => void;
+  unlockPending?: boolean;
 }
 
 // Duplicated on purpose, see ReactionsTicker.tsx for why — this codebase
@@ -81,9 +85,12 @@ export function Header({
   onStreamChange,
   transmissionsOpen,
   onTransmissionsOpenChange,
+  lockedStreams = [],
+  onUnlockStream,
+  unlockPending = false,
 }: Props) {
   const t = useTranslations('player');
-  const multiStream = streams.length >= 2 && !!onStreamChange;
+  const multiStream = streams.length > 0 && streams.length + lockedStreams.length >= 2 && !!onStreamChange;
   const activeStreamTitle = multiStream ? (streams.find((s) => s.id === activeStreamId) ?? streams[0]).title : null;
   return (
     <header className={`${styles.header} ${className ?? ''}`} style={style}>
@@ -159,6 +166,10 @@ export function Header({
             onStreamChange={onStreamChange}
             open={transmissionsOpen}
             onOpenChange={onTransmissionsOpenChange}
+            lockedStreams={lockedStreams}
+            onUnlockStream={onUnlockStream}
+            unlockPending={unlockPending}
+            replay={badge === 'replay'}
           />
         )}
         <button

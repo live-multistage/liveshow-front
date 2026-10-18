@@ -18,9 +18,10 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it, expect, vi } from 'vitest';
-import { render, fireEvent, within } from '@testing-library/react';
+import { render, fireEvent, within, screen } from '@testing-library/react';
 import { Header } from './Header';
 import { DRAWER_W } from './CameraGrid';
+import type { LockedStreamOffer } from '../types/live.types';
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
@@ -246,5 +247,50 @@ describe('Header — transmission selector', () => {
     expect(within(panel).getByText('REPLAY · 2h 14min')).toBeTruthy();
     expect(within(panel).getByText('REPLAY · 48min')).toBeTruthy();
     expect(within(panel).queryByText('transmissionOffline')).toBeNull();
+  });
+});
+
+describe('Header — locked transmissions', () => {
+  const granted = [{ id: 'cov', title: 'Cobertura', live: true }];
+  const locked: LockedStreamOffer[] = [{
+    id: 'full', title: 'Evento completo', position: 1, live: true,
+    offer: { ticketProductId: 'tp-full', name: 'Evento completo', priceCents: 4990, currency: 'BRL' },
+  }];
+  const open = () => fireEvent.click(screen.getByLabelText(/^switchTransmission/));
+
+  it('shows the selector for one granted transmission when another is for sale', () => {
+    render(<Header {...baseProps} streams={granted} activeStreamId="cov" onStreamChange={vi.fn()} lockedStreams={locked} onUnlockStream={vi.fn()} />);
+    open();
+
+    expect(screen.getByText('availableToBuy')).toBeInTheDocument();
+    expect(screen.getByText('Evento completo')).toBeInTheDocument();
+    expect(screen.getByText(/49,90/)).toBeInTheDocument();
+  });
+
+  it('a locked item is not a stream choice; its CTA asks to unlock it', () => {
+    const onStreamChange = vi.fn();
+    const onUnlockStream = vi.fn();
+    render(<Header {...baseProps} streams={granted} activeStreamId="cov" onStreamChange={onStreamChange} lockedStreams={locked} onUnlockStream={onUnlockStream} />);
+    open();
+
+    fireEvent.click(screen.getByText('Evento completo'));
+    expect(onStreamChange).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /unlockFullEvent/ }));
+    expect(onUnlockStream).toHaveBeenCalledWith(locked[0]);
+  });
+
+  it('disables the CTA while the unlock is in flight', () => {
+    render(<Header {...baseProps} streams={granted} activeStreamId="cov" onStreamChange={vi.fn()} lockedStreams={locked} onUnlockStream={vi.fn()} unlockPending />);
+    open();
+
+    expect(screen.getByRole('button', { name: /unlockFullEvent/ })).toBeDisabled();
+  });
+
+  it('without offers, a single transmission still hides the selector', () => {
+    render(<Header {...baseProps} streams={granted} activeStreamId="cov" onStreamChange={vi.fn()} />);
+
+    expect(screen.queryByLabelText(/^switchTransmission/)).toBeNull();
+    expect(screen.queryByText('availableToBuy')).toBeNull();
   });
 });

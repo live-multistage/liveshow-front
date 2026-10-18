@@ -16,6 +16,7 @@ import { render } from '@testing-library/react';
 import { LivePlayer } from './LivePlayer';
 import type { LiveCamera } from '../types/live.types';
 
+vi.mock('../hooks/use-stream-unlock', () => ({ useStreamUnlock: () => ({ unlock: vi.fn(), pending: false }) }));
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));

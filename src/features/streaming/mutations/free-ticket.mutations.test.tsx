@@ -28,3 +28,23 @@ describe('useClaimFreeTicketMutation', () => {
     ]));
   });
 });
+
+describe('useClaimFreeTicketMutation — already owned', () => {
+  it('treats ALREADY_OWNED as a refetch, not an error toast', async () => {
+    const { toast } = await import('sonner');
+    const { checkoutService } = await import('@/features/checkout/services/checkout.service');
+    vi.mocked(checkoutService.claimFreeTicket).mockRejectedValueOnce(
+      Object.assign(new Error('x'), { isAxiosError: true, response: { status: 409, data: { code: 'ALREADY_OWNED' } } }),
+    );
+    const qc = new QueryClient();
+    const invalidate = vi.spyOn(qc, 'invalidateQueries');
+    const wrapper = ({ children }: { children: ReactNode }) => <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
+    const { result } = renderHook(() => useClaimFreeTicketMutation('evt-1'), { wrapper });
+
+    act(() => result.current.mutate('tp-free'));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(invalidate.mock.calls.map(([f]) => f?.queryKey)).toContainEqual(['live', 'playback', 'evt-1']);
+  });
+});

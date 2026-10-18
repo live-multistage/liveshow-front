@@ -15,6 +15,7 @@ import type { CameraGridProps } from '../CameraGrid';
 import { Header as HeaderBar } from '../Header';
 import { PlayerStage as StageFrame } from '../PlayerStage';
 import { RecommendedOverlay } from '../RecommendedOverlay';
+import type { LockedStreamOffer } from '../../types/live.types';
 import { TransmissionOfflineState } from '../TransmissionOfflineState';
 import { PlayerProvider, usePlayer } from './PlayerContext';
 import type { PlayerContextValue, PlayerMode } from './PlayerContext';
@@ -113,9 +114,13 @@ export interface PlayerHeaderProps {
   chat?: { open: boolean; onToggle: () => void; messageCount: number };
   // Replay only in practice: shows the "Capítulos" pill. count null = loading.
   chapters?: { count: number };
+  // Transmissions for sale and the action that buys one.
+  lockedStreams?: LockedStreamOffer[];
+  onUnlockStream?: (locked: LockedStreamOffer) => void;
+  unlockPending?: boolean;
 }
 
-function PlayerHeader({ badge, exitHref, metaLine, currentViewers, chat, chapters }: PlayerHeaderProps) {
+function PlayerHeader({ badge, exitHref, metaLine, currentViewers, chat, chapters, lockedStreams, onUnlockStream, unlockPending }: PlayerHeaderProps) {
   const { shell, eventId, title } = usePlayer();
   const t = useTranslations('player');
   const router = useRouter();
@@ -140,6 +145,9 @@ function PlayerHeader({ badge, exitHref, metaLine, currentViewers, chat, chapter
       onStreamChange={shell.setActiveStreamId}
       transmissionsOpen={shell.transmissionsOpen}
       onTransmissionsOpenChange={shell.setTransmissionsOpen}
+      lockedStreams={lockedStreams}
+      onUnlockStream={onUnlockStream}
+      unlockPending={unlockPending}
       onExit={() => router.push(exitHref ?? `/events/${eventId}`)}
       currentViewers={currentViewers}
       cameraCount={shell.stageCameras.length}

@@ -80,6 +80,7 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
       librasCameraId={playback.data.librasCameraId}
       streams={playback.data.streams}
       defaultStreamId={playback.data.defaultStreamId}
+      lockedStreams={playback.data.lockedStreams}
       title={eventTitle}
       eventId={eventId}
       // União das coberturas de todas as câmeras, calculada pelo servidor. É o

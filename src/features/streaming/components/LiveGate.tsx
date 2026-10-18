@@ -63,6 +63,7 @@ export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }
         eventId={eventId}
         eventTitle={eventTitle}
         cameraCount={playback.data?.cameras.length ?? 0}
+        lockedStreams={playback.data?.lockedStreams}
         onExit={() => router.push(`/events/${eventId}`)}
       />
     );
@@ -92,6 +93,7 @@ export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }
       librasCameraId={playback.data.librasCameraId}
       streams={playback.data.streams}
       defaultStreamId={playback.data.defaultStreamId}
+      lockedStreams={playback.data.lockedStreams}
       title={eventTitle}
       eventId={eventId}
       chatEnabled={chatEnabled}
