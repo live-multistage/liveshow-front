@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   // scripts/agent-env runs a second `next dev` in this checkout for agent
   // testing; its own build dir keeps it off the developer's `.next`.
   distDir: process.env.NEXT_DIST_DIR ?? '.next',
+  // …and its own tsconfig, because next dev writes <distDir>/types into the
+  // tsconfig it uses.
+  typescript: { tsconfigPath: process.env.NEXT_TSCONFIG_PATH ?? 'tsconfig.json' },
   output: 'standalone',
   // The og-image routes read the Archivo woff files from disk at request time
   // (Node runtime, see src/shared/og/fonts.ts); make sure every function

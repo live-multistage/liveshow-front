@@ -8,6 +8,7 @@ package-lock.json
 # ── Build output ──────────────────────────────────────────────────
 .next/
 .next-agent-*/
+tsconfig.agent-*.json
 out/
 build/
 dist/
