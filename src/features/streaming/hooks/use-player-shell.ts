@@ -54,6 +54,9 @@ export interface UsePlayerShellOptions {
   onMainCameraChange?: (cameraId: string) => void;
   onMainDeselected?: () => void;
   onStageChange?: () => void;
+  // False for the event-page preview: the page, not the player, owns the
+  // keyboard there (space must scroll, "m" must type).
+  hotkeysEnabled?: boolean;
 }
 
 // Everything the live and replay players share below the chrome: container
@@ -75,6 +78,7 @@ export function usePlayerShell({
   onMainCameraChange,
   onMainDeselected,
   onStageChange,
+  hotkeysEnabled = true,
 }: UsePlayerShellOptions) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
@@ -189,6 +193,7 @@ export function usePlayerShell({
     onTogglePlay: playbackEnabled ? togglePlay : () => {},
     onVolumeUp: () => { setVolume((v) => clampVolume(v + VOLUME_STEP)); setGlobalMuted(false); },
     onVolumeDown: () => setVolume((v) => clampVolume(v - VOLUME_STEP)),
+    enabled: hotkeysEnabled,
   });
 
   return {

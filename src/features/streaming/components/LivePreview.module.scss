@@ -1,0 +1,53 @@
+@use '../../../styles/_variables' as *;
+
+.preview {
+  position: absolute;
+  inset: 0;
+}
+
+// The player box defaults to 100vh; inside the hero it fills the hero.
+.root {
+  height: 100%;
+}
+
+.actions {
+  position: absolute;
+  top: 88px;
+  right: 40px;
+  z-index: 3;
+  display: flex;
+  gap: 10px;
+
+  @media (max-width: 860px) { top: 80px; right: 20px; }
+}
+
+%glass {
+  background: rgba(20, 20, 22, .55);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, .14);
+  color: $text-primary;
+}
+
+.soundBtn {
+  @extend %glass;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.openBtn {
+  @extend %glass;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}

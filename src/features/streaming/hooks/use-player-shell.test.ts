@@ -113,3 +113,15 @@ describe('usePlayerShell — transmissions', () => {
     expect(result.current.activeCameraIds).toEqual(['a']);
   });
 });
+
+describe('usePlayerShell — embedded preview', () => {
+  it('hotkeysEnabled: false leaves the page keyboard alone', () => {
+    const { result } = renderHook(() =>
+      usePlayerShell({ cameras: [cam], initialAudio: { muted: true, volume: 1 }, hotkeysEnabled: false }),
+    );
+
+    fireEvent.keyDown(window, { key: 'm' });
+
+    expect(result.current.audio.globalMuted).toBe(true);
+  });
+});

@@ -29,6 +29,9 @@ export interface PlayerRootProps {
   // The event actually on screen — defaults to `eventId`.
   playbackEventId?: string;
   adsEnabled?: boolean;
+  // Extra class on the player box — the event-page preview sizes it to its
+  // hero instead of the viewport.
+  className?: string;
   children: ReactNode;
 }
 
@@ -68,7 +71,7 @@ function analyticsMode(mode: 'live' | 'replay' | 'channel'): 'live' | 'replay' {
 // Owns the fullscreen/PiP host element and publishes the shell. The mode still
 // calls usePlayerShell itself: its handlers (onEnded, DVR seek) need the shell
 // before this tree exists.
-function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true, children }: PlayerRootProps) {
+function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true, className, children }: PlayerRootProps) {
   const value: PlayerContextValue = {
     shell,
     mode,
@@ -83,7 +86,7 @@ function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true,
   return (
     <PlayerProvider value={value}>
       <TrackFeature name="player" props={{ eventId: value.playbackEventId, mode: analyticsMode(mode) }}>
-        <div ref={shell.containerRef} className={styles.player} data-chapters-open={shell.chaptersOpen || undefined}>
+        <div ref={shell.containerRef} className={`${styles.player} ${className ?? ''}`} data-chapters-open={shell.chaptersOpen || undefined}>
           {children}
         </div>
       </TrackFeature>
