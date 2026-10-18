@@ -36,7 +36,7 @@ export function MentionSuggestions({ id, query, options, activeIndex, optionId, 
   return (
     <div className={styles.popover}>
       <p className={styles.heading}>{t('mentions.heading')}</p>
-      <ul id={id} role="listbox" aria-label={t('mentions.listLabel')} className={styles.list}>
+      <ul id={id} role="listbox" aria-label={t('mentions.listLabel')} aria-busy={loading} className={styles.list}>
         {loading &&
           SKELETON_WIDTHS.map((width) => (
             <li key={width} className={styles.skeletonRow} aria-hidden="true">
@@ -73,7 +73,11 @@ export function MentionSuggestions({ id, query, options, activeIndex, optionId, 
           </li>
         ))}
       </ul>
-      {empty && <p className={styles.empty}>{t('mentions.noResults')}</p>}
+      {empty && (
+        <p className={styles.empty} role="status" aria-live="polite">
+          {t('mentions.noResults')}
+        </p>
+      )}
       <p className={styles.hint} aria-hidden="true">
         {t('mentions.hint')}
       </p>

@@ -23,7 +23,7 @@ export function ChatInput({ eventId, streamId, onSend, me }: Props) {
   const t = useTranslations('chat');
   const analytics = useAnalytics();
   const pathname = usePathname();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const [value, setValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const blocked = me === null || me.isMuted || !me.canWrite;
@@ -32,6 +32,7 @@ export function ChatInput({ eventId, streamId, onSend, me }: Props) {
     streamId,
     value,
     enabled: !blocked,
+    viewerId: user?.id,
     onValueChange: (next, caret) => {
       setValue(next);
       requestAnimationFrame(() => inputRef.current?.setSelectionRange(caret, caret));
@@ -86,7 +87,8 @@ export function ChatInput({ eventId, streamId, onSend, me }: Props) {
         role="combobox"
         aria-autocomplete="list"
         aria-expanded={mention.open}
-        aria-controls={mention.listboxId}
+        aria-controls={mention.open ? mention.listboxId : undefined}
+        aria-label={t('placeholder')}
         aria-activedescendant={mention.activeOptionId}
         value={value}
         onChange={(e) => {

@@ -110,6 +110,15 @@ describe('ChatInput — mentions', () => {
     expect(options[0]).toHaveAttribute('aria-selected', 'true');
   });
 
+  it('names the combobox and only points aria-controls at the listbox while it is open', async () => {
+    const user = userEvent.setup();
+    render(<ChatInput eventId="evt-1" streamId="s1" onSend={vi.fn()} me={me()} />);
+    const input = screen.getByRole('combobox', { name: 'placeholder' });
+    expect(input).not.toHaveAttribute('aria-controls');
+    await user.type(input, '@ma');
+    expect(input).toHaveAttribute('aria-controls');
+  });
+
   // Review Focus 4.
   it('Enter picks the active suggestion instead of sending; the next Enter sends', async () => {
     const user = userEvent.setup();
