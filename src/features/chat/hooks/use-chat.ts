@@ -35,9 +35,14 @@ const MAX_CONSECUTIVE_FAILURES = 5;
 // unrelated feature-flags module, so both are compared as raw strings here.
 const CHAT_DISABLED_ERROR_CODES = new Set<string>([CHAT_ERROR_CODES.FORBIDDEN, 'FEATURE_DISABLED']);
 
+// Every message (bootstrap and SSE) enters through here. `mentions` and
+// `authorUsername` are defaulted because an API that predates usernames omits
+// them during a rolling deploy, and the render path assumes they exist.
 function decorate(message: ContractChatMessage): ChatMessage {
   return {
     ...message,
+    mentions: message.mentions ?? [],
+    authorUsername: message.authorUsername ?? null,
     authorInitials: initialsFromName(message.authorName),
     authorColor: avatarColor(message.authorName),
   };

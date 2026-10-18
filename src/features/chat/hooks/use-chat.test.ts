@@ -102,6 +102,20 @@ describe('useChat', () => {
     mockedRecent.mockResolvedValue(recentFixture);
   });
 
+  it('defaults mentions and authorUsername for messages from an API that predates them', async () => {
+    const legacy = { id: 'm9', eventId: 'evt-1', userId: 'user-2', authorName: 'Bob', body: 'oi', sentAt: '2026-01-01T00:00:00.000Z', streamId: null };
+    mockedRecent.mockResolvedValue({ ...recentFixture, messages: [legacy as never] });
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(() => useChat('evt-1'), { wrapper });
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    expect(result.current.messages[0]).toMatchObject({ mentions: [], authorUsername: null });
+
+    await waitFor(() => expect(FakeEventSource.instances.length).toBeGreaterThan(0));
+    act(() => latestSource().emit('message', { type: 'message', message: { ...legacy, id: 'm10' } }));
+    await waitFor(() => expect(result.current.messages).toHaveLength(2));
+    expect(result.current.messages[1]).toMatchObject({ mentions: [], authorUsername: null });
+  });
+
   it('bootstrap seeds messages and me from the recent query', async () => {
     const { wrapper } = makeWrapper();
     const { result } = renderHook(() => useChat('evt-1'), { wrapper });
