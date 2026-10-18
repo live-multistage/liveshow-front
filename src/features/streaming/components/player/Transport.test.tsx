@@ -106,6 +106,38 @@ describe('Transport.AudioTrack', () => {
     expect(getByText('audioTrackN')).toBeTruthy();
   });
 
+  it('shows the active language as the trigger label', () => {
+    const { getByLabelText } = render(
+      <Harness options={{ cameras: [camWithTracks('a', ['por', 'eng'])] }}><Transport.AudioTrack /></Harness>,
+    );
+    expect(getByLabelText('chooseAudioTrack').textContent).toContain('Portuguese');
+  });
+
+  it('Esc closes the panel and returns focus to the trigger', () => {
+    const { getByLabelText, queryByRole } = render(
+      <Harness options={{ cameras: [camWithTracks('a', ['por', 'eng'])] }}><Transport.AudioTrack /></Harness>,
+    );
+    const trigger = getByLabelText('chooseAudioTrack');
+    fireEvent.click(trigger);
+    expect(queryByRole('dialog')).toBeTruthy();
+    expect(document.activeElement).toBe(queryByRole('dialog')!.querySelector('[aria-pressed="true"]'));
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('closes from the scrim and from the close button', () => {
+    const { getByLabelText, getByTestId, queryByRole } = render(
+      <Harness options={{ cameras: [camWithTracks('a', ['por', 'eng'])] }}><Transport.AudioTrack /></Harness>,
+    );
+    fireEvent.click(getByLabelText('chooseAudioTrack'));
+    fireEvent.click(getByTestId('panel-scrim'));
+    expect(queryByRole('dialog')).toBeNull();
+    fireEvent.click(getByLabelText('chooseAudioTrack'));
+    fireEvent.click(getByLabelText('closePanel'));
+    expect(queryByRole('dialog')).toBeNull();
+  });
+
   it('is available in replay mode too', () => {
     const { getByLabelText } = render(
       <Harness mode="replay" options={{ cameras: [camWithTracks('a', ['por', 'eng'])] }}><Transport.AudioTrack /></Harness>,

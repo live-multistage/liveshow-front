@@ -118,14 +118,16 @@ function AudioTrack() {
   if (audioTracks.length < 2) return null;
 
   const defaultTrack = audioTracks.find((track) => track.default);
+  const items = audioTracks.map((track) => ({
+    id: String(track.index),
+    label: track.label ?? languageName(track.language, locale) ?? t('audioTrackN', { n: track.index + 1 }),
+  }));
+  const activeId = String(effectiveAudioTrackIndex);
 
   return (
     <PlayerMenu
-      items={audioTracks.map((track) => ({
-        id: String(track.index),
-        label: track.label ?? languageName(track.language, locale) ?? t('audioTrackN', { n: track.index + 1 }),
-      }))}
-      activeId={String(effectiveAudioTrackIndex)}
+      items={items}
+      activeId={activeId}
       onSelect={(id) => {
         const track = audioTracks.find((x) => String(x.index) === id);
         if (track) handleAudioLanguageChange(track.language);
@@ -139,6 +141,8 @@ function AudioTrack() {
         defaultId: defaultTrack && String(defaultTrack.index),
         defaultTag: t('audioTrackDefault'),
         openTriggerClassName: controls.iconBtnOpen,
+        closeLabel: t('closePanel'),
+        triggerLabel: items.find((item) => item.id === activeId)?.label,
       }}
     />
   );

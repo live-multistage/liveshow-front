@@ -1281,6 +1281,7 @@
     "chooseAudioTrack": "Audio",
     "audioTrackN": "Pista {n}",
     "audioTrackDefault": "Predeterminado",
+    "closePanel": "Cerrar",
     "qualityAuto": "Auto",
     "enterFullscreen": "Pantalla completa",
     "exitFullscreen": "Salir de pantalla completa",
