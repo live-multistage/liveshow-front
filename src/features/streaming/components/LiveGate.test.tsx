@@ -13,9 +13,11 @@ function makeHttpError(status: number) {
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
+const searchParams = vi.hoisted(() => ({ value: new URLSearchParams() }));
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
   usePathname: () => '/live/evt-1',
+  useSearchParams: () => searchParams.value,
 }));
 
 const authState = { isLoggedIn: true, isLoading: false };
@@ -58,8 +60,12 @@ vi.mock('@/features/advertisements/components/PreRollPlayer', () => ({
   ),
 }));
 
+const livePlayerProps = vi.hoisted(() => ({ last: null as null | Record<string, unknown> }));
 vi.mock('./LivePlayer', () => ({
-  LivePlayer: () => <div>live-player-stub</div>,
+  LivePlayer: (props: Record<string, unknown>) => {
+    livePlayerProps.last = props;
+    return <div>live-player-stub</div>;
+  },
 }));
 
 vi.mock('./LiveGateLoading', () => ({
@@ -69,6 +75,14 @@ vi.mock('./LiveGateLoading', () => ({
 vi.mock('./LiveNoAccess', () => ({
   LiveNoAccess: () => <div>no-access-stub</div>,
 }));
+
+const DEFAULT_PLAYBACK_DATA = {
+  live: true,
+  stages: [],
+  cameras: [],
+  primaryCameraId: 'cam-1',
+  librasCameraId: null,
+};
 
 describe('LiveGate — pre-roll ad gate', () => {
   beforeEach(() => {
@@ -118,14 +132,6 @@ describe('LiveGate — pre-roll ad gate', () => {
     expect(screen.queryByText('preroll-stub-finish')).not.toBeInTheDocument();
   });
 });
-
-const DEFAULT_PLAYBACK_DATA = {
-  live: true,
-  stages: [],
-  cameras: [],
-  primaryCameraId: 'cam-1',
-  librasCameraId: null,
-};
 
 describe('LiveGate — revoked access on playback refresh', () => {
   beforeEach(() => {
@@ -201,5 +207,26 @@ describe('LiveGate — revoked access on playback refresh', () => {
 
     expect(screen.getByText('live-player-stub')).toBeInTheDocument();
     expect(screen.queryByText('no-access-stub')).not.toBeInTheDocument();
+  });
+});
+
+describe('LiveGate — ?stream= deep link (chat mention notification)', () => {
+  beforeEach(() => {
+    prerollState.ad = null;
+    prerollState.pending = false;
+    playbackState.error = undefined;
+    playbackState.data = { ...DEFAULT_PLAYBACK_DATA, streams: [{ id: 's1' }, { id: 's2' }], defaultStreamId: 's1' };
+  });
+
+  it('starts on the linked transmission when the viewer has it', () => {
+    searchParams.value = new URLSearchParams('stream=s2');
+    render(<LiveGate eventId="evt-1" chatEnabled={false} />);
+    expect(livePlayerProps.last?.defaultStreamId).toBe('s2');
+  });
+
+  it('falls back to the server default for a stale or ungranted link', () => {
+    searchParams.value = new URLSearchParams('stream=gone');
+    render(<LiveGate eventId="evt-1" chatEnabled={false} />);
+    expect(livePlayerProps.last?.defaultStreamId).toBe('s1');
   });
 });
