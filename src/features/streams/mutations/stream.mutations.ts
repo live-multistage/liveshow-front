@@ -1,6 +1,7 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { streamsService } from '../services/streams.service';
 import { normalizeError } from '@/lib/http/errors';
 import { STREAM_KEYS } from '../queries/streams.queries';
@@ -130,6 +131,7 @@ export function useReorderStreamsMutation(eventId: string | null) {
         throw normalizeError(err);
       }
     },
+    onError: () => toast.error('Falha ao reordenar as transmissões.'),
     onSettled: () => qc.invalidateQueries({ queryKey: STREAM_KEYS.byEvent(eventId ?? '') }),
   });
 }

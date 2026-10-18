@@ -304,8 +304,8 @@ export function StreamsPageContent() {
               onStreamUpdated={handleStreamUpdated}
               onStreamDeleted={() => setSelectedStream(null)}
               onMove={(direction) => reorder.mutate(reorderStreams(streams, selectedStream.id, direction))}
-              canMoveUp={selectedIndex > 0}
-              canMoveDown={selectedIndex >= 0 && selectedIndex < orderedStreams.length - 1}
+              canMoveUp={selectedIndex > 0 && !reorder.isPending}
+              canMoveDown={selectedIndex >= 0 && selectedIndex < orderedStreams.length - 1 && !reorder.isPending}
             />
           ) : (
             <div className={styles.placeholder}>
