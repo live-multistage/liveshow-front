@@ -12,10 +12,9 @@ const USERNAME_SHAPE = /^[a-z0-9._]{3,30}$/;
 export type UsernameUnavailableReason = 'TAKEN' | 'RESERVED' | 'INVALID';
 
 /** `GET /auth/username-availability?u=` */
-export interface UsernameAvailabilityResponse {
-  available: boolean;
-  reason?: UsernameUnavailableReason;
-}
+export type UsernameAvailabilityResponse =
+  | { available: true }
+  | { available: false; reason: UsernameUnavailableReason };
 
 export function normalizeUsername(raw: string): string {
   return raw.trim().toLowerCase();
