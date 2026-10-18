@@ -116,3 +116,4 @@ $danger: #ef4444;
 
 /* ── Main ───────────────────────────────────────────────────────── */
 .main { min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.identityHandle { font-family: $mono; font-size: 11.5px; color: $accent-hi; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

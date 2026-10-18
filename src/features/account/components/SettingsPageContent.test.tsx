@@ -29,6 +29,12 @@ vi.mock('../mutations/update-profile.mutation', () => ({
   useUpdateProfileMutation: () => ({ mutate: updateProfileMutate, isPending: false, error: null }),
 }));
 
+const usernameField = {
+  draft: 'ysrael', setDraft: vi.fn(), state: { kind: 'current' } as { kind: string }, dirty: false,
+  canSave: false, saving: false, save: vi.fn(), reset: vi.fn(),
+};
+vi.mock('../hooks/use-username-field', () => ({ useUsernameField: () => usernameField }));
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useQuery } from '@tanstack/react-query';
@@ -96,5 +102,59 @@ describe('SettingsPageContent — consent tracking', () => {
 
     expect(track).not.toHaveBeenCalled();
     expect(setConsent).toHaveBeenCalledWith('denied');
+  });
+});
+
+describe('SettingsPageContent — username', () => {
+  const submit = () => fireEvent.submit(document.querySelectorAll('form')[0]);
+
+  beforeEach(() => {
+    updateProfileMutate = vi.fn();
+    vi.mocked(useQuery).mockReturnValue({ data: me, isLoading: false } as never);
+    Object.assign(usernameField, {
+      state: { kind: 'current' }, dirty: false, canSave: false, saving: false,
+      save: vi.fn().mockResolvedValue({}), reset: vi.fn(),
+    });
+  });
+
+  it('saves the username before the rest of the profile', async () => {
+    Object.assign(usernameField, { state: { kind: 'available' }, dirty: true, canSave: true });
+    render(<SettingsPageContent twoFactorEnabled={false} />);
+    submit();
+
+    await waitFor(() => expect(updateProfileMutate).toHaveBeenCalled());
+    expect(usernameField.save).toHaveBeenCalledTimes(1);
+    expect(usernameField.save.mock.invocationCallOrder[0]).toBeLessThan(
+      updateProfileMutate.mock.invocationCallOrder[0],
+    );
+  });
+
+  it('skips the profile update when the username save fails', async () => {
+    Object.assign(usernameField, { dirty: true, canSave: true, save: vi.fn().mockRejectedValue(new Error('409')) });
+    render(<SettingsPageContent twoFactorEnabled={false} />);
+    submit();
+
+    await waitFor(() => expect(usernameField.save).toHaveBeenCalled());
+    expect(updateProfileMutate).not.toHaveBeenCalled();
+  });
+
+  it('does not save an untouched username', async () => {
+    render(<SettingsPageContent twoFactorEnabled={false} />);
+    submit();
+
+    await waitFor(() => expect(updateProfileMutate).toHaveBeenCalled());
+    expect(usernameField.save).not.toHaveBeenCalled();
+  });
+
+  it('disables Save while a changed username is not available', () => {
+    Object.assign(usernameField, { state: { kind: 'taken' }, dirty: true, canSave: false });
+    render(<SettingsPageContent twoFactorEnabled={false} />);
+    expect(screen.getByRole('button', { name: /Salvar alterações/ })).toBeDisabled();
+  });
+
+  it('Cancelar resets the username field', () => {
+    render(<SettingsPageContent twoFactorEnabled={false} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+    expect(usernameField.reset).toHaveBeenCalledTimes(1);
   });
 });

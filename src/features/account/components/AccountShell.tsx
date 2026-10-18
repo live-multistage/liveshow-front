@@ -67,7 +67,11 @@ export function AccountShell({ children, activeNav, sectionScroll }: Props) {
               </span>
               <div className={styles.identityText}>
                 <div className={styles.identityName}>{me.displayName}</div>
-                <div className={styles.identityEmail}>{me.email}</div>
+                {me.username ? (
+                  <div className={styles.identityHandle}>@{me.username}</div>
+                ) : (
+                  <div className={styles.identityEmail}>{me.email}</div>
+                )}
               </div>
             </div>
             <div className={styles.roleBadge}><Check size={11} />{roleLabel.toUpperCase()}</div>

@@ -24,6 +24,8 @@ import { useAnalyticsConsent } from '@/lib/analytics/consent';
 import { useAnalytics } from '@/lib/analytics/tracking';
 import { TrackFeature } from '@live-show/analytics-sdk/react';
 import { privacyService } from '@/features/consent/privacy.service';
+import { useUsernameField } from '../hooks/use-username-field';
+import { UsernameField } from './UsernameField';
 import { initials } from '../utils/initials';
 import { AccountShell } from './AccountShell';
 import { NotificationPreferencesPanel } from './NotificationPreferencesPanel';
@@ -42,6 +44,7 @@ interface Props {
 
 export function SettingsPageContent({ twoFactorEnabled }: Props) {
   const t = useTranslations('settings');
+  const tUsername = useTranslations('account.username');
   const { logout } = useAuth();
 
   const { data: me, isLoading } = useQuery({ queryKey: ['me'], queryFn: getMe, staleTime: 60_000 });
@@ -112,7 +115,9 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
     }
   };
 
+  const username = useUsernameField(me);
   const [profileSaved, setProfileSaved] = useState(false);
+  const [usernameSaved, setUsernameSaved] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [passwordSaved, setPasswordSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -138,8 +143,18 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
     defaultValues: { currentPassword: '', newPassword: '', confirmNewPassword: '' },
   });
 
-  const onProfileSubmit = (values: UpdateProfileFormValues) => {
+  const onProfileSubmit = async (values: UpdateProfileFormValues) => {
     setProfileSaved(false);
+    setUsernameSaved(false);
+    if (username.dirty) {
+      if (!username.canSave) return;
+      try {
+        await username.save();
+        setUsernameSaved(true);
+      } catch {
+        return; // field shows the server state (taken / cooldown)
+      }
+    }
     updateProfile.mutate(values, {
       onSuccess: () => {
         setProfileSaved(true);
@@ -212,6 +227,9 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
         <div className={styles.cardTitle}>Informações do perfil</div>
         <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
           <div className={styles.formGrid}>
+            <div className={`${styles.field} ${styles.fieldSpan}`}>
+              <UsernameField field={username} />
+            </div>
             <div className={styles.field}>
               <label className={styles.fieldLabel}>Nome completo</label>
               <input className={styles.input} {...profileForm.register('displayName')} />
@@ -240,12 +258,20 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
             </div>
           </div>
           {updateProfile.error && <p className={styles.errorBanner}>{updateProfile.error.message}</p>}
+          {usernameSaved && <p className={styles.successBanner}>{tUsername('saved')}</p>}
           {profileSaved && <p className={styles.successBanner}>Perfil atualizado.</p>}
           <div className={styles.formActions}>
-            <button type="button" className={styles.btnGhost} onClick={() => me && profileForm.reset({
-              displayName: me.displayName, phone: me.phone ?? '', taxDocument: me.taxDocument ?? '', bio: me.bio ?? '',
-            })}>Cancelar</button>
-            <button type="submit" className={styles.btnPrimary} disabled={updateProfile.isPending}>
+            <button type="button" className={styles.btnGhost} onClick={() => {
+              username.reset();
+              if (me) profileForm.reset({
+                displayName: me.displayName, phone: me.phone ?? '', taxDocument: me.taxDocument ?? '', bio: me.bio ?? '',
+              });
+            }}>Cancelar</button>
+            <button
+              type="submit"
+              className={styles.btnPrimary}
+              disabled={updateProfile.isPending || username.saving || (username.dirty && !username.canSave)}
+            >
               <Check size={15} />{updateProfile.isPending ? 'Salvando...' : 'Salvar alterações'}
             </button>
           </div>
