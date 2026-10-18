@@ -110,6 +110,20 @@ describe('useStreamUnlock', () => {
 
     act(() => result.current.unlock(locked(0)));
 
-    expect(sessionStorage.getItem('showon:unlock-stream:evt-1')).toBe('s-full');
+    expect(JSON.parse(sessionStorage.getItem('showon:unlock-stream:evt-1')!).id).toBe('s-full');
+  });
+
+  it('a pending switch older than 30 minutes is dropped and never moves the viewer', () => {
+    sessionStorage.setItem('showon:unlock-stream:evt-1', JSON.stringify({ id: 's-full', at: Date.now() - 31 * 60_000 }));
+    const setActive = vi.fn();
+    const { rerender } = renderHook(
+      ({ streams }: Opts) => useStreamUnlock({ eventId: 'evt-1', streams, setActiveStreamId: setActive }),
+      { initialProps: { streams: [{ id: 's-cov' }] } },
+    );
+
+    rerender({ streams: [{ id: 's-cov' }, { id: 's-full' }] });
+
+    expect(setActive).not.toHaveBeenCalled();
+    expect(sessionStorage.length).toBe(0);
   });
 });

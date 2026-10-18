@@ -119,7 +119,7 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     initialPaused: true,
     pickInitialCamera: firstPlayable,
   });
-  const unlock = useStreamUnlock({ eventId, streams: shell.streams, setActiveStreamId: shell.setActiveStreamId });
+  const unlock = useStreamUnlock({ eventId, streams: shell.streams, setActiveStreamId: shell.setActiveStreamId, enabled: !!lockedStreams?.length });
 
   // Each transmission has its own replay window. A stream with no replay at
   // all keeps the default stream's window (or the first one with a replay)

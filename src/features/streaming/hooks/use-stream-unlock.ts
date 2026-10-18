@@ -10,9 +10,17 @@ const pendingKey = (eventId: string) => `showon:unlock-stream:${eventId}`;
 
 // sessionStorage can throw (private mode, blocked storage): the purchase still
 // works, the player just won't jump to the new transmission on its own.
+// An abandoned checkout must not yank the player to a stream bought much later.
+const PENDING_TTL_MS = 30 * 60_000;
+
 function readPending(eventId: string): string | null {
   try {
-    return sessionStorage.getItem(pendingKey(eventId));
+    const raw = sessionStorage.getItem(pendingKey(eventId));
+    if (!raw) return null;
+    const { id, at } = JSON.parse(raw) as { id?: string; at?: number };
+    if (id && typeof at === 'number' && Date.now() - at < PENDING_TTL_MS) return id;
+    sessionStorage.removeItem(pendingKey(eventId));
+    return null;
   } catch {
     return null;
   }
@@ -20,7 +28,7 @@ function readPending(eventId: string): string | null {
 
 function writePending(eventId: string, streamId: string | null): void {
   try {
-    if (streamId) sessionStorage.setItem(pendingKey(eventId), streamId);
+    if (streamId) sessionStorage.setItem(pendingKey(eventId), JSON.stringify({ id: streamId, at: Date.now() }));
     else sessionStorage.removeItem(pendingKey(eventId));
   } catch {
     // see readPending
@@ -35,15 +43,18 @@ export function useStreamUnlock({
   eventId,
   streams,
   setActiveStreamId,
+  enabled = true,
 }: {
   eventId: string;
   streams: ReadonlyArray<{ id: string }>;
   setActiveStreamId: (streamId: string) => void;
+  // False (channel, nothing for sale) keeps the cart query from mounting.
+  enabled?: boolean;
 }) {
   const router = useRouter();
   const addToCart = useAddToCartMutation();
   const claimFree = useClaimFreeTicketMutation(eventId);
-  const { data: cart } = useCartQuery();
+  const { data: cart } = useCartQuery(undefined, enabled);
   const [pendingId, setPendingId] = useState<string | null>(() => readPending(eventId));
 
   const grantedKey = streams.map((s) => s.id).join(',');

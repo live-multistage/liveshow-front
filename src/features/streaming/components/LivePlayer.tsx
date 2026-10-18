@@ -99,7 +99,7 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, s
     onStageChange: () => resetForStageChange(),
   });
   const { audio } = shell;
-  const unlock = useStreamUnlock({ eventId, streams: shell.streams, setActiveStreamId: shell.setActiveStreamId });
+  const unlock = useStreamUnlock({ eventId, streams: shell.streams, setActiveStreamId: shell.setActiveStreamId, enabled: !isChannel && !!lockedStreams?.length });
   const { dvr, dvrSeeking, seekCommand, atLive, handleProgress, handleSeek, endRewind, resetForStageChange, clearRewindIntent } =
     useLiveDvr(shell.effectiveMainCameraId);
 

@@ -27,7 +27,7 @@ export function LockedStreamItem({ locked, status, pending, onUnlock }: Props) {
         </span>
         <span className={styles.price}>{formatPrice(locked.offer.priceCents / 100, locked.offer.currency)}</span>
       </div>
-      <button type="button" className={styles.unlockBtn} disabled={pending} onClick={() => onUnlock(locked)}>
+      <button type="button" className={styles.unlockBtn} disabled={pending} aria-busy={pending} onClick={() => onUnlock(locked)}>
         <Ticket size={15} aria-hidden />
         {t('unlockFullEvent')}
       </button>

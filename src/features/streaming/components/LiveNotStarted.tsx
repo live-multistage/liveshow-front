@@ -78,7 +78,7 @@ export function LiveNotStarted({ eventId, eventTitle, cameraCount, lockedStreams
   const countdown = useCountdown(event.data?.startsAt);
   // No granted stream to switch to yet: the player's own hook picks the
   // pending purchase up once it mounts with the new grant.
-  const unlock = useStreamUnlock({ eventId, streams: [], setActiveStreamId: () => {} });
+  const unlock = useStreamUnlock({ eventId, streams: [], setActiveStreamId: () => {}, enabled: lockedStreams.length > 0 });
 
   const { data: wishlistIds } = useWishlistIdsQuery({ enabled: isLoggedIn });
   const toggleWishlist = useToggleWishlistMutation();

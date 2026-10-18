@@ -10,12 +10,12 @@ export const CART_KEY = ['cart'] as const;
 // the server render (no layout shift). User-scoped: gate on auth being hydrated
 // + logged in, else the fetch races the token on a fresh load and 401s (see
 // get-wishlist.ts). initialData still paints while the query stays disabled.
-export function useCartQuery(initialData?: CartView) {
+export function useCartQuery(initialData?: CartView, enabled = true) {
   const { isLoggedIn, isLoading } = useAuth();
   return useQuery({
     queryKey: CART_KEY,
     queryFn: cartService.get,
     initialData,
-    enabled: !isLoading && isLoggedIn,
+    enabled: enabled && !isLoading && isLoggedIn,
   });
 }
