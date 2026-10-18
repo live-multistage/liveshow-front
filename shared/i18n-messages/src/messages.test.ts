@@ -67,3 +67,11 @@ test('dateTimeInput keys exist', () => {
   expect(messages.pt.dateTimeInput.invalidDate).toContain('dd/mm/aaaa');
   expect(messages.pt.createEvent.location.startsAtLabel).toBe('Início');
 });
+
+test('chat mentions and username keys exist', () => {
+  expect(messages.pt.chat.mentions.noResults).toBe('Ninguém com esse nome neste chat');
+  expect(messages.pt.settings.prefCHAT_MENTIONS).toBe('Menções no chat');
+  expect(messages.pt.account.username.invalid).toBe('Use 3 a 30 caracteres: letras minúsculas, números, ponto ou _.');
+  expect(messages.pt.account.notificationsCenter.categories.chat).toBe('Chat');
+  expect(messages.pt.account.notificationsCenter.openTransmission).toBe('Abrir transmissão');
+});

@@ -85,6 +85,8 @@ const recentFixture = {
       body: 'oi',
       sentAt: '2026-01-01T00:00:00.000Z',
       streamId: null,
+      authorUsername: null,
+      mentions: [],
     },
   ],
   me: { canWrite: true, isMuted: false, isModerator: false },
@@ -125,6 +127,8 @@ describe('useChat', () => {
       body: 'e ai',
       sentAt: '2026-01-01T00:00:01.000Z',
       streamId: null,
+      authorUsername: null,
+      mentions: [],
     };
 
     act(() => source.emit('message', { type: 'message', message: incoming }));
@@ -289,6 +293,8 @@ describe('useChat', () => {
           body: 'voltei',
           sentAt: '2026-01-01T00:00:02.000Z',
           streamId: null,
+          authorUsername: null,
+          mentions: [],
         },
       ],
       me: recentFixture.me,

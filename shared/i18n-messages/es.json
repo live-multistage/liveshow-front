@@ -1105,7 +1105,9 @@
     "deleteConfirm": "¿Eliminar tus datos de analítica y el perfil de recomendaciones? Compras y entradas no se ven afectadas.",
     "disableAccountConfirm": "¿Eliminar tu cuenta? Se cerrará tu sesión. Si vuelves a iniciar sesión en un plazo de 30 días, la cuenta se reactiva; después, tus datos personales se borran de forma definitiva. Los pedidos y las facturas se conservan por obligación legal.",
     "deleteDone": "Se eliminaron {count} eventos de uso.",
-    "deleteError": "No se pudo eliminar ahora. Inténtalo de nuevo."
+    "deleteError": "No se pudo eliminar ahora. Inténtalo de nuevo.",
+    "prefCHAT_MENTIONS": "Menciones en el chat",
+    "prefCHAT_MENTIONSDesc": "Avisar cuando alguien te mencione en el chat de una transmisión"
   },
   "account": {
     "nav": {
@@ -1234,7 +1236,8 @@
         "system": "Sistema",
         "recommendation": "Recomendación",
         "collaboration": "Colaboración",
-        "ad": "Anuncio"
+        "ad": "Anuncio",
+        "chat": "Chat"
       },
       "open": "Abrir",
       "dismiss": "Descartar",
@@ -1247,7 +1250,19 @@
       "retry": "Intentar de nuevo",
       "loadMore": "Cargar más",
       "prefsEyebrow": "Preferencias",
-      "prefsTitle": "Qué quieres recibir"
+      "prefsTitle": "Qué quieres recibir",
+      "openTransmission": "Abrir transmisión"
+    },
+    "username": {
+      "label": "Nombre de usuario",
+      "help": "Así es como te mencionan en el chat.",
+      "available": "Disponible",
+      "checking": "Verificando…",
+      "taken": "Ese nombre de usuario ya está en uso.",
+      "reserved": "Ese nombre de usuario no se puede usar.",
+      "invalid": "Usa de 3 a 30 caracteres: minúsculas, números, punto o _.",
+      "cooldown": "{days, plural, one {Podrás cambiarlo de nuevo en # día.} other {Podrás cambiarlo de nuevo en # días.}}",
+      "saved": "Nombre de usuario actualizado."
     }
   },
   "consent": {
@@ -4251,7 +4266,8 @@
       "PAYMENT": "Pago",
       "SYSTEM": "Sistema",
       "ADVERTISEMENT": "Anuncio",
-      "COLLABORATION": "Colaboración"
+      "COLLABORATION": "Colaboración",
+      "CHAT_MENTION": "Mención"
     },
     "push": {
       "title": "Notificaciones push",
@@ -5119,7 +5135,14 @@
     "title": "Chat",
     "unmuteUser": "Reactivar {name}",
     "connecting": "Conectando…",
-    "unavailable": "El chat no está disponible para ti en este evento"
+    "unavailable": "El chat no está disponible para ti en este evento",
+    "mentions": {
+      "listLabel": "Sugerencias de mención",
+      "optionLabel": "Mencionar a @{username}",
+      "noResults": "Nadie con ese nombre en este chat",
+      "hint": "↑↓ navegar · Enter elegir · Esc cerrar",
+      "you": "TÚ"
+    }
   },
   "artists": {
     "listTitle": "Artistas",
