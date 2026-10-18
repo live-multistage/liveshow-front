@@ -23,6 +23,10 @@ export function cooldownDays(changeAvailableAt: string | null, now: Date): numbe
   return ms > 0 ? Math.ceil(ms / DAY_MS) : 0;
 }
 
+// Only this code is the 30-day rename cooldown. A bare 429 is the request
+// throttle (no code) and must not lock the field.
+export const USERNAME_COOLDOWN_CODE = 'USERNAME_CHANGE_TOO_SOON';
+
 export function stateFromErrorCode(code?: string): UsernameFieldState | null {
   switch (code) {
     case 'USERNAME_TAKEN':

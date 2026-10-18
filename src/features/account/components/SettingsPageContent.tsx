@@ -26,7 +26,7 @@ import { TrackFeature } from '@live-show/analytics-sdk/react';
 import { privacyService } from '@/features/consent/privacy.service';
 import { useUsernameField } from '../hooks/use-username-field';
 import { UsernameField } from './UsernameField';
-import { stateFromErrorCode } from '../utils/username-field-state';
+import { USERNAME_COOLDOWN_CODE, stateFromErrorCode } from '../utils/username-field-state';
 import type { AppError } from '@/lib/http/errors';
 import { initials } from '../utils/initials';
 import { AccountShell } from './AccountShell';
@@ -159,8 +159,8 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
         usernameChanged = true;
       } catch (error) {
         const e = error as AppError;
-        // Mapped failures (username codes, 429 cooldown) are shown by the field itself.
-        if (e.status !== 429 && !stateFromErrorCode(e.code)) setUsernameError(tAccount('saveError'));
+        // Mapped failures (username codes, rename cooldown) are shown by the field itself.
+        if (e.code !== USERNAME_COOLDOWN_CODE && !stateFromErrorCode(e.code)) setUsernameError(tAccount('saveError'));
         return;
       }
     }

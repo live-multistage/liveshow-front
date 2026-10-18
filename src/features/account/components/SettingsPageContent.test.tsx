@@ -147,6 +147,23 @@ describe('SettingsPageContent — username', () => {
     expect(updateProfileMutate).not.toHaveBeenCalled();
   });
 
+  it('shows the generic error for a throttle 429 without the cooldown code', async () => {
+    Object.assign(usernameField, { dirty: true, canSave: true, save: vi.fn().mockRejectedValue({ status: 429, message: 'Too many requests' }) });
+    render(<SettingsPageContent twoFactorEnabled={false} />);
+    submit();
+
+    expect(await screen.findByText('saveError')).toBeInTheDocument();
+  });
+
+  it('stays silent for the rename cooldown (the field shows it)', async () => {
+    Object.assign(usernameField, { dirty: true, canSave: true, save: vi.fn().mockRejectedValue({ status: 429, code: 'USERNAME_CHANGE_TOO_SOON', message: 'x' }) });
+    render(<SettingsPageContent twoFactorEnabled={false} />);
+    submit();
+
+    await waitFor(() => expect(usernameField.save).toHaveBeenCalled());
+    expect(screen.queryByText('saveError')).not.toBeInTheDocument();
+  });
+
   it('stays silent for mapped failures (the field shows them)', async () => {
     Object.assign(usernameField, { dirty: true, canSave: true, save: vi.fn().mockRejectedValue({ status: 409, code: 'USERNAME_TAKEN', message: 'x' }) });
     render(<SettingsPageContent twoFactorEnabled={false} />);

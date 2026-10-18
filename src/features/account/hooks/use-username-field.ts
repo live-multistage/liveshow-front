@@ -6,7 +6,7 @@ import type { AppError } from '@/lib/http/errors';
 import type { AuthUser } from '../types/account.types';
 import { useUsernameAvailability } from './use-username-availability';
 import { useUpdateUsernameMutation } from '../mutations/update-username.mutation';
-import { usernameFieldState } from '../utils/username-field-state';
+import { USERNAME_COOLDOWN_CODE, usernameFieldState } from '../utils/username-field-state';
 
 const ISO_DATE = /\d{4}-\d{2}-\d{2}T[\d:.]+Z/;
 
@@ -18,7 +18,7 @@ export function useUsernameField(me: AuthUser | undefined) {
   const [edited, setEdited] = useState<string | null>(null);
   const draft = edited ?? current ?? '';
   const availability = useUsernameAvailability(draft, current);
-  // Set on a 429 so Save stays locked until /auth/me brings the real date.
+  // Set on the cooldown error so Save stays locked until /auth/me brings the real date.
   const [tooSoon, setTooSoon] = useState<{ until: string | null } | null>(null);
   const mutation = useUpdateUsernameMutation();
 
@@ -53,7 +53,7 @@ export function useUsernameField(me: AuthUser | undefined) {
         return updated;
       } catch (error) {
         const e = error as AppError;
-        if (e.status === 429) setTooSoon({ until: e.message?.match(ISO_DATE)?.[0] ?? null });
+        if (e.code === USERNAME_COOLDOWN_CODE) setTooSoon({ until: e.message?.match(ISO_DATE)?.[0] ?? null });
         throw error;
       }
     },

@@ -67,9 +67,9 @@ describe('useUsernameField', () => {
     expect(result.current.canSave).toBe(true);
   });
 
-  it('a 429 on save goes straight to cooldown and keeps Save disabled', async () => {
+  it('a USERNAME_CHANGE_TOO_SOON on save goes straight to cooldown and keeps Save disabled', async () => {
     vi.mocked(accountService.usernameAvailability).mockResolvedValue({ available: true });
-    vi.mocked(accountService.updateUsername).mockRejectedValue({ status: 429, message: 'too soon' });
+    vi.mocked(accountService.updateUsername).mockRejectedValue({ status: 429, code: 'USERNAME_CHANGE_TOO_SOON', message: 'too soon' });
     const { result } = renderHook(() => useUsernameField(me), { wrapper });
     act(() => result.current.setDraft('joana.martins'));
     await waitFor(() => expect(result.current.canSave).toBe(true));
@@ -81,5 +81,18 @@ describe('useUsernameField', () => {
     act(() => result.current.setDraft('joana.outra'));
     expect(result.current.state.kind).toBe('cooldown');
     expect(result.current.canSave).toBe(false);
+  });
+
+  it('a request-throttle 429 (no code) is not the cooldown: field stays editable', async () => {
+    vi.mocked(accountService.usernameAvailability).mockResolvedValue({ available: true });
+    vi.mocked(accountService.updateUsername).mockRejectedValue({ status: 429, message: 'Too many requests' });
+    const { result } = renderHook(() => useUsernameField(me), { wrapper });
+    act(() => result.current.setDraft('joana.martins'));
+    await waitFor(() => expect(result.current.canSave).toBe(true));
+    await act(async () => {
+      await result.current.save().catch(() => undefined);
+    });
+    expect(result.current.state.kind).not.toBe('cooldown');
+    await waitFor(() => expect(result.current.canSave).toBe(true));
   });
 });
