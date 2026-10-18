@@ -143,7 +143,7 @@ describe('SettingsPageContent — username', () => {
     render(<SettingsPageContent twoFactorEnabled={false} />);
     submit();
 
-    expect(await screen.findByText('boom')).toBeInTheDocument();
+    expect(await screen.findByText('saveError')).toBeInTheDocument();
     expect(updateProfileMutate).not.toHaveBeenCalled();
   });
 

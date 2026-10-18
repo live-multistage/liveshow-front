@@ -47,6 +47,7 @@ interface Props {
 export function SettingsPageContent({ twoFactorEnabled }: Props) {
   const t = useTranslations('settings');
   const tUsername = useTranslations('account.username');
+  const tAccount = useTranslations('account');
   const { logout } = useAuth();
 
   const { data: me, isLoading } = useQuery({ queryKey: ['me'], queryFn: getMe, staleTime: 60_000 });
@@ -159,7 +160,7 @@ export function SettingsPageContent({ twoFactorEnabled }: Props) {
       } catch (error) {
         const e = error as AppError;
         // Mapped failures (username codes, 429 cooldown) are shown by the field itself.
-        if (e.status !== 429 && !stateFromErrorCode(e.code)) setUsernameError(e.message || 'Não foi possível salvar o nome de usuário.');
+        if (e.status !== 429 && !stateFromErrorCode(e.code)) setUsernameError(tAccount('saveError'));
         return;
       }
     }
