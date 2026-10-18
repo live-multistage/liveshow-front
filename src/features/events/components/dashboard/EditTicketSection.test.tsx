@@ -18,8 +18,10 @@ const useEventStagesQueryMock = vi.fn(
     isLoading: false,
   }),
 );
+const useEventStreamsQueryMock = vi.fn((_eventId: string | null) => ({ data: [] as unknown[], isLoading: false }));
 vi.mock('../../../streams/queries/streams.queries', () => ({
   useEventStagesQuery: (eventId: string | null) => useEventStagesQueryMock(eventId),
+  useEventStreamsQuery: (eventId: string | null) => useEventStreamsQueryMock(eventId),
 }));
 
 const STAGES = [
@@ -66,6 +68,7 @@ describe('EditTicketSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useEventStagesQueryMock.mockReturnValue({ stages: [], isLoading: false });
+    useEventStreamsQueryMock.mockReturnValue({ data: [], isLoading: false });
   });
 
   it('creates through the event ticket-product mutation', async () => {
@@ -272,5 +275,48 @@ describe('EditTicketSection', () => {
       fireEvent.click(screen.getByText('Palco'));
       expect((await savedPayload()).allowedStageIds).toEqual([]);
     });
+  });
+});
+
+describe('EditTicketSection — transmissions', () => {
+  const MAIN = '33333333-3333-4333-8333-333333333333';
+  const VIP = '44444444-4444-4444-8444-444444444444';
+  const PALCO = '55555555-5555-4555-8555-555555555555';
+  const BACK = '66666666-6666-4666-8666-666666666666';
+  const stage = (id: string, streamId: string, name: string) => ({
+    id, streamId, name, slug: name, position: 0, createdAt: '2026-01-01', updatedAt: '2026-01-01',
+  });
+  const stream = (id: string, title: string, position: number) => ({
+    id, eventId: 'evt-1', programId: null, title, status: 'READY', position, createdAt: '2026-01-01', updatedAt: '2026-01-01',
+  });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useEventStreamsQueryMock.mockReturnValue({ data: [stream(MAIN, 'Principal', 0), stream(VIP, 'VIP', 1)], isLoading: false });
+    useEventStagesQueryMock.mockReturnValue({ stages: [stage(PALCO, MAIN, 'Palco'), stage(BACK, VIP, 'Backstage')], isLoading: false });
+  });
+
+  it('hides the transmission picker when the event has a single transmission', () => {
+    useEventStreamsQueryMock.mockReturnValue({ data: [stream(MAIN, 'Principal', 0)], isLoading: false });
+    render(<EditTicketSection eventId="evt-1" tickets={[]} />);
+    fireEvent.click(screen.getByLabelText('liveView'));
+    expect(screen.queryByText('streamsLabel')).toBeNull();
+    expect(screen.getByLabelText('Palco')).toBeTruthy();
+  });
+
+  it('selecting a transmission narrows the stages, prunes stale picks and is sent on submit', async () => {
+    render(<EditTicketSection eventId="evt-1" tickets={[]} />);
+    fillRequiredFields();
+    fireEvent.click(screen.getByLabelText('Palco'));
+
+    fireEvent.click(screen.getByLabelText('VIP'));
+
+    expect(screen.queryByLabelText('Palco')).toBeNull();
+    expect(screen.getByLabelText('Backstage')).toBeTruthy();
+    fireEvent.click(screen.getByText('add'));
+    await waitFor(() => expect(createEventMutate).toHaveBeenCalled());
+    const payload = createEventMutate.mock.calls.at(-1)![0];
+    expect(payload.allowedStreamIds).toEqual([VIP]);
+    expect(payload.allowedStageIds).toBeUndefined();
   });
 });
