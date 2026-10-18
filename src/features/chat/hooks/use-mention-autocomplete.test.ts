@@ -142,4 +142,63 @@ describe('useMentionAutocomplete', () => {
     expect(result.current.listboxId).toBeTruthy();
     expect(result.current.optionId(1)).toContain(result.current.listboxId);
   });
+
+  it('keeps the active index when track is called with unchanged text', () => {
+    const { result } = setup();
+    act(() => result.current.onKeyDown(key('ArrowDown')));
+    act(() => result.current.track('oi @ma', 6));
+    expect(result.current.activeIndex).toBe(1);
+  });
+
+  it('offers only options matching the current query while data is stale', () => {
+    const { result } = setup('oi @mar');
+    expect(result.current.options.map((o) => o.username)).toEqual(['marina.v']);
+    const enter = key('Enter');
+    act(() => result.current.onKeyDown(enter));
+    expect(enter.preventDefault).toHaveBeenCalled();
+  });
+
+  it('does not consume Enter when nothing matches the current query', () => {
+    const { result } = setup('oi @zzz');
+    const enter = key('Enter');
+    act(() => result.current.onKeyDown(enter));
+    expect(enter.preventDefault).not.toHaveBeenCalled();
+  });
+
+  it('matches display names accent-insensitively', () => {
+    participantsState.data = [{ userId: 'u3', username: 'jj', displayName: 'João', avatarUrl: null }];
+    const { result } = setup('oi @joao');
+    expect(result.current.options).toHaveLength(1);
+  });
+
+  it('ignores keys during IME composition', () => {
+    const { result } = setup();
+    const composing = { ...key('Enter'), nativeEvent: { isComposing: true } };
+    act(() => result.current.onKeyDown(composing as never));
+    expect(composing.preventDefault).not.toHaveBeenCalled();
+    const legacy = { ...key('Enter'), keyCode: 229 };
+    act(() => result.current.onKeyDown(legacy as never));
+    expect(legacy.preventDefault).not.toHaveBeenCalled();
+  });
+
+  it('clamps the active index when the list shrinks', () => {
+    const { result, rerender } = setup();
+    act(() => result.current.onKeyDown(key('ArrowDown')));
+    expect(result.current.activeIndex).toBe(1);
+    participantsState.data = [people[0]];
+    rerender();
+    expect(result.current.activeIndex).toBe(0);
+    expect(result.current.activeOptionId).toBe(result.current.optionId(0));
+    const enter = key('Enter');
+    act(() => result.current.onKeyDown(enter));
+    expect(enter.preventDefault).toHaveBeenCalled();
+  });
+
+  it('deleting the mention lifts an Esc dismissal', () => {
+    const { result } = setup();
+    act(() => result.current.onKeyDown(key('Escape')));
+    act(() => result.current.track('oi ', 3));
+    act(() => result.current.track('oi @ma', 6));
+    expect(result.current.open).toBe(true);
+  });
 });
