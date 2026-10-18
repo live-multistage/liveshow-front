@@ -9,7 +9,7 @@ import type { NotificationPreferenceKey } from '../types/notification-preference
 import { Toggle } from './Toggle';
 import styles from './SettingsPageContent.module.scss';
 
-const PREF_KEYS: NotificationPreferenceKey[] = ['LIVE_EVENTS', 'TICKET_REMINDERS', 'NEWS_PROMOS', 'EMAIL_DIGEST'];
+const PREF_KEYS: NotificationPreferenceKey[] = ['LIVE_EVENTS', 'TICKET_REMINDERS', 'CHAT_MENTIONS', 'NEWS_PROMOS', 'EMAIL_DIGEST'];
 
 interface Props {
   sectionId?: string;
@@ -37,12 +37,16 @@ export function NotificationPreferencesPanel({ sectionId, labelKey = 'PREFERÊNC
         {PREF_KEYS.map((key) => (
           <div key={key} className={styles.prefRow}>
             <div>
-              <div className={styles.prefTitle}>{t(`pref${key}`)}</div>
+              <div className={styles.prefTitle}>
+                {t(`pref${key}`)}
+                {key === 'CHAT_MENTIONS' && <span className={styles.newChip}>{t('prefCHAT_MENTIONSNew')}</span>}
+              </div>
               <div className={styles.prefDesc}>{t(`pref${key}Desc`)}</div>
             </div>
             <Toggle
               on={prefs?.[key] ?? true}
               onClick={() => togglePref(key)}
+              label={t(`pref${key}`)}
               disabled={!prefs || updatePrefs.isPending}
             />
           </div>

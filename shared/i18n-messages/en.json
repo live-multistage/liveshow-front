@@ -1107,7 +1107,8 @@
     "deleteDone": "Removed {count} usage events.",
     "deleteError": "Could not delete right now. Try again.",
     "prefCHAT_MENTIONS": "Chat mentions",
-    "prefCHAT_MENTIONSDesc": "Alert me when someone mentions me in a transmission's chat"
+    "prefCHAT_MENTIONSDesc": "Alert me when someone mentions me in a transmission's chat",
+    "prefCHAT_MENTIONSNew": "NEW"
   },
   "account": {
     "nav": {

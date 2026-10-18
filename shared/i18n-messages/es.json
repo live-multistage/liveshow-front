@@ -1107,7 +1107,8 @@
     "deleteDone": "Se eliminaron {count} eventos de uso.",
     "deleteError": "No se pudo eliminar ahora. Inténtalo de nuevo.",
     "prefCHAT_MENTIONS": "Menciones en el chat",
-    "prefCHAT_MENTIONSDesc": "Avisar cuando alguien te mencione en el chat de una transmisión"
+    "prefCHAT_MENTIONSDesc": "Avisar cuando alguien te mencione en el chat de una transmisión",
+    "prefCHAT_MENTIONSNew": "NUEVO"
   },
   "account": {
     "nav": {

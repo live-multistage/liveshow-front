@@ -65,6 +65,11 @@ const EARLIER: NotificationResponse = {
   link: null, createdAt: daysAgoISO(22),
 };
 
+const MENTION: NotificationResponse = {
+  id: 'n-mention', type: 'CHAT_MENTION', title: '@marina.v mencionou você', message: 'Festival Sonora 2026 · “oi @ana”',
+  read: false, link: '/live/e1?stream=s1', createdAt: daysAgoISO(0),
+};
+
 function page(items: NotificationResponse[], counts: NotificationsPageResponse['counts'], nextCursor: string | null = null): NotificationsPageResponse {
   return { items, nextCursor, counts };
 }
@@ -222,5 +227,21 @@ describe('AccountNotificationsContent', () => {
     await waitFor(() => expect(screen.getByText('Lembrete de ingresso')).toBeInTheDocument());
     expect(screen.getByText('groups.today')).toBeInTheDocument();
     expect(screen.getByText('groups.yesterday')).toBeInTheDocument();
+  });
+
+  it('renders a CHAT_MENTION row with the chat chip, the transmission action and navigates to its link', async () => {
+    mockedPage.mockResolvedValue(page([MENTION, TODAY], { all: 2, unread: 2, shows: 1, tickets: 0, account: 0 }));
+    mockedMarkAsRead.mockResolvedValue(undefined);
+    const { wrapper } = makeWrapper();
+    const user = userEvent.setup();
+    render(<AccountNotificationsContent />, { wrapper });
+
+    const title = await screen.findByText('@marina.v mencionou você');
+    expect(screen.getByText('Festival Sonora 2026 · “oi @ana”')).toBeInTheDocument();
+    expect(screen.getByText('categories.chat')).toBeInTheDocument();
+    expect(screen.getByText('openTransmission →')).toBeInTheDocument();
+
+    await user.click(title);
+    expect(push).toHaveBeenCalledWith('/live/e1?stream=s1');
   });
 });

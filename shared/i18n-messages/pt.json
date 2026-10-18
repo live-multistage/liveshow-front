@@ -1107,7 +1107,8 @@
     "deleteError": "Não foi possível excluir agora. Tente novamente.",
     "subscriptionsNav": "Minhas assinaturas",
     "prefCHAT_MENTIONS": "Menções no chat",
-    "prefCHAT_MENTIONSDesc": "Avisar quando alguém mencionar você no chat de uma transmissão"
+    "prefCHAT_MENTIONSDesc": "Avisar quando alguém mencionar você no chat de uma transmissão",
+    "prefCHAT_MENTIONSNew": "NOVO"
   },
   "account": {
     "nav": {
