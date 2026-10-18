@@ -12,6 +12,7 @@ import {
   useUpdateTicketProductMutation,
 } from '../../mutations/ticket-product.mutation';
 import type { AccessCapability } from '../../types/event.types';
+import { pruneStagesOutsideStreams } from '../../utils/ticket-transmissions';
 import { useEventStagesQuery } from '../../../streams/queries/streams.queries';
 import { ISO_CURRENCIES, DEFAULT_CURRENCY } from '@/shared/constants/currencies';
 import {
@@ -32,6 +33,7 @@ interface TicketProductLike {
   capabilities: AccessCapability[];
   camerasLimit: number | null;
   allowedStageIds: string[];
+  allowedStreamIds?: string[];
   capacity: number | null;
   immutable: boolean;
   remaining?: number | null;
@@ -60,6 +62,7 @@ function ticketToForm(ticket: TicketProductLike): TicketFormValues {
     camerasLimit: ticket.camerasLimit ?? undefined,
     capacity: ticket.capacity ?? undefined,
     allowedStageIds: ticket.allowedStageIds ?? [],
+    allowedStreamIds: ticket.allowedStreamIds ?? [],
   };
 }
 
@@ -72,6 +75,7 @@ const EMPTY_FORM: Partial<TicketFormInput> = {
   camerasLimit: undefined,
   capacity: undefined,
   allowedStageIds: [],
+  allowedStreamIds: [],
 };
 
 export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTicketsEnabled = true }: Props) {
@@ -141,6 +145,9 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
     if (values.cameraView) capabilities.push('CAMERA_VIEW');
     if (values.physicalEntry) capabilities.push('PHYSICAL_ENTRY');
 
+    const allowedStreamIds = values.allowedStreamIds ?? [];
+    const allowedStageIds = pruneStagesOutsideStreams(values.allowedStageIds ?? [], stages, allowedStreamIds);
+
     const basePayload = {
       name: values.name,
       description: values.description,
@@ -157,7 +164,8 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
           ticketId: editingId,
           payload: {
             ...basePayload,
-            allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
+            allowedStageIds: allowedStageIds.length ? allowedStageIds : undefined,
+            allowedStreamIds,
           },
         },
         { onSuccess: () => cancelEdit() },
@@ -166,7 +174,8 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
       createMutation.mutate(
         {
           ...basePayload,
-          allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
+          allowedStageIds: allowedStageIds.length ? allowedStageIds : undefined,
+            allowedStreamIds,
         },
         { onSuccess: () => reset(EMPTY_FORM) },
       );

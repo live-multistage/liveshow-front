@@ -25,6 +25,7 @@ export const ticketSchema = z
       )
       .optional(),
     allowedStageIds: z.array(z.string().uuid()).optional(),
+    allowedStreamIds: z.array(z.string().uuid()).optional(),
   })
   .refine((d) => d.liveView || d.replayView || d.cameraView || d.physicalEntry, {
     message: 'Selecione ao menos um tipo de acesso',

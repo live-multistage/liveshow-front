@@ -192,4 +192,34 @@ describe('EditTicketSection', () => {
 
     expect(screen.getByText('Presencial')).toBeInTheDocument();
   });
+
+  it("keeps a ticket's transmission restriction when it is edited and saved", async () => {
+    const VIP = '22222222-2222-4222-8222-222222222222';
+    render(
+      <EditTicketSection
+        eventId="evt-1"
+        tickets={[
+          {
+            id: 't1',
+            name: 'VIP',
+            description: 'Acesso VIP',
+            price: 10,
+            currency: 'BRL',
+            capabilities: ['LIVE_VIEW'],
+            camerasLimit: null,
+            allowedStageIds: [],
+            allowedStreamIds: [VIP],
+            capacity: null,
+            immutable: false,
+          },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByLabelText('edit'));
+    fireEvent.click(screen.getByText('save'));
+
+    await waitFor(() => expect(updateEventMutate).toHaveBeenCalled());
+    expect(updateEventMutate.mock.calls.at(-1)![0].payload.allowedStreamIds).toEqual([VIP]);
+  });
 });
