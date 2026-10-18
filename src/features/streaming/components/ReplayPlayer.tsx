@@ -9,7 +9,7 @@ import { useTrackPlaybackProgress, usePlaybackProgressQuery } from '@/features/p
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { usePlayerShell, type PlayerStreamLike } from '../hooks/use-player-shell';
 import { MAIN_STAGE_ID, type PlayerStageLike } from '../hooks/use-player-stages';
-import { visibleChapters } from '@live-show/api-contracts';
+import { pickActiveStream, visibleChapters } from '@live-show/api-contracts';
 import { formatClock } from '../utils/chapter-track';
 import { ChaptersDrawer } from './chapters/ChaptersDrawer';
 import { Player, Transport } from './player';
@@ -61,6 +61,8 @@ function toLiveCamera(c: ReplayCameraPlayback): LiveCamera {
 
 const firstPlayable = (list: LiveCamera[]) => list.find((c) => c.manifestPath !== null)?.cameraId;
 
+const clampToWindow = (ms: number, w: ReplayEventTimeline) => Math.min(Math.max(ms, w.startsAtMs), w.endsAtMs);
+
 // Replay = the shared player shell + the absolute event timeline, resume from
 // saved progress and ending on pause. No chat, no viewer count.
 //
@@ -87,6 +89,17 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
       })),
     [rawStreams],
   );
+  // When the default transmission has no replay, open on the first one that
+  // has: otherwise the player shows its empty state and the selector with it
+  // is unreachable.
+  const sortedRawStreams = useMemo(
+    () => [...(rawStreams ?? [])].sort((a, b) => a.position - b.position),
+    [rawStreams],
+  );
+  const firstWithReplay = sortedRawStreams.find((s) => s.timeline !== null) ?? null;
+  const replayDefaultStreamId = pickActiveStream(sortedRawStreams, null, defaultStreamId)?.timeline
+    ? defaultStreamId
+    : (firstWithReplay?.id ?? defaultStreamId);
 
   const shell = usePlayerShell({
     cameras,
@@ -94,7 +107,7 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     primaryCameraId,
     librasCameraId,
     streams,
-    defaultStreamId,
+    defaultStreamId: replayDefaultStreamId,
     // Starts paused: a VOD stream autoplaying with sound the moment the page
     // loads (no direct user gesture on this element) is exactly what browser
     // autoplay policies block anyway — same big-play-button pattern as any
@@ -104,9 +117,10 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
   });
 
   // Each transmission has its own replay window. A stream with no replay at
-  // all keeps the default stream's window so the selector stays reachable.
+  // all keeps the default stream's window (or the first one with a replay)
+  // so the selector stays reachable.
   const activeRawStream = rawStreams?.find((s) => s.id === shell.activeStreamId) ?? null;
-  const timeline = activeRawStream?.timeline ?? eventTimeline;
+  const timeline = activeRawStream?.timeline ?? eventTimeline ?? firstWithReplay?.timeline ?? null;
   const activeRawCameras = activeRawStream?.cameras ?? rawCameras;
   // Saved progress is per event, in seconds from the DEFAULT stream's window
   // (the flattened `timeline`), whatever transmission is on screen — so a
@@ -163,16 +177,17 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
   // início da timeline (linhas já existem nesse formato — ver report abaixo).
   const resumeApplied = useRef(false);
   useEffect(() => {
-    if (resumeApplied.current || !progress || !progressWindow) return;
+    if (resumeApplied.current || !progress || !progressWindow || !timeline) return;
     const saved = progress.find((p) => p.eventId === eventId);
     resumeApplied.current = true;
     // resumeSeconds já vem 0 quando o evento foi concluído ou quando a posição
     // é pequena demais — a regra é do servidor, não recalcular aqui.
     if (!saved || saved.resumeSeconds <= 0) return;
-    const resumeAbsoluteMs = progressWindow.startsAtMs + saved.resumeSeconds * 1000;
+    // Relative to the default window, landed inside the one on screen.
+    const resumeAbsoluteMs = clampToWindow(progressWindow.startsAtMs + saved.resumeSeconds * 1000, timeline);
     setSeekCommand({ time: resumeAbsoluteMs, token: Date.now() });
     setPositionMs(resumeAbsoluteMs);
-  }, [progress, eventId, progressWindow]);
+  }, [progress, eventId, progressWindow, timeline]);
 
   // CameraGrid only reports progress for the PRIMARY panel, and it reports in
   // that camera's own local seconds — its coverage is what converts that back
@@ -208,7 +223,7 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     if (previousStreamId.current === shell.activeStreamId) return;
     previousStreamId.current = shell.activeStreamId;
     if (!timeline) return;
-    const target = Math.min(Math.max(positionRef.current, timeline.startsAtMs), timeline.endsAtMs);
+    const target = clampToWindow(positionRef.current, timeline);
     setPositionMs(target);
     setSeekCommand({ time: target, token: Date.now() });
   }, [shell.activeStreamId, timeline]);
