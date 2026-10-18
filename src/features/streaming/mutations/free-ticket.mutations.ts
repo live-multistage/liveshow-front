@@ -3,11 +3,20 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { checkoutService } from '@/features/checkout/services/checkout.service';
+import { eventKeys } from '@/features/events/queries/get-event';
 import { LIVE_KEYS } from '../queries/live.queries';
 import { normalizeError, type AppError } from '@/lib/http/errors';
 
 export function useClaimFreeTicketMutation(eventId: string) {
   const qc = useQueryClient();
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: LIVE_KEYS.access(eventId) });
+    qc.invalidateQueries({ queryKey: LIVE_KEYS.replayAccess(eventId) });
+    qc.invalidateQueries({ queryKey: eventKeys.myTickets(eventId) });
+    // A free unlock from the player must not wait for the next 5s poll.
+    qc.invalidateQueries({ queryKey: LIVE_KEYS.playback(eventId) });
+    qc.invalidateQueries({ queryKey: LIVE_KEYS.replayPlayback(eventId) });
+  };
   return useMutation({
     mutationFn: async (ticketProductId: string) => {
       try {
@@ -16,11 +25,13 @@ export function useClaimFreeTicketMutation(eventId: string) {
         throw normalizeError(e);
       }
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: LIVE_KEYS.access(eventId) });
-      qc.invalidateQueries({ queryKey: LIVE_KEYS.replayAccess(eventId) });
-    },
+    onSuccess: refresh,
     onError: (err: AppError) => {
+      // Already owned = the grant exists; the refetch shows it, nothing failed.
+      if (err.code === 'ALREADY_OWNED') {
+        refresh();
+        return;
+      }
       toast.error(err.message || 'Não foi possível liberar seu acesso. Tente novamente.');
     },
   });

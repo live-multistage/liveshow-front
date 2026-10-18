@@ -4,7 +4,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { isAxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
-import { RotateCcw } from 'lucide-react';
+import { Lock, RotateCcw } from 'lucide-react';
+import { useAuth } from '@/features/account/hooks/use-auth';
+import { useLiveAccessQuery, useLivePlaybackQuery } from '@/features/streaming/queries/live.queries';
+import { LivePreview } from '@/features/streaming/components/LivePreview';
 import { useGetEventQuery, useListTicketProductsQuery } from '../../queries/get-event';
 import { TicketPanel } from './TicketPanel';
 import { RelatedEvents } from './RelatedEvents';
@@ -45,6 +48,9 @@ export function EventDetailPageContent({ id }: Props) {
   const { data: tickets = [] } = useListTicketProductsQuery(id);
   const { data: org, isLoading: orgLoading } = useOrganization(event?.organizationId ?? '');
   const [heroImgFailed, setHeroImgFailed] = useState(false);
+  const { isLoggedIn } = useAuth();
+  const liveAccess = useLiveAccessQuery(id, !!isLoggedIn);
+  const playback = useLivePlaybackQuery(id, liveAccess.data === true && event?.status === 'LIVE');
   useTrackEventView({
     eventId: event ? id : undefined,
     status: event ? toTrackedStatus(event.status, tickets) : 'upcoming',
@@ -82,6 +88,18 @@ export function EventDetailPageContent({ id }: Props) {
 
   const isLive = event.status === 'LIVE';
   const isFinished = event.status === 'FINISHED';
+  // A viewer who can already watch sees their own transmission in the hero
+  // instead of the poster.
+  const granted = liveAccess.data === true && isLive && playback.data?.live ? playback.data : null;
+  const defaultStream = granted?.streams?.find((s) => s.id === granted.defaultStreamId) ?? null;
+  // The default transmission must be on air with a camera that already has a
+  // path: `live` also counts jobs still waiting for a viewer, and the preview
+  // never joins, so a cold camera would spin forever. Otherwise keep the poster.
+  const heroCameras = defaultStream?.cameras ?? granted?.cameras ?? [];
+  const playable = heroCameras.some((c) => c.manifestPath || c.llPath);
+  const livePlayback = defaultStream?.live === false || !playable ? null : granted;
+  const watching = livePlayback ? defaultStream : null;
+  const upsell = livePlayback?.lockedStreams?.[0]?.offer ?? null;
   const heroImage = heroImgFailed ? null : event.bannerUrl ?? event.thumbnailUrl;
   // The production topology (streams → stages → feeds → cameras) is org-admin
   // only, so this public page can't enumerate cameras — camerasCount on the
@@ -99,7 +117,9 @@ export function EventDetailPageContent({ id }: Props) {
     <TrackFeature name="event_detail" props={{ eventId: id }}>
     <div className={styles.page}>
       <div className={styles.heroFull}>
-        {heroImage
+        {livePlayback
+          ? <LivePreview eventId={id} title={event.title} playback={livePlayback} />
+          : heroImage
           ? (
             <MediaWithTeaserVideo
               posterSrc={heroImage}
@@ -131,6 +151,9 @@ export function EventDetailPageContent({ id }: Props) {
               {!isLive && (
                 <span className={styles.badgeStatus}>{statusLabel(event.status)}</span>
               )}
+              {watching && (
+                <span className={styles.camerasChip}>{t('watchingChip', { transmission: watching.title })}</span>
+              )}
               {cameraCount > 0 && (
                 <span className={styles.camerasChip}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -146,6 +169,14 @@ export function EventDetailPageContent({ id }: Props) {
             <p className={styles.heroDateLine}>
               {formatDateShort(event.startsAt)} · {formatTime(event.startsAt)} · duração {formatDuration(event.startsAt, event.endsAt)}
             </p>
+            {watching && upsell && (
+              <div className={styles.upsellNote}>
+                <Lock size={17} aria-hidden />
+                <span>
+                  {t('watchingTransmission', { transmission: watching.title })} {t('upsellNote', { offer: upsell.name })}
+                </span>
+              </div>
+            )}
           </div>
           <div className={styles.heroPanel}>
             <TicketPanel event={event} tickets={tickets} />
@@ -162,7 +193,7 @@ export function EventDetailPageContent({ id }: Props) {
             </div>
 
             <div className={styles.section}>
-              <h2 className={styles.sectionLabel}>SOBRE O SHOW</h2>
+              <h2 className={styles.sectionLabel}>{t('about')}</h2>
               <p className={styles.description}>{event.description}</p>
             </div>
 

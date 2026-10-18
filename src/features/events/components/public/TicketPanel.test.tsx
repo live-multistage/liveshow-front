@@ -8,6 +8,8 @@ const state = vi.hoisted(() => ({
   liveAccess: { data: false as boolean | undefined, isLoading: false },
   replayAccess: { data: false as boolean | undefined, isLoading: false },
   playback: { data: { live: false } },
+  myTickets: { data: [] as string[] | undefined, isLoading: false },
+  cartItems: [] as Array<{ ticketProductId: string }>,
 }));
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
@@ -19,10 +21,14 @@ vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock('@/features/checkout/services/checkout.service', () => ({
   checkoutService: { claimFreeTicket: vi.fn() },
 }));
-vi.mock('../../queries/get-event', () => ({ useServiceFeeRateQuery: () => ({ data: 0 }) }));
+vi.mock('../../queries/get-event', () => ({
+  useServiceFeeRateQuery: () => ({ data: 0 }),
+  eventKeys: { myTickets: (id: string) => ['events', 'my-tickets', id] },
+  useMyEventTicketsQuery: () => state.myTickets,
+}));
 vi.mock('@/features/cart', () => ({
   useAddToCartMutation: () => ({ mutate: state.addToCartMutate, isPending: false }),
-  useCartQuery: () => ({ data: { items: [] } }),
+  useCartQuery: () => ({ data: { items: state.cartItems } }),
 }));
 vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: state.track }) }));
 vi.mock('@/features/account', () => ({ useAuth: () => state.auth }));
@@ -30,13 +36,15 @@ vi.mock('@/features/streaming/queries/live.queries', () => ({
   LIVE_KEYS: {
     access: (id: string) => ['live', 'access', id],
     replayAccess: (id: string) => ['live', 'replay-access', id],
+    playback: (id: string) => ['live', 'playback', id],
+    replayPlayback: (id: string) => ['live', 'replay-playback', id],
   },
   useLiveAccessQuery: () => state.liveAccess,
   useReplayAccessQuery: () => state.replayAccess,
   useLivePlaybackQuery: () => state.playback,
 }));
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -90,6 +98,7 @@ function makeTicket(overrides: Partial<TicketProductResponse> = {}): TicketProdu
     capabilities: ['LIVE_VIEW'],
     camerasLimit: null,
     allowedStageIds: [],
+    allowedStreamIds: [],
     capacity: null,
     remaining: null,
     soldOut: false,
@@ -127,6 +136,8 @@ beforeEach(() => {
   state.liveAccess = { data: false, isLoading: false };
   state.replayAccess = { data: false, isLoading: false };
   state.playback = { data: { live: false } };
+  state.myTickets = { data: [], isLoading: false };
+  state.cartItems = [];
   window.matchMedia = vi.fn().mockImplementation((q: string) => ({
     matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {},
     addListener: () => {}, removeListener: () => {}, onchange: null, dispatchEvent: () => false,
@@ -303,5 +314,74 @@ describe('TicketPanel tier tracking', () => {
       tier: 'Pro',
       priceCents: 3990,
     });
+  });
+});
+
+describe('TicketPanel — per-product ownership', () => {
+  beforeEach(() => {
+    state.auth = { isLoggedIn: true, user: { id: 'u-1' } };
+    state.liveAccess = { data: true, isLoading: false };
+    state.playback = { data: { live: true } };
+  });
+
+  it('a free-ticket owner during LIVE still sees the paid tier with its buy actions', () => {
+    state.myTickets = { data: ['tp-free'], isLoading: false };
+
+    renderPanel([FREE, PAID], makeEvent({ status: 'LIVE' }));
+
+    expect(screen.getByText('Pro')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buyTicket' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'addToCart' })).toBeInTheDocument();
+    expect(screen.queryByText('ticketSecured')).not.toBeInTheDocument();
+    expect(screen.getByText('upgradeNote')).toBeInTheDocument();
+  });
+
+  it('marks the owned product "yourTicket" and never offers it again', () => {
+    state.myTickets = { data: ['tp-free'], isLoading: false };
+
+    renderPanel([FREE, PAID], makeEvent({ status: 'LIVE' }));
+
+    const owned = screen.getByText('yourTicket').closest('[data-owned]') as HTMLElement;
+    expect(owned).toHaveTextContent('Ingresso');
+    expect(within(owned).queryByRole('button')).toBeNull();
+    expect(screen.queryByText('claimFree')).not.toBeInTheDocument();
+  });
+
+  it('buys the first product the viewer does not own', async () => {
+    state.myTickets = { data: ['tp-free'], isLoading: false };
+
+    renderPanel([FREE, PAID], makeEvent({ status: 'LIVE' }));
+    await userEvent.click(screen.getByRole('button', { name: 'buyTicket' }));
+
+    expect(state.addToCartMutate).toHaveBeenCalledWith('tp-pro', expect.any(Object));
+  });
+
+  it('owning every product shows the secured panel', () => {
+    state.myTickets = { data: ['tp-free', 'tp-pro'], isLoading: false };
+
+    renderPanel([FREE, PAID], makeEvent({ status: 'LIVE' }));
+
+    expect(screen.getByText('ticketSecured')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /watchNow/ })).toHaveAttribute('href', '/live/evt-1');
+  });
+
+  // Ruling: an empty owned list while loading must never read as "access with
+  // no product behind it" (secured) and then flip.
+  it('does not flash the secured state while the owned list is loading', () => {
+    state.myTickets = { data: undefined, isLoading: true };
+
+    renderPanel([FREE, PAID], makeEvent({ status: 'LIVE' }));
+
+    expect(screen.queryByText('ticketSecured')).not.toBeInTheDocument();
+    expect(screen.getByText('Pro')).toBeInTheDocument();
+  });
+
+  it('a product already in the cart links straight to checkout', () => {
+    state.myTickets = { data: ['tp-free'], isLoading: false };
+    state.cartItems = [{ ticketProductId: 'tp-pro' }];
+
+    renderPanel([FREE, PAID], makeEvent({ status: 'LIVE' }));
+
+    expect(screen.getByRole('link', { name: 'inCartGoToCheckout' })).toHaveAttribute('href', '/checkout');
   });
 });

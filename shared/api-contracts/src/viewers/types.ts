@@ -11,4 +11,5 @@ export interface ViewerSessionRequest {
 export interface ViewerCountResponse {
   currentViewers: number;
   totalViews: number;
+  streamId?: string;
 }

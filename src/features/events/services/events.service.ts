@@ -1,7 +1,15 @@
 import { httpClient } from '@/lib/http/client';
+import type { MyEventTicketsResponse } from '@live-show/api-contracts';
 import type { AccessibilityStatus, CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsParams, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
 
 export const eventsService = {
+  // The caller's PAID products for this event (JWT only). Drives the
+  // per-product "Seu ingresso" state on the event page.
+  getMyEventTickets: async (eventId: string): Promise<string[]> => {
+    const { data } = await httpClient.get<MyEventTicketsResponse>(`/events/${eventId}/my-tickets`);
+    return data.ownedTicketProductIds;
+  },
+
   listEvents: async (params: ListEventsParams = {}): Promise<PaginatedEventsResponse> => {
     const { filter = 'all', page = 1, pageSize = 50, category, subtype, tag, city, free } = params;
     const { data } = await httpClient.get<PaginatedEventsResponse>('/events', {

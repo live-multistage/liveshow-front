@@ -1,0 +1,73 @@
+@use '../../../styles/_variables' as *;
+
+$mono: var(--font-space-mono), 'Space Mono', monospace;
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: $text-secondary;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+}
+
+.title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: $text-primary;
+}
+
+.status {
+  font-family: $mono;
+  font-size: 0.65625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.price {
+  font-family: $mono;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: $accent-text;
+}
+
+.unlockBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: $action;
+  color: $ink;
+  font-size: 0.84375rem;
+  font-weight: 700;
+  cursor: pointer;
+  pointer-events: auto;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}

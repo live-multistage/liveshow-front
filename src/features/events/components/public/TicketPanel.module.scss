@@ -1,5 +1,7 @@
 @use '../../../../styles/_variables' as *;
 
+$cart-accent: #ff5fb4;
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
 // ── Panel container ──────────────────────────────────────────────
@@ -232,7 +234,7 @@
   font-family: var(--font-archivo), 'Archivo', sans-serif;
   transition: border-color .15s, color .15s;
 
-  &:hover:not(:disabled) { border-color: $action; color: #ff5fb4; }
+  &:hover:not(:disabled) { border-color: $action; color: $cart-accent; }
   &:disabled { opacity: .5; cursor: not-allowed; }
   svg { flex-shrink: 0; }
 }
@@ -369,4 +371,38 @@
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
+}
+
+// Owned product (amendment 2026-10-18): listed, never selectable.
+.ticketOptionOwned {
+  cursor: default;
+  background: rgba($success-light, .05);
+  border-color: rgba($success-light, .3);
+}
+
+.ownedTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: $success-light;
+  white-space: nowrap;
+}
+
+.cartLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 14px;
+  border: 1px solid $action;
+  border-radius: 14px;
+  color: $cart-accent;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
 }

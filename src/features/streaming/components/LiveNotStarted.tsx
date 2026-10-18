@@ -4,16 +4,22 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Bell, Calendar, Video } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { useGetEventQuery } from '@/features/events/queries/get-event';
 import { useWishlistIdsQuery, useToggleWishlistMutation } from '@/features/wishlist';
 import { MediaWithTeaserVideo } from '@/shared/components/MediaWithTeaserVideo';
+import { useStreamUnlock } from '../hooks/use-stream-unlock';
+import type { LockedStreamOffer } from '../types/live.types';
+import { LockedStreamItem } from './LockedStreamItem';
 import styles from './LiveNotStarted.module.scss';
 
 interface Props {
   eventId: string;
   eventTitle?: string;
   cameraCount: number;
+  // Transmissions for sale: free viewers see the upsell while a paid one is live.
+  lockedStreams?: LockedStreamOffer[];
   onExit: () => void;
 }
 
@@ -63,12 +69,16 @@ function formatStartLabel(startsAt: string): string {
   return `${WEEKDAYS[date.getDay()]}, ${pad2(date.getDate())} ${MONTHS[date.getMonth()]} · ${time}`;
 }
 
-export function LiveNotStarted({ eventId, eventTitle, cameraCount, onExit }: Props) {
+export function LiveNotStarted({ eventId, eventTitle, cameraCount, lockedStreams = [], onExit }: Props) {
+  const t = useTranslations('player');
   const router = useRouter();
   const pathname = usePathname();
   const { isLoggedIn } = useAuth();
   const event = useGetEventQuery(eventId);
   const countdown = useCountdown(event.data?.startsAt);
+  // No granted stream to switch to yet: the player's own hook picks the
+  // pending purchase up once it mounts with the new grant.
+  const unlock = useStreamUnlock({ eventId, streams: [], setActiveStreamId: () => {}, enabled: lockedStreams.length > 0 });
 
   const { data: wishlistIds } = useWishlistIdsQuery({ enabled: isLoggedIn });
   const toggleWishlist = useToggleWishlistMutation();
@@ -168,6 +178,21 @@ export function LiveNotStarted({ eventId, eventTitle, cameraCount, onExit }: Pro
           <div className={styles.autoRefresh}>
             Esta página entra ao vivo sozinha — não precisa recarregar
           </div>
+
+          {lockedStreams.length > 0 && (
+            <div className={styles.locked} role="group" aria-label={t('availableToBuy')}>
+              <span className={styles.lockedEyebrow}>{t('availableToBuy')}</span>
+              {lockedStreams.map((locked) => (
+                <LockedStreamItem
+                  key={locked.id}
+                  locked={locked}
+                  status={locked.live ? t('live') : t('transmissionOffline')}
+                  pending={unlock.pending}
+                  onUnlock={unlock.unlock}
+                />
+              ))}
+            </div>
+          )}
 
           <div className={styles.actions}>
             <button

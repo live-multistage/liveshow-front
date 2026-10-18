@@ -8,6 +8,7 @@ export interface ChatMessage {
   authorName: string;
   body: string;
   sentAt: string; // ISO
+  streamId: string | null; // transmission room; null = event without streams
 }
 
 export interface ChatMe {

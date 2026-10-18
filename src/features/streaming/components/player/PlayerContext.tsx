@@ -18,6 +18,8 @@ export interface PlayerContextValue {
   playbackEventId: string;
   title: string;
   adsEnabled: boolean;
+  // Muted event-page hero: not a player open, a feature view or a viewer.
+  preview: boolean;
 }
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);

@@ -7,6 +7,9 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/live/evt-1',
 }));
 
+vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('../hooks/use-stream-unlock', () => ({ useStreamUnlock: () => ({ unlock: vi.fn(), pending: false }) }));
+
 const useAuth = vi.fn();
 vi.mock('@/features/account/hooks/use-auth', () => ({
   useAuth: () => useAuth(),

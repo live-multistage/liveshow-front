@@ -1,4 +1,4 @@
-import type { LiveCamera, LiveStage } from '@/features/streaming/types/live.types';
+import type { LiveCamera, LiveStage, LivePlaybackStream } from '@/features/streaming/types/live.types';
 import type { ChannelSource } from '@live-show/api-contracts';
 
 export type {
@@ -42,6 +42,8 @@ export interface ChannelPlaybackResponse {
   cameras: LiveCamera[];
   primaryCameraId: string | null;
   librasCameraId: string | null;
+  streams?: LivePlaybackStream[];
+  defaultStreamId?: string | null;
   playbackEventId: string;
   channelEventId: string;
   source: ChannelSource;

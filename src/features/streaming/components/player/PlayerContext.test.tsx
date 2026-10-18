@@ -25,6 +25,7 @@ describe('usePlayer', () => {
       playbackEventId: 'evt-1',
       title: 'Show',
       adsEnabled: true,
+      preview: false,
     };
     let seen: PlayerContextValue | null = null;
     function Reader() {

@@ -225,6 +225,77 @@ describe('Player chrome', () => {
     expect(getByRole('tab', { name: /Palco B/ }).getAttribute('aria-selected')).toBe('true');
   });
 
+  it('switches transmission from the header selector and the stage follows', () => {
+    const stream = (id: string, title: string, position: number, c: LiveCamera) => ({
+      id, title, position, live: true, stages: [], cameras: [c], primaryCameraId: c.cameraId, librasCameraId: null,
+    });
+    const { getByLabelText, getByRole } = render(
+      <Harness
+        options={{
+          cameras: [],
+          streams: [stream('main', 'Principal', 0, cam('a', 1)), stream('vip', 'VIP', 1, cam('v', 1))],
+          defaultStreamId: 'main',
+        }}
+      />,
+    );
+    expect(lastGridProps().cameras.map((c) => c.cameraId)).toEqual(['a']);
+    fireEvent.click(getByLabelText(/^switchTransmission/));
+    fireEvent.click(getByRole('button', { name: /VIP/, pressed: false }));
+    expect(lastGridProps().cameras.map((c) => c.cameraId)).toEqual(['v']);
+    expect(getByLabelText(/^switchTransmission/).textContent).toContain('VIP');
+  });
+
+  it('opening the transmission selector closes chapters, and opening chapters closes the selector', () => {
+    const stream = (id: string, title: string, position: number, c: LiveCamera) => ({
+      id, title, position, stages: [], cameras: [c], primaryCameraId: c.cameraId, librasCameraId: null,
+    });
+    function ChaptersHarness() {
+      const shell = usePlayerShell({
+        cameras: [],
+        streams: [stream('main', 'Principal', 0, cam('a', 1)), stream('bts', 'Bastidores', 1, cam('b', 1))],
+        defaultStreamId: 'main',
+      });
+      return (
+        <Player.Root shell={shell} mode="replay" eventId="evt-1" title="Show">
+          <Player.Header badge="replay" chapters={{ count: 3 }} />
+          <span data-testid="chapters-state">{String(shell.chaptersOpen)}</span>
+        </Player.Root>
+      );
+    }
+    const { getByLabelText, getByTestId, queryByRole } = render(<ChaptersHarness />);
+    fireEvent.click(getByLabelText('chapters.open'));
+    expect(getByTestId('chapters-state').textContent).toBe('true');
+
+    fireEvent.click(getByLabelText(/^switchTransmission/));
+    expect(queryByRole('dialog', { name: 'transmissions' })).not.toBeNull();
+    expect(getByTestId('chapters-state').textContent).toBe('false');
+
+    fireEvent.click(getByLabelText('chapters.open'));
+    expect(getByTestId('chapters-state').textContent).toBe('true');
+    expect(queryByRole('dialog', { name: 'transmissions' })).toBeNull();
+  });
+
+  it('shows the full-stage offline state for an offline transmission instead of the cameras', () => {
+    const stream = (id: string, title: string, position: number, live: boolean, c: LiveCamera) => ({
+      id, title, position, live, stages: [], cameras: [c], primaryCameraId: c.cameraId, librasCameraId: null,
+    });
+    const { getByLabelText, getByRole, queryByText, getByText, queryByTestId } = render(
+      <Harness
+        options={{
+          cameras: [],
+          streams: [stream('main', 'Principal', 0, true, cam('a', 1)), stream('bts', 'Bastidores', 1, false, cam('b', 1))],
+          defaultStreamId: 'main',
+        }}
+      />,
+    );
+    expect(queryByText('transmissionNotStartedTitle')).toBeNull();
+    fireEvent.click(getByLabelText(/^switchTransmission/));
+    fireEvent.click(getByRole('button', { name: /Bastidores/, pressed: false }));
+    expect(getByText('transmissionNotStartedTitle')).toBeTruthy();
+    expect(getByText('transmissionNotStartedBody')).toBeTruthy();
+    expect(queryByTestId('grid')).toBeNull();
+  });
+
   it('shows chat and viewer chrome only when given', () => {
     const onToggle = vi.fn();
     const withChat = render(
@@ -262,6 +333,43 @@ describe('Player chrome', () => {
 // playback_started, playback_buffered, playback_ended) — CameraGrid is
 // stubbed above, so onPlaying/onBuffered are invoked directly off the
 // captured props, the same way the real primary VideoPanel would call them.
+describe('Player root passthroughs', () => {
+  it('puts className on the player box', () => {
+    function ClassHarness() {
+      const shell = usePlayerShell({ cameras: [cam('a', 1)] });
+      return (
+        <Player.Root shell={shell} mode="live" eventId="evt-1" title="Evento" className="hero-box">
+          <Player.Stage />
+        </Player.Root>
+      );
+    }
+    const { container } = render(<ClassHarness />);
+
+    expect(container.firstElementChild!.className).toMatch(/\bhero-box\b/);
+  });
+});
+
+describe('Player preview', () => {
+  it('fires no player_opened, no playback events and no player feature view', () => {
+    function PreviewHarness() {
+      const shell = usePlayerShell({ cameras: [cam('a', 1)], hotkeysEnabled: false });
+      return (
+        <Player.Root shell={shell} mode="live" eventId="evt-1" title="Evento" preview>
+          <Player.Stage />
+        </Player.Root>
+      );
+    }
+    vi.useFakeTimers();
+    const { unmount } = render(<PreviewHarness />);
+    unmount();
+    act(() => { vi.runAllTimers(); });
+    vi.useRealTimers();
+
+    expect(mockTrack).not.toHaveBeenCalled();
+    expect(trackFeatureCalls).toHaveLength(0);
+  });
+});
+
 describe('Player analytics', () => {
   beforeEach(() => {
     vi.useFakeTimers();

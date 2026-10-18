@@ -294,7 +294,13 @@
       "cameraViews": "{count} vistas de cámara",
       "related": {
         "title": "También te puede interesar"
-      }
+      },
+      "enableSound": "Activar sonido",
+      "muteSound": "Desactivar sonido",
+      "openPlayer": "Abrir reproductor",
+      "watchingChip": "Estás en {transmission}",
+      "watchingTransmission": "Viendo la transmisión {transmission}.",
+      "upsellNote": "Las demás transmisiones de este evento están en la entrada {offer}."
     },
     "status": {
       "PUBLISHED": "Próximamente",
@@ -344,7 +350,10 @@
     "securePurchase": "COMPRA 100% SEGURA",
     "mobileTicket": "ENTRADA",
     "mobileReplay": "REPETICIÓN",
-    "mobileBuy": "Comprar entrada"
+    "mobileBuy": "Comprar entrada",
+    "yourTicket": "Tu entrada",
+    "inCartGoToCheckout": "En el carrito · ir al checkout →",
+    "upgradeNote": "Se libera al instante, sin perder la cobertura"
   },
   "tickets": {
     "title": "Mis Entradas",
@@ -1039,14 +1048,16 @@
     "camerasLimitPlaceholder": "Vacío = acceso a todas",
     "camerasLimitHint": "Deja en blanco para permitir todas las cámaras. Ingresa un número para limitar por índice de prioridad.",
     "stagesLabel": "Acceso a Escenarios",
-    "stagesHint": "Sin selección = acceso a todos los escenarios.",
+    "stagesHint": "Ninguno marcado libera todos los escenarios.",
     "allCameras": "Todas las cámaras",
     "cameras": "{count, plural, one {# cámara} other {# cámaras}}",
     "empty": "Ninguna entrada agregada aún.",
     "stagesNote": "El acceso a escenarios específicos puede configurarse después de crear el evento.",
     "errorAdd": "Error al agregar entrada.",
     "errorSave": "Error al guardar entrada.",
-    "replayTicketDesc": "Acceso a la grabación después del evento"
+    "replayTicketDesc": "Acceso a la grabación después del evento",
+    "streamsLabel": "Transmisiones",
+    "streamsHint": "Ninguna marcada libera todas las transmisiones."
   },
   "settings": {
     "heading": "Configuración",
@@ -1315,7 +1326,16 @@
       "durationMin": "{count} min",
       "durationSec": "{count} s",
       "goTo": "Ir a {title}, {time}"
-    }
+    },
+    "transmissions": "Transmisiones",
+    "transmissionOffline": "Fuera del aire",
+    "transmissionLive": "En vivo",
+    "switchTransmission": "Cambiar transmisión",
+    "transmissionNotStartedTitle": "La transmisión aún no comenzó",
+    "transmissionNotStartedBody": "La transmisión {title} sale al aire pronto. Mientras tanto, puedes volver a otra transmisión.",
+    "closePanel": "Cerrar",
+    "availableToBuy": "Disponible para comprar",
+    "unlockFullEvent": "Desbloquear el evento completo"
   },
   "ads": {
     "sponsored": "Patrocinado",
@@ -1353,7 +1373,9 @@
     "jobFAILED": "Falló",
     "transcodeFailed": "Fallo de transcodificación",
     "receivingSignal": "Recibiendo señal",
-    "noSignal": "Sin señal"
+    "noSignal": "Sin señal",
+    "moveUp": "Subir",
+    "moveDown": "Bajar"
   },
   "organization": {
     "public": {

@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { viewerTrackingService } from '../services/viewer-tracking.service';
 
-export function useViewerCount(eventId: string | undefined) {
+export function useViewerCount(eventId: string | undefined, streamId: string | null = null) {
   const query = useQuery({
-    queryKey: ['viewers', 'count', eventId],
-    queryFn: () => viewerTrackingService.getViewers(eventId!),
+    queryKey: ['viewers', 'count', eventId, streamId],
+    queryFn: () => viewerTrackingService.getViewers(eventId!, streamId),
     enabled: !!eventId,
     refetchInterval: 25_000,
     staleTime: 20_000,

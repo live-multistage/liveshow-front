@@ -294,7 +294,13 @@
       "cameraViews": "{count} camera views",
       "related": {
         "title": "You might also like"
-      }
+      },
+      "enableSound": "Turn sound on",
+      "muteSound": "Turn sound off",
+      "openPlayer": "Open player",
+      "watchingChip": "You're on {transmission}",
+      "watchingTransmission": "Watching the {transmission} transmission.",
+      "upsellNote": "This event's other transmissions come with the {offer} ticket."
     },
     "status": {
       "PUBLISHED": "Coming Soon",
@@ -344,7 +350,10 @@
     "securePurchase": "100% SECURE CHECKOUT",
     "mobileTicket": "TICKET",
     "mobileReplay": "REPLAY",
-    "mobileBuy": "Buy ticket"
+    "mobileBuy": "Buy ticket",
+    "yourTicket": "Your ticket",
+    "inCartGoToCheckout": "In your cart · go to checkout →",
+    "upgradeNote": "Unlocks instantly, without losing the coverage"
   },
   "tickets": {
     "title": "My Tickets",
@@ -1039,14 +1048,16 @@
     "camerasLimitPlaceholder": "Empty = access to all",
     "camerasLimitHint": "Leave blank to allow all cameras. Enter a number to limit by priority index.",
     "stagesLabel": "Stage Access",
-    "stagesHint": "No selection = access to all stages.",
+    "stagesHint": "None selected unlocks every stage.",
     "allCameras": "All cameras",
     "cameras": "{count, plural, one {# camera} other {# cameras}}",
     "empty": "No tickets added yet.",
     "stagesNote": "Stage-specific access can be configured after the event is created.",
     "errorAdd": "Error adding ticket.",
     "errorSave": "Error saving ticket.",
-    "replayTicketDesc": "Access to the recording after the event"
+    "replayTicketDesc": "Access to the recording after the event",
+    "streamsLabel": "Transmissions",
+    "streamsHint": "None selected unlocks every transmission."
   },
   "settings": {
     "heading": "Settings",
@@ -1315,7 +1326,16 @@
       "durationMin": "{count} min",
       "durationSec": "{count} s",
       "goTo": "Go to {title}, {time}"
-    }
+    },
+    "transmissions": "Transmissions",
+    "transmissionOffline": "Offline",
+    "transmissionLive": "Live",
+    "switchTransmission": "Switch transmission",
+    "transmissionNotStartedTitle": "Transmission hasn't started yet",
+    "transmissionNotStartedBody": "The {title} transmission goes live soon. You can switch to another transmission in the meantime.",
+    "closePanel": "Close",
+    "availableToBuy": "Available to buy",
+    "unlockFullEvent": "Unlock the full event"
   },
   "ads": {
     "sponsored": "Sponsored",
@@ -1353,7 +1373,9 @@
     "jobFAILED": "Failed",
     "transcodeFailed": "Transcode failure",
     "receivingSignal": "Receiving signal",
-    "noSignal": "No signal"
+    "noSignal": "No signal",
+    "moveUp": "Move up",
+    "moveDown": "Move down"
   },
   "organization": {
     "public": {

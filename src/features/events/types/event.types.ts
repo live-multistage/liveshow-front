@@ -68,6 +68,7 @@ export interface CreateTicketRequest {
   capabilities: AccessCapability[];
   camerasLimit?: number | null;
   allowedStageIds?: string[];
+  allowedStreamIds?: string[];
   capacity?: number | null;
 }
 
@@ -79,5 +80,6 @@ export interface UpdateTicketRequest {
   capabilities?: AccessCapability[];
   camerasLimit?: number | null;
   allowedStageIds?: string[];
+  allowedStreamIds?: string[];
   capacity?: number | null;
 }

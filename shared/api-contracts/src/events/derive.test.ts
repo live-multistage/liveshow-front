@@ -4,7 +4,7 @@ import type { TicketProductResponse } from './types';
 
 const tp = (over: Partial<TicketProductResponse>): TicketProductResponse => ({
   id: 't', eventId: 'e', name: 'n', description: '', price: 10, currency: 'BRL', capabilities: ['LIVE_VIEW'],
-  camerasLimit: null, allowedStageIds: [], capacity: null, remaining: null, soldOut: false, immutable: false, ...over,
+  camerasLimit: null, allowedStageIds: [], allowedStreamIds: [], capacity: null, remaining: null, soldOut: false, immutable: false, ...over,
 });
 
 test('status helpers', () => {
