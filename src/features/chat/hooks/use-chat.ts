@@ -82,7 +82,7 @@ export type ChatStatus = 'connecting' | 'live' | 'reconnecting';
 // ChatDock/ReactionBar (T7's files, kept untouched) import this from here.
 export { REACTION_EMOJIS };
 
-export function useChat(eventId: string | null) {
+export function useChat(eventId: string | null, streamId: string | null = null) {
   const { user } = useAuth();
   const t = useTranslations('chat');
 
@@ -91,13 +91,16 @@ export function useChat(eventId: string | null) {
   const [me, setMe] = useState<ChatMe | null>(null);
   const [status, setStatus] = useState<ChatStatus>('connecting');
 
+  // One room per transmission; null when chat is off for this viewer.
+  const roomKey = eventId === null ? null : `${eventId}:${streamId ?? ''}`;
+
   const sourceRef = useRef<EventSource | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const seededEventIdRef = useRef<string | null>(null);
+  const seededRoomRef = useRef<string | null>(null);
 
   const recentQuery = useQuery({
-    queryKey: chatKeys.recent(eventId ?? ''),
-    queryFn: () => chatService.recent(eventId as string),
+    queryKey: chatKeys.recent(eventId ?? '', streamId),
+    queryFn: () => chatService.recent(eventId as string, streamId),
     staleTime: Infinity,
     enabled: eventId !== null,
   });
@@ -106,15 +109,25 @@ export function useChat(eventId: string | null) {
   const refetchRecentRef = useRef(recentQuery.refetch);
   refetchRecentRef.current = recentQuery.refetch;
 
+  // Switching transmission is switching rooms: drop the previous room's
+  // messages at once instead of showing them until the new bootstrap lands.
+  const previousRoomRef = useRef(roomKey);
+  useEffect(() => {
+    if (previousRoomRef.current === roomKey) return;
+    previousRoomRef.current = roomKey;
+    setMessages([]);
+    setMe(null);
+  }, [roomKey]);
+
   // Recent-messages bootstrap seeds local state exactly once per eventId —
   // afterwards `messages`/`me` are owned by the SSE stream (and mutations),
   // not by the query, so a background refetch can't clobber live updates.
   useEffect(() => {
-    if (!recentQuery.data || seededEventIdRef.current === eventId) return;
-    seededEventIdRef.current = eventId;
+    if (!recentQuery.data || seededRoomRef.current === roomKey) return;
+    seededRoomRef.current = roomKey;
     setMessages(recentQuery.data.messages.map(decorate));
     setMe(recentQuery.data.me);
-  }, [eventId, recentQuery.data]);
+  }, [roomKey, recentQuery.data]);
 
   // Derived synchronously (not via its own effect+state) so it's already
   // correct on the very render `recentQuery.error` shows up — an effect
@@ -127,16 +140,16 @@ export function useChat(eventId: string | null) {
   }, [recentQuery.error]);
 
   useEffect(() => {
-    if (!bootstrapForbidden || seededEventIdRef.current === eventId) return;
-    seededEventIdRef.current = eventId;
+    if (!bootstrapForbidden || seededRoomRef.current === roomKey) return;
+    seededRoomRef.current = roomKey;
     setMe({ canWrite: false, isMuted: false, isModerator: false });
-  }, [eventId, bootstrapForbidden]);
+  }, [roomKey, bootstrapForbidden]);
 
   // Resets the connecting/live/reconnecting indicator whenever the caller
   // switches which event's chat this hook is bound to.
   useEffect(() => {
     setStatus('connecting');
-  }, [eventId]);
+  }, [roomKey]);
 
   useEffect(() => {
     // No event to chat about, bootstrap said this viewer has no chat, or the
@@ -150,7 +163,7 @@ export function useChat(eventId: string | null) {
 
     function connect() {
       const token = tokenStore.get();
-      const source = new EventSource(chatService.streamUrl(eventId, token));
+      const source = new EventSource(chatService.streamUrl(eventId, token, streamId));
       sourceRef.current = source;
 
       source.onopen = () => {
@@ -264,10 +277,10 @@ export function useChat(eventId: string | null) {
       sourceRef.current?.close();
       sourceRef.current = null;
     };
-  }, [eventId, user?.id, bootstrapForbidden, recentQuery.isLoading]);
+  }, [roomKey, user?.id, bootstrapForbidden, recentQuery.isLoading]);
 
   const sendMessageMutation = useMutation({
-    mutationFn: (body: string) => chatService.send(eventId as string, body),
+    mutationFn: (body: string) => chatService.send(eventId as string, body, streamId),
     onError: (error) => {
       const appError = normalizeError(error);
       if (appError.code === CHAT_ERROR_CODES.MUTED) {

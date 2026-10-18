@@ -37,9 +37,9 @@ export const viewerTrackingService = {
     }).then(() => {}, () => {});
   },
 
-  async getViewers(eventId: string): Promise<{ currentViewers: number; totalViews: number }> {
+  async getViewers(eventId: string, streamId?: string | null): Promise<{ currentViewers: number; totalViews: number }> {
     try {
-      const res = await httpClient.get(`/events/${eventId}/viewers`);
+      const res = await httpClient.get(`/events/${eventId}/viewers${streamId ? `?streamId=${streamId}` : ''}`);
       return res.data;
     } catch {
       return { currentViewers: 0, totalViews: 0 };

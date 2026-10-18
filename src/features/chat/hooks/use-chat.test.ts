@@ -9,7 +9,7 @@ vi.mock('../services/chat.service', () => ({
     mute: vi.fn(),
     unmute: vi.fn(),
     streamUrl: vi.fn(
-      (eventId: string, token: string | null) =>
+      (eventId: string, token: string | null, _streamId?: string | null) =>
         `http://api/chat/events/${eventId}/stream${token ? `?token=${token}` : ''}`,
     ),
   },
@@ -344,5 +344,44 @@ describe('useChat', () => {
     act(() => result.current.react('🔥'));
     expect(mockedSend).not.toHaveBeenCalled();
     expect(mockedReact).not.toHaveBeenCalled();
+  });
+
+  it('binds recent, send and the SSE stream to the transmission', async () => {
+    mockedRecent.mockResolvedValue(recentFixture);
+    mockedSend.mockResolvedValue(recentFixture.messages[0]);
+    const { wrapper } = makeWrapper();
+
+    const { result } = renderHook(() => useChat('evt-1', 's-vip'), { wrapper });
+
+    await waitFor(() => expect(mockedRecent).toHaveBeenCalledWith('evt-1', 's-vip'));
+    await waitFor(() => expect(FakeEventSource.instances.length).toBeGreaterThan(0));
+    const lastUrlCall = vi.mocked(chatService.streamUrl).mock.calls.at(-1)!;
+    expect(lastUrlCall[0]).toBe('evt-1');
+    expect(lastUrlCall[2]).toBe('s-vip');
+
+    act(() => result.current.sendMessage('oi'));
+    await waitFor(() => expect(mockedSend).toHaveBeenCalledWith('evt-1', 'oi', 's-vip'));
+  });
+
+  it("switching transmission drops the old room's messages and reconnects", async () => {
+    mockedRecent.mockImplementation(async (_eventId: string, streamId?: string | null) => ({
+      ...recentFixture,
+      messages: streamId === 's-vip' ? [] : recentFixture.messages,
+    }));
+    const { wrapper } = makeWrapper();
+
+    const { result, rerender } = renderHook(({ streamId }) => useChat('evt-1', streamId), {
+      wrapper,
+      initialProps: { streamId: 's-main' as string | null },
+    });
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    await waitFor(() => expect(FakeEventSource.instances.length).toBeGreaterThan(0));
+    const first = latestSource();
+
+    rerender({ streamId: 's-vip' });
+
+    await waitFor(() => expect(result.current.messages).toHaveLength(0));
+    await waitFor(() => expect(first.closed).toBe(true));
+    await waitFor(() => expect(latestSource()).not.toBe(first));
   });
 });
