@@ -131,6 +131,7 @@ export interface TicketProductResponse {
   capabilities: AccessCapability[];
   camerasLimit: number | null;
   allowedStageIds: string[];
+  allowedStreamIds: string[]; // [] = every transmission
   capacity: number | null;
   remaining: number | null;
   soldOut: boolean;

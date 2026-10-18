@@ -1046,7 +1046,9 @@
     "stagesNote": "Stage-specific access can be configured after the event is created.",
     "errorAdd": "Error adding ticket.",
     "errorSave": "Error saving ticket.",
-    "replayTicketDesc": "Access to the recording after the event"
+    "replayTicketDesc": "Access to the recording after the event",
+    "streamsLabel": "Transmissions included",
+    "streamsHint": "No selection = access to every transmission."
   },
   "settings": {
     "heading": "Settings",
@@ -1315,7 +1317,9 @@
       "durationMin": "{count} min",
       "durationSec": "{count} s",
       "goTo": "Go to {title}, {time}"
-    }
+    },
+    "transmissions": "Transmissions",
+    "transmissionOffline": "Offline"
   },
   "ads": {
     "sponsored": "Sponsored",
@@ -1353,7 +1357,9 @@
     "jobFAILED": "Failed",
     "transcodeFailed": "Transcode failure",
     "receivingSignal": "Receiving signal",
-    "noSignal": "No signal"
+    "noSignal": "No signal",
+    "moveUp": "Move up",
+    "moveDown": "Move down"
   },
   "organization": {
     "public": {

@@ -1046,7 +1046,9 @@
     "stagesNote": "O acesso a palcos específicos pode ser configurado após a criação do evento.",
     "errorAdd": "Erro ao adicionar ingresso.",
     "errorSave": "Erro ao salvar ingresso.",
-    "replayTicketDesc": "Acesso à gravação após o evento"
+    "replayTicketDesc": "Acesso à gravação após o evento",
+    "streamsLabel": "Transmissões com acesso",
+    "streamsHint": "Sem seleção = acesso a todas as transmissões."
   },
   "settings": {
     "heading": "Configurações",
@@ -1315,7 +1317,9 @@
       "durationMin": "{count} min",
       "durationSec": "{count} s",
       "goTo": "Ir para {title}, {time}"
-    }
+    },
+    "transmissions": "Transmissões",
+    "transmissionOffline": "Fora do ar"
   },
   "ads": {
     "sponsored": "Patrocinado",
@@ -1353,7 +1357,9 @@
     "jobFAILED": "Falhou",
     "transcodeFailed": "Falha no transcode",
     "receivingSignal": "Recebendo sinal",
-    "noSignal": "Sem sinal"
+    "noSignal": "Sem sinal",
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo"
   },
   "organization": {
     "public": {

@@ -1046,7 +1046,9 @@
     "stagesNote": "El acceso a escenarios específicos puede configurarse después de crear el evento.",
     "errorAdd": "Error al agregar entrada.",
     "errorSave": "Error al guardar entrada.",
-    "replayTicketDesc": "Acceso a la grabación después del evento"
+    "replayTicketDesc": "Acceso a la grabación después del evento",
+    "streamsLabel": "Transmisiones con acceso",
+    "streamsHint": "Sin selección = acceso a todas las transmisiones."
   },
   "settings": {
     "heading": "Configuración",
@@ -1315,7 +1317,9 @@
       "durationMin": "{count} min",
       "durationSec": "{count} s",
       "goTo": "Ir a {title}, {time}"
-    }
+    },
+    "transmissions": "Transmisiones",
+    "transmissionOffline": "Fuera del aire"
   },
   "ads": {
     "sponsored": "Patrocinado",
@@ -1353,7 +1357,9 @@
     "jobFAILED": "Falló",
     "transcodeFailed": "Fallo de transcodificación",
     "receivingSignal": "Recibiendo señal",
-    "noSignal": "Sin señal"
+    "noSignal": "Sin señal",
+    "moveUp": "Subir",
+    "moveDown": "Bajar"
   },
   "organization": {
     "public": {

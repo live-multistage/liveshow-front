@@ -90,6 +90,7 @@ function makeTicket(overrides: Partial<TicketProductResponse> = {}): TicketProdu
     capabilities: ['LIVE_VIEW'],
     camerasLimit: null,
     allowedStageIds: [],
+    allowedStreamIds: [],
     capacity: null,
     remaining: null,
     soldOut: false,

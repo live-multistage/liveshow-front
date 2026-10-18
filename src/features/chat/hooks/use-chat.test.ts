@@ -84,6 +84,7 @@ const recentFixture = {
       authorName: 'Bob',
       body: 'oi',
       sentAt: '2026-01-01T00:00:00.000Z',
+      streamId: null,
     },
   ],
   me: { canWrite: true, isMuted: false, isModerator: false },
@@ -123,6 +124,7 @@ describe('useChat', () => {
       authorName: 'Caio',
       body: 'e ai',
       sentAt: '2026-01-01T00:00:01.000Z',
+      streamId: null,
     };
 
     act(() => source.emit('message', { type: 'message', message: incoming }));
@@ -286,6 +288,7 @@ describe('useChat', () => {
           authorName: 'Duda',
           body: 'voltei',
           sentAt: '2026-01-01T00:00:02.000Z',
+          streamId: null,
         },
       ],
       me: recentFixture.me,

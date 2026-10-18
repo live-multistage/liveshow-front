@@ -23,6 +23,7 @@ const message = (overrides: Partial<ChatMessage> = {}): ChatMessage => ({
   authorName: 'Bob',
   body: 'oi',
   sentAt: '2026-01-01T00:00:00.000Z',
+  streamId: null,
   authorInitials: 'BO',
   authorColor: '#46d6d8',
   ...overrides,
