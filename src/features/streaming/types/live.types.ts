@@ -4,6 +4,8 @@ export type {
   LiveCamera,
   LiveStage,
   LivePlaybackResponse,
+  LivePlaybackStream,
+  ReplayPlaybackStream,
   ReplayCameraPlayback,
   ReplayEventTimeline,
   ReplayStagePlayback,

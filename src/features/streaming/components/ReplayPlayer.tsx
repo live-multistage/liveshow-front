@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import type { ReplayCameraPlayback, ReplayChapter, ReplayEventTimeline, ReplayStagePlayback, LiveCamera } from '../types/live.types';
+import type { ReplayCameraPlayback, ReplayChapter, ReplayEventTimeline, ReplayStagePlayback, ReplayPlaybackStream, LiveCamera } from '../types/live.types';
 import { ReplayBadge } from './transport/ReplayBadge';
 import { localToAbsolute } from '../utils/replay-timeline';
 import { useTrackPlaybackProgress, usePlaybackProgressQuery } from '@/features/playback-progress';
 import { useAuth } from '@/features/account/hooks/use-auth';
-import { usePlayerShell } from '../hooks/use-player-shell';
+import { usePlayerShell, type PlayerStreamLike } from '../hooks/use-player-shell';
 import { MAIN_STAGE_ID, type PlayerStageLike } from '../hooks/use-player-stages';
 import { visibleChapters } from '@live-show/api-contracts';
 import { formatClock } from '../utils/chapter-track';
@@ -33,6 +33,10 @@ interface ReplayPlayerProps {
   // Chapters marked on the replay (GET /events/:id/replay-chapters). Undefined
   // or empty renders the player exactly as without the feature.
   chapters?: ReplayChapter[];
+  // Granted transmissions, each with its own replay window. Absent = legacy
+  // flattened props above (the default stream's view).
+  streams?: ReplayPlaybackStream[];
+  defaultStreamId?: string | null;
 }
 
 // CameraGrid/VideoPanel consume LiveCamera (manifestPath), not
@@ -66,7 +70,7 @@ const firstPlayable = (list: LiveCamera[]) => list.find((c) => c.manifestPath !=
 // camera is still its own independent VOD timeline underneath (no frame-
 // accurate cross-camera sync), a real, harder problem deliberately left for
 // later.
-export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCameraId = null, librasCameraId = null, title, eventId, timeline, adsEnabled = true, chapters }: ReplayPlayerProps) {
+export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCameraId = null, librasCameraId = null, title, eventId, timeline: eventTimeline, adsEnabled = true, chapters, streams: rawStreams, defaultStreamId }: ReplayPlayerProps) {
   const t = useTranslations('player');
 
   const cameras = useMemo(() => rawCameras.map(toLiveCamera), [rawCameras]);
@@ -74,12 +78,23 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     () => rawStages?.map((s) => ({ ...s, cameras: s.cameras.map(toLiveCamera) })),
     [rawStages],
   );
+  const streams = useMemo<PlayerStreamLike<LiveCamera>[] | undefined>(
+    () =>
+      rawStreams?.map((s) => ({
+        ...s,
+        cameras: s.cameras.map(toLiveCamera),
+        stages: s.stages.map((st) => ({ ...st, cameras: st.cameras.map(toLiveCamera) })),
+      })),
+    [rawStreams],
+  );
 
   const shell = usePlayerShell({
     cameras,
     stages,
     primaryCameraId,
     librasCameraId,
+    streams,
+    defaultStreamId,
     // Starts paused: a VOD stream autoplaying with sound the moment the page
     // loads (no direct user gesture on this element) is exactly what browser
     // autoplay policies block anyway — same big-play-button pattern as any
@@ -87,6 +102,16 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     initialPaused: true,
     pickInitialCamera: firstPlayable,
   });
+
+  // Each transmission has its own replay window. A stream with no replay at
+  // all keeps the default stream's window so the selector stays reachable.
+  const activeRawStream = rawStreams?.find((s) => s.id === shell.activeStreamId) ?? null;
+  const timeline = activeRawStream?.timeline ?? eventTimeline;
+  const activeRawCameras = activeRawStream?.cameras ?? rawCameras;
+  // Saved progress is per event, in seconds from the DEFAULT stream's window
+  // (the flattened `timeline`), whatever transmission is on screen — so a
+  // stream switch never shifts what a resume means.
+  const progressWindow = eventTimeline ?? timeline;
 
   // Chapters follow the stage on screen: event-wide ones plus that stage's.
   // The synthetic main stage (event without stages) sees only event-wide ones.
@@ -138,21 +163,21 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
   // início da timeline (linhas já existem nesse formato — ver report abaixo).
   const resumeApplied = useRef(false);
   useEffect(() => {
-    if (resumeApplied.current || !progress || !timeline) return;
+    if (resumeApplied.current || !progress || !progressWindow) return;
     const saved = progress.find((p) => p.eventId === eventId);
     resumeApplied.current = true;
     // resumeSeconds já vem 0 quando o evento foi concluído ou quando a posição
     // é pequena demais — a regra é do servidor, não recalcular aqui.
     if (!saved || saved.resumeSeconds <= 0) return;
-    const resumeAbsoluteMs = timeline.startsAtMs + saved.resumeSeconds * 1000;
+    const resumeAbsoluteMs = progressWindow.startsAtMs + saved.resumeSeconds * 1000;
     setSeekCommand({ time: resumeAbsoluteMs, token: Date.now() });
     setPositionMs(resumeAbsoluteMs);
-  }, [progress, eventId, timeline]);
+  }, [progress, eventId, progressWindow]);
 
   // CameraGrid only reports progress for the PRIMARY panel, and it reports in
   // that camera's own local seconds — its coverage is what converts that back
   // to the absolute instant everything else (positionMs, seekCommand) is in.
-  const primaryCoverage = rawCameras.find((c) => c.cameraId === shell.effectiveMainCameraId)?.coverage ?? [];
+  const primaryCoverage = activeRawCameras.find((c) => c.cameraId === shell.effectiveMainCameraId)?.coverage ?? [];
 
   // `absoluteMs` is the event-timeline instant (see positionMs comment above),
   // not a camera-local offset — the transport bar's domain is the timeline.
@@ -176,12 +201,29 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
     setSeekCommand({ time: positionRef.current, token: Date.now() });
   }, [mainCameraId]);
 
+  // A transmission switch lands on the same instant when the new stream
+  // covers it, else on the nearest edge of its own window.
+  const previousStreamId = useRef(shell.activeStreamId);
+  useEffect(() => {
+    if (previousStreamId.current === shell.activeStreamId) return;
+    previousStreamId.current = shell.activeStreamId;
+    if (!timeline) return;
+    const target = Math.min(Math.max(positionRef.current, timeline.startsAtMs), timeline.endsAtMs);
+    setPositionMs(target);
+    setSeekCommand({ time: target, token: Date.now() });
+  }, [shell.activeStreamId, timeline]);
+
   // ponytail: `!timeline` derruba o replay de VOD junto. O backend devolve
   // timeline null para VOD (asset único, sem costura de pacotes), então um VOD
   // com vídeo pronto cai aqui e anuncia "indisponível" — regressão conhecida,
   // adiada de propósito. Conserto: dar ao VOD uma timeline derivada da duração
   // do asset, mantendo um contrato só, em vez de abrir exceção neste guard.
-  if (!cameras.some((c) => c.manifestPath !== null) || !timeline) {
+  // Across every transmission, so switching to a stream without replay never
+  // strands the viewer outside the player (and its selector).
+  const anyPlayable = (rawStreams?.length ? rawStreams.flatMap((s) => s.cameras) : rawCameras).some(
+    (c) => c.replayPath !== null,
+  );
+  if (!anyPlayable || !timeline) {
     return (
       <div className={styles.emptyState}>
         <h2>{title}</h2>
@@ -207,7 +249,10 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
           // rather than write a wrong one.
           if (absoluteMs === null) return;
           setPositionMs(absoluteMs);
-          report((absoluteMs - timeline.startsAtMs) / 1000, (timeline.endsAtMs - timeline.startsAtMs) / 1000);
+          const win = progressWindow ?? timeline;
+          const duration = (win.endsAtMs - win.startsAtMs) / 1000;
+          // ponytail: a stream recorded outside the default window clamps to its edges.
+          report(Math.min(Math.max((absoluteMs - win.startsAtMs) / 1000, 0), duration), duration);
         }}
         onEnded={() => shell.setPaused(true)}
       />

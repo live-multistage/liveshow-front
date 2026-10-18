@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Volume2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import type { LiveCamera, LiveStage } from '../types/live.types';
+import type { LiveCamera, LiveStage, LivePlaybackStream } from '../types/live.types';
 import { Player, Transport } from './player';
 import { LiveBadge } from './transport/LiveBadge';
 import { liveScrubber } from './transport/live-scrubber';
@@ -23,6 +23,10 @@ interface LivePlayerProps {
   primaryCameraId?: string | null;
   // NBR 15290 — camera pinned as the mandatory Libras window (null if none).
   librasCameraId?: string | null;
+  // Granted transmissions; when present the player shows the active one and
+  // chat/viewer count follow it. Absent = legacy flattened props above.
+  streams?: LivePlaybackStream[];
+  defaultStreamId?: string | null;
   title: string;
   // Chat's room and the header/exit target — the channel passes its own
   // persistent broadcast event here, which doesn't move when a channel's
@@ -59,7 +63,7 @@ interface LivePlayerProps {
 
 // Live = the shared player shell + DVR, viewer tracking/count, chat and the
 // "tap for sound" prompt.
-export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, title, eventId, trackingEventId, chatEnabled, adsEnabled = true, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
+export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, streams, defaultStreamId, title, eventId, trackingEventId, chatEnabled, adsEnabled = true, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
   const t = useTranslations('player');
   const isChannel = variant === 'channel';
   const { user } = useAuth();
@@ -74,6 +78,8 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, t
     stages,
     primaryCameraId,
     librasCameraId,
+    streams,
+    defaultStreamId,
     // A live stream can be paused: the broadcast keeps going, so resuming picks
     // up where the viewer stopped — behind the live edge, inside the DVR window.
     initialPaused: false,
@@ -95,10 +101,12 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, t
 
   const effectiveTrackingEventId = trackingEventId ?? eventId;
   useViewerTracking(effectiveTrackingEventId, shell.activeCameraIds, user?.id);
-  const { currentViewers } = useViewerCount(effectiveTrackingEventId);
+  const { currentViewers } = useViewerCount(effectiveTrackingEventId, shell.activeStreamId);
   // Only open the SSE connection (and hit the recent-messages endpoint) when
   // chat is actually enabled for this event — see Task 7 addendum.
-  const chat = useChat(chatEnabled ? eventId : null);
+  // A channel's chat is the channel's own broadcast-event room — the carried
+  // event's transmissions are not its rooms.
+  const chat = useChat(chatEnabled ? eventId : null, isChannel ? null : shell.activeStreamId);
 
   // Once the viewer turns sound on, the autoplay prompt is done for the session.
   useEffect(() => {

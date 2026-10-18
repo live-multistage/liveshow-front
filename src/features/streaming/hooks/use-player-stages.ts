@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 // The stage/camera shape both players agree on: live stages carry LiveCamera,
@@ -34,6 +34,7 @@ export function usePlayerStages<C extends { cameraId: string; priority: number }
   cameras: C[],
   rawStages: PlayerStageLike<C>[] | undefined,
   primaryCameraId?: string | null,
+  resetKey: string | null = null,
 ) {
   const t = useTranslations('player');
   const stages = useMemo<PlayerStageLike<C>[]>(() => {
@@ -47,6 +48,15 @@ export function usePlayerStages<C extends { cameraId: string; priority: number }
   }, [cameras, rawStages]);
 
   const [activeStageId, setActiveStageId] = useState<string>(() => initialStageId(stages, primaryCameraId));
+  // A new transmission is a new stage list: start over on the stage holding
+  // its primary camera instead of keeping a stage id from the previous stream.
+  const previousResetKey = useRef(resetKey);
+  useEffect(() => {
+    if (previousResetKey.current === resetKey) return;
+    previousResetKey.current = resetKey;
+    setActiveStageId(initialStageId(stages, primaryCameraId));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetKey]);
   const activeStage = stages.find((s) => s.stageId === activeStageId) ?? stages[0];
 
   return { stages, activeStage, activeStageId, setActiveStageId };

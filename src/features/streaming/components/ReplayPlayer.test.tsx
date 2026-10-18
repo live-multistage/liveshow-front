@@ -390,3 +390,21 @@ describe('ReplayPlayer — chapters', () => {
     expect(queryByRole('complementary', { name: 'chapters.label' })).toBeNull();
   });
 });
+
+describe('ReplayPlayer — transmissions', () => {
+  it("spans the scrubber over the active transmission's own window", () => {
+    const vipTimeline = { startsAtMs: CAM_B_START_MS, endsAtMs: CAM_B_START_MS + 300_000 };
+    const streams = [
+      { id: 'main', title: 'Principal', position: 0, stages: [], cameras: [camA], primaryCameraId: 'cam-a', librasCameraId: null, timeline },
+      { id: 'vip', title: 'VIP', position: 1, stages: [], cameras: [camB], primaryCameraId: 'cam-b', librasCameraId: null, timeline: vipTimeline },
+    ];
+
+    const { container } = render(
+      <ReplayPlayer cameras={[camA]} title="Evento" eventId="evt-1" timeline={timeline} streams={streams} defaultStreamId="vip" />,
+    );
+
+    const slider = container.querySelector('input[type="range"][aria-label="seekPosition"]') as HTMLInputElement;
+    expect(slider.min).toBe(String(vipTimeline.startsAtMs));
+    expect(slider.max).toBe(String(vipTimeline.endsAtMs));
+  });
+});
