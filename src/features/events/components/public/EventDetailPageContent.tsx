@@ -92,8 +92,12 @@ export function EventDetailPageContent({ id }: Props) {
   // instead of the poster.
   const granted = liveAccess.data === true && isLive && playback.data?.live ? playback.data : null;
   const defaultStream = granted?.streams?.find((s) => s.id === granted.defaultStreamId) ?? null;
-  // The default transmission must be on air; otherwise keep the poster.
-  const livePlayback = defaultStream?.live === false ? null : granted;
+  // The default transmission must be on air with a camera that already has a
+  // path: `live` also counts jobs still waiting for a viewer, and the preview
+  // never joins, so a cold camera would spin forever. Otherwise keep the poster.
+  const heroCameras = defaultStream?.cameras ?? granted?.cameras ?? [];
+  const playable = heroCameras.some((c) => c.manifestPath || c.llPath);
+  const livePlayback = defaultStream?.live === false || !playable ? null : granted;
   const watching = livePlayback ? defaultStream : null;
   const upsell = livePlayback?.lockedStreams?.[0]?.offer ?? null;
   const heroImage = heroImgFailed ? null : event.bannerUrl ?? event.thumbnailUrl;

@@ -353,9 +353,13 @@ describe('toTrackedStatus', () => {
 });
 
 describe('EventDetailPageContent — live hero for viewers with access', () => {
+  const servingCamera = {
+    cameraId: 'c-1', name: 'Palco', slug: 'palco', priority: 1, live: true,
+    manifestPath: '/packages/p1/live/master.m3u8', llPath: null, thumbnailUrl: null,
+  };
   const playbackData = {
-    eventId: 'evt-1', live: true, latencyMode: 'STANDARD', cameras: [], primaryCameraId: null, librasCameraId: null,
-    streams: [{ id: 's-cov', title: 'Cobertura', position: 0, live: true, stages: [], cameras: [], primaryCameraId: null, librasCameraId: null }],
+    eventId: 'evt-1', live: true, latencyMode: 'STANDARD', cameras: [servingCamera], primaryCameraId: 'c-1', librasCameraId: null,
+    streams: [{ id: 's-cov', title: 'Cobertura', position: 0, live: true, stages: [], cameras: [servingCamera], primaryCameraId: 'c-1', librasCameraId: null }],
     defaultStreamId: 's-cov',
     lockedStreams: [{
       id: 's-full', title: 'Evento completo', position: 1, live: true,
@@ -400,6 +404,20 @@ describe('EventDetailPageContent — live hero for viewers with access', () => {
 
     expect(screen.queryByTestId('live-preview')).toBeNull();
     expect(screen.queryByText('watchingChip')).toBeNull();
+  });
+
+  it('keeps the poster while the default transmission has no playable camera yet (job not RUNNING)', () => {
+    // live counts WAITING_VIEWERS/QUEUED jobs, and the preview never joins,
+    // so nothing would ever start it.
+    const cold = { ...servingCamera, manifestPath: null, llPath: null };
+    live.access = { data: true };
+    live.playback = {
+      data: { ...playbackData, cameras: [cold], streams: [{ ...playbackData.streams[0], cameras: [cold] }] },
+    };
+
+    renderWithEvent(makeEvent({ status: 'LIVE' }));
+
+    expect(screen.queryByTestId('live-preview')).toBeNull();
   });
 
   it('keeps the poster while nothing granted is on air', () => {
