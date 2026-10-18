@@ -384,4 +384,44 @@ describe('useChat', () => {
     await waitFor(() => expect(first.closed).toBe(true));
     await waitFor(() => expect(latestSource()).not.toBe(first));
   });
+
+  it('returning to a room re-bootstraps and shows messages posted while away', async () => {
+    const late = { ...recentFixture.messages[0], id: 'late-1', body: 'while away' };
+    let mainCalls = 0;
+    mockedRecent.mockImplementation(async (_e: string, streamId?: string | null) => {
+      if (streamId === 's-vip') return { ...recentFixture, messages: [] };
+      mainCalls += 1;
+      return { ...recentFixture, messages: mainCalls === 1 ? recentFixture.messages : [...recentFixture.messages, late] };
+    });
+    const { wrapper } = makeWrapper();
+    const { result, rerender } = renderHook(({ streamId }) => useChat('evt-1', streamId), {
+      wrapper,
+      initialProps: { streamId: 's-main' as string | null },
+    });
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    rerender({ streamId: 's-vip' });
+    await waitFor(() => expect(mockedRecent).toHaveBeenCalledWith('evt-1', 's-vip'));
+    rerender({ streamId: 's-main' });
+    await waitFor(() => expect(result.current.messages.map((m) => m.id)).toContain('late-1'));
+  });
+
+  it('renders nothing from the old room before the new bootstrap resolves', async () => {
+    let release!: () => void;
+    mockedRecent.mockImplementation(async (_e: string, streamId?: string | null) => {
+      if (streamId === 's-vip') await new Promise<void>((res) => (release = res));
+      return recentFixture;
+    });
+    const { wrapper } = makeWrapper();
+    const { result, rerender } = renderHook(({ streamId }) => useChat('evt-1', streamId), {
+      wrapper,
+      initialProps: { streamId: 's-main' as string | null },
+    });
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    rerender({ streamId: 's-vip' });
+    expect(result.current.messages).toHaveLength(0);
+    expect(result.current.me).toBeNull();
+    await waitFor(() => expect(release).toBeDefined());
+    release();
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+  });
 });

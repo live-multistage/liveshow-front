@@ -102,6 +102,9 @@ export function useChat(eventId: string | null, streamId: string | null = null) 
     queryKey: chatKeys.recent(eventId ?? '', streamId),
     queryFn: () => chatService.recent(eventId as string, streamId),
     staleTime: Infinity,
+    // Dropped as soon as the room is left: coming back must bootstrap from a
+    // fresh fetch, since the SSE stream does no backfill on first connect.
+    gcTime: 0,
     enabled: eventId !== null,
   });
   // Read inside the SSE effect without adding the query object (a new
@@ -111,13 +114,16 @@ export function useChat(eventId: string | null, streamId: string | null = null) 
 
   // Switching transmission is switching rooms: drop the previous room's
   // messages at once instead of showing them until the new bootstrap lands.
-  const previousRoomRef = useRef(roomKey);
-  useEffect(() => {
-    if (previousRoomRef.current === roomKey) return;
-    previousRoomRef.current = roomKey;
+  // Reset during render (not in an effect) so no committed render shows the old room.
+  const [renderedRoom, setRenderedRoom] = useState(roomKey);
+  if (renderedRoom !== roomKey) {
+    setRenderedRoom(roomKey);
+    seededRoomRef.current = null; // the new room must seed even if we left before the last one did
     setMessages([]);
     setMe(null);
-  }, [roomKey]);
+  }
+  const roomKeyRef = useRef(roomKey);
+  roomKeyRef.current = roomKey;
 
   // Recent-messages bootstrap seeds local state exactly once per eventId —
   // afterwards `messages`/`me` are owned by the SSE stream (and mutations),
@@ -280,8 +286,10 @@ export function useChat(eventId: string | null, streamId: string | null = null) 
   }, [roomKey, user?.id, bootstrapForbidden, recentQuery.isLoading]);
 
   const sendMessageMutation = useMutation({
-    mutationFn: (body: string) => chatService.send(eventId as string, body, streamId),
-    onError: (error) => {
+    mutationFn: ({ body }: { body: string; room: string | null }) =>
+      chatService.send(eventId as string, body, streamId),
+    onError: (error, { room }) => {
+      if (room !== roomKeyRef.current) return; // sent from a room we've left
       const appError = normalizeError(error);
       if (appError.code === CHAT_ERROR_CODES.MUTED) {
         setMe((prev) => (prev ? { ...prev, isMuted: true, canWrite: false } : prev));
@@ -299,9 +307,9 @@ export function useChat(eventId: string | null, streamId: string | null = null) 
     (body: string) => {
       const trimmed = body.trim();
       if (!trimmed || eventId === null) return;
-      sendMessageMutation.mutate(trimmed);
+      sendMessageMutation.mutate({ body: trimmed, room: roomKey });
     },
-    [sendMessageMutation, eventId],
+    [sendMessageMutation, eventId, roomKey],
   );
 
   const react = useCallback(
