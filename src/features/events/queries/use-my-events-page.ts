@@ -3,7 +3,7 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { eventsService } from '../services/events.service';
 import { MY_EVENTS_KEY } from './get-my-events';
-import type { MyEventsPageParams } from '../types/my-events.types';
+import type { MyEventsPageParams } from '../types/event.types';
 
 // Both keys live under MY_EVENTS_KEY so the existing event mutations, which
 // invalidate that prefix, refresh the paged dashboard list and its counts too.

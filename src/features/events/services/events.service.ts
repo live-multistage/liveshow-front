@@ -1,7 +1,6 @@
 import { httpClient } from '@/lib/http/client';
 import type { MyEventTicketsResponse } from '@live-show/api-contracts';
-import type { AccessibilityStatus, CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsParams, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
-import type { MyEventCounts, MyEventsPageParams, MyEventsPageResponse } from '../types/my-events.types';
+import type { AccessibilityStatus, CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, ListEventsParams, MyEventCounts, MyEventsPageParams, MyEventsPageResponse, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
 
 export const eventsService = {
   // The caller's PAID products for this event (JWT only). Drives the

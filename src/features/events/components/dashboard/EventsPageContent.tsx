@@ -9,7 +9,7 @@ import { Pagination } from '@live-show/design-system';
 import { useMyEventCountsQuery, useMyEventsPageQuery } from '../../queries/use-my-events-page';
 import { hrefForMyEvents, parseMyEventsParams } from '../../utils/my-events-params';
 import { EventDashboardCard } from './EventDashboardCard';
-import type { MyEventCounts, MyEventsStatusFilter } from '../../types/my-events.types';
+import type { MyEventCounts, MyEventsStatusFilter } from '../../types/event.types';
 import styles from './EventsPageContent.module.scss';
 
 const DEFAULT_PAGE_SIZE = 20;

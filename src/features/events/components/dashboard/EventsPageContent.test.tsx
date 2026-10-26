@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within, fireEvent } from '@testing-library/react';
-import type { MyEventCounts, MyEventsPageResponse } from '../../types/my-events.types';
+import type { MyEventCounts, MyEventsPageResponse } from '../../types/event.types';
 
 let searchParams = new URLSearchParams();
 const push = vi.fn();

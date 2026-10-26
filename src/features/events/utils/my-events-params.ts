@@ -1,5 +1,5 @@
 import type { ReadonlyURLSearchParams } from 'next/navigation';
-import type { MyEventsStatusFilter } from '../types/my-events.types';
+import type { MyEventsStatusFilter } from '../types/event.types';
 
 // The statuses the dashboard has a tab for; SCHEDULED has none, so it isn't read from the URL.
 export const MY_EVENTS_STATUSES: MyEventsStatusFilter[] = ['DRAFT', 'PUBLISHED', 'LIVE', 'FINISHED', 'CANCELLED'];
