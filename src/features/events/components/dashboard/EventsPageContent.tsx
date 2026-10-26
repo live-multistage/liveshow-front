@@ -48,6 +48,7 @@ export function EventsPageContent() {
   ];
 
   const loaded = !isLoading && !isError && !!data;
+  const outOfRange = page > pageCount;
   const hrefForPage = (target: number) => hrefForMyEvents({ status, page: target });
 
   return (
@@ -112,7 +113,7 @@ export function EventsPageContent() {
         </div>
       )}
 
-      {loaded && total > 0 && (
+      {loaded && total > 0 && !outOfRange && (
         <div className={styles.paginationRow}>
           <span className={styles.paginationRange}>
             {tList('pagination.range', {
@@ -122,7 +123,7 @@ export function EventsPageContent() {
             })}
           </span>
           <Pagination
-            page={Math.min(page, pageCount)}
+            page={page}
             pageCount={pageCount}
             onPageChange={(target) => router.push(hrefForPage(target))}
             hrefFor={hrefForPage}

@@ -126,6 +126,9 @@ describe('EventsPageContent', () => {
     setPage(makePage(25, 9, 0));
     render(<EventsPageContent />);
     expect(replace).toHaveBeenCalledWith('/dashboard/events?status=LIVE&page=2');
+    // No "1961–24 of 25" range or pager flashes while the redirect lands.
+    expect(screen.queryByText(/events.list.pagination.range/)).toBeNull();
+    expect(screen.queryByRole('navigation', { name: 'events.list.pagination.nav' })).toBeNull();
   });
 
   it('does not clamp against placeholder data from the previous tab', () => {
