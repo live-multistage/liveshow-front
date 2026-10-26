@@ -297,8 +297,11 @@ export function EventsListPageContent({
               >
                 {c.icon}
                 {c.label}
-                <span className={isActive ? styles.chipBadgeActive : styles.chipBadgeInactive}>
-                  {counts?.[c.id] ?? '—'}
+                <span
+                  className={isActive ? styles.chipBadgeActive : styles.chipBadgeInactive}
+                  title={counts ? counts[c.id].toLocaleString('pt-BR') : undefined}
+                >
+                  {counts ? formatCount(counts[c.id]) : '—'}
                 </span>
               </button>
             );
