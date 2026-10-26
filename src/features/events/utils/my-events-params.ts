@@ -1,7 +1,7 @@
 import type { ReadonlyURLSearchParams } from 'next/navigation';
 import type { MyEventsStatusFilter } from '../types/my-events.types';
 
-export const MY_EVENTS_STATUSES: MyEventsStatusFilter[] = ['live', 'upcoming', 'finished'];
+export const MY_EVENTS_STATUSES: MyEventsStatusFilter[] = ['DRAFT', 'PUBLISHED', 'LIVE', 'FINISHED', 'CANCELLED'];
 
 export interface MyEventsUrlState {
   status?: MyEventsStatusFilter;

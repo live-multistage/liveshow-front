@@ -766,7 +766,6 @@
     "filterDraft": "Draft",
     "filterPublished": "Published",
     "filterLive": "Live",
-    "filterUpcoming": "Upcoming",
     "filterFinished": "Finished",
     "filterCancelled": "Cancelled",
     "loading": "Loading events...",

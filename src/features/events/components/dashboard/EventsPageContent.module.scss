@@ -112,9 +112,6 @@
 }
 
 .filterBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
   text-decoration: none;
   background: none;
   border: 1px solid $border;
@@ -135,12 +132,6 @@
   background-color: $action-dim;
   border-color: $action;
   color: $text-primary;
-}
-
-.filterCount {
-  font-size: 0.72rem;
-  color: $text-secondary;
-  font-variant-numeric: tabular-nums;
 }
 
 // ── Grid ──────────────────────────────────────────────────────────

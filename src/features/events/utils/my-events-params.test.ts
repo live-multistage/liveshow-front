@@ -7,12 +7,12 @@ describe('parseMyEventsParams', () => {
   });
 
   it('reads a valid status and page', () => {
-    expect(parseMyEventsParams(new URLSearchParams('status=live&page=3'))).toEqual({ status: 'live', page: 3 });
+    expect(parseMyEventsParams(new URLSearchParams('status=DRAFT&page=3'))).toEqual({ status: 'DRAFT', page: 3 });
   });
 
   it('drops unknown statuses and invalid pages', () => {
-    expect(parseMyEventsParams(new URLSearchParams('status=DRAFT&page=-2'))).toEqual({ page: 1 });
-    expect(parseMyEventsParams(new URLSearchParams('page=abc'))).toEqual({ page: 1 });
+    expect(parseMyEventsParams(new URLSearchParams('status=live&page=-2'))).toEqual({ page: 1 });
+    expect(parseMyEventsParams(new URLSearchParams('status=SCHEDULED&page=abc'))).toEqual({ page: 1 });
   });
 
   it('floors fractional pages', () => {
@@ -26,10 +26,10 @@ describe('hrefForMyEvents', () => {
   });
 
   it('keeps status and page', () => {
-    expect(hrefForMyEvents({ status: 'upcoming', page: 2 })).toBe('/dashboard/events?status=upcoming&page=2');
+    expect(hrefForMyEvents({ status: 'PUBLISHED', page: 2 })).toBe('/dashboard/events?status=PUBLISHED&page=2');
   });
 
   it('drops page 1 but keeps status', () => {
-    expect(hrefForMyEvents({ status: 'finished', page: 1 })).toBe('/dashboard/events?status=finished');
+    expect(hrefForMyEvents({ status: 'CANCELLED', page: 1 })).toBe('/dashboard/events?status=CANCELLED');
   });
 });

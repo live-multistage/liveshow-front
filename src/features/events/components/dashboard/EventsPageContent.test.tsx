@@ -58,46 +58,59 @@ describe('EventsPageContent', () => {
   });
 
   it('requests the page and status from the URL', () => {
-    searchParams = new URLSearchParams('status=finished&page=2');
+    searchParams = new URLSearchParams('status=DRAFT&page=2');
     setPage(makePage(30, 2));
     render(<EventsPageContent />);
-    expect(pageQuery).toHaveBeenLastCalledWith({ page: 2, status: 'finished' });
+    expect(pageQuery).toHaveBeenLastCalledWith({ page: 2, status: 'DRAFT' });
   });
 
-  it('shows stats and tab counters from the counts endpoint', () => {
+  it('shows the stat cards from the counts endpoint', () => {
     render(<EventsPageContent />);
-    const tabs = screen.getByRole('navigation', { name: 'eventsPage.filtersNav' });
-    expect(within(tabs).getByRole('link', { name: /eventsPage.filterAll\s*45/ })).toBeTruthy();
-    expect(within(tabs).getByRole('link', { name: /eventsPage.filterLive\s*2/ })).toBeTruthy();
-    expect(within(tabs).getByRole('link', { name: /eventsPage.filterUpcoming\s*13/ })).toBeTruthy();
-    expect(within(tabs).getByRole('link', { name: /eventsPage.filterFinished\s*30/ })).toBeTruthy();
-    expect(screen.getByText('eventsPage.statTotal').previousElementSibling?.textContent).toBe('45');
+    const stat = (label: string) => screen.getByText(label).previousElementSibling?.textContent;
+    expect(stat('eventsPage.statTotal')).toBe('45');
+    expect(stat('eventsPage.statLive')).toBe('2');
+    expect(stat('eventsPage.statPublished')).toBe('13');
+    expect(stat('eventsPage.statFinished')).toBe('30');
+  });
+
+  it('renders the six status tabs without counters', () => {
+    render(<EventsPageContent />);
+    const tabs = within(screen.getByRole('navigation', { name: 'eventsPage.filtersNav' })).getAllByRole('link');
+    expect(tabs.map((tab) => tab.textContent)).toEqual([
+      'eventsPage.filterAll',
+      'eventsPage.filterDraft',
+      'eventsPage.filterPublished',
+      'eventsPage.filterLive',
+      'eventsPage.filterFinished',
+      'eventsPage.filterCancelled',
+    ]);
   });
 
   it('shows no stale numbers while counts load', () => {
     countsData = undefined;
     render(<EventsPageContent />);
     expect(screen.getByText('eventsPage.statTotal').previousElementSibling?.textContent).toBe('–');
-    expect(screen.getByRole('link', { name: 'eventsPage.filterLive' })).toBeTruthy();
   });
 
   it('tab links reset to page 1 and keep the chosen status', () => {
     searchParams = new URLSearchParams('page=3');
     setPage(makePage(45, 3, 5));
     render(<EventsPageContent />);
-    expect(screen.getByRole('link', { name: /eventsPage.filterLive/ }).getAttribute('href')).toBe('/dashboard/events?status=live');
-    expect(screen.getByRole('link', { name: /eventsPage.filterAll/ }).getAttribute('href')).toBe('/dashboard/events');
-    expect(screen.getByRole('link', { name: /eventsPage.filterAll/ }).getAttribute('aria-current')).toBe('page');
+    expect(screen.getByRole('link', { name: 'eventsPage.filterDraft' }).getAttribute('href')).toBe('/dashboard/events?status=DRAFT');
+    expect(screen.getByRole('link', { name: 'eventsPage.filterCancelled' }).getAttribute('href')).toBe('/dashboard/events?status=CANCELLED');
+    expect(screen.getByRole('link', { name: 'eventsPage.filterAll' }).getAttribute('href')).toBe('/dashboard/events');
+    expect(screen.getByRole('link', { name: 'eventsPage.filterAll' }).getAttribute('aria-current')).toBe('page');
   });
 
   it('paginates within the current tab', () => {
-    searchParams = new URLSearchParams('status=upcoming');
+    searchParams = new URLSearchParams('status=PUBLISHED');
     setPage(makePage(45));
     render(<EventsPageContent />);
+    expect(screen.getByRole('link', { name: 'eventsPage.filterPublished' }).getAttribute('aria-current')).toBe('page');
     const pager = screen.getByRole('navigation', { name: 'events.list.pagination.nav' });
-    expect(within(pager).getByRole('link', { name: '2' }).getAttribute('href')).toBe('/dashboard/events?status=upcoming&page=2');
+    expect(within(pager).getByRole('link', { name: '2' }).getAttribute('href')).toBe('/dashboard/events?status=PUBLISHED&page=2');
     fireEvent.click(within(pager).getByRole('link', { name: 'events.list.pagination.nextAria' }));
-    expect(push).toHaveBeenCalledWith('/dashboard/events?status=upcoming&page=2');
+    expect(push).toHaveBeenCalledWith('/dashboard/events?status=PUBLISHED&page=2');
     expect(screen.getByText(/events.list.pagination.range/).textContent).toContain('"from":1,"to":20,"total":45');
   });
 
@@ -109,14 +122,14 @@ describe('EventsPageContent', () => {
   });
 
   it('clamps a page past the end back to the last page', () => {
-    searchParams = new URLSearchParams('status=live&page=9');
+    searchParams = new URLSearchParams('status=LIVE&page=9');
     setPage(makePage(25, 9, 0));
     render(<EventsPageContent />);
-    expect(replace).toHaveBeenCalledWith('/dashboard/events?status=live&page=2');
+    expect(replace).toHaveBeenCalledWith('/dashboard/events?status=LIVE&page=2');
   });
 
   it('does not clamp against placeholder data from the previous tab', () => {
-    searchParams = new URLSearchParams('status=live&page=3');
+    searchParams = new URLSearchParams('status=LIVE&page=3');
     setPage(makePage(5, 1, 5), { isPlaceholderData: true });
     render(<EventsPageContent />);
     expect(replace).not.toHaveBeenCalled();
@@ -131,7 +144,7 @@ describe('EventsPageContent', () => {
   });
 
   it('shows the empty-tab state with a way back to every event', () => {
-    searchParams = new URLSearchParams('status=live');
+    searchParams = new URLSearchParams('status=CANCELLED');
     setPage(makePage(0));
     render(<EventsPageContent />);
     expect(screen.getByText('eventsPage.emptyFilter')).toBeTruthy();

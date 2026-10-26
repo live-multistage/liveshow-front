@@ -38,11 +38,13 @@ export function EventsPageContent() {
     router.replace(hrefForMyEvents({ status, page: pageCount }));
   }, [data, isPlaceholderData, page, pageCount, status, router]);
 
-  const tabs: { label: string; status?: MyEventsStatusFilter; count?: number }[] = [
-    { label: t('filterAll'), count: counts?.all },
-    { label: t('filterLive'), status: 'live', count: counts?.live },
-    { label: t('filterUpcoming'), status: 'upcoming', count: counts?.upcoming },
-    { label: t('filterFinished'), status: 'finished', count: counts?.finished },
+  const tabs: { label: string; status?: MyEventsStatusFilter }[] = [
+    { label: t('filterAll') },
+    { label: t('filterDraft'), status: 'DRAFT' },
+    { label: t('filterPublished'), status: 'PUBLISHED' },
+    { label: t('filterLive'), status: 'LIVE' },
+    { label: t('filterFinished'), status: 'FINISHED' },
+    { label: t('filterCancelled'), status: 'CANCELLED' },
   ];
 
   const loaded = !isLoading && !isError && !!data;
@@ -74,7 +76,6 @@ export function EventsPageContent() {
               className={`${styles.filterBtn} ${active ? styles.filterActive : ''}`}
             >
               {tab.label}
-              {tab.count !== undefined && <span className={styles.filterCount}>{tab.count}</span>}
             </Link>
           );
         })}

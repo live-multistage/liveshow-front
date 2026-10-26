@@ -31,9 +31,9 @@ describe('my events page queries', () => {
   it('useMyEventsPageQuery forwards params to the service', async () => {
     listMock.mockResolvedValue({ items: [], page: 3, pageSize: 20, total: 60 });
     const { wrapper } = makeWrapper();
-    const { result } = renderHook(() => useMyEventsPageQuery({ page: 3, status: 'finished' }), { wrapper });
+    const { result } = renderHook(() => useMyEventsPageQuery({ page: 3, status: 'FINISHED' }), { wrapper });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(listMock).toHaveBeenCalledWith({ page: 3, status: 'finished' });
+    expect(listMock).toHaveBeenCalledWith({ page: 3, status: 'FINISHED' });
   });
 
   it('useMyEventCountsQuery returns the counts', async () => {

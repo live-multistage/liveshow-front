@@ -11,9 +11,9 @@ describe('eventsService my events', () => {
   it('listMyEvents sends page, pageSize and status to the paged endpoint', async () => {
     const body = { items: [], page: 2, pageSize: 20, total: 0 };
     get.mockResolvedValueOnce({ data: body });
-    await expect(eventsService.listMyEvents({ page: 2, status: 'live' })).resolves.toEqual(body);
+    await expect(eventsService.listMyEvents({ page: 2, status: 'LIVE' })).resolves.toEqual(body);
     expect(get).toHaveBeenCalledWith('/events/mine/paged', {
-      params: { page: 2, pageSize: 20, status: 'live' },
+      params: { page: 2, pageSize: 20, status: 'LIVE' },
     });
   });
 

@@ -1,9 +1,10 @@
-import type { EventResponse } from '@live-show/api-contracts';
+import type { EventResponse, EventStatus } from '@live-show/api-contracts';
 
 // TODO: swap for the `@live-show/api-contracts` exports of the same names once
 // the backend ships them (GET /events/mine/paged and GET /events/mine/counts).
 
-export type MyEventsStatusFilter = 'live' | 'upcoming' | 'finished';
+// Exact event status; absent means every event.
+export type MyEventsStatusFilter = Exclude<EventStatus, 'SCHEDULED'>;
 
 export interface MyEventsPageParams {
   page?: number;
