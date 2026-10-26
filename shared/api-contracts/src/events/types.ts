@@ -7,6 +7,10 @@ export type EventFormat = 'LIVE' | 'VOD';
 
 export type ListEventsFilter = 'upcoming' | 'live' | 'finished' | 'all';
 
+// Date window for GET /events, America/Sao_Paulo: today = starts today;
+// weekend = Fri–Sun within the next 7 days.
+export type ListEventsWhen = 'today' | 'weekend';
+
 export type EventCategory =
   | 'MUSIC' | 'COMEDY' | 'THEATER' | 'DANCE' | 'SPORTS'
   | 'FOOTBALL' | 'MOTORSPORT' | 'CORPORATE'
@@ -15,6 +19,7 @@ export type EventCategory =
 // Server-side filters for GET /events (all optional, AND-ed).
 export interface ListEventsParams {
   filter?: ListEventsFilter;
+  when?: ListEventsWhen;
   category?: EventCategory;
   subtype?: string;
   tag?: string;
@@ -22,6 +27,17 @@ export interface ListEventsParams {
   free?: boolean;
   page?: number;
   pageSize?: number;
+}
+
+// GET /events/counts — one number per /events chip, scoped by the same
+// category/subtype/tag/city as the listing.
+export interface EventFacetCounts {
+  all: number;
+  live: number;
+  replay: number;
+  today: number;
+  weekend: number;
+  free: number;
 }
 
 export const EVENT_CATEGORIES: EventCategory[] = [

@@ -53,6 +53,17 @@ describe('fetchFeedPage', () => {
     expect(result).toEqual({ items: [], page: 2, pageSize: 24, total: 0 });
   });
 
+  it('forwards when to the query string', async () => {
+    const fetchMock = vi.fn(async (_url: string) => ({ ok: true, json: async () => emptyPage() } as Response));
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const { fetchFeedPage } = await import('./get-feed.server');
+    await fetchFeedPage({ when: 'weekend', page: 1, pageSize: 24 });
+
+    const [url] = fetchMock.mock.calls[0];
+    expect(url).toContain('/events?filter=all&when=weekend&page=1&pageSize=24');
+  });
+
   it('includes category/subtype/tag/city/free/filter when given', async () => {
     const fetchMock = vi.fn(async (_url: string) => ({ ok: true, json: async () => emptyPage() } as Response));
     global.fetch = fetchMock as unknown as typeof fetch;

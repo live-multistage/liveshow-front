@@ -1,8 +1,9 @@
 import type { ReadonlyURLSearchParams } from 'next/navigation';
 import { EVENT_CATEGORIES } from '../types/event.types';
-import type { EventCategory, ListEventsFilter, ListEventsParams } from '../types/event.types';
+import type { EventCategory, ListEventsFilter, ListEventsParams, ListEventsWhen } from '../types/event.types';
 
 const FILTERS: ListEventsFilter[] = ['upcoming', 'live', 'finished', 'all'];
+const WHEN_VALUES: ListEventsWhen[] = ['today', 'weekend'];
 const MAX_LENGTH = 120;
 
 function trimmedParam(value: string | null): string | undefined {
@@ -27,6 +28,11 @@ export function parseListParams(
     ? (categoryRaw as EventCategory)
     : undefined;
 
+  const whenRaw = sp.get('when');
+  const when = (WHEN_VALUES as string[]).includes(whenRaw ?? '')
+    ? (whenRaw as ListEventsWhen)
+    : undefined;
+
   const subtype = trimmedParam(sp.get('subtype'));
   const tag = trimmedParam(sp.get('tag'));
   const city = trimmedParam(sp.get('city'));
@@ -38,6 +44,7 @@ export function parseListParams(
   const page = Number.isFinite(rawPage) && rawPage >= 1 ? Math.floor(rawPage) : 1;
 
   const params: ListEventsParams = { filter, page, pageSize };
+  if (when) params.when = when;
   if (category) params.category = category;
   if (subtype) params.subtype = subtype;
   if (tag) params.tag = tag;

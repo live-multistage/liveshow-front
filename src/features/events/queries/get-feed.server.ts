@@ -30,6 +30,7 @@ export const fetchFeed = async (): Promise<EventResponse[]> => (await fetchFeedF
 function buildQuery(params: ListEventsParams): string {
   const sp = new URLSearchParams();
   if (params.filter) sp.set('filter', params.filter);
+  if (params.when) sp.set('when', params.when);
   if (params.category) sp.set('category', params.category);
   if (params.subtype) sp.set('subtype', params.subtype);
   if (params.tag) sp.set('tag', params.tag);

@@ -30,6 +30,21 @@ describe('parseListParams', () => {
     });
   });
 
+  it('reads a valid when', () => {
+    expect(parseListParams(new URLSearchParams('when=today'), 24)).toEqual({
+      filter: 'all', when: 'today', page: 1, pageSize: 24,
+    });
+    expect(parseListParams(new URLSearchParams('when=weekend'), 24)).toEqual({
+      filter: 'all', when: 'weekend', page: 1, pageSize: 24,
+    });
+  });
+
+  it('drops an invalid when', () => {
+    expect(parseListParams(new URLSearchParams('when=tomorrow'), 24)).toEqual({
+      filter: 'all', page: 1, pageSize: 24,
+    });
+  });
+
   it('reads subtype, tag, city, trimmed', () => {
     expect(parseListParams(new URLSearchParams('subtype=%20sertanejo%20&tag=rock&city=São+Paulo'), 24)).toEqual({
       filter: 'all', subtype: 'sertanejo', tag: 'rock', city: 'São Paulo', page: 1, pageSize: 24,
