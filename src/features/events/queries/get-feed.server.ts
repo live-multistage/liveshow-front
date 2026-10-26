@@ -1,5 +1,5 @@
 import { cache } from 'react';
-import type { EventResponse, ListEventsParams, PaginatedEventsResponse } from '../types/event.types';
+import type { EventFacetCounts, EventResponse, ListEventsParams, PaginatedEventsResponse } from '../types/event.types';
 
 // Server-side fetches use native fetch, not the axios httpClient (which is
 // 'use client' and carries browser-only auth interceptors). Public endpoint —
@@ -55,3 +55,23 @@ export const fetchFeedPage = cache(async (params: ListEventsParams): Promise<Pag
     return { ...EMPTY, page, pageSize };
   }
 });
+
+// Chip badge counts for the /events listing (whole catalog, scoped by
+// category/subtype/tag/city). null on failure — the client query refetches.
+export const fetchEventCounts = cache(
+  async (base: Pick<ListEventsParams, 'category' | 'subtype' | 'tag' | 'city'>): Promise<EventFacetCounts | null> => {
+    const sp = new URLSearchParams();
+    if (base.category) sp.set('category', base.category);
+    if (base.subtype) sp.set('subtype', base.subtype);
+    if (base.tag) sp.set('tag', base.tag);
+    if (base.city) sp.set('city', base.city);
+    const qs = sp.toString();
+    try {
+      const res = await fetch(`${apiBase()}/events/counts${qs ? `?${qs}` : ''}`, { next: { revalidate: 30 } });
+      if (!res.ok) return null;
+      return (await res.json()) as EventFacetCounts;
+    } catch {
+      return null;
+    }
+  },
+);

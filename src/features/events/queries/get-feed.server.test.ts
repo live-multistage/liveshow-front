@@ -75,3 +75,38 @@ describe('fetchFeedPage', () => {
     expect(url).toContain('/events?filter=live&category=MUSIC&subtype=sertanejo&tag=rock&city=SP&free=1&page=1&pageSize=24');
   });
 });
+
+describe('fetchEventCounts', () => {
+  const originalFetch = global.fetch;
+  const counts = { all: 10, live: 1, replay: 2, today: 3, weekend: 4, free: 5 };
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    vi.resetModules();
+  });
+
+  it('requests /events/counts with only the set scope params', async () => {
+    const fetchMock = vi.fn(async (_url: string) => ({ ok: true, json: async () => counts } as Response));
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const { fetchEventCounts } = await import('./get-feed.server');
+    const result = await fetchEventCounts({ category: 'MUSIC', city: 'SP' });
+
+    expect(result).toEqual(counts);
+    expect(fetchMock.mock.calls[0][0]).toContain('/events/counts?category=MUSIC&city=SP');
+  });
+
+  it('returns null on a non-ok response', async () => {
+    global.fetch = vi.fn(async () => ({ ok: false } as Response)) as unknown as typeof fetch;
+    const { fetchEventCounts } = await import('./get-feed.server');
+    expect(await fetchEventCounts({})).toBeNull();
+  });
+
+  it('returns null when the fetch throws', async () => {
+    global.fetch = vi.fn(async () => {
+      throw new Error('network down');
+    }) as unknown as typeof fetch;
+    const { fetchEventCounts } = await import('./get-feed.server');
+    expect(await fetchEventCounts({})).toBeNull();
+  });
+});

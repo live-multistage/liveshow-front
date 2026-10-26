@@ -65,3 +65,33 @@ export function hrefForPage(sp: URLSearchParams | ReadonlyURLSearchParams, page:
   const qs = next.toString();
   return qs ? `/events?${qs}` : '/events';
 }
+
+export type ChipId = 'all' | 'live' | 'replay' | 'today' | 'weekend' | 'free';
+
+// The chip row is a view over the URL: each chip maps to exactly one param.
+export function chipFromParams(params: ListEventsParams): ChipId {
+  if (params.filter === 'live') return 'live';
+  if (params.filter === 'finished') return 'replay';
+  if (params.when) return params.when;
+  if (params.free) return 'free';
+  return 'all';
+}
+
+const CHIP_PARAM: Partial<Record<ChipId, [string, string]>> = {
+  live: ['filter', 'live'],
+  replay: ['filter', 'finished'],
+  today: ['when', 'today'],
+  weekend: ['when', 'weekend'],
+  free: ['free', '1'],
+};
+
+// Href for selecting `chip`: swaps the chip param, resets page, keeps
+// category/subtype/tag/city.
+export function hrefForChip(sp: URLSearchParams | ReadonlyURLSearchParams, chip: ChipId): string {
+  const next = new URLSearchParams(sp.toString());
+  for (const key of ['filter', 'when', 'free', 'page']) next.delete(key);
+  const entry = CHIP_PARAM[chip];
+  if (entry) next.set(entry[0], entry[1]);
+  const qs = next.toString();
+  return qs ? `/events?${qs}` : '/events';
+}

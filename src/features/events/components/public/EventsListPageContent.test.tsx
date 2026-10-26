@@ -42,8 +42,10 @@ vi.mock('@live-show/analytics-sdk/react', () => ({
 // feature barrel — mock just those, skipping the barrel's much heavier
 // dashboard-side exports.
 const listEventsPageQueryMock = vi.fn();
+const eventCountsQueryMock = vi.fn();
 vi.mock('@/features/events', () => ({
   useListEventsPageQuery: (...args: unknown[]) => listEventsPageQueryMock(...args),
+  useEventCountsQuery: (...args: unknown[]) => eventCountsQueryMock(...args),
   eventToShow: (event: EventResponse) => ({
     id: event.id,
     title: event.title,
@@ -71,8 +73,11 @@ function makePage(overrides: Partial<PaginatedEventsResponse>): PaginatedEventsR
   };
 }
 
+const COUNTS = { all: 480, live: 33, replay: 17, today: 55, weekend: 40, free: 99 };
+
 describe('EventsListPageContent pagination', () => {
   beforeEach(() => {
+    eventCountsQueryMock.mockReturnValue({ data: COUNTS });
     push.mockClear();
     listEventsPageQueryMock.mockReset();
     currentSearchParams = new URLSearchParams();
@@ -234,23 +239,74 @@ describe('EventsListPageContent pagination', () => {
   });
 });
 
+describe('EventsListPageContent server-side chips', () => {
+  const setup = (qs = '', total = 48) => {
+    currentSearchParams = new URLSearchParams(qs);
+    const initialPage = makePage({ page: 1, total });
+    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+  };
+
+  beforeEach(() => {
+    push.mockClear();
+    listEventsPageQueryMock.mockReset();
+    eventCountsQueryMock.mockReturnValue({ data: COUNTS });
+  });
+
+  it('renders badge counts from the counts hook, not the page length', () => {
+    setup();
+    expect(screen.getByRole('button', { name: /TODOS/ })).toHaveTextContent('480');
+    expect(screen.getByRole('button', { name: /COM REPRISE/ })).toHaveTextContent('17');
+    expect(screen.getByRole('button', { name: /GRATUITOS/ })).toHaveTextContent('99');
+  });
+
+  it('shows a dash while counts are loading', () => {
+    eventCountsQueryMock.mockReturnValue({ data: undefined });
+    setup();
+    expect(screen.getByRole('button', { name: /HOJE/ })).toHaveTextContent('—');
+  });
+
+  it('pushes filter=live when AO VIVO is clicked', () => {
+    setup();
+    fireEvent.click(screen.getByRole('button', { name: /AO VIVO/ }));
+    expect(push).toHaveBeenCalledWith('/events?filter=live', { scroll: false });
+  });
+
+  it('drops the page param and keeps category when HOJE is clicked', () => {
+    setup('category=MUSIC&page=3', 240);
+    fireEvent.click(screen.getByRole('button', { name: /HOJE/ }));
+    expect(push).toHaveBeenCalledWith('/events?category=MUSIC&when=today', { scroll: false });
+  });
+
+  it('derives the active chip from the URL', () => {
+    setup('when=weekend');
+    expect(screen.getByRole('button', { name: /FIM DE SEMANA/ }).className).toMatch(/chipActive/);
+    expect(screen.getByRole('button', { name: /TODOS/ }).className).not.toMatch(/chipActive/);
+  });
+
+  it('shows the server total in the count label', () => {
+    setup('', 48);
+    expect(screen.getByRole('heading', { name: /EVENTOS ENCONTRADOS/ })).toHaveTextContent('48');
+  });
+});
+
 describe('EventsListPageContent tracking', () => {
   beforeEach(() => {
+    eventCountsQueryMock.mockReturnValue({ data: COUNTS });
     push.mockClear();
     listEventsPageQueryMock.mockReset();
     trackMock.mockClear();
     currentSearchParams = new URLSearchParams();
   });
 
-  it('tracks events_filtered when a chip is clicked, with the pre-computed count for that filter', () => {
+  it('tracks events_filtered when a chip is clicked, with the server count for that chip', () => {
     const initialPage = makePage({ page: 1, total: 2 });
     listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
 
     render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
-    fireEvent.click(screen.getByText('AO VIVO'));
+    fireEvent.click(screen.getByRole('button', { name: /AO VIVO/ }));
 
-    // eventToShow's stub always returns isLive: false, so the live chip's count is 0.
-    expect(trackMock).toHaveBeenCalledWith('events_filtered', { filter: 'chip', value: 'live', resultCount: 0 });
+    expect(trackMock).toHaveBeenCalledWith('events_filtered', { filter: 'chip', value: 'live', resultCount: 33 });
   });
 
   it('tracks events_filtered when the sort select changes', async () => {

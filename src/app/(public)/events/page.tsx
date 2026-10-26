@@ -3,7 +3,7 @@ import { applySeo, getSeoForPage } from '@/features/seo';
 import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { Suspense } from 'react';
 import { EventsListPageContent } from '@/features/events';
-import { fetchFeedPage } from '@/features/events/queries/get-feed.server';
+import { fetchFeedPage, fetchEventCounts } from '@/features/events/queries/get-feed.server';
 import { parseListParams } from '@/features/events/utils/list-params-from-search';
 
 const TITLE = 'Programação';
@@ -47,7 +47,11 @@ export default async function Shows({
   // SSR-seed the requested page (cached 30s in Next's Data Cache) so the
   // catalog is in the initial HTML and the client query skips its first
   // refetch — matches the home feed's caching.
-  let initialPage = await fetchFeedPage(params);
+  const { category, subtype, tag, city } = params;
+  let [initialPage, initialCounts] = await Promise.all([
+    fetchFeedPage(params),
+    fetchEventCounts({ category, subtype, tag, city }),
+  ]);
 
   // Out-of-range page (e.g. ?page=999): clamp to the last real page.
   const pageCount = Math.max(1, Math.ceil(initialPage.total / PAGE_SIZE));
@@ -61,7 +65,7 @@ export default async function Shows({
     <>
       <PageJsonLd pageKey="events.list" path="/events" />
       <Suspense>
-        <EventsListPageContent initialPage={initialPage} pageSize={PAGE_SIZE} />
+        <EventsListPageContent initialPage={initialPage} initialCounts={initialCounts} pageSize={PAGE_SIZE} />
       </Suspense>
     </>
   );

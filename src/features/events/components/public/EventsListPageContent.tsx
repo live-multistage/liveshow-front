@@ -13,11 +13,12 @@ import {
   Pagination,
 } from '@live-show/design-system';
 import { TrackFeature } from '@live-show/analytics-sdk/react';
-import { useListEventsPageQuery, eventToShow } from '@/features/events';
-import type { PaginatedEventsResponse } from '@/features/events';
+import { useListEventsPageQuery, useEventCountsQuery, eventToShow } from '@/features/events';
+import type { PaginatedEventsResponse, EventFacetCounts } from '@/features/events';
 import { EVENT_CATEGORY_LABELS } from '../../types/event.types';
 import { AdBanner } from '@/features/advertisements';
-import { parseListParams, hrefForPage } from '../../utils/list-params-from-search';
+import { parseListParams, hrefForPage, hrefForChip, chipFromParams } from '../../utils/list-params-from-search';
+import type { ChipId } from '../../utils/list-params-from-search';
 import { useAnalytics } from '@/lib/analytics/tracking';
 import { ShowCard } from './ShowCard';
 import styles from '../../../../app/(public)/events/page.module.scss';
@@ -27,7 +28,6 @@ import { formatCount } from '@/shared/utils/format-count';
 // every keystroke — matches how search analytics is read everywhere else.
 const SEARCH_TRACK_DEBOUNCE_MS = 400;
 
-type ChipId = 'all' | 'live' | 'replay' | 'today' | 'weekend' | 'free';
 type ViewMode = 'grid' | 'list';
 
 const SORT_OPTIONS = [
@@ -38,26 +38,17 @@ const SORT_OPTIONS = [
   { id: 'live-first', label: 'AO VIVO PRIMEIRO' },
 ];
 
-function isToday(dateStr: string) {
-  const today = new Date();
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toDateString() === today.toDateString();
-}
-
-function isWeekend(dateStr: string) {
-  const day = new Date(dateStr + 'T00:00:00').getDay();
-  return day === 0 || day === 6;
-}
-
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 export function EventsListPageContent({
   initialPage,
+  initialCounts,
   pageSize,
 }: {
   initialPage: PaginatedEventsResponse;
+  initialCounts?: EventFacetCounts | null;
   pageSize: number;
 }) {
   const t = useTranslations('events.list');
@@ -86,9 +77,13 @@ export function EventsListPageContent({
   const events = data?.items ?? [];
   const total = data?.total ?? initialPage.total;
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
-  // NOTE: chip filters run client-side over this single page's items only —
-  // server-side filtering is a follow-up (would need /events?filter=... per chip).
+  // NOTE: chips are server-driven (URL → backend); only the text search and
+  // sort below are page-local, applied over this page's items.
   const SHOWS = useMemo(() => events.map(eventToShow), [events]);
+
+  const { category, subtype, tag, city } = params;
+  const { data: counts } = useEventCountsQuery({ category, subtype, tag, city }, initialCounts ?? undefined);
+  const chip = chipFromParams(params);
 
   const goToPage = (target: number) => {
     router.push(hrefForPage(searchParams, target), { scroll: false });
@@ -107,26 +102,13 @@ export function EventsListPageContent({
     ? capitalize(params.city)
     : null;
 
-  const initialChip: ChipId =
-    urlParams.filter === 'live' ? 'live' :
-    urlParams.filter === 'finished' ? 'replay' :
-    urlParams.free ? 'free' :
-    'all';
-
   const [search, setSearch] = useState('');
   const [sort, setSort]     = useState('date-asc');
-  const [chip, setChip]     = useState<ChipId>(initialChip);
   const [view, setView]     = useState<ViewMode>('grid');
 
-  const liveCount    = useMemo(() => SHOWS.filter((s) => s.isLive).length, [SHOWS]);
-  const replayCount  = useMemo(() => SHOWS.filter((s) => s.hasReplay).length, [SHOWS]);
-  const todayCount   = useMemo(() => SHOWS.filter((s) => isToday(s.date)).length, [SHOWS]);
-  const weekendCount = useMemo(() => SHOWS.filter((s) => isWeekend(s.date)).length, [SHOWS]);
-  const freeCount    = useMemo(() => SHOWS.filter((s) => s.price === 0).length, [SHOWS]);
-
-  const CHIPS: { id: ChipId; label: string; count: number; icon: React.ReactNode }[] = [
+  const CHIPS: { id: ChipId; label: string; icon: React.ReactNode }[] = [
     {
-      id: 'all', label: 'TODOS', count: SHOWS.length,
+      id: 'all', label: 'TODOS',
       icon: (
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
@@ -135,11 +117,11 @@ export function EventsListPageContent({
       ),
     },
     {
-      id: 'live', label: 'AO VIVO', count: liveCount,
+      id: 'live', label: 'AO VIVO',
       icon: <span className={styles.chipLiveDot} />,
     },
     {
-      id: 'replay', label: 'COM REPRISE', count: replayCount,
+      id: 'replay', label: 'COM REPRISE',
       icon: (
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M3 12a9 9 0 1 1 3 6.7M3 21v-5h5" />
@@ -147,7 +129,7 @@ export function EventsListPageContent({
       ),
     },
     {
-      id: 'today', label: 'HOJE', count: todayCount,
+      id: 'today', label: 'HOJE',
       icon: (
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" />
@@ -155,7 +137,7 @@ export function EventsListPageContent({
       ),
     },
     {
-      id: 'weekend', label: 'FIM DE SEMANA', count: weekendCount,
+      id: 'weekend', label: 'FIM DE SEMANA',
       icon: (
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M5 12h14M12 5v14" />
@@ -163,7 +145,7 @@ export function EventsListPageContent({
       ),
     },
     {
-      id: 'free', label: 'GRATUITOS', count: freeCount,
+      id: 'free', label: 'GRATUITOS',
       icon: (
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="9" /><path d="M12 7v10M9 10h6M9 14h6" />
@@ -181,16 +163,7 @@ export function EventsListPageContent({
       s.venue.toLowerCase().includes(q) ||
       s.category.toLowerCase().includes(q);
 
-    const matchChip =
-      chip === 'all'     ? true :
-      chip === 'live'    ? s.isLive :
-      chip === 'replay'  ? s.hasReplay :
-      chip === 'today'   ? isToday(s.date) :
-      chip === 'weekend' ? isWeekend(s.date) :
-      chip === 'free'    ? s.price === 0 :
-      true;
-
-    return matchSearch && matchChip;
+    return matchSearch;
   });
 
   filtered = [...filtered].sort((a, b) => {
@@ -221,9 +194,8 @@ export function EventsListPageContent({
   }, [search]);
 
   const handleChipChange = (nextChip: ChipId) => {
-    setChip(nextChip);
-    const nextCount = CHIPS.find((c) => c.id === nextChip)?.count ?? resultCount;
-    analytics.track('events_filtered', { filter: 'chip', value: nextChip, resultCount: nextCount });
+    analytics.track('events_filtered', { filter: 'chip', value: nextChip, resultCount: counts?.[nextChip] });
+    router.push(hrefForChip(searchParams, nextChip), { scroll: false });
   };
 
   const handleSortChange = (nextSort: string) => {
@@ -253,7 +225,7 @@ export function EventsListPageContent({
                   AO VIVO AGORA
                 </div>
                 <div className={styles.statValue}>
-                  <span className={styles.statNumber}>{liveCount}</span>
+                  <span className={styles.statNumber}>{counts?.live ?? '—'}</span>
                   <span className={styles.statUnit}>eventos</span>
                 </div>
               </div>
@@ -326,7 +298,7 @@ export function EventsListPageContent({
                 {c.icon}
                 {c.label}
                 <span className={isActive ? styles.chipBadgeActive : styles.chipBadgeInactive}>
-                  {c.count}
+                  {counts?.[c.id] ?? '—'}
                 </span>
               </button>
             );
@@ -349,7 +321,7 @@ export function EventsListPageContent({
         {/* Count + view toggle */}
         <div className={styles.countRow}>
           <h2 className={styles.countLabel}>
-            <span className={styles.countNum}>{isLoading ? '—' : filtered.length}</span>
+            <span className={styles.countNum}>{isLoading ? '—' : search.trim() ? filtered.length : total}</span>
             {' EVENTOS ENCONTRADOS'}
           </h2>
           <div className={styles.viewToggle}>
@@ -390,7 +362,7 @@ export function EventsListPageContent({
           <div className={styles.empty}>
             <p className={styles.emptyTitle}>Nenhum evento encontrado</p>
             <p className={styles.emptySubtitle}>Tente outra busca ou remova os filtros.</p>
-            <button onClick={() => { setSearch(''); setChip('all'); }} className={styles.clearBtn}>
+            <button onClick={() => { setSearch(''); router.push(hrefForChip(searchParams, 'all'), { scroll: false }); }} className={styles.clearBtn}>
               {t('clearFilters')}
             </button>
           </div>

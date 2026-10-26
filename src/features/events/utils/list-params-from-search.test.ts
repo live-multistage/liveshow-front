@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseListParams, hrefForPage } from './list-params-from-search';
+import { parseListParams, hrefForPage, chipFromParams, hrefForChip } from './list-params-from-search';
 
 describe('parseListParams', () => {
   it('defaults to filter=all, page=1 with no params', () => {
@@ -94,5 +94,37 @@ describe('hrefForPage', () => {
 
   it('returns /events with no query when there are no params and target is page 1', () => {
     expect(hrefForPage(new URLSearchParams(), 1)).toBe('/events');
+  });
+});
+
+describe('chipFromParams', () => {
+  const chip = (qs: string) => chipFromParams(parseListParams(new URLSearchParams(qs), 24));
+
+  it.each([
+    ['', 'all'],
+    ['filter=live', 'live'],
+    ['filter=finished', 'replay'],
+    ['when=today', 'today'],
+    ['when=weekend', 'weekend'],
+    ['free=1', 'free'],
+    ['category=MUSIC&page=2', 'all'],
+  ])('%s -> %s', (qs, expected) => {
+    expect(chip(qs)).toBe(expected);
+  });
+});
+
+describe('hrefForChip', () => {
+  it.each([
+    ['', 'live', '/events?filter=live'],
+    ['', 'replay', '/events?filter=finished'],
+    ['', 'today', '/events?when=today'],
+    ['', 'weekend', '/events?when=weekend'],
+    ['', 'free', '/events?free=1'],
+    ['filter=live', 'all', '/events'],
+    ['category=MUSIC&page=3', 'today', '/events?category=MUSIC&when=today'],
+    ['filter=live&free=1&when=today&city=SP&tag=rock&subtype=x&page=2', 'weekend', '/events?city=SP&tag=rock&subtype=x&when=weekend'],
+    ['category=MUSIC&when=today', 'all', '/events?category=MUSIC'],
+  ])('%s + %s -> %s', (qs, chip, expected) => {
+    expect(hrefForChip(new URLSearchParams(qs), chip as never)).toBe(expected);
   });
 });
