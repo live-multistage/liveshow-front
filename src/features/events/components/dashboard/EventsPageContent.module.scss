@@ -112,6 +112,10 @@
 }
 
 .filterBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
   background: none;
   border: 1px solid $border;
   border-radius: 6px;
@@ -131,6 +135,12 @@
   background-color: $action-dim;
   border-color: $action;
   color: $text-primary;
+}
+
+.filterCount {
+  font-size: 0.72rem;
+  color: $text-secondary;
+  font-variant-numeric: tabular-nums;
 }
 
 // ── Grid ──────────────────────────────────────────────────────────
@@ -164,6 +174,22 @@
 
 .emptyIcon {
   opacity: 0.3;
+}
+
+// ── Pagination ────────────────────────────────────────────────────
+.paginationRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid $border;
+}
+
+.paginationRange {
+  font-size: 0.75rem;
+  color: $text-secondary;
 }
 
 // ── Sheet ─────────────────────────────────────────────────────────

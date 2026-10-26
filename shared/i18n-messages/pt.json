@@ -766,11 +766,15 @@
     "filterDraft": "Rascunho",
     "filterPublished": "Publicados",
     "filterLive": "Ao Vivo",
+    "filterUpcoming": "Próximos",
     "filterFinished": "Encerrados",
     "filterCancelled": "Cancelados",
     "loading": "Carregando eventos...",
     "error": "Erro ao carregar eventos.",
-    "empty": "Nenhum evento encontrado."
+    "empty": "Nenhum evento encontrado.",
+    "emptyFilter": "Nenhum evento nesta aba.",
+    "showAll": "Ver todos os eventos",
+    "filtersNav": "Filtrar eventos"
   },
   "eventCard": {
     "status": {

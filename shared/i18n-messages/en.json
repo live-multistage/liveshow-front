@@ -766,11 +766,15 @@
     "filterDraft": "Draft",
     "filterPublished": "Published",
     "filterLive": "Live",
+    "filterUpcoming": "Upcoming",
     "filterFinished": "Finished",
     "filterCancelled": "Cancelled",
     "loading": "Loading events...",
     "error": "Error loading events.",
-    "empty": "No events found."
+    "empty": "No events found.",
+    "emptyFilter": "No events in this tab.",
+    "showAll": "See all events",
+    "filtersNav": "Filter events"
   },
   "eventCard": {
     "status": {

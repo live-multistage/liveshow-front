@@ -1,36 +1,52 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus, CalendarDays, Radio, CheckCircle2, Clock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useMyEventsQuery } from '../../queries/get-my-events';
+import { Pagination } from '@live-show/design-system';
+import { useMyEventCountsQuery, useMyEventsPageQuery } from '../../queries/use-my-events-page';
+import { hrefForMyEvents, parseMyEventsParams } from '../../utils/my-events-params';
 import { EventDashboardCard } from './EventDashboardCard';
-import type { EventStatus } from '../../types/event.types';
+import type { MyEventCounts, MyEventsStatusFilter } from '../../types/my-events.types';
 import styles from './EventsPageContent.module.scss';
+
+const DEFAULT_PAGE_SIZE = 20;
 
 export function EventsPageContent() {
   const t = useTranslations('eventsPage');
-  const [activeFilter, setActiveFilter] = useState<EventStatus | 'all'>('all');
-  const { data: events = [], isLoading, isError } = useMyEventsQuery();
+  const tList = useTranslations('events.list');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { status, page } = parseMyEventsParams(searchParams);
 
-  const total = events.length;
-  const live = events.filter((e) => e.status === 'LIVE').length;
-  const upcoming = events.filter((e) => e.status === 'PUBLISHED' || e.status === 'SCHEDULED').length;
-  const finished = events.filter((e) => e.status === 'FINISHED').length;
+  const { data: counts } = useMyEventCountsQuery();
+  const { data, isLoading, isError, isPlaceholderData } = useMyEventsPageQuery(
+    status ? { page, status } : { page },
+  );
 
-  const filtered = activeFilter === 'all'
-    ? events
-    : events.filter((e) => e.status === activeFilter);
+  const total = data?.total ?? 0;
+  const pageSize = data?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const events = data?.items ?? [];
 
-  const FILTERS: { label: string; value: EventStatus | 'all' }[] = [
-    { label: t('filterAll'), value: 'all' },
-    { label: t('filterDraft'), value: 'DRAFT' },
-    { label: t('filterPublished'), value: 'PUBLISHED' },
-    { label: t('filterLive'), value: 'LIVE' },
-    { label: t('filterFinished'), value: 'FINISHED' },
-    { label: t('filterCancelled'), value: 'CANCELLED' },
+  // A stale or hand-typed ?page= past the end lands on the last real page.
+  // Placeholder data belongs to the previous tab/page, so it can't decide this.
+  useEffect(() => {
+    if (!data || isPlaceholderData || page <= pageCount) return;
+    router.replace(hrefForMyEvents({ status, page: pageCount }));
+  }, [data, isPlaceholderData, page, pageCount, status, router]);
+
+  const tabs: { label: string; status?: MyEventsStatusFilter; count?: number }[] = [
+    { label: t('filterAll'), count: counts?.all },
+    { label: t('filterLive'), status: 'live', count: counts?.live },
+    { label: t('filterUpcoming'), status: 'upcoming', count: counts?.upcoming },
+    { label: t('filterFinished'), status: 'finished', count: counts?.finished },
   ];
+
+  const loaded = !isLoading && !isError && !!data;
+  const hrefForPage = (target: number) => hrefForMyEvents({ status, page: target });
 
   return (
     <div className={styles.page}>
@@ -45,53 +61,29 @@ export function EventsPageContent() {
         </Link>
       </div>
 
-      <div className={styles.stats}>
-        <div className={styles.statCard}>
-          <CalendarDays size={20} className={styles.statIcon} />
-          <div>
-            <p className={styles.statValue}>{total}</p>
-            <p className={styles.statLabel}>{t('statTotal')}</p>
-          </div>
-        </div>
-        <div className={`${styles.statCard} ${styles.statCardLive} ${!!live && styles.statCardLiveActive}`}>
-          <Radio size={20} className={`${styles.statIcon} ${!!live && styles.statIconLiveActive}`} />
-          <div>
-            <p className={styles.statValue}>{live}</p>
-            <p className={styles.statLabel}>{t('statLive')}</p>
-          </div>
-        </div>
-        <div className={styles.statCard}>
-          <Clock size={20} className={styles.statIcon} />
-          <div>
-            <p className={styles.statValue}>{upcoming}</p>
-            <p className={styles.statLabel}>{t('statPublished')}</p>
-          </div>
-        </div>
-        <div className={styles.statCard}>
-          <CheckCircle2 size={20} className={styles.statIcon} />
-          <div>
-            <p className={styles.statValue}>{finished}</p>
-            <p className={styles.statLabel}>{t('statFinished')}</p>
-          </div>
-        </div>
-      </div>
+      <EventStats counts={counts} />
 
-      <div className={styles.filters}>
-        {FILTERS.map((f) => (
-          <button
-            key={f.value}
-            className={`${styles.filterBtn} ${activeFilter === f.value ? styles.filterActive : ''}`}
-            onClick={() => setActiveFilter(f.value)}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+      <nav aria-label={t('filtersNav')} className={styles.filters}>
+        {tabs.map((tab) => {
+          const active = tab.status === status;
+          return (
+            <Link
+              key={tab.status ?? 'all'}
+              href={hrefForMyEvents({ status: tab.status, page: 1 })}
+              aria-current={active ? 'page' : undefined}
+              className={`${styles.filterBtn} ${active ? styles.filterActive : ''}`}
+            >
+              {tab.label}
+              {tab.count !== undefined && <span className={styles.filterCount}>{tab.count}</span>}
+            </Link>
+          );
+        })}
+      </nav>
 
       {isLoading && <p className={styles.state}>{t('loading')}</p>}
       {isError && <p className={`${styles.state} ${styles.stateError}`}>{t('error')}</p>}
 
-      {!isLoading && !isError && filtered.length === 0 && (
+      {loaded && total === 0 && !status && (
         <div className={styles.empty}>
           <CalendarDays size={40} className={styles.emptyIcon} />
           <p>{t('empty')}</p>
@@ -101,13 +93,88 @@ export function EventsPageContent() {
         </div>
       )}
 
-      {!isLoading && filtered.length > 0 && (
+      {loaded && total === 0 && status && (
+        <div className={styles.empty}>
+          <CalendarDays size={40} className={styles.emptyIcon} />
+          <p>{t('emptyFilter')}</p>
+          <Link href={hrefForMyEvents({ page: 1 })} className={styles.filterBtn}>
+            {t('showAll')}
+          </Link>
+        </div>
+      )}
+
+      {loaded && events.length > 0 && (
         <div className={styles.grid}>
-          {filtered.map((event) => (
+          {events.map((event) => (
             <EventDashboardCard key={event.id} event={event} />
           ))}
         </div>
       )}
+
+      {loaded && total > 0 && (
+        <div className={styles.paginationRow}>
+          <span className={styles.paginationRange}>
+            {tList('pagination.range', {
+              from: (page - 1) * pageSize + 1,
+              to: Math.min(page * pageSize, total),
+              total,
+            })}
+          </span>
+          <Pagination
+            page={Math.min(page, pageCount)}
+            pageCount={pageCount}
+            onPageChange={(target) => router.push(hrefForPage(target))}
+            hrefFor={hrefForPage}
+            labels={{
+              prev: tList('pagination.prev'),
+              next: tList('pagination.next'),
+              nav: tList('pagination.nav'),
+              prevAria: tList('pagination.prevAria'),
+              nextAria: tList('pagination.nextAria'),
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EventStats({ counts }: { counts?: MyEventCounts }) {
+  const t = useTranslations('eventsPage');
+  // No count until the endpoint answers: a placeholder 0 would read as fact.
+  const show = (value?: number) => value ?? '–';
+  const liveActive = !!counts?.live;
+
+  return (
+    <div className={styles.stats}>
+      <div className={styles.statCard}>
+        <CalendarDays size={20} className={styles.statIcon} />
+        <div>
+          <p className={styles.statValue}>{show(counts?.all)}</p>
+          <p className={styles.statLabel}>{t('statTotal')}</p>
+        </div>
+      </div>
+      <div className={`${styles.statCard} ${styles.statCardLive} ${liveActive ? styles.statCardLiveActive : ''}`}>
+        <Radio size={20} className={`${styles.statIcon} ${liveActive ? styles.statIconLiveActive : ''}`} />
+        <div>
+          <p className={styles.statValue}>{show(counts?.live)}</p>
+          <p className={styles.statLabel}>{t('statLive')}</p>
+        </div>
+      </div>
+      <div className={styles.statCard}>
+        <Clock size={20} className={styles.statIcon} />
+        <div>
+          <p className={styles.statValue}>{show(counts?.upcoming)}</p>
+          <p className={styles.statLabel}>{t('statPublished')}</p>
+        </div>
+      </div>
+      <div className={styles.statCard}>
+        <CheckCircle2 size={20} className={styles.statIcon} />
+        <div>
+          <p className={styles.statValue}>{show(counts?.finished)}</p>
+          <p className={styles.statLabel}>{t('statFinished')}</p>
+        </div>
+      </div>
     </div>
   );
 }
