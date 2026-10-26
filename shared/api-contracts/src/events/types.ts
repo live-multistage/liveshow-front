@@ -8,7 +8,7 @@ export type EventFormat = 'LIVE' | 'VOD';
 export type ListEventsFilter = 'upcoming' | 'live' | 'finished' | 'all';
 
 // Date window for GET /events, America/Sao_Paulo: today = starts today;
-// weekend = Fri–Sun within the next 7 days.
+// weekend = the coming Fri–Sun (from today on).
 export type ListEventsWhen = 'today' | 'weekend';
 
 export type EventCategory =

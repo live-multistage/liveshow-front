@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { eventsService } from '../services/events.service';
 import type { EventFacetCounts, ListEventsParams } from '../types/event.types';
 
@@ -12,7 +12,6 @@ export function useEventCountsQuery(base: EventCountsBase, initialData?: EventFa
     queryKey: ['events', 'counts', base],
     queryFn: () => eventsService.getEventCounts(base),
     staleTime: 30_000,
-    placeholderData: keepPreviousData,
     initialData,
   });
 }
