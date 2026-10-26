@@ -4,7 +4,7 @@ import type { EventResponse, EventStatus } from '@live-show/api-contracts';
 // the backend ships them (GET /events/mine/paged and GET /events/mine/counts).
 
 // Exact event status; absent means every event.
-export type MyEventsStatusFilter = Exclude<EventStatus, 'SCHEDULED'>;
+export type MyEventsStatusFilter = EventStatus;
 
 export interface MyEventsPageParams {
   page?: number;
