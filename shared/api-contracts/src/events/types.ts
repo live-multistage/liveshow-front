@@ -122,8 +122,9 @@ export type RecommendedEventsResponse = PaginatedEventsResponse;
 
 // GET /events/mine/paged + /events/mine/counts — the organizer dashboard list
 // (own orgs' events + accepted collaborations, CHANNEL containers excluded).
-// The list filters on one exact status (omitted = every event); the counts
-// feed the stat cards with grouped statuses.
+// The list filters on one status (omitted = every event); PUBLISHED also
+// matches SCHEDULED, which responses report as PUBLISHED. The counts feed
+// the stat cards with grouped statuses.
 export type MyEventsStatusFilter = EventStatus;
 
 export interface MyEventsPageParams {
