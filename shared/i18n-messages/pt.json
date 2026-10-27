@@ -1423,6 +1423,10 @@
     "tabArchived": "ARQUIVADAS",
     "searchPlaceholder": "Buscar organização, handle ou equipe…",
     "clear": "Limpar",
+    "clearSearch": "Limpar busca",
+    "pagination": {
+      "range": "Mostrando {from}–{to} de {total} organizações"
+    },
     "createCard": "Criar Organização",
     "creating": "Criando...",
     "createBtn": "Criar Organização",

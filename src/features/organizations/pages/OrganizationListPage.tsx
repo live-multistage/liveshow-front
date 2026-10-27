@@ -1,16 +1,20 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
-import { useAuth } from '@/features/account';
-import { useOrganizations } from '../hooks/use-organizations';
+import { Pagination } from '@live-show/design-system';
+import { useMyOrganizationsPageQuery, useMyOrganizationsSummaryQuery } from '../hooks/use-my-organizations-page';
 import { OrganizationCard } from '../components/OrganizationCard';
 import { sumByCurrency } from '../utils/org-stats';
+import { hrefForMyOrganizations, parseMyOrganizationsParams } from '../utils/my-organizations-params';
+import type { MyOrganizationsFilter } from '../types/my-organizations.types';
 import styles from './OrganizationListPage.module.scss';
 
-type ChipId = 'todas' | 'minhas' | 'convidadas' | 'arquivadas';
+const DEFAULT_PAGE_SIZE = 20;
+const SEARCH_DEBOUNCE_MS = 300;
 
 // ── KPI icons ─────────────────────────────────────────────────────
 
@@ -34,45 +38,64 @@ function KpiIcon({ kind }: { kind: 'org' | 'event' | 'team' | 'sales' }) {
 
 export function OrganizationListPage() {
   const t = useTranslations('organizations');
-  const { user } = useAuth();
-  const { data: orgs = [], isLoading, isError } = useOrganizations();
+  const tPager = useTranslations('dashboard.pagination');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { tab, q, page } = parseMyOrganizationsParams(searchParams);
 
-  const [search, setSearch] = useState('');
-  const [chip, setChip] = useState<ChipId>('todas');
+  const { data: summary } = useMyOrganizationsSummaryQuery();
+  const { data, isLoading, isError, isPlaceholderData } = useMyOrganizationsPageQuery({
+    page,
+    ...(tab && { filter: tab }),
+    ...(q && { q }),
+  });
 
-  const myOrgs = useMemo(() => orgs.filter((o) => o.ownerId === user?.id), [orgs, user?.id]);
-  const invitedOrgs = useMemo(() => orgs.filter((o) => o.ownerId !== user?.id), [orgs, user?.id]);
+  const [search, setSearch] = useState(q ?? '');
 
-  const hasEventStat = orgs.some((o) => o.activeEventsCount !== undefined);
-  const hasMemberStat = orgs.some((o) => o.memberCount !== undefined);
-  const hasSalesStat = orgs.some((o) => o.salesThisMonth !== undefined);
-  const totalActiveEvents = orgs.reduce((s, o) => s + (o.activeEventsCount ?? 0), 0);
-  const totalMembers = orgs.reduce((s, o) => s + (o.memberCount ?? 0), 0);
-  const totalBrlSales = sumByCurrency(orgs, 'BRL');
+  // Back/forward can change ?q= under us; only adopt it when it really differs,
+  // so a trailing space the user is still typing isn't trimmed away.
+  useEffect(() => {
+    if ((q ?? '') !== search.trim()) setSearch(q ?? '');
+  }, [q]);
 
-  const CHIPS: { id: ChipId; label: string; count: number }[] = [
-    { id: 'todas', label: t('tabAll'), count: orgs.length },
-    { id: 'minhas', label: t('tabMine'), count: myOrgs.length },
-    { id: 'convidadas', label: t('tabInvited'), count: invitedOrgs.length },
-    { id: 'arquivadas', label: t('tabArchived'), count: 0 },
+  useEffect(() => {
+    const next = search.trim();
+    if (next === (q ?? '')) return;
+    const timer = setTimeout(() => router.replace(hrefForMyOrganizations({ tab, q: next, page: 1 })), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [search, q, tab, router]);
+
+  const total = data?.total ?? 0;
+  const pageSize = data?.pageSize ?? DEFAULT_PAGE_SIZE;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const orgs = data?.items ?? [];
+
+  // A stale or hand-typed ?page= past the end lands on the last real page.
+  // Placeholder data belongs to the previous tab/search, so it can't decide this.
+  useEffect(() => {
+    if (!data || isPlaceholderData || page <= pageCount) return;
+    router.replace(hrefForMyOrganizations({ tab, q, page: pageCount }));
+  }, [data, isPlaceholderData, page, pageCount, tab, q, router]);
+
+  const loaded = !isLoading && !isError && !!data;
+  const outOfRange = page > pageCount;
+  const hrefForPage = (target: number) => hrefForMyOrganizations({ tab, q, page: target });
+
+  const clearSearch = () => {
+    setSearch('');
+    router.replace(hrefForMyOrganizations({ tab, page: 1 }));
+  };
+
+  const tabs: { id?: MyOrganizationsFilter; label: string; count?: number }[] = [
+    { label: t('tabAll'), count: summary?.counts.all },
+    { id: 'owned', label: t('tabMine'), count: summary?.counts.owned },
+    { id: 'invited', label: t('tabInvited'), count: summary?.counts.invited },
+    { id: 'archived', label: t('tabArchived'), count: summary?.counts.archived },
   ];
 
-  const filtered = useMemo(() => {
-    let list = orgs;
-    if (chip === 'minhas') list = myOrgs;
-    if (chip === 'convidadas') list = invitedOrgs;
-    if (chip === 'arquivadas') list = [];
-    if (search) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (o) =>
-          o.name.toLowerCase().includes(q) ||
-          o.slug.toLowerCase().includes(q) ||
-          (o.description ?? '').toLowerCase().includes(q),
-      );
-    }
-    return list;
-  }, [orgs, myOrgs, invitedOrgs, chip, search]);
+  // No value until the summary answers: a placeholder 0 would read as fact.
+  const kpi = (value?: number) => value ?? '—';
+  const brlSales = summary ? sumByCurrency([summary.totals], 'BRL') : undefined;
 
   return (
     <div className={styles.page}>
@@ -94,39 +117,41 @@ export function OrganizationListPage() {
       </div>
 
       {/* KPI strip */}
-      {!isLoading && (
-        <div className={styles.kpiStrip}>
-          <div className={`${styles.kpiCard} ${styles.kpiCardAccent}`}>
-            <div className={styles.kpiGlow} />
-            <div className={styles.kpiLabel}><KpiIcon kind="org" /> TOTAL DE ORGS</div>
-            <div className={styles.kpiValue}>
-              <span className={styles.kpiNum}>{orgs.length}</span>
-              <span className={styles.kpiUnit}>ativas</span>
-            </div>
-          </div>
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiLabel}><KpiIcon kind="event" /> EVENTOS ATIVOS</div>
-            <div className={styles.kpiValue}>
-              <span className={styles.kpiNum}>{hasEventStat ? totalActiveEvents : '—'}</span>
-              <span className={styles.kpiUnit}>em curso</span>
-            </div>
-          </div>
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiLabel}><KpiIcon kind="team" /> EQUIPE TOTAL</div>
-            <div className={styles.kpiValue}>
-              <span className={styles.kpiNum}>{hasMemberStat ? totalMembers : '—'}</span>
-              <span className={styles.kpiUnit}>membros</span>
-            </div>
-          </div>
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiLabel}><KpiIcon kind="sales" /> VENDAS NO MÊS</div>
-            <div className={styles.kpiValue}>
-              <span className={`${styles.kpiNum} ${styles.kpiNumPink}`}>{hasSalesStat ? totalBrlSales.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}</span>
-              <span className={styles.kpiUnit}>BRL</span>
-            </div>
+      <div className={styles.kpiStrip}>
+        <div className={`${styles.kpiCard} ${styles.kpiCardAccent}`}>
+          <div className={styles.kpiGlow} />
+          <div className={styles.kpiLabel}><KpiIcon kind="org" /> TOTAL DE ORGS</div>
+          <div className={styles.kpiValue}>
+            <span className={styles.kpiNum}>{kpi(summary?.counts.all)}</span>
+            <span className={styles.kpiUnit}>ativas</span>
           </div>
         </div>
-      )}
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiLabel}><KpiIcon kind="event" /> EVENTOS ATIVOS</div>
+          <div className={styles.kpiValue}>
+            <span className={styles.kpiNum}>{kpi(summary?.totals.activeEventsCount)}</span>
+            <span className={styles.kpiUnit}>em curso</span>
+          </div>
+        </div>
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiLabel}><KpiIcon kind="team" /> EQUIPE TOTAL</div>
+          <div className={styles.kpiValue}>
+            <span className={styles.kpiNum}>{kpi(summary?.totals.memberCount)}</span>
+            <span className={styles.kpiUnit}>membros</span>
+          </div>
+        </div>
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiLabel}><KpiIcon kind="sales" /> VENDAS NO MÊS</div>
+          <div className={styles.kpiValue}>
+            <span className={`${styles.kpiNum} ${styles.kpiNumPink}`}>
+              {brlSales === undefined
+                ? '—'
+                : brlSales.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+            <span className={styles.kpiUnit}>BRL</span>
+          </div>
+        </div>
+      </div>
 
       {/* Search row */}
       <div className={styles.searchRow}>
@@ -150,30 +175,45 @@ export function OrganizationListPage() {
         </div>
       </div>
 
-      {/* Chips */}
-      <div className={styles.chips}>
-        {CHIPS.map((c) => (
-          <button
-            key={c.id}
-            onClick={() => setChip(c.id)}
-            className={`${styles.chip} ${chip === c.id ? styles.chipActive : styles.chipInactive}`}
-          >
-            {c.label}
-            <span className={chip === c.id ? styles.chipBadgeActive : styles.chipBadgeInactive}>
-              {c.count}
-            </span>
-          </button>
-        ))}
+      {/* Tabs */}
+      <div className={styles.chips} data-testid="org-tabs">
+        {tabs.map((c) => {
+          const active = c.id === tab;
+          return (
+            <Link
+              key={c.id ?? 'all'}
+              href={hrefForMyOrganizations({ tab: c.id, q, page: 1 })}
+              aria-current={active ? 'page' : undefined}
+              className={`${styles.chip} ${active ? styles.chipActive : styles.chipInactive}`}
+            >
+              {c.label}
+              {c.count !== undefined && (
+                <span className={active ? styles.chipBadgeActive : styles.chipBadgeInactive}>{c.count}</span>
+              )}
+            </Link>
+          );
+        })}
       </div>
 
       {/* States */}
       {isLoading && <p className={styles.state}>{t('loading')}</p>}
       {isError && <p className={`${styles.state} ${styles.stateError}`}>{t('loadErrorRetry')}</p>}
 
+      {loaded && total === 0 && (tab || q) && (
+        <div className={styles.emptyFiltered}>
+          <p className={styles.state}>{t('empty')}</p>
+          {q && (
+            <button type="button" className={styles.clearSearchBtn} onClick={clearSearch}>
+              {t('clearSearch')}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Grid */}
-      {!isLoading && !isError && (
+      {loaded && (
         <div className={styles.grid}>
-          {filtered.map((org) => (
+          {orgs.map((org) => (
             <OrganizationCard key={org.id} organization={org} />
           ))}
           <Link href="/dashboard/organizations/new" className={styles.createCard}>
@@ -185,6 +225,31 @@ export function OrganizationListPage() {
               <div className={styles.createCardSub}>Convide sua equipe e comece a vender</div>
             </div>
           </Link>
+        </div>
+      )}
+
+      {loaded && total > 0 && !outOfRange && (
+        <div className={styles.paginationRow}>
+          <span className={styles.paginationRange}>
+            {t('pagination.range', {
+              from: (page - 1) * pageSize + 1,
+              to: Math.min(page * pageSize, total),
+              total,
+            })}
+          </span>
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            onPageChange={(target) => router.push(hrefForPage(target))}
+            hrefFor={hrefForPage}
+            labels={{
+              prev: tPager('prev'),
+              next: tPager('next'),
+              nav: tPager('nav'),
+              prevAria: tPager('prevAria'),
+              nextAria: tPager('nextAria'),
+            }}
+          />
         </div>
       )}
     </div>
