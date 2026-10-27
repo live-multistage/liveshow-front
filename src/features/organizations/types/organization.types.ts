@@ -6,6 +6,11 @@ export type {
   OrganizationInvitationResponse,
   InviteOrganizationMemberRequest,
   AcceptOrganizationInvitationResponse,
+  MyOrganizationsFilter,
+  MyOrganizationsPageParams,
+  MyOrganizationResponse,
+  MyOrganizationsPageResponse,
+  MyOrganizationsSummary,
 } from '@live-show/api-contracts';
 import type { OrganizationRole } from '@live-show/api-contracts';
 

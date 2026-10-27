@@ -8,10 +8,12 @@ import type {
   OrganizationPayoutResult,
   CreateOrganizerApplicationRequest,
   OrganizerApplicationResponse,
+  MyOrganizationsPageParams,
+  MyOrganizationsPageResponse,
+  MyOrganizationsSummary,
 } from '../types/organization.types';
 import type { EventResponse } from '@/features/events/types/event.types';
 import type { OrganizationAnalyticsResponse } from '../types/organization-analytics.types';
-import type { MyOrganizationsPageParams, MyOrganizationsPageResponse, MyOrganizationsSummary } from '../types/my-organizations.types';
 import type { SalesGranularity } from '@/features/analytics/types/sales.types';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

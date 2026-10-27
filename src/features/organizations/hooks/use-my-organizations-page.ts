@@ -3,7 +3,7 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { organizationService } from '../services/organization.service';
 import { ORGANIZATIONS_KEY } from './use-organizations';
-import type { MyOrganizationsPageParams } from '../types/my-organizations.types';
+import type { MyOrganizationsPageParams } from '../types/organization.types';
 
 // Both keys live under ORGANIZATIONS_KEY so the create/update mutations, which
 // invalidate that prefix, refresh the paged list and its summary too.

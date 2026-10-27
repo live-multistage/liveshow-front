@@ -10,7 +10,7 @@ import { useMyOrganizationsPageQuery, useMyOrganizationsSummaryQuery } from '../
 import { OrganizationCard } from '../components/OrganizationCard';
 import { sumByCurrency } from '../utils/org-stats';
 import { hrefForMyOrganizations, parseMyOrganizationsParams } from '../utils/my-organizations-params';
-import type { MyOrganizationsFilter } from '../types/my-organizations.types';
+import type { MyOrganizationsFilter } from '../types/organization.types';
 import styles from './OrganizationListPage.module.scss';
 
 const DEFAULT_PAGE_SIZE = 20;

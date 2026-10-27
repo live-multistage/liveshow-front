@@ -1,5 +1,5 @@
 import type { ReadonlyURLSearchParams } from 'next/navigation';
-import type { MyOrganizationsFilter } from '../types/my-organizations.types';
+import type { MyOrganizationsFilter } from '../types/organization.types';
 
 export const MY_ORGANIZATIONS_TABS: MyOrganizationsFilter[] = ['owned', 'invited', 'archived'];
 const MAX_QUERY_LENGTH = 120;

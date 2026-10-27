@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, within, fireEvent, act } from '@testing-library/react';
-import type { OrganizationResponse } from '../types/organization.types';
-import type { MyOrganizationsPageResponse, MyOrganizationsSummary } from '../types/my-organizations.types';
+import type { MyOrganizationsPageResponse, MyOrganizationsSummary, OrganizationResponse } from '../types/organization.types';
 
 let searchParams = new URLSearchParams();
 const push = vi.fn();
@@ -64,6 +63,10 @@ function makePage(total: number, page = 1, count = Math.min(total, 20)): MyOrgan
       ownerId: 'user-1',
       createdAt: '2026-01-01T00:00:00Z',
       updatedAt: '2026-01-01T00:00:00Z',
+      role: 'OWNER' as const,
+      activeEventsCount: 0,
+      memberCount: 1,
+      salesThisMonth: [],
     })),
     page,
     pageSize: 20,
