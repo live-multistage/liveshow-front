@@ -177,13 +177,23 @@ describe('EventDetailPageContent hero media', () => {
     expect(container.querySelector('[class*="heroPlaceholder"]')).not.toBeNull();
   });
 
-  it('degrades to the placeholder when the poster image itself fails to load', () => {
-    const { container } = renderWithEvent(makeEvent({ teaserVideoUrl: TEASER }));
+  it('degrades to the placeholder when the poster fails and there is no teaser', () => {
+    const { container } = renderWithEvent(makeEvent());
 
     fireEvent.error(screen.getByAltText('Show Teste'));
 
     expect(container.querySelector('img')).toBeNull();
     expect(container.querySelector('[class*="heroPlaceholder"]')).not.toBeNull();
+  });
+
+  it('keeps playing the teaser over the placeholder when only the poster fails', () => {
+    const { container } = renderWithEvent(makeEvent({ teaserVideoUrl: TEASER }));
+
+    fireEvent.error(screen.getByAltText('Show Teste'));
+
+    expect(container.querySelector('video')).toHaveAttribute('src', TEASER);
+    expect(container.querySelector('[class*="heroPlaceholder"]')).not.toBeNull();
+    expect(screen.getByAltText('Show Teste').className).toContain('heroImgHidden');
   });
 
   it('keeps the hero overlay content rendering alongside the media', () => {

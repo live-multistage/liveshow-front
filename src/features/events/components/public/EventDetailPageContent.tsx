@@ -100,7 +100,10 @@ export function EventDetailPageContent({ id }: Props) {
   const livePlayback = defaultStream?.live === false || !playable ? null : granted;
   const watching = livePlayback ? defaultStream : null;
   const upsell = livePlayback?.lockedStreams?.[0]?.offer ?? null;
-  const heroImage = heroImgFailed ? null : event.bannerUrl ?? event.thumbnailUrl;
+  const posterUrl = event.bannerUrl ?? event.thumbnailUrl;
+  // A dead poster must not take the teaser down with it: with a teaser the
+  // media stays mounted over the placeholder; without one, the placeholder wins.
+  const heroImage = heroImgFailed && !event.teaserVideoUrl ? null : posterUrl;
   // The production topology (streams → stages → feeds → cameras) is org-admin
   // only, so this public page can't enumerate cameras — camerasCount on the
   // event itself is the one camera fact a visitor is allowed to see.
@@ -121,16 +124,19 @@ export function EventDetailPageContent({ id }: Props) {
           ? <LivePreview eventId={id} title={event.title} playback={livePlayback} />
           : heroImage
           ? (
+            <>
+            {heroImgFailed && <div className={styles.heroPlaceholder} />}
             <MediaWithTeaserVideo
               posterSrc={heroImage}
               posterAlt={event.title}
               videoSrc={event.teaserVideoUrl}
-              posterClassName={styles.heroImg}
+              posterClassName={heroImgFailed ? `${styles.heroImg} ${styles.heroImgHidden}` : styles.heroImg}
               posterPriority
               videoClassName={styles.heroVideo}
               videoVisibleClassName={styles.heroVideoVisible}
               posterOnError={() => setHeroImgFailed(true)}
             />
+            </>
           )
           : <div className={styles.heroPlaceholder} />}
         <div className={styles.heroFullScrim} />

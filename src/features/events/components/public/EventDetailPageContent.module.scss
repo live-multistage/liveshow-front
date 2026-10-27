@@ -85,6 +85,12 @@
   object-fit: cover;
 }
 
+// The poster failed but the teaser still plays over the placeholder; hide the
+// broken image instead of unmounting it so the shared media component stays put.
+.heroImgHidden {
+  visibility: hidden;
+}
+
 // Layered on top of .heroImg (the poster); fades in once the teaser has
 // buffered enough to play, so the swap reads as seamless instead of a hard cut.
 .heroVideo {
