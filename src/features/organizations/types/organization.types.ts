@@ -1,6 +1,7 @@
 export type {
   OrganizationRole,
   OrganizationResponse,
+  OrganizationStatus,
   OrganizationEventsFilter,
   OrganizationInvitationStatus,
   OrganizationInvitationResponse,

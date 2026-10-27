@@ -10,7 +10,7 @@ vi.mock('next/link', () => ({
 import { vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { OrganizationCard } from './OrganizationCard';
-import type { OrganizationResponse } from '../types/organization.types';
+import type { OrganizationResponse, OrganizationStatus } from '../types/organization.types';
 
 function normalized(value: string): string {
   return value.replace(/\s+/g, ' ');
@@ -21,6 +21,8 @@ const baseOrg: OrganizationResponse = {
   name: 'Acme Shows',
   slug: 'acme-shows',
   ownerId: 'user-1',
+  status: 'ACTIVE',
+  website: null,
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
 };
@@ -49,5 +51,19 @@ describe('OrganizationCard', () => {
 
     const dashes = screen.getAllByText('—');
     expect(dashes).toHaveLength(3);
+  });
+
+  it.each<[OrganizationStatus, string]>([
+    ['ACTIVE', 'statusActive'],
+    ['ARCHIVED', 'statusMuted'],
+    ['SUSPENDED', 'statusMuted'],
+    ['REJECTED', 'statusMuted'],
+    ['PENDING', 'statusWarning'],
+  ])('labels a %s organization from its status', (status, tone) => {
+    render(<OrganizationCard organization={{ ...baseOrg, status }} />);
+
+    const badge = screen.getByText(`status.${status}`);
+    expect(badge.className).toContain('statusBadge');
+    expect(badge.className).toContain(tone);
   });
 });

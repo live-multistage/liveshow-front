@@ -1424,6 +1424,13 @@
     "searchPlaceholder": "Buscar organização, handle ou equipe…",
     "clear": "Limpar",
     "clearSearch": "Limpar busca",
+    "status": {
+      "ACTIVE": "ATIVA",
+      "PENDING": "PENDENTE",
+      "SUSPENDED": "SUSPENSA",
+      "ARCHIVED": "ARQUIVADA",
+      "REJECTED": "REJEITADA"
+    },
     "pagination": {
       "range": "Mostrando {from}–{to} de {total} organizações"
     },

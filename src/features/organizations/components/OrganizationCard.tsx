@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import type { OrganizationResponse } from '../types/organization.types';
+import type { OrganizationResponse, OrganizationStatus } from '../types/organization.types';
 import { dominantSale, formatMoney } from '../utils/org-stats';
 import styles from './OrganizationCard.module.scss';
 
@@ -32,6 +32,14 @@ function avatarColor(str: string): string {
 interface Props {
   organization: OrganizationResponse;
 }
+
+const STATUS_TONE: Record<OrganizationStatus, string> = {
+  ACTIVE: styles.statusActive,
+  PENDING: styles.statusWarning,
+  SUSPENDED: styles.statusMuted,
+  ARCHIVED: styles.statusMuted,
+  REJECTED: styles.statusMuted,
+};
 
 export function OrganizationCard({ organization: org }: Props) {
   const t = useTranslations('organizations');
@@ -101,7 +109,7 @@ export function OrganizationCard({ organization: org }: Props) {
             {initials.charAt(0)}
           </div>
         </div>
-        <span className={styles.statusBadge}>ATIVO</span>
+        <span className={`${styles.statusBadge} ${STATUS_TONE[org.status]}`}>{t(`status.${org.status}`)}</span>
       </div>
     </Link>
   );

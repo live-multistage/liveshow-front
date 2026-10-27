@@ -1,3 +1,5 @@
+@use '../../../styles/_variables' as *;
+
 @keyframes lsPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: .35; transform: scale(.7); }
@@ -196,7 +198,22 @@
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;
+}
+
+.statusActive {
   color: #7d7d85;
+}
+
+// Not operating (archived/suspended/rejected): quiet outlined pill.
+.statusMuted {
+  color: $text-muted;
+  padding: 1px 7px;
+  border: 1px dashed rgba(255, 255, 255, .12);
+  border-radius: 999px;
+}
+
+.statusWarning {
+  color: $warning;
 }
 
 .liveBadge {
