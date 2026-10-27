@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { organizationService } from '../services/organization.service';
 import type { SalesGranularity } from '@/features/analytics/types/sales.types';
 
@@ -13,5 +13,7 @@ export function useOrganizationAnalytics(orgId: string, granularity: SalesGranul
     queryFn: () => organizationService.getAnalytics(orgId, granularity),
     enabled: !!orgId,
     staleTime: 60_000,
+    // Switching granularity is a new key; keep the previous one on screen meanwhile.
+    placeholderData: keepPreviousData,
   });
 }
