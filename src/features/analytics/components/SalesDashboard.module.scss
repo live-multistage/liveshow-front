@@ -258,6 +258,24 @@ $hint: #7d7d85;
   to { transform: rotate(360deg); }
 }
 
+.page .chartSkeleton {
+  height: 100%;
+  background-color: $card-line;
+}
+
+// Same box as one line of .metricValue so the cards don't shift on load.
+.page .metricSkeleton {
+  width: 60%;
+  height: 1em;
+  background-color: $card-line;
+}
+
+.refreshing .metricValue,
+.refreshing .chartWrap {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
 // ── Table card ────────────────────────────────────────────────────
 .tableCard {
   background: $card-bg;

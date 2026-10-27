@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Skeleton } from '@live-show/design-system';
 import type { EventSalesSeries, SalesGranularity, SalesSummary } from '../types/sales.types';
 import { EventSalesTable } from './EventSalesTable';
 import { LineChart, type LineSeries } from '@/shared/charts/LineChart';
@@ -56,6 +57,8 @@ interface SalesDashboardProps {
   // split into one line per event.
   byEvent?: EventSalesSeries[];
   isLoading: boolean;
+  // Previous data shown while a new granularity loads.
+  isRefreshing?: boolean;
   granularity: SalesGranularity;
   onGranularityChange: (g: SalesGranularity) => void;
   showEventTable?: boolean;
@@ -63,7 +66,7 @@ interface SalesDashboardProps {
   currency?: string;
 }
 
-export function SalesDashboard({ data, byEvent = [], isLoading, granularity, onGranularityChange, showEventTable = true, currency = 'BRL' }: SalesDashboardProps) {
+export function SalesDashboard({ data, byEvent = [], isLoading, isRefreshing = false, granularity, onGranularityChange, showEventTable = true, currency = 'BRL' }: SalesDashboardProps) {
   const [chartView, setChartView] = useState<ChartView>('orders');
   const [chartSplit, setChartSplit] = useState<ChartSplit>('total');
 
@@ -97,10 +100,12 @@ export function SalesDashboard({ data, byEvent = [], isLoading, granularity, onG
     },
   ];
 
+  const metricSkeleton = <Skeleton data-testid="metric-skeleton" className={styles.metricSkeleton} />;
+
   const chartSub = `${isOrders ? 'Ingressos vendidos' : `Faturamento em ${currency}`} · ${granularity === 'day' ? 'por dia' : 'por mês'}${splitByEvent ? ' · por evento' : ''}`;
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${isRefreshing ? styles.refreshing : ''}`} aria-busy={isLoading || isRefreshing}>
       <div className={styles.metrics}>
         <div className={styles.metricCard}>
           <div className={styles.metricInner}>
@@ -109,7 +114,7 @@ export function SalesDashboard({ data, byEvent = [], isLoading, granularity, onG
               <span className={styles.metricIcon}>{ICONS.cart}</span>
             </div>
             <div className={styles.metricValue}>
-              {isLoading ? '—' : (data?.totalOrders ?? 0).toLocaleString('pt-BR')}
+              {isLoading ? metricSkeleton : (data?.totalOrders ?? 0).toLocaleString('pt-BR')}
             </div>
             <div className={styles.metricHint}>ingressos vendidos no período</div>
           </div>
@@ -123,7 +128,7 @@ export function SalesDashboard({ data, byEvent = [], isLoading, granularity, onG
               <span className={`${styles.metricIcon} ${styles.metricIconAccent}`}>{ICONS.money}</span>
             </div>
             <div className={`${styles.metricValue} ${styles.metricValueAccent}`}>
-              {isLoading ? '—' : formatCurrency(data?.totalRevenue ?? 0, currency)}
+              {isLoading ? metricSkeleton : formatCurrency(data?.totalRevenue ?? 0, currency)}
             </div>
             <div className={styles.metricHint}>faturamento no período</div>
           </div>
@@ -136,7 +141,7 @@ export function SalesDashboard({ data, byEvent = [], isLoading, granularity, onG
               <span className={styles.metricIcon}>{ICONS.ticket}</span>
             </div>
             <div className={styles.metricValue}>
-              {isLoading ? '—' : formatCurrency(avgTicket, currency)}
+              {isLoading ? metricSkeleton : formatCurrency(avgTicket, currency)}
             </div>
             <div className={styles.metricHint}>valor médio por venda</div>
           </div>
@@ -202,9 +207,7 @@ export function SalesDashboard({ data, byEvent = [], isLoading, granularity, onG
 
         <div className={styles.chartWrap}>
           {isLoading ? (
-            <div className={styles.loadingWrap}>
-              <span className={styles.spinner} />
-            </div>
+            <Skeleton data-testid="chart-skeleton" className={styles.chartSkeleton} />
           ) : (
             <LineChart series={chartSeries} labels={labels} formatValue={formatValue} tooltip />
           )}
