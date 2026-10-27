@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { pickActiveStream } from '@live-show/api-contracts';
 import type { LiveCamera } from '../types/live.types';
 import type { ViewMode } from '../components/camera-layout';
 import { useFullscreen } from './use-fullscreen';
@@ -13,12 +14,31 @@ import { usePlayerStages } from './use-player-stages';
 import type { PlayerStageLike } from './use-player-stages';
 import { usePlayerHotkeys, VOLUME_STEP, clampVolume } from './use-player-hotkeys';
 
+// A transmission as the shell needs it — live streams carry `live`, replay
+// streams don't (they carry their own timeline, which the replay layer reads).
+export interface PlayerStreamLike<C extends { cameraId: string; priority: number }> {
+  id: string;
+  title: string;
+  position: number;
+  live?: boolean;
+  // Replay only: length of this transmission's replay window (the selector shows it).
+  durationMs?: number;
+  stages: PlayerStageLike<C>[];
+  cameras: C[];
+  primaryCameraId: string | null;
+  librasCameraId: string | null;
+}
+
 export interface UsePlayerShellOptions {
   cameras: LiveCamera[];
   stages?: PlayerStageLike<LiveCamera>[];
   primaryCameraId?: string | null;
   // NBR 15290 — camera pinned as the mandatory Libras window (null if none).
   librasCameraId?: string | null;
+  // Granted transmissions (≥1). When present, stages/cameras/primary/libras
+  // come from the active one and the flattened props above are ignored.
+  streams?: PlayerStreamLike<LiveCamera>[];
+  defaultStreamId?: string | null;
   // Replay mounts paused (VOD big-play-button pattern); live starts playing.
   initialPaused?: boolean;
   // False for a channel: no archive behind the origin window, so the space
@@ -34,6 +54,9 @@ export interface UsePlayerShellOptions {
   onMainCameraChange?: (cameraId: string) => void;
   onMainDeselected?: () => void;
   onStageChange?: () => void;
+  // False for the event-page preview: the page, not the player, owns the
+  // keyboard there (space must scroll, "m" must type).
+  hotkeysEnabled?: boolean;
 }
 
 // Everything the live and replay players share below the chrome: container
@@ -45,6 +68,8 @@ export function usePlayerShell({
   stages: rawStages,
   primaryCameraId,
   librasCameraId = null,
+  streams,
+  defaultStreamId,
   initialPaused = false,
   playbackEnabled = true,
   pickInitialCamera = (list) => list[0]?.cameraId,
@@ -53,6 +78,7 @@ export function usePlayerShell({
   onMainCameraChange,
   onMainDeselected,
   onStageChange,
+  hotkeysEnabled = true,
 }: UsePlayerShellOptions) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
@@ -69,22 +95,53 @@ export function usePlayerShell({
   // Cameras and chapters share the right edge: opening one closes the other.
   // Live never shows the chapters pill, so chaptersOpen simply stays false there.
   const [chaptersOpen, setChaptersOpen] = useState(false);
+  // The transmission sheet (≤820px) sits in the header's stacking context, under
+  // the camera/chapters sheets — so it is exclusive with both instead.
+  const [transmissionsOpen, setTransmissionsOpenState] = useState(false);
+  const setTransmissionsOpen = (open: boolean) => {
+    setTransmissionsOpenState(open);
+    if (!open) return;
+    setCameraStripOpen(false);
+    setChaptersOpen(false);
+  };
   const toggleCameraStrip = () => {
     setCameraStripOpen((o) => !o);
     setChaptersOpen(false);
+    setTransmissionsOpenState(false);
   };
   const toggleChapters = () => {
     setChaptersOpen((o) => !o);
     setCameraStripOpen(false);
+    setTransmissionsOpenState(false);
   };
 
-  const { stages, activeStage, activeStageId, setActiveStageId } = usePlayerStages(cameras, rawStages, primaryCameraId);
+  const orderedStreams = useMemo(
+    () => [...(streams ?? [])].sort((a, b) => a.position - b.position),
+    [streams],
+  );
+  // Seeded once: a later poll moving `defaultStreamId` (another stream went
+  // live) must not pull the viewer off the transmission they are watching.
+  const [chosenStreamId, setActiveStreamId] = useState<string | null>(
+    () => pickActiveStream(orderedStreams, null, defaultStreamId)?.id ?? null,
+  );
+  const activeStream = pickActiveStream(orderedStreams, chosenStreamId, defaultStreamId);
+  const tierCameras = activeStream ? activeStream.cameras : cameras;
+  const tierStages = activeStream ? activeStream.stages : rawStages;
+  const tierPrimary = activeStream ? activeStream.primaryCameraId : primaryCameraId;
+  const tierLibras = activeStream ? activeStream.librasCameraId : librasCameraId;
+
+  const { stages, activeStage, activeStageId, setActiveStageId } = usePlayerStages(
+    tierCameras,
+    tierStages,
+    tierPrimary,
+    activeStream?.id ?? null,
+  );
   const stageCameras = activeStage?.cameras ?? [];
 
   // NBR 15290: the Libras window is only relevant when it belongs to the stage
   // currently on screen. When present it is force-activated and can't be removed.
   const librasInStage =
-    librasCameraId && stageCameras.some((c) => c.cameraId === librasCameraId) ? librasCameraId : null;
+    tierLibras && stageCameras.some((c) => c.cameraId === tierLibras) ? tierLibras : null;
 
   const {
     activeCameraIds,
@@ -136,9 +193,13 @@ export function usePlayerShell({
     onTogglePlay: playbackEnabled ? togglePlay : () => {},
     onVolumeUp: () => { setVolume((v) => clampVolume(v + VOLUME_STEP)); setGlobalMuted(false); },
     onVolumeDown: () => setVolume((v) => clampVolume(v - VOLUME_STEP)),
+    enabled: hotkeysEnabled,
   });
 
   return {
+    streams: orderedStreams,
+    activeStreamId: activeStream?.id ?? null,
+    setActiveStreamId,
     containerRef,
     isFullscreen,
     toggleFullscreen,
@@ -157,6 +218,8 @@ export function usePlayerShell({
     chaptersOpen,
     setChaptersOpen,
     toggleChapters,
+    transmissionsOpen,
+    setTransmissionsOpen,
     stages,
     activeStage,
     activeStageId,

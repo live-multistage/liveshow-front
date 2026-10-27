@@ -54,4 +54,14 @@ describe('NotificationItem', () => {
       unmount();
     });
   });
+
+  it('renders a CHAT_MENTION notification linking to the transmission', () => {
+    const notification: NotificationResponse = {
+      id: 'm1', type: 'CHAT_MENTION', title: '@marina.v mencionou você', message: 'Festival · “oi”', read: false,
+      link: '/live/e1?stream=s1', createdAt: new Date().toISOString(),
+    };
+    const { container } = render(<NotificationItem notification={notification} onSelect={vi.fn()} />);
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/live/e1?stream=s1');
+    expect(container.querySelector('svg')).toHaveClass('lucide-at-sign');
+  });
 });

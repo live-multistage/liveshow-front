@@ -38,6 +38,8 @@ interface VideoPanelProps {
   // has no hls instance, is a no-op). Only the primary/unmuted panel gets
   // this — see Task 12.
   selectedAudioCameraId?: string;
+  // Language track of the selected audio camera (see usePlayerAudio).
+  selectedAudioTrackIndex?: number;
   // Pin this panel to the smallest rendition, overriding selectedLevel. Used
   // for background/thumbnail panels (hidden, PIP, rail, strip previews) that
   // stay decoding for instant switching but don't need full quality — cuts
@@ -124,6 +126,7 @@ export function VideoPanel({
   selectedLevel,
   onLevelsReady,
   selectedAudioCameraId,
+  selectedAudioTrackIndex,
   lowQuality = false,
   muted,
   onMutedChange,
@@ -162,6 +165,7 @@ export function VideoPanel({
     selectedLevel,
     lowQuality,
     selectedAudioCameraId,
+    selectedAudioTrackIndex,
     onLevelsReady,
     onAutoplayBlocked,
     onLlFallback: (reason, detail) => {

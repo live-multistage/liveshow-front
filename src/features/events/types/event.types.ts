@@ -13,6 +13,10 @@ export type {
   EventResponse,
   AccessibilityStatus,
   PaginatedEventsResponse,
+  MyEventsStatusFilter,
+  MyEventsPageParams,
+  MyEventsPageResponse,
+  MyEventCounts,
   RecommendedEventsResponse,
   TicketProductResponse,
   TicketProductsResponse,
@@ -70,6 +74,7 @@ export interface CreateTicketRequest {
   capabilities: AccessCapability[];
   camerasLimit?: number | null;
   allowedStageIds?: string[];
+  allowedStreamIds?: string[];
   capacity?: number | null;
 }
 
@@ -81,5 +86,6 @@ export interface UpdateTicketRequest {
   capabilities?: AccessCapability[];
   camerasLimit?: number | null;
   allowedStageIds?: string[];
+  allowedStreamIds?: string[];
   capacity?: number | null;
 }

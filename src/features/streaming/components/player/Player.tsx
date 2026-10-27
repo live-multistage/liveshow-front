@@ -15,6 +15,8 @@ import type { CameraGridProps } from '../CameraGrid';
 import { Header as HeaderBar } from '../Header';
 import { PlayerStage as StageFrame } from '../PlayerStage';
 import { RecommendedOverlay } from '../RecommendedOverlay';
+import type { LockedStreamOffer } from '../../types/live.types';
+import { TransmissionOfflineState } from '../TransmissionOfflineState';
 import { PlayerProvider, usePlayer } from './PlayerContext';
 import type { PlayerContextValue, PlayerMode } from './PlayerContext';
 import styles from './PlayerParts.module.scss';
@@ -28,6 +30,12 @@ export interface PlayerRootProps {
   // The event actually on screen — defaults to `eventId`.
   playbackEventId?: string;
   adsEnabled?: boolean;
+  // Extra class on the player box — the event-page preview sizes it to its
+  // hero instead of the viewport.
+  className?: string;
+  // Event-page hero preview: skips every player analytics event and the
+  // "player" feature view. Default: a real player.
+  preview?: boolean;
   children: ReactNode;
 }
 
@@ -64,10 +72,15 @@ function analyticsMode(mode: 'live' | 'replay' | 'channel'): 'live' | 'replay' {
   return mode === 'replay' ? 'replay' : 'live';
 }
 
+function FeatureView({ enabled, eventId, mode, children }: { enabled: boolean; eventId: string; mode: 'live' | 'replay'; children: ReactNode }) {
+  if (!enabled) return <>{children}</>;
+  return <TrackFeature name="player" props={{ eventId, mode }}>{children}</TrackFeature>;
+}
+
 // Owns the fullscreen/PiP host element and publishes the shell. The mode still
 // calls usePlayerShell itself: its handlers (onEnded, DVR seek) need the shell
 // before this tree exists.
-function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true, children }: PlayerRootProps) {
+function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true, className, preview = false, children }: PlayerRootProps) {
   const value: PlayerContextValue = {
     shell,
     mode,
@@ -75,17 +88,18 @@ function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true,
     title,
     playbackEventId: playbackEventId ?? eventId,
     adsEnabled,
+    preview,
   };
 
   useSinglePartWarning(children);
 
   return (
     <PlayerProvider value={value}>
-      <TrackFeature name="player" props={{ eventId: value.playbackEventId, mode: analyticsMode(mode) }}>
-        <div ref={shell.containerRef} className={styles.player} data-chapters-open={shell.chaptersOpen || undefined}>
+      <FeatureView enabled={!preview} eventId={value.playbackEventId} mode={analyticsMode(mode)}>
+        <div ref={shell.containerRef} className={`${styles.player} ${className ?? ''}`} data-chapters-open={shell.chaptersOpen || undefined}>
           {children}
         </div>
-      </TrackFeature>
+      </FeatureView>
     </PlayerProvider>
   );
 }
@@ -100,9 +114,13 @@ export interface PlayerHeaderProps {
   chat?: { open: boolean; onToggle: () => void; messageCount: number };
   // Replay only in practice: shows the "Capítulos" pill. count null = loading.
   chapters?: { count: number };
+  // Transmissions for sale and the action that buys one.
+  lockedStreams?: LockedStreamOffer[];
+  onUnlockStream?: (locked: LockedStreamOffer) => void;
+  unlockPending?: boolean;
 }
 
-function PlayerHeader({ badge, exitHref, metaLine, currentViewers, chat, chapters }: PlayerHeaderProps) {
+function PlayerHeader({ badge, exitHref, metaLine, currentViewers, chat, chapters, lockedStreams, onUnlockStream, unlockPending }: PlayerHeaderProps) {
   const { shell, eventId, title } = usePlayer();
   const t = useTranslations('player');
   const router = useRouter();
@@ -122,6 +140,14 @@ function PlayerHeader({ badge, exitHref, metaLine, currentViewers, chat, chapter
       stages={shell.stages}
       activeStageId={shell.activeStageId}
       onStageChange={shell.setActiveStageId}
+      streams={shell.streams}
+      activeStreamId={shell.activeStreamId}
+      onStreamChange={shell.setActiveStreamId}
+      transmissionsOpen={shell.transmissionsOpen}
+      onTransmissionsOpenChange={shell.setTransmissionsOpen}
+      lockedStreams={lockedStreams}
+      onUnlockStream={onUnlockStream}
+      unlockPending={unlockPending}
       onExit={() => router.push(exitHref ?? `/events/${eventId}`)}
       currentViewers={currentViewers}
       cameraCount={shell.stageCameras.length}
@@ -145,10 +171,13 @@ export type PlayerStagePartProps = Pick<
 >;
 
 function Stage(gridProps: PlayerStagePartProps) {
-  const { shell, mode, playbackEventId, adsEnabled } = usePlayer();
+  const { shell, mode, playbackEventId, adsEnabled, preview } = usePlayer();
   const { audio, quality } = shell;
   const analytics = useAnalytics();
   const trackedMode = analyticsMode(mode);
+  // Replay streams carry no `live`, so this never fires in replay.
+  const activeStream = shell.streams.find((s) => s.id === shell.activeStreamId);
+  const offlineStream = activeStream?.live === false ? activeStream : null;
 
   // quality is a new object every render (useQualityLevels returns a fresh
   // literal) — read the current levels through a ref instead of a dep, or
@@ -179,6 +208,7 @@ function Stage(gridProps: PlayerStagePartProps) {
       clearTimeout(pendingEndedTimeoutRef.current);
       pendingEndedTimeoutRef.current = null;
     }
+    if (preview) return;
     if (!openedFiredRef.current) {
       openedFiredRef.current = true;
       analytics.track('player_opened', { eventId: playbackEventId, mode: trackedMode, hasAccess: true });
@@ -209,7 +239,7 @@ function Stage(gridProps: PlayerStagePartProps) {
 
   const handlePlaying = useCallback(
     (latencyMode: string) => {
-      if (startedFiredRef.current) return;
+      if (preview || startedFiredRef.current) return;
       startedFiredRef.current = true;
       analytics.track('playback_started', {
         eventId: playbackEventId,
@@ -219,18 +249,19 @@ function Stage(gridProps: PlayerStagePartProps) {
         startupMs: Date.now() - openedAtRef.current,
       });
     },
-    [analytics, playbackEventId, trackedMode],
+    [analytics, playbackEventId, trackedMode, preview],
   );
 
   // Stalls >500ms, throttled to at most one report per 10s (see rules.md).
   const handleBuffered = useCallback(
     (durationMs: number) => {
+      if (preview) return;
       const now = Date.now();
       if (now - lastBufferedTrackRef.current < 10_000) return;
       lastBufferedTrackRef.current = now;
       analytics.track('playback_buffered', { eventId: playbackEventId, durationMs });
     },
-    [analytics, playbackEventId],
+    [analytics, playbackEventId, preview],
   );
 
   return (
@@ -244,7 +275,8 @@ function Stage(gridProps: PlayerStagePartProps) {
         onPauseAdVisibleChange={shell.setPauseAdVisible}
         adsEnabled={adsEnabled}
       >
-        {shell.activeStage && (
+        {offlineStream && <TransmissionOfflineState title={offlineStream.title} />}
+        {shell.activeStage && !offlineStream && (
           <CameraGrid
             key={shell.activeStage.stageId}
             eventId={playbackEventId}
@@ -256,6 +288,7 @@ function Stage(gridProps: PlayerStagePartProps) {
             globalMuted={audio.globalMuted}
             onGlobalMutedChange={audio.setGlobalMuted}
             audioCameraId={audio.effectiveAudioCameraId}
+            audioTrackIndex={audio.effectiveAudioTrackIndex}
             onAudioCameraChange={audio.handleAudioCameraChange}
             volume={audio.volume}
             paused={shell.paused}

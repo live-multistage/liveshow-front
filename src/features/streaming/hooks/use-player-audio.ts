@@ -1,7 +1,44 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { pickAudioTrackIndex } from '@live-show/api-contracts';
+import type { AudioTrackInfo } from '@live-show/api-contracts';
 import type { LiveCamera } from '../types/live.types';
+
+// Per-viewer audio language (ISO 639 code). A convenience, not state anyone
+// else reads: storage can be missing or throw (private mode), and the choice
+// then simply lasts for this session.
+const AUDIO_LANGUAGE_KEY = 'ls_audio_language';
+
+// Stored as {language, index}: several tracks can share a language (untagged
+// sources are all `und`), so the language alone cannot say which one was picked.
+interface AudioChoice {
+  language: string;
+  index: number | null;
+}
+
+function readStoredChoice(): AudioChoice | null {
+  try {
+    const raw = localStorage.getItem(AUDIO_LANGUAGE_KEY);
+    if (!raw) return null;
+    if (!raw.startsWith('{')) return { language: raw, index: null }; // legacy: bare language
+    const parsed = JSON.parse(raw) as Partial<AudioChoice>;
+    if (typeof parsed.language !== 'string') return null;
+    return { language: parsed.language, index: typeof parsed.index === 'number' ? parsed.index : null };
+  } catch {
+    return null;
+  }
+}
+
+function storeChoice(choice: AudioChoice): void {
+  try {
+    localStorage.setItem(AUDIO_LANGUAGE_KEY, JSON.stringify(choice));
+  } catch {
+    // session-only choice, see above
+  }
+}
+
+const NO_TRACKS: AudioTrackInfo[] = [];
 
 export interface PlayerAudioState {
   muted: boolean;
@@ -57,6 +94,26 @@ export function usePlayerAudio({
       ? audioCameraId
       : fallbackCameraId;
 
+  // The language follows the viewer, not the camera: it survives camera (and
+  // transmission) switches and applies wherever that language exists; a
+  // camera without it plays its default track.
+  const [choice, setChoice] = useState<AudioChoice | null>(readStoredChoice);
+  const preferredLanguage = choice?.language ?? null;
+  const audioCamera = cameras.find((c) => c.cameraId === effectiveAudioCameraId);
+  // The LL-HLS (MediaMTX) path doesn't carry the stage master's per-camera
+  // audio renditions, so a selector there would do nothing.
+  const audioTracks = audioCamera?.llPath ? NO_TRACKS : (audioCamera?.audioTracks ?? NO_TRACKS);
+  const remembered = choice?.index == null ? undefined : audioTracks.find((t) => t.index === choice.index);
+  const effectiveAudioTrackIndex =
+    remembered && remembered.language === choice?.language
+      ? remembered.index
+      : pickAudioTrackIndex(audioTracks, preferredLanguage);
+  const handleAudioLanguageChange = (language: string, index: number | null = null) => {
+    const next = { language, index };
+    setChoice(next);
+    storeChoice(next);
+  };
+
   // Picking an audio source is an explicit "I want to hear this" — unmute.
   const handleAudioCameraChange = (id: string) => {
     setAudioCameraId(id);
@@ -70,5 +127,9 @@ export function usePlayerAudio({
     setVolume,
     effectiveAudioCameraId,
     handleAudioCameraChange,
+    audioTracks,
+    effectiveAudioTrackIndex,
+    preferredLanguage,
+    handleAudioLanguageChange,
   };
 }

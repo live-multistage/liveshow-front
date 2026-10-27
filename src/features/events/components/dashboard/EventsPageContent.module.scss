@@ -112,6 +112,7 @@
 }
 
 .filterBtn {
+  text-decoration: none;
   background: none;
   border: 1px solid $border;
   border-radius: 6px;
@@ -164,6 +165,22 @@
 
 .emptyIcon {
   opacity: 0.3;
+}
+
+// ── Pagination ────────────────────────────────────────────────────
+.paginationRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid $border;
+}
+
+.paginationRange {
+  font-size: 0.75rem;
+  color: $text-secondary;
 }
 
 // ── Sheet ─────────────────────────────────────────────────────────

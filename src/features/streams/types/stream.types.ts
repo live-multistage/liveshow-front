@@ -8,6 +8,7 @@ export interface StreamResponse {
   title: string;
   description?: string;
   status: StreamStatus;
+  position: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -140,6 +141,7 @@ export interface TranscodeJobResponse {
 export interface UpdateStreamRequest {
   title?: string;
   description?: string;
+  position?: number;
 }
 
 // ── Ops stats (GET /streams/:id/stats) ───────────────────────────

@@ -18,6 +18,10 @@
   &:hover { color: $text-primary; background-color: rgba(255, 255, 255, 0.12); }
 }
 
+.iconBtnOpen {
+  &, &:hover { background-color: $action; color: $ink; }
+}
+
 .menuWrapper {
   position: relative;
   flex-shrink: 0;
@@ -139,5 +143,157 @@
     border-radius: 50%;
     background: $action;
     cursor: pointer;
+  }
+}
+
+// Audio selector panel. Above the trigger on desktop; a full-width bottom
+// sheet with 56px rows at mobile widths (same breakpoint as the dashboard nav).
+.panel {
+  position: absolute;
+  bottom: calc(100% + 0.75rem);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 240px;
+  padding: 12px;
+  background: rgba(12, 12, 14, 0.96);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+  z-index: 40;
+
+  @media (max-width: 820px) {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    padding: 16px 16px 34px;
+    border-width: 1px 0 0;
+    border-radius: 20px 20px 0 0;
+    background: rgba(12, 12, 14, 0.98);
+  }
+}
+
+.panelEyebrow {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: $text-muted;
+  padding: 4px 6px 8px;
+}
+
+.panelItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #d4d4d8;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover { background: rgba(255, 255, 255, 0.06); }
+
+  @media (max-width: 820px) {
+    min-height: 56px;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+}
+
+.panelItemActive {
+  @extend .panelItem;
+  background: $action-bg;
+  border-color: rgba(255, 46, 158, 0.32);
+  color: #f4f4f5;
+  font-weight: 700;
+
+  svg { color: $action; }
+  &:hover { background: $action-bg; }
+}
+
+.panelItemLabel { flex: 1; }
+
+.panelTag {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.panelScrim, .panelHandle, .panelClose { display: none; }
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.triggerLabel { display: none; }
+
+@media (max-width: 820px) {
+  .panelScrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: rgba(5, 4, 6, 0.55);
+  }
+
+  .panelHandle {
+    display: block;
+    align-self: center;
+    width: 40px;
+    height: 4px;
+    margin-bottom: 10px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .panelHeader { padding: 0 4px 8px; }
+  .panelHeader .panelEyebrow { padding: 0; }
+
+  .panelClose {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: $text-muted;
+    cursor: pointer;
+  }
+
+  .triggerLabel {
+    display: inline;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: $text-primary;
+  }
+
+  // Labelled 44px pill on mobile; icon-only button above 820px.
+  .iconBtn:has(.triggerLabel) {
+    height: 44px;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
   }
 }

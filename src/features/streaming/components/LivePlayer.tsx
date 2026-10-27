@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Volume2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import type { LiveCamera, LiveStage } from '../types/live.types';
+import type { LiveCamera, LiveStage, LivePlaybackStream, LockedStreamOffer } from '../types/live.types';
 import { Player, Transport } from './player';
 import { LiveBadge } from './transport/LiveBadge';
 import { liveScrubber } from './transport/live-scrubber';
@@ -15,6 +15,7 @@ import { useViewerCount } from '../hooks/use-viewer-count';
 import type { PlayerAudioState } from '../hooks/use-player-audio';
 import { useLiveDvr } from '../hooks/use-live-dvr';
 import { usePlayerShell } from '../hooks/use-player-shell';
+import { useStreamUnlock } from '../hooks/use-stream-unlock';
 import styles from './Player.module.scss';
 
 interface LivePlayerProps {
@@ -23,6 +24,12 @@ interface LivePlayerProps {
   primaryCameraId?: string | null;
   // NBR 15290 — camera pinned as the mandatory Libras window (null if none).
   librasCameraId?: string | null;
+  // Granted transmissions; when present the player shows the active one and
+  // chat/viewer count follow it. Absent = legacy flattened props above.
+  streams?: LivePlaybackStream[];
+  defaultStreamId?: string | null;
+  // Transmissions for sale to this viewer; ignored on a channel.
+  lockedStreams?: LockedStreamOffer[];
   title: string;
   // Chat's room and the header/exit target — the channel passes its own
   // persistent broadcast event here, which doesn't move when a channel's
@@ -59,7 +66,7 @@ interface LivePlayerProps {
 
 // Live = the shared player shell + DVR, viewer tracking/count, chat and the
 // "tap for sound" prompt.
-export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, title, eventId, trackingEventId, chatEnabled, adsEnabled = true, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
+export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, streams, defaultStreamId, lockedStreams, title, eventId, trackingEventId, chatEnabled, adsEnabled = true, variant = 'event', metaLineOverride, exitHref, overlay, initialAudio, onAudioChange }: LivePlayerProps) {
   const t = useTranslations('player');
   const isChannel = variant === 'channel';
   const { user } = useAuth();
@@ -74,6 +81,8 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, t
     stages,
     primaryCameraId,
     librasCameraId,
+    streams,
+    defaultStreamId,
     // A live stream can be paused: the broadcast keeps going, so resuming picks
     // up where the viewer stopped — behind the live edge, inside the DVR window.
     initialPaused: false,
@@ -90,15 +99,18 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, t
     onStageChange: () => resetForStageChange(),
   });
   const { audio } = shell;
+  const unlock = useStreamUnlock({ eventId, streams: shell.streams, setActiveStreamId: shell.setActiveStreamId, enabled: !isChannel && !!lockedStreams?.length });
   const { dvr, dvrSeeking, seekCommand, atLive, handleProgress, handleSeek, endRewind, resetForStageChange, clearRewindIntent } =
     useLiveDvr(shell.effectiveMainCameraId);
 
   const effectiveTrackingEventId = trackingEventId ?? eventId;
   useViewerTracking(effectiveTrackingEventId, shell.activeCameraIds, user?.id);
-  const { currentViewers } = useViewerCount(effectiveTrackingEventId);
+  const { currentViewers } = useViewerCount(effectiveTrackingEventId, shell.activeStreamId);
   // Only open the SSE connection (and hit the recent-messages endpoint) when
   // chat is actually enabled for this event — see Task 7 addendum.
-  const chat = useChat(chatEnabled ? eventId : null);
+  // A channel's chat is the channel's own broadcast-event room — the carried
+  // event's transmissions are not its rooms.
+  const chat = useChat(chatEnabled ? eventId : null, isChannel ? null : shell.activeStreamId);
 
   // Once the viewer turns sound on, the autoplay prompt is done for the session.
   useEffect(() => {
@@ -123,6 +135,9 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, t
         exitHref={exitHref}
         metaLine={metaLineOverride}
         currentViewers={currentViewers}
+        lockedStreams={isChannel ? undefined : lockedStreams}
+        onUnlockStream={unlock.unlock}
+        unlockPending={unlock.pending}
         chat={chatEnabled ? { open: chatOpen, onToggle: () => setChatOpen((o) => !o), messageCount: chat.messages.length } : undefined}
       />
 
@@ -137,6 +152,7 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, t
         <Player.Aside>
           <ChatDock
             eventId={eventId}
+            streamId={isChannel ? null : shell.activeStreamId}
             open={chatOpen}
             onClose={() => setChatOpen(false)}
             messages={chat.messages}
@@ -162,6 +178,7 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, t
         <Transport.Volume />
         {!scrubber && <Transport.Spacer />}
         <Transport.AudioCamera />
+        <Transport.AudioTrack />
         <Transport.Quality />
         <Transport.Pip />
         <Transport.Fullscreen />

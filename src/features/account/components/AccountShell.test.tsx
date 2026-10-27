@@ -22,6 +22,7 @@ const me = {
   id: 'u1',
   displayName: 'Ysrael Moreno',
   email: 'ysrael@example.com',
+  username: 'ysrael' as string | null,
   phone: null,
   taxDocument: null,
   bio: null,
@@ -76,6 +77,18 @@ describe('AccountShell', () => {
     render(<AccountShell sectionScroll={false}>child</AccountShell>);
     const link = screen.getByRole('link', { name: /Perfil/ });
     expect(link).toHaveAttribute('href', '/account#perfil');
+  });
+
+  it('shows @username instead of the e-mail in the identity card', () => {
+    render(<AccountShell sectionScroll>child</AccountShell>);
+    expect(screen.getByText('@ysrael')).toBeInTheDocument();
+    expect(screen.queryByText('ysrael@example.com')).not.toBeInTheDocument();
+  });
+
+  it('falls back to the e-mail when the user has no username', () => {
+    vi.mocked(useQuery).mockReturnValue({ data: { ...me, username: null }, isLoading: false } as never);
+    render(<AccountShell sectionScroll>child</AccountShell>);
+    expect(screen.getByText('ysrael@example.com')).toBeInTheDocument();
   });
 
   it('renders the children inside the main area', () => {

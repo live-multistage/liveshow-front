@@ -136,6 +136,38 @@ export interface PaginatedEventsResponse {
 
 export type RecommendedEventsResponse = PaginatedEventsResponse;
 
+// GET /events/mine/paged + /events/mine/counts — the organizer dashboard list
+// (own orgs' events + accepted collaborations, CHANNEL containers excluded).
+// The list filters on one status (omitted = every event); PUBLISHED also
+// matches SCHEDULED, which responses report as PUBLISHED. The counts feed
+// the stat cards with grouped statuses.
+export type MyEventsStatusFilter = EventStatus;
+
+export interface MyEventsPageParams {
+  status?: MyEventsStatusFilter;
+  page?: number;
+  pageSize?: number;
+}
+
+export type MyEventResponse = EventResponse & { collaborationRole: 'OWNER' | 'COLLABORATOR' };
+
+// Ordered by startsAt DESC, then id DESC.
+export interface MyEventsPageResponse {
+  items: MyEventResponse[];
+  page: number;
+  pageSize: number;
+  total: number;
+}
+
+// all = every status (DRAFT and CANCELLED included); live = LIVE;
+// upcoming = PUBLISHED | SCHEDULED; finished = FINISHED.
+export interface MyEventCounts {
+  all: number;
+  live: number;
+  upcoming: number;
+  finished: number;
+}
+
 export interface TicketProductResponse {
   id: string;
   eventId: string;
@@ -147,6 +179,7 @@ export interface TicketProductResponse {
   capabilities: AccessCapability[];
   camerasLimit: number | null;
   allowedStageIds: string[];
+  allowedStreamIds: string[]; // [] = every transmission
   capacity: number | null;
   remaining: number | null;
   soldOut: boolean;

@@ -22,9 +22,12 @@ interface Props {
   eventTitle?: string;
   onStreamUpdated?: (s: StreamResponse) => void;
   onStreamDeleted?: (id: string) => void;
+  onMove?: (direction: -1 | 1) => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 }
 
-export function StreamBuilder({ stream, eventId, eventTitle, onStreamUpdated, onStreamDeleted }: Props) {
+export function StreamBuilder({ stream, eventId, eventTitle, onStreamUpdated, onStreamDeleted, onMove, canMoveUp, canMoveDown }: Props) {
   const prepare = usePrepareStreamMutation(stream.id, eventId);
   const start = useStartStreamMutation(stream.id, eventId);
   const end = useEndStreamMutation(stream.id, eventId);
@@ -54,6 +57,9 @@ export function StreamBuilder({ stream, eventId, eventTitle, onStreamUpdated, on
         isRenaming={update.isPending}
         onDeleted={onStreamDeleted}
         showLifecycle={eventId !== null}
+        onMove={onMove}
+        canMoveUp={canMoveUp}
+        canMoveDown={canMoveDown}
       />
       <StreamPreviewPanel stream={stream} eventId={eventId} eventTitle={eventTitle} />
       <StageList streamId={stream.id} streamStatus={stream.status} eventId={eventId} />

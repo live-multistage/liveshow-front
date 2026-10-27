@@ -40,6 +40,19 @@ vi.mock('@live-show/analytics-sdk/react', () => ({
 }));
 vi.mock('@/features/advertisements', () => ({ AdBanner: () => null }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
+const live = vi.hoisted(() => ({
+  access: { data: false as boolean | undefined },
+  playback: { data: undefined as unknown },
+}));
+vi.mock('@/features/streaming/queries/live.queries', () => ({
+  useLiveAccessQuery: () => live.access,
+  useLivePlaybackQuery: () => live.playback,
+}));
+vi.mock('@/features/streaming/components/LivePreview', () => ({
+  LivePreview: ({ playback }: { playback: { defaultStreamId?: string | null } }) => (
+    <div data-testid="live-preview" data-stream={playback.defaultStreamId ?? ''} />
+  ),
+}));
 vi.mock('./TicketPanel', () => ({ TicketPanel: () => null }));
 // Both use React Query (useEventSchedule / useListEventsQuery) and have their own
 // suites; here they'd need a QueryClientProvider, so stub them out like TicketPanel.
@@ -50,6 +63,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { EventDetailPageContent, toTrackedStatus } from './EventDetailPageContent';
 import type { TicketProductResponse } from '../../types/event.types';
+import { useAuth } from '@/features/account/hooks/use-auth';
 import { useGetEventQuery } from '../../queries/get-event';
 import { useEventCamerasQuery } from '@/features/streams/queries/streams.queries';
 import { useOrganization } from '@/features/organizations';
@@ -303,6 +317,7 @@ function makeTicket(overrides: Partial<TicketProductResponse> = {}): TicketProdu
     capabilities: ['LIVE_VIEW'],
     camerasLimit: null,
     allowedStageIds: [],
+    allowedStreamIds: [],
     capacity: null,
     remaining: null,
     soldOut: false,
@@ -334,5 +349,90 @@ describe('toTrackedStatus', () => {
 
   it.each(['DRAFT', 'PUBLISHED', 'SCHEDULED'] as const)('maps %s to upcoming', (status) => {
     expect(toTrackedStatus(status, [])).toBe('upcoming');
+  });
+});
+
+describe('EventDetailPageContent — live hero for viewers with access', () => {
+  const servingCamera = {
+    cameraId: 'c-1', name: 'Palco', slug: 'palco', priority: 1, live: true,
+    manifestPath: '/packages/p1/live/master.m3u8', llPath: null, thumbnailUrl: null,
+  };
+  const playbackData = {
+    eventId: 'evt-1', live: true, latencyMode: 'STANDARD', cameras: [servingCamera], primaryCameraId: 'c-1', librasCameraId: null,
+    streams: [{ id: 's-cov', title: 'Cobertura', position: 0, live: true, stages: [], cameras: [servingCamera], primaryCameraId: 'c-1', librasCameraId: null }],
+    defaultStreamId: 's-cov',
+    lockedStreams: [{
+      id: 's-full', title: 'Evento completo', position: 1, live: true,
+      offer: { ticketProductId: 'tp-full', name: 'Evento completo', priceCents: 4990, currency: 'BRL' },
+    }],
+  };
+
+  beforeEach(() => {
+    vi.mocked(useAuth).mockReturnValue({ user: { id: 'u-1' }, isLoggedIn: true } as never);
+  });
+  afterEach(() => {
+    live.access = { data: false };
+    live.playback = { data: undefined };
+    vi.mocked(useAuth).mockReturnValue({ user: null } as never);
+  });
+
+  it('plays the granted transmission in the hero and says what else is for sale', () => {
+    live.access = { data: true };
+    live.playback = { data: playbackData };
+
+    renderWithEvent(makeEvent({ status: 'LIVE' }));
+
+    expect(screen.getByTestId('live-preview')).toHaveAttribute('data-stream', 's-cov');
+    expect(screen.getByText('watchingChip')).toBeInTheDocument();
+    expect(screen.getByText(/watchingTransmission/)).toHaveTextContent('upsellNote');
+  });
+
+  it('keeps the poster for a viewer without live access', () => {
+    live.access = { data: false };
+    live.playback = { data: playbackData };
+
+    renderWithEvent(makeEvent({ status: 'LIVE' }));
+
+    expect(screen.queryByTestId('live-preview')).toBeNull();
+  });
+
+  it('keeps the poster when the default transmission is offline', () => {
+    live.access = { data: true };
+    live.playback = { data: { ...playbackData, streams: [{ ...playbackData.streams[0], live: false }] } };
+
+    renderWithEvent(makeEvent({ status: 'LIVE' }));
+
+    expect(screen.queryByTestId('live-preview')).toBeNull();
+    expect(screen.queryByText('watchingChip')).toBeNull();
+  });
+
+  it('keeps the poster while the default transmission has no playable camera yet (job not RUNNING)', () => {
+    // live counts WAITING_VIEWERS/QUEUED jobs, and the preview never joins,
+    // so nothing would ever start it.
+    const cold = { ...servingCamera, manifestPath: null, llPath: null };
+    live.access = { data: true };
+    live.playback = {
+      data: { ...playbackData, cameras: [cold], streams: [{ ...playbackData.streams[0], cameras: [cold] }] },
+    };
+
+    renderWithEvent(makeEvent({ status: 'LIVE' }));
+
+    expect(screen.queryByTestId('live-preview')).toBeNull();
+  });
+
+  it('keeps the poster while nothing granted is on air', () => {
+    live.access = { data: true };
+    live.playback = { data: { ...playbackData, live: false } };
+
+    renderWithEvent(makeEvent({ status: 'LIVE' }));
+
+    expect(screen.queryByTestId('live-preview')).toBeNull();
+  });
+
+  it('titles the description "about" (Sobre o evento), never "show"', () => {
+    renderWithEvent(makeEvent({ status: 'PUBLISHED' }));
+
+    expect(screen.getByText('about')).toBeInTheDocument();
+    expect(screen.queryByText('SOBRE O SHOW')).toBeNull();
   });
 });

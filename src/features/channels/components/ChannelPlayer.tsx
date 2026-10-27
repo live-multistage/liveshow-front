@@ -63,6 +63,8 @@ export function ChannelPlayer({
       stages={playback.stages}
       primaryCameraId={playback.primaryCameraId}
       librasCameraId={playback.librasCameraId}
+      streams={playback.streams}
+      defaultStreamId={playback.defaultStreamId}
       chatEnabled={chatEnabled}
       adsEnabled={adsEnabled}
       initialAudio={initialAudio}

@@ -1,3 +1,4 @@
+import type { AudioTrackInfo } from './audio-tracks';
 export type LatencyMode = 'STANDARD' | 'LOW';
 
 /**
@@ -46,6 +47,9 @@ export interface LiveCamera {
   // Poster shown when `live` is false (or while connecting). Null falls back
   // to the showon.io logo.
   thumbnailUrl?: string | null;
+  // Present only when the camera carries 2+ audio tracks; absent = one default
+  // track and no audio selector.
+  audioTracks?: AudioTrackInfo[];
 }
 
 export interface LiveStage {
@@ -56,15 +60,51 @@ export interface LiveStage {
   cameras: LiveCamera[];
 }
 
+// One transmission of the event, as this viewer may see it (granted only).
+export interface LivePlaybackStream {
+  id: string;
+  title: string;
+  position: number;
+  // At least one of its cameras is transcoding; false = shown as offline.
+  live: boolean;
+  stages: LiveStage[];
+  cameras: LiveCamera[];
+  primaryCameraId: string | null;
+  // NBR 15290 — one Libras window per transmission.
+  librasCameraId: string | null;
+}
+
+// A transmission this viewer is not granted but can buy (amendment
+// 2026-10-18). Never playable: no cameras, stages, paths or token entry.
+export interface LockedStreamOffer {
+  id: string;
+  title: string;
+  position: number;
+  // Live: at least one of its cameras is transcoding. Always false on replay.
+  live: boolean;
+  // The cheapest on-sale ticket product of the event that grants it.
+  offer: { ticketProductId: string; name: string; priceCents: number; currency: string };
+}
+
 export interface LivePlaybackResponse {
   eventId: string;
+  // Any granted transmission is live.
   live: boolean;
-  // Grouped by stage when the backend supports it.
-  // Falls back to wrapping `cameras` into a single synthetic stage when absent.
+  // Granted transmissions, ordered by position. Absent on servers older than
+  // multi-transmission — fall back to the flattened fields below.
+  streams?: LivePlaybackStream[];
+  // First live stream by position, else the first. Null when nothing is visible.
+  defaultStreamId?: string | null;
+  // Transmissions for sale to this viewer, shown locked in the selector.
+  // Absent on older servers; empty when fully granted.
+  lockedStreams?: LockedStreamOffer[];
+  /** @deprecated flattened view of `defaultStreamId` — read `streams`; removed one release after web ships. */
   stages?: LiveStage[];
-  cameras: LiveCamera[]; // flat list — always present for backward compat
+  /** @deprecated see `stages`. */
+  cameras: LiveCamera[];
+  /** @deprecated see `stages`. */
   primaryCameraId: string | null;
-  // NBR 15290 — camera pinned as the mandatory Libras window (null if none).
+  /** @deprecated see `stages`. */
   librasCameraId: string | null;
   latencyMode: LatencyMode;
 }
@@ -87,6 +127,9 @@ export interface ReplayCameraPlayback {
   available: boolean;
   // Poster shown when `available` is false. Null falls back to the showon.io logo.
   thumbnailUrl?: string | null;
+  // Present only when the camera carries 2+ audio tracks; absent = one default
+  // track and no audio selector.
+  audioTracks?: AudioTrackInfo[];
 }
 
 // The event's absolute replay timeline — the domain every camera's coverage
@@ -105,16 +148,41 @@ export interface ReplayStagePlayback {
   cameras: ReplayCameraPlayback[];
 }
 
-export interface ReplayPlaybackResponse {
-  eventId: string;
-  available: boolean;
+export interface ReplayPlaybackStream {
+  id: string;
+  title: string;
+  position: number;
   stages: ReplayStagePlayback[];
   cameras: ReplayCameraPlayback[];
   primaryCameraId: string | null;
+  librasCameraId: string | null;
+  // This transmission's own replay window (transmissions recorded at different
+  // times keep different windows). Null when none of its cameras has a replay.
+  timeline: ReplayEventTimeline | null;
+}
+
+export interface ReplayPlaybackResponse {
+  eventId: string;
+  available: boolean;
+  // Granted transmissions, ordered by position. Absent on older servers.
+  streams?: ReplayPlaybackStream[];
+  // First live stream by position, else the first. Null when nothing is visible.
+  defaultStreamId?: string | null;
+  // Transmissions for sale to this viewer, shown locked in the selector.
+  // Absent on older servers; empty when fully granted.
+  lockedStreams?: LockedStreamOffer[];
+  /** @deprecated flattened view of defaultStreamId. */
+  stages: ReplayStagePlayback[];
+  /** @deprecated flattened view of defaultStreamId. */
+  cameras: ReplayCameraPlayback[];
+  /** @deprecated flattened view of defaultStreamId. */
+  primaryCameraId: string | null;
   // NBR 15290 — camera pinned as the mandatory Libras window (null if none/VOD).
+  /** @deprecated flattened view of defaultStreamId. */
   librasCameraId: string | null;
   // União das coberturas de todas as câmeras — a timeline do evento e o
   // domínio do scrubber. Null quando nenhuma câmera tem replay arquivado.
+  /** @deprecated flattened view of defaultStreamId. */
   timeline: ReplayEventTimeline | null;
 }
 

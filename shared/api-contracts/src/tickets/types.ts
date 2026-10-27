@@ -83,3 +83,8 @@ export interface GateableEvent {
   venue: string | null;
   city: string | null;
 }
+
+/** `GET /events/:eventId/my-tickets` — the caller's PAID ticket products for the event. */
+export interface MyEventTicketsResponse {
+  ownedTicketProductIds: string[];
+}

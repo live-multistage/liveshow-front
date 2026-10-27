@@ -9,7 +9,7 @@ vi.mock('../services/chat.service', () => ({
     mute: vi.fn(),
     unmute: vi.fn(),
     streamUrl: vi.fn(
-      (eventId: string, token: string | null) =>
+      (eventId: string, token: string | null, _streamId?: string | null) =>
         `http://api/chat/events/${eventId}/stream${token ? `?token=${token}` : ''}`,
     ),
   },
@@ -84,6 +84,9 @@ const recentFixture = {
       authorName: 'Bob',
       body: 'oi',
       sentAt: '2026-01-01T00:00:00.000Z',
+      streamId: null,
+      authorUsername: null,
+      mentions: [],
     },
   ],
   me: { canWrite: true, isMuted: false, isModerator: false },
@@ -97,6 +100,20 @@ describe('useChat', () => {
     (globalThis as unknown as { EventSource: typeof FakeEventSource }).EventSource = FakeEventSource;
     tokenStore.clear();
     mockedRecent.mockResolvedValue(recentFixture);
+  });
+
+  it('defaults mentions and authorUsername for messages from an API that predates them', async () => {
+    const legacy = { id: 'm9', eventId: 'evt-1', userId: 'user-2', authorName: 'Bob', body: 'oi', sentAt: '2026-01-01T00:00:00.000Z', streamId: null };
+    mockedRecent.mockResolvedValue({ ...recentFixture, messages: [legacy as never] });
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(() => useChat('evt-1'), { wrapper });
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    expect(result.current.messages[0]).toMatchObject({ mentions: [], authorUsername: null });
+
+    await waitFor(() => expect(FakeEventSource.instances.length).toBeGreaterThan(0));
+    act(() => latestSource().emit('message', { type: 'message', message: { ...legacy, id: 'm10' } }));
+    await waitFor(() => expect(result.current.messages).toHaveLength(2));
+    expect(result.current.messages[1]).toMatchObject({ mentions: [], authorUsername: null });
   });
 
   it('bootstrap seeds messages and me from the recent query', async () => {
@@ -123,6 +140,9 @@ describe('useChat', () => {
       authorName: 'Caio',
       body: 'e ai',
       sentAt: '2026-01-01T00:00:01.000Z',
+      streamId: null,
+      authorUsername: null,
+      mentions: [],
     };
 
     act(() => source.emit('message', { type: 'message', message: incoming }));
@@ -286,6 +306,9 @@ describe('useChat', () => {
           authorName: 'Duda',
           body: 'voltei',
           sentAt: '2026-01-01T00:00:02.000Z',
+          streamId: null,
+          authorUsername: null,
+          mentions: [],
         },
       ],
       me: recentFixture.me,
@@ -341,5 +364,84 @@ describe('useChat', () => {
     act(() => result.current.react('🔥'));
     expect(mockedSend).not.toHaveBeenCalled();
     expect(mockedReact).not.toHaveBeenCalled();
+  });
+
+  it('binds recent, send and the SSE stream to the transmission', async () => {
+    mockedRecent.mockResolvedValue(recentFixture);
+    mockedSend.mockResolvedValue(recentFixture.messages[0]);
+    const { wrapper } = makeWrapper();
+
+    const { result } = renderHook(() => useChat('evt-1', 's-vip'), { wrapper });
+
+    await waitFor(() => expect(mockedRecent).toHaveBeenCalledWith('evt-1', 's-vip'));
+    await waitFor(() => expect(FakeEventSource.instances.length).toBeGreaterThan(0));
+    const lastUrlCall = vi.mocked(chatService.streamUrl).mock.calls.at(-1)!;
+    expect(lastUrlCall[0]).toBe('evt-1');
+    expect(lastUrlCall[2]).toBe('s-vip');
+
+    act(() => result.current.sendMessage('oi'));
+    await waitFor(() => expect(mockedSend).toHaveBeenCalledWith('evt-1', 'oi', 's-vip'));
+  });
+
+  it("switching transmission drops the old room's messages and reconnects", async () => {
+    mockedRecent.mockImplementation(async (_eventId: string, streamId?: string | null) => ({
+      ...recentFixture,
+      messages: streamId === 's-vip' ? [] : recentFixture.messages,
+    }));
+    const { wrapper } = makeWrapper();
+
+    const { result, rerender } = renderHook(({ streamId }) => useChat('evt-1', streamId), {
+      wrapper,
+      initialProps: { streamId: 's-main' as string | null },
+    });
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    await waitFor(() => expect(FakeEventSource.instances.length).toBeGreaterThan(0));
+    const first = latestSource();
+
+    rerender({ streamId: 's-vip' });
+
+    await waitFor(() => expect(result.current.messages).toHaveLength(0));
+    await waitFor(() => expect(first.closed).toBe(true));
+    await waitFor(() => expect(latestSource()).not.toBe(first));
+  });
+
+  it('returning to a room re-bootstraps and shows messages posted while away', async () => {
+    const late = { ...recentFixture.messages[0], id: 'late-1', body: 'while away' };
+    let mainCalls = 0;
+    mockedRecent.mockImplementation(async (_e: string, streamId?: string | null) => {
+      if (streamId === 's-vip') return { ...recentFixture, messages: [] };
+      mainCalls += 1;
+      return { ...recentFixture, messages: mainCalls === 1 ? recentFixture.messages : [...recentFixture.messages, late] };
+    });
+    const { wrapper } = makeWrapper();
+    const { result, rerender } = renderHook(({ streamId }) => useChat('evt-1', streamId), {
+      wrapper,
+      initialProps: { streamId: 's-main' as string | null },
+    });
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    rerender({ streamId: 's-vip' });
+    await waitFor(() => expect(mockedRecent).toHaveBeenCalledWith('evt-1', 's-vip'));
+    rerender({ streamId: 's-main' });
+    await waitFor(() => expect(result.current.messages.map((m) => m.id)).toContain('late-1'));
+  });
+
+  it('renders nothing from the old room before the new bootstrap resolves', async () => {
+    let release!: () => void;
+    mockedRecent.mockImplementation(async (_e: string, streamId?: string | null) => {
+      if (streamId === 's-vip') await new Promise<void>((res) => (release = res));
+      return recentFixture;
+    });
+    const { wrapper } = makeWrapper();
+    const { result, rerender } = renderHook(({ streamId }) => useChat('evt-1', streamId), {
+      wrapper,
+      initialProps: { streamId: 's-main' as string | null },
+    });
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    rerender({ streamId: 's-vip' });
+    expect(result.current.messages).toHaveLength(0);
+    expect(result.current.me).toBeNull();
+    await waitFor(() => expect(release).toBeDefined());
+    release();
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
   });
 });

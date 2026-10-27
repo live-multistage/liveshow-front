@@ -6,7 +6,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, act, fireEvent, within, screen } from '@testing-library/react';
-import { ReplayPlayer } from './ReplayPlayer';
+import { ReplayPlayer, toLiveCamera } from './ReplayPlayer';
 import { DRAWER_W } from './CameraGrid';
 import type { ReplayCameraPlayback, ReplayChapter, ReplayStagePlayback } from '../types/live.types';
 
@@ -47,13 +47,14 @@ const h = vi.hoisted(() => {
   return { MockHls, instances };
 });
 
+vi.mock('../hooks/use-stream-unlock', () => ({ useStreamUnlock: () => ({ unlock: vi.fn(), pending: false }) }));
 vi.mock('hls.js', () => ({ default: h.MockHls }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock('@/lib/analytics/tracking', () => ({ useAnalytics: () => ({ track: vi.fn() }) }));
 vi.mock('@live-show/analytics-sdk/react', () => ({ TrackFeature: ({ children }: { children: unknown }) => children }));
 // Needs a React Query provider; not what these tests exercise.
 vi.mock('./RecommendedOverlay', () => ({ RecommendedOverlay: () => null }));
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
 vi.mock('@/features/reports', () => ({ ReportButton: () => null }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
@@ -388,5 +389,139 @@ describe('ReplayPlayer — chapters', () => {
     fireEvent.click(getByLabelText('chapters.open'));
     act(() => { fireEvent.keyDown(window, { key: 'Escape' }); });
     expect(queryByRole('complementary', { name: 'chapters.label' })).toBeNull();
+  });
+});
+
+describe('ReplayPlayer — transmissions', () => {
+  it("spans the scrubber over the active transmission's own window", () => {
+    const vipTimeline = { startsAtMs: CAM_B_START_MS, endsAtMs: CAM_B_START_MS + 300_000 };
+    const streams = [
+      { id: 'main', title: 'Principal', position: 0, stages: [], cameras: [camA], primaryCameraId: 'cam-a', librasCameraId: null, timeline },
+      { id: 'vip', title: 'VIP', position: 1, stages: [], cameras: [camB], primaryCameraId: 'cam-b', librasCameraId: null, timeline: vipTimeline },
+    ];
+
+    const { container } = render(
+      <ReplayPlayer cameras={[camA]} title="Evento" eventId="evt-1" timeline={timeline} streams={streams} defaultStreamId="vip" />,
+    );
+
+    const slider = container.querySelector('input[type="range"][aria-label="seekPosition"]') as HTMLInputElement;
+    expect(slider.min).toBe(String(vipTimeline.startsAtMs));
+    expect(slider.max).toBe(String(vipTimeline.endsAtMs));
+  });
+});
+
+describe('ReplayPlayer — transmissions, progress and switching', () => {
+  // vip covers the second half of main's window; late starts after main ends.
+  const vipTimeline = { startsAtMs: CAM_B_START_MS, endsAtMs: CAM_B_START_MS + 300_000 };
+  const LATE_START_MS = CAM_A_START_MS + 700_000;
+  const camLate: ReplayCameraPlayback = {
+    ...camB,
+    cameraId: 'cam-late',
+    replayPath: '/packages/pkg-late/replay/master.m3u8',
+    coverage: [{ startsAtMs: LATE_START_MS, endsAtMs: LATE_START_MS + 100_000, localStartSec: 0 }],
+  };
+  const lateTimeline = { startsAtMs: LATE_START_MS, endsAtMs: LATE_START_MS + 100_000 };
+  const main = { id: 'main', title: 'Principal', position: 0, stages: [], cameras: [camA], primaryCameraId: 'cam-a', librasCameraId: null, timeline };
+  const vip = { id: 'vip', title: 'VIP', position: 1, stages: [], cameras: [camB], primaryCameraId: 'cam-b', librasCameraId: null, timeline: vipTimeline };
+  const late = { id: 'late', title: 'Late', position: 2, stages: [], cameras: [camLate], primaryCameraId: 'cam-late', librasCameraId: null, timeline: lateTimeline };
+  const slider = (c: HTMLElement) => c.querySelector('input[type="range"][aria-label="seekPosition"]') as HTMLInputElement;
+  const tick = (video: HTMLVideoElement, seconds: number) => {
+    Object.defineProperty(video, 'currentTime', { value: seconds, configurable: true });
+    fireEvent(video, new Event('timeupdate'));
+  };
+
+  it("reports progress relative to the default (flat) window while another transmission plays", () => {
+    const { container } = render(
+      <ReplayPlayer cameras={[camA]} title="Evento" eventId="evt-1" timeline={timeline} streams={[main, vip]} defaultStreamId="vip" />,
+    );
+
+    tick(container.querySelector('video')!, 90);
+
+    // vip local 90s = absolute CAM_B_START_MS + 90s = 390s into main's window.
+    expect(reportMock).toHaveBeenLastCalledWith(390, 600);
+  });
+
+  it('clamps reported progress to the default window when the playing transmission runs past it', () => {
+    const { container } = render(
+      <ReplayPlayer cameras={[camA]} title="Evento" eventId="evt-1" timeline={timeline} streams={[main, late]} defaultStreamId="late" />,
+    );
+
+    tick(container.querySelector('video')!, 10);
+
+    expect(reportMock).toHaveBeenLastCalledWith(600, 600);
+  });
+
+  it('resumes relative to the default window, landed on the transmission on screen', () => {
+    progressQueryState = {
+      data: [{ eventId: 'evt-1', positionSeconds: 400, durationSeconds: 600, resumeSeconds: 400, completed: false, updatedAt: '' }],
+    };
+    const { container } = render(
+      <ReplayPlayer cameras={[camA]} title="Evento" eventId="evt-1" timeline={timeline} streams={[main, vip]} defaultStreamId="vip" />,
+    );
+
+    // main start + 400s = CAM_B_START_MS + 100s → vip camera local 100s.
+    expect(slider(container).value).toBe(String(CAM_A_START_MS + 400_000));
+    expect(container.querySelector('video')!.currentTime).toBe(100);
+  });
+
+  it('clamps a resume point outside the active window to its nearest edge', () => {
+    // main start + 700s is past vip's end (main start + 600s).
+    progressQueryState = {
+      data: [{ eventId: 'evt-1', positionSeconds: 700, durationSeconds: 800, resumeSeconds: 700, completed: false, updatedAt: '' }],
+    };
+    const { container } = render(
+      <ReplayPlayer cameras={[camA]} title="Evento" eventId="evt-1" timeline={timeline} streams={[main, vip]} defaultStreamId="vip" />,
+    );
+
+    // The range input sanitizes its own value, so read the elapsed label: at
+    // vip's end it equals the trailing duration label (5:00).
+    expect(within(container).getAllByText('5:00')).toHaveLength(2);
+    expect(container.querySelector('video')!.currentTime).toBe(300);
+  });
+
+  it('a switch keeps the same instant when the new transmission covers it', () => {
+    const props = { cameras: [camA], title: 'Evento', eventId: 'evt-1', timeline, defaultStreamId: 'main' };
+    const { container, rerender } = render(<ReplayPlayer {...props} streams={[main, vip]} defaultStreamId="vip" />);
+    fireEvent.change(slider(container), { target: { value: String(CAM_A_START_MS + 500_000) } });
+
+    rerender(<ReplayPlayer {...props} streams={[main]} />);
+
+    expect(slider(container).value).toBe(String(CAM_A_START_MS + 500_000));
+    expect(container.querySelector('video')!.currentTime).toBe(500);
+  });
+
+  it("a switch to a transmission that doesn't cover the instant lands on its nearest edge", () => {
+    const props = { cameras: [camA], title: 'Evento', eventId: 'evt-1', timeline, defaultStreamId: 'main' };
+    const { container, rerender } = render(<ReplayPlayer {...props} streams={[main, late]} defaultStreamId="late" />);
+    fireEvent.change(slider(container), { target: { value: String(LATE_START_MS + 50_000) } });
+
+    rerender(<ReplayPlayer {...props} streams={[main]} />);
+
+    // At main's end: elapsed label = duration label (10:00), camera A local 600s.
+    expect(within(container).getAllByText('10:00')).toHaveLength(2);
+    expect(container.querySelector('video')!.currentTime).toBe(600);
+  });
+
+  it('opens on the first transmission with a replay when the default has none', () => {
+    const noReplay = { ...main, cameras: [{ ...camA, replayPath: null }], timeline: null };
+    const { container } = render(
+      <ReplayPlayer cameras={[]} title="Evento" eventId="evt-1" timeline={null} streams={[noReplay, vip]} defaultStreamId="main" />,
+    );
+
+    expect(slider(container).min).toBe(String(vipTimeline.startsAtMs));
+  });
+});
+
+describe('toLiveCamera', () => {
+  it('forwards the audio tracks so replay offers the same selector as live', () => {
+    const audioTracks = [
+      { index: 0, language: 'por', label: null, default: true },
+      { index: 1, language: 'eng', label: null, default: false },
+    ];
+    const live = toLiveCamera({
+      cameraId: 'c1', name: 'Main', slug: 'main', priority: 1, replayPath: '/r.m3u8',
+      coverage: [], available: true, thumbnailUrl: null, audioTracks,
+    });
+    expect(live.audioTracks).toEqual(audioTracks);
   });
 });

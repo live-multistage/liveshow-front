@@ -6,6 +6,8 @@ import type {
   EmailOnlyRequest,
   ResetPasswordRequest,
   MailingUnsubscribeResponse,
+  UsernameAvailabilityResponse,
+  AuthUser,
 } from '@live-show/api-contracts';
 
 export const accountService = {
@@ -38,5 +40,17 @@ export const accountService = {
   unsubscribe: async (token: string): Promise<void> => {
     // Token in the query string: it is also the RFC 8058 one-click URL shape.
     await httpClient.post<MailingUnsubscribeResponse>('/mailing/unsubscribe', null, { params: { token } });
+  },
+
+  usernameAvailability: async (u: string): Promise<UsernameAvailabilityResponse> => {
+    const { data } = await httpClient.get<UsernameAvailabilityResponse>('/auth/username-availability', {
+      params: { u },
+    });
+    return data;
+  },
+
+  updateUsername: async (username: string): Promise<AuthUser> => {
+    const { data } = await httpClient.patch<AuthUser>('/auth/me/username', { username });
+    return data;
   },
 };

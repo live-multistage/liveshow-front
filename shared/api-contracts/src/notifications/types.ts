@@ -7,7 +7,8 @@ export type NotificationType =
   // the preference map has to cover every value the API can send.
   | 'RECOMMENDATION'
   | 'ADVERTISEMENT'
-  | 'COLLABORATION';
+  | 'COLLABORATION'
+  | 'CHAT_MENTION';
 
 export interface NotificationResponse {
   id: string;
@@ -47,7 +48,8 @@ export type NotificationPreferenceKey =
   | 'LIVE_EVENTS'
   | 'TICKET_REMINDERS'
   | 'NEWS_PROMOS'
-  | 'EMAIL_DIGEST';
+  | 'EMAIL_DIGEST'
+  | 'CHAT_MENTIONS';
 
 export type NotificationPreferences = Record<NotificationPreferenceKey, boolean>;
 

@@ -13,6 +13,7 @@ const ALL_TYPES: NotificationType[] = [
   'RECOMMENDATION',
   'ADVERTISEMENT',
   'COLLABORATION',
+  'CHAT_MENTION',
 ];
 
 describe('NOTIFICATION_PREFERENCE_BY_TYPE', () => {
@@ -34,6 +35,7 @@ describe('NOTIFICATION_PREFERENCE_BY_TYPE', () => {
       ADVERTISEMENT: 'NEWS_PROMOS',
       SYSTEM: null,
       COLLABORATION: null,
+      CHAT_MENTION: 'CHAT_MENTIONS',
     });
   });
 });

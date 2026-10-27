@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/features/account/hooks/use-auth';
 import { isPlaybackUnauthorized } from '../utils/is-playback-unauthorized';
@@ -23,6 +23,7 @@ interface Props {
 export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }: Props) {
   const t = useTranslations('liveGate');
   const router = useRouter();
+  const requestedStreamId = useSearchParams()?.get('stream') ?? null;
   const { isLoggedIn, isLoading: authLoading } = useAuth();
   const access = useLiveAccessQuery(eventId, !authLoading);
   const authorized = access.data === true;
@@ -63,6 +64,7 @@ export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }
         eventId={eventId}
         eventTitle={eventTitle}
         cameraCount={playback.data?.cameras.length ?? 0}
+        lockedStreams={playback.data?.lockedStreams}
         onExit={() => router.push(`/events/${eventId}`)}
       />
     );
@@ -84,12 +86,23 @@ export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }
     );
   }
 
+  // Deep link from a chat-mention notification (/live/:id?stream=…). Only a
+  // transmission this viewer was actually granted; anything else falls back
+  // to the server default instead of the first stream.
+  const defaultStreamId =
+    requestedStreamId && playback.data.streams?.some((s) => s.id === requestedStreamId)
+      ? requestedStreamId
+      : playback.data.defaultStreamId;
+
   return (
     <LivePlayer
       cameras={playback.data.cameras}
       stages={playback.data.stages}
       primaryCameraId={playback.data.primaryCameraId}
       librasCameraId={playback.data.librasCameraId}
+      streams={playback.data.streams}
+      defaultStreamId={defaultStreamId}
+      lockedStreams={playback.data.lockedStreams}
       title={eventTitle}
       eventId={eventId}
       chatEnabled={chatEnabled}

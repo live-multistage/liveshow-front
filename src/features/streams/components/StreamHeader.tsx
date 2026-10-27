@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/shared/components/Button';
 import { useDeleteStreamMutation } from '../mutations/stream.mutations';
 import type { StreamResponse } from '../types/stream.types';
@@ -34,11 +35,16 @@ interface Props {
   // false for a program-owned stream: it never transitions LIVE, so
   // prepare/start/end/cancel/rollback have nothing to do.
   showLifecycle: boolean;
+  onMove?: (direction: -1 | 1) => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 }
 
 export function StreamHeader({
   stream, prepare, start, end, cancel, rollback, onRename, isRenaming, onDeleted, showLifecycle,
+  onMove, canMoveUp, canMoveDown,
 }: Props) {
+  const t = useTranslations('controlRoom');
   const { status } = stream;
   const isTerminal = status === 'ENDED' || status === 'CANCELLED';
   const [editing, setEditing] = useState(false);
@@ -100,6 +106,16 @@ export function StreamHeader({
         <h2 className={styles.streamTitle}>{stream.title}</h2>
         {stream.description && <p className={styles.streamDesc}>{stream.description}</p>}
         <div className={styles.streamActionsWrap}>
+          {onMove && (
+            <>
+              <button className={styles.headerIconBtn} title={t('moveUp')} aria-label={t('moveUp')} disabled={!canMoveUp} onClick={() => onMove(-1)}>
+                <ChevronUp size={13} />
+              </button>
+              <button className={styles.headerIconBtn} title={t('moveDown')} aria-label={t('moveDown')} disabled={!canMoveDown} onClick={() => onMove(1)}>
+                <ChevronDown size={13} />
+              </button>
+            </>
+          )}
           {canEdit && (
             <button className={styles.headerIconBtn} title="Editar" onClick={() => setEditing(true)}>
               <Pencil size={13} />

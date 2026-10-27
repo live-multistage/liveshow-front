@@ -10,6 +10,7 @@ export const eventKeys = {
   detail: (id: string) => ['events', 'detail', id] as const,
   bySlug: (slug: string) => ['events', 'by-slug', slug] as const,
   tickets: (eventId: string) => ['events', 'tickets', eventId] as const,
+  myTickets: (eventId: string) => ['events', 'my-tickets', eventId] as const,
   photos: (eventId: string) => ['events', 'photos', eventId] as const,
 };
 
@@ -62,5 +63,16 @@ export function useListEventPhotosQuery(eventId: string) {
     queryKey: eventKeys.photos(eventId),
     queryFn: () => eventsService.listPhotos(eventId),
     enabled: !!eventId,
+  });
+}
+
+// Logged-in only (the endpoint is JWT-only). Default staleTime on purpose: a
+// purchase finished in checkout must read as "Seu ingresso" when the viewer
+// comes back to the event page.
+export function useMyEventTicketsQuery(eventId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: eventKeys.myTickets(eventId),
+    queryFn: () => eventsService.getMyEventTickets(eventId),
+    enabled: enabled && !!eventId,
   });
 }

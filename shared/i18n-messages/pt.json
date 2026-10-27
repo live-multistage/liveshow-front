@@ -294,7 +294,13 @@
       "cameraViews": "{count} camera views",
       "related": {
         "title": "Você também pode gostar"
-      }
+      },
+      "enableSound": "Ativar som",
+      "muteSound": "Desativar som",
+      "openPlayer": "Abrir player",
+      "watchingChip": "Você está em {transmission}",
+      "watchingTransmission": "Assistindo à transmissão {transmission}.",
+      "upsellNote": "As demais transmissões deste evento estão no ingresso {offer}."
     },
     "status": {
       "PUBLISHED": "Em breve",
@@ -344,7 +350,10 @@
     "securePurchase": "COMPRA 100% SEGURA",
     "mobileTicket": "INGRESSO",
     "mobileReplay": "REPRISE",
-    "mobileBuy": "Comprar ingresso"
+    "mobileBuy": "Comprar ingresso",
+    "yourTicket": "Seu ingresso",
+    "inCartGoToCheckout": "No carrinho · ir para o checkout →",
+    "upgradeNote": "Libera na hora, sem perder a cobertura"
   },
   "tickets": {
     "title": "Meus Ingressos",
@@ -761,7 +770,10 @@
     "filterCancelled": "Cancelados",
     "loading": "Carregando eventos...",
     "error": "Erro ao carregar eventos.",
-    "empty": "Nenhum evento encontrado."
+    "empty": "Nenhum evento encontrado.",
+    "emptyFilter": "Nenhum evento nesta aba.",
+    "showAll": "Ver todos os eventos",
+    "filtersNav": "Filtrar eventos"
   },
   "eventCard": {
     "status": {
@@ -1039,14 +1051,16 @@
     "camerasLimitPlaceholder": "Vazio = acesso a todas",
     "camerasLimitHint": "Deixe em branco para liberar todas as câmeras. Informe um número para limitar pelo índice de prioridade.",
     "stagesLabel": "Palcos com Acesso",
-    "stagesHint": "Sem seleção = acesso a todos os palcos.",
+    "stagesHint": "Nenhum marcado libera todos os palcos.",
     "allCameras": "Todas as câmeras",
     "cameras": "{count, plural, one {# câmera} other {# câmeras}}",
     "empty": "Nenhum ingresso adicionado ainda.",
     "stagesNote": "O acesso a palcos específicos pode ser configurado após a criação do evento.",
     "errorAdd": "Erro ao adicionar ingresso.",
     "errorSave": "Erro ao salvar ingresso.",
-    "replayTicketDesc": "Acesso à gravação após o evento"
+    "replayTicketDesc": "Acesso à gravação após o evento",
+    "streamsLabel": "Transmissões",
+    "streamsHint": "Nenhuma marcada libera todas as transmissões."
   },
   "settings": {
     "heading": "Configurações",
@@ -1094,7 +1108,10 @@
     "disableAccountConfirm": "Excluir sua conta? Você será desconectado. Se entrar de novo em até 30 dias, a conta é reativada; depois disso seus dados pessoais são apagados de forma definitiva. Pedidos e notas fiscais são mantidos por obrigação legal.",
     "deleteDone": "Removidos {count} eventos de uso.",
     "deleteError": "Não foi possível excluir agora. Tente novamente.",
-    "subscriptionsNav": "Minhas assinaturas"
+    "subscriptionsNav": "Minhas assinaturas",
+    "prefCHAT_MENTIONS": "Menções no chat",
+    "prefCHAT_MENTIONSDesc": "Avisar quando alguém mencionar você no chat de uma transmissão",
+    "prefCHAT_MENTIONSNew": "NOVO"
   },
   "account": {
     "nav": {
@@ -1223,7 +1240,8 @@
         "system": "Sistema",
         "recommendation": "Recomendação",
         "collaboration": "Colaboração",
-        "ad": "Anúncio"
+        "ad": "Anúncio",
+        "chat": "Chat"
       },
       "open": "Abrir",
       "dismiss": "Dispensar",
@@ -1236,7 +1254,19 @@
       "retry": "Tentar de novo",
       "loadMore": "Carregar mais",
       "prefsEyebrow": "Preferências",
-      "prefsTitle": "O que você quer receber"
+      "prefsTitle": "O que você quer receber",
+      "openTransmission": "Abrir transmissão"
+    },
+    "username": {
+      "label": "Nome de usuário",
+      "help": "É assim que as pessoas mencionam você no chat.",
+      "available": "Disponível",
+      "checking": "Verificando…",
+      "taken": "Esse nome de usuário já está em uso.",
+      "reserved": "Esse nome de usuário não pode ser usado.",
+      "invalid": "Use 3 a 30 caracteres: letras minúsculas, números, ponto ou _.",
+      "cooldown": "{days, plural, one {Você poderá trocar de novo em # dia.} other {Você poderá trocar de novo em # dias.}}",
+      "saved": "Nome de usuário atualizado."
     }
   },
   "consent": {
@@ -1267,6 +1297,10 @@
     "unmute": "Ativar som",
     "volume": "Volume",
     "chooseAudioCamera": "Escolher câmera com áudio",
+    "chooseAudioTrack": "Áudio",
+    "audioTrackN": "Faixa {n}",
+    "audioTrackDefault": "Padrão",
+    "closePanel": "Fechar",
     "qualityAuto": "Auto",
     "enterFullscreen": "Tela cheia",
     "exitFullscreen": "Sair da tela cheia",
@@ -1315,7 +1349,16 @@
       "durationMin": "{count} min",
       "durationSec": "{count} s",
       "goTo": "Ir para {title}, {time}"
-    }
+    },
+    "transmissions": "Transmissões",
+    "transmissionOffline": "Fora do ar",
+    "transmissionLive": "Ao vivo",
+    "switchTransmission": "Trocar transmissão",
+    "transmissionNotStartedTitle": "Transmissão ainda não começou",
+    "transmissionNotStartedBody": "A transmissão {title} entra no ar em breve. Você pode voltar para outra transmissão enquanto isso.",
+    "closePanel": "Fechar",
+    "availableToBuy": "Disponível para compra",
+    "unlockFullEvent": "Liberar evento completo"
   },
   "ads": {
     "sponsored": "Patrocinado",
@@ -1353,7 +1396,9 @@
     "jobFAILED": "Falhou",
     "transcodeFailed": "Falha no transcode",
     "receivingSignal": "Recebendo sinal",
-    "noSignal": "Sem sinal"
+    "noSignal": "Sem sinal",
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo"
   },
   "organization": {
     "public": {
@@ -4229,7 +4274,8 @@
       "PAYMENT": "Pagamento",
       "SYSTEM": "Sistema",
       "ADVERTISEMENT": "Anúncio",
-      "COLLABORATION": "Colaboração"
+      "COLLABORATION": "Colaboração",
+      "CHAT_MENTION": "Menção"
     },
     "push": {
       "title": "Notificações push",
@@ -5097,7 +5143,15 @@
     "title": "Chat",
     "unmuteUser": "Reativar {name}",
     "connecting": "Conectando…",
-    "unavailable": "Chat indisponível para você neste evento"
+    "unavailable": "Chat indisponível para você neste evento",
+    "mentions": {
+      "listLabel": "Sugestões de menção",
+      "heading": "PESSOAS NESTE CHAT",
+      "optionLabel": "Mencionar @{username}",
+      "noResults": "Ninguém com esse nome neste chat",
+      "hint": "↑↓ navegar · Enter escolher · Esc fechar",
+      "you": "VOCÊ"
+    }
   },
   "artists": {
     "listTitle": "Artistas",

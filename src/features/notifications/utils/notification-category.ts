@@ -7,7 +7,8 @@ export type NotificationCategoryKey =
   | 'system'
   | 'recommendation'
   | 'collaboration'
-  | 'ad';
+  | 'ad'
+  | 'chat';
 
 // One category label per type (the row's footer chip) — finer-grained than
 // the 3 filter groups (SHOWS/INGRESSOS/CONTA), which the backend applies.
@@ -19,4 +20,5 @@ export const CATEGORY_KEY_BY_TYPE: Record<NotificationType, NotificationCategory
   PAYMENT: 'payment',
   SYSTEM: 'system',
   ADVERTISEMENT: 'ad',
+  CHAT_MENTION: 'chat',
 };

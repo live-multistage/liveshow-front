@@ -294,7 +294,13 @@
       "cameraViews": "{count} camera views",
       "related": {
         "title": "You might also like"
-      }
+      },
+      "enableSound": "Turn sound on",
+      "muteSound": "Turn sound off",
+      "openPlayer": "Open player",
+      "watchingChip": "You're on {transmission}",
+      "watchingTransmission": "Watching the {transmission} transmission.",
+      "upsellNote": "This event's other transmissions come with the {offer} ticket."
     },
     "status": {
       "PUBLISHED": "Coming Soon",
@@ -344,7 +350,10 @@
     "securePurchase": "100% SECURE CHECKOUT",
     "mobileTicket": "TICKET",
     "mobileReplay": "REPLAY",
-    "mobileBuy": "Buy ticket"
+    "mobileBuy": "Buy ticket",
+    "yourTicket": "Your ticket",
+    "inCartGoToCheckout": "In your cart · go to checkout →",
+    "upgradeNote": "Unlocks instantly, without losing the coverage"
   },
   "tickets": {
     "title": "My Tickets",
@@ -761,7 +770,10 @@
     "filterCancelled": "Cancelled",
     "loading": "Loading events...",
     "error": "Error loading events.",
-    "empty": "No events found."
+    "empty": "No events found.",
+    "emptyFilter": "No events in this tab.",
+    "showAll": "See all events",
+    "filtersNav": "Filter events"
   },
   "eventCard": {
     "status": {
@@ -1039,14 +1051,16 @@
     "camerasLimitPlaceholder": "Empty = access to all",
     "camerasLimitHint": "Leave blank to allow all cameras. Enter a number to limit by priority index.",
     "stagesLabel": "Stage Access",
-    "stagesHint": "No selection = access to all stages.",
+    "stagesHint": "None selected unlocks every stage.",
     "allCameras": "All cameras",
     "cameras": "{count, plural, one {# camera} other {# cameras}}",
     "empty": "No tickets added yet.",
     "stagesNote": "Stage-specific access can be configured after the event is created.",
     "errorAdd": "Error adding ticket.",
     "errorSave": "Error saving ticket.",
-    "replayTicketDesc": "Access to the recording after the event"
+    "replayTicketDesc": "Access to the recording after the event",
+    "streamsLabel": "Transmissions",
+    "streamsHint": "None selected unlocks every transmission."
   },
   "settings": {
     "heading": "Settings",
@@ -1094,7 +1108,10 @@
     "deleteConfirm": "Delete your analytics data and recommendation profile? Purchases and tickets are not affected.",
     "disableAccountConfirm": "Delete your account? You will be signed out. Signing in again within 30 days reactivates it; after that your personal data is permanently erased. Orders and tax invoices are kept as required by law.",
     "deleteDone": "Removed {count} usage events.",
-    "deleteError": "Could not delete right now. Try again."
+    "deleteError": "Could not delete right now. Try again.",
+    "prefCHAT_MENTIONS": "Chat mentions",
+    "prefCHAT_MENTIONSDesc": "Alert me when someone mentions me in a transmission's chat",
+    "prefCHAT_MENTIONSNew": "NEW"
   },
   "account": {
     "nav": {
@@ -1223,7 +1240,8 @@
         "system": "System",
         "recommendation": "Recommendation",
         "collaboration": "Collaboration",
-        "ad": "Ad"
+        "ad": "Ad",
+        "chat": "Chat"
       },
       "open": "Open",
       "dismiss": "Dismiss",
@@ -1236,7 +1254,19 @@
       "retry": "Try again",
       "loadMore": "Load more",
       "prefsEyebrow": "Preferences",
-      "prefsTitle": "What you want to receive"
+      "prefsTitle": "What you want to receive",
+      "openTransmission": "Open transmission"
+    },
+    "username": {
+      "label": "Username",
+      "help": "This is how people mention you in the chat.",
+      "available": "Available",
+      "checking": "Checking…",
+      "taken": "That username is already taken.",
+      "reserved": "That username can't be used.",
+      "invalid": "Use 3 to 30 characters: lowercase letters, numbers, dot or _.",
+      "cooldown": "{days, plural, one {You can change it again in # day.} other {You can change it again in # days.}}",
+      "saved": "Username updated."
     }
   },
   "consent": {
@@ -1267,6 +1297,10 @@
     "unmute": "Unmute",
     "volume": "Volume",
     "chooseAudioCamera": "Choose audio camera",
+    "chooseAudioTrack": "Audio",
+    "audioTrackN": "Track {n}",
+    "audioTrackDefault": "Default",
+    "closePanel": "Close",
     "qualityAuto": "Auto",
     "enterFullscreen": "Fullscreen",
     "exitFullscreen": "Exit fullscreen",
@@ -1315,7 +1349,16 @@
       "durationMin": "{count} min",
       "durationSec": "{count} s",
       "goTo": "Go to {title}, {time}"
-    }
+    },
+    "transmissions": "Transmissions",
+    "transmissionOffline": "Offline",
+    "transmissionLive": "Live",
+    "switchTransmission": "Switch transmission",
+    "transmissionNotStartedTitle": "Transmission hasn't started yet",
+    "transmissionNotStartedBody": "The {title} transmission goes live soon. You can switch to another transmission in the meantime.",
+    "closePanel": "Close",
+    "availableToBuy": "Available to buy",
+    "unlockFullEvent": "Unlock the full event"
   },
   "ads": {
     "sponsored": "Sponsored",
@@ -1353,7 +1396,9 @@
     "jobFAILED": "Failed",
     "transcodeFailed": "Transcode failure",
     "receivingSignal": "Receiving signal",
-    "noSignal": "No signal"
+    "noSignal": "No signal",
+    "moveUp": "Move up",
+    "moveDown": "Move down"
   },
   "organization": {
     "public": {
@@ -4229,7 +4274,8 @@
       "PAYMENT": "Payment",
       "SYSTEM": "System",
       "ADVERTISEMENT": "Advertisement",
-      "COLLABORATION": "Collaboration"
+      "COLLABORATION": "Collaboration",
+      "CHAT_MENTION": "Mention"
     },
     "push": {
       "title": "Push notifications",
@@ -5097,7 +5143,15 @@
     "title": "Chat",
     "unmuteUser": "Unmute {name}",
     "connecting": "Connecting…",
-    "unavailable": "Chat is unavailable for you in this event"
+    "unavailable": "Chat is unavailable for you in this event",
+    "mentions": {
+      "listLabel": "Mention suggestions",
+      "heading": "PEOPLE IN THIS CHAT",
+      "optionLabel": "Mention @{username}",
+      "noResults": "No one with that name in this chat",
+      "hint": "↑↓ navigate · Enter choose · Esc close",
+      "you": "YOU"
+    }
   },
   "artists": {
     "listTitle": "Artists",

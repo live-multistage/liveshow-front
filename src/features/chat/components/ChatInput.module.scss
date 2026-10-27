@@ -20,6 +20,7 @@
 }
 
 .form {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -27,6 +28,10 @@
   border: 1px solid $border;
   border-radius: 9px;
   padding: 0.5rem 0.6875rem;
+}
+
+.formOpen {
+  border-color: rgba(255, 46, 158, 0.45);
 }
 
 .input {
@@ -57,5 +62,23 @@
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+  }
+}
+
+@media (max-width: #{$sm - 1px}) {
+  .form {
+    border-radius: 12px;
+    padding: 6px 6px 6px 14px;
+  }
+
+  .input {
+    height: 36px;
+    font-size: 15px;
+  }
+
+  .sendBtn {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
   }
 }

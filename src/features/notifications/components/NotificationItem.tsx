@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Bell, Calendar, CreditCard, Ticket, Megaphone, Users, Sparkles } from 'lucide-react';
+import { AtSign, Bell, Calendar, CreditCard, Ticket, Megaphone, Users, Sparkles } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { NotificationResponse, NotificationType } from '../types/notification.types';
 import { formatRelativeTime } from '../utils/notification-formatters';
@@ -16,6 +16,7 @@ const ICON_BY_TYPE: Record<NotificationType, LucideIcon> = {
   RECOMMENDATION: Sparkles,
   ADVERTISEMENT: Megaphone,
   COLLABORATION: Users,
+  CHAT_MENTION: AtSign,
 };
 
 interface NotificationItemProps {

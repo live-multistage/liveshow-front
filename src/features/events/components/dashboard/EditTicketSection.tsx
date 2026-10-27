@@ -12,7 +12,8 @@ import {
   useUpdateTicketProductMutation,
 } from '../../mutations/ticket-product.mutation';
 import type { AccessCapability } from '../../types/event.types';
-import { useEventStagesQuery } from '../../../streams/queries/streams.queries';
+import { groupStagesByStream, pruneStagesOutsideStreams } from '../../utils/ticket-transmissions';
+import { useEventStagesQuery, useEventStreamsQuery } from '../../../streams/queries/streams.queries';
 import { ISO_CURRENCIES, DEFAULT_CURRENCY } from '@/shared/constants/currencies';
 import {
   Select,
@@ -32,6 +33,7 @@ interface TicketProductLike {
   capabilities: AccessCapability[];
   camerasLimit: number | null;
   allowedStageIds: string[];
+  allowedStreamIds?: string[];
   capacity: number | null;
   immutable: boolean;
   remaining?: number | null;
@@ -60,6 +62,7 @@ function ticketToForm(ticket: TicketProductLike): TicketFormValues {
     camerasLimit: ticket.camerasLimit ?? undefined,
     capacity: ticket.capacity ?? undefined,
     allowedStageIds: ticket.allowedStageIds ?? [],
+    allowedStreamIds: ticket.allowedStreamIds ?? [],
   };
 }
 
@@ -72,6 +75,7 @@ const EMPTY_FORM: Partial<TicketFormInput> = {
   camerasLimit: undefined,
   capacity: undefined,
   allowedStageIds: [],
+  allowedStreamIds: [],
 };
 
 export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTicketsEnabled = true }: Props) {
@@ -82,6 +86,7 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
   const deleteMutation = useDeleteTicketProductMutation(eventId ?? '');
 
   const { stages } = useEventStagesQuery(stagesEventId ?? eventId ?? null);
+  const { data: streams = [] } = useEventStreamsQuery(stagesEventId ?? eventId ?? null);
 
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -91,6 +96,7 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
     control,
     reset,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<TicketFormInput, unknown, TicketFormValues>({
     resolver: zodResolver(ticketSchema),
@@ -101,7 +107,11 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
   const liveView = useWatch({ control, name: 'liveView' });
   const replayView = useWatch({ control, name: 'replayView' });
   const physicalEntry = useWatch({ control, name: 'physicalEntry' });
+  const allowedStreamIds = useWatch({ control, name: 'allowedStreamIds' }) ?? [];
   const showStageSelector = (liveView || cameraView) && stages.length > 0;
+  const hasMultipleStreams = streams.length >= 2;
+  const showStreamSelector = (liveView || replayView || cameraView) && hasMultipleStreams;
+  const stageGroups = groupStagesByStream(streams, stages, allowedStreamIds);
 
   // Presencial nunca sozinho: sem Ao vivo/Reprise o checkbox trava, e se o
   // usuário desmarcar o stream com presencial já ligado, desliga junto.
@@ -141,6 +151,9 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
     if (values.cameraView) capabilities.push('CAMERA_VIEW');
     if (values.physicalEntry) capabilities.push('PHYSICAL_ENTRY');
 
+    const selectedStreamIds = values.allowedStreamIds ?? [];
+    const allowedStageIds = pruneStagesOutsideStreams(values.allowedStageIds ?? [], stages, selectedStreamIds);
+
     const basePayload = {
       name: values.name,
       description: values.description,
@@ -157,7 +170,8 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
           ticketId: editingId,
           payload: {
             ...basePayload,
-            allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
+            allowedStageIds,
+            allowedStreamIds: selectedStreamIds,
           },
         },
         { onSuccess: () => cancelEdit() },
@@ -166,7 +180,8 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
       createMutation.mutate(
         {
           ...basePayload,
-          allowedStageIds: values.allowedStageIds?.length ? values.allowedStageIds : undefined,
+          allowedStageIds: allowedStageIds.length ? allowedStageIds : undefined,
+          allowedStreamIds: selectedStreamIds,
         },
         { onSuccess: () => reset(EMPTY_FORM) },
       );
@@ -324,22 +339,57 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
         </div>
       )}
 
+      {showStreamSelector && (
+        <fieldset className={styles.fieldset}>
+          <legend className={styles.label}>{t('streamsLabel')}</legend>
+          <Controller
+            control={control}
+            name="allowedStreamIds"
+            render={({ field }) => (
+              <div className={styles.checkboxGroup}>
+                {streams.map((stream) => (
+                  <label key={stream.id} className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      className={styles.checkbox}
+                      checked={(field.value ?? []).includes(stream.id)}
+                      onChange={(e) => {
+                        const current = field.value ?? [];
+                        const next = e.target.checked
+                          ? [...current, stream.id]
+                          : current.filter((id) => id !== stream.id);
+                        field.onChange(next);
+                        setValue(
+                          'allowedStageIds',
+                          pruneStagesOutsideStreams(getValues('allowedStageIds') ?? [], stages, next),
+                        );
+                      }}
+                    />
+                    <span>{stream.title}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          />
+          <p className={styles.inputHint}>{t('streamsHint')}</p>
+        </fieldset>
+      )}
+
       {showStageSelector && (
-        <div className={styles.field}>
-          <label className={styles.label}>{t('stagesLabel')}</label>
+        <fieldset className={styles.fieldset}>
+          <legend className={styles.label}>{t('stagesLabel')}</legend>
           <Controller
             control={control}
             name="allowedStageIds"
-            render={({ field }) => (
-              <div className={styles.checkboxGroup}>
-                {stages.map((stage) => {
-                  const checked = (field.value ?? []).includes(stage.id);
-                  return (
+            render={({ field }) => {
+              const renderStages = (list: typeof stages) => (
+                <div className={styles.checkboxGroup}>
+                  {list.map((stage) => (
                     <label key={stage.id} className={styles.checkboxLabel}>
                       <input
                         type="checkbox"
                         className={styles.checkbox}
-                        checked={checked}
+                        checked={(field.value ?? []).includes(stage.id)}
                         onChange={(e) => {
                           const current = field.value ?? [];
                           field.onChange(
@@ -351,13 +401,29 @@ export function EditTicketSection({ eventId, stagesEventId, tickets, physicalTic
                       />
                       <span>{stage.name}</span>
                     </label>
-                  );
-                })}
-              </div>
-            )}
+                  ))}
+                </div>
+              );
+              if (!hasMultipleStreams) return renderStages(stages);
+              return (
+                <>
+                  {stageGroups.map(({ stream, stages: groupStages }) => (
+                    <div
+                      key={stream.id}
+                      role="group"
+                      aria-labelledby={`stage-group-${stream.id}`}
+                      className={styles.stageGroup}
+                    >
+                      <span id={`stage-group-${stream.id}`} className={styles.stageGroupTitle}>{stream.title}</span>
+                      {renderStages(groupStages)}
+                    </div>
+                  ))}
+                </>
+              );
+            }}
           />
           <p className={styles.inputHint}>{t('stagesHint')}</p>
-        </div>
+        </fieldset>
       )}
 
       {createMutation.isError && (

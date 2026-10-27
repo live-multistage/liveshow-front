@@ -1,7 +1,15 @@
 import { httpClient } from '@/lib/http/client';
-import type { AccessibilityStatus, CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, EventFacetCounts, ListEventsParams, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
+import type { MyEventTicketsResponse } from '@live-show/api-contracts';
+import type { AccessibilityStatus, CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, EventFacetCounts, ListEventsParams, MyEventCounts, MyEventsPageParams, MyEventsPageResponse, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
 
 export const eventsService = {
+  // The caller's PAID products for this event (JWT only). Drives the
+  // per-product "Seu ingresso" state on the event page.
+  getMyEventTickets: async (eventId: string): Promise<string[]> => {
+    const { data } = await httpClient.get<MyEventTicketsResponse>(`/events/${eventId}/my-tickets`);
+    return data.ownedTicketProductIds;
+  },
+
   listEvents: async (params: ListEventsParams = {}): Promise<PaginatedEventsResponse> => {
     const { filter = 'all', when, page = 1, pageSize = 50, category, subtype, tag, city, free } = params;
     const { data } = await httpClient.get<PaginatedEventsResponse>('/events', {
@@ -33,6 +41,18 @@ export const eventsService = {
 
   getMyEvents: async (): Promise<EventResponse[]> => {
     const { data } = await httpClient.get<EventResponse[]>('/events/mine');
+    return data;
+  },
+
+  listMyEvents: async ({ page = 1, pageSize = 20, status }: MyEventsPageParams = {}): Promise<MyEventsPageResponse> => {
+    const { data } = await httpClient.get<MyEventsPageResponse>('/events/mine/paged', {
+      params: { page, pageSize, status },
+    });
+    return data;
+  },
+
+  getMyEventCounts: async (): Promise<MyEventCounts> => {
+    const { data } = await httpClient.get<MyEventCounts>('/events/mine/counts');
     return data;
   },
 
