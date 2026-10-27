@@ -11,8 +11,8 @@ export const analyticsService = {
     const { data } = await httpClient.get<SalesByCurrency[]>('/sales/mine', { params: { granularity } });
     return data;
   },
-  getEventSales: async (): Promise<EventSalesResult> => {
-    const { data } = await httpClient.get<EventSalesResult>('/sales/events');
+  getEventSales: async (granularity: SalesGranularity): Promise<EventSalesResult> => {
+    const { data } = await httpClient.get<EventSalesResult>('/sales/events', { params: { granularity } });
     return data;
   },
   getEventMetrics: async (eventId: string, range?: { from: Date; to: Date }): Promise<EventMetricsResult> => {

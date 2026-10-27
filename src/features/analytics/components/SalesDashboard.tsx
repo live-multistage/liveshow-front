@@ -224,7 +224,7 @@ export function SalesDashboard({ data, byEvent = [], isLoading, isRefreshing = f
         )}
       </div>
 
-      {showEventTable && <EventSalesTable />}
+      {showEventTable && <EventSalesTable granularity={granularity} />}
     </div>
   );
 }

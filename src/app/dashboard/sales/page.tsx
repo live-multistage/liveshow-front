@@ -36,7 +36,7 @@ export default function DashboardSalesPage() {
   const [granularity, setGranularity] = useState<SalesGranularity>('month');
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
   const { data: salesByCurrency, isLoading, isPlaceholderData } = useGetMySalesQuery(granularity);
-  const { data: eventSales } = useGetEventSalesQuery();
+  const { data: eventSales } = useGetEventSalesQuery(granularity);
 
   const eventRows = eventSales?.events ?? [];
   const currencies = salesByCurrency ?? [];
@@ -112,7 +112,7 @@ export default function DashboardSalesPage() {
       )}
 
       <div className={styles.eventTableBlock}>
-        <EventSalesTable />
+        <EventSalesTable granularity={granularity} />
       </div>
     </>
   );
