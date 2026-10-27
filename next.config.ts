@@ -74,6 +74,13 @@ const nextConfig: NextConfig = {
         port: '8080',
         pathname: '/uploads/**',
       },
+      // Windows lab MinIO: uploads served to dev.showon.io point straight at it.
+      {
+        protocol: 'http',
+        hostname: '192.168.18.155',
+        port: '9000',
+        pathname: '/uploads/**',
+      },
       // Production upload origin (next/image 400s on any host not listed here).
       {
         protocol: 'https',
