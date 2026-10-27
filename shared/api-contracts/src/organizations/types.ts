@@ -18,6 +18,42 @@ export interface OrganizationResponse {
   salesThisMonth?: { currency: string; amount: number }[];
 }
 
+// GET /organizations/mine/paged + /organizations/mine/summary — the organizer
+// dashboard list. owned = the caller owns it; invited = a member of someone
+// else's org (not a pending invitation); archived = status ARCHIVED.
+// Omitted filter = every organization, archived ones included.
+export type MyOrganizationsFilter = 'owned' | 'invited' | 'archived';
+
+export interface MyOrganizationsPageParams {
+  filter?: MyOrganizationsFilter;
+  // Case-insensitive match on name, slug or description; ANDed with filter.
+  q?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+// Same item as /organizations/mine, so role and the stats are always present.
+export type MyOrganizationResponse = OrganizationResponse &
+  Required<Pick<OrganizationResponse, 'role' | 'activeEventsCount' | 'memberCount' | 'salesThisMonth'>>;
+
+// Ordered by name, then id.
+export interface MyOrganizationsPageResponse {
+  items: MyOrganizationResponse[];
+  page: number;
+  pageSize: number;
+  total: number;
+}
+
+// Over every organization of the caller, ignoring filter and q.
+export interface MyOrganizationsSummary {
+  counts: Record<'all' | MyOrganizationsFilter, number>;
+  totals: {
+    activeEventsCount: number;
+    memberCount: number;
+    salesThisMonth: { currency: string; amount: number }[];
+  };
+}
+
 export type OrganizationEventsFilter = 'upcoming' | 'past' | 'all';
 
 // ── Member invitations ────────────────────────────────────────────────────
