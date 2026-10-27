@@ -1,5 +1,7 @@
 export type OrganizationRole = 'OWNER' | 'ADMIN' | 'EVENT_MANAGER' | 'CONTENT_MANAGER' | 'OPERATOR' | 'STAFF' | 'VIEWER';
 
+export type OrganizationStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED' | 'REJECTED';
+
 export interface OrganizationResponse {
   id: string;
   name: string;
@@ -8,6 +10,8 @@ export interface OrganizationResponse {
   logoUrl?: string;
   bannerUrl?: string;
   ownerId: string;
+  status: OrganizationStatus;
+  website: string | null;
   createdAt: string;
   updatedAt: string;
   // Present only on /organizations/mine — the caller's role in this org.
