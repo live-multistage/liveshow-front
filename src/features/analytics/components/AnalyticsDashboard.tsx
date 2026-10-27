@@ -614,7 +614,7 @@ export function AnalyticsDashboard({ eventId, eventTitle }: AnalyticsDashboardPr
       to: now,
     };
   }, [range]);
-  const { data: eventSales, isLoading: salesLoading } = useGetEventSalesQuery();
+  const { data: eventSales, isLoading: salesLoading } = useGetEventSalesQuery('month');
 
   const events = eventSales?.events ?? [];
   const thisEvent = events.find((e) => e.eventId === eventId);

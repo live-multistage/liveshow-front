@@ -35,8 +35,8 @@ function downloadCsv(rows: EventSalesRow[]) {
 export default function DashboardSalesPage() {
   const [granularity, setGranularity] = useState<SalesGranularity>('month');
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
-  const { data: salesByCurrency, isLoading } = useGetMySalesQuery(granularity);
-  const { data: eventSales } = useGetEventSalesQuery();
+  const { data: salesByCurrency, isLoading, isPlaceholderData } = useGetMySalesQuery(granularity);
+  const { data: eventSales } = useGetEventSalesQuery(granularity);
 
   const eventRows = eventSales?.events ?? [];
   const currencies = salesByCurrency ?? [];
@@ -79,7 +79,7 @@ export default function DashboardSalesPage() {
       </div>
 
       {/* No FX conversion — a currency picker swaps the summary shown. */}
-      {!isLoading && currencies.length === 0 && (
+      {!active && (
         <SalesDashboard data={undefined} isLoading={isLoading} granularity={granularity} onGranularityChange={setGranularity} showEventTable={false} />
       )}
       {active && (
@@ -102,6 +102,7 @@ export default function DashboardSalesPage() {
             data={active.summary}
             byEvent={active.byEvent}
             isLoading={isLoading}
+            isRefreshing={isPlaceholderData}
             granularity={granularity}
             onGranularityChange={setGranularity}
             showEventTable={false}
@@ -111,7 +112,7 @@ export default function DashboardSalesPage() {
       )}
 
       <div className={styles.eventTableBlock}>
-        <EventSalesTable />
+        <EventSalesTable granularity={granularity} />
       </div>
     </>
   );

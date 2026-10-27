@@ -57,7 +57,7 @@ export function OrganizationAnalyticsPage({ organizationId }: Props) {
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
 
   const { data: org, isLoading: orgLoading, isError: orgError } = useOrganization(organizationId);
-  const { data: analytics, isLoading: analyticsLoading, isError: analyticsError } = useOrganizationAnalytics(organizationId, granularity);
+  const { data: analytics, isLoading: analyticsLoading, isError: analyticsError, isPlaceholderData: analyticsRefreshing } = useOrganizationAnalytics(organizationId, granularity);
 
   if (orgLoading) return <p className={styles.state}>Carregando...</p>;
   if (orgError || !org) return <p className={`${styles.state} ${styles.stateError}`}>Organização não encontrada.</p>;
@@ -81,7 +81,7 @@ export function OrganizationAnalyticsPage({ organizationId }: Props) {
       <div className={styles.card}>
         <SectionHeader label={t('anSales')} icon="sales" />
         {/* No FX conversion — a currency picker swaps the summary shown. */}
-        {!analyticsLoading && currencies.length === 0 && (
+        {!activeSales && (
           <SalesDashboard data={undefined} isLoading={analyticsLoading} granularity={granularity} onGranularityChange={setGranularity} showEventTable={false} />
         )}
         {activeSales && (
@@ -104,6 +104,7 @@ export function OrganizationAnalyticsPage({ organizationId }: Props) {
               data={activeSales.summary}
               byEvent={activeSales.byEvent}
               isLoading={analyticsLoading}
+              isRefreshing={analyticsRefreshing}
               granularity={granularity}
               onGranularityChange={setGranularity}
               showEventTable={false}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useGetEventSalesQuery } from '../hooks/use-event-sales';
-import type { EventSalesRow } from '../types/sales.types';
+import type { EventSalesRow, SalesGranularity } from '../types/sales.types';
 import styles from './SalesDashboard.module.scss';
 
 // No FX conversion — each row is formatted in its own currency.
@@ -38,8 +38,8 @@ function thumbStyle(row: EventSalesRow): React.CSSProperties {
     : { backgroundImage: gradientFor(row.eventId) };
 }
 
-export function EventSalesTable() {
-  const { data, isLoading } = useGetEventSalesQuery();
+export function EventSalesTable({ granularity }: { granularity: SalesGranularity }) {
+  const { data, isLoading } = useGetEventSalesQuery(granularity);
   const rows = data?.events ?? [];
 
   // Bars compare within the same currency only (mixing currencies would make a

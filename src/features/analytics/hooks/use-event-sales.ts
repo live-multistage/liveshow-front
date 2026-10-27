@@ -1,14 +1,18 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { analyticsService } from '../services/analytics.service';
+import type { SalesGranularity } from '../types/sales.types';
 
-export const eventSalesKey = () => ['sales', 'events'] as const;
+// Totals cover the same window as the sales chart, so they depend on its granularity.
+export const eventSalesKey = (granularity: SalesGranularity) =>
+  ['sales', 'events', granularity] as const;
 
-export function useGetEventSalesQuery() {
+export function useGetEventSalesQuery(granularity: SalesGranularity) {
   return useQuery({
-    queryKey: eventSalesKey(),
-    queryFn: () => analyticsService.getEventSales(),
+    queryKey: eventSalesKey(granularity),
+    queryFn: () => analyticsService.getEventSales(granularity),
     staleTime: 60_000,
+    placeholderData: keepPreviousData,
   });
 }
