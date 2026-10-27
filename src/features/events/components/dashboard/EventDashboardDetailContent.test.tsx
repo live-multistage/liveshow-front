@@ -108,6 +108,8 @@ function makeOrg(id: string, role: OrganizationRole): OrganizationResponse {
     name: id,
     slug: id,
     ownerId: 'someone',
+    status: 'ACTIVE',
+    website: null,
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
     role,

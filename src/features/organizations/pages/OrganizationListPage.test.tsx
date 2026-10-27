@@ -61,6 +61,8 @@ function makePage(total: number, page = 1, count = Math.min(total, 20)): MyOrgan
       name: `Org ${page}-${i}`,
       slug: `org-${page}-${i}`,
       ownerId: 'user-1',
+      status: 'ACTIVE' as const,
+      website: null,
       createdAt: '2026-01-01T00:00:00Z',
       updatedAt: '2026-01-01T00:00:00Z',
       role: 'OWNER' as const,
