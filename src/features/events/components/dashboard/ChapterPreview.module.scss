@@ -4,13 +4,20 @@
   @include rc-panel;
   padding: 16px 18px 14px;
   margin-bottom: 16px;
-  overflow-x: auto;
 }
 
 // Stacked stage tracks need room for the label column on narrow screens.
+// Only that case scrolls: any overflow-x other than visible also clips
+// overflow-y, which cuts off the hover tip that opens above the bar.
 .multi {
   @media (max-width: $rc-mobile) {
     min-width: 560px;
+  }
+}
+
+.preview:has(.multi) {
+  @media (max-width: $rc-mobile) {
+    overflow-x: auto;
   }
 }
 
