@@ -11,6 +11,7 @@ import type {
 } from '../types/organization.types';
 import type { EventResponse } from '@/features/events/types/event.types';
 import type { OrganizationAnalyticsResponse } from '../types/organization-analytics.types';
+import type { MyOrganizationsPageParams, MyOrganizationsPageResponse, MyOrganizationsSummary } from '../types/my-organizations.types';
 import type { SalesGranularity } from '@/features/analytics/types/sales.types';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -18,6 +19,18 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 export const organizationService = {
   getMyOrganizations: async (): Promise<OrganizationResponse[]> => {
     const { data } = await httpClient.get<OrganizationResponse[]>('/organizations/mine');
+    return data;
+  },
+
+  listMyOrganizations: async ({ page = 1, pageSize = 20, filter, q }: MyOrganizationsPageParams = {}): Promise<MyOrganizationsPageResponse> => {
+    const { data } = await httpClient.get<MyOrganizationsPageResponse>('/organizations/mine/paged', {
+      params: { page, pageSize, filter, q },
+    });
+    return data;
+  },
+
+  getMyOrganizationsSummary: async (): Promise<MyOrganizationsSummary> => {
+    const { data } = await httpClient.get<MyOrganizationsSummary>('/organizations/mine/summary');
     return data;
   },
 
