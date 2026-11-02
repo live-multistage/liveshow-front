@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseListParams, hrefForPage, chipFromParams, hrefForChip } from './list-params-from-search';
+import { parseListParams, hrefForPage, chipFromParams, hrefForChip, hrefForSearch } from './list-params-from-search';
 
 describe('parseListParams', () => {
   it('defaults to filter=all, page=1 with no params', () => {
@@ -126,5 +126,25 @@ describe('hrefForChip', () => {
     ['category=MUSIC&when=today', 'all', '/events?category=MUSIC'],
   ])('%s + %s -> %s', (qs, chip, expected) => {
     expect(hrefForChip(new URLSearchParams(qs), chip as never)).toBe(expected);
+  });
+});
+
+describe('search param', () => {
+  it('parses a trimmed q and drops blank or oversized terms', () => {
+    expect(parseListParams(new URLSearchParams('q=%20rock%20'), 24).q).toBe('rock');
+    expect(parseListParams(new URLSearchParams('q=%20%20'), 24).q).toBeUndefined();
+    expect(parseListParams(new URLSearchParams(`q=${'x'.repeat(121)}`), 24).q).toBeUndefined();
+  });
+
+  it.each([
+    ['', 'rock', '/events?q=rock'],
+    ['page=4&filter=live', ' rock ', '/events?filter=live&q=rock'],
+    ['q=rock&page=2', '  ', '/events'],
+  ])('hrefForSearch(%s, %s) → %s', (qs, term, expected) => {
+    expect(hrefForSearch(new URLSearchParams(qs), term)).toBe(expected);
+  });
+
+  it('keeps q when switching chips', () => {
+    expect(hrefForChip(new URLSearchParams('q=rock&page=2'), 'live')).toBe('/events?q=rock&filter=live');
   });
 });
