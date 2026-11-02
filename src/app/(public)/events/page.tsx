@@ -47,10 +47,10 @@ export default async function Shows({
   // SSR-seed the requested page (cached 30s in Next's Data Cache) so the
   // catalog is in the initial HTML and the client query skips its first
   // refetch — matches the home feed's caching.
-  const { category, subtype, tag, city } = params;
+  const { category, subtype, tag, city, q } = params;
   let [initialPage, initialCounts] = await Promise.all([
     fetchFeedPage(params),
-    fetchEventCounts({ category, subtype, tag, city }),
+    fetchEventCounts({ category, subtype, tag, city, q }),
   ]);
 
   // Out-of-range page (e.g. ?page=999): clamp to the last real page.

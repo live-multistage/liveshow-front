@@ -17,16 +17,15 @@ import { useListEventsPageQuery, useEventCountsQuery, eventToShow } from '@/feat
 import type { PaginatedEventsResponse, EventFacetCounts } from '@/features/events';
 import { EVENT_CATEGORY_LABELS } from '../../types/event.types';
 import { AdBanner } from '@/features/advertisements';
-import { parseListParams, hrefForPage, hrefForChip, chipFromParams } from '../../utils/list-params-from-search';
+import { parseListParams, hrefForPage, hrefForChip, hrefForSearch, hrefForClearedSearch, chipFromParams } from '../../utils/list-params-from-search';
+import { useUrlSearchInput } from '../../hooks/use-url-search-input';
 import type { ChipId } from '../../utils/list-params-from-search';
 import { useAnalytics } from '@/lib/analytics/tracking';
 import { ShowCard } from './ShowCard';
 import styles from '../../../../app/(public)/events/page.module.scss';
 import { formatCount } from '@/shared/utils/format-count';
 
-// Debounce for search_performed: fires once the user stops typing, not on
-// every keystroke — matches how search analytics is read everywhere else.
-const SEARCH_TRACK_DEBOUNCE_MS = 400;
+const MAX_SEARCH_LENGTH = 120;
 
 type ViewMode = 'grid' | 'list';
 
@@ -77,12 +76,12 @@ export function EventsListPageContent({
   const events = data?.items ?? [];
   const total = data?.total ?? initialPage.total;
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
-  // NOTE: chips are server-driven (URL → backend); only the text search and
-  // sort below are page-local, applied over this page's items.
+  // NOTE: chips and text search are server-driven (URL → backend); only the
+  // sort below is page-local, applied over this page's items.
   const SHOWS = useMemo(() => events.map(eventToShow), [events]);
 
-  const { category, subtype, tag, city } = params;
-  const { data: counts } = useEventCountsQuery({ category, subtype, tag, city }, initialCounts ?? undefined);
+  const { category, subtype, tag, city, q } = params;
+  const { data: counts } = useEventCountsQuery({ category, subtype, tag, city, q }, initialCounts ?? undefined);
   const chip = chipFromParams(params);
 
   const goToPage = (target: number) => {
@@ -102,7 +101,10 @@ export function EventsListPageContent({
     ? capitalize(params.city)
     : null;
 
-  const [search, setSearch] = useState('');
+  // replace, not push: Back should leave the search, not undo it keystroke by keystroke.
+  const [search, setSearch] = useUrlSearchInput(q ?? '', (term) => {
+    router.replace(hrefForSearch(searchParams, term), { scroll: false });
+  });
   const [sort, setSort]     = useState('date-asc');
   const [view, setView]     = useState<ViewMode>('grid');
 
@@ -154,19 +156,7 @@ export function EventsListPageContent({
     },
   ];
 
-  let filtered = SHOWS.filter((s) => {
-    const q = search.toLowerCase();
-    const matchSearch =
-      !q ||
-      s.title.toLowerCase().includes(q) ||
-      s.city.toLowerCase().includes(q) ||
-      s.venue.toLowerCase().includes(q) ||
-      s.category.toLowerCase().includes(q);
-
-    return matchSearch;
-  });
-
-  filtered = [...filtered].sort((a, b) => {
+  const sortedShows = [...SHOWS].sort((a, b) => {
     if (sort === 'date-asc')   return new Date(a.date).getTime() - new Date(b.date).getTime();
     if (sort === 'date-desc')  return new Date(b.date).getTime() - new Date(a.date).getTime();
     if (sort === 'name-asc')   return a.title.localeCompare(b.title, 'pt-BR');
@@ -175,23 +165,12 @@ export function EventsListPageContent({
     return 0;
   });
 
-  const resultCount = filtered.length;
-  // Read at fire time, not from the closure captured when `search` last
-  // changed — a chip/sort change (or fresh data) between the keystroke and
-  // the debounce firing must not report a stale count.
-  const resultCountRef = useRef(resultCount);
-  resultCountRef.current = resultCount;
-
-  // Debounced so typing doesn't spam search_performed — fires once the user
-  // pauses, skipped entirely for an empty query (nothing was searched).
+  // The URL term and its results commit together, so `total` here is this search's.
   useEffect(() => {
-    if (!search.trim()) return;
-    const timer = setTimeout(() => {
-      analytics.track('search_performed', { query: search.trim().slice(0, 100), resultCount: resultCountRef.current });
-    }, SEARCH_TRACK_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- resultCount is read from the ref at fire time; only `search` should restart the debounce
-  }, [search]);
+    if (!q) return;
+    analytics.track('search_performed', { query: q.slice(0, 100), resultCount: total });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one event per committed term, not per refetch
+  }, [q]);
 
   const handleChipChange = (nextChip: ChipId) => {
     analytics.track('events_filtered', { filter: 'chip', value: nextChip, resultCount: counts?.[nextChip] });
@@ -200,7 +179,7 @@ export function EventsListPageContent({
 
   const handleSortChange = (nextSort: string) => {
     setSort(nextSort);
-    analytics.track('events_filtered', { filter: 'sort', value: nextSort, resultCount });
+    analytics.track('events_filtered', { filter: 'sort', value: nextSort, resultCount: total });
   };
 
   return (
@@ -251,6 +230,7 @@ export function EventsListPageContent({
             <input
               type="text"
               value={search}
+              maxLength={MAX_SEARCH_LENGTH}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('searchPlaceholder')}
               className={styles.searchInput}
@@ -324,7 +304,7 @@ export function EventsListPageContent({
         {/* Count + view toggle */}
         <div className={styles.countRow}>
           <h2 className={styles.countLabel}>
-            <span className={styles.countNum}>{isLoading ? '—' : search.trim() ? filtered.length : total}</span>
+            <span className={styles.countNum}>{isLoading ? '—' : total}</span>
             {' EVENTOS ENCONTRADOS'}
           </h2>
           <div className={styles.viewToggle}>
@@ -361,11 +341,11 @@ export function EventsListPageContent({
         )}
 
         {/* Empty state */}
-        {!isLoading && !isError && filtered.length === 0 && (
+        {!isLoading && !isError && sortedShows.length === 0 && (
           <div className={styles.empty}>
             <p className={styles.emptyTitle}>Nenhum evento encontrado</p>
             <p className={styles.emptySubtitle}>Tente outra busca ou remova os filtros.</p>
-            <button onClick={() => { setSearch(''); router.push(hrefForChip(searchParams, 'all'), { scroll: false }); }} className={styles.clearBtn}>
+            <button onClick={() => router.push(hrefForClearedSearch(searchParams), { scroll: false })} className={styles.clearBtn}>
               {t('clearFilters')}
             </button>
           </div>
@@ -375,9 +355,9 @@ export function EventsListPageContent({
         <AdBanner placement="FEED" className={styles.feedAd} />
 
         {/* Grid */}
-        {!isLoading && !isError && filtered.length > 0 && (
+        {!isLoading && !isError && sortedShows.length > 0 && (
           <div className={view === 'grid' ? styles.cardGrid : styles.cardList}>
-            {filtered.map((show, index) => (
+            {sortedShows.map((show, index) => (
               <ShowCard
                 key={show.id}
                 show={show}

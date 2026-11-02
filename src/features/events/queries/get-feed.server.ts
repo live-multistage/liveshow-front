@@ -35,6 +35,7 @@ function buildQuery(params: ListEventsParams): string {
   if (params.subtype) sp.set('subtype', params.subtype);
   if (params.tag) sp.set('tag', params.tag);
   if (params.city) sp.set('city', params.city);
+  if (params.q) sp.set('q', params.q);
   if (params.free) sp.set('free', '1');
   if (params.page) sp.set('page', String(params.page));
   if (params.pageSize) sp.set('pageSize', String(params.pageSize));
@@ -57,14 +58,15 @@ export const fetchFeedPage = cache(async (params: ListEventsParams): Promise<Pag
 });
 
 // Chip badge counts for the /events listing (whole catalog, scoped by
-// category/subtype/tag/city). null on failure — the client query refetches.
+// category/subtype/tag/city/q). null on failure — the client query refetches.
 export const fetchEventCounts = cache(
-  async (base: Pick<ListEventsParams, 'category' | 'subtype' | 'tag' | 'city'>): Promise<EventFacetCounts | null> => {
+  async (base: Pick<ListEventsParams, 'category' | 'subtype' | 'tag' | 'city' | 'q'>): Promise<EventFacetCounts | null> => {
     const sp = new URLSearchParams();
     if (base.category) sp.set('category', base.category);
     if (base.subtype) sp.set('subtype', base.subtype);
     if (base.tag) sp.set('tag', base.tag);
     if (base.city) sp.set('city', base.city);
+    if (base.q) sp.set('q', base.q);
     const qs = sp.toString();
     try {
       const res = await fetch(`${apiBase()}/events/counts${qs ? `?${qs}` : ''}`, { next: { revalidate: 30 } });

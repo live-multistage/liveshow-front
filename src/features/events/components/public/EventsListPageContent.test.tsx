@@ -1,14 +1,15 @@
-import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterEach } from 'vitest';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EventsListPageContent } from './EventsListPageContent';
 import type { PaginatedEventsResponse, EventResponse } from '@/features/events';
 
 const push = vi.fn();
+const replace = vi.fn();
 let currentSearchParams = new URLSearchParams();
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push }),
+  useRouter: () => ({ push, replace }),
   useSearchParams: () => currentSearchParams,
 }));
 
@@ -320,64 +321,114 @@ describe('EventsListPageContent tracking', () => {
     expect(trackMock).toHaveBeenCalledWith('events_filtered', { filter: 'sort', value: 'name-asc', resultCount: 2 });
   });
 
-  it('tracks search_performed once typing settles, with the trimmed query and result count', () => {
-    vi.useFakeTimers();
+  it('tracks search_performed for the committed term with the server total', () => {
+    currentSearchParams = new URLSearchParams({ q: 'rock' });
+    const initialPage = makePage({ page: 1, total: 137 });
+    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+
+    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
+
+    expect(trackMock).toHaveBeenCalledWith('search_performed', { query: 'rock', resultCount: 137 });
+  });
+
+  it('does not track search_performed without a term', () => {
     const initialPage = makePage({ page: 1, total: 2 });
     listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
 
     render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
-    fireEvent.change(screen.getByPlaceholderText('searchPlaceholder'), { target: { value: 'Show 1' } });
 
     expect(trackMock).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(400);
+  });
+});
 
-    expect(trackMock).toHaveBeenCalledWith('search_performed', { query: 'Show 1', resultCount: 1 });
-    vi.useRealTimers();
+describe('EventsListPageContent server-side search', () => {
+  const renderPage = (qs: string, page: PaginatedEventsResponse) => {
+    currentSearchParams = new URLSearchParams(qs);
+    listEventsPageQueryMock.mockReturnValue({ data: page, isError: false, refetch: vi.fn() });
+    return render(<EventsListPageContent initialPage={page} pageSize={24} />);
+  };
+  const input = () => screen.getByPlaceholderText('searchPlaceholder') as HTMLInputElement;
+  const type = (value: string) => {
+    fireEvent.change(input(), { target: { value } });
+    act(() => vi.advanceTimersByTime(300));
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    eventCountsQueryMock.mockReturnValue({ data: COUNTS });
+    push.mockClear();
+    replace.mockClear();
+    trackMock.mockClear();
+    listEventsPageQueryMock.mockReset();
+    eventCountsQueryMock.mockClear();
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it('commits the settled term to the URL once, resetting the page and keeping filters', () => {
+    renderPage('category=MUSIC&page=3', makePage({ page: 3, total: 240 }));
+
+    fireEvent.change(input(), { target: { value: 'ro' } });
+    expect(replace).not.toHaveBeenCalled();
+    type('  rock  ');
+
+    expect(replace).toHaveBeenCalledTimes(1);
+    expect(replace).toHaveBeenCalledWith('/events?category=MUSIC&q=rock', { scroll: false });
   });
 
-  it('trims surrounding whitespace off the tracked query', () => {
-    vi.useFakeTimers();
-    const initialPage = makePage({ page: 1, total: 2 });
-    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+  it('removes q from the URL when the input is cleared', () => {
+    renderPage('q=rock', makePage({ total: 2 }));
 
-    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
-    fireEvent.change(screen.getByPlaceholderText('searchPlaceholder'), { target: { value: '  Show 1  ' } });
-    vi.advanceTimersByTime(400);
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar busca' }));
+    act(() => vi.advanceTimersByTime(300));
 
-    expect(trackMock).toHaveBeenCalledWith('search_performed', expect.objectContaining({ query: 'Show 1' }));
-    vi.useRealTimers();
+    expect(replace).toHaveBeenCalledWith('/events', { scroll: false });
   });
 
-  it('reads resultCount at fire time, not from the closure captured when search last changed', () => {
-    vi.useFakeTimers();
-    const initialPage = makePage({ page: 1, total: 2 });
-    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+  it('seeds the input from the URL and requests listing and counts with q', () => {
+    renderPage('q=rock', makePage({ total: 2 }));
 
-    const { rerender } = render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
-    fireEvent.change(screen.getByPlaceholderText('searchPlaceholder'), { target: { value: 'Show' } });
-
-    // Data changes (e.g. a background refetch) before the debounce fires,
-    // growing the match count — `search` itself never changes again.
-    const grownPage = makePage({ page: 1, total: 3, items: [makeEvent('1'), makeEvent('2'), makeEvent('3')] });
-    listEventsPageQueryMock.mockReturnValue({ data: grownPage, isError: false, refetch: vi.fn() });
-    rerender(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
-
-    vi.advanceTimersByTime(400);
-
-    expect(trackMock).toHaveBeenCalledWith('search_performed', { query: 'Show', resultCount: 3 });
-    vi.useRealTimers();
+    expect(input().value).toBe('rock');
+    expect(listEventsPageQueryMock.mock.calls[0][0]).toMatchObject({ q: 'rock' });
+    expect(eventCountsQueryMock.mock.calls[0][0]).toMatchObject({ q: 'rock' });
   });
 
-  it('does not track search_performed for an empty query', () => {
-    vi.useFakeTimers();
-    const initialPage = makePage({ page: 1, total: 2 });
-    listEventsPageQueryMock.mockReturnValue({ data: initialPage, isError: false, refetch: vi.fn() });
+  it('shows the server total and every returned item, without filtering them again', () => {
+    renderPage('q=recife', makePage({ total: 137 }));
 
-    render(<EventsListPageContent initialPage={initialPage} pageSize={24} />);
-    fireEvent.change(screen.getByPlaceholderText('searchPlaceholder'), { target: { value: '   ' } });
-    vi.advanceTimersByTime(400);
+    expect(screen.getByRole('heading', { name: /137 EVENTOS ENCONTRADOS/ })).toBeInTheDocument();
+    expect(screen.getByText('Show 1')).toBeInTheDocument();
+    expect(screen.getByText('Show 2')).toBeInTheDocument();
+  });
 
-    expect(trackMock).not.toHaveBeenCalled();
-    vi.useRealTimers();
+  it('resets the input when the URL term changes from outside (Back)', () => {
+    const page = makePage({ total: 2 });
+    const { rerender } = renderPage('q=rock', page);
+
+    currentSearchParams = new URLSearchParams();
+    rerender(<EventsListPageContent initialPage={page} pageSize={24} />);
+
+    expect(input().value).toBe('');
+    act(() => vi.advanceTimersByTime(300));
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  it('keeps newer keystrokes when an earlier commit lands', () => {
+    const page = makePage({ total: 2 });
+    const { rerender } = renderPage('', page);
+
+    type('roc');
+    fireEvent.change(input(), { target: { value: 'rock' } });
+    currentSearchParams = new URLSearchParams({ q: 'roc' });
+    rerender(<EventsListPageContent initialPage={page} pageSize={24} />);
+
+    expect(input().value).toBe('rock');
+  });
+
+  it('empty state clears the search along with the chip', () => {
+    renderPage('q=nada&filter=live&category=MUSIC', makePage({ items: [], total: 0 }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'clearFilters' }));
+
+    expect(push).toHaveBeenCalledWith('/events?category=MUSIC', { scroll: false });
   });
 });

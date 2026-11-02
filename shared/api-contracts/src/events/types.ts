@@ -24,13 +24,15 @@ export interface ListEventsParams {
   subtype?: string;
   tag?: string;
   city?: string;
+  /** Free-text search on title, city or venue. */
+  q?: string;
   free?: boolean;
   page?: number;
   pageSize?: number;
 }
 
 // GET /events/counts — one number per /events chip, scoped by the same
-// category/subtype/tag/city as the listing.
+// category/subtype/tag/city/q as the listing.
 export interface EventFacetCounts {
   all: number;
   live: number;

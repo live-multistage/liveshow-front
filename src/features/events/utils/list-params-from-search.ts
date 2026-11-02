@@ -36,6 +36,7 @@ export function parseListParams(
   const subtype = trimmedParam(sp.get('subtype'));
   const tag = trimmedParam(sp.get('tag'));
   const city = trimmedParam(sp.get('city'));
+  const q = trimmedParam(sp.get('q'));
 
   const freeRaw = sp.get('free');
   const free = freeRaw === '1' || freeRaw === 'true' ? true : undefined;
@@ -49,6 +50,7 @@ export function parseListParams(
   if (subtype) params.subtype = subtype;
   if (tag) params.tag = tag;
   if (city) params.city = city;
+  if (q) params.q = q;
   if (free) params.free = free;
   return params;
 }
@@ -61,6 +63,21 @@ export function hrefForPage(sp: URLSearchParams | ReadonlyURLSearchParams, page:
     next.delete('page');
   } else {
     next.set('page', String(page));
+  }
+  const qs = next.toString();
+  return qs ? `/events?${qs}` : '/events';
+}
+
+// Href for a new search term: resets page, keeps chip and URL filters.
+// A blank term removes the param.
+export function hrefForSearch(sp: URLSearchParams | ReadonlyURLSearchParams, term: string): string {
+  const next = new URLSearchParams(sp.toString());
+  next.delete('page');
+  const q = term.trim();
+  if (q) {
+    next.set('q', q);
+  } else {
+    next.delete('q');
   }
   const qs = next.toString();
   return qs ? `/events?${qs}` : '/events';
@@ -86,7 +103,7 @@ const CHIP_PARAM: Partial<Record<ChipId, [string, string]>> = {
 };
 
 // Href for selecting `chip`: swaps the chip param, resets page, keeps
-// category/subtype/tag/city.
+// category/subtype/tag/city/q.
 export function hrefForChip(sp: URLSearchParams | ReadonlyURLSearchParams, chip: ChipId): string {
   const next = new URLSearchParams(sp.toString());
   for (const key of ['filter', 'when', 'free', 'page']) next.delete(key);
@@ -94,4 +111,11 @@ export function hrefForChip(sp: URLSearchParams | ReadonlyURLSearchParams, chip:
   if (entry) next.set(entry[0], entry[1]);
   const qs = next.toString();
   return qs ? `/events?${qs}` : '/events';
+}
+
+// Empty-state reset: drops the search and the chip, keeps category/subtype/tag/city.
+export function hrefForClearedSearch(sp: URLSearchParams | ReadonlyURLSearchParams): string {
+  const next = new URLSearchParams(sp.toString());
+  next.delete('q');
+  return hrefForChip(next, 'all');
 }

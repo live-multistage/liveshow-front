@@ -11,15 +11,15 @@ export const eventsService = {
   },
 
   listEvents: async (params: ListEventsParams = {}): Promise<PaginatedEventsResponse> => {
-    const { filter = 'all', when, page = 1, pageSize = 50, category, subtype, tag, city, free } = params;
+    const { filter = 'all', when, page = 1, pageSize = 50, category, subtype, tag, city, q, free } = params;
     const { data } = await httpClient.get<PaginatedEventsResponse>('/events', {
-      params: { filter, when, page, pageSize, category, subtype, tag, city, free },
+      params: { filter, when, page, pageSize, category, subtype, tag, city, q, free },
     });
     return data;
   },
 
   getEventCounts: async (
-    params: Pick<ListEventsParams, 'category' | 'subtype' | 'tag' | 'city'> = {},
+    params: Pick<ListEventsParams, 'category' | 'subtype' | 'tag' | 'city' | 'q'> = {},
   ): Promise<EventFacetCounts> => {
     const { data } = await httpClient.get<EventFacetCounts>('/events/counts', { params });
     return data;
