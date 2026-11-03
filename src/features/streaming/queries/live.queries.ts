@@ -44,7 +44,10 @@ export function useLivePlaybackQuery(eventId: string, enabled: boolean) {
     enabled,
     staleTime: 4_500,
     refetchInterval: enabled ? 5000 : false,
-    refetchIntervalInBackground: false,
+    // A hidden tab keeps playing (often just its audio) on a `pt` that lasts
+    // 300s. Stopping here would cut it off at the TTL, with nothing to recover
+    // until the viewer came back. Even a throttled timer (~1/min) beats the TTL.
+    refetchIntervalInBackground: true,
     // A 401/403 (or a dead refresh) is a deterministic "not entitled anymore"
     // — retrying just delays LiveGate showing the no-access state. Anything
     // else (network blip, 5xx) still gets react-query's normal 3 retries.

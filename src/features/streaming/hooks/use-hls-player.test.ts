@@ -6,7 +6,7 @@
  * these assertions lock the token wiring, not real network behavior.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import type { RefObject } from 'react';
 import {
   extractPt,
@@ -25,8 +25,9 @@ const h = vi.hoisted(() => {
   const instances: MockHls[] = [];
   class MockHls {
     static isSupported = () => true;
-    static Events = { MANIFEST_PARSED: 'm', AUDIO_TRACKS_UPDATED: 'a', ERROR: 'e', BUFFER_CREATED: 'bc' };
+    static Events = { MANIFEST_PARSED: 'm', AUDIO_TRACKS_UPDATED: 'a', ERROR: 'e', BUFFER_CREATED: 'bc', FRAG_BUFFERED: 'fb' };
     static ErrorDetails = { BUFFER_STALLED_ERROR: 'b' };
+    static ErrorTypes = { NETWORK_ERROR: 'network', MEDIA_ERROR: 'media' };
     config: Record<string, unknown>;
     levels: { height: number }[] = [];
     audioTracks: { id: number; name: string }[] = [];
@@ -34,6 +35,10 @@ const h = vi.hoisted(() => {
     currentLevel = -1;
     liveSyncPosition: number | undefined = undefined;
     loadSource = vi.fn();
+    startLoad = vi.fn();
+    emit(event: string, data?: unknown) {
+      for (const [name, handler] of this.on.mock.calls) if (name === event) handler(event, data);
+    }
     attachMedia = vi.fn();
     destroy = vi.fn();
     on = vi.fn();
@@ -432,5 +437,62 @@ describe('useHlsPlayer — native HLS (iOS Safari) live token refresh', () => {
     const setIntervalSpy = vi.spyOn(global, 'setInterval');
     renderNativePlayer(cam(), 'replay');
     expect(setIntervalSpy).not.toHaveBeenCalled();
+  });
+});
+
+// ── recovery ─────────────────────────────────────────────────────────────────
+const AUTH_ERROR = { fatal: true, type: 'network', details: 'levelLoadError', response: { code: 401 } };
+
+describe('useHlsPlayer — recovery from an expired token', () => {
+  beforeEach(() => {
+    h.instances.length = 0;
+  });
+
+  const expire = (index = 0) => act(() => h.instances[index].emit('e', AUTH_ERROR));
+  const withPt = (pt: string) => cam({ manifestPath: `/origin/pkg-1/master.m3u8?pt=${pt}` });
+
+  it('stays in "no signal" until a different token arrives', () => {
+    const { result, rerender } = renderPlayer(withPt('t1'));
+    expire();
+    expect(result.current.error).toBe(true);
+    rerender({ camera: withPt('t1') });
+    expect(result.current.error).toBe(true);
+    expect(h.instances).toHaveLength(1);
+  });
+
+  it('clears the error and rebuilds hls when a different token arrives', () => {
+    const { result, rerender } = renderPlayer(withPt('t1'));
+    expire();
+    rerender({ camera: withPt('t2') });
+    expect(result.current.error).toBe(false);
+    expect(h.instances).toHaveLength(2);
+    expect(h.instances[0].destroy).toHaveBeenCalled();
+    expect(h.instances[1].loadSource).toHaveBeenCalledWith(expect.stringContaining('pt=t2'));
+  });
+
+  it('a token rotation with no auth error still does not rebuild', () => {
+    const { rerender } = renderPlayer(withPt('t1'));
+    rerender({ camera: withPt('t2') });
+    expect(h.instances).toHaveLength(1);
+  });
+
+  it('stops rebuilding when every fresh token is refused too (entitlement gone)', () => {
+    const { result, rerender } = renderPlayer(withPt('t0'));
+    for (let i = 1; i <= 6; i++) {
+      expire(h.instances.length - 1);
+      rerender({ camera: withPt(`t${i}`) });
+    }
+    expect(h.instances).toHaveLength(4); // first build + 3 recoveries
+    expect(result.current.error).toBe(true);
+  });
+
+  it('real media renews the recovery budget', () => {
+    const { rerender } = renderPlayer(withPt('t0'));
+    for (let i = 1; i <= 6; i++) {
+      expire(h.instances.length - 1);
+      rerender({ camera: withPt(`t${i}`) });
+      act(() => h.instances[h.instances.length - 1].emit('fb'));
+    }
+    expect(h.instances).toHaveLength(7);
   });
 });

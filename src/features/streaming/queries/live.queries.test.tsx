@@ -47,6 +47,18 @@ function makeWrapper() {
   return { queryClient, wrapper };
 }
 
+describe('useLivePlaybackQuery', () => {
+  it('keeps polling in the background: a hidden tab still plays and its pt lasts 300s', () => {
+    const { wrapper } = makeWrapper();
+
+    renderHook(() => useLivePlaybackQuery('my-event', true), { wrapper });
+
+    expect(useQuerySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ refetchInterval: 5000, refetchIntervalInBackground: true }),
+    );
+  });
+});
+
 describe('useReplayPlaybackQuery', () => {
   it('refetches every 45 minutes, including in the background, to keep the pt token fresh', () => {
     const { wrapper } = makeWrapper();

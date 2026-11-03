@@ -139,6 +139,8 @@ export function playBestEffort(video: HTMLVideoElement, onBlocked?: () => void) 
   });
 }
 
+const MAX_AUTH_RECOVERIES = 3;
+
 export interface UseHlsPlayerOptions {
   videoRef: RefObject<HTMLVideoElement | null>;
   camera: LiveCamera;
@@ -284,6 +286,17 @@ export function useHlsPlayer({
   // on every 5s poll (fresh token), so it can't be a dep without rebuilding
   // the player every poll (see llPathRef above).
   const hasLl = mode === 'live' && !!camera.llPath && !forceStandard;
+  // A refused token is final for that token, not for the panel: the next poll
+  // brings another, but the build effect is keyed on the token-less srcBase.
+  // Compares the whole src so a rotated Bunny signature counts too.
+  const [authFailedSrc, setAuthFailedSrc] = useState<string | null>(null);
+  const [authRebuilds, setAuthRebuilds] = useState(0);
+  const authRecoveriesRef = useRef(0);
+  useEffect(() => {
+    if (authFailedSrc === null || src === null || src === authFailedSrc) return;
+    setAuthFailedSrc(null);
+    setAuthRebuilds((n) => n + 1);
+  }, [src, authFailedSrc]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -498,7 +511,16 @@ export function useHlsPlayer({
         setRetrying(false);
         setError(true);
         onFatalErrorRef.current?.();
+        // Bounded: tokens that keep being refused mean the entitlement is gone,
+        // and each rebuild would repeat onFatalError every poll.
+        if (mode === 'live' && isAuth && authRecoveriesRef.current < MAX_AUTH_RECOVERIES) {
+          authRecoveriesRef.current += 1;
+          setAuthFailedSrc(srcRef.current);
+        }
       }
+    });
+    hls.on(Hls.Events.FRAG_BUFFERED, () => {
+      authRecoveriesRef.current = 0;
     });
     hlsRef.current = hls;
     const stopStartWatchdog = mode === 'live' ? watchStuckStart(hls, video, camera.cameraId) : undefined;
@@ -510,7 +532,7 @@ export function useHlsPlayer({
       hlsRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [srcBase, hasLl]);
+  }, [srcBase, hasLl, authRebuilds]);
 
   // DVR: while the viewer sits behind the live edge, hls.js must stop dragging
   // them back to it. Applied to EVERY live panel, not just the primary — the
