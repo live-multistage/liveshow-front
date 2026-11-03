@@ -136,3 +136,47 @@ describe('useClockSync — master', () => {
     expect(clockRef.current?.epochMs).toBe(SEGMENT_ZERO + 5000);
   });
 });
+
+describe('useClockSync — follower', () => {
+  const MASTER_AT = Date.parse('2026-11-02T20:05:00Z');
+
+  function renderFollower(video: Partial<HTMLVideoElement>, hls: Partial<Hls>) {
+    const clockRef = { current: { epochMs: MASTER_AT, sampledAt: performance.now() } } as MutableRefObject<ClockSample | null>;
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+    renderHook(() =>
+      useClockSync({
+        videoRef: { current: video as HTMLVideoElement },
+        hlsRef: { current: hls as Hls },
+        mode: 'live',
+        role: 'follower',
+        clockRef,
+      }),
+    );
+    vi.advanceTimersByTime(500);
+    vi.useRealTimers();
+  }
+
+  const seekable = (end: number) => ({ length: 1, start: () => 0, end: () => end });
+
+  it('does not chase a master it cannot reach: stays at its own live sync point', () => {
+    // 6 s behind the master, but its sync point is only 1 s ahead (long GOP).
+    const video = { paused: false, seeking: false, currentTime: 300, playbackRate: 1, seekable: seekable(320) };
+    renderFollower(video as Partial<HTMLVideoElement>, { playingDate: new Date(MASTER_AT - 6000), liveSyncPosition: 301 });
+    expect(video.currentTime).toBe(300);
+    expect(video.playbackRate).toBeLessThanOrEqual(1.05);
+    expect(video.playbackRate).toBeGreaterThan(1);
+  });
+
+  it('holds at its sync point instead of nudging past it', () => {
+    const video = { paused: false, seeking: false, currentTime: 301, playbackRate: 1.05, seekable: seekable(320) };
+    renderFollower(video as Partial<HTMLVideoElement>, { playingDate: new Date(MASTER_AT - 6000), liveSyncPosition: 301 });
+    expect(video.currentTime).toBe(301);
+    expect(video.playbackRate).toBe(1);
+  });
+
+  it('still seeks to a master within reach', () => {
+    const video = { paused: false, seeking: false, currentTime: 300, playbackRate: 1, seekable: seekable(320) };
+    renderFollower(video as Partial<HTMLVideoElement>, { playingDate: new Date(MASTER_AT - 6000), liveSyncPosition: 310 });
+    expect(video.currentTime).toBeCloseTo(306, 0);
+  });
+});

@@ -14,6 +14,7 @@ import {
 import type { LiveCamera } from '../types/live.types';
 import { audioTrackIndexForCamera } from '../components/audio-track';
 import { watchStuckStart } from './hls-start-watchdog';
+import { longGopLiveSync } from './long-gop-latency';
 
 export interface QualityLevel {
   index: number;
@@ -289,6 +290,17 @@ export function useHlsPlayer({
   // A refused token is final for that token, not for the panel: the next poll
   // brings another, but the build effect is keyed on the token-less srcBase.
   // Compares the whole src so a rotated Bunny signature counts too.
+  // Minimum catch-up window for this hls instance, in target durations. Raised
+  // for a long GOP: hls.js would otherwise seek it forward to where it can't play.
+  const catchUpFloorRef = useRef(0);
+  const dvrActiveRef = useRef(dvrActive);
+  dvrActiveRef.current = dvrActive;
+  const applyCatchUp = (hls: Hls) => {
+    hls.config.liveMaxLatencyDurationCount = Math.max(
+      maxLatencyDurationCount(hasLl, dvrActiveRef.current),
+      catchUpFloorRef.current,
+    );
+  };
   const [authFailedSrc, setAuthFailedSrc] = useState<string | null>(null);
   const [authRebuilds, setAuthRebuilds] = useState(0);
   const authRecoveriesRef = useRef(0);
@@ -530,6 +542,21 @@ export function useHlsPlayer({
       networkRetries = 0;
       setRetrying(false);
     });
+    catchUpFloorRef.current = 0;
+    if (mode === 'live' && !hasLl) {
+      hls.on(Hls.Events.LEVEL_LOADED, (_evt, { details }) => {
+        if (!details.live) return;
+        const durations = details.fragments.map((f) => f.duration);
+        const sync = longGopLiveSync(durations, details.targetduration);
+        if (sync === null || (hls.config.liveSyncDuration ?? 0) >= sync) return;
+        hls.targetLatency = sync;
+        catchUpFloorRef.current = Math.ceil((sync + Math.max(...durations)) / details.targetduration);
+        applyCatchUp(hls);
+        // hls.js already picked its start position for the old distance.
+        const start = hls.liveSyncPosition;
+        if (!hls.hasEnoughToStart && start !== null) hls.startLoad(start);
+      });
+    }
     hlsRef.current = hls;
     const stopStartWatchdog = mode === 'live' ? watchStuckStart(hls, video, camera.cameraId) : undefined;
 
@@ -549,7 +576,7 @@ export function useHlsPlayer({
   useEffect(() => {
     const hls = hlsRef.current;
     if (!hls || mode !== 'live') return;
-    hls.config.liveMaxLatencyDurationCount = maxLatencyDurationCount(hasLl, dvrActive);
+    applyCatchUp(hls);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dvrActive, hasLl, mode, srcBase]);
 

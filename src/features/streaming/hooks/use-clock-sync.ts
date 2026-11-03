@@ -93,6 +93,16 @@ function canPublishLiveClock(video: HTMLVideoElement, hls: Hls | null): boolean 
   return hasStarted(video, hls) && !isHeldBehindLive(hls);
 }
 
+// A follower can't usefully go past its own live sync point: a longer GOP than
+// the master's means it has no media there yet, and chasing it froze the
+// follower ~90% of the time. Catching up stops at that point instead.
+function withinReach(driftSec: number, video: HTMLVideoElement, hls: Hls | null, mode: 'live' | 'replay'): number {
+  if (mode !== 'live' || driftSec <= 0) return driftSec;
+  const sync = hls?.liveSyncPosition;
+  if (typeof sync !== 'number' || !Number.isFinite(sync)) return driftSec;
+  return Math.min(driftSec, Math.max(0, sync - video.currentTime));
+}
+
 export function useClockSync({ videoRef, hlsRef, mode, role, clockRef, coverage }: UseClockSyncOptions): void {
   useEffect(() => {
     if (!role || !clockRef) return;
@@ -126,7 +136,7 @@ export function useClockSync({ videoRef, hlsRef, mode, role, clockRef, coverage 
       if (mine === null) return;
 
       const masterNowMs = sample.epochMs + (performance.now() - sample.sampledAt);
-      const driftSec = (masterNowMs - mine) / 1000;
+      const driftSec = withinReach((masterNowMs - mine) / 1000, video, hls, mode);
       const correction = resolveClockCorrection(driftSec);
 
       if (correction.type === 'seek') {

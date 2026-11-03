@@ -25,7 +25,7 @@ const h = vi.hoisted(() => {
   const instances: MockHls[] = [];
   class MockHls {
     static isSupported = () => true;
-    static Events = { MANIFEST_PARSED: 'm', AUDIO_TRACKS_UPDATED: 'a', ERROR: 'e', BUFFER_CREATED: 'bc', FRAG_BUFFERED: 'fb' };
+    static Events = { MANIFEST_PARSED: 'm', AUDIO_TRACKS_UPDATED: 'a', ERROR: 'e', BUFFER_CREATED: 'bc', FRAG_BUFFERED: 'fb', LEVEL_LOADED: 'll' };
     static ErrorDetails = { BUFFER_STALLED_ERROR: 'b' };
     static ErrorTypes = { NETWORK_ERROR: 'network', MEDIA_ERROR: 'media' };
     config: Record<string, unknown>;
@@ -36,6 +36,8 @@ const h = vi.hoisted(() => {
     liveSyncPosition: number | undefined = undefined;
     loadSource = vi.fn();
     startLoad = vi.fn();
+    targetLatency: number | null = null;
+    hasEnoughToStart = false;
     emit(event: string, data?: unknown) {
       for (const [name, handler] of this.on.mock.calls) if (name === event) handler(event, data);
     }
@@ -548,5 +550,51 @@ describe('useHlsPlayer — network retry', () => {
     vi.advanceTimersByTime(1000);
     expect(h.instances[0].startLoad).toHaveBeenCalledTimes(1);
     expect(h.instances[0].loadSource).toHaveBeenCalledTimes(1);
+  });
+});
+
+const liveLevel = (durations: number[]) => ({
+  details: { live: true, targetduration: 2, fragments: durations.map((duration) => ({ duration })) },
+});
+
+describe('useHlsPlayer — constant long GOP under a nominal TARGETDURATION', () => {
+  beforeEach(() => {
+    h.instances.length = 0;
+  });
+
+  it('moves the live sync point back and widens the catch-up to match', () => {
+    renderPlayer(cam());
+    const hls = h.instances[0];
+    hls.liveSyncPosition = 300;
+    act(() => hls.emit('ll', liveLevel(Array(20).fill(11))));
+    expect(hls.targetLatency).toBe(16.5);
+    expect(hls.config.liveMaxLatencyDurationCount).toBe(14); // (16.5 + 11) / 2
+    expect(hls.startLoad).toHaveBeenCalledWith(300); // before the first frame: start there
+  });
+
+  it('leaves a 2 s GOP untouched', () => {
+    renderPlayer(cam());
+    const hls = h.instances[0];
+    act(() => hls.emit('ll', liveLevel(Array(20).fill(2))));
+    expect(hls.targetLatency).toBeNull();
+    expect(hls.config.liveMaxLatencyDurationCount).toBe(8);
+  });
+
+  it('returning from DVR restores the widened catch-up, not the default one', () => {
+    const { rerender } = renderPlayer(cam());
+    const hls = h.instances[0];
+    act(() => hls.emit('ll', liveLevel(Array(20).fill(11))));
+    rerender({ camera: cam(), dvrActive: true });
+    expect(hls.config.liveMaxLatencyDurationCount).toBe(Infinity);
+    rerender({ camera: cam(), dvrActive: false });
+    expect(hls.config.liveMaxLatencyDurationCount).toBe(14);
+  });
+
+  it('does not restart loading once playback has started', () => {
+    renderPlayer(cam());
+    const hls = h.instances[0];
+    hls.hasEnoughToStart = true;
+    act(() => hls.emit('ll', liveLevel(Array(20).fill(11))));
+    expect(hls.startLoad).not.toHaveBeenCalled();
   });
 });

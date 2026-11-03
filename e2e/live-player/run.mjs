@@ -17,7 +17,11 @@ const sampler = () => {
   const cameraIds = window.__h.shell.stageCameras.map((c) => c.cameraId);
   const videos = [...document.querySelectorAll('video')].map((v, i) => {
     const ms = window.__ms.get(v.src);
+    const hls = window.__hlsOf.get(v);
     return {
+      targetLatency: hls?.targetLatency ?? null,
+      catchUp: hls ? hls.config.liveMaxLatencyDurationCount : null,
+      liveSync: hls?.liveSyncPosition ?? null,
       camera: cameraIds[i],
       focused: v.dataset.focused,
       ct: +v.currentTime.toFixed(2),
@@ -93,6 +97,29 @@ const brief = (timeline, camera) =>
     return `t+${s.t} ct=${v?.ct} rs=${v?.rs} badge=${s.behindBadge} ${v?.sourceBuffers?.join(' ') ?? ''}`;
   });
 
+// Share of `seconds` during which `camera` was playing but its picture didn't
+// move, counted from its first frame.
+async function frozenShare(sample, camera, seconds) {
+  let last = null;
+  let frozen = 0;
+  let counted = 0;
+  for (let i = 0; i < seconds; i++) {
+    await sleep(1000);
+    const v = panel(await sample(), camera);
+    if (v && last !== null && !v.paused && last > 0) {
+      counted += 1;
+      if (Math.abs(v.ct - last) < 0.05) frozen += 1;
+    }
+    last = v?.ct ?? null;
+  }
+  return counted ? frozen / counted : 1;
+}
+
+const activate = (page, camera) =>
+  page.evaluate((id) => {
+    if (!window.__h.shell.activeCameraIds.includes(id)) window.__h.shell.toggleCamera(id);
+  }, camera);
+
 const SUITE = {
   // A1 + badge: main panel whose tracks don't overlap must start, and the badge
   // must not say "behind" while it hasn't.
@@ -158,6 +185,32 @@ const SUITE = {
       console.log('poll back', JSON.stringify(s));
       assert(!s.lost, '"no signal" still shown after a fresh token');
       assert(await advancing(sample, 'ttl15-a1'), 'panel did not resume');
+    }),
+
+  // F1: an 11 s GOP under TARGETDURATION:2, as the main panel and as a follower
+  // of a regular main. This origin doesn't reproduce the freeze measured on the
+  // back's own playlists (47% and ~90% frozen), so the deciding assertions are
+  // on what hls.js was told; the frozen share is a guard.
+  f1: () =>
+    withPage('gop11', async ({ page, sample }) => {
+      await activate(page, 'ok-a2');
+      await sleep(10000);
+      const main = await frozenShare(sample, 'gop11-a1', 30);
+      const a = await sample();
+      await page.click('button[data-stage=sB]', { timeout: 5000 });
+      await sleep(3000);
+      await activate(page, 'gop11-b2');
+      await sleep(10000);
+      const follower = await frozenShare(sample, 'gop11-b2', 30);
+      const b = await sample();
+      const of = (s, camera) => panel(s, camera) ?? {};
+      console.log(`frozen main=${(main * 100).toFixed(0)}% follower=${(follower * 100).toFixed(0)}%`);
+      console.log(JSON.stringify([of(a, 'gop11-a1'), of(a, 'ok-a2'), of(b, 'ok-b1'), of(b, 'gop11-b2')].map(({ camera, targetLatency, catchUp, ct, liveSync }) => ({ camera, targetLatency, catchUp, ct, liveSync }))));
+      assert(of(a, 'gop11-a1').targetLatency >= 16.5, 'long-GOP main kept the 2 s-GOP latency target');
+      assert(of(a, 'gop11-a1').catchUp >= 14, 'long-GOP main would be yanked forward by the catch-up');
+      assert(of(b, 'gop11-b2').targetLatency >= 16.5, 'long-GOP follower kept the 2 s-GOP latency target');
+      assert(of(a, 'ok-a2').targetLatency === 6 && of(b, 'ok-b1').targetLatency === 6, 'a 2 s GOP lost its latency target');
+      assert(main < 0.15 && follower < 0.2, 'long-GOP panel froze');
     }),
 
   // Audio ~90 s against video, the sign measured on the Pepsi camera is "behind".

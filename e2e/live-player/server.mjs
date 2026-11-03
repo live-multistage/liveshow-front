@@ -4,13 +4,14 @@
 //   behind<N>-*  audio segment K holds the media of K-N (audio PTS behind video)
 //   m404x<N>-*   the first N master requests return 404
 //   ttl<S>-*     a pt older than S seconds gets 401
+//   gop11-*      video in 11 s segments (one GOP each) under TARGETDURATION:2
 //   flap-*       every request returns 404 while switched down through /ctl
 //   offline-*    no manifestPath
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MEDIA_DIR } from './media.mjs';
+import { LONG_GOP_SEC, MEDIA_DIR } from './media.mjs';
 
 const DIST = path.join(path.dirname(fileURLToPath(import.meta.url)), '.dist');
 const SEGMENT_SEC = 2;
@@ -24,6 +25,7 @@ export const SCENARIOS = {
   m404: [['A', ['ok-a1']], ['B', ['m404x2-b1']]],
   flap: [['A', ['flap-a1', 'ok-a2']]],
   ttl: [['A', ['ttl15-a1', 'ok-a2']]],
+  gop11: [['A', ['gop11-a1', 'ok-a2']], ['B', ['ok-b1', 'gop11-b2']]],
 };
 
 const num = (camera, prefix) => Number(camera.match(new RegExp(`^${prefix}(\\d+)`))?.[1] ?? 0);
@@ -88,10 +90,13 @@ export function startServer(port) {
     ].join('\n');
 
   const playlist = (camera, kind, pt) => {
+    const sec = kind === 'v' && camera.startsWith('gop11') ? LONG_GOP_SEC : SEGMENT_SEC;
+    // A segment is listed once it has closed; the declared target stays nominal.
+    const closed = sec === SEGMENT_SEC ? lastSegment() : Math.floor((Date.now() - t0) / 1000 / sec);
     const lines = ['#EXTM3U', '#EXT-X-VERSION:7', `#EXT-X-TARGETDURATION:${SEGMENT_SEC}`, '#EXT-X-MEDIA-SEQUENCE:0'];
-    for (let i = 0; i < lastSegment(); i++) {
-      lines.push(`#EXT-X-PROGRAM-DATE-TIME:${new Date(t0 + i * SEGMENT_SEC * 1000).toISOString()}`);
-      lines.push(`#EXTINF:${SEGMENT_SEC.toFixed(3)},`);
+    for (let i = 0; i < closed; i++) {
+      lines.push(`#EXT-X-PROGRAM-DATE-TIME:${new Date(t0 + i * sec * 1000).toISOString()}`);
+      lines.push(`#EXTINF:${sec.toFixed(3)},`);
       lines.push(`/api/packages/${camera}/dvr/${kind}/segment_${String(i).padStart(5, '0')}.ts?pt=${pt}`);
     }
     return `${lines.join('\n')}\n`;
@@ -132,7 +137,8 @@ export function startServer(port) {
         hit(camera, `seg_${kind}`);
         if (down.has(camera)) return send(404, 'text/plain', 'nope');
         const shift = kind === 'a' ? num(camera, 'ahead') - num(camera, 'behind') : 0;
-        const file = path.join(MEDIA_DIR, `${kind}_${String(Number(n) + shift).padStart(5, '0')}.ts`);
+        const prefix = kind === 'v' && camera.startsWith('gop11') ? 'g' : kind;
+        const file = path.join(MEDIA_DIR, `${prefix}_${String(Number(n) + shift).padStart(5, '0')}.ts`);
         if (!fs.existsSync(file)) return send(404, 'text/plain', 'gone');
         res.writeHead(200, { 'content-type': 'video/mp2t' });
         return fs.createReadStream(file).pipe(res);

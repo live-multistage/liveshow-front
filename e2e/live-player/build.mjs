@@ -17,6 +17,7 @@ export async function buildHarness(playerSrc = path.join(here, '../../src')) {
       // PLAYER_SRC from another checkout must still share this one's React.
       dedupe: ['react', 'react-dom'],
       alias: [
+        { find: /^hls\.js$/, replacement: stub('hls.ts') },
         { find: /^next-intl$/, replacement: stub('next-intl.ts') },
         { find: /^sonner$/, replacement: stub('sonner.ts') },
         { find: '@/lib/analytics/tracking', replacement: stub('tracking.ts') },
