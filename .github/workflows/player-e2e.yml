@@ -1,0 +1,28 @@
+# Live player on real hls.js in real Chrome, ~8 min. Runs on pull requests and
+# on demand, never on a push: pushing main is what publishes to production.
+name: player-e2e
+
+on:
+  pull_request: {}
+  workflow_dispatch: {}
+
+concurrency:
+  group: player-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  player-e2e:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      # Google Chrome ships with this runner image. Playwright's Chromium has no H.264/AAC.
+      - run: google-chrome --version
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:e2e:player
