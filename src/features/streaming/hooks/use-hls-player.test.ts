@@ -726,3 +726,36 @@ describe('useHlsPlayer — origin down for longer than the fast retries', () => 
     expect(result.current.error).toBe(true);
   });
 });
+
+describe('useHlsPlayer — token recovery while the viewer is in DVR', () => {
+  beforeEach(() => {
+    h.instances.length = 0;
+  });
+
+  it('the rebuilt instance starts where the viewer was and keeps the DVR catch-up', () => {
+    const videoRef = { current: document.createElement('video') } as RefObject<HTMLVideoElement | null>;
+    const { rerender } = renderHook(
+      ({ camera, dvrActive }: { camera: LiveCamera; dvrActive: boolean }) =>
+        useHlsPlayer({ videoRef, camera, mode: 'live', isFocused: true, dvrActive, lowQuality: false }),
+      { initialProps: { camera: cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=t1' }), dvrActive: true } },
+    );
+    videoRef.current!.currentTime = 282;
+    act(() => h.instances[0].emit('e', AUTH_ERROR));
+    rerender({ camera: cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=t2' }), dvrActive: true });
+    expect(h.instances).toHaveLength(2);
+    expect(h.instances[1].config.startPosition).toBe(282);
+    expect(h.instances[1].config.liveMaxLatencyDurationCount).toBe(Infinity);
+  });
+
+  it('at the live edge the rebuilt instance starts at live as usual', () => {
+    const videoRef = { current: document.createElement('video') } as RefObject<HTMLVideoElement | null>;
+    const { rerender } = renderHook(
+      ({ camera }: { camera: LiveCamera }) => useHlsPlayer({ videoRef, camera, mode: 'live', isFocused: true, lowQuality: false }),
+      { initialProps: { camera: cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=t1' }) } },
+    );
+    videoRef.current!.currentTime = 386;
+    act(() => h.instances[0].emit('e', AUTH_ERROR));
+    rerender({ camera: cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=t2' }) });
+    expect(h.instances[1].config.startPosition).toBeUndefined();
+  });
+});

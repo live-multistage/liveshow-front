@@ -22,6 +22,8 @@ const sampler = () => {
       targetLatency: hls?.targetLatency ?? null,
       catchUp: hls ? hls.config.liveMaxLatencyDurationCount : null,
       liveSync: hls?.liveSyncPosition ?? null,
+      // Wall-clock distance from live of what is on screen (PROGRAM-DATE-TIME).
+      behindLiveSec: hls?.playingDate ? +((Date.now() - hls.playingDate.getTime()) / 1000).toFixed(1) : null,
       camera: cameraIds[i],
       focused: v.dataset.focused,
       ct: +v.currentTime.toFixed(2),
@@ -293,6 +295,29 @@ const SUITE = {
       },
       (server) => server.setDown('flap-a1', true),
     ),
+
+  // F4: a token that expires while the viewer sits 60 s back in the DVR must not
+  // throw them to the live edge when hls is rebuilt.
+  f4: () =>
+    withPage('ttl', async ({ page, sample }) => {
+      const camera = 'ttl15-a1';
+      await sleep(10000);
+      await page.evaluate(() => window.__h.handleSeek(window.__h.dvr.position - 60));
+      await sleep(5000);
+      const rewound = panel(await sample(), camera);
+      await page.evaluate(() => { window.__pollOff = true; });
+      await sleep(30000);
+      await page.evaluate(() => { window.__pollOff = false; });
+      await sleep(15000);
+      const s = await sample();
+      const v = panel(s, camera);
+      console.log(JSON.stringify({ rewound: rewound.behindLiveSec, now: v.behindLiveSec, lost: s.lost, catchUp: String(v.catchUp), dvrSeeking: await page.evaluate(() => window.__h.dvrSeeking) }));
+      assert(!s.lost, 'still "no signal" after a fresh token');
+      assert(await advancing(sample, camera), 'panel did not resume');
+      // Paused while dead (~30 s) plus playing on: never closer to live than when rewound.
+      assert(v.behindLiveSec >= rewound.behindLiveSec - 5, `thrown to live: ${v.behindLiveSec} s behind, was ${rewound.behindLiveSec}`);
+      assert(v.catchUp === Infinity, 'rebuilt instance lost the DVR catch-up');
+    }),
 
   // Audio ~90 s against video, the sign measured on the Pepsi camera is "behind".
   // Record only: whether it plays is the result, not a pass/fail.

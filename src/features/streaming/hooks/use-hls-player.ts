@@ -308,6 +308,9 @@ export function useHlsPlayer({
   // Bumped to build a fresh hls instance on the same src.
   const [rebuilds, setRebuilds] = useState(0);
   const authRecoveriesRef = useRef(0);
+  // Where a rebuilt instance should start: the viewer's DVR position, which a
+  // rebuild would otherwise reset to the live edge.
+  const resumeAtRef = useRef<number | null>(null);
   useEffect(() => {
     if (authFailedSrc === null || src === null || src === authFailedSrc) return;
     setAuthFailedSrc(null);
@@ -372,6 +375,8 @@ export function useHlsPlayer({
     // STANDARD events (llPath null) and replay always use the STANDARD
     // tuning below, unchanged from before this fallback existed.
     const activeSrc = hasLl ? resolveMediaUrl(llPathRef.current!) : srcRef.current!;
+    const resumeAt = resumeAtRef.current;
+    resumeAtRef.current = null;
 
     // ~3 segments (~6s) behind the live edge on the STANDARD tuning.
     // lowLatencyMode/tighter sync only makes sense against the LL-HLS
@@ -387,6 +392,7 @@ export function useHlsPlayer({
       liveMaxLatencyDurationCount: maxLatencyDurationCount(hasLl, false),
       backBufferLength: 10,
       maxLiveSyncPlaybackRate: 1.5,
+      ...(resumeAt !== null && { startPosition: resumeAt }),
       // Replay routes (manifest + segments) are JWT-gated, unlike live's
       // public /origin/* origin serving — attach the bearer token to every
       // request hls.js makes. No-op for live (mode default), so live's
@@ -440,6 +446,12 @@ export function useHlsPlayer({
           },
         }),
     });
+    // A new instance starts unheld and with no long-GOP floor, but must come up
+    // with the current DVR catch-up, which the effect below only re-applies
+    // when dvrActive changes.
+    catchUpFloorRef.current = 0;
+    heldRef.current = false;
+    applyCatchUp(hls);
     hls.loadSource(activeSrc);
     hls.attachMedia(video);
     // A fatal *network* error on the STANDARD path is usually the stream still
@@ -551,6 +563,7 @@ export function useHlsPlayer({
         // and each rebuild would repeat onFatalError every poll.
         if (mode === 'live' && isAuth && authRecoveriesRef.current < MAX_AUTH_RECOVERIES) {
           authRecoveriesRef.current += 1;
+          resumeAtRef.current = dvrActiveRef.current ? video.currentTime : null;
           setAuthFailedSrc(srcRef.current);
         }
       }
@@ -564,8 +577,6 @@ export function useHlsPlayer({
       if (signalLost) setError(false);
       signalLost = false;
     });
-    catchUpFloorRef.current = 0;
-    heldRef.current = false;
     if (mode === 'live' && !hasLl) {
       hls.on(Hls.Events.LEVEL_LOADED, (_evt, { details }) => {
         if (!details.live) return;
