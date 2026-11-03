@@ -501,7 +501,11 @@ export function useHlsPlayer({
           setError(false);
           setRetrying(true);
           clearTimeout(retryTimer);
-          retryTimer = setTimeout(() => hls.startLoad(), Math.min(1000 * networkRetries, 5000));
+          retryTimer = setTimeout(() => {
+            // startLoad has nothing to resume before a manifest ever loaded.
+            if (hls.levels?.length) hls.startLoad();
+            else hls.loadSource(srcRef.current!);
+          }, Math.min(1000 * networkRetries, 5000));
           return;
         }
         if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {

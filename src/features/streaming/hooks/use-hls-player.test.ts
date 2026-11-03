@@ -496,3 +496,36 @@ describe('useHlsPlayer — recovery from an expired token', () => {
     expect(h.instances).toHaveLength(7);
   });
 });
+
+const NETWORK_ERROR = { fatal: true, type: 'network', details: 'manifestLoadError', response: { code: 404 } };
+
+describe('useHlsPlayer — network retry', () => {
+  beforeEach(() => {
+    h.instances.length = 0;
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const fail = () => act(() => h.instances[0].emit('e', NETWORK_ERROR));
+
+  it('reloads the manifest, with the freshest token, when it never loaded', () => {
+    const { rerender } = renderPlayer(cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=t1' }));
+    fail();
+    rerender({ camera: cam({ manifestPath: '/origin/pkg-1/master.m3u8?pt=t2' }) });
+    vi.advanceTimersByTime(1000);
+    expect(h.instances[0].loadSource).toHaveBeenCalledTimes(2);
+    expect(h.instances[0].loadSource).toHaveBeenLastCalledWith(expect.stringContaining('pt=t2'));
+    expect(h.instances[0].startLoad).not.toHaveBeenCalled();
+  });
+
+  it('just resumes loading when the manifest is already known', () => {
+    renderPlayer(cam());
+    h.instances[0].levels = [{ height: 720 }];
+    fail();
+    vi.advanceTimersByTime(1000);
+    expect(h.instances[0].startLoad).toHaveBeenCalledTimes(1);
+    expect(h.instances[0].loadSource).toHaveBeenCalledTimes(1);
+  });
+});
