@@ -520,6 +520,27 @@ describe('useHlsPlayer — network retry', () => {
     expect(h.instances[0].startLoad).not.toHaveBeenCalled();
   });
 
+  it('clears "connecting" once media is buffered again', () => {
+    const { result } = renderPlayer(cam());
+    h.instances[0].levels = [{ height: 720 }];
+    fail();
+    expect(result.current.connecting).toBe(true);
+    act(() => h.instances[0].emit('fb'));
+    expect(result.current.connecting).toBe(false);
+  });
+
+  it('real media renews the retry budget, so the 11th drop of a session is not final', () => {
+    const { result } = renderPlayer(cam());
+    h.instances[0].levels = [{ height: 720 }];
+    for (let i = 0; i < 15; i++) {
+      fail();
+      act(() => h.instances[0].emit('fb'));
+    }
+    fail();
+    expect(result.current.error).toBe(false);
+    expect(result.current.connecting).toBe(true);
+  });
+
   it('just resumes loading when the manifest is already known', () => {
     renderPlayer(cam());
     h.instances[0].levels = [{ height: 720 }];

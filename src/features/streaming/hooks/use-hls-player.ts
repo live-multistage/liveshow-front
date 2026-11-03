@@ -523,8 +523,12 @@ export function useHlsPlayer({
         }
       }
     });
+    // MANIFEST_PARSED doesn't fire again after a drop in mid-show. Real media is
+    // the proof it's back; a playlist isn't, since its segments can still fail.
     hls.on(Hls.Events.FRAG_BUFFERED, () => {
       authRecoveriesRef.current = 0;
+      networkRetries = 0;
+      setRetrying(false);
     });
     hlsRef.current = hls;
     const stopStartWatchdog = mode === 'live' ? watchStuckStart(hls, video, camera.cameraId) : undefined;
