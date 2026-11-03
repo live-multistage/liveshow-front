@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import type { MutableRefObject, RefObject } from 'react';
 import type Hls from 'hls.js';
+import { isHeldBehindLive } from './hls-start-watchdog';
 import { localToAbsolute } from '../utils/replay-timeline';
 import type { ReplaySegmentCoverage } from '../utils/replay-timeline';
 
@@ -81,6 +82,17 @@ function positionMs(
   return hls?.playingDate?.getTime() ?? null;
 }
 
+function hasStarted(video: HTMLVideoElement, hls: Hls | null): boolean {
+  return !!hls?.hasEnoughToStart && video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+}
+
+// ponytail: followers stay at their own live edge beside a held master, so its
+// cameras are out of step while the media is misaligned. Propagating dvrActive
+// to every panel would sync them, if this turns out not to be rare.
+function canPublishLiveClock(video: HTMLVideoElement, hls: Hls | null): boolean {
+  return hasStarted(video, hls) && !isHeldBehindLive(hls);
+}
+
 export function useClockSync({ videoRef, hlsRef, mode, role, clockRef, coverage }: UseClockSyncOptions): void {
   useEffect(() => {
     if (!role || !clockRef) return;
@@ -89,8 +101,11 @@ export function useClockSync({ videoRef, hlsRef, mode, role, clockRef, coverage 
       const publish = () => {
         const video = videoRef.current;
         // A paused or seeking master isn't advancing, so followers must not
-        // extrapolate it forward: publish nothing and let them hold.
-        const at = video && !video.paused && !video.seeking ? positionMs(video, hlsRef.current, mode, coverage) : null;
+        // extrapolate it forward: publish nothing and let them hold. Same for a
+        // live master that hasn't really started: its playingDate resolves to
+        // segment 0, and chasing that drags every follower to the DVR start.
+        const advancing = video && !video.paused && !video.seeking && (mode !== 'live' || canPublishLiveClock(video, hlsRef.current));
+        const at = advancing ? positionMs(video, hlsRef.current, mode, coverage) : null;
         clockRef.current = at === null ? null : { epochMs: at, sampledAt: performance.now() };
       };
       publish();

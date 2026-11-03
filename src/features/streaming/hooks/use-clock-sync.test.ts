@@ -1,5 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { resolveClockCorrection } from './use-clock-sync';
+import { describe, it, expect, vi } from 'vitest';
+import { renderHook } from '@testing-library/react';
+import type { MutableRefObject } from 'react';
+import type Hls from 'hls.js';
+import { resolveClockCorrection, useClockSync } from './use-clock-sync';
+import type { ClockSample } from './use-clock-sync';
+import { watchStuckStart } from './hls-start-watchdog';
 
 describe('resolveClockCorrection', () => {
   it('leaves followers alone within half a frame (±20ms)', () => {
@@ -34,5 +39,100 @@ describe('resolveClockCorrection', () => {
     expect(resolveClockCorrection(2)).toEqual({ type: 'seek' });
     expect(resolveClockCorrection(-3)).toEqual({ type: 'seek' });
     expect(resolveClockCorrection(1.5)).toEqual({ type: 'seek' });
+  });
+});
+
+describe('useClockSync — master', () => {
+  const SEGMENT_ZERO = Date.parse('2026-11-02T20:00:00Z');
+
+  const makeClock = () => ({ current: null } as MutableRefObject<ClockSample | null>);
+  const renderMaster = (
+    video: Partial<HTMLVideoElement>,
+    hls: Partial<Hls> | null,
+    clockRef: MutableRefObject<ClockSample | null>,
+  ) =>
+    renderHook(() =>
+      useClockSync({
+        videoRef: { current: video as HTMLVideoElement },
+        hlsRef: { current: hls as Hls | null },
+        mode: 'live',
+        role: 'master',
+        clockRef,
+      }),
+    );
+  const playingDate = new Date(SEGMENT_ZERO);
+
+  it('publishes nothing while stuck at currentTime 0 before the start gate', () => {
+    const clockRef = makeClock();
+    renderMaster(
+      { paused: false, seeking: false, readyState: 1, currentTime: 0 },
+      { playingDate, hasEnoughToStart: false },
+      clockRef,
+    );
+    expect(clockRef.current).toBeNull();
+  });
+
+  it('publishes nothing past the gate until it has a frame', () => {
+    const clockRef = makeClock();
+    renderMaster(
+      { paused: false, seeking: false, readyState: 1, currentTime: 368 },
+      { playingDate, hasEnoughToStart: true },
+      clockRef,
+    );
+    expect(clockRef.current).toBeNull();
+  });
+
+  it('publishes the playing date once it really started', () => {
+    const clockRef = makeClock();
+    renderMaster(
+      { paused: false, seeking: false, readyState: 4, currentTime: 368 },
+      { playingDate, hasEnoughToStart: true },
+      clockRef,
+    );
+    expect(clockRef.current?.epochMs).toBe(SEGMENT_ZERO);
+  });
+
+  it('publishes nothing while held behind live by the start watchdog', () => {
+    vi.useFakeTimers();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const handlers: Record<string, (event: unknown, data: unknown) => void> = {};
+    const hls = {
+      playingDate,
+      hasEnoughToStart: false,
+      config: {},
+      on: (event: string, fn: (event: unknown, data: unknown) => void) => {
+        handlers[event] = fn;
+      },
+    };
+    const video = { paused: false, seeking: false, readyState: 1, currentTime: 0 };
+    watchStuckStart(hls as unknown as Hls, video as HTMLVideoElement, 'cam');
+    const ranges = (start: number, end: number) => ({ length: 1, start: () => start, end: () => end });
+    handlers['hlsBufferCreated'](null, {
+      tracks: { video: { buffer: { buffered: ranges(300, 310) } }, audio: { buffer: { buffered: ranges(208, 218) } } },
+    });
+    vi.advanceTimersByTime(5000);
+    hls.hasEnoughToStart = true;
+    video.readyState = 4;
+
+    const clockRef = makeClock();
+    renderMaster(video as Partial<HTMLVideoElement>, hls as unknown as Partial<Hls>, clockRef);
+    expect(clockRef.current).toBeNull();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it('replay keeps publishing from its coverage: it has no hls start gate to wait for', () => {
+    const clockRef = makeClock();
+    renderHook(() =>
+      useClockSync({
+        videoRef: { current: { paused: false, seeking: false, readyState: 1, currentTime: 5 } as HTMLVideoElement },
+        hlsRef: { current: null },
+        mode: 'replay',
+        role: 'master',
+        clockRef,
+        coverage: [{ startsAtMs: SEGMENT_ZERO, endsAtMs: SEGMENT_ZERO + 60_000, localStartSec: 0 }],
+      }),
+    );
+    expect(clockRef.current?.epochMs).toBe(SEGMENT_ZERO + 5000);
   });
 });

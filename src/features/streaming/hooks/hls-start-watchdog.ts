@@ -36,6 +36,15 @@ export function resolveStartSeek(video: Range[], audio: Range[]): number | null 
   return newestAudio[1] <= newestRange(video)[0] ? newestAudio[0] : null;
 }
 
+const heldBehindLive = new WeakSet<Hls>();
+
+// A panel whose media only plays far behind the edge. Followers can't share its
+// clock: chasing it, against their own catch-up to the edge, loops on seeks and
+// redownloads (measured: 2842 segments in 130 s).
+export function isHeldBehindLive(hls: Hls | null): boolean {
+  return !!hls && heldBehindLive.has(hls);
+}
+
 // hls.js only moves to the start position once `video.buffered` has data, and
 // that is the INTERSECTION of the tracks: audio and video that don't overlap
 // leave the panel at currentTime 0 with no error, forever. A seek gets past
@@ -84,7 +93,10 @@ export function watchStuckStart(hls: Hls, video: HTMLVideoElement, cameraId: str
     seeks += 1;
     // Sitting behind the edge is the only way to play this media; hls.js's
     // catch-up would yank the panel straight back to where it can't start.
-    if (target < videoRanges[0][0]) hls.config.liveMaxLatencyDurationCount = Infinity;
+    if (target < videoRanges[0][0]) {
+      hls.config.liveMaxLatencyDurationCount = Infinity;
+      heldBehindLive.add(hls);
+    }
     video.currentTime = target;
     if (seeks >= MAX_SEEKS) stop();
   }, CHECK_MS);
