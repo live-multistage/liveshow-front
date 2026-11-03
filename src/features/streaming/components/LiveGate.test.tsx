@@ -37,9 +37,13 @@ const playbackState: { data: unknown; isLoading: boolean; error: unknown } = {
   isLoading: false,
   error: undefined,
 };
+const playbackQueryArgs = vi.hoisted(() => [] as unknown[][]);
 vi.mock('../queries/live.queries', () => ({
   useLiveAccessQuery: () => accessState,
-  useLivePlaybackQuery: () => playbackState,
+  useLivePlaybackQuery: (...args: unknown[]) => {
+    playbackQueryArgs.push(args);
+    return playbackState;
+  },
 }));
 
 const prerollState: { ad: unknown; pending: boolean; markSeen: () => void } = {
@@ -228,5 +232,13 @@ describe('LiveGate — ?stream= deep link (chat mention notification)', () => {
     searchParams.value = new URLSearchParams('stream=gone');
     render(<LiveGate eventId="evt-1" chatEnabled={false} />);
     expect(livePlayerProps.last?.defaultStreamId).toBe('s1');
+  });
+});
+
+describe('LiveGate — playback polling', () => {
+  it('keeps polling in a hidden tab: this is the page that plays', () => {
+    playbackQueryArgs.length = 0;
+    render(<LiveGate eventId="evt-1" chatEnabled={false} />);
+    expect(playbackQueryArgs.at(-1)).toEqual(['evt-1', true, { playing: true }]);
   });
 });

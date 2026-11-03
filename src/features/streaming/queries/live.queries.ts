@@ -37,7 +37,10 @@ export function useReplayAccessQuery(eventId: string, enabled = true) {
 // when the event goes live / a camera starts transcoding.
 // staleTime sits just under the refetchInterval: remounts within the 5s window
 // reuse the cached response instead of firing an extra request.
-export function useLivePlaybackQuery(eventId: string, enabled: boolean) {
+// `playing`: the caller plays the stream (LiveGate). Only then does the poll
+// keep running in a hidden tab, to renew the `pt` of a stream still playing
+// there; a page that only reads the status doesn't need a token every 5 s.
+export function useLivePlaybackQuery(eventId: string, enabled: boolean, { playing = false } = {}) {
   return useQuery({
     queryKey: LIVE_KEYS.playback(eventId),
     queryFn: () => streamingService.getLivePlayback(eventId),
@@ -47,7 +50,7 @@ export function useLivePlaybackQuery(eventId: string, enabled: boolean) {
     // A hidden tab keeps playing (often just its audio) on a `pt` that lasts
     // 300s. Stopping here would cut it off at the TTL, with nothing to recover
     // until the viewer came back. Even a throttled timer (~1/min) beats the TTL.
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: playing,
     // A 401/403 (or a dead refresh) is a deterministic "not entitled anymore"
     // — retrying just delays LiveGate showing the no-access state. Anything
     // else (network blip, 5xx) still gets react-query's normal 3 retries.

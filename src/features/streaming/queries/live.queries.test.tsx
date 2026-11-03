@@ -48,13 +48,23 @@ function makeWrapper() {
 }
 
 describe('useLivePlaybackQuery', () => {
-  it('keeps polling in the background: a hidden tab still plays and its pt lasts 300s', () => {
+  it('keeps polling in the background for the player: a hidden tab still plays and its pt lasts 300s', () => {
+    const { wrapper } = makeWrapper();
+
+    renderHook(() => useLivePlaybackQuery('my-event', true, { playing: true }), { wrapper });
+
+    expect(useQuerySpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({ refetchInterval: 5000, refetchIntervalInBackground: true }),
+    );
+  });
+
+  it('pauses in a hidden tab for pages that only read the status (ticket panel, event page)', () => {
     const { wrapper } = makeWrapper();
 
     renderHook(() => useLivePlaybackQuery('my-event', true), { wrapper });
 
-    expect(useQuerySpy).toHaveBeenCalledWith(
-      expect.objectContaining({ refetchInterval: 5000, refetchIntervalInBackground: true }),
+    expect(useQuerySpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({ refetchInterval: 5000, refetchIntervalInBackground: false }),
     );
   });
 });
