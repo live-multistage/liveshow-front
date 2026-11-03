@@ -15,6 +15,9 @@ export interface DvrState {
   // How close to `edge` still counts as live — wider on Safari's native path,
   // which parks further back by design. See use-transport-controls.
   tolerance: number;
+  // Playback has begun on this stage. Latched: a later rebuffer is still a
+  // measured position, only the wait for the first frame isn't.
+  started: boolean;
 }
 
 // Live DVR state: where the primary panel sits inside the manifest's seekable
@@ -35,10 +38,17 @@ export function useLiveDvr(effectiveMainCameraId: string | null) {
   // listener, which would otherwise be torn down and re-added on every tick.
   const handleProgress = useCallback((position: number, end: number, live?: LiveWindow) => {
     if (!live) return;
-    setDvr({ position, end, start: live.start, edge: live.edge, tolerance: live.tolerance });
+    setDvr((previous) => ({
+      position,
+      end,
+      start: live.start,
+      edge: live.edge,
+      tolerance: live.tolerance,
+      started: !!previous?.started || live.hasFrame,
+    }));
   }, []);
 
-  const atLive = !dvr || isAtLiveEdge(dvr.position, dvr.edge, dvr.tolerance);
+  const atLive = !dvr || !dvr.started || isAtLiveEdge(dvr.position, dvr.edge, dvr.tolerance);
 
   // Declared here (not memoized) because it needs the camera the seek is
   // addressed to. onSeek fires on a scrubber drag / badge click, never on a

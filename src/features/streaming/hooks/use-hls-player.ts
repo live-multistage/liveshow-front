@@ -13,6 +13,7 @@ import {
 } from '@live-show/api-contracts';
 import type { LiveCamera } from '../types/live.types';
 import { audioTrackIndexForCamera } from '../components/audio-track';
+import { watchStuckStart } from './hls-start-watchdog';
 
 export interface QualityLevel {
   index: number;
@@ -500,8 +501,10 @@ export function useHlsPlayer({
       }
     });
     hlsRef.current = hls;
+    const stopStartWatchdog = mode === 'live' ? watchStuckStart(hls, video, camera.cameraId) : undefined;
 
     return () => {
+      stopStartWatchdog?.();
       clearTimeout(retryTimer);
       hls.destroy();
       hlsRef.current = null;

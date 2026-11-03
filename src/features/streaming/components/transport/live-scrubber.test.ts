@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { liveScrubber, formatBehind, formatTime } from './live-scrubber';
 import type { DvrState } from '../../hooks/use-live-dvr';
 
-const dvrAt = (position: number): DvrState => ({ start: 0, end: 3606, position, edge: 3600, tolerance: 6 });
+const dvrAt = (position: number): DvrState => ({ start: 0, end: 3606, position, edge: 3600, tolerance: 6, started: true });
 
 describe('liveScrubber', () => {
   it('maps the DVR window onto the scrubber with a behind-the-edge label', () => {
@@ -17,7 +17,7 @@ describe('liveScrubber', () => {
   });
 
   it('is hidden while the window is only the player buffer (no real DVR)', () => {
-    expect(liveScrubber({ start: 100, end: 112, position: 106, edge: 106, tolerance: 6 }, vi.fn(), true)).toBeNull();
+    expect(liveScrubber({ start: 100, end: 112, position: 106, edge: 106, tolerance: 6, started: true }, vi.fn(), true)).toBeNull();
   });
 
   it('is hidden when nothing can act on a seek', () => {

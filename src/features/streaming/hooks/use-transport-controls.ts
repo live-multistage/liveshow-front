@@ -63,6 +63,9 @@ export interface LiveWindow {
   // How close to `edge` still counts as live — depends on which player
   // produced `edge` (see NATIVE_LIVE_EDGE_TOLERANCE_SEC).
   tolerance: number;
+  // The panel has a frame to show. Before that, the position says nothing about
+  // the viewer's place in the show: it is 0 while hls.js waits for media.
+  hasFrame: boolean;
 }
 
 // A commanded seek. The token is what re-applies it (see below); `cameraId` is
@@ -297,6 +300,7 @@ export function useTransportControls({
         start: seekable.start(0),
         edge: hasSync ? sync : end,
         tolerance: hasSync ? LIVE_EDGE_TOLERANCE_SEC : NATIVE_LIVE_EDGE_TOLERANCE_SEC,
+        hasFrame: video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA,
       });
     };
     video.addEventListener('timeupdate', report);

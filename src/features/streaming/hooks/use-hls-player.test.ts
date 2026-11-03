@@ -25,7 +25,7 @@ const h = vi.hoisted(() => {
   const instances: MockHls[] = [];
   class MockHls {
     static isSupported = () => true;
-    static Events = { MANIFEST_PARSED: 'm', AUDIO_TRACKS_UPDATED: 'a', ERROR: 'e' };
+    static Events = { MANIFEST_PARSED: 'm', AUDIO_TRACKS_UPDATED: 'a', ERROR: 'e', BUFFER_CREATED: 'bc' };
     static ErrorDetails = { BUFFER_STALLED_ERROR: 'b' };
     config: Record<string, unknown>;
     levels: { height: number }[] = [];

@@ -82,6 +82,7 @@ describe('useTransportControls — live DVR progress', () => {
       start: 60,
       edge: 3600,
       tolerance: LIVE_EDGE_TOLERANCE_SEC,
+      hasFrame: false,
     });
   });
 
@@ -95,6 +96,7 @@ describe('useTransportControls — live DVR progress', () => {
       start: 0,
       edge: 3606,
       tolerance: NATIVE_LIVE_EDGE_TOLERANCE_SEC,
+      hasFrame: false,
     });
   });
 
