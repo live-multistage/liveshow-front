@@ -213,6 +213,55 @@ const SUITE = {
       assert(main < 0.15 && follower < 0.2, 'long-GOP panel froze');
     }),
 
+  // F2: a held panel (audio 92 s late) must keep playing when sent to the edge,
+  // demoted to a follower and promoted back. Before the fix it froze in each.
+  f2: () =>
+    withPage('behind46', async ({ page, sample }) => {
+      const camera = 'behind46-b1';
+      await sleep(8000);
+      await page.click('button[data-stage=sB]', { timeout: 5000 });
+      await activate(page, 'ok-b2');
+      await sleep(15000);
+      assert(await advancing(sample, camera), 'held panel is not playing');
+      await page.click('[data-badge] button', { timeout: 20000 });
+      const afterLive = await frozenShare(sample, camera, 20);
+      console.log(`after "live": frozen ${(afterLive * 100).toFixed(0)}%`, JSON.stringify(panel(await sample(), camera)));
+      assert(await advancing(sample, camera), 'held panel froze after "live"');
+      await page.evaluate(() => window.__h.shell.handleMainCameraChange('ok-b2'));
+      await sleep(10000);
+      assert(await advancing(sample, camera), 'held panel froze as a follower');
+      await page.evaluate((id) => window.__h.shell.handleMainCameraChange(id), camera);
+      await sleep(10000);
+      const promoted = await frozenShare(sample, camera, 10);
+      console.log(`promoted back: frozen ${(promoted * 100).toFixed(0)}%`, JSON.stringify(panel(await sample(), camera)));
+      assert(promoted < 0.3, 'held panel froze when promoted back');
+    }),
+
+  // F2: once the tracks meet at the edge again, "live" lifts the hold: back at
+  // the edge, catch-up on, clock shared again.
+  f2realign: () =>
+    withPage('behind46', async ({ page, sample, server }) => {
+      const camera = 'behind46-b1';
+      await sleep(8000);
+      await page.click('button[data-stage=sB]', { timeout: 5000 });
+      await activate(page, 'ok-b2');
+      await sleep(15000);
+      const before = await sample();
+      const held = panel(before, camera);
+      console.log('held', JSON.stringify({ badge: before.behindBadge, ct: held.ct, rs: held.rs, liveSync: held.liveSync, catchUp: String(held.catchUp) }));
+      assert(held.catchUp === Infinity, 'panel was not held');
+      server.realign(camera);
+      await page.click('[data-badge] button', { timeout: 20000 });
+      await sleep(15000);
+      const s = await sample();
+      const v = panel(s, camera);
+      console.log(JSON.stringify({ held: { ct: held.ct, liveSync: held.liveSync }, now: v, follower: panel(s, 'ok-b2')?.ct }));
+      assert(v.catchUp === 8, 'hold not lifted: catch-up still off');
+      assert(v.liveSync - v.ct <= 8, 'panel did not return to the edge');
+      assert(Math.abs(panel(s, 'ok-b2').ct - v.ct) < 2, 'follower is not sharing the clock again');
+      assert(await advancing(sample, camera), 'panel is not playing at the edge');
+    }),
+
   // Audio ~90 s against video, the sign measured on the Pepsi camera is "behind".
   // Record only: whether it plays is the result, not a pass/fail.
   offset90behind: () => recordOffset('behind46'),

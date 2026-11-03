@@ -52,6 +52,16 @@ const h = vi.hoisted(() => {
   return { MockHls, instances };
 });
 vi.mock('hls.js', () => ({ default: h.MockHls }));
+type WatchdogOptions = { onHeldChange?: (held: boolean) => void; onEdgeRequested?: () => void };
+const watchdog = vi.hoisted(() => ({ options: [] as WatchdogOptions[], reach: null as number | null }));
+vi.mock('./hls-start-watchdog', async (importActual) => ({
+  ...(await importActual<typeof import('./hls-start-watchdog')>()),
+  watchStuckStart: (_hls: unknown, _video: unknown, options: WatchdogOptions) => {
+    watchdog.options.push(options);
+    return () => {};
+  },
+  reachableLivePosition: () => watchdog.reach ?? Infinity,
+}));
 
 // ── pure helpers ─────────────────────────────────────────────────────────────
 describe('pt helpers', () => {
@@ -596,5 +606,53 @@ describe('useHlsPlayer — constant long GOP under a nominal TARGETDURATION', ()
     hls.hasEnoughToStart = true;
     act(() => hls.emit('ll', liveLevel(Array(20).fill(11))));
     expect(hls.startLoad).not.toHaveBeenCalled();
+  });
+});
+
+describe('useHlsPlayer — panel held behind live by the start watchdog', () => {
+  beforeEach(() => {
+    h.instances.length = 0;
+    watchdog.options.length = 0;
+    watchdog.reach = null;
+  });
+
+  const hold = (held: boolean) => act(() => watchdog.options.at(-1)!.onHeldChange!(held));
+
+  it('turns the catch-up off while held and back on when the hold lifts', () => {
+    renderPlayer(cam());
+    hold(true);
+    expect(h.instances[0].config.liveMaxLatencyDurationCount).toBe(Infinity);
+    hold(false);
+    expect(h.instances[0].config.liveMaxLatencyDurationCount).toBe(8);
+  });
+
+  it('a held panel sent to the edge gets a fresh hls instance, not held any more', () => {
+    renderPlayer(cam());
+    hold(true);
+    act(() => watchdog.options.at(-1)!.onEdgeRequested!());
+    expect(h.instances).toHaveLength(2);
+    expect(h.instances[0].destroy).toHaveBeenCalled();
+    expect(h.instances[1].config.liveMaxLatencyDurationCount).toBe(8);
+  });
+
+  it('leaving DVR does not turn the catch-up back on while still held', () => {
+    const { rerender } = renderPlayer(cam());
+    hold(true);
+    rerender({ camera: cam(), dvrActive: true });
+    rerender({ camera: cam(), dvrActive: false });
+    expect(h.instances[0].config.liveMaxLatencyDurationCount).toBe(Infinity);
+  });
+
+  it('the focus snap stops where the panel can still play', () => {
+    const videoRef = { current: document.createElement('video') } as RefObject<HTMLVideoElement | null>;
+    const { rerender } = renderHook(
+      ({ isFocused }: { isFocused: boolean }) => useHlsPlayer({ videoRef, camera: cam(), mode: 'live', isFocused, lowQuality: false }),
+      { initialProps: { isFocused: false } },
+    );
+    h.instances[0].liveSyncPosition = 400;
+    watchdog.reach = 249;
+    videoRef.current!.currentTime = 240;
+    rerender({ isFocused: true });
+    expect(videoRef.current!.currentTime).toBe(249);
   });
 });

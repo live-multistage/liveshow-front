@@ -35,6 +35,7 @@ export function startServer(port) {
   const stats = {};
   const minted = new Map();
   const down = new Set();
+  const shiftOverride = new Map();
   let tokens = 0;
   const hit = (camera, key) => {
     stats[camera] ??= {};
@@ -136,7 +137,8 @@ export function startServer(port) {
         const [, kind, n] = seg;
         hit(camera, `seg_${kind}`);
         if (down.has(camera)) return send(404, 'text/plain', 'nope');
-        const shift = kind === 'a' ? num(camera, 'ahead') - num(camera, 'behind') : 0;
+        const named = num(camera, 'ahead') - num(camera, 'behind');
+        const shift = kind === 'a' ? (shiftOverride.get(camera) ?? named) : 0;
         const prefix = kind === 'v' && camera.startsWith('gop11') ? 'g' : kind;
         const file = path.join(MEDIA_DIR, `${prefix}_${String(Number(n) + shift).padStart(5, '0')}.ts`);
         if (!fs.existsSync(file)) return send(404, 'text/plain', 'gone');
@@ -156,6 +158,8 @@ export function startServer(port) {
       resolve({
         stats,
         setDown: (camera, isDown) => (isDown ? down.add(camera) : down.delete(camera)),
+        // The camera's audio realigns with its video from the next request on.
+        realign: (camera) => shiftOverride.set(camera, 0),
         close: () => new Promise((done) => { server.closeAllConnections(); server.close(done); }),
       }),
     );

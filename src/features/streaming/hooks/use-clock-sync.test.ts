@@ -104,8 +104,8 @@ describe('useClockSync — master', () => {
         handlers[event] = fn;
       },
     };
-    const video = { paused: false, seeking: false, readyState: 1, currentTime: 0 };
-    watchStuckStart(hls as unknown as Hls, video as HTMLVideoElement, 'cam');
+    const video = Object.assign(new EventTarget(), { paused: false, seeking: false, readyState: 1, currentTime: 0 });
+    watchStuckStart(hls as unknown as Hls, video as unknown as HTMLVideoElement, { cameraId: 'cam' });
     const ranges = (start: number, end: number) => ({ length: 1, start: () => start, end: () => end });
     handlers['hlsBufferCreated'](null, {
       tracks: { video: { buffer: { buffered: ranges(300, 310) } }, audio: { buffer: { buffered: ranges(208, 218) } } },
@@ -115,7 +115,7 @@ describe('useClockSync — master', () => {
     video.readyState = 4;
 
     const clockRef = makeClock();
-    renderMaster(video as Partial<HTMLVideoElement>, hls as unknown as Partial<Hls>, clockRef);
+    renderMaster(video as unknown as Partial<HTMLVideoElement>, hls as unknown as Partial<Hls>, clockRef);
     expect(clockRef.current).toBeNull();
     vi.useRealTimers();
     vi.restoreAllMocks();
@@ -178,5 +178,33 @@ describe('useClockSync — follower', () => {
     const video = { paused: false, seeking: false, currentTime: 300, playbackRate: 1, seekable: seekable(320) };
     renderFollower(video as Partial<HTMLVideoElement>, { playingDate: new Date(MASTER_AT - 6000), liveSyncPosition: 310 });
     expect(video.currentTime).toBeCloseTo(306, 0);
+  });
+});
+
+describe('useClockSync — held follower', () => {
+  it('chases a master only as far as both of its tracks reach', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.useFakeTimers();
+    const handlers: Record<string, (event: unknown, data: unknown) => void> = {};
+    const ranges = (list: [number, number][]) => ({ length: list.length, start: (i: number) => list[i][0], end: (i: number) => list[i][1] });
+    const hls = {
+      playingDate: new Date(Date.parse('2026-11-02T20:00:00Z')),
+      liveSyncPosition: 400,
+      on: (e: string, fn: (event: unknown, data: unknown) => void) => { handlers[e] = fn; },
+    };
+    const video = Object.assign(new EventTarget(), { paused: false, seeking: false, readyState: 1, currentTime: 0, playbackRate: 1, buffered: ranges([]), seekable: ranges([[0, 420]]) });
+    watchStuckStart(hls as unknown as Hls, video as unknown as HTMLVideoElement, { cameraId: 'cam' });
+    handlers['hlsBufferCreated'](null, { tracks: { video: { buffer: { buffered: ranges([[300, 310]]) } }, audio: { buffer: { buffered: ranges([[208, 218]]) } } } });
+    vi.advanceTimersByTime(5000);
+    Object.assign(video, { readyState: 4, currentTime: 240, buffered: ranges([[230, 250]]) });
+    vi.advanceTimersByTime(1000);
+
+    // Demoted: the new master is ~90 s ahead.
+    const clockRef = { current: { epochMs: hls.playingDate.getTime() + 90_000, sampledAt: performance.now() } } as MutableRefObject<ClockSample | null>;
+    renderHook(() => useClockSync({ videoRef: { current: video as unknown as HTMLVideoElement }, hlsRef: { current: hls as unknown as Hls }, mode: 'live', role: 'follower', clockRef }));
+    vi.advanceTimersByTime(500);
+    expect(video.currentTime).toBeLessThanOrEqual(249);
+    vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 });

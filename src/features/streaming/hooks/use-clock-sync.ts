@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import type { MutableRefObject, RefObject } from 'react';
 import type Hls from 'hls.js';
-import { isHeldBehindLive } from './hls-start-watchdog';
+import { isHeldBehindLive, reachableLivePosition } from './hls-start-watchdog';
 import { localToAbsolute } from '../utils/replay-timeline';
 import type { ReplaySegmentCoverage } from '../utils/replay-timeline';
 
@@ -93,14 +93,13 @@ function canPublishLiveClock(video: HTMLVideoElement, hls: Hls | null): boolean 
   return hasStarted(video, hls) && !isHeldBehindLive(hls);
 }
 
-// A follower can't usefully go past its own live sync point: a longer GOP than
-// the master's means it has no media there yet, and chasing it froze the
-// follower ~90% of the time. Catching up stops at that point instead.
+// A follower can't usefully go past the furthest point it can play: its own
+// live sync point (a longer GOP than the master's means it has no media there
+// yet, and chasing it froze the follower ~90% of the time), or the end of both
+// tracks for a held panel. Catching up stops there instead.
 function withinReach(driftSec: number, video: HTMLVideoElement, hls: Hls | null, mode: 'live' | 'replay'): number {
   if (mode !== 'live' || driftSec <= 0) return driftSec;
-  const sync = hls?.liveSyncPosition;
-  if (typeof sync !== 'number' || !Number.isFinite(sync)) return driftSec;
-  return Math.min(driftSec, Math.max(0, sync - video.currentTime));
+  return Math.min(driftSec, Math.max(0, reachableLivePosition(video, hls) - video.currentTime));
 }
 
 export function useClockSync({ videoRef, hlsRef, mode, role, clockRef, coverage }: UseClockSyncOptions): void {

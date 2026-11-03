@@ -13,7 +13,7 @@ import {
 } from '@live-show/api-contracts';
 import type { LiveCamera } from '../types/live.types';
 import { audioTrackIndexForCamera } from '../components/audio-track';
-import { watchStuckStart } from './hls-start-watchdog';
+import { reachableLivePosition, watchStuckStart } from './hls-start-watchdog';
 import { longGopLiveSync } from './long-gop-latency';
 
 export interface QualityLevel {
@@ -295,19 +295,22 @@ export function useHlsPlayer({
   const catchUpFloorRef = useRef(0);
   const dvrActiveRef = useRef(dvrActive);
   dvrActiveRef.current = dvrActive;
+  // Held by the start watchdog: its media only plays far behind the edge.
+  const heldRef = useRef(false);
   const applyCatchUp = (hls: Hls) => {
     hls.config.liveMaxLatencyDurationCount = Math.max(
-      maxLatencyDurationCount(hasLl, dvrActiveRef.current),
+      maxLatencyDurationCount(hasLl, dvrActiveRef.current || heldRef.current),
       catchUpFloorRef.current,
     );
   };
   const [authFailedSrc, setAuthFailedSrc] = useState<string | null>(null);
-  const [authRebuilds, setAuthRebuilds] = useState(0);
+  // Bumped to build a fresh hls instance on the same src.
+  const [rebuilds, setRebuilds] = useState(0);
   const authRecoveriesRef = useRef(0);
   useEffect(() => {
     if (authFailedSrc === null || src === null || src === authFailedSrc) return;
     setAuthFailedSrc(null);
-    setAuthRebuilds((n) => n + 1);
+    setRebuilds((n) => n + 1);
   }, [src, authFailedSrc]);
 
   useEffect(() => {
@@ -543,6 +546,7 @@ export function useHlsPlayer({
       setRetrying(false);
     });
     catchUpFloorRef.current = 0;
+    heldRef.current = false;
     if (mode === 'live' && !hasLl) {
       hls.on(Hls.Events.LEVEL_LOADED, (_evt, { details }) => {
         if (!details.live) return;
@@ -558,7 +562,17 @@ export function useHlsPlayer({
       });
     }
     hlsRef.current = hls;
-    const stopStartWatchdog = mode === 'live' ? watchStuckStart(hls, video, camera.cameraId) : undefined;
+    const stopStartWatchdog =
+      mode === 'live'
+        ? watchStuckStart(hls, video, {
+            cameraId: camera.cameraId,
+            onHeldChange: (held) => {
+              heldRef.current = held;
+              applyCatchUp(hls);
+            },
+            onEdgeRequested: () => setRebuilds((n) => n + 1),
+          })
+        : undefined;
 
     return () => {
       stopStartWatchdog?.();
@@ -567,7 +581,7 @@ export function useHlsPlayer({
       hlsRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [srcBase, hasLl, authRebuilds]);
+  }, [srcBase, hasLl, rebuilds]);
 
   // DVR: while the viewer sits behind the live edge, hls.js must stop dragging
   // them back to it. Applied to EVERY live panel, not just the primary — the
@@ -591,9 +605,11 @@ export function useHlsPlayer({
     const hls = hlsRef.current;
     const video = videoRef.current;
     if (!hls || !video) return;
-    const live = hls.liveSyncPosition;
-    if (typeof live === 'number' && Number.isFinite(live) && live - video.currentTime > 1) {
-      video.currentTime = live;
+    // Bounded by where the panel can still play: a held panel snapped to the
+    // edge froze there.
+    const target = reachableLivePosition(video, hls);
+    if (Number.isFinite(target) && target - video.currentTime > 1) {
+      video.currentTime = target;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocused, mode, dvrActive]);

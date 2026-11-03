@@ -28,10 +28,15 @@ const newestRange = (ranges: Range[]): Range => ranges.reduce((a, b) => (b[1] > 
 //   a seek gets clamped, and the overlap appears by itself once the video gets there.
 export function resolveStartSeek(video: Range[], audio: Range[]): number | null {
   if (video.length === 0 || audio.length === 0) return null;
+  // The NEWEST overlap: after a probe of the edge (see watchStuckStart) the
+  // buffers still hold the old playable stretch, which is the worst fallback.
+  let newestShared: number | null = null;
   for (const [vStart, vEnd] of video) {
-    const shared = audio.find(([aStart, aEnd]) => aStart < vEnd && aEnd > vStart);
-    if (shared) return Math.max(vStart, shared[0]);
+    for (const [aStart, aEnd] of audio) {
+      if (aStart < vEnd && aEnd > vStart) newestShared = Math.max(newestShared ?? -Infinity, vStart, aStart);
+    }
   }
+  if (newestShared !== null) return newestShared;
   const newestAudio = newestRange(audio);
   return newestAudio[1] <= newestRange(video)[0] ? newestAudio[0] : null;
 }
@@ -45,16 +50,51 @@ export function isHeldBehindLive(hls: Hls | null): boolean {
   return !!hls && heldBehindLive.has(hls);
 }
 
+// Keeps a seek clear of the end of what is buffered on BOTH tracks.
+const HELD_MARGIN_SEC = 1;
+// Playing this close to the live sync point after a seek means the tracks meet
+// at the edge again, so the panel is no longer held.
+const BACK_AT_LIVE_SEC = 6;
+
+// The furthest position a live panel can be moved to and keep playing: hls.js's
+// live sync point, or for a held panel the end of the stretch where both
+// tracks have media. Infinity when hls.js doesn't know yet.
+export function reachableLivePosition(video: HTMLVideoElement, hls: Hls | null): number {
+  const sync = hls?.liveSyncPosition;
+  const live = typeof sync === 'number' && Number.isFinite(sync) ? sync : Infinity;
+  if (!isHeldBehindLive(hls)) return live;
+  const { buffered } = video;
+  const playableEnd = buffered.length ? buffered.end(buffered.length - 1) - HELD_MARGIN_SEC : video.currentTime;
+  return Math.min(live, Math.max(video.currentTime, playableEnd));
+}
+
+export interface StartWatchdogOptions {
+  cameraId: string;
+  // A held panel can only play far behind the edge: hls.js's catch-up must be
+  // off while it is, and back on once the tracks meet at the edge again.
+  onHeldChange?: (held: boolean) => void;
+  // A held panel was sent to the edge. Only a new hls instance can tell whether
+  // the tracks meet there now: this one has already mapped the audio playlist
+  // onto the old, shifted timestamps (measured: a seek never got out of it).
+  onEdgeRequested?: () => void;
+}
+
 // hls.js only moves to the start position once `video.buffered` has data, and
 // that is the INTERSECTION of the tracks: audio and video that don't overlap
 // leave the panel at currentTime 0 with no error, forever. A seek gets past
 // that gate. The misalignment itself comes from the media, so the log carries
 // each track's ranges for whoever has to chase it upstream.
-export function watchStuckStart(hls: Hls, video: HTMLVideoElement, cameraId: string): () => void {
+//
+// Once a panel is held, every seek of it re-arms the watchdog: one that gets
+// stuck is sent back to the newest stretch that plays, and one to the edge asks
+// for a new hls instance (see onEdgeRequested).
+export function watchStuckStart(hls: Hls, video: HTMLVideoElement, { cameraId, onHeldChange, onEdgeRequested }: StartWatchdogOptions): () => void {
   let buffers: Record<string, SourceBuffer> = {};
   let stuckChecks = 0;
   let seeks = 0;
   let waitLogged = false;
+  let interval: ReturnType<typeof setInterval> | null = null;
+  let ownTarget: number | null = null;
 
   const onBufferCreated = (_event: unknown, data: { tracks: Record<string, { buffer?: SourceBuffer }> }) => {
     buffers = {};
@@ -64,11 +104,30 @@ export function watchStuckStart(hls: Hls, video: HTMLVideoElement, cameraId: str
   };
   hls.on(Hls.Events.BUFFER_CREATED, onBufferCreated);
 
-  const stop = () => clearInterval(interval);
+  const setHeld = (held: boolean) => {
+    if (held === isHeldBehindLive(hls)) return;
+    if (held) heldBehindLive.add(hls);
+    else heldBehindLive.delete(hls);
+    onHeldChange?.(held);
+  };
 
-  const interval = setInterval(() => {
+  const disarm = () => {
+    if (interval !== null) clearInterval(interval);
+    interval = null;
+  };
+
+  const backAtLive = () => {
+    const sync = hls.liveSyncPosition;
+    return typeof sync === 'number' && sync - video.currentTime <= BACK_AT_LIVE_SEC;
+  };
+
+  const check = () => {
     if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-      stop();
+      disarm();
+      if (isHeldBehindLive(hls) && backAtLive()) {
+        console.warn(`[hls-start-watchdog] camera=${cameraId} tracks meet at the edge again, hold lifted`);
+        setHeld(false);
+      }
       return;
     }
     if (!buffers.video || !buffers.audio) return;
@@ -93,13 +152,31 @@ export function watchStuckStart(hls: Hls, video: HTMLVideoElement, cameraId: str
     seeks += 1;
     // Sitting behind the edge is the only way to play this media; hls.js's
     // catch-up would yank the panel straight back to where it can't start.
-    if (target < videoRanges[0][0]) {
-      hls.config.liveMaxLatencyDurationCount = Infinity;
-      heldBehindLive.add(hls);
-    }
+    if (target < videoRanges[0][0]) setHeld(true);
+    ownTarget = target;
     video.currentTime = target;
-    if (seeks >= MAX_SEEKS) stop();
-  }, CHECK_MS);
+    if (seeks >= MAX_SEEKS) disarm();
+  };
 
-  return stop;
+  const arm = () => {
+    stuckChecks = 0;
+    seeks = 0;
+    waitLogged = false;
+    if (interval === null) interval = setInterval(check, CHECK_MS);
+  };
+
+  const onSeeking = () => {
+    const own = ownTarget !== null && Math.abs(video.currentTime - ownTarget) < 0.01;
+    ownTarget = null;
+    if (own || !isHeldBehindLive(hls)) return;
+    if (backAtLive() && onEdgeRequested) onEdgeRequested();
+    else arm();
+  };
+  video.addEventListener('seeking', onSeeking);
+  arm();
+
+  return () => {
+    disarm();
+    video.removeEventListener('seeking', onSeeking);
+  };
 }
