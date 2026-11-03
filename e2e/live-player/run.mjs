@@ -223,7 +223,9 @@ const SUITE = {
       const camera = 'behind46-b1';
       await sleep(8000);
       await page.click('button[data-stage=sB]', { timeout: 5000 });
+      await sleep(2000);
       await activate(page, 'ok-b2');
+      await page.evaluate((id) => window.__h.shell.handleMainCameraChange(id), camera);
       await sleep(15000);
       assert(await advancing(sample, camera), 'held panel is not playing');
       await page.click('[data-badge] button', { timeout: 20000 });
@@ -247,7 +249,9 @@ const SUITE = {
       const camera = 'behind46-b1';
       await sleep(8000);
       await page.click('button[data-stage=sB]', { timeout: 5000 });
+      await sleep(2000);
       await activate(page, 'ok-b2');
+      await page.evaluate((id) => window.__h.shell.handleMainCameraChange(id), camera);
       await sleep(15000);
       const before = await sample();
       const held = panel(before, camera);
