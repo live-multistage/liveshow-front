@@ -1,5 +1,5 @@
 # Live player on real hls.js in real Chrome, ~8 min. Runs on pull requests and
-# on demand, never on a push: pushing main is what publishes to production.
+# on demand, never on a push: pushing prod is what publishes to production.
 name: player-e2e
 
 on:
