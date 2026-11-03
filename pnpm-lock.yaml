@@ -180,12 +180,18 @@ importers:
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1
+      playwright-core:
+        specifier: ^1.64.1
+        version: 1.64.1
       sass-embedded:
         specifier: ^1.105.0
         version: 1.105.0
       typescript:
         specifier: 6.0.3
         version: 6.0.3
+      vite:
+        specifier: 8.1.5
+        version: 8.1.5(@types/node@22.19.19)(sass-embedded@1.105.0)(sass@1.105.0)(terser@5.51.2)
       vitest:
         specifier: ^4.1.10
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(jsdom@29.1.1)(vite@8.1.5(@types/node@22.19.19)(sass-embedded@1.105.0)(sass@1.105.0)(terser@5.51.2))
@@ -3364,6 +3370,11 @@ packages:
   picomatch@4.0.5:
     resolution: {integrity: sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==}
     engines: {node: '>=12'}
+
+  playwright-core@1.64.1:
+    resolution: {integrity: sha512-BC4s8y6SEVA6Q1rSxZTto8hI1KUI3xXlHGZgvGqP4IqPdI/a6FX9H29IDNz7vKo9l21b6LfYosScPL6M3xxyDQ==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   po-parser@2.1.1:
     resolution: {integrity: sha512-ECF4zHLbUItpUgE3OTtLKlPjeBN+fKEczj2zYjDfCGOzicNs0GK3Vg2IoAYwx7LH/XYw43fZQP6xnZ4TkNxSLQ==}
@@ -7148,6 +7159,8 @@ snapshots:
   picomatch@4.0.4: {}
 
   picomatch@4.0.5: {}
+
+  playwright-core@1.64.1: {}
 
   po-parser@2.1.1: {}
 

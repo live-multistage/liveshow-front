@@ -83,3 +83,7 @@ server.mjs
 .claude/
 .codegraph/
 *.code-workspace
+
+# real-browser player test (generated media and bundle)
+e2e/live-player/.media/
+e2e/live-player/.dist/
