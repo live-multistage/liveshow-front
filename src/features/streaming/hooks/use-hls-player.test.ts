@@ -656,3 +656,73 @@ describe('useHlsPlayer — panel held behind live by the start watchdog', () => 
     expect(videoRef.current!.currentTime).toBe(249);
   });
 });
+
+describe('useHlsPlayer — origin down for longer than the fast retries', () => {
+  beforeEach(() => {
+    h.instances.length = 0;
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const NETWORK_DOWN = { fatal: true, type: 'network', details: 'levelLoadError', response: { code: 404 } };
+  const exhaust = (hls: InstanceType<typeof h.MockHls>) => {
+    for (let i = 0; i < 11; i++) {
+      act(() => hls.emit('e', NETWORK_DOWN));
+      act(() => vi.advanceTimersByTime(5000));
+    }
+  };
+
+  function render(onFatalError = vi.fn()) {
+    const videoRef = { current: document.createElement('video') } as RefObject<HTMLVideoElement | null>;
+    const view = renderHook(() =>
+      useHlsPlayer({ videoRef, camera: cam(), mode: 'live', isFocused: true, lowQuality: false, onFatalError }),
+    );
+    h.instances[0].levels = [{ height: 720 }];
+    return { ...view, onFatalError };
+  }
+
+  it('shows no signal but keeps reloading the source at a slow pace', () => {
+    const { result } = render();
+    const hls = h.instances[0];
+    exhaust(hls);
+    expect(result.current.error).toBe(true);
+    const loads = hls.loadSource.mock.calls.length;
+    act(() => vi.advanceTimersByTime(15_000));
+    expect(hls.loadSource.mock.calls.length).toBe(loads + 1);
+    act(() => hls.emit('e', NETWORK_DOWN));
+    act(() => vi.advanceTimersByTime(15_000));
+    expect(hls.loadSource.mock.calls.length).toBe(loads + 2);
+  });
+
+  it('reports the loss once, not on every slow retry', () => {
+    const { onFatalError } = render();
+    const hls = h.instances[0];
+    exhaust(hls);
+    for (let i = 0; i < 4; i++) {
+      act(() => vi.advanceTimersByTime(15_000));
+      act(() => hls.emit('e', NETWORK_DOWN));
+    }
+    expect(onFatalError).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears no signal once media is buffered again', () => {
+    const { result } = render();
+    const hls = h.instances[0];
+    exhaust(hls);
+    act(() => vi.advanceTimersByTime(15_000));
+    act(() => hls.emit('fb'));
+    expect(result.current.error).toBe(false);
+  });
+
+  it('a refused token is not slow-retried', () => {
+    const { result } = render();
+    const hls = h.instances[0];
+    act(() => hls.emit('e', AUTH_ERROR));
+    const loads = hls.loadSource.mock.calls.length;
+    act(() => vi.advanceTimersByTime(120_000));
+    expect(hls.loadSource.mock.calls.length).toBe(loads);
+    expect(result.current.error).toBe(true);
+  });
+});

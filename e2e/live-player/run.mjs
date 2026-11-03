@@ -46,8 +46,9 @@ const sampler = () => {
   };
 };
 
-async function withPage(scenario, fn) {
+async function withPage(scenario, fn, before) {
   const server = await startServer(PORT);
+  before?.(server);
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   const page = await (await browser.newContext({ viewport: { width: 1100, height: 700 } })).newPage();
   const logs = [];
@@ -261,6 +262,37 @@ const SUITE = {
       assert(Math.abs(panel(s, 'ok-b2').ct - v.ct) < 2, 'follower is not sharing the clock again');
       assert(await advancing(sample, camera), 'panel is not playing at the edge');
     }),
+
+  // F3: an origin down for 90 s (a deploy) in mid-show, and one down for the
+  // first 100 s of a viewer's session (past the fast retries). Both must come back on their own.
+  f3drop: () =>
+    withPage('flap', async ({ server, sample }) => {
+      await sleep(10000);
+      server.setDown('flap-a1', true);
+      await sleep(90000);
+      server.setDown('flap-a1', false);
+      await sleep(30000);
+      const s = await sample();
+      console.log(JSON.stringify({ lost: s.lost, connecting: s.connecting, v: panel(s, 'flap-a1') }));
+      assert(!s.lost && !s.connecting, '"no signal" still shown after the origin came back');
+      assert(await advancing(sample, 'flap-a1'), 'panel did not resume after a 90 s drop');
+    }),
+  f3boot: () =>
+    withPage(
+      'flap',
+      async ({ server, sample }) => {
+        await sleep(100000);
+        const down = await sample();
+        server.setDown('flap-a1', false);
+        await sleep(30000);
+        const s = await sample();
+        console.log(JSON.stringify({ whileDown: { lost: down.lost, connecting: down.connecting }, lost: s.lost, connecting: s.connecting }));
+        assert(down.lost || down.connecting, 'a dead origin looked healthy');
+        assert(!s.lost && !s.connecting, 'panel did not recover from an origin down at boot');
+        assert(await advancing(sample, 'flap-a1'), 'panel never started after the origin came up');
+      },
+      (server) => server.setDown('flap-a1', true),
+    ),
 
   // Audio ~90 s against video, the sign measured on the Pepsi camera is "behind".
   // Record only: whether it plays is the result, not a pass/fail.

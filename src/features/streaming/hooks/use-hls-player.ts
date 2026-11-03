@@ -141,6 +141,7 @@ export function playBestEffort(video: HTMLVideoElement, onBlocked?: () => void) 
 }
 
 const MAX_AUTH_RECOVERIES = 3;
+const SLOW_RETRY_MS = 15_000;
 
 export interface UseHlsPlayerOptions {
   videoRef: RefObject<HTMLVideoElement | null>;
@@ -449,6 +450,9 @@ export function useHlsPlayer({
     let networkRetries = 0;
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
     const MAX_NETWORK_RETRIES = 10;
+    // Set once the fast retries ran out on a live panel (see below), so the
+    // loss is reported once however long the origin stays down.
+    let signalLost = false;
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       const sorted = hls.levels
         .map((l, i) => ({ index: i, height: l.height }))
@@ -527,6 +531,19 @@ export function useHlsPlayer({
           hls.recoverMediaError();
           return;
         }
+        // Past the fast retries (~45 s) a live origin is down, not booting: a
+        // deploy or a restart. Say so, but keep trying slowly; giving up left
+        // every viewer on "no signal" until they reloaded. A refused token
+        // has its own bounded recovery below.
+        if (mode === 'live' && data.type === Hls.ErrorTypes.NETWORK_ERROR && !isAuth) {
+          setRetrying(false);
+          setError(true);
+          if (!signalLost) onFatalErrorRef.current?.();
+          signalLost = true;
+          clearTimeout(retryTimer);
+          retryTimer = setTimeout(() => hls.loadSource(srcRef.current!), SLOW_RETRY_MS);
+          return;
+        }
         setRetrying(false);
         setError(true);
         onFatalErrorRef.current?.();
@@ -544,6 +561,8 @@ export function useHlsPlayer({
       authRecoveriesRef.current = 0;
       networkRetries = 0;
       setRetrying(false);
+      if (signalLost) setError(false);
+      signalLost = false;
     });
     catchUpFloorRef.current = 0;
     heldRef.current = false;
