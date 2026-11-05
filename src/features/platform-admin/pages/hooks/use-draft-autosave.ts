@@ -37,10 +37,15 @@ function backendIssues(error: unknown): AutosaveIssue[] {
   }));
 }
 
+/**
+ * Debounced draft autosave with optimistic locking.
+ * The caller MUST mount it with `key={pageId}`: state and the revision ref are not reset on pageId change.
+ */
 export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow: () => void; flushing: boolean } {
   const { document, dirty, baseRevision, delayMs = 800 } = args;
   const [status, setStatus] = useState<AutosaveStatus>({ kind: 'idle' });
 
+  // Intentional render-time write: read-only ref so async callbacks see the latest props.
   const argsRef = useRef(args);
   argsRef.current = args;
   const revisionRef = useRef(baseRevision);
@@ -52,7 +57,7 @@ export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow:
   const retryTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
-    revisionRef.current = baseRevision;
+    revisionRef.current = Math.max(revisionRef.current, baseRevision);
   }, [baseRevision]);
 
   const run = useCallback(async () => {
@@ -70,19 +75,13 @@ export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow:
     }
     inFlight.current = true;
     setStatus({ kind: 'saving' });
+    const pageId = argsRef.current.pageId;
+    let saved: { draftRevision: number; draftUpdatedAt: string };
     try {
-      const saved = await pagesService.saveDraft(argsRef.current.pageId, { document: parsed.data, baseRevision: revisionRef.current });
-      inFlight.current = false;
-      if (!mounted.current) return;
-      revisionRef.current = saved.draftRevision;
-      attempts.current = 0;
-      argsRef.current.onSaved(saved);
-      // Edited while saving: send the newest document right away with the revision just returned.
-      if (argsRef.current.document !== sent) return void run();
-      setStatus({ kind: 'saved', at: new Date() });
+      saved = await pagesService.saveDraft(pageId, { document: parsed.data, baseRevision: revisionRef.current });
     } catch (error) {
       inFlight.current = false;
-      if (!mounted.current) return;
+      if (!mounted.current || pageId !== argsRef.current.pageId) return;
       if (isDraftConflict(error)) {
         locked.current = true;
         setStatus({ kind: 'conflict', conflict: error.response!.data! });
@@ -90,6 +89,8 @@ export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow:
         return;
       }
       if ((error as { response?: { status?: number } })?.response?.status === 400) {
+        // Edited while saving: the client validation decides whether it is still invalid.
+        if (argsRef.current.document !== sent) return void run();
         setStatus({ kind: 'invalid', issues: backendIssues(error) });
         return;
       }
@@ -97,11 +98,29 @@ export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow:
       const wait = Math.min(RETRY_BASE_MS * 2 ** (attempts.current - 1), RETRY_MAX_MS);
       setStatus({ kind: 'error', attempt: attempts.current, nextRetryAt: new Date(Date.now() + wait) });
       retryTimer.current = setTimeout(() => void run(), wait);
+      return;
     }
+    inFlight.current = false;
+    if (!mounted.current || pageId !== argsRef.current.pageId) return;
+    revisionRef.current = saved.draftRevision;
+    attempts.current = 0;
+    try {
+      argsRef.current.onSaved(saved);
+    } catch (callbackError) {
+      // A failing callback must not look like a failed save.
+      console.error(callbackError);
+    }
+    // Edited while saving: send the newest document right away with the revision just returned.
+    if (argsRef.current.document !== sent) return void run();
+    setStatus({ kind: 'saved', at: new Date() });
   }, []);
 
   useEffect(() => {
-    if (!dirty || locked.current || inFlight.current) return;
+    if (!dirty) {
+      setStatus((s) => (s.kind === 'pending' ? { kind: 'idle' } : s));
+      return;
+    }
+    if (locked.current || inFlight.current) return;
     setStatus({ kind: 'pending' });
     debounceTimer.current = setTimeout(() => void run(), delayMs);
     return () => clearTimeout(debounceTimer.current);
@@ -119,12 +138,19 @@ export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow:
   const warn = dirty || status.kind === 'saving' || status.kind === 'pending' || status.kind === 'error';
   useEffect(() => {
     if (!warn) return;
-    const onBeforeUnload = (e: BeforeUnloadEvent) => e.preventDefault();
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
     window.addEventListener('beforeunload', onBeforeUnload);
     return () => window.removeEventListener('beforeunload', onBeforeUnload);
   }, [warn]);
 
-  const saveNow = useCallback(() => void run(), [run]);
+  const statusKind = status.kind;
+  const saveNow = useCallback(() => {
+    if (!argsRef.current.dirty && statusKind !== 'error') return;
+    void run();
+  }, [run, statusKind]);
 
   return { status, saveNow, flushing: status.kind === 'saving' };
 }

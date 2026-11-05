@@ -151,4 +151,54 @@ describe('useDraftAutosave', () => {
     unmount();
     expect(remove).toHaveBeenCalledWith('beforeunload', call![1]);
   });
+
+  it('an onSaved exception is not treated as a network error', async () => {
+    saveDraft.mockResolvedValue(ok(2));
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { result } = setup({ onSaved: () => { throw new Error('boom'); } });
+    await act(async () => { await vi.advanceTimersByTimeAsync(800); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(10000); });
+    expect(saveDraft).toHaveBeenCalledTimes(1);
+    expect(result.current.status.kind).toBe('saved');
+    spy.mockRestore();
+  });
+
+  it('returns pending to idle when dirty goes false without a save', async () => {
+    const { rerender, props, result } = setup();
+    expect(result.current.status.kind).toBe('pending');
+    rerender({ ...props, dirty: false });
+    expect(result.current.status.kind).toBe('idle');
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+    expect(saveDraft).not.toHaveBeenCalled();
+  });
+
+  it('re-runs after a 400 when the document changed during the save', async () => {
+    let reject!: (e: unknown) => void;
+    saveDraft.mockImplementationOnce(() => new Promise((_, r) => { reject = r; }));
+    saveDraft.mockResolvedValueOnce(ok(2));
+    const { rerender, props, result } = setup();
+    await act(async () => { await vi.advanceTimersByTimeAsync(800); });
+    rerender({ ...props, document: docWith('fixed') });
+    await act(async () => { reject(httpError(400)); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(saveDraft).toHaveBeenCalledTimes(2);
+    expect(result.current.status.kind).toBe('saved');
+  });
+
+  it('saveNow is a no-op when clean and not in error', async () => {
+    const { result } = setup({ dirty: false });
+    act(() => result.current.saveNow());
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(saveDraft).not.toHaveBeenCalled();
+  });
+
+  it('never moves the revision backwards when baseRevision is stale', async () => {
+    saveDraft.mockResolvedValueOnce(ok(5));
+    saveDraft.mockResolvedValueOnce(ok(6));
+    const { rerender, props } = setup();
+    await act(async () => { await vi.advanceTimersByTimeAsync(800); });
+    rerender({ ...props, document: docWith('n'), baseRevision: 2 });
+    await act(async () => { await vi.advanceTimersByTimeAsync(800); });
+    expect(saveDraft).toHaveBeenLastCalledWith('p1', { document: docWith('n'), baseRevision: 5 });
+  });
 });
