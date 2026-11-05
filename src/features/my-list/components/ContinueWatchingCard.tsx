@@ -1,5 +1,6 @@
 'use client';
 
+import { watchPath } from '@/features/streaming/utils/watch-route';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Play } from 'lucide-react';
@@ -21,7 +22,7 @@ export function ContinueWatchingCard({ event, progress }: Props) {
   const summary = watchedSummary(progress.positionSeconds, progress.durationSeconds);
 
   return (
-    <Link href={`/replay/${event.id}`} className={styles.card}>
+    <Link href={watchPath(event.id)} className={styles.card}>
       <div className={styles.cover} style={{ background: coverGradient(event.id) }}>
         {cover && <img src={cover} alt="" className={styles.image} />}
         <span className={styles.playBadge} aria-hidden="true">

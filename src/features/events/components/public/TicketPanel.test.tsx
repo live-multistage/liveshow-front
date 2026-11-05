@@ -208,7 +208,7 @@ describe('TicketPanel direct watch', () => {
     renderPanel([FREE]);
     await userEvent.click(watchButton());
 
-    await waitFor(() => expect(state.push).toHaveBeenCalledWith('/live/evt-1'));
+    await waitFor(() => expect(state.push).toHaveBeenCalledWith('/watch/evt-1'));
     // The claim rides checkoutService — the same request path that carries the
     // x-attribution-* headers the ads product credits conversions from.
     expect(claimFreeTicket).toHaveBeenCalledWith('tp-free');
@@ -224,7 +224,7 @@ describe('TicketPanel direct watch', () => {
     );
     await userEvent.click(watchButton());
 
-    await waitFor(() => expect(state.push).toHaveBeenCalledWith('/replay/evt-1'));
+    await waitFor(() => expect(state.push).toHaveBeenCalledWith('/watch/evt-1'));
   });
 
   it('surfaces the error and stays put when the claim fails', async () => {
@@ -249,7 +249,7 @@ describe('TicketPanel direct watch', () => {
 
     renderPanel([FREE]);
 
-    expect(screen.getByRole('link', { name: /watchNow/ })).toHaveAttribute('href', '/live/evt-1');
+    expect(screen.getByRole('link', { name: /watchNow/ })).toHaveAttribute('href', '/watch/evt-1');
     expect(screen.getByText('chipLive')).toBeInTheDocument();
     expect(claimFreeTicket).not.toHaveBeenCalled();
   });
@@ -362,7 +362,7 @@ describe('TicketPanel — per-product ownership', () => {
     renderPanel([FREE, PAID], makeEvent({ status: 'LIVE' }));
 
     expect(screen.getByText('ticketSecured')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /watchNow/ })).toHaveAttribute('href', '/live/evt-1');
+    expect(screen.getByRole('link', { name: /watchNow/ })).toHaveAttribute('href', '/watch/evt-1');
   });
 
   // Ruling: an empty owned list while loading must never read as "access with

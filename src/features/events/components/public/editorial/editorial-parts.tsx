@@ -3,6 +3,7 @@
 // component, and ride into the client bundle where a client island (the hero
 // carousel) imports the helpers. Cards are ShowCard (size="compact"), the
 // same one the Programação grid uses.
+import { watchPath } from '@/features/streaming/utils/watch-route';
 import type { Show } from '@/features/events/types/show';
 import { formatPriceRange } from '@/features/events/utils/event-formatters';
 import { eventHref } from '@/features/events/utils/slug';
@@ -14,7 +15,7 @@ export function fmtPrice(show: Show) {
 }
 
 export function playHref(show: Show) {
-  return show.isLive ? `/live/${show.id}` : eventHref(show);
+  return show.isLive ? watchPath(show.id) : eventHref(show);
 }
 
 export function infoHref(show: Show) {

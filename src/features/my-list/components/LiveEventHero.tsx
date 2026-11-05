@@ -1,5 +1,6 @@
 'use client';
 
+import { watchPath } from '@/features/streaming/utils/watch-route';
 import Link from 'next/link';
 import { eventHref } from '@/features/events/utils/slug';
 import { useLocale, useTranslations } from 'next-intl';
@@ -32,7 +33,7 @@ export function LiveEventHero({ event }: { event: AccessibleEvent }) {
         <p className={styles.note}>{t('startedAt', { time: timeLabel(event.startsAt, locale) })}</p>
 
         <div className={styles.actions}>
-          <Link href={`/live/${event.id}`} className={styles.primary}>
+          <Link href={watchPath(event.id)} className={styles.primary}>
             <Play size={13} fill="currentColor" strokeWidth={0} />
             {t('watchLive')}
           </Link>

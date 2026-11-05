@@ -1,5 +1,6 @@
 'use client';
 
+import { watchPath } from '@/features/streaming/utils/watch-route';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { Play } from 'lucide-react';
@@ -16,7 +17,7 @@ export function ReplayCard({ event }: { event: AccessibleEvent }) {
   const duration = durationLabel(event.startsAt, event.endsAt);
 
   return (
-    <Link href={`/replay/${event.id}`} className={styles.card}>
+    <Link href={watchPath(event.id)} className={styles.card}>
       <div className={styles.cover} style={{ background: coverGradient(event.id) }}>
         {cover && <img src={cover} alt="" className={styles.image} />}
         <div className={styles.scrim} aria-hidden="true" />

@@ -1,5 +1,6 @@
 'use client';
 
+import { watchPath } from '@/features/streaming/utils/watch-route';
 import Link from 'next/link';
 import { Maximize2, Volume2, VolumeX } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -45,7 +46,7 @@ export function LivePreview({ eventId, title, playback }: Props) {
         >
           {globalMuted ? <VolumeX size={18} aria-hidden /> : <Volume2 size={18} aria-hidden />}
         </button>
-        <Link href={`/live/${eventId}`} className={styles.openBtn}>
+        <Link href={watchPath(eventId)} className={styles.openBtn}>
           <Maximize2 size={15} aria-hidden />
           {t('openPlayer')}
         </Link>

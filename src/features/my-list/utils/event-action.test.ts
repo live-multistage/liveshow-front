@@ -28,7 +28,7 @@ describe('eventAction', () => {
     const action = eventAction(ev({ status: 'LIVE', canWatchLive: true, capabilities: caps('LIVE_VIEW') }));
 
     expect(action.kind).toBe('watch-live');
-    expect(action.href).toBe('/live/ev-1');
+    expect(action.href).toBe('/watch/ev-1');
     expect(action.primary).toBe(true);
   });
 
@@ -51,7 +51,7 @@ describe('eventAction', () => {
     );
 
     expect(action.kind).toBe('watch-replay');
-    expect(action.href).toBe('/replay/ev-1');
+    expect(action.href).toBe('/watch/ev-1');
   });
 
   /** O caso central: ingresso só-ao-vivo não vira acesso a replay. */
@@ -61,7 +61,7 @@ describe('eventAction', () => {
     );
 
     expect(action.kind).toBe('details');
-    expect(action.href).not.toContain('/replay/');
+    expect(action.href).not.toContain('/watch/');
   });
 
   it('offers details for an upcoming event', () => {
@@ -75,7 +75,7 @@ describe('eventAction', () => {
     const action = eventAction(ev({ status: 'CANCELLED', canWatchLive: true }));
 
     expect(action.kind).toBe('cancelled');
-    expect(action.href).not.toContain('/live/');
+    expect(action.href).not.toContain('/watch/');
   });
 
   it('never offers playback for a venue-entry ticket', () => {
