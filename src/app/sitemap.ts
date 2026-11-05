@@ -6,6 +6,7 @@ import { eventHref } from '@/features/events/utils/slug';
 import { fetchFeatureFlags } from '@/features/feature-flags';
 import { getSeoNoindex } from '@/features/seo/queries/get-seo.server';
 import { filterNoindex } from '@/features/seo/utils/filter-noindex';
+import { fetchPublicPageList } from '@/features/pages-public/queries/get-public-page.server';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 
@@ -70,10 +71,11 @@ async function fetchList<T>(path: string): Promise<T[]> {
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [events, channels, artists, flags, noindex] = await Promise.all([
+  const [events, channels, artists, publicPages, flags, noindex] = await Promise.all([
     fetchAllEvents(),
     fetchList<ChannelListItem>('/channels'),
     fetchArtists(),
+    fetchPublicPageList(),
     fetchFeatureFlags(),
     getSeoNoindex(),
   ]);
@@ -118,8 +120,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const pageEntries: MetadataRoute.Sitemap = flags.page_builder
+    ? publicPages.map((page) => ({
+        url: `${SITE_URL}/p/${page.slug}`,
+        lastModified: new Date(page.updatedAt),
+        changeFrequency: 'weekly',
+        priority: 0.6,
+      }))
+    : [];
+
   return filterNoindex(
-    [...staticEntries, ...eventEntries, ...orgEntries, ...channelEntries, ...artistEntries],
+    [...staticEntries, ...eventEntries, ...orgEntries, ...channelEntries, ...artistEntries, ...pageEntries],
     noindex,
     SITE_URL,
   );

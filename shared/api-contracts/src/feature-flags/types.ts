@@ -18,6 +18,7 @@ export type FeatureFlagKey =
   | 'fiscal_emission'
   | 'mailing'
   | 'blueprints'
+  | 'page_builder'
   | 'advertiser_platform'
   | 'tracking';
 
@@ -60,6 +61,8 @@ export const DEFAULT_FEATURE_FLAGS = {
   mailing: false,
   // Ships off — new automation engine, not yet ready for org rollout.
   blueprints: false,
+  // Ships off — public custom pages (/p/<slug>) builder, not yet ready for org rollout.
+  page_builder: false,
   // Ships on — seeded ON; kill switch for the advertiser platform (/be-advertiser).
   advertiser_platform: true,
   // Ships off — first-party event tracking platform (ingest, plan, reports).
