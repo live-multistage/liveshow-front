@@ -1,0 +1,3299 @@
+[
+  {
+    "name": "all 12 section types",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "eyebrow": "Novo",
+            "title": "Eventos ao vivo",
+            "subtitle": "Sub",
+            "primaryCta": {
+              "label": "Ver",
+              "href": "/events"
+            },
+            "secondaryCta": {
+              "label": "Saiba",
+              "href": "#como-funciona"
+            },
+            "image": {
+              "url": "https://x.io/a.png",
+              "alt": "Capa"
+            }
+          }
+        },
+        {
+          "id": "00000002-1111-4111-8111-111111111111",
+          "type": "audience",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "text": "Milhares de pessoas",
+            "counters": [
+              {
+                "value": "10k",
+                "label": "Fãs"
+              }
+            ]
+          }
+        },
+        {
+          "id": "00000003-1111-4111-8111-111111111111",
+          "type": "text",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Sobre",
+            "paragraphs": [
+              [
+                {
+                  "text": "Olá "
+                },
+                {
+                  "text": "mundo",
+                  "bold": true,
+                  "href": "https://x.io"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "id": "00000004-1111-4111-8111-111111111111",
+          "type": "features",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Recursos",
+            "items": [
+              {
+                "icon": "star",
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              }
+            ]
+          }
+        },
+        {
+          "id": "00000005-1111-4111-8111-111111111111",
+          "type": "how",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Como funciona",
+            "steps": [
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              }
+            ]
+          }
+        },
+        {
+          "id": "00000006-1111-4111-8111-111111111111",
+          "type": "media",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "kind": "video",
+            "url": "https://x.io/v.mp4",
+            "alt": "Vídeo",
+            "caption": "Legenda"
+          }
+        },
+        {
+          "id": "00000007-1111-4111-8111-111111111111",
+          "type": "stats",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "items": [
+              {
+                "value": "10",
+                "label": "Eventos"
+              },
+              {
+                "value": "10",
+                "label": "Eventos"
+              }
+            ]
+          }
+        },
+        {
+          "id": "00000008-1111-4111-8111-111111111111",
+          "type": "rail",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Categoria",
+            "source": {
+              "kind": "category",
+              "id": "musica"
+            },
+            "limit": 4
+          }
+        },
+        {
+          "id": "00000009-1111-4111-8111-111111111111",
+          "type": "featured",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "eventId": "99999999-9999-4999-8999-999999999999",
+            "ctaLabel": "Comprar"
+          }
+        },
+        {
+          "id": "00000010-1111-4111-8111-111111111111",
+          "type": "pricing",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Planos",
+            "plans": [
+              {
+                "name": "Free",
+                "price": "R$ 0"
+              },
+              {
+                "name": "Free",
+                "price": "R$ 0",
+                "description": "d",
+                "cta": {
+                  "label": "Ver",
+                  "href": "/events"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "00000011-1111-4111-8111-111111111111",
+          "type": "faq",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Dúvidas",
+            "items": [
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              }
+            ]
+          }
+        },
+        {
+          "id": "00000012-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Vamos?",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "empty document",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": []
+    },
+    "valid": true
+  },
+  {
+    "name": "hidden section with mobile-only appearance",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": true,
+          "appearance": {
+            "background": "accent",
+            "spacing": "wide",
+            "showOn": "mobile"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "31 sections",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000002-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000003-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000004-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000005-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000006-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000007-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000008-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000009-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000010-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000011-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000012-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000013-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000014-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000015-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000016-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000017-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000018-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000019-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000020-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000021-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000022-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000023-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000024-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000025-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000026-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000027-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000028-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000029-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000030-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000031-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "duplicate section id",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        },
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "non-uuid section id",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "abc",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "schemaVersion 2",
+    "input": {
+      "schemaVersion": 2,
+      "context": {
+        "type": "none"
+      },
+      "sections": []
+    },
+    "valid": false
+  },
+  {
+    "name": "missing context",
+    "input": {
+      "schemaVersion": 1,
+      "sections": []
+    },
+    "valid": false
+  },
+  {
+    "name": "context event (reserved)",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "event"
+      },
+      "sections": []
+    },
+    "valid": false
+  },
+  {
+    "name": "hero title with {{",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "{{event.title}}"
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "text with single brace",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Olá {nome}"
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "href with {{ as relative path",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "/x?a={{b}}"
+            }
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "text run with {{",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "text",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "paragraphs": [
+              [
+                {
+                  "text": "a {{b}}"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "faq answer with {{",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "faq",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "items": [
+              {
+                "question": "Q",
+                "answer": "{{x}}"
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "unknown section type",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "carousel",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {}
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "extra prop (strict)",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "color": "red"
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "extra section key (strict)",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          },
+          "note": "x"
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "appearance.background blue",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "blue",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "cta": {
+              "label": "Ver",
+              "href": "/events"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "hero title 90 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "hero title 91 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "hero empty title",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": ""
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "hero subtitle 201 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "subtitle": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "hero cta label 29 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "href": "/a"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "hero image http",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "image": {
+              "url": "http://x.io/a.png",
+              "alt": "a"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "href https",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "https://x.io"
+            }
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "href relative path",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "/events"
+            }
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "href anchor",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "#programacao"
+            }
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "href protocol-relative",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "//evil.com"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "href http",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "http://x.io"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "href javascript",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "javascript:alert(1)"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "href backslash path",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "/\\evil"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "href path with TAB",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "/\t/evil"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "href https trailing newline",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "https://x.io\n"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "href https leading space",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": " https://x.io"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "href https empty host",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "https:///x"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "href https with space",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "https://x.io/a b"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "href anchor with space",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "#a b"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "rail category id with {{",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "rail",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Em breve",
+            "source": {
+              "kind": "category",
+              "id": "{{x}}"
+            },
+            "limit": 8
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "rail live with id",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "rail",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Em breve",
+            "source": {
+              "kind": "live",
+              "id": "abc"
+            },
+            "limit": 8
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "audience 4 counters",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "audience",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "text": "Oi",
+            "counters": [
+              {
+                "value": "1",
+                "label": "a"
+              },
+              {
+                "value": "1",
+                "label": "a"
+              },
+              {
+                "value": "1",
+                "label": "a"
+              },
+              {
+                "value": "1",
+                "label": "a"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "audience 5 counters",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "audience",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "text": "Oi",
+            "counters": [
+              {
+                "value": "1",
+                "label": "a"
+              },
+              {
+                "value": "1",
+                "label": "a"
+              },
+              {
+                "value": "1",
+                "label": "a"
+              },
+              {
+                "value": "1",
+                "label": "a"
+              },
+              {
+                "value": "1",
+                "label": "a"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "audience counter label 25 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "audience",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "text": "Oi",
+            "counters": [
+              {
+                "value": "1",
+                "label": "xxxxxxxxxxxxxxxxxxxxxxxxx"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "text total exactly 2000 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "text",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "paragraphs": [
+              [
+                {
+                  "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                }
+              ],
+              [
+                {
+                  "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "text total 2001 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "text",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "paragraphs": [
+              [
+                {
+                  "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                }
+              ],
+              [
+                {
+                  "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "text no paragraphs",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "text",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "paragraphs": []
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "text empty run",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "text",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "paragraphs": [
+              [
+                {
+                  "text": ""
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "text run http link",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "text",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "paragraphs": [
+              [
+                {
+                  "text": "a",
+                  "href": "http://x.io"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "features 1 item",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "features",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "items": [
+              {
+                "title": "T",
+                "text": "Texto"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "features 6 items",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "features",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "items": [
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "features 7 items",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "features",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "items": [
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "features bad icon",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "features",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "items": [
+              {
+                "icon": "Star!",
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "features item text 201 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "features",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "items": [
+              {
+                "title": "T",
+                "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "how 2 steps",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "how",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "steps": [
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "how 5 steps",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "how",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "steps": [
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "how 6 steps",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "how",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "steps": [
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              },
+              {
+                "title": "T",
+                "text": "Texto"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "media image",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "media",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "kind": "image",
+            "url": "https://x.io/a.png",
+            "alt": "Foto"
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "media without alt",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "media",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "kind": "image",
+            "url": "https://x.io/a.png"
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "media bad kind",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "media",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "kind": "audio",
+            "url": "https://x.io/a.mp3",
+            "alt": "a"
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "media caption 141 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "media",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "kind": "image",
+            "url": "https://x.io/a.png",
+            "alt": "a",
+            "caption": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "stats 1 item",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "stats",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "items": [
+              {
+                "value": "10",
+                "label": "Eventos"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "stats 4 items",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "stats",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "items": [
+              {
+                "value": "10",
+                "label": "Eventos"
+              },
+              {
+                "value": "10",
+                "label": "Eventos"
+              },
+              {
+                "value": "10",
+                "label": "Eventos"
+              },
+              {
+                "value": "10",
+                "label": "Eventos"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "stats 5 items",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "stats",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "items": [
+              {
+                "value": "10",
+                "label": "Eventos"
+              },
+              {
+                "value": "10",
+                "label": "Eventos"
+              },
+              {
+                "value": "10",
+                "label": "Eventos"
+              },
+              {
+                "value": "10",
+                "label": "Eventos"
+              },
+              {
+                "value": "10",
+                "label": "Eventos"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "stats value 13 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "stats",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "items": [
+              {
+                "value": "xxxxxxxxxxxxx",
+                "label": "a"
+              },
+              {
+                "value": "10",
+                "label": "Eventos"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "rail live without id",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "rail",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Em breve",
+            "source": {
+              "kind": "live"
+            },
+            "limit": 8
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "rail category without id",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "rail",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Em breve",
+            "source": {
+              "kind": "category"
+            },
+            "limit": 8
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "rail artist with id",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "rail",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Em breve",
+            "source": {
+              "kind": "artist",
+              "id": "abc"
+            },
+            "limit": 12
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "rail limit 5",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "rail",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Em breve",
+            "source": {
+              "kind": "live"
+            },
+            "limit": 5
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "rail title 61 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "rail",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "source": {
+              "kind": "live"
+            },
+            "limit": 8
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "rail unknown source kind",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "rail",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Em breve",
+            "source": {
+              "kind": "venue",
+              "id": "a"
+            },
+            "limit": 8
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "featured non-uuid eventId",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "featured",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "eventId": "abc"
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "pricing 1 plan",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "pricing",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "plans": [
+              {
+                "name": "Free",
+                "price": "R$ 0"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "pricing 3 plans",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "pricing",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "plans": [
+              {
+                "name": "Free",
+                "price": "R$ 0"
+              },
+              {
+                "name": "Free",
+                "price": "R$ 0"
+              },
+              {
+                "name": "Free",
+                "price": "R$ 0"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "pricing 4 plans",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "pricing",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "plans": [
+              {
+                "name": "Free",
+                "price": "R$ 0"
+              },
+              {
+                "name": "Free",
+                "price": "R$ 0"
+              },
+              {
+                "name": "Free",
+                "price": "R$ 0"
+              },
+              {
+                "name": "Free",
+                "price": "R$ 0"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "pricing plan price 25 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "pricing",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "plans": [
+              {
+                "name": "a",
+                "price": "xxxxxxxxxxxxxxxxxxxxxxxxx"
+              },
+              {
+                "name": "Free",
+                "price": "R$ 0"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "faq 2 items",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "faq",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "items": [
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "faq 12 items",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "faq",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "items": [
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "faq 13 items",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "faq",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "items": [
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "faq answer 1001 chars",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "faq",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T",
+            "items": [
+              {
+                "question": "Q",
+                "answer": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              },
+              {
+                "question": "Q?",
+                "answer": "R."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "final without cta",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "final",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "T"
+          }
+        }
+      ]
+    },
+    "valid": false
+  }
+]
