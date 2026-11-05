@@ -1,9 +1,9 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { CreatePageRequest, PageDetail, PageVersionSummary, PublishPageRequest, UpdatePageSettingsRequest } from '@live-show/api-contracts';
+import type { CreatePageRequest, DraftConflict, PageDetail, PageVersionSummary, PublishPageRequest, UpdatePageSettingsRequest } from '@live-show/api-contracts';
 import { normalizeError, type AppError } from '@/lib/http/errors';
-import { pagesService } from '../services/pages.service';
+import { isDraftConflict, pagesService } from '../services/pages.service';
 import { pageKeys } from '../queries/page.keys';
 
 // Save-draft lives in F4: it needs the raw 409 DRAFT_CONFLICT, which normalizeError would flatten.
@@ -36,10 +36,22 @@ export function useUpdatePageSettingsMutation(id: string) {
   });
 }
 
+export type PublishError = AppError & { conflict?: DraftConflict };
+
+async function publish(id: string, body: PublishPageRequest): Promise<PageVersionSummary> {
+  try {
+    return await pagesService.publish(id, body);
+  } catch (err) {
+    const appError: PublishError = normalizeError(err);
+    if (isDraftConflict(err)) appError.conflict = err.response!.data;
+    throw appError;
+  }
+}
+
 export function usePublishPageMutation(id: string) {
   const qc = useQueryClient();
-  return useMutation<PageVersionSummary, AppError, PublishPageRequest>({
-    mutationFn: (body) => run(() => pagesService.publish(id, body)),
+  return useMutation<PageVersionSummary, PublishError, PublishPageRequest>({
+    mutationFn: (body) => publish(id, body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: pageKeys.detail(id) });
       qc.invalidateQueries({ queryKey: pageKeys.versions(id) });

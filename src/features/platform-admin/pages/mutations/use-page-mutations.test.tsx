@@ -2,9 +2,11 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
+import { AxiosError, type AxiosResponse } from 'axios';
 import type { PageDetail } from '@live-show/api-contracts';
 
-vi.mock('../services/pages.service', () => ({
+vi.mock('../services/pages.service', async (importOriginal) => ({
+  isDraftConflict: (await importOriginal<typeof import('../services/pages.service')>()).isDraftConflict,
   pagesService: {
     create: vi.fn(),
     updateSettings: vi.fn(),
@@ -74,6 +76,18 @@ describe('page mutations', () => {
     expect(invalidate).toHaveBeenCalledWith({ queryKey: pageKeys.versions('p1') });
     expect(invalidate).toHaveBeenCalledWith({ queryKey: pageKeys.diff('p1') });
     expect(invalidate).toHaveBeenCalledWith({ queryKey: LISTS });
+  });
+
+  it('publish keeps the DRAFT_CONFLICT body on the error', async () => {
+    const conflict = { code: 'DRAFT_CONFLICT', currentRevision: 7, updatedBy: { id: 'u1', name: 'Ana' }, updatedAt: 'x' };
+    vi.mocked(pagesService.publish).mockRejectedValueOnce(
+      new AxiosError('conflict', '409', undefined, undefined, { status: 409, data: conflict } as AxiosResponse),
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(() => usePublishPageMutation('p1'), { wrapper });
+    const error = await result.current.mutateAsync({ changeSummary: 'x' } as never).catch((e) => e);
+    expect(error.status).toBe(409);
+    expect(error.conflict.updatedBy.name).toBe('Ana');
   });
 
   it('restore version writes the returned detail and invalidates the diff', async () => {
