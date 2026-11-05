@@ -12,21 +12,34 @@ export type AutosaveStatus =
   | { kind: 'saved'; at: Date }
   | { kind: 'invalid'; issues: AutosaveIssue[] }
   | { kind: 'error'; attempt: number; nextRetryAt: Date }
-  | { kind: 'conflict'; conflict: DraftConflict };
+  | { kind: 'conflict'; conflict: DraftConflict }
+  | { kind: 'blocked'; code: string; message: string };
 
 interface Args {
   pageId: string;
   document: PageDocument;
   baseRevision: number;
   dirty: boolean;
-  onSaved: (r: { draftRevision: number; draftUpdatedAt: string }) => void;
+  /** `document` is the one that was sent: pass it to `markSaved` so edits made during the save keep the editor dirty. */
+  onSaved: (r: { draftRevision: number; draftUpdatedAt: string; document: PageDocument }) => void;
   onConflict: () => void;
   delayMs?: number;
 }
 
 const RETRY_BASE_MS = 2000;
 const RETRY_MAX_MS = 30000;
+const RETRYABLE_STATUSES = new Set([408, 429]);
 const GENERIC_INVALID: AutosaveIssue = { path: '', message: 'Não foi possível salvar: dados inválidos.' };
+
+function isRetryable(error: unknown): boolean {
+  const status = (error as { response?: { status?: number } })?.response?.status;
+  return status === undefined || status >= 500 || RETRYABLE_STATUSES.has(status);
+}
+
+function blockedStatus(error: unknown): AutosaveStatus {
+  const data = (error as { response?: { data?: { code?: string; message?: string } } }).response?.data;
+  return { kind: 'blocked', code: data?.code ?? 'UNKNOWN', message: data?.message ?? 'Não foi possível salvar.' };
+}
 
 function backendIssues(error: unknown): AutosaveIssue[] {
   const errors = (error as { response?: { data?: { errors?: unknown } } })?.response?.data?.errors;
@@ -94,6 +107,11 @@ export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow:
         setStatus({ kind: 'invalid', issues: backendIssues(error) });
         return;
       }
+      if (!isRetryable(error)) {
+        locked.current = true;
+        setStatus(blockedStatus(error));
+        return;
+      }
       attempts.current += 1;
       const wait = Math.min(RETRY_BASE_MS * 2 ** (attempts.current - 1), RETRY_MAX_MS);
       setStatus({ kind: 'error', attempt: attempts.current, nextRetryAt: new Date(Date.now() + wait) });
@@ -105,7 +123,7 @@ export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow:
     revisionRef.current = saved.draftRevision;
     attempts.current = 0;
     try {
-      argsRef.current.onSaved(saved);
+      argsRef.current.onSaved({ ...saved, document: sent });
     } catch (callbackError) {
       // A failing callback must not look like a failed save.
       console.error(callbackError);

@@ -4,7 +4,8 @@ import { createEmptyDocument, createEmptySection, type PageDocument } from '@liv
 
 vi.mock('../services/pages.service', () => ({
   pagesService: { saveDraft: vi.fn() },
-  isDraftConflict: (e: { response?: { status?: number } }) => e?.response?.status === 409,
+  isDraftConflict: (e: { response?: { status?: number; data?: { code?: string } } }) =>
+    e?.response?.status === 409 && e.response.data?.code === 'DRAFT_CONFLICT',
 }));
 import { pagesService } from '../services/pages.service';
 import { useDraftAutosave } from './use-draft-autosave';
@@ -49,7 +50,7 @@ describe('useDraftAutosave', () => {
     expect(saveDraft).toHaveBeenCalledTimes(1);
     expect(saveDraft).toHaveBeenCalledWith('p1', { document: docWith('d'), baseRevision: 1 });
     expect(result.current.status.kind).toBe('saved');
-    expect(onSaved).toHaveBeenCalledWith(ok(2));
+    expect(onSaved).toHaveBeenCalledWith({ ...ok(2), document: docWith('d') });
   });
 
   it('does not save when not dirty', async () => {
@@ -96,6 +97,47 @@ describe('useDraftAutosave', () => {
     act(() => result.current.saveNow());
     await act(async () => { await vi.advanceTimersByTimeAsync(60000); });
     expect(saveDraft).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['409 PAGE_ARCHIVED', 409, { code: 'PAGE_ARCHIVED', message: 'Página arquivada' }],
+    ['403 FEATURE_DISABLED', 403, { code: 'FEATURE_DISABLED', message: 'Recurso desativado' }],
+    ['404', 404, { code: 'NOT_FOUND', message: 'Não encontrada' }],
+    ['413', 413, { code: 'PAYLOAD_TOO_LARGE', message: 'Grande demais' }],
+  ])('%s becomes blocked without retry', async (_name, status, data) => {
+    saveDraft.mockRejectedValue(httpError(status, data));
+    const { result, onConflict } = setup();
+    await act(async () => { await vi.advanceTimersByTimeAsync(800); });
+    expect(result.current.status).toEqual({ kind: 'blocked', code: data.code, message: data.message });
+    expect(onConflict).not.toHaveBeenCalled();
+    act(() => result.current.saveNow());
+    await act(async () => { await vi.advanceTimersByTimeAsync(60000); });
+    expect(saveDraft).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([408, 429, 503])('%i keeps retrying', async (status) => {
+    saveDraft.mockRejectedValue(httpError(status));
+    const { result } = setup();
+    await act(async () => { await vi.advanceTimersByTimeAsync(800); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+    expect(saveDraft).toHaveBeenCalledTimes(2);
+    expect(result.current.status.kind).toBe('error');
+  });
+
+  it('a network error without response keeps retrying', async () => {
+    saveDraft.mockRejectedValue(new Error('Network Error'));
+    setup();
+    await act(async () => { await vi.advanceTimersByTimeAsync(800 + 2000); });
+    expect(saveDraft).toHaveBeenCalledTimes(2);
+  });
+
+  it('still warns on beforeunload while blocked and dirty', async () => {
+    saveDraft.mockRejectedValue(httpError(403, { code: 'FEATURE_DISABLED', message: 'x' }));
+    const add = vi.spyOn(window, 'addEventListener');
+    setup();
+    await act(async () => { await vi.advanceTimersByTimeAsync(800); });
+    expect(add.mock.calls.some(([t]) => t === 'beforeunload')).toBe(true);
+    add.mockRestore();
   });
 
   it('400 becomes invalid without retry', async () => {
