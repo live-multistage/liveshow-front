@@ -70,13 +70,15 @@ describe('useDraftAutosave', () => {
   });
 
   it('chains revisions when the document changes while saving', async () => {
+    const sent = docWith('a');
+    const next = docWith('z', true);
     let release!: (v: ReturnType<typeof ok>) => void;
     saveDraft.mockImplementationOnce(() => new Promise((r) => { release = r; }));
     saveDraft.mockResolvedValueOnce(ok(3));
-    const { rerender, props, result } = setup();
+    const { rerender, props, result, onSaved } = setup({ document: sent });
     await act(async () => { await vi.advanceTimersByTimeAsync(800); });
     expect(result.current.status.kind).toBe('saving');
-    rerender({ ...props, document: docWith('z', true) });
+    rerender({ ...props, document: next });
     await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
     expect(saveDraft).toHaveBeenCalledTimes(1);
     await act(async () => { release(ok(2)); });
@@ -84,6 +86,8 @@ describe('useDraftAutosave', () => {
     expect(saveDraft).toHaveBeenCalledTimes(2);
     expect(saveDraft).toHaveBeenLastCalledWith('p1', { document: docWith('z', true), baseRevision: 2 });
     expect(result.current.status.kind).toBe('saved');
+    expect(onSaved.mock.calls[0][0].document).toBe(sent);
+    expect(onSaved.mock.calls[1][0].document).toBe(next);
   });
 
   it('locks on 409 and never saves again', async () => {
@@ -106,13 +110,15 @@ describe('useDraftAutosave', () => {
     ['413', 413, { code: 'PAYLOAD_TOO_LARGE', message: 'Grande demais' }],
   ])('%s becomes blocked without retry', async (_name, status, data) => {
     saveDraft.mockRejectedValue(httpError(status, data));
-    const { result, onConflict } = setup();
+    const { result, onConflict, rerender, props } = setup();
     await act(async () => { await vi.advanceTimersByTimeAsync(800); });
     expect(result.current.status).toEqual({ kind: 'blocked', code: data.code, message: data.message });
     expect(onConflict).not.toHaveBeenCalled();
+    rerender({ ...props, document: docWith('more') });
     act(() => result.current.saveNow());
     await act(async () => { await vi.advanceTimersByTimeAsync(60000); });
     expect(saveDraft).toHaveBeenCalledTimes(1);
+    expect(result.current.status.kind).toBe('blocked');
   });
 
   it.each([408, 429, 503])('%i keeps retrying', async (status) => {
@@ -131,13 +137,14 @@ describe('useDraftAutosave', () => {
     expect(saveDraft).toHaveBeenCalledTimes(2);
   });
 
-  it('still warns on beforeunload while blocked and dirty', async () => {
+  it('still warns on a real beforeunload while blocked and dirty', async () => {
     saveDraft.mockRejectedValue(httpError(403, { code: 'FEATURE_DISABLED', message: 'x' }));
-    const add = vi.spyOn(window, 'addEventListener');
-    setup();
+    const { result } = setup();
     await act(async () => { await vi.advanceTimersByTimeAsync(800); });
-    expect(add.mock.calls.some(([t]) => t === 'beforeunload')).toBe(true);
-    add.mockRestore();
+    expect(result.current.status.kind).toBe('blocked');
+    const event = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
   });
 
   it('400 becomes invalid without retry', async () => {

@@ -90,6 +90,20 @@ describe('page mutations', () => {
     expect(error.conflict.updatedBy.name).toBe('Ana');
   });
 
+  it.each([
+    ['409 with another code', 409, { code: 'NOTHING_TO_PUBLISH' }],
+    ['500', 500, {}],
+  ])('publish %s has no conflict on the error', async (_name, status, data) => {
+    vi.mocked(pagesService.publish).mockRejectedValueOnce(
+      new AxiosError('x', String(status), undefined, undefined, { status, data } as AxiosResponse),
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(() => usePublishPageMutation('p1'), { wrapper });
+    const error = await result.current.mutateAsync({ changeSummary: 'x' } as never).catch((e) => e);
+    expect(error.status).toBe(status);
+    expect(error.conflict).toBeUndefined();
+  });
+
   it('restore version writes the returned detail and invalidates the diff', async () => {
     vi.mocked(pagesService.restoreVersion).mockResolvedValueOnce(detail);
     const { invalidate, setData, wrapper } = setup();
