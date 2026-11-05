@@ -91,7 +91,7 @@ describe('usePublishDiffQuery', () => {
   });
 
   it('is always stale (staleTime 0) so the diff is recomputed on each open', async () => {
-    vi.mocked(pagesService.publishDiff).mockResolvedValueOnce({ added: 0, removed: 0, edited: 0, hidden: 0 });
+    vi.mocked(pagesService.publishDiff).mockResolvedValueOnce({ added: 0, removed: 0, edited: 0, hidden: 0, hasChanges: false, nextVersionNumber: 1 });
     const { qc, wrapper } = setup();
     const { result } = renderHook(() => usePublishDiffQuery('p1', { enabled: true }), { wrapper });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));

@@ -314,10 +314,20 @@ describe('markSaved', () => {
   it('clears dirty and keeps the document', () => {
     const dirty = reduce(stateWith(sectionOf('hero', 'a')), { type: 'toggleHidden', id: 'a' });
 
-    const next = reduce(dirty, { type: 'markSaved' });
+    const next = reduce(dirty, { type: 'markSaved', document: dirty.document });
 
     expect(next.dirty).toBe(false);
     expect(next.document).toBe(dirty.document);
+  });
+
+  it('stays dirty when the document changed during the save', () => {
+    const sent = reduce(stateWith(sectionOf('hero', 'a')), { type: 'toggleHidden', id: 'a' });
+    const edited = reduce(sent, { type: 'toggleHidden', id: 'a' });
+
+    const next = reduce(edited, { type: 'markSaved', document: sent.document });
+
+    expect(next.dirty).toBe(true);
+    expect(next.document).toBe(edited.document);
   });
 });
 
@@ -360,7 +370,7 @@ describe('locked', () => {
     const state: PageEditorState = { ...stateWith(sectionOf('hero', 'a')), locked: true };
 
     expect(reduce(state, { type: 'select', id: 'a' }).selectedId).toBe('a');
-    expect(reduce(state, { type: 'markSaved' }).dirty).toBe(false);
+    expect(reduce(state, { type: 'markSaved', document: state.document }).dirty).toBe(false);
     expect(reduce(stateWith(sectionOf('hero', 'a')), { type: 'lock' }).locked).toBe(true);
   });
 });
@@ -379,7 +389,7 @@ describe('immutability', () => {
       { type: 'updateProps', id: 'r', props: { source: { kind: 'live' } } },
       { type: 'updateAppearance', id: 'a', appearance: { spacing: 'wide' } },
       { type: 'select', id: 'b' },
-      { type: 'markSaved' },
+      { type: 'markSaved', document: base.document },
       { type: 'lock' },
     ];
     const snapshot = JSON.stringify(frozen);

@@ -28,7 +28,7 @@ export type PageEditorAction =
   | { type: 'updateProps'; id: string; props: Record<string, unknown> }
   | { type: 'updateAppearance'; id: string; appearance: Partial<PageSectionAppearance> }
   | { type: 'select'; id: string | null }
-  | { type: 'markSaved' }
+  | { type: 'markSaved'; document: PageDocument }
   | { type: 'lock' };
 
 export type SectionIssue = { path: string; message: string };
@@ -81,7 +81,8 @@ export function pageEditorReducer(state: PageEditorState, action: PageEditorActi
     case 'select':
       return { ...state, selectedId: action.id };
     case 'markSaved':
-      return { ...state, dirty: false };
+      // Only the document that was actually sent counts as saved; newer edits stay dirty.
+      return { ...state, dirty: state.document === action.document ? false : state.dirty };
     case 'lock':
       return { ...state, locked: true };
   }
