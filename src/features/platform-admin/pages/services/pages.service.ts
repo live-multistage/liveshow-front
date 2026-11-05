@@ -6,9 +6,10 @@ import type {
   PageDetail,
   PageStatus,
   PageSummary,
+  PageVersionDocument,
   PageVersionSummary,
   PublicPage,
-  PublishDiff,
+  PublishDiffResponse,
   PublishPageRequest,
   SaveDraftRequest,
   UpdatePageSettingsRequest,
@@ -30,9 +31,11 @@ export const pagesService = {
     (await httpClient.patch<PageDetail>(`/platform/pages/${id}`, body)).data,
   publish: async (id: string, body: PublishPageRequest) =>
     (await httpClient.post<PageVersionSummary>(`/platform/pages/${id}/versions`, body)).data,
-  publishDiff: async (id: string) => (await httpClient.get<PublishDiff>(`/platform/pages/${id}/publish-diff`)).data,
+  publishDiff: async (id: string) => (await httpClient.get<PublishDiffResponse>(`/platform/pages/${id}/publish-diff`)).data,
   listVersions: async (id: string) =>
     (await httpClient.get<PageVersionSummary[]>(`/platform/pages/${id}/versions`)).data,
+  getVersion: async (id: string, versionNumber: number) =>
+    (await httpClient.get<PageVersionDocument>(`/platform/pages/${id}/versions/${versionNumber}`)).data,
   restoreVersion: async (id: string, versionNumber: number) =>
     (await httpClient.post<PageDetail>(`/platform/pages/${id}/versions/${versionNumber}/restore`)).data,
   unpublish: async (id: string) => (await httpClient.post<PageDetail>(`/platform/pages/${id}/unpublish`)).data,

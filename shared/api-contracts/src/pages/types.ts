@@ -233,6 +233,16 @@ export interface PublishDiff {
   hidden: number;
 }
 
+export interface PublishDiffResponse extends PublishDiff {
+  hasChanges: boolean;
+  nextVersionNumber: number;
+}
+
+export interface PageVersionDocument {
+  number: number;
+  document: PageDocument;
+}
+
 export interface DraftConflict {
   code: 'DRAFT_CONFLICT';
   currentRevision: number;

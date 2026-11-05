@@ -7,6 +7,8 @@ import {
   PAGE_SECTION_TYPES,
   pageSlugError,
   slugifyPageTitle,
+  type PageVersionDocument,
+  type PublishDiffResponse,
 } from './types';
 
 describe('slugifyPageTitle', () => {
@@ -69,5 +71,25 @@ describe('C1 edge cases', () => {
     expect(pageSlugError('a'.repeat(60))).toBeNull();
     expect(pageSlugError('p')).toBe('reserved');
     expect(pageSlugError('_next')).toBe('reserved');
+  });
+});
+
+describe('publish diff and version document types', () => {
+  it('accepts a publish diff response and a version document literal', () => {
+    const diff: PublishDiffResponse = {
+      added: 1,
+      removed: 0,
+      edited: 2,
+      hidden: 0,
+      hasChanges: true,
+      nextVersionNumber: 4,
+    };
+    const version: PageVersionDocument = {
+      number: 3,
+      document: { schemaVersion: 1, context: { type: 'none' }, sections: [] },
+    };
+
+    expect(diff.nextVersionNumber).toBe(4);
+    expect(version.document.sections).toHaveLength(0);
   });
 });

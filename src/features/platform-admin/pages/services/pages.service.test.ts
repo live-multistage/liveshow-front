@@ -54,6 +54,14 @@ describe('pagesService', () => {
     expect(httpClient.post).toHaveBeenCalledWith('/platform/pages/page-1/versions/3/restore');
   });
 
+  it('getVersion reads the version document route', async () => {
+    httpClient.get.mockResolvedValue(ok({}));
+
+    await pagesService.getVersion('page-1', 3);
+
+    expect(httpClient.get).toHaveBeenCalledWith('/platform/pages/page-1/versions/3');
+  });
+
   it('unpublish, archive and unarchive post to their lifecycle routes', async () => {
     httpClient.post.mockResolvedValue(ok({}));
 
