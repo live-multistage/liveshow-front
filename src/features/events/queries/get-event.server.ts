@@ -54,5 +54,5 @@ export const fetchTicketProducts = cache(async (eventId: string): Promise<Ticket
   return res.json() as Promise<TicketProductsResponse>;
 });
 
-// Backward-compat alias used by watch/replay/live pages.
+// Backward-compat alias used by the watch page.
 export const getEventCached = fetchEvent;

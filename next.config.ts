@@ -50,6 +50,15 @@ const nextConfig: NextConfig = {
   // their browser calls /api/* here and the dev server forwards to the local
   // backend — sidesteps both "localhost is the phone" and mixed-content
   // blocking. Desktop on localhost bypasses this entirely (see src/config).
+  // One player URL per event (/watch/:id picks live or replay). The old ones
+  // stay alive in e-mails, QR codes and notification links; Next keeps the
+  // query string (?stream=, ?t=) and runs these before the middleware.
+  async redirects() {
+    return [
+      { source: '/live/:id', destination: '/watch/:id', permanent: true },
+      { source: '/replay/:id', destination: '/watch/:id', permanent: true },
+    ];
+  },
   async rewrites() {
     const target = (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api').replace(/\/$/, '');
     return [{ source: '/api/:path*', destination: `${target}/:path*` }];
