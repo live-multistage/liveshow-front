@@ -56,8 +56,8 @@ vi.mock('@/features/advertisements/components/PreRollPlayer', () => ({
 }));
 
 vi.mock('./ReplayPlayer', () => ({
-  ReplayPlayer: ({ chapters }: { chapters?: unknown[] }) => (
-    <div data-testid="replay-player" data-chapter-count={chapters?.length ?? 'none'}>
+  ReplayPlayer: ({ chapters, startAtSeconds }: { chapters?: unknown[]; startAtSeconds?: number | null }) => (
+    <div data-testid="replay-player" data-chapter-count={chapters?.length ?? 'none'} data-start={startAtSeconds ?? 'none'}>
       replay-player-stub
     </div>
   ),
@@ -148,5 +148,10 @@ describe('ReplayGate — chapters', () => {
     // Still loading or failed: no data.
     render(<ReplayGate eventId="evt-1" eventTitle="Show" />);
     expect(screen.getByTestId('replay-player')).toHaveAttribute('data-chapter-count', 'none');
+  });
+
+  it('hands the ?t= start to the player', () => {
+    render(<ReplayGate eventId="evt-1" eventTitle="Show" startAtSeconds={90} />);
+    expect(screen.getByTestId('replay-player')).toHaveAttribute('data-start', '90');
   });
 });
