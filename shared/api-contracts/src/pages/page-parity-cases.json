@@ -3295,5 +3295,153 @@
       ]
     },
     "valid": false
+  },
+  {
+    "name": "rail live with id {{x}}",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "rail",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Em breve",
+            "source": {
+              "kind": "live",
+              "id": "{{x}}"
+            },
+            "limit": 8
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "rail live with 65-char id",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "rail",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Em breve",
+            "source": {
+              "kind": "live",
+              "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            },
+            "limit": 8
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "rail live with valid id",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "rail",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Em breve",
+            "source": {
+              "kind": "live",
+              "id": "abc"
+            },
+            "limit": 8
+          }
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "href https with username",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "https://user@evil.com"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "href https with user and password",
+    "input": {
+      "schemaVersion": 1,
+      "context": {
+        "type": "none"
+      },
+      "sections": [
+        {
+          "id": "00000001-1111-4111-8111-111111111111",
+          "type": "hero",
+          "hidden": false,
+          "appearance": {
+            "background": "default",
+            "spacing": "normal",
+            "showOn": "all"
+          },
+          "props": {
+            "title": "Oi",
+            "primaryCta": {
+              "label": "Ir",
+              "href": "https://a:b@evil.com"
+            }
+          }
+        }
+      ]
+    },
+    "valid": false
   }
 ]

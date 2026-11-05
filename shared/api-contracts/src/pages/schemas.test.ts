@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import parityCases from './page-parity-cases.json';
-import { PAGE_SECTION_TYPES } from './types';
+import { z } from 'zod';
+import { PAGE_SECTION_TYPES, type PageSectionPropsByType, type PageSectionType } from './types';
 import {
   createEmptyDocument,
   createEmptySection,
@@ -9,6 +10,7 @@ import {
   pageDocumentSchema,
   pageDraftSchema,
   pageSectionIssues,
+  sectionPropsSchemas,
   publishPageSchema,
   saveDraftSchema,
   updatePageSettingsSchema,
@@ -157,3 +159,11 @@ describe('upgradePageDocument', () => {
     expect(() => upgradePageDocument(null)).toThrow('Unsupported page schemaVersion');
   });
 });
+
+// Compile-time only: the inferred schemas must equal the hand-written prop types (checked under `strict`).
+type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
+type Expect<T extends true> = T;
+type Inferred = { [K in PageSectionType]: z.infer<(typeof sectionPropsSchemas)[K]> };
+// Without strictNullChecks (react consumes the contract with strict:false) optionality collapses, so the check is skipped there.
+type StrictNulls = undefined extends string ? false : true;
+export type PropsMatchTypes = Expect<StrictNulls extends true ? Equal<Inferred, PageSectionPropsByType> : true>;

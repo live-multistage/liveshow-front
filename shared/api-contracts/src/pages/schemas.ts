@@ -11,7 +11,6 @@ import {
   PAGE_SECTION_TYPES,
   pageSlugError,
   type PageDocument,
-  type PageRailSource,
   type PageSection,
   type PageSectionPropsByType,
   type PageSectionType,
@@ -34,7 +33,8 @@ export function isPageHttpsUrl(value: string): boolean {
   if (value.length === 0 || value.length > L.urlMax) return false;
   if (UNSAFE_CHARS.test(value) || !HTTPS_PREFIX.test(value)) return false;
   try {
-    return new URL(value).protocol === 'https:';
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.username === '' && url.password === '';
   } catch {
     return false;
   }
@@ -91,19 +91,17 @@ export const pageImageSchema = z.object({ url: pageHttpsUrlSchema, alt: str(L.al
 
 const object = <T extends z.ZodRawShape>(shape: T) => z.object(shape).strict();
 
-// live ignores `id` (accepted, not validated); any other kind requires it.
+// `id` is always validated as text when present; only non-live kinds require it (live ignores it).
 const railSourceSchema = object({
   kind: z.enum(PAGE_RAIL_SOURCES),
-  id: z.unknown().optional(),
+  id: pageText(64).optional(),
 }).superRefine((source, ctx) => {
-  if (source.kind === 'live') return;
-  const result = pageText(64).safeParse(source.id);
-  if (result.success) return;
-  const message = source.id === undefined ? REQUIRED : result.error.issues[0].message;
-  ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['id'], message });
-}) as unknown as z.ZodType<PageRailSource>;
+  if (source.kind !== 'live' && source.id === undefined) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['id'], message: REQUIRED });
+  }
+});
 
-export const sectionPropsSchemas: { [K in PageSectionType]: z.ZodType<PageSectionPropsByType[K]> } = {
+export const sectionPropsSchemas = {
   hero: object({
     eyebrow: optStr(L.eyebrowMax),
     title: str(L.headingMax),
