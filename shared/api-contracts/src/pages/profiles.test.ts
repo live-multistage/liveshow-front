@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import profileCases from './page-profile-cases.json';
-import { PAGE_EDITOR_PROFILES, profileNameOf, validatePageAgainstProfile, type PageEditorProfileName } from './profiles';
+import { PAGE_EDITOR_PROFILES, profileNameOf, validatePageAgainstProfile, validatePageAgainstProfileConfig, type PageEditorProfileName } from './profiles';
 import type { PageDocumentV2 } from './document-v2';
 
 const U = (n: number) => `${String(n).padStart(8, '0')}-4444-4444-8444-444444444444`;
@@ -44,18 +44,12 @@ describe('validatePageAgainstProfile', () => {
   });
 
   it('refuses element types outside the profile', () => {
-    const original = PAGE_EDITOR_PROFILES.organization.elementTypes;
-    const mutable = PAGE_EDITOR_PROFILES.organization as { elementTypes: readonly string[] };
-    mutable.elementTypes = original.filter((t) => t !== 'video');
-    try {
-      const d = doc(section(1, [el(2, 'video', { url: 'https://youtu.be/x' })]));
-      expect(run(d, 'organization', OWN)).toEqual([
-        { path: 'content[0].props.items[0].type', segments: ['content', 0, 'props', 'items', 0, 'type'], elementId: U(2), message: '"video" não é permitido neste tipo de página.' },
-      ]);
-      expect(run(d, 'platform')).toEqual([]);
-    } finally {
-      mutable.elementTypes = original;
-    }
+    const noVideo = { ...PAGE_EDITOR_PROFILES.organization, elementTypes: PAGE_EDITOR_PROFILES.organization.elementTypes.filter((t) => t !== 'video') };
+    const d = doc(section(1, [el(2, 'video', { url: 'https://youtu.be/x' })]));
+    expect(validatePageAgainstProfileConfig(d, noVideo, OWN)).toEqual([
+      { path: 'content[0].props.items[0].type', segments: ['content', 0, 'props', 'items', 0, 'type'], elementId: U(2), message: '"video" não é permitido neste tipo de página.' },
+    ]);
+    expect(run(d, 'platform')).toEqual([]);
   });
 
   it('enforces maxDepth per profile', () => {

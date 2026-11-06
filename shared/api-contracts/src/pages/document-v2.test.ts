@@ -52,7 +52,7 @@ describe('element table', () => {
 
 describe('limits and token enums', () => {
   it('uses the SDD limits', () => {
-    expect(PAGE_V2_LIMITS).toMatchObject({ maxElements: 400, maxSections: 40, maxDepth: 6, maxBytes: 512 * 1024 });
+    expect(PAGE_V2_LIMITS).toMatchObject({ maxElements: 900, maxSections: 40, maxDepth: 6, maxBytes: 512 * 1024 });
   });
 
   it('exposes the token keys the document may reference', () => {

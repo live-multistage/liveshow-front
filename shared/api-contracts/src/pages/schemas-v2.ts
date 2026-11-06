@@ -79,12 +79,21 @@ const emphasisRuns = (text: string, href?: string): PageInlineRun[] => {
   return runs;
 };
 
+// `\` escapes `\ * [ ] ( )`: escaped characters are swapped for private-use placeholders (U+E000..) while parsing, then restored.
+// A literal U+E000..U+E005 in the input would be restored as an escapable character; harmless, and never produced by the editor.
+const ESCAPABLE = '\\*[]()';
+const ESCAPE_RE = /\\([\\*[\]()])/g;
+const hideEscapes = (text: string) => text.replace(ESCAPE_RE, (_, c: string) => String.fromCharCode(0xe000 + ESCAPABLE.indexOf(c)));
+const showEscapes = (text: string) => text.replace(/[\ue000-\ue005]/g, (c) => ESCAPABLE[c.charCodeAt(0) - 0xe000]!);
+
 /**
  * Single grammar of `text` elements: `**bold**`, `*italic*`, `***both***` and `[label](href)` (emphasis allowed in the label).
- * No nesting beyond that, no reference links, no titles, no HTML: everything else is literal text. Renderers and the
- * back mirror use this parser; never interpret the markup anywhere else.
+ * A backslash escapes `\ * [ ] ( )` (the escaped character becomes literal). No nesting beyond that, no reference links,
+ * no titles, no HTML: everything else is literal text. Renderers and the back mirror use this parser; never interpret
+ * the markup anywhere else.
  */
-export function parsePageInlineText(text: string): PageInlineRun[] {
+export function parsePageInlineText(source: string): PageInlineRun[] {
+  const text = hideEscapes(source);
   const runs: PageInlineRun[] = [];
   let last = 0;
   for (const m of text.matchAll(INLINE_LINK)) {
@@ -95,13 +104,19 @@ export function parsePageInlineText(text: string): PageInlineRun[] {
     last = m.index + m[0].length;
   }
   runs.push(...emphasisRuns(text.slice(last)));
-  return runs;
+  return runs.map((r) => ({ ...r, text: showEscapes(r.text), ...(r.href !== undefined ? { href: showEscapes(r.href) } : {}) }));
 }
+
+/** Visible characters of a `text` element: markup and escapes removed, paragraph breaks (`\n\n`) not counted. */
+export const pageInlineVisibleLength = (source: string): number =>
+  parsePageInlineText(source).reduce((n, r) => n + r.text.replaceAll('\n\n', '').length, 0);
 
 /** Link rule: every link of the text must carry a valid page href. */
 export const isPageInlineTextValid = (text: string): boolean =>
   parsePageInlineText(text).every((r) => r.href === undefined || isPageHref(r.href));
 const INLINE_MESSAGE = 'Link inválido. Use https://, /caminho ou #âncora.';
+const TEXT_MESSAGE = `Máximo de ${L.textMax} caracteres.`;
+const withinTextMax = (v: string) => v.length <= L.textRawMax && pageInlineVisibleLength(v) <= L.textMax;
 
 // ---- style ----
 const enumOf = <T extends readonly [string, ...string[]]>(values: T) => z.enum(values);
@@ -151,7 +166,7 @@ export const elementPropsSchemas = {
   column: extra('column', {}),
   group: extra('group', {}),
   heading: extra('heading', { text: pageText(L.headingMax), tag: enumOf(HEADING_TAGS) }),
-  text: extra('text', { text: pageText(L.textMax).refine(isPageInlineTextValid, INLINE_MESSAGE) }),
+  text: extra('text', { text: pageText(L.textRawMax).refine(withinTextMax, TEXT_MESSAGE).refine(isPageInlineTextValid, INLINE_MESSAGE) }),
   label: extra('label', { text: pageText(L.labelMax) }),
   button: extra('button', { label: pageText(L.buttonLabelMax), href: pageHrefSchema, newTab: z.boolean().optional() }),
   image: extra('image', { url: pageHttpsUrlSchema, alt: pageText(L.altMax) }),
@@ -184,7 +199,7 @@ const draftCta = object({ label: draftText(L1.ctaLabelMax), href: draftHref }).o
 const DRAFT_CONTENT_SHAPES: Record<ElementType, z.ZodRawShape> = {
   section: {}, columns: {}, column: {}, group: {}, divider: {}, spacer: {},
   heading: { text: draftText(L.headingMax), tag: enumOf(HEADING_TAGS).optional() },
-  text: { text: z.string().max(L.textMax, `Máximo de ${L.textMax} caracteres.`).refine((v) => v === '' || isPageInlineTextValid(v), INLINE_MESSAGE).optional() },
+  text: { text: z.string().refine(withinTextMax, TEXT_MESSAGE).refine((v) => v === '' || isPageInlineTextValid(v), INLINE_MESSAGE).optional() },
   label: { text: draftText(L.labelMax) },
   button: { label: draftText(L.buttonLabelMax), href: draftHref, newTab: z.boolean().optional() },
   image: { url: draftUrl, alt: draftText(L.altMax) },
@@ -310,12 +325,26 @@ export const pageDocumentV2Schema = treeDocument(false);
 export const pageDraftV2Schema = treeDocument(true);
 
 // ---- request vs response ----
-// REQUEST: PUT /draft takes a v1 or v2 draft; each is checked by its own schema (v1 editor saves keep working while the flag is off).
+// REQUEST: PUT /draft takes a v1 or v2 draft. Dispatch by schemaVersion so field errors keep their own path (not an `invalid_union` on `document`).
+export interface SaveDraftRequest {
+  document: z.infer<typeof pageDraftSchema> | PageDocumentV2;
+  baseRevision: number;
+}
 export const saveDraftSchema = object({
-  document: z.union([pageDraftSchema, pageDraftV2Schema]),
+  document: z.unknown(),
   baseRevision: z.number().int().min(0),
+}).transform((value, ctx) => {
+  const version = (value.document as { schemaVersion?: unknown } | null)?.schemaVersion;
+  const schema = version === 1 ? pageDraftSchema : version === 2 ? pageDraftV2Schema : null;
+  if (!schema) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['document', 'schemaVersion'], message: 'Versão do documento inválida. Use 1 ou 2.' });
+    return z.NEVER;
+  }
+  const result = schema.safeParse(value.document);
+  if (result.success) return { ...value, document: result.data } as SaveDraftRequest;
+  result.error.issues.forEach((issue) => ctx.addIssue({ ...issue, path: ['document', ...issue.path] }));
+  return z.NEVER;
 });
-export type SaveDraftRequest = z.infer<typeof saveDraftSchema>;
 
 // RESPONSE: the API converts v1 to v2 before answering, but readers stay tolerant of both versions.
 export const pageDraftReadSchema = z.union([pageDraftV2Schema, pageDraftSchema]);

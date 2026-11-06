@@ -10,7 +10,7 @@ import type { PageDocument, PageSection, PageTextRun } from './types';
  * |-----------|--------------------------------------------------------------------------------------------|
  * | hero      | columns 3-2 (mobile: 1) [column: label, heading h1, text, group(buttons)] [column: image]   |
  * | audience  | columns 1-1 [column: text] [column: group(counter...)]                                     |
- * | text      | heading + one `text` per paragraph (runs -> **bold** *italic* [label](href))                |
+ * | text      | heading + one `text` with all paragraphs split by a blank line (runs -> **bold** *italic* [label](href))                |
  * | features  | heading + 3-col grid of card columns [label(icon), heading h3, text]                        |
  * | how       | label(eyebrow) + heading + 3-col grid of cards [label(01), heading h3, text]                |
  * | media     | image | video (+ text caption); video outside VIDEO_ALLOWED_HOSTS becomes a text link       |
@@ -21,7 +21,12 @@ import type { PageDocument, PageSection, PageTextRun } from './types';
  * | faq       | heading + faq                                                                               |
  * | final     | heading + text + group(button), all centered                                                |
  *
- * Grids fill the last row with empty columns so card widths match v1's 3-column grid.
+ * Grids are rows of up to 3 cards. The last row has only as many columns as cards (cols = n, ratio all 1s), so with 1 or 2
+ * cards in it they grow wider than v1's fixed third (accepted deviation: no empty padding columns, which blew the element budget).
+ * showOn: v1 cuts at 768px, v2 has tablet <=1023 and mobile <=639: desktop -> hidden on mobile only; mobile -> hidden on
+ * desktop+tablet. Residual deviation: 640-767px (v2 "tablet") shows desktop-only sections and hides mobile-only ones.
+ * Other accepted deviations, to be compared visually in Q1: hero and audience are 2 columns (SDD §3) instead of stacked;
+ * the hero image gets a max-height; the stats card keeps no radial-gradient.
  * Section: hidden/showOn -> `hidden`; spacing compact/normal/wide -> pt/pb xxxl/l1/l2;
  * background default/accent -> color bg/accent; image -> gradient glow (v1 "image" never had a URL, only a glow).
  * Child ids are derived from the section id, so converting twice yields the same document.
@@ -48,12 +53,15 @@ const el = (type: ElementType, id: string, props: Record<string, unknown> = {}):
 const style = (desktop: Style, mobile?: Style) => ({ style: { desktop, ...(mobile ? { mobile } : {}) } });
 const color = (token: string) => ({ kind: 'color', token });
 
+/** Backslash-escapes what parsePageInlineText treats as markup, so literal text round-trips. */
+const escapeInline = (s: string) => s.replace(/[\\*[\]()]/g, '\\$&');
+
 function inlineMarkup(runs: PageTextRun[]): string {
   return runs
     .map((r) => {
       const mark = r.bold && r.italic ? '***' : r.bold ? '**' : r.italic ? '*' : '';
-      const text = `${mark}${r.text}${mark}`;
-      return r.href && isPageHref(r.href) ? `[${text}](${r.href})` : text;
+      const text = `${mark}${escapeInline(r.text)}${mark}`;
+      return r.href && isPageHref(r.href) ? `[${text}](${escapeInline(r.href)})` : text;
     })
     .join('');
 }
@@ -77,8 +85,9 @@ function sectionBody(section: PageSection, isFirstHero: boolean): PageElement[] 
     const rows: PageElement[] = [];
     for (let r = 0; r * GRID_COLS < columns.length; r++) {
       const cells = columns.slice(r * GRID_COLS, (r + 1) * GRID_COLS);
-      while (cells.length < GRID_COLS) cells.push(el('column', id(`${key}${r}:pad${cells.length}`)));
-      rows.push(el('columns', id(`${key}${r}`), { items: cells, ...style({ cols: GRID_COLS, ratio: '1-1-1', gap: 'lg' }, { cols: 1 }) }));
+      const n = cells.length;
+      const desktop = n === 1 ? { cols: 1 } : { cols: n, ratio: n === 2 ? '1-1' : '1-1-1' };
+      rows.push(el('columns', id(`${key}${r}`), { items: cells, ...style({ ...desktop, gap: 'lg' }, { cols: 1 }) }));
     }
     return rows;
   };
@@ -137,7 +146,8 @@ function sectionBody(section: PageSection, isFirstHero: boolean): PageElement[] 
       const p = section.props;
       return [
         ...(p.title ? [heading('h', p.title)] : []),
-        ...p.paragraphs.map((runs, i) => lead(`p${i}`, inlineMarkup(runs))),
+        // All paragraphs in ONE element (blank-line separated) so v1's 2000-char cap cannot fan out into hundreds of elements.
+        lead('p', p.paragraphs.map(inlineMarkup).join('\n\n')),
       ];
     }
     case 'features': {
@@ -164,7 +174,7 @@ function sectionBody(section: PageSection, isFirstHero: boolean): PageElement[] 
           : isPageVideoUrl(p.url)
             ? el('video', id('m'), { url: p.url, ...style({ radius: 'lg' }) })
             : // v2 only embeds allow-listed video hosts; keep the content reachable as a link.
-              lead('m', `[${p.alt}](${p.url})`);
+              lead('m', `[${escapeInline(p.alt)}](${escapeInline(p.url)})`);
       return caption ? [embed, caption] : [embed];
     }
     case 'stats': {
@@ -208,7 +218,7 @@ function upgradeSection(section: PageSection, isFirstHero: boolean): PageElement
   const { background, spacing, showOn } = section.appearance;
   const hiddenOn: Breakpoint[] = section.hidden
     ? ALL_BREAKPOINTS
-    : showOn === 'desktop' ? ['tablet', 'mobile'] : showOn === 'mobile' ? ['desktop', 'tablet'] : [];
+    : showOn === 'desktop' ? ['mobile'] : showOn === 'mobile' ? ['desktop', 'tablet'] : [];
   const bg = background === 'image' ? { kind: 'gradient', token: 'glow' } : color(background === 'accent' ? 'accent' : 'bg');
   return el('section', section.id, {
     items: sectionBody(section, isFirstHero),

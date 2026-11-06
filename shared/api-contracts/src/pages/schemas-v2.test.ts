@@ -115,6 +115,20 @@ describe('request vs response schemas', () => {
     expect(saveDraftSchema.safeParse({ document: { schemaVersion: 3, content: [] }, baseRevision: 0 }).success).toBe(false);
   });
 
+  it('reports field paths per schemaVersion instead of a union error', () => {
+    const paths = (document: unknown) => {
+      const r = saveDraftSchema.safeParse({ document, baseRevision: 0 });
+      return r.success ? [] : r.error.issues.map((i) => i.path.join('.'));
+    };
+    expect(paths({ ...doc(), context: {} })).toEqual(['document.context.type']);
+    expect(paths(doc(el(1, 'nope')))).toEqual(['document.content.0']);
+    expect(paths({ ...createEmptyDocument(), context: { type: 'x' } })).toEqual(['document.context.type']);
+    expect(paths({ schemaVersion: 3, content: [] })).toEqual(['document.schemaVersion']);
+    expect(paths({ content: [] })).toEqual(['document.schemaVersion']);
+    expect(paths(null)).toEqual(['document.schemaVersion']);
+    expect(saveDraftSchema.safeParse({ document: doc(), baseRevision: 'x' }).success).toBe(false);
+  });
+
   it('read schemas accept v1 or v2', () => {
     expect(pageDraftReadSchema.safeParse(doc()).success).toBe(true);
     expect(pageDraftReadSchema.safeParse(createEmptyDocument()).success).toBe(true);
@@ -208,5 +222,23 @@ describe('pageVideoEmbed', () => {
   it('isPageVideoUrl refuses explicit ports', () => {
     expect(isPageVideoUrl('https://youtu.be:8443/abc')).toBe(false);
     expect(isPageVideoUrl('https://youtu.be:443/abc')).toBe(true); // default port is normalised away by URL
+  });
+});
+
+describe('text element limit counts visible text', () => {
+  const textDoc = (text: string) => doc({ ...el(1, 'section'), props: { id: U(1), items: [el(2, 'text', { text })] } });
+  const ok = (text: string) => pageDocumentV2Schema.safeParse(textDoc(text)).success;
+  it('ignores markup, escapes and paragraph breaks', () => {
+    expect(ok('x'.repeat(2000))).toBe(true);
+    expect(ok('x'.repeat(2001))).toBe(false);
+    expect(ok('\\*'.repeat(2000))).toBe(true); // 4000 raw chars, 2000 visible
+    expect(ok('**' + 'x'.repeat(2000) + '**')).toBe(true);
+    expect(ok(Array.from({ length: 2000 }, () => 'x').join('\n\n'))).toBe(true); // paragraphs
+    expect(ok(Array.from({ length: 2001 }, () => 'x').join('\n\n'))).toBe(false);
+  });
+  it('keeps a generous cap on the raw string', () => {
+    expect(ok('\n\n'.repeat(6001) + 'x')).toBe(false);
+    expect(pageDraftV2Schema.safeParse(textDoc('x'.repeat(2001))).success).toBe(false);
+    expect(pageDraftV2Schema.safeParse(textDoc('\\*'.repeat(2000))).success).toBe(true);
   });
 });

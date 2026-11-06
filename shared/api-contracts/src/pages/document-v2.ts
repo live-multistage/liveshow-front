@@ -31,8 +31,8 @@ export const ELEMENT_SLOT_RULES: Record<ElementType, readonly ElementType[] | nu
 export type SlotElementType = 'section' | 'columns' | 'column' | 'group';
 
 export const PAGE_V2_LIMITS = {
-  maxElements: 400, maxSections: 40, maxDepth: 6, maxBytes: 512 * 1024, maxColumns: 4,
-  nameMax: 40, anchorMax: 40, headingMax: 90, textMax: 2000, labelMax: 40, buttonLabelMax: 28, altMax: 140,
+  maxElements: 900, maxSections: 40, maxDepth: 6, maxBytes: 512 * 1024, maxColumns: 4,
+  nameMax: 40, anchorMax: 40, headingMax: 90, textMax: 2000, textRawMax: 12000, labelMax: 40, buttonLabelMax: 28, altMax: 140,
   iconListMax: 12, iconListItemMax: 120, counterValueMax: 12, counterLabelMax: 40,
   faqMax: 20, faqQuestionMax: 160, faqAnswerMax: 1000, planNameMax: 40, planPriceMax: 24, planDescriptionMax: 200,
   emptyTextMax: 80,
@@ -149,7 +149,11 @@ export interface ElementContentPropsByType {
   column: object;
   group: object;
   heading: { text: string; tag: HeadingTag };
-  /** Inline markup of the v1 editor: `**bold**`, `*italic*`, `[label](href)`. */
+  /**
+   * Inline markup of the v1 editor: `**bold**`, `*italic*`, `[label](href)`. Paragraphs are separated by a blank line (`\n\n`):
+   * the renderer splits on it. `textMax` counts VISIBLE characters (runs of parsePageInlineText, no markup, no `\n\n` breaks);
+   * `textRawMax` only caps the raw string against abuse.
+   */
   text: { text: string };
   label: { text: string };
   button: { label: string; href: string; newTab?: boolean };

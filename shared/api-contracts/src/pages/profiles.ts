@@ -1,4 +1,4 @@
-import { ELEMENT_TYPES, type ElementType, type PageDocumentV2, type StyleKey } from './document-v2';
+import { ELEMENT_TYPES, PAGE_V2_LIMITS, type ElementType, type PageDocumentV2, type StyleKey } from './document-v2';
 import type { PageTreeIssue } from './schemas-v2';
 
 // Editor profiles (SDD §6.3). The profile comes from the page OWNER, not from the actor, and is enforced on save by the
@@ -7,7 +7,7 @@ export interface PageEditorProfile {
   elementTypes: readonly ElementType[];
   maxElements: number;
   maxDepth: number;
-  style: { backgroundImage: boolean; gradients: boolean; shadows: boolean; orgPrimary: boolean };
+  style: { backgroundImage: boolean; gradients: boolean; shadows: boolean };
   /** 'ownOrganization': eventRail/featuredEvent may only show the owner organization's events. */
   dataScope: 'any' | 'ownOrganization';
   canLock: boolean;
@@ -15,13 +15,13 @@ export interface PageEditorProfile {
 
 export const PAGE_EDITOR_PROFILES = {
   platform: {
-    elementTypes: ELEMENT_TYPES, maxElements: 400, maxDepth: 6,
-    style: { backgroundImage: true, gradients: true, shadows: true, orgPrimary: false },
+    elementTypes: ELEMENT_TYPES, maxElements: PAGE_V2_LIMITS.maxElements, maxDepth: 6,
+    style: { backgroundImage: true, gradients: true, shadows: true },
     dataScope: 'any', canLock: true,
   },
   organization: {
     elementTypes: ELEMENT_TYPES, maxElements: 200, maxDepth: 5,
-    style: { backgroundImage: true, gradients: false, shadows: false, orgPrimary: true },
+    style: { backgroundImage: true, gradients: false, shadows: false },
     dataScope: 'ownOrganization', canLock: false,
   },
 } as const satisfies Record<string, PageEditorProfile>;
@@ -37,18 +37,23 @@ const BREAKPOINT_KEYS = ['desktop', 'tablet', 'mobile'] as const;
 const formatPath = (segments: (string | number)[]) =>
   segments.reduce<string>((acc, s) => (typeof s === 'number' ? `${acc}[${s}]` : acc ? `${acc}.${s}` : s), '');
 
+/** Named-profile entry point; see `validatePageAgainstProfileConfig`. */
+export const validatePageAgainstProfile = (doc: PageDocumentV2, profileName: PageEditorProfileName, ownerOrganizationId?: string): PageTreeIssue[] =>
+  validatePageAgainstProfileConfig(doc, PAGE_EDITOR_PROFILES[profileName], ownerOrganizationId);
+
 /**
  * Checks an (already schema-valid) v2 document against an editor profile. Returns issues with `path`/`elementId`.
  *
  * `ownerOrganizationId` is required for `dataScope: 'ownOrganization'`. `featuredEvent` is NOT checked here: the event's
  * organization is not in the document, so only the back (which can load the event) can refuse a foreign one.
+ * Likewise `eventRail.source` `category`/`artist`/`live` is accepted here; on an organization page the back's rail
+ * resolver must filter those by the owner organization.
  */
-export function validatePageAgainstProfile(
+export function validatePageAgainstProfileConfig(
   doc: PageDocumentV2,
-  profileName: PageEditorProfileName,
+  profile: PageEditorProfile,
   ownerOrganizationId?: string,
 ): PageTreeIssue[] {
-  const profile: PageEditorProfile = PAGE_EDITOR_PROFILES[profileName];
   const issues: PageTreeIssue[] = [];
   let count = 0;
 
