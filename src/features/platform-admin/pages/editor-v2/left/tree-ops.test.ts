@@ -68,6 +68,23 @@ describe('insertionPoint', () => {
   });
 });
 
+describe('insertionPoint climbing', () => {
+  const tree = [slot('section', 's1', [slot('columns', 'cs', [slot('column', 'c1', [leaf('d1')])])])];
+  it('a section goes after the top-level ancestor', () => {
+    expect(insertionPoint(tree, 'd1', 'section')).toEqual({ parentId: null, parentType: null, index: 1, zone: ROOT_ZONE });
+  });
+  it('a column goes after the closest column, in its columns', () => {
+    expect(insertionPoint(tree, 'd1', 'column')).toEqual({ parentId: 'cs', parentType: 'columns', index: 1, zone: 'cs:items' });
+  });
+  it('a widget stays in the closest slot that accepts it', () => {
+    expect(insertionPoint(tree, 'cs', 'heading')).toEqual({ parentId: 's1', parentType: 'section', index: 1, zone: 's1:items' });
+  });
+  it('falls back to the closest candidate when nothing accepts the type', () => {
+    expect(insertionPoint(tree, null, 'heading').parentType).toBeNull();
+    expect(insertionPoint(tree, 'd1', 'columns' as ElementType).parentType).toBe('column');
+  });
+});
+
 describe('insertAt / locate', () => {
   const tree = [slot('section', 's1', [leaf('a'), leaf('b')]), slot('section', 's2')];
   it('inserts at the page level and inside a parent', () => {

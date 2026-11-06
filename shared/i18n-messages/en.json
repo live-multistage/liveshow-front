@@ -3691,8 +3691,10 @@
           "submit": "Save block",
           "saved": "Block “{name}” saved",
           "error": "Could not save the block. Try again.",
-          "invalid": "The block has invalid fields."
-        }
+          "invalid": "The block has invalid fields.",
+          "forbidden": "You do not have permission to manage blocks."
+        },
+        "emptySection": "Empty section"
       },
       "layers": {
         "title": "Layers",

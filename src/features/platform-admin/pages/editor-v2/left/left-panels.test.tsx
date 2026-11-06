@@ -22,10 +22,11 @@ vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 const blocks = vi.hoisted(() => ({
   list: { data: [] as unknown[], isPending: false, isError: false },
   mutate: vi.fn(),
+  error: null as unknown,
 }));
 vi.mock('../../queries/use-page-blocks', () => ({
   usePageBlocksQuery: () => ({ ...blocks.list, refetch: vi.fn() }),
-  useCreatePageBlockMutation: () => ({ mutate: blocks.mutate, isPending: false, isError: false }),
+  useCreatePageBlockMutation: () => ({ mutate: blocks.mutate, isPending: false, isError: !!blocks.error, error: blocks.error }),
 }));
 
 const puck = vi.hoisted(() => ({
@@ -69,6 +70,7 @@ const lastSetData = () => {
 beforeEach(() => {
   vi.clearAllMocks();
   blocks.list = { data: [], isPending: false, isError: false };
+  blocks.error = null;
   setPage(page());
 });
 
@@ -89,15 +91,22 @@ describe('AddPanel › Widgets', () => {
     expect(screen.getByText('Nenhum widget encontrado.')).toBeTruthy();
   });
 
-  it('dims what does not fit the selection and explains why; it does not insert', () => {
-    setPage(page(), U(3)); // columns: only columns fit
-    render(<AddPanel />);
+  it('dims what fits nowhere and explains why; it does not insert', () => {
+    render(<AddPanel />); // nothing selected: only sections fit
     const heading = screen.getByRole('button', { name: 'Título' });
     expect(heading.getAttribute('aria-disabled')).toBe('true');
-    expect(heading.getAttribute('title')).toBe('Colunas não aceita Título dentro.');
     fireEvent.click(heading);
     expect(puck.store.dispatch).not.toHaveBeenCalled();
-    expect(screen.getByRole('button', { name: 'Coluna' }).getAttribute('aria-disabled')).toBe('false');
+    expect(screen.getByRole('button', { name: 'Seção' }).getAttribute('aria-disabled')).toBe('false');
+  });
+
+  it('climbs from the selection to the closest place that accepts the widget', () => {
+    setPage(page(), U(3)); // columns takes only columns: a heading goes right after it, in the section
+    render(<AddPanel />);
+    const heading = screen.getByRole('button', { name: 'Título' });
+    expect(heading.getAttribute('aria-disabled')).toBe('false');
+    fireEvent.click(heading);
+    expect(puck.store.dispatch).toHaveBeenCalledWith({ type: 'insert', componentType: 'heading', destinationIndex: 2, destinationZone: `${U(1)}:items` });
   });
 
   it('with nothing selected only sections fit, at the page root', () => {
@@ -105,6 +114,7 @@ describe('AddPanel › Widgets', () => {
     expect(screen.getByRole('button', { name: 'Título' }).getAttribute('title')).toContain('Direto na página só entram seções');
     fireEvent.click(screen.getByRole('button', { name: 'Seção' }));
     expect(puck.store.dispatch).toHaveBeenCalledWith({ type: 'insert', componentType: 'section', destinationIndex: 1, destinationZone: 'root:default-zone' });
+    expect(puck.store.dispatch).toHaveBeenCalledWith({ type: 'setUi', ui: { itemSelector: { index: 1, zone: 'root:default-zone' } } });
   });
 
   it('a click inserts inside the selected element, at its end', () => {
@@ -152,11 +162,32 @@ describe('AddPanel › Blocos', () => {
     expect(idOf(content[1])).not.toBe(U(50));
   });
 
-  it('blocks that do not fit the selection are disabled', () => {
+  it('a section block with a column selected goes after the top-level section, and is selected', () => {
     setPage(page(), U(4));
     render(<AddPanel />);
     openBlocks();
-    expect((screen.getByRole('button', { name: 'Inserir Hero' }) as HTMLButtonElement).disabled).toBe(true);
+    const hero = screen.getByRole('button', { name: 'Inserir Hero' }) as HTMLButtonElement;
+    expect(hero.disabled).toBe(false);
+    fireEvent.click(hero);
+    expect(lastSetData().data({ content: page() }).content.map((c) => c.type)).toEqual(['section', 'section']);
+    expect(puck.store.dispatch).toHaveBeenCalledWith({ type: 'setUi', ui: { itemSelector: { index: 1, zone: 'root:default-zone' } } });
+  });
+
+  it('a column block goes inside the closest columns that accepts it', () => {
+    const column = el('column', U(60), { items: [] });
+    blocks.list = { data: [{ id: 'b2', name: 'Coluna', element: column, createdAt: '2026-11-05T14:32:00Z' }], isPending: false, isError: false };
+    setPage(page(), U(2)); // a heading: no ancestor is a columns, so a column fits nowhere
+    const { unmount } = render(<AddPanel />);
+    openBlocks();
+    expect((screen.getByRole('button', { name: 'Inserir Coluna' }) as HTMLButtonElement).disabled).toBe(true);
+    unmount();
+    setPage(page(), U(4)); // a column: the column goes right after it, in the columns
+    render(<AddPanel />);
+    openBlocks();
+    fireEvent.click(screen.getByRole('button', { name: 'Inserir Coluna' }));
+    const columns = (lastSetData().data({ content: page() }).content[0].props as { items: PageElement[] }).items[1];
+    expect((columns.props as { items: PageElement[] }).items.map((c) => c.type)).toEqual(['column', 'column', 'column']);
+    expect(puck.store.dispatch).toHaveBeenCalledWith({ type: 'setUi', ui: { itemSelector: { index: 1, zone: `${U(3)}:items` } } });
   });
 
   it('empty page: opens on Blocos with the opening call to action', () => {
@@ -165,6 +196,15 @@ describe('AddPanel › Blocos', () => {
     expect(screen.getByText('Comece por um bloco pronto')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Inserir “Abertura”' }));
     expect(lastSetData().data({ content: [] }).content).toHaveLength(1);
+  });
+
+  it('empty page: "Seção vazia" inserts an empty section', () => {
+    setPage([]);
+    render(<AddPanel />);
+    fireEvent.click(screen.getByRole('button', { name: 'Seção vazia' }));
+    const [section] = lastSetData().data({ content: [] }).content;
+    expect(section.type).toBe('section');
+    expect(idOf(section)).not.toBe('empty-section');
   });
 });
 
@@ -186,6 +226,18 @@ describe('SaveAsBlock', () => {
     const [body] = blocks.mutate.mock.calls[0];
     expect(body.name).toBe('FAQ padrão');
     expect(idOf(body.element)).toBe(U(7));
+  });
+
+  it.each([
+    [403, { message: 'Forbidden' }, 'Você não tem permissão para gerenciar blocos.'],
+    [400, { message: 'Bloco inválido', details: [{ path: 'element.props.text', message: 'Obrigatório.' }] }, 'element.props.text: Obrigatório.'],
+    [400, { message: 'Nome já usado' }, 'Nome já usado'],
+    [500, { message: 'x' }, 'Não foi possível salvar o bloco. Tente de novo.'],
+  ])('shows the API error (%s)', (status, error, expected) => {
+    blocks.error = { status, ...error };
+    render(<SaveAsBlockProvider><Trigger element={page()[0]} /></SaveAsBlockProvider>);
+    fireEvent.click(screen.getByText('abrir'));
+    expect(screen.getByRole('alert').textContent).toBe(expected);
   });
 
   it('does not submit without a name', () => {

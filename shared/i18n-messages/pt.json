@@ -3691,8 +3691,10 @@
           "submit": "Salvar bloco",
           "saved": "Bloco “{name}” salvo",
           "error": "Não foi possível salvar o bloco. Tente de novo.",
-          "invalid": "O bloco tem campos inválidos."
-        }
+          "invalid": "O bloco tem campos inválidos.",
+          "forbidden": "Você não tem permissão para gerenciar blocos."
+        },
+        "emptySection": "Seção vazia"
       },
       "layers": {
         "title": "Camadas",

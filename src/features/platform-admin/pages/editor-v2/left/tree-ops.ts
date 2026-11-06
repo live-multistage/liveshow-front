@@ -27,15 +27,25 @@ export function locate(content: readonly PageElement[], id: string): Located | n
 
 export interface InsertionPoint { parentId: string | null; parentType: ElementType | null; index: number; zone: string }
 
-/** Inside the selected element when it has a slot, right after it when it does not, at the end of the page when nothing is selected. */
-export function insertionPoint(content: readonly PageElement[], selectedId: string | null): InsertionPoint {
-  const found = selectedId ? locate(content, selectedId) : null;
-  if (!found) return { parentId: null, parentType: null, index: content.length, zone: ROOT_ZONE };
-  if (ELEMENT_SLOT_RULES[found.element.type]) {
-    return { parentId: selectedId, parentType: found.element.type, index: childrenOf(found.element).length, zone: zoneOf(selectedId) };
+const pointIn = (parentId: string | null, parentType: ElementType | null, index: number): InsertionPoint =>
+  ({ parentId, parentType, index, zone: zoneOf(parentId) });
+
+/**
+ * Where a click inserts. Candidates, closest first: inside the selection (when it has a slot), then right after it, then right
+ * after each ancestor. With `type`, the first candidate whose parent accepts it wins; none fits (or no `type`): the closest one.
+ * Nothing selected: the end of the page.
+ */
+export function insertionPoint(content: readonly PageElement[], selectedId: string | null, type: ElementType | null = null): InsertionPoint {
+  let current = selectedId ? locate(content, selectedId) : null;
+  if (!current) return pointIn(null, null, content.length);
+  const candidates: InsertionPoint[] = [];
+  if (ELEMENT_SLOT_RULES[current.element.type]) candidates.push(pointIn(selectedId, current.element.type, childrenOf(current.element).length));
+  while (current) {
+    const parent: PageElement | null = current.parent;
+    candidates.push(pointIn(parent ? idOf(parent) : null, parent?.type ?? null, current.index + 1));
+    current = parent ? locate(content, idOf(parent)) : null;
   }
-  const parentId = found.parent ? idOf(found.parent) : null;
-  return { parentId, parentType: found.parent?.type ?? null, index: found.index + 1, zone: zoneOf(parentId) };
+  return (type && candidates.find((c) => canNest(c.parentType, type))) || candidates[0];
 }
 
 /** Rewrites the children list of `parentId` (`null` = the page). */

@@ -7,6 +7,7 @@ import {
   Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@live-show/design-system';
 import { PAGE_BLOCK_LIMITS, countElements, createPageBlockSchema, type PageElement } from '@live-show/api-contracts';
+import type { AppError } from '@/lib/http/errors';
 import { useCreatePageBlockMutation } from '../../queries/use-page-blocks';
 import { fromPuckData } from '../puck-data';
 import { TYPE_ICONS } from './type-icons';
@@ -29,6 +30,18 @@ export function SaveAsBlockProvider({ children }: { children: ReactNode }) {
       {element && <SaveBlockDialog element={element} onClose={close} />}
     </SaveAsBlockContext.Provider>
   );
+}
+
+const FORBIDDEN = 403;
+
+/** 403: no permission; 400: what the API rejected (message, with the field path when it sends one). */
+function saveErrorMessage(error: AppError, t: (key: string) => string): string {
+  if (error.status === FORBIDDEN) return t('blocks.save.forbidden');
+  if (error.status !== 400) return t('blocks.save.error');
+  const first = Array.isArray(error.details) ? (error.details[0] as { field?: string; path?: string; message?: string } | undefined) : undefined;
+  const where = first?.path ?? first?.field;
+  const text = first?.message ?? (Array.isArray(error.message) ? String(error.message[0]) : error.message);
+  return text ? (where ? `${where}: ${text}` : text) : t('blocks.save.error');
 }
 
 function SaveBlockDialog({ element, onClose }: { element: PageElement; onClose(): void }) {
@@ -68,7 +81,7 @@ function SaveBlockDialog({ element, onClose }: { element: PageElement; onClose()
           </div>
           <p className={styles.note}>{t('blocks.save.note')}</p>
           {invalid && <p className={styles.error} role="alert">{invalid}</p>}
-          {create.isError && <p className={styles.error} role="alert">{t('blocks.save.error')}</p>}
+          {create.error && <p className={styles.error} role="alert">{saveErrorMessage(create.error, t)}</p>}
         </form>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>{t('blocks.save.cancel')}</Button>

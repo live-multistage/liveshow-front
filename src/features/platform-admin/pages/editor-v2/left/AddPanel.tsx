@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Drawer } from '@puckeditor/core';
 import type { ElementType, PageElement } from '@live-show/api-contracts';
@@ -29,13 +29,20 @@ export function AddPanel() {
   // A new page opens on the blocks: that is where "start from a ready block" lives.
   const [tab, setTab] = useState<Tab>(pageIsEmpty ? 'blocks' : 'widgets');
   const [query, setQuery] = useState('');
-  const point = useMemo(() => insertionPoint(content, selectedId), [content, selectedId]);
+  const pointFor = useCallback((type: ElementType) => insertionPoint(content, selectedId, type), [content, selectedId]);
+  const selectNew = (at: InsertionPoint) => dispatch({ type: 'setUi', ui: { itemSelector: { index: at.index, zone: at.zone } } });
 
-  const insertWidget = (type: ElementType) => dispatch({ type: 'insert', componentType: type, destinationIndex: point.index, destinationZone: point.zone });
-  const insertBlock = (element: PageElement) => edit((current) => {
-    const at = insertionPoint(current, selectedId);
-    return canNest(at.parentType, element.type) ? insertAt(current, at.parentId, at.index, cloneWithNewIds(element)) : null;
-  });
+  const insertWidget = (type: ElementType) => {
+    const at = pointFor(type);
+    dispatch({ type: 'insert', componentType: type, destinationIndex: at.index, destinationZone: at.zone });
+    selectNew(at);
+  };
+  const insertBlock = (element: PageElement) => {
+    const at = pointFor(element.type);
+    if (!canNest(at.parentType, element.type)) return;
+    edit((current) => insertAt(current, at.parentId, at.index, cloneWithNewIds(element)));
+    selectNew(at);
+  };
 
   return (
     <div className={styles.panel}>
@@ -45,23 +52,24 @@ export function AddPanel() {
         ))}
       </div>
       {tab === 'widgets'
-        ? <WidgetsTab point={point} query={query} onQuery={setQuery} onInsert={insertWidget} />
-        : <BlocksTab point={point} pageIsEmpty={pageIsEmpty} onInsert={insertBlock} />}
+        ? <WidgetsTab pointFor={pointFor} query={query} onQuery={setQuery} onInsert={insertWidget} />
+        : <BlocksTab pointFor={pointFor} pageIsEmpty={pageIsEmpty} onInsert={insertBlock} />}
     </div>
   );
 }
 
-interface WidgetsProps { point: InsertionPoint; query: string; onQuery(value: string): void; onInsert(type: ElementType): void }
+interface WidgetsProps { pointFor(type: ElementType): InsertionPoint; query: string; onQuery(value: string): void; onInsert(type: ElementType): void }
 
-function WidgetsTab({ point, query, onQuery, onInsert }: WidgetsProps) {
+function WidgetsTab({ pointFor, query, onQuery, onInsert }: WidgetsProps) {
   const t = useTranslations('platformAdmin.pageEditorV2');
   const needle = query.trim().toLowerCase();
   const groups = GROUPS
     .map((group) => ({ ...group, types: group.types.filter((type) => !needle || t(`types.${type}`).toLowerCase().includes(needle)) }))
     .filter((group) => group.types.length > 0);
 
-  // Dimmed means "does not fit where a click would insert"; dragging stays free and the slot's `allow` decides the drop.
+  // Dimmed means "fits nowhere from the selection up to the page"; dragging stays free and the slot's `allow` decides the drop.
   const reason = (type: ElementType) => {
+    const point = pointFor(type);
     if (canNest(point.parentType, type)) return undefined;
     return point.parentType === null
       ? t('add.reasonRoot')

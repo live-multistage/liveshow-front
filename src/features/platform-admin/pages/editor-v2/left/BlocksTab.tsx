@@ -12,22 +12,24 @@ import { canNest } from './tree-ops';
 import styles from './left.module.scss';
 
 interface Props {
-  point: InsertionPoint;
+  pointFor(type: ElementType): InsertionPoint;
   pageIsEmpty: boolean;
   /** Inserts a copy of the block (new ids) at the current insertion point. */
   onInsert(element: PageElement): void;
 }
 
-export function BlocksTab({ point, pageIsEmpty, onInsert }: Props) {
+const EMPTY_SECTION = { type: 'section', props: { id: 'empty-section', items: [] } } as unknown as PageElement;
+
+export function BlocksTab({ pointFor, pageIsEmpty, onInsert }: Props) {
   const t = useTranslations('platformAdmin.pageEditorV2');
   const tv1 = useTranslations('platformAdmin.pageEditor');
   const mine = usePageBlocksQuery();
   const locale = useLocale();
   const date = new Intl.DateTimeFormat(locale, { day: '2-digit', month: 'short', year: 'numeric' });
-  const fits = (type: ElementType) => canNest(point.parentType, type);
-  const reason = (type: ElementType) => (fits(type) ? undefined : point.parentType === null
+  const fits = (type: ElementType) => canNest(pointFor(type).parentType, type);
+  const reason = (type: ElementType) => (fits(type) ? undefined : pointFor(type).parentType === null
     ? t('add.reasonRoot')
-    : t('add.reasonParent', { parent: t(`types.${point.parentType}`), child: t(`types.${type}`) }));
+    : t('add.reasonParent', { parent: t(`types.${pointFor(type).parentType}`), child: t(`types.${type}`) }));
   const opening = READY_BLOCKS.find((b) => b.type === 'hero')!;
 
   return (
@@ -37,7 +39,10 @@ export function BlocksTab({ point, pageIsEmpty, onInsert }: Props) {
           <LayoutTemplate aria-hidden="true" />
           <b>{t('blocks.emptyTitle')}</b>
           <p>{t('blocks.emptyText')}</p>
-          <Button type="button" size="sm" onClick={() => onInsert(opening.element)}>{t('blocks.insertOpening')}</Button>
+          <div className={styles.emptyActions}>
+            <Button type="button" variant="outline" size="sm" onClick={() => onInsert(EMPTY_SECTION)}>{t('blocks.emptySection')}</Button>
+            <Button type="button" size="sm" onClick={() => onInsert(opening.element)}>{t('blocks.insertOpening')}</Button>
+          </div>
         </div>
       )}
       <div className={`${styles.groupTitle} ${styles.pad}`}>{t('blocks.ready')}</div>

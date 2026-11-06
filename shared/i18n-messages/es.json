@@ -3691,8 +3691,10 @@
           "submit": "Guardar bloque",
           "saved": "Bloque “{name}” guardado",
           "error": "No se pudo guardar el bloque. Intenta de nuevo.",
-          "invalid": "El bloque tiene campos inválidos."
-        }
+          "invalid": "El bloque tiene campos inválidos.",
+          "forbidden": "No tienes permiso para gestionar bloques."
+        },
+        "emptySection": "Sección vacía"
       },
       "layers": {
         "title": "Capas",
