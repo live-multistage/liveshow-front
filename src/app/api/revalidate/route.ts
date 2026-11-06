@@ -1,7 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import { revalidateTag } from 'next/cache';
 
-const ALLOWED_TAGS = new Set(['seo', 'legal']);
+const ALLOWED_TAGS = new Set(['seo', 'legal', 'pages']);
 
 function secretMatches(given: string | null): boolean {
   const expected = process.env.WEB_REVALIDATE_SECRET;

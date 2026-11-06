@@ -52,3 +52,5 @@ export * from './seo/limits';
 export * from './seo/jsonld';
 export * from './seo/jsonld-starters';
 export * from './legal/types';
+export * from './pages/types';
+export * from './pages/schemas';

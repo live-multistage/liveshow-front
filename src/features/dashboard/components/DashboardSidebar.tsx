@@ -13,6 +13,9 @@ import { DEFAULT_FEATURE_FLAGS, type FeatureFlags } from '@/features/feature-fla
 import styles from './DashboardSidebar.module.scss';
 import { ArrowUpRight } from 'lucide-react';
 
+// The page editor needs the width: the admin nav collapses to an icon rail (prototype `.side.mini`).
+const COMPACT_ROUTE = /^\/dashboard\/platform\/pages\/[^/]+\/?$/;
+
 export function DashboardSidebar({ flags = DEFAULT_FEATURE_FLAGS }: { flags?: FeatureFlags }) {
   const t = useTranslations('dashboard.nav');
   const { user } = useAuth();
@@ -20,11 +23,12 @@ export function DashboardSidebar({ flags = DEFAULT_FEATURE_FLAGS }: { flags?: Fe
 
   if (!user || !DASHBOARD_ROLES.includes(user.role)) return null;
 
+  const compact = COMPACT_ROUTE.test(pathname);
   const role = user.role as Exclude<UserRole, 'USER'>;
   const navItems = NAV_BY_ROLE[role].filter((item) => !item.flag || flags[item.flag]);
 
   return (
-    <aside className={styles.sidebar}>
+    <aside className={styles.sidebar} data-compact={compact || undefined}>
       {/* Logo */}
       <Link href="/" className={styles.logoWrapper}>
         <Logo size={26} wordmarkClassName={styles.logoText} />
@@ -41,6 +45,7 @@ export function DashboardSidebar({ flags = DEFAULT_FEATURE_FLAGS }: { flags?: Fe
           const hrefPath = item.href.split('#')[0];
           const isActive = !isExternal && (pathname === hrefPath || (hrefPath !== '/dashboard' && pathname.startsWith(hrefPath)));
           const showGroup = item.group && item.group !== navItems[i - 1]?.group;
+          const label = t(item.navKey as Parameters<typeof t>[0]);
           return (
             <div key={item.href}>
               {showGroup && <div className={styles.navSectionLabel}>{item.group}</div>}
@@ -49,12 +54,12 @@ export function DashboardSidebar({ flags = DEFAULT_FEATURE_FLAGS }: { flags?: Fe
                 target={isExternal ? '_blank' : undefined}
                 rel={isExternal ? 'noopener noreferrer' : undefined}
                 className={`${styles.navItem} ${isActive ? styles.active : ''}`}
+                title={compact ? label : undefined}
               >
                 <Icon size={18} className={styles.navIcon} />
-                {t(item.navKey as Parameters<typeof t>[0])}
-                {item.badge?.()}
-
-                {item.external && <ArrowUpRight size={14} />}
+                <span className={styles.navLabel}>{label}</span>
+                {!compact && item.badge?.()}
+                {!compact && item.external && <ArrowUpRight size={14} />}
               </Link>
             </div>
           );
@@ -63,9 +68,11 @@ export function DashboardSidebar({ flags = DEFAULT_FEATURE_FLAGS }: { flags?: Fe
 
       {/* User block + notifications */}
       <div className={styles.userMenuWrapper}>
-        <div className={styles.userMenuMain}>
-          <DashboardUserMenu />
-        </div>
+        {!compact && (
+          <div className={styles.userMenuMain}>
+            <DashboardUserMenu />
+          </div>
+        )}
         <NotificationsDropdown triggerClassName={styles.notifTrigger} />
       </div>
     </aside>
