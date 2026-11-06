@@ -191,4 +191,40 @@ describe('SectionInspector', () => {
     await user.click(screen.getByRole('switch', { name: 'Seção visível na página' }));
     expect(latest.hidden).toBe(true);
   });
+
+  it('shows items the line format cannot hold as read-only with a warning', () => {
+    mount('features', { title: 'T', items: [{ title: 'A — B', text: 'c' }, { title: 'D', text: 'e' }] });
+    const field = screen.getByLabelText(/^Itens/);
+    expect(field).toHaveAttribute('readonly');
+    expect(screen.getByText(/não pode ser editado aqui/)).toBeInTheDocument();
+    fireEvent.change(field, { target: { value: 'X — y' } });
+    expect((latest.props as { items: unknown[] }).items).toHaveLength(2);
+  });
+
+  it('keeps both audience slots in place while one is emptied', async () => {
+    const user = userEvent.setup();
+    mount('audience', { text: 'Oi', counters: [{ value: '1', label: 'A' }, { value: '2', label: 'B' }] });
+    await user.clear(screen.getByLabelText('Número 1'));
+    await user.clear(screen.getByLabelText('Rótulo 1'));
+    expect(screen.getByLabelText('Número 2')).toHaveValue('2');
+    expect(screen.getByLabelText('Número 1')).toHaveValue('');
+    expect((latest.props as { counters: unknown[] }).counters).toEqual([{ value: '2', label: 'B' }]);
+  });
+
+  it('resyncs a list field when the document changes from outside, unless it is focused', () => {
+    const props = { title: 'T', items: [{ title: 'A', text: 'a' }, { title: 'B', text: 'b' }] };
+    const base = createEmptySection('features', ID) as PageSection;
+    const make = (items: unknown) => ({ ...base, props: { ...props, items } }) as PageSection;
+    const view = (section: PageSection) => (
+      <SectionInspector section={section} index={0} issues={[]} locked={false} dispatch={() => {}} />
+    );
+    const { rerender } = render(view(make(props.items)));
+    rerender(view(make([{ title: 'Z', text: 'z' }])));
+    expect(screen.getByLabelText(/^Itens/)).toHaveValue('Z — z');
+    const field = screen.getByLabelText(/^Itens/);
+    field.focus();
+    fireEvent.change(field, { target: { value: 'typing' } });
+    rerender(view(make([{ title: 'Q', text: 'q' }])));
+    expect(field).toHaveValue('typing');
+  });
 });

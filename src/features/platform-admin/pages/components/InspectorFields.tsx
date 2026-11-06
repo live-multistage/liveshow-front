@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button, Input, Label, Textarea } from '@live-show/design-system';
 import { PAGE_ASSET_LIMITS, type PageCta } from '@live-show/api-contracts';
@@ -55,15 +55,24 @@ export function TextField({ id, label, value, onChange, max, required, multiline
   );
 }
 
-/** Textarea parsed into structured data on every keystroke; the raw text stays local so blank lines survive typing. */
-export function ParsedTextField({ id, label, initial, onText, rows = 5, required, hint, counter, error }: {
+/** Textarea parsed into structured data on every keystroke; the raw text stays local so blank lines survive typing.
+ *  An outside change to `initial` (reload, restore) resyncs the text unless the user is typing in it. */
+export function ParsedTextField({ id, label, initial, onText, rows = 5, required, hint, counter, error, readOnlyWarning }: {
   id: string; label: string; initial: string; onText(text: string): void; rows?: number; required?: boolean;
   hint?: string; counter?: number; error?: string;
+  /** Items that the line format cannot represent: shown read-only with this warning instead of being re-parsed. */
+  readOnlyWarning?: string;
 }) {
   const [text, setText] = useState(initial);
+  const focused = useRef(false);
+  useEffect(() => {
+    if (!focused.current) setText(initial);
+  }, [initial]);
   return (
-    <Field id={id} label={label} required={required} error={error} hint={hint} counter={counter ? `${text.length}/${counter}` : undefined}>
-      <Textarea id={id} rows={rows} value={text} onChange={(e) => { setText(e.target.value); onText(e.target.value); }} {...a11y(id, error)} />
+    <Field id={id} label={label} required={required} error={error} hint={readOnlyWarning ?? hint} counter={counter ? `${text.length}/${counter}` : undefined}>
+      <Textarea id={id} rows={rows} value={readOnlyWarning ? initial : text} readOnly={Boolean(readOnlyWarning)}
+        onFocus={() => { focused.current = true; }} onBlur={() => { focused.current = false; }}
+        onChange={(e) => { if (readOnlyWarning) return; setText(e.target.value); onText(e.target.value); }} {...a11y(id, error)} />
     </Field>
   );
 }

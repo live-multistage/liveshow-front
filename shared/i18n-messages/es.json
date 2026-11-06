@@ -3445,7 +3445,8 @@
           "mobile": "Solo móvil"
         },
         "visible": "Sección visible en la página",
-        "itemError": "Elemento {n}: {message}"
+        "itemError": "Elemento {n}: {message}",
+        "listUnsafe": "Este campo tiene elementos con “ — ” o salto de línea y no se puede editar aquí sin perder datos."
       },
       "library": {
         "title": "AÑADIR SECCIÓN",

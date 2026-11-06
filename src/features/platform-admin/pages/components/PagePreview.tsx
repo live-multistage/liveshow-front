@@ -28,6 +28,13 @@ const hasNothingToShow = (section: PageSection, resolved: PublicPage['resolved']
 export function PagePreview({ document, resolved, selectedId, device, locked, onSelect, onInsert }: Props) {
   const t = useTranslations('platformAdmin.pageEditor');
   const selectedRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Rendered sections are inert here: keep their links and controls out of the Tab order (the wrapper is the focus target).
+  useEffect(() => {
+    rootRef.current?.querySelectorAll('[data-section-content] :is(a, button, input, select, textarea, [tabindex])')
+      .forEach((el) => el.setAttribute('tabindex', '-1'));
+  }, [document, resolved, device]);
 
   useEffect(() => {
     selectedRef.current?.scrollIntoView?.({ block: 'nearest' });
@@ -68,9 +75,10 @@ export function PagePreview({ document, resolved, selectedId, device, locked, on
               aria-current={selected ? 'true' : undefined}
               className={`${styles.section} ${selected ? styles.selected : ''} ${section.hidden ? styles.hidden : ''}`}
               onClickCapture={select}
+              onAuxClickCapture={select}
               onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.target === event.currentTarget && select(event)}
             >
-              <div className={styles.content}>
+              <div className={styles.content} data-section-content>
                 {hasNothingToShow(section, resolved)
                   ? <p className={styles.placeholder}>{t(section.type === 'rail' ? 'preview.noRail' : 'preview.noFeatured')}</p>
                   : <PageSections document={{ ...document, sections: [{ ...section, hidden: false } as PageSection] }} resolved={resolved} />}
@@ -86,7 +94,7 @@ export function PagePreview({ document, resolved, selectedId, device, locked, on
   );
 
   return (
-    <div className={styles.preview} data-testid="preview-slot" data-selected-id={selectedId ?? undefined} data-device={device} aria-label={t('preview.frame')}>
+    <div ref={rootRef} className={styles.preview} data-testid="preview-slot" data-selected-id={selectedId ?? undefined} data-device={device} aria-label={t('preview.frame')}>
       <div className={device === 'mobile' ? styles.phone : styles.page}>{page}</div>
     </div>
   );

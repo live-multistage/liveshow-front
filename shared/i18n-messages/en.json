@@ -3445,7 +3445,8 @@
           "mobile": "Mobile only"
         },
         "visible": "Section visible on the page",
-        "itemError": "Item {n}: {message}"
+        "itemError": "Item {n}: {message}",
+        "listUnsafe": "This field has items containing “ — ” or a line break and cannot be edited here without losing data."
       },
       "library": {
         "title": "ADD SECTION",

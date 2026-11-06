@@ -18,7 +18,7 @@ vi.mock('next-intl', () => ({
   },
 }));
 
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createEmptyDocument, createEmptySection, type PageSection } from '@live-show/api-contracts';
 import { PagePreview } from './PagePreview';
@@ -90,5 +90,21 @@ describe('PagePreview', () => {
     const rail = createEmptySection('rail', id(3)) as PageSection;
     setup({ document: { ...createEmptyDocument(), sections: [rail] } });
     expect(screen.getByText('Sem eventos para mostrar agora.')).toBeInTheDocument();
+  });
+
+  it('treats middle-click and ctrl/cmd-click like a click and keeps inner links out of the Tab order', async () => {
+    const user = userEvent.setup();
+    const { onSelect } = setup();
+    const link = screen.getAllByText('Ir', { selector: 'a' })[0];
+    expect(link).toHaveAttribute('tabindex', '-1');
+    fireEvent(link, new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    await user.keyboard('{Control>}');
+    await user.click(link);
+    await user.keyboard('{/Control}');
+    expect(onSelect).toHaveBeenCalledTimes(2);
+    const ctrl = new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true });
+    link.dispatchEvent(ctrl);
+    expect(ctrl.defaultPrevented).toBe(true);
   });
 });

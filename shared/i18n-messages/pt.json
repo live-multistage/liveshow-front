@@ -3445,7 +3445,8 @@
           "mobile": "Só celular"
         },
         "visible": "Seção visível na página",
-        "itemError": "Item {n}: {message}"
+        "itemError": "Item {n}: {message}",
+        "listUnsafe": "Este campo tem itens com “ — ” ou quebra de linha no texto e não pode ser editado aqui sem perder dados."
       },
       "library": {
         "title": "ADICIONAR SEÇÃO",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { itemsToLines, linesToItems } from './lines-to-items';
+import { itemsFitLines, itemsToLines, linesToItems } from './lines-to-items';
 
 const KEYS = ['title', 'text'] as const;
 
@@ -18,11 +18,28 @@ describe('linesToItems / itemsToLines', () => {
     expect(itemsToLines(linesToItems(text, KEYS), KEYS)).toBe(text);
   });
 
-  it('preserves extra fields of the previous item at the same index', () => {
-    const previous = [{ title: 'x', text: 'y', icon: 'star' }];
-    expect(linesToItems('A — b\nC — d', KEYS, previous)).toEqual([
-      { title: 'A', text: 'b', icon: 'star' },
-      { title: 'C', text: 'd' },
+  const previous = [{ title: 'A', text: 'a', icon: 'star' }, { title: 'B', text: 'b', icon: 'bolt' }];
+
+  it('keeps extras with the item whose first field matches', () => {
+    expect(linesToItems('A — novo\nB — b', KEYS, previous)).toEqual([
+      { title: 'A', text: 'novo', icon: 'star' }, { title: 'B', text: 'b', icon: 'bolt' },
     ]);
+  });
+
+  it('does not hand extras to another item on reorder, insertion or deletion', () => {
+    expect(linesToItems('B — b\nA — a', KEYS, previous)).toEqual([
+      { title: 'B', text: 'b', icon: 'bolt' }, { title: 'A', text: 'a', icon: 'star' },
+    ]);
+    expect(linesToItems('A — a\nNovo — n\nB — b', KEYS, previous)).toEqual([
+      { title: 'A', text: 'a', icon: 'star' }, { title: 'Novo', text: 'n' }, { title: 'B', text: 'b', icon: 'bolt' },
+    ]);
+    expect(linesToItems('B — b', KEYS, previous)).toEqual([{ title: 'B', text: 'b', icon: 'bolt' }]);
+  });
+
+  it('detects items the line format cannot hold', () => {
+    expect(itemsFitLines([{ title: 'A', text: 'b — c' }], KEYS)).toBe(true);
+    expect(itemsFitLines([{ title: 'A — B', text: 'c' }], KEYS)).toBe(false);
+    expect(itemsFitLines([{ title: 'A', text: 'x\ny' }], KEYS)).toBe(false);
+    expect(itemsFitLines([{ title: '', text: 'x' }], KEYS)).toBe(false);
   });
 });

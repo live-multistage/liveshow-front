@@ -1,6 +1,6 @@
 'use client';
 
-import type { Dispatch } from 'react';
+import { useState, type Dispatch } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button, Switch } from '@live-show/design-system';
 import {
@@ -17,7 +17,7 @@ import {
 } from '@live-show/api-contracts';
 import { Eye } from 'lucide-react';
 import type { PageEditorAction, SectionIssue } from '../hooks/page-editor-reducer';
-import { itemsToLines, linesToItems } from '../utils/lines-to-items';
+import { itemsFitLines, itemsToLines, linesToItems } from '../utils/lines-to-items';
 import { parseTextRuns, serializeTextRuns } from '../utils/text-runs';
 import { ArtistPicker } from '../../mailing/components/ArtistPicker';
 import { EventPicker } from '../../mailing/components/EventPicker';
@@ -73,24 +73,11 @@ export function SectionInspector({ section, index, issues, locked, dispatch }: P
       }
       case 'audience': {
         const p = section.props;
-        const counter = (i: number) => p.counters[i] ?? { value: '', label: '' };
-        const setCounter = (i: number, patch: Partial<{ value: string; label: string }>) => {
-          const pair = { ...counter(i), ...patch };
-          const counters = [0, 1].map((n) => (n === i ? pair : counter(n))).filter((c) => c.value !== '' || c.label !== '');
-          set({ counters: [...counters, ...p.counters.slice(2)] });
-        };
         return (
           <>
             <TextField id={id('text')} label={label('text')} max={L.headingMax} required value={p.text} error={err('text')}
               onChange={(text) => set({ text })} />
-            {[0, 1].map((i) => (
-              <div key={i} className={styles.pair}>
-                <TextField id={id(`value-${i}`)} label={label('counterValue', { n: i + 1 })} max={L.statValueMax} value={counter(i).value}
-                  error={err(`counters.${i}.value`)} onChange={(value) => setCounter(i, { value })} />
-                <TextField id={id(`label-${i}`)} label={label('counterLabel', { n: i + 1 })} max={L.counterLabelMax} value={counter(i).label}
-                  error={err(`counters.${i}.label`)} onChange={(v) => setCounter(i, { label: v })} />
-              </div>
-            ))}
+            <CounterPairs idFor={id} p={p} label={label} err={err} set={set} />
           </>
         );
       }
@@ -112,6 +99,7 @@ export function SectionInspector({ section, index, issues, locked, dispatch }: P
             <TextField id={id('title')} label={label('title')} max={L.headingMax} required value={p.title} error={err('title')}
               onChange={(title) => set({ title })} />
             <ParsedTextField id={id('items')} label={label('features')} hint={t('inspector.listHint')} initial={itemsToLines(p.items, ['title', 'text'])}
+              readOnlyWarning={itemsFitLines(p.items, ['title', 'text']) ? undefined : t('inspector.listUnsafe')}
               error={listErr('items')} onText={(text) => set({ items: linesToItems(text, ['title', 'text'], p.items) })} />
           </>
         );
@@ -125,6 +113,7 @@ export function SectionInspector({ section, index, issues, locked, dispatch }: P
             <TextField id={id('title')} label={label('title')} max={L.headingMax} required value={p.title} error={err('title')}
               onChange={(title) => set({ title })} />
             <ParsedTextField id={id('steps')} label={label('steps')} hint={t('inspector.listHint')} initial={itemsToLines(p.steps, ['title', 'text'])}
+              readOnlyWarning={itemsFitLines(p.steps, ['title', 'text']) ? undefined : t('inspector.listUnsafe')}
               error={listErr('steps')} onText={(text) => set({ steps: linesToItems(text, ['title', 'text'], p.steps) })} />
           </>
         );
@@ -152,6 +141,7 @@ export function SectionInspector({ section, index, issues, locked, dispatch }: P
             <TextField id={id('title')} label={label('title')} max={L.headingMax} value={p.title ?? ''} error={err('title')}
               onChange={(v) => set({ title: optional(v) })} />
             <ParsedTextField id={id('items')} label={label('stats')} hint={t('inspector.listHint')} initial={itemsToLines(p.items, ['value', 'label'])}
+              readOnlyWarning={itemsFitLines(p.items, ['value', 'label']) ? undefined : t('inspector.listUnsafe')}
               error={listErr('items')} onText={(text) => set({ items: linesToItems(text, ['value', 'label'], p.items) })} />
           </>
         );
@@ -204,6 +194,7 @@ export function SectionInspector({ section, index, issues, locked, dispatch }: P
             <TextField id={id('title')} label={label('title')} max={L.headingMax} required value={p.title} error={err('title')}
               onChange={(title) => set({ title })} />
             <ParsedTextField id={id('plans')} label={label('plans')} hint={t('inspector.listHint')} initial={itemsToLines(p.plans, ['name', 'price'])}
+              readOnlyWarning={itemsFitLines(p.plans, ['name', 'price']) ? undefined : t('inspector.listUnsafe')}
               error={listErr('plans')} onText={(text) => set({ plans: linesToItems(text, ['name', 'price'], p.plans) })} />
           </>
         );
@@ -215,6 +206,7 @@ export function SectionInspector({ section, index, issues, locked, dispatch }: P
             <TextField id={id('title')} label={label('title')} max={L.headingMax} required value={p.title} error={err('title')}
               onChange={(title) => set({ title })} />
             <ParsedTextField id={id('items')} label={label('faq')} hint={t('inspector.listHint')} initial={itemsToLines(p.items, ['question', 'answer'])}
+              readOnlyWarning={itemsFitLines(p.items, ['question', 'answer']) ? undefined : t('inspector.listUnsafe')}
               error={listErr('items')} onText={(text) => set({ items: linesToItems(text, ['question', 'answer'], p.items) })} />
           </>
         );
@@ -283,6 +275,34 @@ function ImagePair({ urlId, altId, url, alt, urlLabel, altLabel, urlError, altEr
       <TextField id={urlId} label={urlLabel} max={L.urlMax} value={url} error={urlError} onChange={(v) => emit({ url: v, alt })} />
       <ImageUpload onUploaded={(uploaded) => emit({ url: uploaded, alt })} />
       <TextField id={altId} label={altLabel} max={L.altMax} value={alt} error={altError} onChange={(v) => emit({ url, alt: v })} />
+    </>
+  );
+}
+
+type Counter = { value: string; label: string };
+
+/** Two fixed slots kept locally, so an emptied first slot does not shift the second one while typing; only the saved props are compacted. */
+function CounterPairs({ idFor, p, label, err, set }: {
+  idFor(name: string): string; p: { counters: Counter[] };
+  label(key: string, values?: Record<string, string | number>): string; err(...paths: string[]): string | undefined;
+  set(props: Record<string, unknown>): void;
+}) {
+  const [slots, setSlots] = useState<Counter[]>(() => [0, 1].map((i) => p.counters[i] ?? { value: '', label: '' }));
+  const update = (i: number, patch: Partial<Counter>) => {
+    const next = slots.map((slot, n) => (n === i ? { ...slot, ...patch } : slot));
+    setSlots(next);
+    set({ counters: [...next.filter((c) => c.value !== '' || c.label !== ''), ...p.counters.slice(2)] });
+  };
+  return (
+    <>
+      {slots.map((slot, i) => (
+        <div key={i} className={styles.pair}>
+          <TextField id={idFor(`value-${i}`)} label={label('counterValue', { n: i + 1 })} max={L.statValueMax} value={slot.value}
+            error={err(`counters.${i}.value`)} onChange={(value) => update(i, { value })} />
+          <TextField id={idFor(`label-${i}`)} label={label('counterLabel', { n: i + 1 })} max={L.counterLabelMax} value={slot.label}
+            error={err(`counters.${i}.label`)} onChange={(v) => update(i, { label: v })} />
+        </div>
+      ))}
     </>
   );
 }
