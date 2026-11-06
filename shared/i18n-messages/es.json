@@ -3993,6 +3993,16 @@
         "preview": "Abrir vista previa",
         "back": "Volver a páginas",
         "backToNotice": "Volver"
+      },
+      "puck": {
+        "viewport-switch-default": "Cambiar tamaño",
+        "plugin-components": "Agregar",
+        "plugin-outline": "Capas",
+        "plugin-fields": "Inspector",
+        "action-selectparent": "Seleccionar el elemento padre",
+        "action-drag": "Arrastrar",
+        "action-duplicate": "Duplicar",
+        "action-delete": "Eliminar"
       }
     },
     "seo": {

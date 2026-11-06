@@ -23,6 +23,7 @@ const ALL_KEYS: FeatureFlagKey[] = [
   'mailing',
   'blueprints',
   'page_builder',
+  'page_builder_v2',
   'advertiser_platform',
   'tracking',
 ];

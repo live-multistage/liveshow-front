@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import {
-  STYLE_KEYS_BY_TYPE, type ElementType, type PageDocumentV2, type PageElement, type ResponsiveStyle,
+  ELEMENT_SLOT_RULES, STYLE_KEYS_BY_TYPE, childrenOf, type ElementType, type PageDocumentV2, type PageElement, type ResponsiveStyle,
 } from '@live-show/api-contracts';
 import { BgImage } from './BgImage';
 import { Button } from './Button';
@@ -22,7 +22,6 @@ import { Section } from './Section';
 import { Spacer } from './Spacer';
 import { Text } from './Text';
 import { Video } from './Video';
-import { childrenOf } from './resolved';
 import { styleClassNames } from './style/style-classes';
 import type { ElementView, RenderContext } from './types';
 import styles from './elements.module.scss';
@@ -96,7 +95,7 @@ export function ElementRenderer({ element, ctx, slot }: { element: PageElement; 
 
   const style = props.style as ResponsiveStyle | undefined;
   const common = { id: props.anchor, className: styleClassNames(type, resolveStyle(type, style), hidden).join(' ') };
-  const items = childrenOf(element);
+  const items = ELEMENT_SLOT_RULES[type] ? childrenOf(element) : undefined;
   const hasBg = (STYLE_KEYS_BY_TYPE[type] as readonly string[]).includes('bg');
   return (
     <View

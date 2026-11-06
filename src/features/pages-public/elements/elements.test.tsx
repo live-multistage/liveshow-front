@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { upgradePageDocument, type PageDocument, type PageElement, type PageDocumentV2, type PublicPage, type ResolvedRailEvent } from '@live-show/api-contracts';
+import { ELEMENT_TYPES, walkElements, upgradePageDocument, type PageDocument, type PageElement, type PageDocumentV2, type PublicPage, type ResolvedRailEvent } from '@live-show/api-contracts';
+import fixture from '../../../../shared/api-contracts/src/pages/page-tree-fixture.json';
 import parityCases from '../../../../shared/api-contracts/src/pages/page-parity-cases.json';
-import { ElementRenderer, PageRoot, type RenderContext } from './index';
+import { ElementRenderer, PageRoot, hasH1, type RenderContext } from './index';
 import { DEFAULT_EDITOR_LABELS } from './types';
 
 const ID = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
@@ -186,5 +187,24 @@ describe('data widgets in the editor: loading, empty and unavailable', () => {
   it('public mode never draws any of this', () => {
     const { container } = render(<ElementRenderer ctx={ctx({ loading: [ID(1)], resolved: { ...empty, rails: { [ID(1)]: [] } } })} element={rail} />);
     expect(container.innerHTML).toBe('');
+  });
+});
+
+describe('tree helper (fixture with the 19 types)', () => {
+  const doc = fixture as unknown as PageDocumentV2;
+
+  it('renders every element of the fixture, content arrays included', () => {
+    const { container } = render(<PageRoot document={doc} ctx={ctx({ mode: 'editor', labels: DEFAULT_EDITOR_LABELS })} />);
+    const seen = new Set<string>();
+    walkElements(doc, (e) => void seen.add(e.type));
+    expect([...seen].sort()).toEqual([...ELEMENT_TYPES].sort());
+    expect(container.firstChild).not.toBeNull();
+  });
+
+  it('hasH1 finds a nested h1 and ignores iconList/faq content', () => {
+    let expected = false;
+    walkElements(doc, (e) => { if (e.type === 'heading' && e.props.tag === 'h1') expected = true; });
+    expect(hasH1(doc)).toBe(expected);
+    expect(hasH1({ ...doc, content: [] })).toBe(false);
   });
 });

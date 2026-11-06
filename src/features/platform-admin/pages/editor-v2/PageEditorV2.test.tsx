@@ -1,6 +1,8 @@
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ptMessages from '../../../../../shared/i18n-messages/pt.json';
+import enMessages from '../../../../../shared/i18n-messages/en.json';
+import esMessages from '../../../../../shared/i18n-messages/es.json';
 
 function resolve(namespace: string, key: string): unknown {
   let node: unknown = ptMessages;
@@ -365,6 +367,16 @@ describe('conflict and the keyboard', () => {
     fireEvent.keyDown(document.body, { key: 'a', metaKey: true });
     document.removeEventListener('keydown', reachedPuck);
     expect(reachedPuck).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('puck dictionary', () => {
+  it('comes from the messages, in every locale', async () => {
+    await mountV2(v2Document());
+    expect(puck.props.dictionary).toEqual(ptMessages.platformAdmin.pageEditorV2.puck);
+    const keys = Object.keys(ptMessages.platformAdmin.pageEditorV2.puck);
+    expect(Object.keys(enMessages.platformAdmin.pageEditorV2.puck)).toEqual(keys);
+    expect(Object.keys(esMessages.platformAdmin.pageEditorV2.puck)).toEqual(keys);
   });
 });
 

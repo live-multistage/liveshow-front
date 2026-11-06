@@ -35,10 +35,10 @@ const NO_RESOLVED = { rails: {}, featured: {}, live: {} };
 const LOCKED_PERMISSIONS = { drag: false, duplicate: false, delete: false, edit: false, insert: false };
 const PUCK_UI = { viewports: { current: { width: BREAKPOINT_WIDTH.desktop, height: 'auto' as const }, controlsVisible: false, options: VIEWPORTS } };
 const PUCK_IFRAME = { enabled: false };
-const PUCK_DICTIONARY = {
-  'viewport-switch-default': 'Trocar tamanho', 'plugin-components': 'Adicionar', 'plugin-outline': 'Camadas', 'plugin-fields': 'Inspetor',
-  'action-selectparent': 'Selecionar o elemento pai', 'action-drag': 'Arrastar', 'action-duplicate': 'Duplicar', 'action-delete': 'Excluir',
-};
+const PUCK_DICTIONARY_KEYS = [
+  'viewport-switch-default', 'plugin-components', 'plugin-outline', 'plugin-fields',
+  'action-selectparent', 'action-drag', 'action-duplicate', 'action-delete',
+] as const;
 
 type Panel = 'publish' | 'history' | 'settings' | null;
 
@@ -91,6 +91,7 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
     onConflict: () => setLocked(true),
   });
 
+  const dictionary = useMemo(() => Object.fromEntries(PUCK_DICTIONARY_KEYS.map((key) => [key, tv2(`puck.${key}`)])), [tv2]);
   const config = useMemo(() => createPuckConfig((type: ElementType) => tv2(`types.${type}`)), [tv2]);
   const labels = useMemo<EditorLabels>(() => ({
     railPlaceholder: tv2('dataLabels.railPlaceholder'),
@@ -207,7 +208,7 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
           viewports={VIEWPORTS}
           ui={PUCK_UI}
           overrides={PANEL_OVERRIDES}
-          dictionary={PUCK_DICTIONARY}
+          dictionary={dictionary}
           metadata={editorData}
           permissions={isLocked ? LOCKED_PERMISSIONS : undefined}
           onChange={onChange}

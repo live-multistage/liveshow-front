@@ -3993,6 +3993,16 @@
         "preview": "Open preview",
         "back": "Back to pages",
         "backToNotice": "Back"
+      },
+      "puck": {
+        "viewport-switch-default": "Switch size",
+        "plugin-components": "Add",
+        "plugin-outline": "Layers",
+        "plugin-fields": "Inspector",
+        "action-selectparent": "Select parent element",
+        "action-drag": "Drag",
+        "action-duplicate": "Duplicate",
+        "action-delete": "Delete"
       }
     },
     "seo": {
