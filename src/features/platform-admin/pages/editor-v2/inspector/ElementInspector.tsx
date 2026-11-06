@@ -7,15 +7,18 @@ import { ArrowUpLeft, Copy, Layers, Trash2 } from 'lucide-react';
 import { Button } from '@live-show/design-system';
 import type { ElementType } from '@live-show/api-contracts';
 import { toContractId } from '../puck-data';
+import { AdvancedTab } from './AdvancedTab';
 import { ContentTab } from './ContentTab';
+import { StyleTab } from './StyleTab';
+import { useBreakpoint } from '../use-breakpoint';
 import { useElementIssues } from './element-issues';
 import styles from './ElementInspector.module.scss';
 
 const usePuck = createUsePuck();
 
 type Props = Record<string, unknown>;
-type TabName = 'content';
-const TABS: readonly TabName[] = ['content'];
+type TabName = 'content' | 'style' | 'advanced';
+const TABS: readonly TabName[] = ['content', 'style', 'advanced'];
 
 const withPatch = (props: Props, patch: Props): Props =>
   Object.fromEntries(Object.entries({ ...props, ...patch }).filter(([, value]) => value !== undefined));
@@ -54,10 +57,12 @@ function SelectedInspector({ puckId, type, props }: { puckId: string; type: Elem
   const replace = (next: Props) => {
     if (selector) dispatch({ type: 'replace', destinationIndex: selector.index, destinationZone: selector.zone, data: { type, props: next } as never });
   };
-  const set = (patch: Props) => {
-    latest.current = withPatch(latest.current, patch);
+  const change = (fn: (current: Props) => Props) => {
+    latest.current = fn(latest.current);
     replace(latest.current);
   };
+  const set = (patch: Props) => change((current) => withPatch(current, patch));
+  const bp = useBreakpoint();
 
   const parent = getParentById(puckId);
   const parentSelector = parent ? getSelectorForId(String((parent.props as Props).id)) : undefined;
@@ -88,6 +93,8 @@ function SelectedInspector({ puckId, type, props }: { puckId: string; type: Elem
       </div>
       <div className={styles.body} role="tabpanel">
         {tab === 'content' && <ContentTab elementId={elementId} type={type} props={props} issues={issues} set={set} />}
+        {tab === 'style' && <StyleTab type={type} props={props} bp={bp} issues={issues} change={change} />}
+        {tab === 'advanced' && <AdvancedTab elementId={elementId} props={props} issues={issues} set={set} />}
       </div>
     </div>
   );

@@ -22,7 +22,8 @@ const column = (): { type: string; props: Record<string, unknown> } => ({ type: 
 // Puck assigns `props.id` itself on insert and duplicate (`<type>-<uuid>`); fromPuckData turns it into the contract uuid.
 const DEFAULT_PROPS: Record<ElementType, Record<string, unknown>> = {
   section: { items: [] },
-  columns: { items: [column(), column()] },
+  // Two columns on desktop and tablet, stacked on the phone.
+  columns: { items: [column(), column()], style: { desktop: { cols: 2 }, mobile: { cols: 1 } } },
   column: { items: [] },
   group: { items: [] },
   heading: { text: 'Título', tag: 'h2' },
