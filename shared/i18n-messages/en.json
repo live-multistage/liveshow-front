@@ -610,6 +610,7 @@
       "platformCoupons": "Coupons",
       "platformSeo": "SEO",
       "platformLegal": "Legal documents",
+      "platformPages": "Pages",
       "platformSettings": "Settings",
       "platformAudit": "Audit log",
       "channels": "Channels",
@@ -3144,6 +3145,65 @@
         "endNote": "session ended · {when}",
         "error": "Could not load the session.",
         "retry": "Try again"
+      }
+    },
+    "pages": {
+      "title": "Pages",
+      "subtitle": "Build public pages from ready-made sections — campaigns, partners, events. The draft saves itself; it only goes live when you publish.",
+      "new": "New page",
+      "searchLabel": "Search pages",
+      "searchPlaceholder": "Search by title or address",
+      "filterLabel": "Filter by status",
+      "filters": {
+        "all": "All",
+        "published": "Published",
+        "draft": "Drafts",
+        "archived": "Archived"
+      },
+      "count": "{shown} of {total} pages",
+      "cols": {
+        "page": "PAGE",
+        "status": "STATUS",
+        "live": "LIVE",
+        "sections": "SECTIONS",
+        "edited": "LAST EDIT",
+        "actions": "Actions"
+      },
+      "status": {
+        "PUBLISHED": "PUBLISHED",
+        "DRAFT": "DRAFT",
+        "ARCHIVED": "ARCHIVED"
+      },
+      "pending": "UNPUBLISHED CHANGES",
+      "openPublic": "View public page of {title}",
+      "loadError": "Could not load the pages.",
+      "retry": "Try again",
+      "empty": {
+        "title": "No pages yet",
+        "body": "Build campaign, partner and event pages from ready-made sections. Nothing goes live until you publish.",
+        "cta": "Create the first page"
+      },
+      "noResults": "No page found for “{q}”.",
+      "clearSearch": "Clear search",
+      "dialog": {
+        "title": "New page",
+        "desc": "It starts as a draft and only becomes public when you publish.",
+        "titleLabel": "Title",
+        "slugLabel": "Address",
+        "slugHint": "Lowercase letters, numbers and hyphens. Generated from the title.",
+        "slugFormat": "Use only lowercase letters, numbers and hyphens.",
+        "slugReserved": "This address is reserved by the platform.",
+        "slugTaken": "This address is already in use.",
+        "startLabel": "Starting point",
+        "blank": "Blank",
+        "blankHint": "Start with no sections.",
+        "dup": "Duplicate existing page",
+        "dupHint": "Copies the sections from another page's draft.",
+        "dupSelect": "Page to duplicate",
+        "cancel": "Cancel",
+        "create": "Create and open editor",
+        "creating": "Creating…",
+        "genericError": "Could not create the page. Try again."
       }
     },
     "legal": {

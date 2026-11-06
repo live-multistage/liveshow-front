@@ -26,6 +26,7 @@ import {
   Activity,
   Search,
   Scale,
+  LayoutTemplate,
 } from 'lucide-react';
 import type { UserRole } from '@/types';
 import type { FeatureFlagKey } from '@/features/feature-flags';
@@ -99,6 +100,7 @@ export const NAV_BY_ROLE: Record<Exclude<UserRole, 'USER'>, NavItem[]> = {
     { navKey: 'platformTracking',      href: '/dashboard/platform/tracking',      icon: Activity,     group: 'OPERACIONAL', flag: 'tracking' },
     { navKey: 'platformSeo',           href: '/dashboard/platform/seo',           icon: Search,       group: 'CONFIG & GOVERNANÇA' },
     { navKey: 'platformLegal',         href: '/dashboard/platform/legal',         icon: Scale,        group: 'CONFIG & GOVERNANÇA' },
+    { navKey: 'platformPages',         href: '/dashboard/platform/pages',         icon: LayoutTemplate, group: 'CONFIG & GOVERNANÇA', flag: 'page_builder' },
     { navKey: 'platformSettings',      href: '/dashboard/platform/settings',      icon: Settings,     group: 'CONFIG & GOVERNANÇA' },
     { navKey: 'platformAudit',         href: '/dashboard/platform/audit',         icon: ShieldCheck,  group: 'CONFIG & GOVERNANÇA' },
   ],

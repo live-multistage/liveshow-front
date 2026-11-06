@@ -610,6 +610,7 @@
       "platformCoupons": "Cupones",
       "platformSeo": "SEO",
       "platformLegal": "Documentos legales",
+      "platformPages": "Páginas",
       "platformSettings": "Configuración",
       "platformAudit": "Registro de auditoría",
       "channels": "Canales",
@@ -3144,6 +3145,65 @@
         "endNote": "fin de la sesión · {when}",
         "error": "No se pudo cargar la sesión.",
         "retry": "Reintentar"
+      }
+    },
+    "pages": {
+      "title": "Páginas",
+      "subtitle": "Arma páginas públicas con secciones listas — campañas, socios, eventos. El borrador se guarda solo; solo sale al aire cuando publicas.",
+      "new": "Nueva página",
+      "searchLabel": "Buscar páginas",
+      "searchPlaceholder": "Buscar por título o dirección",
+      "filterLabel": "Filtrar por estado",
+      "filters": {
+        "all": "Todas",
+        "published": "Publicadas",
+        "draft": "Borradores",
+        "archived": "Archivadas"
+      },
+      "count": "{shown} de {total} páginas",
+      "cols": {
+        "page": "PÁGINA",
+        "status": "ESTADO",
+        "live": "EN VIVO",
+        "sections": "SECCIONES",
+        "edited": "ÚLTIMA EDICIÓN",
+        "actions": "Acciones"
+      },
+      "status": {
+        "PUBLISHED": "PUBLICADA",
+        "DRAFT": "BORRADOR",
+        "ARCHIVED": "ARCHIVADA"
+      },
+      "pending": "CAMBIOS SIN PUBLICAR",
+      "openPublic": "Ver página pública de {title}",
+      "loadError": "No se pudieron cargar las páginas.",
+      "retry": "Intentar de nuevo",
+      "empty": {
+        "title": "Aún no hay páginas",
+        "body": "Arma páginas de campañas, socios y eventos con secciones listas. Nada sale al aire hasta que publiques.",
+        "cta": "Crear la primera página"
+      },
+      "noResults": "No se encontró ninguna página para “{q}”.",
+      "clearSearch": "Limpiar búsqueda",
+      "dialog": {
+        "title": "Nueva página",
+        "desc": "Nace como borrador y solo es pública cuando publicas.",
+        "titleLabel": "Título",
+        "slugLabel": "Dirección",
+        "slugHint": "Letras minúsculas, números y guiones. Generada a partir del título.",
+        "slugFormat": "Usa solo letras minúsculas, números y guiones.",
+        "slugReserved": "Esta dirección está reservada por la plataforma.",
+        "slugTaken": "Esta dirección ya está en uso.",
+        "startLabel": "Punto de partida",
+        "blank": "En blanco",
+        "blankHint": "Empieza sin secciones.",
+        "dup": "Duplicar página existente",
+        "dupHint": "Copia las secciones del borrador de otra página.",
+        "dupSelect": "Página a duplicar",
+        "cancel": "Cancelar",
+        "create": "Crear y abrir editor",
+        "creating": "Creando…",
+        "genericError": "No se pudo crear la página. Inténtalo de nuevo."
       }
     },
     "legal": {

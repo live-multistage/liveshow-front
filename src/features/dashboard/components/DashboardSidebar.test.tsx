@@ -57,4 +57,13 @@ describe('DashboardSidebar — feature flag gating', () => {
 
     expect(screen.getByText('platformTracking')).toBeInTheDocument();
   });
+
+  it('shows the pages nav entry only when page_builder is on', () => {
+    mockedUseAuth.mockReturnValue({ user: { role: 'SUPER_ADMIN' } } as ReturnType<typeof useAuth>);
+    const { unmount } = render(<DashboardSidebar flags={{ ...DEFAULT_FEATURE_FLAGS, page_builder: false }} />);
+    expect(screen.queryByText('platformPages')).not.toBeInTheDocument();
+    unmount();
+    render(<DashboardSidebar flags={{ ...DEFAULT_FEATURE_FLAGS, page_builder: true }} />);
+    expect(screen.getByText('platformPages')).toBeInTheDocument();
+  });
 });

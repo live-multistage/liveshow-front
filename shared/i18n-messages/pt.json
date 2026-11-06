@@ -610,6 +610,7 @@
       "platformCoupons": "Cupons",
       "platformSeo": "SEO",
       "platformLegal": "Documentos legais",
+      "platformPages": "Páginas",
       "platformSettings": "Configurações",
       "platformAudit": "Audit log",
       "channels": "Canais",
@@ -3144,6 +3145,65 @@
         "endNote": "fim da sessão · {when}",
         "error": "Não foi possível carregar a sessão.",
         "retry": "Tentar novamente"
+      }
+    },
+    "pages": {
+      "title": "Páginas",
+      "subtitle": "Monte páginas públicas com seções prontas — campanhas, parceiros, eventos. O rascunho salva sozinho; só vai ao ar quando você publica.",
+      "new": "Nova página",
+      "searchLabel": "Buscar páginas",
+      "searchPlaceholder": "Buscar por título ou endereço",
+      "filterLabel": "Filtrar por status",
+      "filters": {
+        "all": "Todas",
+        "published": "Publicadas",
+        "draft": "Rascunhos",
+        "archived": "Arquivadas"
+      },
+      "count": "{shown} de {total} páginas",
+      "cols": {
+        "page": "PÁGINA",
+        "status": "STATUS",
+        "live": "NO AR",
+        "sections": "SEÇÕES",
+        "edited": "ÚLTIMA EDIÇÃO",
+        "actions": "Ações"
+      },
+      "status": {
+        "PUBLISHED": "PUBLICADA",
+        "DRAFT": "RASCUNHO",
+        "ARCHIVED": "ARQUIVADA"
+      },
+      "pending": "ALTERAÇÕES NÃO PUBLICADAS",
+      "openPublic": "Ver página pública de {title}",
+      "loadError": "Não foi possível carregar as páginas.",
+      "retry": "Tentar de novo",
+      "empty": {
+        "title": "Nenhuma página ainda",
+        "body": "Monte páginas de campanhas, parceiros e eventos com seções prontas. Nada vai ao ar até você publicar.",
+        "cta": "Criar a primeira página"
+      },
+      "noResults": "Nenhuma página encontrada para “{q}”.",
+      "clearSearch": "Limpar busca",
+      "dialog": {
+        "title": "Nova página",
+        "desc": "Ela nasce como rascunho e só fica pública quando você publicar.",
+        "titleLabel": "Título",
+        "slugLabel": "Endereço",
+        "slugHint": "Letras minúsculas, números e hífen. Gerado a partir do título.",
+        "slugFormat": "Use só letras minúsculas, números e hífen.",
+        "slugReserved": "Esse endereço é reservado pela plataforma.",
+        "slugTaken": "Esse endereço já está em uso.",
+        "startLabel": "Ponto de partida",
+        "blank": "Em branco",
+        "blankHint": "Comece sem seções.",
+        "dup": "Duplicar página existente",
+        "dupHint": "Copia as seções do rascunho de outra página.",
+        "dupSelect": "Página para duplicar",
+        "cancel": "Cancelar",
+        "create": "Criar e abrir editor",
+        "creating": "Criando…",
+        "genericError": "Não foi possível criar a página. Tente de novo."
       }
     },
     "legal": {
