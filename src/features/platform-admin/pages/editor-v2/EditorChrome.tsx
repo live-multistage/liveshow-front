@@ -6,6 +6,8 @@ import { createUsePuck, Puck } from '@puckeditor/core';
 import type { Breakpoint, PageDetail } from '@live-show/api-contracts';
 import type { AutosaveStatus } from '../hooks/use-draft-autosave';
 import { EditorTopbar } from '../components/EditorTopbar';
+import { CanvasCrumbs } from './CanvasCrumbs';
+import { CanvasEmpty } from './CanvasEmpty';
 import { CanvasStage } from './CanvasStage';
 import { SaveAsBlockProvider } from './left/SaveAsBlock';
 import { BREAKPOINT_WIDTH, breakpointFromWidth, useBreakpoint, useBreakpointSetter } from './use-breakpoint';
@@ -48,10 +50,17 @@ export function EditorChrome({ banners, locked, ...topbar }: Props) {
   // ⌘Z / ⇧⌘Z are bound by Puck itself to this same history.
   const back = usePuck((s) => s.history.back);
   const forward = usePuck((s) => s.history.forward);
+  const pageIsEmpty = usePuck((s) => s.appState.data.content.length === 0);
   const breakpoint = useBreakpoint();
   const t = useTranslations('platformAdmin.pageEditorV2');
-  // Text of the empty-slot hint drawn by CSS inside the canvas (see PageEditorV2.module.scss).
-  const slotLabel = { '--slot-empty-label': JSON.stringify(t('add.slotEmpty')) } as React.CSSProperties;
+  // Texts drawn by CSS inside the canvas (empty slots, drop feedback; see PageEditorV2.module.scss).
+  const canvasTexts = {
+    '--slot-empty-label': JSON.stringify(t('add.slotEmpty')),
+    '--slot-empty-section-label': JSON.stringify(t('blocks.emptySection')),
+    '--slot-empty-hint': JSON.stringify(t('canvas.slotHint')),
+    '--slot-drop-label': JSON.stringify(t('canvas.dropLabel')),
+    '--slot-bad-label': JSON.stringify(t('canvas.badDrop')),
+  } as React.CSSProperties;
   const setBreakpoint = useBreakpointSetter();
   useBlockHistoryKeys(locked);
 
@@ -74,13 +83,21 @@ export function EditorChrome({ banners, locked, ...topbar }: Props) {
       />
       {banners}
       <SaveAsBlockProvider>
-        <div className={styles.body} style={slotLabel}>
+        <div className={styles.body} style={canvasTexts}>
           <div className={`${styles.left} ${locked ? styles.locked : ''}`}>
             <Puck.Components />
             <Puck.Outline />
           </div>
           <div className={`${styles.canvas} ${locked ? styles.locked : ''}`} data-testid="editor-canvas">
-            <CanvasStage width={BREAKPOINT_WIDTH[breakpoint]}><Puck.Preview /></CanvasStage>
+            <CanvasStage
+              width={BREAKPOINT_WIDTH[breakpoint]}
+              breakpoint={breakpoint}
+              deviceLabel={t(`canvas.devices.${breakpoint}`)}
+              crumbs={<CanvasCrumbs />}
+              overlay={pageIsEmpty ? <CanvasEmpty /> : undefined}
+            >
+              <Puck.Preview />
+            </CanvasStage>
           </div>
           <div className={`${styles.right} ${locked ? styles.locked : ''}`}>
             <Puck.Fields />

@@ -71,6 +71,24 @@ describe('visibility and layout', () => {
     expect(container.firstElementChild!.className).toContain('m-cols-2');
     expect(container.firstElementChild!.className).not.toContain('m-cols-1');
   });
+  it('ignores a ratio whose part count does not match the effective cols of that breakpoint', () => {
+    const style = { desktop: { cols: 3, ratio: '1-2-1' }, tablet: { ratio: '3-2' }, mobile: { cols: 2, ratio: '1-1-1' } };
+    const { container } = render(<ElementRenderer ctx={ctx()} element={el('columns', { items: [], style })} />);
+    const cls = container.firstElementChild!.className;
+    expect(cls).toContain('ratio-1-2-1');
+    expect(cls).not.toContain('t-ratio');
+    expect(cls).not.toContain('m-ratio');
+  });
+  it('a new section gets top and bottom spacing unless the author set padding', () => {
+    const { container, rerender } = render(<ElementRenderer ctx={ctx()} element={el('section', { items: [] })} />);
+    expect(container.firstElementChild!.className).toContain('pt-l1');
+    expect(container.firstElementChild!.className).toContain('pb-l1');
+    rerender(<ElementRenderer ctx={ctx()} element={el('section', { items: [], style: { desktop: { p: 'md' } } })} />);
+    expect(container.firstElementChild!.className).not.toContain('pt-l1');
+    rerender(<ElementRenderer ctx={ctx()} element={el('section', { items: [], style: { desktop: { pt: '0' } } })} />);
+    expect(container.firstElementChild!.className).toContain('pt-0');
+    expect(container.firstElementChild!.className).not.toContain('pt-l1');
+  });
   it('page root is a named container', () => {
     const doc: PageDocumentV2 = { schemaVersion: 2, context: { type: 'none' }, root: { props: {} }, content: [] };
     const { container } = render(<PageRoot document={doc} ctx={ctx()} />);

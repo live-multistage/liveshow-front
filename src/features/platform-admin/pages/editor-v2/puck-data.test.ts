@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { upgradePageDocument, type PageDocumentV2 } from '@live-show/api-contracts';
+import { upgradePageDocument, walkElements, type PageDocumentV2 } from '@live-show/api-contracts';
+import fixture from '../../../../../shared/api-contracts/src/pages/page-tree-fixture.json';
 import { fromPuckData, toPuckData } from './puck-data';
 
 const UUID = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
@@ -49,5 +50,13 @@ describe('puck adapter', () => {
   it('drops anything else Puck puts on the root', () => {
     const data = { ...toPuckData(doc), root: { props: { title: 'x' } } };
     expect(fromPuckData(data).root).toEqual({ props: {} });
+  });
+
+  it('strips Puck id prefixes on every element of the 19-type fixture and leaves iconList/faq items alone', () => {
+    const full = fixture as unknown as PageDocumentV2;
+    const ids: string[] = [];
+    walkElements(full, (el) => void ids.push((el.props as { id: string }).id));
+    const prefixed = ids.reduce((json, id) => json.replaceAll(id, `x-${id}`), JSON.stringify(toPuckData(full)));
+    expect(fromPuckData(JSON.parse(prefixed), full.context)).toEqual(full);
   });
 });

@@ -36,7 +36,7 @@ const REGISTRY: { [K in ElementType]: ElementView<K> } = {
 
 // Desktop-level defaults (tokens only) for what the author left unset; document values always win.
 const DEFAULT_STYLE: Partial<Record<ElementType, Record<string, unknown>>> = {
-  section: { pl: 'xl', pr: 'xl', width: 'contained', gap: 'xl' },
+  section: { pt: 'l1', pb: 'l1', pl: 'xl', pr: 'xl', width: 'contained', gap: 'xl' },
   columns: { cols: 2, gap: 'xl' },
   column: { gap: 'lg' },
   group: { gap: 'sm' },
@@ -53,13 +53,35 @@ const DEFAULT_STYLE: Partial<Record<ElementType, Record<string, unknown>>> = {
   plan: { p: 'xl' },
 };
 
-function resolveStyle(type: ElementType, style: ResponsiveStyle | undefined): ResponsiveStyle {
-  const desktop = { ...DEFAULT_STYLE[type], ...style?.desktop } as ResponsiveStyle['desktop'];
-  // Columns collapse to one column on mobile unless the author chose a count there.
-  if (type === 'columns' && style?.mobile?.cols === undefined) {
-    return { ...style, desktop, mobile: { ...style?.mobile, cols: 1 } };
+const partsOf = (ratio: unknown) => (typeof ratio === 'string' ? ratio.split('-').length : 0);
+
+// A ratio only makes sense for the cols it was written for; a stale one (another breakpoint changed the cols) would break the grid.
+function withCoherentRatio(style: ResponsiveStyle, desktopCols: number): ResponsiveStyle {
+  const next: ResponsiveStyle = { ...style };
+  let cols = desktopCols;
+  for (const bp of ['desktop', 'tablet', 'mobile'] as const) {
+    const layer = style[bp] as Record<string, unknown> | undefined;
+    if (!layer) continue;
+    if (typeof layer.cols === 'number') cols = layer.cols;
+    if (layer.ratio === undefined || partsOf(layer.ratio) === cols) continue;
+    const { ratio: _stale, ...rest } = layer;
+    (next as Record<string, unknown>)[bp] = rest;
   }
-  return { ...style, desktop };
+  return next;
+}
+
+function resolveStyle(type: ElementType, style: ResponsiveStyle | undefined): ResponsiveStyle {
+  const defaults: Record<string, unknown> = { ...DEFAULT_STYLE[type] };
+  // A new section breathes; `p` is a shorthand the author may have used instead of pt/pb.
+  if (type === 'section' && style?.desktop && 'p' in style.desktop) {
+    delete defaults.pt;
+    delete defaults.pb;
+  }
+  const desktop = { ...defaults, ...style?.desktop } as ResponsiveStyle['desktop'];
+  if (type !== 'columns') return { ...style, desktop };
+  // Columns collapse to one column on mobile unless the author chose a count there.
+  const mobile = (style?.mobile?.cols === undefined ? { ...style?.mobile, cols: 1 } : style.mobile) as ResponsiveStyle['mobile'];
+  return withCoherentRatio({ ...style, desktop, mobile }, Number(desktop?.cols) || 2);
 }
 
 /**

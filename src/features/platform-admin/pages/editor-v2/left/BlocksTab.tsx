@@ -6,7 +6,7 @@ import { Button } from '@live-show/design-system';
 import type { ElementType, PageElement } from '@live-show/api-contracts';
 import { SectionThumb } from '../../components/SectionThumb';
 import { usePageBlocksQuery } from '../../queries/use-page-blocks';
-import { READY_BLOCKS } from './ready-blocks';
+import { EMPTY_SECTION, OPENING_BLOCK, READY_BLOCKS } from './ready-blocks';
 import type { InsertionPoint } from './tree-ops';
 import { canNest } from './tree-ops';
 import styles from './left.module.scss';
@@ -18,8 +18,6 @@ interface Props {
   onInsert(element: PageElement): void;
 }
 
-const EMPTY_SECTION = { type: 'section', props: { id: 'empty-section', items: [] } } as unknown as PageElement;
-
 export function BlocksTab({ pointFor, pageIsEmpty, onInsert }: Props) {
   const t = useTranslations('platformAdmin.pageEditorV2');
   const tv1 = useTranslations('platformAdmin.pageEditor');
@@ -30,7 +28,6 @@ export function BlocksTab({ pointFor, pageIsEmpty, onInsert }: Props) {
   const reason = (type: ElementType) => (fits(type) ? undefined : pointFor(type).parentType === null
     ? t('add.reasonRoot')
     : t('add.reasonParent', { parent: t(`types.${pointFor(type).parentType}`), child: t(`types.${type}`) }));
-  const opening = READY_BLOCKS.find((b) => b.type === 'hero')!;
 
   return (
     <div>
@@ -41,7 +38,7 @@ export function BlocksTab({ pointFor, pageIsEmpty, onInsert }: Props) {
           <p>{t('blocks.emptyText')}</p>
           <div className={styles.emptyActions}>
             <Button type="button" variant="outline" size="sm" onClick={() => onInsert(EMPTY_SECTION)}>{t('blocks.emptySection')}</Button>
-            <Button type="button" size="sm" onClick={() => onInsert(opening.element)}>{t('blocks.insertOpening')}</Button>
+            <Button type="button" size="sm" onClick={() => onInsert(OPENING_BLOCK)}>{t('blocks.insertOpening')}</Button>
           </div>
         </div>
       )}

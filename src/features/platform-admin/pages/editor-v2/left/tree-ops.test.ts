@@ -4,7 +4,7 @@ import {
   ELEMENT_SLOT_RULES, ELEMENT_TYPES, childrenOf, countElements, walkElements, type ElementType, type PageDocumentV2, type PageElement,
 } from '@live-show/api-contracts';
 import {
-  canNest, cloneWithNewIds, idOf, insertAt, insertionPoint, locate, moveElement, ROOT_ZONE, setHiddenAt,
+  canNest, cloneWithNewIds, idOf, insertAt, insertionPoint, locate, moveElement, pathTo, ROOT_ZONE, setHiddenAt,
 } from './tree-ops';
 
 const doc = fixture as unknown as PageDocumentV2;
@@ -122,4 +122,16 @@ describe('setHiddenAt', () => {
     const shown = setHiddenAt(hidden, 's1', 'mobile', false);
     expect('hidden' in shown[0].props).toBe(false);
   });
+});
+
+describe('pathTo', () => {
+  it.each(ELEMENT_TYPES)('%s: the path ends at the element and every step is the parent of the next', (type) => {
+    let target: PageElement | undefined;
+    walkElements(doc, (el) => { if (!target && el.type === type) target = el; });
+    const path = pathTo(doc.content, idOf(target!));
+    expect(path.at(-1)).toBe(target);
+    expect(path[0].type).toBe('section');
+    path.slice(1).forEach((el, i) => expect(locate(doc.content, idOf(el))!.parent).toBe(path[i]));
+  });
+  it('is empty for an unknown id', () => expect(pathTo(doc.content, 'nope')).toEqual([]));
 });

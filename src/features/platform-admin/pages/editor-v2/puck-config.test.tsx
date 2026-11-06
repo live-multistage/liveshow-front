@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ELEMENT_SLOT_RULES, ELEMENT_TYPES, pageDraftV2Schema, type ElementType } from '@live-show/api-contracts';
+import { ELEMENT_SLOT_RULES, ELEMENT_TYPES, pageDraftV2Schema, validatePageTreeV2, type ElementType } from '@live-show/api-contracts';
 import { fromPuckData } from './puck-data';
 import { createPuckConfig } from './puck-config';
 
@@ -54,5 +54,11 @@ describe('puck config', () => {
     const doc = fromPuckData({ root: { props: {} }, content: [withIds(section, next)] } as never);
     const parsed = pageDraftV2Schema.safeParse(doc);
     expect(parsed.success ? [] : parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`)).toEqual([]);
+  });
+
+  it('a new event rail is born with a title, so it starts without a "required" error', () => {
+    const section = { type: 'section', props: { id: '00000000-0000-4000-8000-000000000001', items: [{ type: 'eventRail', props: { ...components.eventRail.defaultProps, id: '00000000-0000-4000-8000-000000000002' } }] } };
+    const doc = fromPuckData({ root: { props: {} }, content: [section] } as never);
+    expect(validatePageTreeV2(doc).filter((i) => i.elementId === '00000000-0000-4000-8000-000000000002')).toEqual([]);
   });
 });

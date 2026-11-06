@@ -3926,6 +3926,20 @@
           "elementId": "Element ID",
           "elementIdHint": "Used in the history and in the publish comparison."
         }
+      },
+      "canvas": {
+        "crumbs": "Selection path",
+        "page": "PAGE",
+        "devices": {
+          "desktop": "Desktop",
+          "tablet": "Tablet",
+          "mobile": "Phone"
+        },
+        "emptyText": "Drag a block from the left onto the page, or add an empty section and build it with columns and widgets.",
+        "dropHere": "Drop here",
+        "slotHint": "or use “Add” in the panel on the left",
+        "dropLabel": "Drop here",
+        "badDrop": "Cannot go here"
       }
     },
     "seo": {

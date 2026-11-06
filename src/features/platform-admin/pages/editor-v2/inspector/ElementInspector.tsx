@@ -82,7 +82,9 @@ function SelectedInspector({ puckId, type, props }: { puckId: string; type: Elem
   const set = (patch: Props) => change((current) => withPatch(current, patch));
   const bp = useBreakpoint();
 
-  const parent = getParentById(puckId);
+  // Puck answers the page root for a top-level element; the page is not an element to select or to name.
+  const found = getParentById(puckId);
+  const parent = found?.type === 'root' ? undefined : found;
   const parentSelector = parent ? getSelectorForId(String((parent.props as Props).id)) : undefined;
 
   return (

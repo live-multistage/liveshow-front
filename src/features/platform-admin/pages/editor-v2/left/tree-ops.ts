@@ -25,6 +25,17 @@ export function locate(content: readonly PageElement[], id: string): Located | n
   return found;
 }
 
+/** Ancestors from the page's section down to the element itself (`[]` when it is not in the tree). */
+export function pathTo(content: readonly PageElement[], id: string): PageElement[] {
+  const path: PageElement[] = [];
+  let at = locate(content, id);
+  while (at) {
+    path.unshift(at.element);
+    at = at.parent ? locate(content, idOf(at.parent)) : null;
+  }
+  return path;
+}
+
 export interface InsertionPoint { parentId: string | null; parentType: ElementType | null; index: number; zone: string }
 
 const pointIn = (parentId: string | null, parentType: ElementType | null, index: number): InsertionPoint =>

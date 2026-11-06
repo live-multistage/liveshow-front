@@ -12,7 +12,7 @@ describe('fitScale', () => {
 
 describe('CanvasStage', () => {
   it('renders the page at the real breakpoint width', () => {
-    render(<CanvasStage width={768}><p>page</p></CanvasStage>);
+    render(<CanvasStage width={768} breakpoint="tablet" deviceLabel="Tablet" crumbs={null}><p>page</p></CanvasStage>);
     expect(screen.getByText('page').parentElement).toHaveStyle({ width: '768px' });
   });
 });

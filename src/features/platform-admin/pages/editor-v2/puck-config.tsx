@@ -6,6 +6,7 @@ import {
 } from '@live-show/api-contracts';
 import { ElementRenderer, PageContainer } from '@/features/pages-public/elements';
 import type { RenderContext } from '@/features/pages-public/elements';
+import { CanvasPage } from './CanvasStage';
 import { renderField } from './fields-placeholder';
 
 /** Content props of each type (SDD §2.2). The inspector (V2-U2) replaces the placeholder with real controls. */
@@ -38,7 +39,7 @@ const DEFAULT_PROPS: Record<ElementType, Record<string, unknown>> = {
   counter: { value: '10 mil', label: 'espectadores' },
   faq: { items: [{ question: 'Pergunta', answer: 'Resposta' }] },
   plan: { name: 'Plano', price: 'R$ 0' },
-  eventRail: { source: { kind: 'live' }, limit: 4 },
+  eventRail: { title: 'Próximos eventos', source: { kind: 'live' }, limit: 4 },
   featuredEvent: { eventId: '' },
   liveNow: { limit: 4, emptyText: 'Nenhum evento ao vivo agora' },
 };
@@ -70,7 +71,7 @@ function fieldsFor(type: ElementType): Record<string, Field> {
 
 // The page root only takes sections (SDD §2.3); Puck's default root zone would take anything.
 function RootRender({ puck }: { puck: { renderDropZone: (props: { zone: string; allow: string[] }) => React.ReactNode } }) {
-  return <PageContainer>{puck.renderDropZone({ zone: ROOT_ZONE, allow: ['section'] })}</PageContainer>;
+  return <CanvasPage><PageContainer>{puck.renderDropZone({ zone: ROOT_ZONE, allow: ['section'] })}</PageContainer></CanvasPage>;
 }
 
 /** Generated from the contract: one entry per element type, nesting from the slot table, labels from the caller (i18n). */

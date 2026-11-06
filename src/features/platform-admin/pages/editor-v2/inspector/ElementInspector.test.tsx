@@ -90,6 +90,14 @@ describe('ElementInspector: structure', () => {
     expect(screen.getByTestId('inspector-empty')).toBeInTheDocument();
   });
 
+  it('a top-level section has no parent: Puck answers the page root for it, which is neither named nor selectable', () => {
+    select('section', { items: [] });
+    puck.store.getParentById = () => ({ type: 'root', props: {} });
+    renderInspector();
+    expect(screen.getByText('na página')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Selecionar o elemento pai' })).toBeNull();
+  });
+
   it('names the element and its parent, with the three tabs', () => {
     select('heading', { text: 'Oi', tag: 'h2' });
     renderInspector();

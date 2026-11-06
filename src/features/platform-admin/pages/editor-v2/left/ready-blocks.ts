@@ -25,3 +25,7 @@ export const READY_BLOCKS: readonly { type: PageSectionType; element: PageElemen
   const { content } = upgradePageDocument({ schemaVersion: 1, context: { type: 'none' }, sections: [v1] });
   return { type, element: content[0] as PageElement };
 });
+
+export const EMPTY_SECTION = { type: 'section', props: { id: 'empty-section', items: [] } } as unknown as PageElement;
+/** "Abertura": the hero block that starts a page. */
+export const OPENING_BLOCK = READY_BLOCKS.find((b) => b.type === 'hero')!.element;

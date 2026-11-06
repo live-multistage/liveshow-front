@@ -5,9 +5,10 @@ import { useTranslations } from 'next-intl';
 import { Drawer } from '@puckeditor/core';
 import type { ElementType, PageElement } from '@live-show/api-contracts';
 import { BlocksTab } from './BlocksTab';
-import { cloneWithNewIds, canNest, insertAt, insertionPoint, type InsertionPoint } from './tree-ops';
+import { canNest, insertionPoint, type InsertionPoint } from './tree-ops';
 import { TYPE_ICONS } from './type-icons';
-import { useEditContent, usePuck } from './puck-store';
+import { usePuck } from './puck-store';
+import { useInsertBlock, useSelectAt } from './use-insert-block';
 import styles from './left.module.scss';
 
 const GROUPS = [
@@ -24,26 +25,19 @@ export function AddPanel() {
   const content = usePuck((s) => s.appState.data.content) as unknown as PageElement[];
   const selectedId = usePuck((s) => (s.selectedItem?.props as { id?: string } | undefined)?.id ?? null);
   const dispatch = usePuck((s) => s.dispatch);
-  const edit = useEditContent();
+  const insertBlock = useInsertBlock();
+  const selectNew = useSelectAt();
   const pageIsEmpty = content.length === 0;
   // A new page opens on the blocks: that is where "start from a ready block" lives.
   const [tab, setTab] = useState<Tab>(pageIsEmpty ? 'blocks' : 'widgets');
   const [query, setQuery] = useState('');
   const pointFor = useCallback((type: ElementType) => insertionPoint(content, selectedId, type), [content, selectedId]);
-  const selectNew = (at: InsertionPoint) => dispatch({ type: 'setUi', ui: { itemSelector: { index: at.index, zone: at.zone } } });
 
   const insertWidget = (type: ElementType) => {
     const at = pointFor(type);
     dispatch({ type: 'insert', componentType: type, destinationIndex: at.index, destinationZone: at.zone });
     selectNew(at);
   };
-  const insertBlock = (element: PageElement) => {
-    const at = pointFor(element.type);
-    if (!canNest(at.parentType, element.type)) return;
-    edit((current) => insertAt(current, at.parentId, at.index, cloneWithNewIds(element)));
-    selectNew(at);
-  };
-
   return (
     <div className={styles.panel}>
       <div className={styles.tabs} role="tablist">
@@ -96,10 +90,11 @@ function WidgetsTab({ pointFor, query, onQuery, onInsert }: WidgetsProps) {
                 return (
                   <Drawer.Item key={type} name={type} label={t(`types.${type}`)}>
                     {() => (
-                      <button type="button" className={`${styles.widget} ${why ? styles.dim : ''}`} title={why} aria-disabled={!!why}
+                      // Not a <button>: the drag sensor never starts from an interactive element, and the Drawer.Item around it is the drag source.
+                      <div role="button" tabIndex={-1} className={`${styles.widget} ${why ? styles.dim : ''}`} title={why} aria-disabled={!!why}
                         onClick={() => !why && onInsert(type)}>
                         <Icon aria-hidden="true" />{t(`types.${type}`)}
-                      </button>
+                      </div>
                     )}
                   </Drawer.Item>
                 );
