@@ -16,17 +16,14 @@
 }
 
 .bg_accent {
-  background: radial-gradient(120% 140% at 100% 0%, rgba($action, .22), transparent 60%), #0d0a0c;
+  background: radial-gradient(120% 140% at 100% 0%, rgba($action, .22), transparent 60%), $surface-dark;
 }
 .bg_image {
   background:
     radial-gradient(80% 120% at 80% 20%, rgba($action, .45), transparent 60%),
-    radial-gradient(70% 100% at 10% 90%, rgba(155, 123, 255, .35), transparent 60%),
-    #050406;
+    radial-gradient(70% 100% at 10% 90%, rgba($violet, .35), transparent 60%),
+    $bg;
 }
-
-.show_desktop { @media (max-width: #{$md - 1px}) { display: none; } }
-.show_mobile { @media (min-width: $md) { display: none; } }
 
 .strip {
   display: flex;
@@ -44,4 +41,7 @@
   flex-direction: column;
   align-items: center;
 }
-.hero {}
+
+// Declared last: same specificity as .strip/.final (display:flex), so source order must let these win.
+.show_desktop { @media (max-width: #{$md - 1px}) { display: none; } }
+.show_mobile { @media (min-width: $md) { display: none; } }

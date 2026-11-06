@@ -90,7 +90,7 @@ describe('PageSections', () => {
   const mk = (id: string, extra: Partial<PageSection> = {}) =>
     ({ id, type: 'stats', hidden: false, appearance, props: { items: [{ value: id, label: 'l' }] }, ...extra }) as PageSection;
 
-  it('skips hidden sections and unknown (U3) types; sets anchor id', () => {
+  it('skips hidden sections and rails with no events; sets anchor id', () => {
     const rail = { id: 'r', type: 'rail', hidden: false, appearance, props: { title: 'R', source: { kind: 'live' }, limit: 4 } } as PageSection;
     const { container } = render(<PageSections resolved={resolved} document={doc(mk('s1'), mk('s2', { hidden: true }), rail)} />);
     expect(container.querySelector('#s1')).toBeTruthy();
