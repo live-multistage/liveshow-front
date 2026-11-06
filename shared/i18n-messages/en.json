@@ -3651,6 +3651,62 @@
         "title": "This page uses the new editor",
         "text": "The current editor cannot open pages in the new format. See the preview below; to edit, the new editor must be enabled.",
         "back": "Back to pages"
+      },
+      "add": {
+        "tabs": {
+          "widgets": "Widgets",
+          "blocks": "Blocks"
+        },
+        "search": "Search widget",
+        "none": "No widgets found.",
+        "realData": "Live data",
+        "groups": {
+          "structure": "Structure",
+          "basic": "Basic",
+          "content": "Content",
+          "events": "Events"
+        },
+        "reasonRoot": "Only sections go straight on the page. Select a section to add here.",
+        "reasonParent": "{parent} cannot hold {child}.",
+        "slotEmpty": "Drop a widget here"
+      },
+      "blocks": {
+        "ready": "Ready blocks",
+        "mine": "My blocks",
+        "loading": "Loading your blocks…",
+        "error": "Could not load your blocks.",
+        "retry": "Try again",
+        "mineEmpty": "You have not saved any block yet. Select a section, columns or column in Layers and use “Save as block”.",
+        "insert": "Insert {name}",
+        "emptyTitle": "Start with a ready block",
+        "emptyText": "Pick a block below, or add an empty section in the Widgets tab and build with columns and widgets.",
+        "insertOpening": "Insert “Opening”",
+        "save": {
+          "eyebrow": "My blocks",
+          "title": "Save as block",
+          "name": "Block name",
+          "summary": "{type} · {count} elements",
+          "note": "The block shows up in “Add › Blocks” for every page. Each use is a copy: editing the block later does not change pages already using it.",
+          "cancel": "Cancel",
+          "submit": "Save block",
+          "saved": "Block “{name}” saved",
+          "error": "Could not save the block. Try again.",
+          "invalid": "The block has invalid fields."
+        }
+      },
+      "layers": {
+        "title": "Layers",
+        "empty": "The page has no elements yet.",
+        "expand": "Expand",
+        "collapse": "Collapse",
+        "overrides": "Has its own styles for tablet (T) and/or mobile (C)",
+        "error": "Has an error",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "moveOut": "Move out of parent",
+        "saveAsBlock": "Save as block",
+        "hide": "Hide on {bp}",
+        "show": "Show on {bp}"
       }
     },
     "seo": {

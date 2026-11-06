@@ -34,6 +34,10 @@ vi.mock('../mutations/use-page-mutations', () => {
     useUploadPageAssetMutation: idle,
   };
 });
+vi.mock('../queries/use-page-blocks', () => ({
+  usePageBlocksQuery: () => ({ data: [], isPending: false, isError: false }),
+  useCreatePageBlockMutation: () => ({ mutate: vi.fn(), isPending: false, isError: false }),
+}));
 vi.mock('../services/pages.service', () => ({
   pagesService: { saveDraft: vi.fn() },
   isDraftConflict: (e: { response?: { status?: number; data?: { code?: string } } }) =>
@@ -44,7 +48,9 @@ vi.mock('../services/pages.service', () => ({
 const puck = vi.hoisted(() => {
   const store = {
     dispatch: vi.fn(),
-    appState: { ui: { viewports: { current: { width: 1280, height: 'auto' }, controlsVisible: false, options: [] } } },
+    selectedItem: null,
+    getSelectorForId: vi.fn(),
+    appState: { data: { root: { props: {} }, content: [] }, ui: { viewports: { current: { width: 1280, height: 'auto' }, controlsVisible: false, options: [] } } },
     history: { back: vi.fn(), forward: vi.fn(), hasPast: true, hasFuture: false },
   };
   return { store, props: {} as Record<string, any> };
@@ -60,8 +66,10 @@ vi.mock('@puckeditor/core', async () => {
   Puck.Components = slot('components');
   Puck.Outline = slot('outline');
   Puck.Fields = slot('fields');
+  const Drawer = (props: { children: React.ReactNode }) => react.createElement('div', null, props.children);
+  Drawer.Item = (props: { name: string; children: () => React.ReactNode }) => react.createElement('div', null, props.children());
   Puck.Preview = () => react.createElement('div', { 'data-testid': 'puck-preview' });
-  return { Puck, createUsePuck: () => (selector: (s: typeof puck.store) => unknown) => selector(puck.store) };
+  return { Puck, Drawer, createUsePuck: () => (selector: (s: typeof puck.store) => unknown) => selector(puck.store) };
 });
 
 import { act, fireEvent, render, screen } from '@testing-library/react';
@@ -139,8 +147,8 @@ describe('config handed to Puck', () => {
     await mountV2(v2Document());
     expect(puck.props.iframe).toEqual({ enabled: false });
     expect(puck.props.viewports.map((v: { width: number }) => v.width)).toEqual([1280, 768, 390]);
-    expect(screen.getByTestId('add-panel-placeholder')).toBeTruthy();
-    expect(screen.getByTestId('layers-panel-placeholder')).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Widgets' })).toBeTruthy();
+    expect(screen.getByText('A página ainda não tem elementos.')).toBeTruthy();
     expect(screen.getByTestId('inspector-placeholder')).toBeTruthy();
   });
 });
