@@ -30,7 +30,10 @@ const NO_RESOLVED = { rails: {}, featured: {} };
 const LOCKED_PERMISSIONS = { drag: false, duplicate: false, delete: false, edit: false, insert: false };
 const PUCK_UI = { viewports: { current: { width: BREAKPOINT_WIDTH.desktop, height: 'auto' as const }, controlsVisible: false, options: VIEWPORTS } };
 const PUCK_IFRAME = { enabled: false };
-const PUCK_DICTIONARY = { 'viewport-switch-default': 'Trocar tamanho', 'plugin-components': 'Adicionar', 'plugin-outline': 'Camadas', 'plugin-fields': 'Inspetor' };
+const PUCK_DICTIONARY = {
+  'viewport-switch-default': 'Trocar tamanho', 'plugin-components': 'Adicionar', 'plugin-outline': 'Camadas', 'plugin-fields': 'Inspetor',
+  'action-selectparent': 'Selecionar o elemento pai', 'action-drag': 'Arrastar', 'action-duplicate': 'Duplicar', 'action-delete': 'Excluir',
+};
 
 type Panel = 'publish' | 'history' | 'settings' | null;
 
