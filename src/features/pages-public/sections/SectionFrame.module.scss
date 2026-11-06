@@ -1,0 +1,47 @@
+@use '../../../styles/_variables' as *;
+
+.frame {
+  container-type: inline-size;
+  padding: 64px 56px;
+  color: $text-primary;
+
+  @media (max-width: #{$md - 1px}) { padding: 40px 20px; }
+}
+
+.pad_compact { padding-top: 36px; padding-bottom: 36px; }
+.pad_wide {
+  padding-top: 96px;
+  padding-bottom: 96px;
+  @media (max-width: #{$md - 1px}) { padding-top: 56px; padding-bottom: 56px; }
+}
+
+.bg_accent {
+  background: radial-gradient(120% 140% at 100% 0%, rgba($action, .22), transparent 60%), #0d0a0c;
+}
+.bg_image {
+  background:
+    radial-gradient(80% 120% at 80% 20%, rgba($action, .45), transparent 60%),
+    radial-gradient(70% 100% at 10% 90%, rgba(155, 123, 255, .35), transparent 60%),
+    #050406;
+}
+
+.show_desktop { @media (max-width: #{$md - 1px}) { display: none; } }
+.show_mobile { @media (min-width: $md) { display: none; } }
+
+.strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  border-top: 1px solid $border-hairline;
+  border-bottom: 1px solid $border-hairline;
+}
+
+.final {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hero {}
