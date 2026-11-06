@@ -46,13 +46,15 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
   const t = useTranslations('platformAdmin.pageEditor');
   const tv2 = useTranslations('platformAdmin.pageEditorV2');
   const locale = useLocale();
-  const convertedFromV1 = page.draft.schemaVersion === 1;
+  // A blank v1 draft (new pages are created that way) has nothing to convert.
+  const convertedFromV1 = page.draft.schemaVersion === 1 && page.draft.sections.length > 0;
   const [initial] = useState<PageDocumentV2>(() => upgradePageDocument(page.draft));
   const [puckData] = useState<Data>(() => toPuckData(initial));
   const [document, setDocument] = useState(initial);
   const documentRef = useRef(initial);
   const [dirty, setDirty] = useState(false);
   const [locked, setLocked] = useState(false);
+  const lockedRef = useRef(false);
   // Latest revision the server holds for this draft: autosave and publish use it, never the query's.
   const [revision, setRevision] = useState(page.draftRevision);
   const [panel, setPanel] = useState<Panel>(null);
@@ -80,7 +82,9 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
   const config = useMemo(() => createPuckConfig((type: ElementType) => tv2(`types.${type}`)), [tv2]);
   const metadata = useMemo(() => ({ resolved: preview.data ? elementResolved(document, preview.data.resolved) : NO_RESOLVED }), [preview.data, document]);
 
+  // Locked: Puck's own keyboard history (Cmd+Z) still moves its tree; the document and what "copy my changes" hands out must not follow.
   const onChange = useCallback((data: Data) => {
+    if (lockedRef.current) return;
     const next = fromPuckData(data, documentRef.current.context);
     if (JSON.stringify(next) === JSON.stringify(documentRef.current)) return;
     documentRef.current = next;
@@ -98,6 +102,7 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
   const status = autosave.status;
   const conflict = status.kind === 'conflict' ? status.conflict : publishConflict;
   const isLocked = locked || !!conflict;
+  lockedRef.current = isLocked;
   const settled = !dirty && status.kind !== 'saving' && status.kind !== 'pending';
   const unpublished = page.hasUnpublishedChanges || touched;
   const issueCount = useMemo(() => {

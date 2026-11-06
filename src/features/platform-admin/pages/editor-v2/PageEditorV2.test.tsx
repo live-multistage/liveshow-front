@@ -151,6 +151,11 @@ describe('converted banner', () => {
     expect(screen.getByRole('status').textContent).toContain('Esta página foi convertida para o novo editor');
   });
 
+  it('does not show for a blank v1 draft: there is nothing converted', async () => {
+    await mountV2(createEmptyDocument());
+    expect(screen.queryByText('Esta página foi convertida para o novo editor.')).toBeNull();
+  });
+
   it('does not show for a v2 draft', async () => {
     await mountV2(v2Document());
     expect(screen.queryByText(/foi convertida para o novo editor/)).toBeNull();
@@ -199,6 +204,21 @@ describe('conflict', () => {
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Copiar minhas alterações' })); });
     expect(JSON.parse(writeText.mock.calls[0][0]).schemaVersion).toBe(2);
     expect(screen.getByRole('button', { name: 'Carregar versão atual' })).toBeTruthy();
+  });
+});
+
+describe('conflict and the keyboard', () => {
+  it('ignores what Puck reports while locked: Cmd+Z does not change the document nor the copied changes', async () => {
+    saveDraft.mockRejectedValue({ response: { status: 409, data: { code: 'DRAFT_CONFLICT', currentRevision: 9, updatedBy: null, updatedAt: '2026-11-06T14:35:00' } } });
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+    await mountV2(v2Document());
+    await edit();
+    await act(async () => { await vi.advanceTimersByTimeAsync(900); });
+    await act(async () => { puck.props.onChange(toPuckData(v2Document())); });
+
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Copiar minhas alterações' })); });
+    expect(JSON.parse(writeText.mock.calls[0][0])).toEqual(editedDocument());
   });
 });
 
