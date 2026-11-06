@@ -1,0 +1,122 @@
+@use '../../../../styles/dashboard-forms' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(5, 4, 6, 0.72);
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 51;
+  display: flex;
+  flex-direction: column;
+  width: 440px;
+  max-width: 100%;
+  border-left: 1px solid $border;
+  background: $bg;
+  color: $text-primary;
+  box-shadow: -30px 0 60px -30px rgba(0, 0, 0, 0.8);
+}
+
+.drawerHeader {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  border-bottom: 1px solid $border-hairline;
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $text-muted;
+}
+
+.drawerBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 22px;
+}
+
+.drawerFooter {
+  flex: none;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 22px;
+  border-top: 1px solid $border-hairline;
+}
+
+.group {
+  margin-top: 6px;
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $text-muted;
+}
+
+.danger { color: $error; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.labelRow { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.count { font-family: $mono; font-size: 10.5px; color: $text-muted; }
+.hint { font-size: 12px; line-height: 1.45; color: $text-secondary; }
+.warnHint { font-size: 12px; line-height: 1.45; color: $warning; }
+.error { margin: 0; font-size: 12px; color: $error; }
+
+.prefix {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: $mono;
+  font-size: 12px;
+  color: $text-secondary;
+
+  input { flex: 1; }
+}
+
+.switchRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13.5px; }
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid $border-hairline;
+  border-radius: 12px;
+}
+
+.dangerCard { border-color: rgba(239, 68, 68, 0.3); }
+.cardRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; b { font-size: 13.5px; } }
+
+.version { composes: card; gap: 8px; }
+.versionHead { display: flex; align-items: center; gap: 8px; }
+.versionDate { margin-left: auto; font-family: $mono; font-size: 10.5px; color: $text-muted; }
+.versionSummary { font-size: 14px; line-height: 1.45; }
+.draftCard { composes: card; gap: 6px; border-style: dashed; }
+
+.pillVersion { @include pill; color: $text-primary; border-color: $border; border-radius: 4px; }
+.pillLive { @include pill; color: $success-light; background: $success-bg; border-color: rgba(74, 222, 128, 0.35); }
+.pillDraft { @include pill; color: $warning; background: rgba(251, 191, 36, 0.08); border-color: rgba(251, 191, 36, 0.35); }
+
+.changes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid $border-hairline;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.skelLine { height: 18px; width: 60%; }

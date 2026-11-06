@@ -6,11 +6,14 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { AlertTriangle, X } from 'lucide-react';
 import { Button } from '@live-show/design-system';
-import type { PageDetail, PageSection } from '@live-show/api-contracts';
-import { createEditorState, pageEditorReducer, selectInvalidSections } from '../hooks/page-editor-reducer';
+import type { DraftConflict, PageDetail, PageSection } from '@live-show/api-contracts';
+import { countInvalidFields, createEditorState, pageEditorReducer, selectInvalidSections } from '../hooks/page-editor-reducer';
 import { useDraftAutosave } from '../hooks/use-draft-autosave';
 import { useMediaQuery } from '../hooks/use-media-query';
 import { EditorTopbar, formatClock } from './EditorTopbar';
+import { HistoryDrawer } from './HistoryDrawer';
+import { PageSettingsDrawer } from './PageSettingsDrawer';
+import { PublishDialog } from './PublishDialog';
 import { SectionTree } from './SectionTree';
 import styles from './PageEditor.module.scss';
 
@@ -19,6 +22,9 @@ import styles from './PageEditor.module.scss';
 // Keep in sync with the `.label` breakpoint in PageEditor.module.scss, which hides topbar labels on the same constraint.
 export const COMPACT_INSPECTOR_QUERY = '(max-width: 1360px)';
 const UNDO_TOAST_MS = 6000;
+const PUBLISHED_TOAST_MS = 6000;
+
+type Panel = 'publish' | 'history' | 'settings' | null;
 
 interface Props {
   page: PageDetail;
@@ -34,12 +40,20 @@ export function PageEditor({ page, onReload, reloadFailed, onOpenLibrary }: Prop
   const locale = useLocale();
   const compact = useMediaQuery(COMPACT_INSPECTOR_QUERY);
   const [state, dispatch] = useReducer(pageEditorReducer, page.draft, createEditorState);
+  // Latest revision the server holds for this draft; publish uses it as its optimistic-lock base.
+  const [revision, setRevision] = useState(page.draftRevision);
+  const [panel, setPanel] = useState<Panel>(null);
+  const [publishedVersion, setPublishedVersion] = useState<number | null>(null);
+  const [publishConflict, setPublishConflict] = useState<DraftConflict | null>(null);
   const autosave = useDraftAutosave({
     pageId: page.id,
     document: state.document,
     baseRevision: page.draftRevision,
     dirty: state.dirty,
-    onSaved: ({ document }) => dispatch({ type: 'markSaved', document }),
+    onSaved: ({ document, draftRevision }) => {
+      setRevision(draftRevision);
+      dispatch({ type: 'markSaved', document });
+    },
     onConflict: () => dispatch({ type: 'lock' }),
   });
   const issues = useMemo(() => selectInvalidSections(state.document), [state.document]);
@@ -57,21 +71,54 @@ export function PageEditor({ page, onReload, reloadFailed, onOpenLibrary }: Prop
     return () => clearTimeout(timer);
   }, [removed]);
 
+  useEffect(() => {
+    if (publishedVersion === null) return;
+    const timer = setTimeout(() => setPublishedVersion(null), PUBLISHED_TOAST_MS);
+    return () => clearTimeout(timer);
+  }, [publishedVersion]);
+
   const status = autosave.status;
+  const conflict = status.kind === 'conflict' ? status.conflict : publishConflict;
+  const settled = !state.dirty && status.kind !== 'saving' && status.kind !== 'pending';
+  const invalidCount = useMemo(() => countInvalidFields(state.document), [state.document]);
+  const unpublished = page.hasUnpublishedChanges || touched;
+
+  let publishBlock: string | null = null;
+  if (conflict || state.locked) publishBlock = t('publish.tipConflict');
+  else if (page.status === 'ARCHIVED') publishBlock = t('publish.tipArchived');
+  else if (invalidCount > 0) publishBlock = t(invalidCount === 1 ? 'publish.tipInvalidOne' : 'publish.tipInvalidMany', { count: invalidCount });
+  else if (state.document.sections.length === 0) publishBlock = t('publish.tipEmpty');
+  else if (!unpublished && page.publishedVersion !== null) publishBlock = t('publish.tipNothing', { version: page.publishedVersion });
+  else if (!unpublished) publishBlock = t('publish.tipNothingFirst');
+
+  const onPublishConflict = (found: DraftConflict) => {
+    setPanel(null);
+    setPublishConflict(found);
+    dispatch({ type: 'lock' });
+  };
   const showInspector = compact ? state.selectedId !== null : true;
   const inspector = <InspectorSlot page={page} selectedId={state.selectedId} />;
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div className={styles.editor}>
-        <EditorTopbar page={page} saveStatus={status} unpublished={page.hasUnpublishedChanges || touched} onRetry={autosave.saveNow} />
-        {status.kind === 'conflict' && (
+        <EditorTopbar
+          page={page}
+          saveStatus={conflict ? { kind: 'conflict', conflict } : status}
+          unpublished={unpublished}
+          onRetry={autosave.saveNow}
+          onPublish={() => setPanel('publish')}
+          onHistory={() => setPanel('history')}
+          onSettings={() => setPanel('settings')}
+          publishBlock={publishBlock}
+        />
+        {conflict && (
           <div className={`${styles.banner} ${styles.warn}`} role="alert">
             <AlertTriangle aria-hidden="true" />
             <span className={styles.bannerText}>
-              {t(status.conflict.updatedBy ? 'banner.conflict' : 'banner.conflictAnonymous', {
-                name: status.conflict.updatedBy?.name,
-                time: formatClock(status.conflict.updatedAt, locale),
+              {t(conflict.updatedBy ? 'banner.conflict' : 'banner.conflictAnonymous', {
+                name: conflict.updatedBy?.name,
+                time: formatClock(conflict.updatedAt, locale),
               })}
               {reloadFailed && ` ${t('banner.reloadError')}`}
             </span>
@@ -108,6 +155,26 @@ export function PageEditor({ page, onReload, reloadFailed, onOpenLibrary }: Prop
             </aside>
           )}
         </div>
+        {panel === 'publish' && (
+          <PublishDialog
+            page={page}
+            revision={revision}
+            settled={settled}
+            onClose={() => setPanel(null)}
+            onPublished={(version) => { setPanel(null); setPublishedVersion(version); }}
+            onConflict={onPublishConflict}
+          />
+        )}
+        {panel === 'history' && (
+          <HistoryDrawer page={page} onClose={() => setPanel(null)} onRestored={() => { setPanel(null); onReload(); }} />
+        )}
+        {panel === 'settings' && <PageSettingsDrawer page={page} onClose={() => setPanel(null)} />}
+        {publishedVersion !== null && (
+          <div className={styles.toast} role="status">
+            <span>{t('publish.published', { version: publishedVersion })}</span>
+            <a href={`/p/${page.slug}`} target="_blank" rel="noreferrer">{t('publish.viewPage')}</a>
+          </div>
+        )}
         {removed && removed !== dismissed && (
           <div className={styles.toast} role="status">
             <span>{t('tree.removed')}</span>

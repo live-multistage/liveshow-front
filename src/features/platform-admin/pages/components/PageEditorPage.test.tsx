@@ -25,7 +25,18 @@ vi.mock('next/link', () => ({
     <a href={href} {...rest}>{children}</a>
   ),
 }));
-vi.mock('../queries/use-pages', () => ({ usePageQuery: vi.fn() }));
+vi.mock('../queries/use-pages', () => ({
+  usePageQuery: vi.fn(),
+  usePublishDiffQuery: vi.fn(() => ({ data: { added: 1, removed: 0, edited: 0, hidden: 0, hasChanges: true, nextVersionNumber: 4 } })),
+  usePageVersionsQuery: vi.fn(() => ({ data: [] })),
+}));
+vi.mock('../mutations/use-page-mutations', () => {
+  const idle = () => ({ mutateAsync: vi.fn(), isPending: false });
+  return {
+    usePublishPageMutation: idle, useRestoreVersionMutation: idle, useUpdatePageSettingsMutation: idle,
+    useUnpublishPageMutation: idle, useArchivePageMutation: idle, useUnarchivePageMutation: idle,
+  };
+});
 vi.mock('../services/pages.service', () => ({
   pagesService: { saveDraft: vi.fn() },
   isDraftConflict: (e: { response?: { status?: number; data?: { code?: string } } }) =>
@@ -87,7 +98,7 @@ beforeEach(() => {
     isLoading: false,
     isError: false,
     error: null,
-    refetch: vi.fn(),
+    refetch: vi.fn().mockResolvedValue({}),
     ...query,
   })) as unknown as typeof usePageQuery);
   mockViewport();
@@ -193,5 +204,24 @@ describe('PageEditorPage', () => {
     expect(saveDraft).toHaveBeenCalledTimes(1);
     expect(saveDraft.mock.calls[0][0]).toBe('B');
     expect(saveDraft.mock.calls[0][1]).toMatchObject({ baseRevision: 7 });
+  });
+
+  it('opens the publish dialog from the topbar once there are unpublished changes', async () => {
+    saveDraft.mockResolvedValue({ draftRevision: 2, draftUpdatedAt: '2026-11-05T15:00:00' });
+    const user = userEvent.setup();
+    render(<PageEditorPage pageId="A" />);
+    await user.click(within(rows()[0]).getByRole('button', { name: /Ocultar/ }));
+    await user.click(await screen.findByRole('button', { name: 'Publicar' }));
+    expect(await screen.findByRole('heading', { name: 'Publicar versão 4' })).toBeInTheDocument();
+  });
+
+  it('opens the history and settings drawers from the topbar', async () => {
+    const user = userEvent.setup();
+    render(<PageEditorPage pageId="A" />);
+    await user.click(screen.getByRole('button', { name: /Histórico/ }));
+    expect(screen.getByRole('dialog', { name: 'Histórico de versões' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('button', { name: /Configurações/ }));
+    expect(screen.getByRole('dialog', { name: 'Configurações da página' })).toBeInTheDocument();
   });
 });

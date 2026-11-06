@@ -20,7 +20,6 @@ vi.mock('next-intl', () => ({
       : key;
   },
 }));
-vi.mock('next/link', () => ({
 vi.mock('../queries/use-pages', () => ({ usePageQuery: vi.fn() }));
 vi.mock('../services/pages.service', () => ({
   pagesService: { saveDraft: vi.fn() },

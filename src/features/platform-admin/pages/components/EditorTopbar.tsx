@@ -19,6 +19,11 @@ interface Props {
   saveStatus: AutosaveStatus;
   unpublished: boolean;
   onRetry?(): void;
+  onPublish?(): void;
+  onHistory?(): void;
+  onSettings?(): void;
+  /** Why publishing is unavailable right now; null when it is allowed. */
+  publishBlock?: string | null;
 }
 
 function statusKey(page: PageDetail, unpublished: boolean): 'archived' | 'draft' | 'unpublished' | 'published' {
@@ -54,9 +59,8 @@ function SaveIndicator({ page, status, onRetry }: { page: PageDetail; status: Au
   }
 }
 
-// Device switch, history, settings, preview and publish belong to the preview/publish tasks:
-// they render here as disabled placeholders with the final labels.
-export function EditorTopbar({ page, saveStatus, unpublished, onRetry }: Props) {
+// Device switch and preview belong to the preview task: they render here as disabled placeholders with the final labels.
+export function EditorTopbar({ page, saveStatus, unpublished, onRetry, onPublish, onHistory, onSettings, publishBlock = null }: Props) {
   const t = useTranslations('platformAdmin.pageEditor');
   const key = statusKey(page, unpublished);
 
@@ -81,10 +85,12 @@ export function EditorTopbar({ page, saveStatus, unpublished, onRetry }: Props) 
           <Button type="button" variant="ghost" size="sm" aria-pressed="false" disabled><Smartphone aria-hidden="true" /><span className={styles.label}>{t('topbar.mobile')}</span></Button>
         </div>
         <span className={styles.vsep} />
-        <Button type="button" variant="outline" size="sm" disabled><History aria-hidden="true" /><span className={styles.label}>{t('topbar.history')}</span></Button>
-        <Button type="button" variant="outline" size="sm" disabled><Settings aria-hidden="true" /><span className={styles.label}>{t('topbar.settings')}</span></Button>
+        <Button type="button" variant="outline" size="sm" onClick={onHistory}><History aria-hidden="true" /><span className={styles.label}>{t('topbar.history')}</span></Button>
+        <Button type="button" variant="outline" size="sm" onClick={onSettings}><Settings aria-hidden="true" /><span className={styles.label}>{t('topbar.settings')}</span></Button>
         <Button type="button" variant="outline" size="sm" disabled><ExternalLink aria-hidden="true" /><span className={styles.label}>{t('topbar.preview')}</span></Button>
-        <Button type="button" size="sm" disabled>{t('topbar.publish')}</Button>
+        <span title={publishBlock ?? undefined}>
+          <Button type="button" size="sm" disabled={publishBlock !== null} onClick={onPublish}>{t('topbar.publish')}</Button>
+        </span>
       </div>
     </div>
   );
