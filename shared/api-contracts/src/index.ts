@@ -54,3 +54,7 @@ export * from './seo/jsonld-starters';
 export * from './legal/types';
 export * from './pages/types';
 export * from './pages/schemas';
+export * from './pages/document-v2';
+export * from './pages/schemas-v2';
+export * from './pages/upgrade-v2';
+export * from './pages/profiles';

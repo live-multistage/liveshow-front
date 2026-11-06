@@ -1,3 +1,5 @@
+import type { PageDocumentV2 } from './document-v2';
+
 export const PAGE_SECTION_TYPES = ['hero','audience','text','features','how','media','stats','rail','featured','pricing','faq','final'] as const;
 export type PageSectionType = (typeof PAGE_SECTION_TYPES)[number];
 // Reserved for a future phase: 'ENTITY_TEMPLATE'.
@@ -213,7 +215,7 @@ export interface PageSummary {
 }
 
 export interface PageDetail extends PageSummary {
-  draft: PageDocument;
+  draft: PageDocument | PageDocumentV2;
   draftRevision: number;
   seo: PageSeo;
 }
@@ -240,7 +242,7 @@ export interface PublishDiffResponse extends PublishDiff {
 
 export interface PageVersionDocument {
   number: number;
-  document: PageDocument;
+  document: PageDocument | PageDocumentV2;
 }
 
 export interface DraftConflict {
@@ -263,7 +265,7 @@ export interface PublicPage {
   slug: string;
   title: string;
   seo: PageSeo;
-  document: PageDocument;
+  document: PageDocumentV2;
   publishedAt: string;
   version: number;
   resolved: {
