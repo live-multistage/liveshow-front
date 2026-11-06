@@ -5,8 +5,8 @@ import { ELEMENT_SLOT_RULES, type ElementType, type PageDocumentV2, type PageEle
 const PUCK_ID_PREFIX = /^[A-Za-z]+-(?=[0-9a-f]{8}-[0-9a-f]{4}-)/;
 
 function cleanIds(element: PageElement): PageElement {
-  const props = element.props as { id: string; items?: PageElement[] };
-  const next = { ...props, id: props.id.replace(PUCK_ID_PREFIX, '') };
+  const props = element.props as { id?: string; items?: PageElement[] };
+  const next = { ...props, ...(typeof props.id === 'string' ? { id: props.id.replace(PUCK_ID_PREFIX, '') } : {}) };
   // `items` of iconList and faq is content, not children.
   if (ELEMENT_SLOT_RULES[element.type] && props.items) next.items = props.items.map(cleanIds);
   return { type: element.type as ElementType, props: next } as PageElement;

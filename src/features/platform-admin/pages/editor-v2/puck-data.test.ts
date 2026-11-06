@@ -40,6 +40,12 @@ describe('puck adapter', () => {
     expect(fromPuckData(prefixed)).toEqual(doc);
   });
 
+  it('tolerates an element without id (Puck mid-insert)', () => {
+    const data = structuredClone(toPuckData(doc));
+    delete (data.content[0].props as { id?: string }).id;
+    expect(() => fromPuckData(data)).not.toThrow();
+  });
+
   it('drops anything else Puck puts on the root', () => {
     const data = { ...toPuckData(doc), root: { props: { title: 'x' } } };
     expect(fromPuckData(data).root).toEqual({ props: {} });
