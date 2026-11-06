@@ -132,5 +132,5 @@ $mono: var(--font-space-mono), 'Space Mono', monospace;
   .row:hover td { background: none; }
   .statusCell { flex-direction: row; flex-wrap: wrap; }
   .actions { text-align: left; }
-  td:nth-child(3), td:nth-child(4) { display: none; }
+  .row td:nth-child(3), .row td:nth-child(4) { display: none; }
 }
