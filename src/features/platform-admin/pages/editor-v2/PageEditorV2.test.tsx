@@ -35,7 +35,7 @@ vi.mock('../mutations/use-page-mutations', () => {
     useUploadPageAssetMutation: idle,
   };
 });
-const live = vi.hoisted(() => ({ value: { resolved: { rails: {}, featured: {}, live: {} }, loading: [] as string[] } as { resolved: Record<string, Record<string, unknown>>; loading: string[] } }));
+const live = vi.hoisted(() => ({ value: { resolved: { rails: {}, featured: {}, live: {} }, loading: [] as string[], unsendable: [] as string[] } as { resolved: Record<string, Record<string, unknown>>; loading: string[]; unsendable: string[] } }));
 vi.mock('./use-resolve-data', () => ({ useResolveData: () => live.value }));
 vi.mock('../queries/use-page-blocks', () => ({
   usePageBlocksQuery: () => ({ data: [], isPending: false, isError: false }),
@@ -111,7 +111,8 @@ const edit = () => act(async () => { puck.props.onChange(toPuckData(editedDocume
 const mountV2 = async (draft: PageDetail['draft']) => {
   usePage.mockReturnValue({ data: detail(draft), isError: false, refetch: vi.fn() } as never);
   render(<PageEditorPage pageId="P" v2 />);
-  await screen.findByTestId('editor-canvas');
+  // The editor is a lazy chunk: its first import is slow when the whole suite runs in parallel.
+  await screen.findByTestId('editor-canvas', undefined, { timeout: 10_000 });
 };
 
 beforeEach(() => {
@@ -231,11 +232,28 @@ describe('screen sizes', () => {
 
 describe('event data on the canvas', () => {
   it('hands the renderers what was fetched for the editor state, over the preview of the saved draft, and who is loading', async () => {
-    live.value = { resolved: { rails: { 'eventRail-new': [] }, featured: {}, live: {} }, loading: ['eventRail-loading'] };
+    live.value = { resolved: { rails: { 'eventRail-new': [] }, featured: {}, live: {} }, loading: ['eventRail-loading'], unsendable: [] };
     await mountV2(v2Document());
     expect(puck.props.metadata.resolved.rails).toEqual({ 'eventRail-new': [] });
     expect(puck.props.metadata.loading).toEqual(['eventRail-loading']);
-    live.value = { resolved: { rails: {}, featured: {}, live: {} }, loading: [] };
+    live.value = { resolved: { rails: {}, featured: {}, live: {} }, loading: [], unsendable: [] };
+  });
+
+  it('drops the saved answer of a featured event that was cleared in the editor', async () => {
+    const preview = await import('../queries/use-pages');
+    vi.mocked(preview.usePagePreviewQuery).mockReturnValue({ data: { resolved: { rails: { keep: [] }, featured: { gone: { id: 'e' } }, live: {} } } } as never);
+    live.value = { resolved: { rails: {}, featured: {}, live: {} }, loading: [], unsendable: ['gone'] };
+    await mountV2(v2Document());
+    expect(puck.props.metadata.resolved.featured).toEqual({});
+    expect(puck.props.metadata.resolved.rails).toEqual({ keep: [] });
+    vi.mocked(preview.usePagePreviewQuery).mockReturnValue({ data: undefined } as never);
+    live.value = { resolved: { rails: {}, featured: {}, live: {} }, loading: [], unsendable: [] };
+  });
+
+  it('hands the renderers the editor copy in the current language', async () => {
+    await mountV2(v2Document());
+    expect(puck.props.metadata.labels.railNoneLive).toBe('Nenhum evento ao vivo agora');
+    expect(puck.props.metadata.labels.railNoneCategory('MUSIC')).toBe('Nenhum evento para “MUSIC”');
   });
 });
 

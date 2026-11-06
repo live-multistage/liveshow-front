@@ -101,6 +101,29 @@ describe('useResolveData', () => {
     expect(result.current.resolved.rails[U(1)]).toHaveLength(1);
   });
 
+  it('a failed batch does not drop the ones that resolved', async () => {
+    const rails = Array.from({ length: 25 }, (_, i) => rail(i + 1));
+    resolveData.mockImplementation(async (batch) => { if (batch.length === 5) throw new Error('boom'); return echo(batch); });
+    const { result } = renderHook(() => useResolveData([section(rails)]), { wrapper });
+    await flush(0);
+    expect(Object.keys(result.current.resolved.rails)).toHaveLength(20);
+  });
+
+  it('goes stale after 30s instead of living forever', async () => {
+    renderHook(() => useResolveData([section([rail(1)])]), { wrapper });
+    await flush(0);
+    const [query] = client.getQueryCache().getAll();
+    expect(query.isStale()).toBe(false);
+    await flush(30_001);
+    expect(query.isStale()).toBe(true);
+  });
+
+  it('lists the data elements the back would refuse as unsendable', async () => {
+    const { result } = renderHook(() => useResolveData([section([featured(1, ''), featured(2, U(77))])]), { wrapper });
+    await flush(0);
+    expect(result.current.unsendable).toEqual([U(1)]);
+  });
+
   it('does not call at all without data elements', async () => {
     renderHook(() => useResolveData([section([])]), { wrapper });
     await flush(RESOLVE_DEBOUNCE_MS + 50);

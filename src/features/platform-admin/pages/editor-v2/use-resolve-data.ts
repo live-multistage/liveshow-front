@@ -56,7 +56,11 @@ const chunk = <T,>(items: readonly T[], size: number): T[][] =>
   Array.from({ length: Math.ceil(items.length / size) }, (_, i) => items.slice(i * size, (i + 1) * size));
 
 async function resolveAll(elements: readonly PageElement[]): Promise<PageResolvedData> {
-  const parts = await Promise.all(chunk(elements, PAGE_RESOLVE_DATA_MAX).map((batch) => pagesService.resolveData(batch)));
+  // One failed batch must not blank the others: keep what resolved. All failed = the query errors.
+  const settled = await Promise.allSettled(chunk(elements, PAGE_RESOLVE_DATA_MAX).map((batch) => pagesService.resolveData(batch)));
+  const parts = settled.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []));
+  const failed = settled.find((r): r is PromiseRejectedResult => r.status === 'rejected');
+  if (failed && parts.length === 0) throw failed.reason;
   return parts.reduce<PageResolvedData>((all, part) => ({
     rails: { ...all.rails, ...part.rails }, featured: { ...all.featured, ...part.featured }, live: { ...all.live, ...part.live },
   }), EMPTY_RESOLVED);
@@ -67,6 +71,8 @@ export interface ResolveDataResult {
   resolved: PageResolvedData;
   /** Data elements still waiting for their first answer (skeleton on the canvas). */
   loading: readonly string[];
+  /** Data elements the back would refuse (no event chosen yet): whatever the saved draft had for them is stale. */
+  unsendable: readonly string[];
 }
 
 /**
@@ -87,10 +93,15 @@ export function useResolveData(content: readonly PageElement[]): ResolveDataResu
     queryKey: [...pageKeys.all, 'resolve-data', querySignature],
     queryFn: () => resolveAll(sendable(latest.current, wantedOf(latest.current))),
     enabled: wanted.length > 0,
-    staleTime: Infinity,
+    staleTime: 30_000,
     placeholderData: keepPreviousData,
     retry: false,
   });
+
+  const unsendable = useMemo(() => {
+    const ok = new Set(sendable(content, wanted).map((el) => (el.props as { id: string }).id));
+    return wanted.filter((w) => !ok.has(toContractId(w.id))).map((w) => w.id);
+  }, [content, wanted]);
 
   return useMemo(() => {
     const data = query.data ?? EMPTY_RESOLVED;
@@ -103,6 +114,6 @@ export function useResolveData(content: readonly PageElement[]): ResolveDataResu
       if (key in data[bucket]) (resolved[bucket] as Record<string, unknown>)[id] = data[bucket][key];
       else if (pending) loading.push(id);
     });
-    return { resolved, loading };
-  }, [query.data, query.isFetching, querySignature, signature, wanted]);
+    return { resolved, loading, unsendable };
+  }, [query.data, query.isFetching, querySignature, signature, wanted, unsendable]);
 }

@@ -91,8 +91,14 @@ function WidgetsTab({ pointFor, query, onQuery, onInsert }: WidgetsProps) {
                   <Drawer.Item key={type} name={type} label={t(`types.${type}`)}>
                     {() => (
                       // Not a <button>: the drag sensor never starts from an interactive element, and the Drawer.Item around it is the drag source.
-                      <div role="button" tabIndex={-1} className={`${styles.widget} ${why ? styles.dim : ''}`} title={why} aria-disabled={!!why}
-                        onClick={() => !why && onInsert(type)}>
+                      <div role="button" tabIndex={0} className={`${styles.widget} ${why ? styles.dim : ''}`} title={why} aria-disabled={!!why}
+                        aria-label={t(`types.${type}`)} onClick={() => !why && onInsert(type)}
+                        onKeyDown={(e) => {
+                          if (e.key !== 'Enter' && e.key !== ' ') return;
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (!why) onInsert(type);
+                        }}>
                         <Icon aria-hidden="true" />{t(`types.${type}`)}
                       </div>
                     )}

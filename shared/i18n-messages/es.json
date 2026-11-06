@@ -3652,6 +3652,16 @@
         "text": "El editor actual no abre páginas del nuevo formato. Mira la vista previa abajo; para editar, el nuevo editor debe estar activo.",
         "back": "Volver a páginas"
       },
+      "dataLabels": {
+        "railPlaceholder": "Carrusel de eventos",
+        "railNoneLive": "Ningún evento en vivo ahora",
+        "railNoneCategory": "Ningún evento para “{category}”",
+        "railNoneFilter": "Ningún evento para este filtro",
+        "railHidden": "En la página publicada este carrusel queda oculto hasta que haya eventos.",
+        "featuredPlaceholder": "Evento destacado",
+        "featuredUnavailable": "Evento no disponible",
+        "featuredUnavailableText": "Fue cancelado o dejó de ser público. En la página publicada este bloque no aparece."
+      },
       "add": {
         "tabs": {
           "widgets": "Widgets",

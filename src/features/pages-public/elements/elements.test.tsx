@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { upgradePageDocument, type PageDocument, type PageElement, type PageDocumentV2, type PublicPage, type ResolvedRailEvent } from '@live-show/api-contracts';
 import parityCases from '../../../../shared/api-contracts/src/pages/page-parity-cases.json';
 import { ElementRenderer, PageRoot, type RenderContext } from './index';
+import { DEFAULT_EDITOR_LABELS } from './types';
 
 const ID = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
 const empty: PublicPage['resolved'] = { rails: {}, featured: {}, live: {} };
@@ -174,6 +175,13 @@ describe('data widgets in the editor: loading, empty and unavailable', () => {
     expect(screen.getByText('Evento indisponível')).toBeInTheDocument();
     rerender(<ElementRenderer ctx={editor()} element={featured} />);
     expect(screen.getByText('Evento em destaque')).toBeInTheDocument();
+  });
+  it('draws the editor copy from ctx.labels when the editor hands it', () => {
+    const labels = { ...DEFAULT_EDITOR_LABELS, railNoneLive: 'No live events', featuredUnavailable: 'Unavailable' };
+    const { rerender } = render(<ElementRenderer ctx={editor({ labels, resolved: { ...empty, rails: { [ID(1)]: [] } } })} element={el('eventRail', { title: 'T', source: { kind: 'live' }, limit: 4 })} />);
+    expect(screen.getByText('No live events')).toBeInTheDocument();
+    rerender(<ElementRenderer ctx={editor({ labels, resolved: { ...empty, featured: { [ID(1)]: null } } })} element={el('featuredEvent', { eventId: ID(7) })} />);
+    expect(screen.getByText('Unavailable')).toBeInTheDocument();
   });
   it('public mode never draws any of this', () => {
     const { container } = render(<ElementRenderer ctx={ctx({ loading: [ID(1)], resolved: { ...empty, rails: { [ID(1)]: [] } } })} element={rail} />);

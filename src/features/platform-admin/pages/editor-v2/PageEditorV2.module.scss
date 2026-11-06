@@ -1,5 +1,11 @@
+@use 'sass:map';
 @use 'sass:string';
 @use '../../../../styles/dashboard-forms' as *;
+
+// Fixed side panels of the prototype; no layout token exists for them.
+$panel-left: 300px;
+$panel-right: 340px;
+$stage-min-height: 440px;
 
 // Three columns: add/layers, canvas, inspector. V2-U2/U3 fill the side columns.
 .body {
@@ -7,7 +13,7 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr) 340px;
+  grid-template-columns: $panel-left minmax(0, 1fr) $panel-right;
   background: $bg;
 }
 
@@ -21,7 +27,7 @@
 .right { border-left: 1px solid $border-hairline; }
 
 // Selection blue of the prototype (--sel): hover on the canvas. Not a brand token.
-$hover-blue: #5b9dff;
+$hover-blue: $selection-blue;
 $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23#{string.slice('#{$text-muted}', 2)}' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E";
 
 // Puck's own look (its default greys and dashes) is replaced through the variables it exposes.
@@ -45,7 +51,7 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: #050506;
+  background: $canvas-bg;
 }
 
 .canvasBar {
@@ -55,7 +61,7 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 0 14px;
+  padding: 0 map.get($space, headerGap);
   border-bottom: 1px solid $hairline;
   font-family: $mono;
   font-size: 10.5px;
@@ -66,7 +72,7 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
 .crumbs {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: map.get($space, xs);
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -74,7 +80,7 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
     border: 0;
     border-radius: 4px;
     background: none;
-    padding: 2px 4px;
+    padding: 2px map.get($space, xs);
     color: inherit;
     font: inherit;
     cursor: pointer;
@@ -88,7 +94,7 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 24px;
+  padding: map.get($space, xl);
 }
 
 .stage {
@@ -99,10 +105,10 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
 .stagePage {
   position: relative;
   margin: 0 auto;
-  min-height: 440px;
+  min-height: $stage-min-height;
   background: $bg;
-  border-radius: 6px;
-  box-shadow: 0 0 0 1px #1f1f23;
+  border-radius: map.get($radius, sm);
+  box-shadow: 0 0 0 1px $bg-hover;
   &[data-device='tablet'] { border-radius: 14px; }
   &[data-device='mobile'] { border-radius: 22px; }
 
@@ -134,12 +140,12 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
     justify-content: center;
     gap: 6px;
     min-height: 84px;
-    padding: 12px;
+    padding: map.get($space, md);
     border-radius: 8px;
     text-align: center;
     &::before {
       content: var(--slot-empty-label);
-      padding-top: 24px;
+      padding-top: map.get($space, xl);
       background: url($plus-icon) no-repeat top center;
       color: $text-secondary;
       font-size: 12.5px;
@@ -155,7 +161,7 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
 
   // The page root, when empty, is explained by the empty-page panel (CanvasEmpty) laid over it: no hint of its own, but room for the panel.
   [data-puck-dropzone$='default-zone']:empty {
-    min-height: 440px;
+    min-height: $stage-min-height;
     border: 0;
     outline: none;
     &::before,
@@ -190,7 +196,7 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
     left: 50%;
     zoom: var(--canvas-iz, 1);
     transform: translateX(-50%);
-    padding: 2px 8px;
+    padding: 2px map.get($space, sm);
     border-radius: 4px;
     background: $action;
     color: $ink;
@@ -218,12 +224,12 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
   &:not(:empty)::after {
     content: var(--slot-bad-label);
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: map.get($space, sm);
+    right: map.get($space, sm);
     zoom: var(--canvas-iz, 1);
     padding: 6px 10px;
     border: 1px solid rgba(248, 113, 113, 0.5);
-    border-radius: 6px;
+    border-radius: map.get($radius, sm);
     background: #2a0f12;
     color: #fecaca;
     font-size: 12px;
@@ -242,7 +248,7 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
   --puck-actionbar-color-action-hover: #{$action};
   [class*='ActionBar-label'] {
     margin: 0;
-    padding: 4px 8px;
+    padding: map.get($space, xs) map.get($space, sm);
     border-radius: 4px;
     background: $action;
     color: $ink;
@@ -261,8 +267,8 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 48px 32px;
+  gap: map.get($space, headerGap);
+  padding: map.get($space, xxxl) map.get($space, xxl);
   text-align: center;
   pointer-events: none;
   button { pointer-events: auto; }
@@ -296,11 +302,11 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
   b { color: $text-secondary; font-size: 12.5px; }
   svg { width: 16px; height: 16px; }
 }
-.emptyActions { display: flex; gap: 8px; margin-top: 6px; svg { width: 14px; height: 14px; } }
+.emptyActions { display: flex; gap: map.get($space, sm); margin-top: 6px; svg { width: 14px; height: 14px; } }
 
 // Below 1280px the inspector is a drawer over the canvas, shown while something is selected.
 .narrow {
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: $panel-left minmax(0, 1fr);
 }
 .drawer {
   position: absolute;
@@ -308,7 +314,7 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
   right: 0;
   bottom: 0;
   z-index: 30;
-  width: 340px;
+  width: $panel-right;
   max-width: 100%;
   box-shadow: -24px 0 48px -24px rgba(0, 0, 0, 0.7);
   &[data-open='false'] { display: none; }
@@ -321,7 +327,7 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
 }
 
 .panelPlaceholder {
-  padding: 16px;
+  padding: map.get($space, lg);
   font-family: $mono;
   font-size: 10px;
   letter-spacing: 0.16em;
@@ -338,7 +344,7 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
 .bannerActions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: map.get($space, sm);
 }
 
 .readOnlyPage {
@@ -357,8 +363,8 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
   z-index: 5;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: map.get($space, sm);
+  padding: map.get($space, sm) map.get($space, md);
   background: $bg;
   border-bottom: 1px solid $hairline;
   b { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

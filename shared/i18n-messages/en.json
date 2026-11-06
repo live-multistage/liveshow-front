@@ -3652,6 +3652,16 @@
         "text": "The current editor cannot open pages in the new format. See the preview below; to edit, the new editor must be enabled.",
         "back": "Back to pages"
       },
+      "dataLabels": {
+        "railPlaceholder": "Event rail",
+        "railNoneLive": "No live events right now",
+        "railNoneCategory": "No events for “{category}”",
+        "railNoneFilter": "No events for this filter",
+        "railHidden": "On the published page this rail stays hidden until there are events.",
+        "featuredPlaceholder": "Featured event",
+        "featuredUnavailable": "Event unavailable",
+        "featuredUnavailableText": "It was cancelled or is no longer public. On the published page this block does not appear."
+      },
       "add": {
         "tabs": {
           "widgets": "Widgets",

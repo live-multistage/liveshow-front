@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { usePuck } from './left/puck-store';
 
-const EDITABLE = 'input, textarea, select, [contenteditable="true"]';
+const EDITABLE = 'input, textarea, select, [contenteditable="true"], [contenteditable="plaintext-only"]';
 
 /**
  * Esc climbs the selection to the parent (the page for a top-level element). Typing in a field, Esc first leaves the field.
@@ -21,7 +21,8 @@ export function useEscapeClimb() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape' || event.defaultPrevented) return;
       const { selectedId: id, dispatch: send, getParentById: parentOf, getSelectorForId: selectorOf } = latest.current;
-      if (!id || document.querySelector('[role="dialog"]')) return;
+      // An open listbox/menu (a select, a popover) closes itself on Esc; the selection stays.
+      if (!id || document.querySelector('[role="dialog"], [role="listbox"], [role="menu"]')) return;
       const target = event.target as HTMLElement | null;
       if (target?.closest?.(EDITABLE)) return void (target as HTMLElement).blur();
       const parent = parentOf(id);

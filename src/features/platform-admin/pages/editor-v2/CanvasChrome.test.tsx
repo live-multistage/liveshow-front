@@ -142,6 +142,20 @@ describe('Esc', () => {
     expect(puck.store.dispatch).not.toHaveBeenCalled();
   });
 
+  it.each(['listbox', 'menu'])('leaves an open %s to close itself: the selection stays', (role) => {
+    puck.store.getParentById.mockReturnValue({ type: 'column', props: { id: U(3) } });
+    render(<><Probe /><div role={role} /></>);
+    press();
+    expect(puck.store.dispatch).not.toHaveBeenCalled();
+  });
+
+  it('a plaintext-only contenteditable counts as a field', () => {
+    puck.store.getParentById.mockReturnValue({ type: 'column', props: { id: U(3) } });
+    render(<><Probe /><div contentEditable="plaintext-only" data-testid="ce" tabIndex={0} /></>);
+    press(screen.getByTestId('ce'));
+    expect(puck.store.dispatch).not.toHaveBeenCalled();
+  });
+
   it('typing in a field, the first Esc leaves the field and the selection stays', () => {
     puck.store.getParentById.mockReturnValue({ type: 'column', props: { id: U(3) } });
     render(<Probe />);

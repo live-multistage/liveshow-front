@@ -3652,6 +3652,16 @@
         "text": "O editor atual não abre páginas do novo formato. Veja a prévia abaixo; para editar, o novo editor precisa estar ativo.",
         "back": "Voltar para páginas"
       },
+      "dataLabels": {
+        "railPlaceholder": "Trilho de eventos",
+        "railNoneLive": "Nenhum evento ao vivo agora",
+        "railNoneCategory": "Nenhum evento para “{category}”",
+        "railNoneFilter": "Nenhum evento para este filtro",
+        "railHidden": "Na página publicada este trilho fica oculto até haver eventos.",
+        "featuredPlaceholder": "Evento em destaque",
+        "featuredUnavailable": "Evento indisponível",
+        "featuredUnavailableText": "Foi cancelado ou deixou de ser público. Na página publicada este bloco não aparece."
+      },
       "add": {
         "tabs": {
           "widgets": "Widgets",

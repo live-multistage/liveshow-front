@@ -23,7 +23,8 @@ import { ServerIssuesProvider, type ServerIssues } from './inspector/element-iss
 import { locate } from './left/tree-ops';
 import { PublishDialogV2 } from './PublishDialogV2';
 import { createPuckConfig } from './puck-config';
-import { fromPuckData, toPuckData } from './puck-data';
+import { fromPuckData, toContractId, toPuckData } from './puck-data';
+import type { EditorLabels } from '@/features/pages-public/elements/types';
 import { BREAKPOINT_WIDTH, BreakpointProvider, VIEWPORTS } from './use-breakpoint';
 import { useResolveData } from './use-resolve-data';
 import styles from './PageEditorV2.module.scss';
@@ -90,13 +91,27 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
   });
 
   const config = useMemo(() => createPuckConfig((type: ElementType) => tv2(`types.${type}`)), [tv2]);
+  const labels = useMemo<EditorLabels>(() => ({
+    railPlaceholder: tv2('dataLabels.railPlaceholder'),
+    railNoneLive: tv2('dataLabels.railNoneLive'),
+    railNoneCategory: (category) => tv2('dataLabels.railNoneCategory', { category }),
+    railNoneFilter: tv2('dataLabels.railNoneFilter'),
+    railHidden: tv2('dataLabels.railHidden'),
+    featuredPlaceholder: tv2('dataLabels.featuredPlaceholder'),
+    featuredUnavailable: tv2('dataLabels.featuredUnavailable'),
+    featuredUnavailableText: tv2('dataLabels.featuredUnavailableText'),
+  }), [tv2]);
   const live = useResolveData(puckContent as unknown as PageElement[]);
   // What was fetched for the editor's current state wins over the preview of the saved draft.
   const editorData = useMemo(() => {
-    const saved = preview.data?.resolved ?? NO_RESOLVED;
+    const fromPreview = preview.data?.resolved ?? NO_RESOLVED;
+    // An element whose event was just cleared must not keep showing the saved one.
+    const stale = new Set(live.unsendable.flatMap((id) => [id, toContractId(id)]));
+    const without = <B extends object>(bucket: B): B => Object.fromEntries(Object.entries(bucket).filter(([id]) => !stale.has(id))) as B;
+    const saved = { rails: without(fromPreview.rails), featured: without(fromPreview.featured), live: without(fromPreview.live) };
     const resolved = { rails: { ...saved.rails, ...live.resolved.rails }, featured: { ...saved.featured, ...live.resolved.featured }, live: { ...saved.live, ...live.resolved.live } };
-    return { resolved, loading: live.loading };
-  }, [preview.data, live]);
+    return { resolved, loading: live.loading, labels };
+  }, [preview.data, live, labels]);
 
   // Locked: Puck's own keyboard history (Cmd+Z) still moves its tree; the document and what "copy my changes" hands out must not follow.
   const onChange = useCallback((data: Data) => {

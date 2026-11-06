@@ -2,11 +2,13 @@
 
 import { createContext, useContext } from 'react';
 import type { PageResolvedData } from '@live-show/api-contracts';
+import type { EditorLabels } from '@/features/pages-public/elements/types';
 
 export interface EditorData {
   /** Event data by Puck id: saved preview plus what `useResolveData` fetched for unsaved elements. */
   resolved: PageResolvedData;
   loading: readonly string[];
+  labels?: EditorLabels;
 }
 
 export const NO_EDITOR_DATA: EditorData = { resolved: { rails: {}, featured: {}, live: {} }, loading: [] };

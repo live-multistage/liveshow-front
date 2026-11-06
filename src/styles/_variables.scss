@@ -24,6 +24,8 @@ $ink:            #0a0a0b;
 // ── Borders & hover ───────────────────────────────────────────────
 $border:       #27272A;
 $bg-hover:     #1f1f23;
+$canvas-bg:    #050506; // page editor canvas, darker than $bg so the page surface reads as a sheet
+$selection-blue: #5b9dff; // page editor hover outline (prototype --sel)
 $border-hairline: rgba(255, 255, 255, 0.08);
 
 // ── Radius ────────────────────────────────────────────────────────

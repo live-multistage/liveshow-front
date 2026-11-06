@@ -125,6 +125,28 @@ describe('AddPanel › Widgets', () => {
   });
 });
 
+describe('AddPanel › teclado', () => {
+  it('a focusable widget inserts with Enter and Space, and keeps the key to itself', () => {
+    setPage(page(), U(4));
+    render(<AddPanel />);
+    const widget = screen.getByRole('button', { name: 'Título' });
+    expect(widget).toHaveAttribute('tabindex', '0');
+    widget.focus();
+    expect(widget).toHaveFocus();
+    expect(fireEvent.keyDown(widget, { key: 'Enter' })).toBe(false);
+    expect(puck.store.dispatch).toHaveBeenCalledWith({ type: 'insert', componentType: 'heading', destinationIndex: 0, destinationZone: `${U(4)}:items` });
+    puck.store.dispatch.mockClear();
+    fireEvent.keyDown(widget, { key: ' ' });
+    expect(puck.store.dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'insert', componentType: 'heading' }));
+  });
+
+  it('a dimmed widget does not insert from the keyboard either', () => {
+    render(<AddPanel />);
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Título' }), { key: 'Enter' });
+    expect(puck.store.dispatch).not.toHaveBeenCalled();
+  });
+});
+
 describe('AddPanel › Blocos', () => {
   const openBlocks = () => fireEvent.click(screen.getByRole('tab', { name: 'Blocos' }));
 
