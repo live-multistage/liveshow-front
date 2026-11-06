@@ -3,7 +3,7 @@
 import { useEffect, useRef, type Dispatch, type KeyboardEvent } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { useTranslations } from 'next-intl';
-import { ArrowDown, ArrowUp, Copy, Eye, EyeOff, GripVertical, Lock, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Eye, EyeOff, GripVertical, Lock, Plus } from 'lucide-react';
 import { Button } from '@live-show/design-system';
 import { PAGE_LIMITS, type PageSection } from '@live-show/api-contracts';
 import type { PageEditorAction, SectionIssue } from '../hooks/page-editor-reducer';
@@ -32,12 +32,11 @@ interface RowProps {
   selected: boolean;
   invalid: boolean;
   locked: boolean;
-  full: boolean;
   dispatch: Dispatch<PageEditorAction>;
   focusAfter(id: string): void;
 }
 
-function SectionRow({ section, index, count, selected, invalid, locked, full, dispatch, focusAfter }: RowProps) {
+function SectionRow({ section, index, count, selected, invalid, locked, dispatch, focusAfter }: RowProps) {
   const t = useTranslations('platformAdmin.pageEditor');
   const name = t(`sectionTypes.${section.type}`);
   const [, drop] = useDrop<{ id: string }>({
@@ -67,10 +66,6 @@ function SectionRow({ section, index, count, selected, invalid, locked, full, di
     // No-op at the edges: a pending focus request would otherwise steal focus on a later render.
     if (index + delta < 0 || index + delta >= count) return;
     moveBy(delta);
-  };
-  const remove = () => {
-    focusAfter(ADD_FOCUS);
-    dispatch({ type: 'remove', id: section.id });
   };
 
   const summary = summarize(section, t);
@@ -111,15 +106,6 @@ function SectionRow({ section, index, count, selected, invalid, locked, full, di
         <Button type="button" variant="ghost" size="icon" className={styles.iconButton} disabled={locked || index === count - 1}
           aria-label={t('tree.moveDown', { name })} onClick={() => moveBy(1)}>
           <ArrowDown aria-hidden="true" />
-        </Button>
-        <Button type="button" variant="ghost" size="icon" className={styles.iconButton} disabled={locked || full}
-          aria-label={t('tree.duplicate', { name })}
-          onClick={() => dispatch({ type: 'duplicate', id: section.id, newId: crypto.randomUUID() })}>
-          <Copy aria-hidden="true" />
-        </Button>
-        <Button type="button" variant="ghost" size="icon" className={`${styles.iconButton} ${styles.remove}`} disabled={locked}
-          aria-label={t('tree.remove', { name })} onClick={remove}>
-          <Trash2 aria-hidden="true" />
         </Button>
       </div>
     </li>
@@ -187,7 +173,6 @@ export function SectionTree({ sections, selectedId, issues, locked, dispatch, on
                 selected={selectedId === section.id}
                 invalid={!!issues[section.id]}
                 locked={locked}
-                full={full}
                 dispatch={dispatch}
                 focusAfter={(id) => { pendingFocus.current = id; }}
               />

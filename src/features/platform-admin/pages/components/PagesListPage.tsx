@@ -140,7 +140,7 @@ function PagesTable({ pages }: { pages: PageSummary[] }) {
                   {p.status === 'PUBLISHED' && <span className={styles.pillDot} />}
                   {t(`status.${p.status}`)}
                 </span>
-                {p.hasUnpublishedChanges && <span className={`${styles.pill} ${styles.pending}`}>{t('pending')}</span>}
+                {p.hasUnpublishedChanges && p.publishedVersion !== null && <span className={`${styles.pill} ${styles.pending}`}>{t('pending')}</span>}
                 </div>
               </td>
               <td role="cell" className={styles.mono}>{p.publishedVersion !== null && p.status !== 'ARCHIVED' ? `v${p.publishedVersion}` : '—'}</td>

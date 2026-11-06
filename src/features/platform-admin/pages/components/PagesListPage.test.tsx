@@ -44,7 +44,7 @@ const page = (over: Partial<PageSummary>): PageSummary => ({
 });
 const PAGES = [
   page({ hasUnpublishedChanges: true }),
-  page({ id: 'p2', title: 'Black Friday de ingressos', slug: 'black-friday', status: 'DRAFT', publishedVersion: null, draftUpdatedBy: null }),
+  page({ id: 'p2', title: 'Black Friday de ingressos', slug: 'black-friday', status: 'DRAFT', publishedVersion: null, hasUnpublishedChanges: true, draftUpdatedBy: null }),
   page({ id: 'p3', title: 'Conferência TechLive 2026', slug: 'techlive-2026', status: 'ARCHIVED' }),
 ];
 

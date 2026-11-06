@@ -159,13 +159,20 @@ describe('PageEditorPage', () => {
   it('removes with an undo toast that restores the section at its position', async () => {
     const user = userEvent.setup();
     render(<PageEditorPage pageId="A" />);
-    await user.click(within(rows()[1]).getByRole('button', { name: /Remover/ }));
+    await user.click(within(rows()[1]).getByRole('button', { name: /Beta/ }));
+    await user.click(screen.getByRole('button', { name: /Remover seção/ }));
     expect(titlesInOrder()).toEqual(['Alpha', 'Gama']);
     const toast = screen.getByRole('status');
     expect(within(toast).getByText('Seção removida')).toBeInTheDocument();
     await user.click(within(toast).getByRole('button', { name: 'Desfazer' }));
     expect(titlesInOrder()).toEqual(['Alpha', 'Beta', 'Gama']);
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('never shows the unpublished-changes pill for a never-published page', () => {
+    pages.A = { ...pages.A, status: 'PUBLISHED', publishedVersion: null, hasUnpublishedChanges: true };
+    render(<PageEditorPage pageId="A" />);
+    expect(screen.queryByText('ALTERAÇÕES NÃO PUBLICADAS')).not.toBeInTheDocument();
   });
 
   it('autosaves an edit with the page id and revision, then reports it saved', async () => {
@@ -222,10 +229,10 @@ describe('PageEditorPage', () => {
   it('opens the history and settings drawers from the topbar', async () => {
     const user = userEvent.setup();
     render(<PageEditorPage pageId="A" />);
-    await user.click(screen.getByRole('button', { name: /Histórico/ }));
+    await user.click(screen.getByRole('button', { name: 'Histórico' }));
     expect(screen.getByRole('dialog', { name: 'Histórico de versões' })).toBeInTheDocument();
     await user.keyboard('{Escape}');
-    await user.click(screen.getByRole('button', { name: /Configurações/ }));
+    await user.click(screen.getByRole('button', { name: 'Configurações' }));
     expect(screen.getByRole('dialog', { name: 'Configurações da página' })).toBeInTheDocument();
   });
   it('edits the selected section in the inspector and mirrors it in the tree and the preview', async () => {

@@ -92,13 +92,11 @@ describe('SectionTree', () => {
     expect(order()).toEqual(['Alpha', 'Beta', 'Gama']);
   });
 
-  it('duplicates right after the original and selects the copy', async () => {
-    const user = userEvent.setup();
+  it('keeps only eye and move buttons on each row (duplicate/remove live in the inspector)', () => {
     render(<Harness sections={three()} />);
-    await user.click(within(rows()[0]).getByRole('button', { name: /Duplicar/ }));
-    expect(order()).toEqual(['Alpha', 'Alpha', 'Beta', 'Gama']);
-    expect(within(rows()[1]).getByRole('button', { name: /Alpha/ })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByText('4/30')).toBeInTheDocument();
+    const names = within(rows()[1]).getAllByRole('button').map((b) => b.getAttribute('aria-label') ?? '');
+    expect(names.filter(Boolean).map((n) => n.split(' ')[0])).toEqual(['Ocultar', 'Mover', 'Mover']);
+    expect(within(rows()[1]).queryByRole('button', { name: /Duplicar|Remover/ })).not.toBeInTheDocument();
   });
 
   it('shows the empty state and calls onAdd', async () => {
@@ -135,7 +133,7 @@ describe('SectionTree', () => {
     render(<Locked />);
     expect(screen.getByRole('button', { name: 'Adicionar seção' })).toBeDisabled();
     expect(within(rows()[0]).getByRole('button', { name: /Ocultar/ })).toBeDisabled();
-    expect(within(rows()[0]).getByRole('button', { name: /Remover/ })).toBeDisabled();
+    within(rows()[0]).getAllByRole('button', { name: /Mover/ }).forEach((b) => expect(b).toBeDisabled());
   });
 
   it('keeps focus on the moved row after Alt+ArrowDown and ignores Alt moves at the edges', async () => {

@@ -65,7 +65,7 @@ function SaveIndicator({ page, status, onRetry }: { page: PageDetail; status: Au
 
 export function EditorTopbar({ page, saveStatus, unpublished, device = 'desktop', onDevice, onRetry, onPublish, onHistory, historyDisabled = false, onSettings, publishBlock = null }: Props) {
   const t = useTranslations('platformAdmin.pageEditor');
-  const key = statusKey(page, unpublished);
+  const key = statusKey(page, unpublished && page.publishedVersion !== null);
 
   return (
     <div className={styles.topbar}>
@@ -88,9 +88,9 @@ export function EditorTopbar({ page, saveStatus, unpublished, device = 'desktop'
           <Button type="button" variant={device === 'mobile' ? 'secondary' : 'ghost'} size="sm" aria-pressed={device === 'mobile'} aria-label={t('topbar.mobile')} onClick={() => onDevice?.('mobile')}><Smartphone aria-hidden="true" /><span className={styles.label}>{t('topbar.mobile')}</span></Button>
         </div>
         <span className={styles.vsep} />
-        <Button type="button" variant="outline" size="sm" disabled={historyDisabled} onClick={onHistory}><History aria-hidden="true" /><span className={styles.label}>{t('topbar.history')}</span></Button>
-        <Button type="button" variant="outline" size="sm" onClick={onSettings}><Settings aria-hidden="true" /><span className={styles.label}>{t('topbar.settings')}</span></Button>
-        <Button type="button" variant="outline" size="sm" disabled><ExternalLink aria-hidden="true" /><span className={styles.label}>{t('topbar.preview')}</span></Button>
+        <Button type="button" variant="outline" size="sm" aria-label={t('topbar.history')} disabled={historyDisabled} onClick={onHistory}><History aria-hidden="true" /><span className={styles.label}>{t('topbar.history')}</span></Button>
+        <Button type="button" variant="outline" size="sm" aria-label={t('topbar.settings')} onClick={onSettings}><Settings aria-hidden="true" /><span className={styles.label}>{t('topbar.settings')}</span></Button>
+        <Button type="button" variant="outline" size="sm" aria-label={t('topbar.preview')} disabled><ExternalLink aria-hidden="true" /><span className={styles.label}>{t('topbar.preview')}</span></Button>
         <span title={publishBlock ?? undefined}>
           <Button type="button" size="sm" disabled={publishBlock !== null} onClick={onPublish}>{t('topbar.publish')}</Button>
         </span>
