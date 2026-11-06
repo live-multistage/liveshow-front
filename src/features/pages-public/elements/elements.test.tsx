@@ -1,0 +1,139 @@
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import { upgradePageDocument, type PageDocument, type PageElement, type PageDocumentV2, type PublicPage, type ResolvedRailEvent } from '@live-show/api-contracts';
+import parityCases from '../../../../shared/api-contracts/src/pages/page-parity-cases.json';
+import { ElementRenderer, PageRoot, elementResolved, type RenderContext } from './index';
+
+const ID = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
+const empty: PublicPage['resolved'] = { rails: {}, featured: {} };
+const ctx = (over: Partial<RenderContext> = {}): RenderContext => ({ resolved: empty, mode: 'public', ...over });
+const el = (type: string, props: Record<string, unknown>) => ({ type, props: { id: ID(1), ...props } }) as unknown as PageElement;
+const event = (over: Partial<ResolvedRailEvent> = {}): ResolvedRailEvent => ({ id: 'e1', title: 'Show A', posterUrl: null, startsAt: null, isLive: false, ...over });
+
+describe('text', () => {
+  it('renders one paragraph per blank line, with bold, italic and safe links', () => {
+    const { container } = render(
+      <ElementRenderer ctx={ctx()} element={el('text', { text: 'Olá **mundo** e *você*\n\nVeja [site](https://x.io) e [mau](javascript:alert(1))' })} />,
+    );
+    expect(container.querySelectorAll('p')).toHaveLength(2);
+    expect(container.querySelector('strong')?.textContent).toBe('mundo');
+    expect(container.querySelector('em')?.textContent).toBe('você');
+    const link = screen.getByRole('link', { name: 'site' });
+    expect(link.getAttribute('target')).toBe('_blank');
+    expect(screen.queryByRole('link', { name: 'mau' })).toBeNull();
+    expect(container.textContent).toContain('mau');
+  });
+  it('never emits inline style or raw html', () => {
+    const { container } = render(<ElementRenderer ctx={ctx()} element={el('text', { text: '<img src=x onerror=alert(1)>' })} />);
+    expect(container.querySelector('img')).toBeNull();
+    expect(container.querySelector('[style]')).toBeNull();
+  });
+});
+
+describe('video', () => {
+  it('builds the embed url from the id, never from the typed url', () => {
+    const { container } = render(<ElementRenderer ctx={ctx()} element={el('video', { url: 'https://www.youtube.com/watch?v=abc123&list=evil' })} />);
+    expect(container.querySelector('iframe')?.getAttribute('src')).toBe('https://www.youtube-nocookie.com/embed/abc123');
+  });
+  it('vimeo and unknown hosts', () => {
+    const { container, rerender } = render(<ElementRenderer ctx={ctx()} element={el('video', { url: 'https://vimeo.com/12345?x=1' })} />);
+    expect(container.querySelector('iframe')?.getAttribute('src')).toBe('https://player.vimeo.com/video/12345');
+    rerender(<ElementRenderer ctx={ctx()} element={el('video', { url: 'https://evil.io/v.mp4' })} />);
+    expect(container.innerHTML).toBe('');
+  });
+});
+
+describe('button', () => {
+  it('drops unsafe hrefs and honours newTab', () => {
+    const { container, rerender } = render(<ElementRenderer ctx={ctx()} element={el('button', { label: 'Ir', href: '/eventos', newTab: true })} />);
+    expect(screen.getByRole('link', { name: 'Ir' }).getAttribute('target')).toBe('_blank');
+    rerender(<ElementRenderer ctx={ctx()} element={el('button', { label: 'Ir', href: 'javascript:alert(1)' })} />);
+    expect(container.querySelector('a')).toBeNull();
+  });
+});
+
+describe('visibility and layout', () => {
+  it('renders nothing when hidden on every breakpoint (public)', () => {
+    const { container } = render(<ElementRenderer ctx={ctx()} element={el('label', { text: 'X', hidden: { desktop: true, tablet: true, mobile: true } })} />);
+    expect(container.innerHTML).toBe('');
+  });
+  it('hides by breakpoint class and keeps the anchor id', () => {
+    const { container } = render(<ElementRenderer ctx={ctx()} element={el('label', { text: 'X', anchor: 'topo', hidden: { mobile: true } })} />);
+    const node = container.firstElementChild!;
+    expect(node.id).toBe('topo');
+    expect(node.className).toContain('hide-m');
+  });
+  it('columns collapse to one column on mobile unless mobile.cols is set', () => {
+    const base = { items: [], style: { desktop: { cols: 3 } } };
+    const { container, rerender } = render(<ElementRenderer ctx={ctx()} element={el('columns', base)} />);
+    expect(container.firstElementChild!.className).toContain('m-cols-1');
+    rerender(<ElementRenderer ctx={ctx()} element={el('columns', { ...base, style: { desktop: { cols: 3 }, mobile: { cols: 2 } } })} />);
+    expect(container.firstElementChild!.className).toContain('m-cols-2');
+    expect(container.firstElementChild!.className).not.toContain('m-cols-1');
+  });
+  it('page root is a named container', () => {
+    const doc: PageDocumentV2 = { schemaVersion: 2, context: { type: 'none' }, root: { props: {} }, content: [] };
+    const { container } = render(<PageRoot document={doc} ctx={ctx()} />);
+    expect(container.firstElementChild!.className).toContain('root');
+  });
+});
+
+describe('event widgets', () => {
+  it('eventRail draws cards but not its title; null without data in public, placeholder in editor', () => {
+    const rail = el('eventRail', { title: 'Categoria', source: { kind: 'category', id: 'musica' }, limit: 4 });
+    const withData = ctx({ resolved: { rails: { [ID(1)]: [event()] }, featured: {} } });
+    render(<ElementRenderer ctx={withData} element={rail} />);
+    expect(screen.getByText('Show A')).toBeTruthy();
+    expect(screen.queryByText('Categoria')).toBeNull();
+    const { container } = render(<ElementRenderer ctx={ctx()} element={rail} />);
+    expect(container.innerHTML).toBe('');
+    const ed = render(<ElementRenderer ctx={ctx({ mode: 'editor' })} element={rail} />);
+    expect(ed.container.textContent).toContain('Trilho');
+  });
+  it('liveNow keeps only live events up to the limit', () => {
+    const live = ctx({ resolved: { rails: { [ID(1)]: [event({ id: 'a', title: 'Ao A', isLive: true }), event({ id: 'b', title: 'Off B' }), event({ id: 'c', title: 'Ao C', isLive: true })] }, featured: {} } });
+    render(<ElementRenderer ctx={live} element={el('liveNow', { limit: 4, emptyText: 'Nada' })} />);
+    expect(screen.getByText('Ao A')).toBeTruthy();
+    expect(screen.queryByText('Off B')).toBeNull();
+  });
+  it('featuredEvent renders title and cta, null without data', () => {
+    const c = ctx({ resolved: { rails: {}, featured: { [ID(1)]: event({ title: 'Grande Show' }) } } });
+    render(<ElementRenderer ctx={c} element={el('featuredEvent', { eventId: 'x', ctaLabel: 'Garanta' })} />);
+    expect(screen.getByRole('heading', { name: 'Grande Show' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Garanta' })).toBeTruthy();
+    const { container } = render(<ElementRenderer ctx={ctx()} element={el('featuredEvent', { eventId: 'x' })} />);
+    expect(container.innerHTML).toBe('');
+  });
+});
+
+describe('elementResolved', () => {
+  it('maps section-keyed data to the widgets inside the converted section', () => {
+    const v1 = (parityCases as { input: PageDocument }[])[0]!.input;
+    const doc = upgradePageDocument(v1);
+    const railSection = v1.sections.find((s) => s.type === 'rail')!;
+    const featSection = v1.sections.find((s) => s.type === 'featured')!;
+    const mapped = elementResolved(doc, { rails: { [railSection.id]: [event()] }, featured: { [featSection.id]: event({ title: 'F' }) } });
+    const section = doc.content.find((s) => s.props.id === railSection.id)!;
+    const railEl = section.props.items!.find((i) => i.type === 'eventRail')!;
+    expect(mapped.rails[railEl.props.id]).toHaveLength(1);
+    const featEl = doc.content.find((s) => s.props.id === featSection.id)!.props.items!.find((i) => i.type === 'featuredEvent')!;
+    expect(mapped.featured[featEl.props.id]?.title).toBe('F');
+  });
+});
+
+describe('v1 parity (converted)', () => {
+  it('hero, faq and rail render with their texts and the rail title once', () => {
+    const v1 = (parityCases as { input: PageDocument }[])[0]!.input;
+    const doc = upgradePageDocument({ ...v1, sections: v1.sections.filter((s) => ['hero', 'faq', 'rail'].includes(s.type)) });
+    const railId = v1.sections.find((s) => s.type === 'rail')!.id;
+    const resolved = elementResolved(doc, { rails: { [railId]: [event({ title: 'Evento Z' })] }, featured: {} });
+    render(<PageRoot document={doc} ctx={ctx({ resolved })} />);
+    expect(screen.getByRole('heading', { level: 1, name: 'Eventos ao vivo' })).toBeTruthy();
+    expect(screen.getByText('Novo')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Ver' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Dúvidas' })).toBeTruthy();
+    expect(screen.getAllByText('Q?')).toHaveLength(3);
+    expect(screen.getAllByText('Categoria')).toHaveLength(1);
+    expect(screen.getByText('Evento Z')).toBeTruthy();
+  });
+});

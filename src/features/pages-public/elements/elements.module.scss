@@ -1,0 +1,192 @@
+@use '../../../styles/variables' as *;
+
+$mono: var(--font-space-mono), 'Space Mono', monospace;
+
+// Defaults live in :where() (specificity 0) so a token class from style.module.scss always overrides them, whatever the
+// order the two CSS modules are emitted in. Token defaults per element type come from ElementRenderer, not from here.
+.root {
+  container-type: inline-size;
+  container-name: page;
+  color: $text-primary;
+}
+
+:where(.section) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
+  width: 100%;
+  max-width: var(--page-w, 1200px);
+  margin-inline: auto;
+  // Direct children never overflow a narrow section.
+  min-width: 0;
+}
+:where(.columns) { display: grid; }
+:where(.column) { display: flex; flex-direction: column; min-width: 0; }
+// Empty cells only exist to keep card widths; stacked on mobile they would just add gaps.
+@container page (max-width: 639px) { .column:empty { display: none; } }
+:where(.group) { display: flex; flex-wrap: wrap; align-items: center; }
+
+:where(.heading, .text, .label, .counter, .iconList) { margin: 0; }
+:where(.text) { white-space: pre-line; }
+.text a { color: $action; }
+
+:where(.button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+:where(.image) { display: block; width: 100%; max-width: 100%; height: auto; object-fit: cover; }
+:where(.video) { position: relative; width: 100%; background: $surface; }
+.video iframe, .video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+:where(.divider) { border: 0; border-top: 1px solid currentColor; width: 100%; }
+:where(.spacer) { width: 100%; }
+
+.iconList { list-style: none; padding: 0; display: flex; flex-direction: column; }
+.iconList li { display: flex; align-items: center; gap: 10px; }
+.iconList svg { flex: none; color: $action; }
+
+.counterValue { display: block; white-space: nowrap; }
+.counterLabel { display: block; margin-top: 6px; font-family: $mono; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: $text-secondary; }
+
+.faq { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.faq details { border: 1px solid $border-hairline; border-radius: 12px; background: $surface; padding: 0 18px; }
+.faq summary { cursor: pointer; padding: 16px 0; font-weight: 700; font-size: 15px; }
+.faq p { margin: 0 0 16px; color: $text-secondary; font-size: 14px; line-height: 1.55; }
+
+:where(.plan) { display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; min-width: 0; }
+.planName { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+.planPrice { font-size: 30px; font-weight: 800; color: $price; }
+.planDescription { margin: 0; font-size: 13.5px; color: $text-muted; line-height: 1.5; }
+.planCta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  height: 42px;
+  padding: 0 20px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: $action;
+  color: $ink;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+// Image background: a layer behind the content with a dark scrim (prototype: rgba(5,4,6,.55)).
+.bgMedia {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  &::after { content: ''; position: absolute; inset: 0; background: rgba(5, 4, 6, .55); }
+}
+
+// Event widgets (markup and look follow the v1 sections).
+.eventGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  @container page (max-width: 1023px) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @container page (max-width: 639px) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+}
+.eventCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+  b { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+}
+.poster {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  border-radius: 12px;
+  overflow: hidden;
+  background: $surface;
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+.liveBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: $action;
+  color: $ink;
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+.eventDate { font-family: $mono; font-size: 11px; letter-spacing: .1em; color: $text-muted; text-transform: uppercase; }
+
+.featured {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid $border-hairline;
+  background: $surface;
+  overflow: hidden;
+  @container page (max-width: 639px) { grid-template-columns: minmax(0, 1fr); }
+}
+.featuredArt {
+  display: block;
+  min-height: 220px;
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+.featuredBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px;
+  .liveBadge { position: static; }
+}
+.featuredTitle { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -.035em; line-height: 1.05; }
+.featuredCta {
+  display: inline-flex;
+  align-items: center;
+  height: 46px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: $action;
+  color: $ink;
+  font-weight: 700;
+  font-size: 14.5px;
+  text-decoration: none;
+}
+
+// Editor-only stand-in for a data widget without data (the UI task refines it).
+.placeholder {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 24px;
+  border: 1px dashed #3f3f46;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 13px;
+  color: $text-muted;
+}
