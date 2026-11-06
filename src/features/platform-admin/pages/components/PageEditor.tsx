@@ -129,6 +129,7 @@ export function PageEditor({ page, onReload, reloadFailed }: Props) {
           onHistory={() => setPanel('history')}
           onSettings={() => setPanel('settings')}
           publishBlock={publishBlock}
+          historyDisabled={!!conflict}
         />
         {conflict && (
           <div className={`${styles.banner} ${styles.warn}`} role="alert">
@@ -201,7 +202,7 @@ export function PageEditor({ page, onReload, reloadFailed }: Props) {
         {panel === 'history' && (
           <HistoryDrawer
             page={page}
-            settled={settled}
+            settled={settled && !conflict}
             onClose={() => setPanel(null)}
             onRestoreStart={() => dispatch({ type: 'lock' })}
             onRestoreFail={() => dispatch({ type: 'unlock' })}

@@ -50,7 +50,6 @@ describe('PublishDialog', () => {
     const user = setup();
     expect(screen.getByRole('heading', { name: 'Publicar versão 4' })).toBeInTheDocument();
     expect(screen.getByText('2 seções adicionadas · 3 editadas · 1 oculta')).toBeInTheDocument();
-    expect(screen.getByText('0/140')).toBeInTheDocument();
     expect(confirm()).toBeDisabled();
     await user.type(screen.getByLabelText(/Resumo da mudança/), '   ');
     expect(confirm()).toBeDisabled();

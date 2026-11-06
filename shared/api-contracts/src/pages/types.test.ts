@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  PAGE_ASSET_LIMITS,
   PAGE_CONTEXT_TYPES,
   PAGE_KINDS,
   PAGE_LIMITS,
@@ -91,5 +92,12 @@ describe('publish diff and version document types', () => {
 
     expect(diff.nextVersionNumber).toBe(4);
     expect(version.document.sections).toHaveLength(0);
+  });
+});
+
+describe('PAGE_ASSET_LIMITS', () => {
+  it('caps uploads at 5 MB of png, jpeg or webp', () => {
+    expect(PAGE_ASSET_LIMITS.maxBytes).toBe(5 * 1024 * 1024);
+    expect(PAGE_ASSET_LIMITS.mimeTypes).toEqual(['image/png', 'image/jpeg', 'image/webp']);
   });
 });

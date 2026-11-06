@@ -117,4 +117,9 @@ describe('PageEditorPage conflict reload', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(900); });
     expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument();
   });
+
+  it('disables history while in conflict', async () => {
+    await editIntoConflict();
+    expect(screen.getByRole('button', { name: /Histórico/ })).toBeDisabled();
+  });
 });

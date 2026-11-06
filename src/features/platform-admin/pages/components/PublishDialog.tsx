@@ -81,7 +81,6 @@ export function PublishDialog({ page, revision, settled, onClose, onPublished, o
           <Textarea
             id="publish-summary"
             rows={2}
-            max={PAGE_LIMITS.changeSummaryMax}
             maxLength={PAGE_LIMITS.changeSummaryMax}
             value={summary}
             disabled={publish.isPending}

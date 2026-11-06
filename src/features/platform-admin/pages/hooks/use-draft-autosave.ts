@@ -150,6 +150,11 @@ export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow:
       mounted.current = false;
       clearTimeout(debounceTimer.current);
       clearTimeout(retryTimer.current);
+      // Client-side navigation would drop a pending (or retrying) edit: send it once, fire-and-forget.
+      const { pageId, document: latest, dirty: unsaved } = argsRef.current;
+      if (!unsaved || locked.current || inFlight.current) return;
+      const parsed = pageDraftSchema.safeParse(latest);
+      if (parsed.success) void Promise.resolve(pagesService.saveDraft(pageId, { document: parsed.data, baseRevision: revisionRef.current })).catch(() => undefined);
     };
   }, []);
 

@@ -250,4 +250,28 @@ describe('useDraftAutosave', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(800); });
     expect(saveDraft).toHaveBeenLastCalledWith('p1', { document: docWith('n'), baseRevision: 5 });
   });
+
+  it('flushes a pending edit on unmount with the same base revision', async () => {
+    saveDraft.mockResolvedValue(ok(2));
+    const { unmount } = setup({ document: docWith('edited') });
+    await act(async () => { await vi.advanceTimersByTimeAsync(100); });
+    unmount();
+    expect(saveDraft).toHaveBeenCalledTimes(1);
+    expect(saveDraft).toHaveBeenCalledWith('p1', { document: docWith('edited'), baseRevision: 1 });
+  });
+
+  it('does not flush on unmount when locked by a conflict', async () => {
+    saveDraft.mockRejectedValue(httpError(409, { code: 'DRAFT_CONFLICT', currentRevision: 5 }));
+    const { unmount } = setup();
+    await act(async () => { await vi.advanceTimersByTimeAsync(900); });
+    saveDraft.mockClear();
+    unmount();
+    expect(saveDraft).not.toHaveBeenCalled();
+  });
+
+  it('does not flush on unmount when not dirty', () => {
+    const { unmount } = setup({ dirty: false });
+    unmount();
+    expect(saveDraft).not.toHaveBeenCalled();
+  });
 });

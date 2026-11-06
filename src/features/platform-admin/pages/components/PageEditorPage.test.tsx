@@ -200,12 +200,14 @@ describe('PageEditorPage', () => {
     rerender(<PageEditorPage pageId="B" />);
     expect(titlesInOrder()).toEqual(['Outra']);
     await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
-    expect(saveDraft).not.toHaveBeenCalled();
+    // The unmounting editor flushes its own pending edit to its own page, once.
+    expect(saveDraft).toHaveBeenCalledTimes(1);
+    expect(saveDraft.mock.calls[0][0]).toBe('A');
     fireEvent.click(within(rows()[0]).getByRole('button', { name: /Ocultar/ }));
     await act(async () => { await vi.advanceTimersByTimeAsync(900); });
-    expect(saveDraft).toHaveBeenCalledTimes(1);
-    expect(saveDraft.mock.calls[0][0]).toBe('B');
-    expect(saveDraft.mock.calls[0][1]).toMatchObject({ baseRevision: 7 });
+    expect(saveDraft).toHaveBeenCalledTimes(2);
+    expect(saveDraft.mock.calls[1][0]).toBe('B');
+    expect(saveDraft.mock.calls[1][1]).toMatchObject({ baseRevision: 7 });
   });
 
   it('opens the publish dialog from the topbar once there are unpublished changes', async () => {

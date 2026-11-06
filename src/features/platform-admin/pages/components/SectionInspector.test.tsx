@@ -21,7 +21,10 @@ vi.mock('next-intl', () => ({
 // The spy returns a plain outcome ({ url } or { error }) instead of a promise: vitest reports rejected promises
 // returned by a spy as unhandled even when the caller awaits them.
 const upload = vi.fn<(file: File) => { url: string } | { error: unknown }>();
+let uploadGate: Promise<void> | null = null;
+let openGate: () => void = () => {};
 const mutateAsync = async (file: File) => {
+  await uploadGate;
   const outcome = upload(file);
   if ('error' in outcome) throw outcome.error;
   return outcome;
@@ -150,6 +153,19 @@ describe('SectionInspector', () => {
     fireEvent.change(screen.getByLabelText('Enviar imagem'), { target: { files: [new File(['x'], 'a.png', { type: 'image/png' })] } });
     await screen.findByDisplayValue('https://cdn.showon.io/a.png');
     expect((latest.props as { url: string }).url).toBe('https://cdn.showon.io/a.png');
+  });
+
+  it('keeps the alt typed while the upload was in flight', async () => {
+    const user = userEvent.setup();
+    upload.mockReturnValue({ url: 'https://cdn.showon.io/b.png' });
+    uploadGate = new Promise<void>((resolve) => { openGate = resolve; });
+    mount('hero', { title: 'Oi' });
+    fireEvent.change(screen.getByLabelText('Enviar imagem'), { target: { files: [new File(['x'], 'a.png', { type: 'image/png' })] } });
+    await user.type(screen.getByLabelText(/^Texto alternativo/), 'Palco');
+    openGate();
+    await screen.findByDisplayValue('https://cdn.showon.io/b.png');
+    expect((latest.props as { image: { url: string; alt: string } }).image).toEqual({ url: 'https://cdn.showon.io/b.png', alt: 'Palco' });
+    uploadGate = null;
   });
 
   it.each([

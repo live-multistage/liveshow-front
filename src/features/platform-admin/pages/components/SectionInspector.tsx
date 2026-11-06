@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type Dispatch } from 'react';
+import { useRef, useState, type Dispatch } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button, Switch } from '@live-show/design-system';
 import {
@@ -281,11 +281,14 @@ function ImagePair({ urlId, altId, url, alt, urlLabel, altLabel, urlError, altEr
   urlId: string; altId: string; url: string; alt: string; urlLabel: string; altLabel: string; urlError?: string; altError?: string;
   onChange(image: { url: string; alt: string } | undefined): void;
 }) {
+  // The upload resolves later: merge with the alt typed meanwhile, not the one captured at click time.
+  const current = useRef({ url, alt });
+  current.current = { url, alt };
   const emit = (next: { url: string; alt: string }) => onChange(next.url === '' && next.alt === '' ? undefined : next);
   return (
     <>
       <TextField id={urlId} label={urlLabel} max={L.urlMax} value={url} error={urlError} onChange={(v) => emit({ url: v, alt })} />
-      <ImageUpload onUploaded={(uploaded) => emit({ url: uploaded, alt })} />
+      <ImageUpload onUploaded={(uploaded) => emit({ url: uploaded, alt: current.current.alt })} />
       <TextField id={altId} label={altLabel} max={L.altMax} value={alt} error={altError} onChange={(v) => emit({ url, alt: v })} />
     </>
   );

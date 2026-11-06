@@ -24,6 +24,7 @@ interface Props {
   onRetry?(): void;
   onPublish?(): void;
   onHistory?(): void;
+  historyDisabled?: boolean;
   onSettings?(): void;
   /** Why publishing is unavailable right now; null when it is allowed. */
   publishBlock?: string | null;
@@ -62,7 +63,7 @@ function SaveIndicator({ page, status, onRetry }: { page: PageDetail; status: Au
   }
 }
 
-export function EditorTopbar({ page, saveStatus, unpublished, device = 'desktop', onDevice, onRetry, onPublish, onHistory, onSettings, publishBlock = null }: Props) {
+export function EditorTopbar({ page, saveStatus, unpublished, device = 'desktop', onDevice, onRetry, onPublish, onHistory, historyDisabled = false, onSettings, publishBlock = null }: Props) {
   const t = useTranslations('platformAdmin.pageEditor');
   const key = statusKey(page, unpublished);
 
@@ -87,7 +88,7 @@ export function EditorTopbar({ page, saveStatus, unpublished, device = 'desktop'
           <Button type="button" variant={device === 'mobile' ? 'secondary' : 'ghost'} size="sm" aria-pressed={device === 'mobile'} aria-label={t('topbar.mobile')} onClick={() => onDevice?.('mobile')}><Smartphone aria-hidden="true" /><span className={styles.label}>{t('topbar.mobile')}</span></Button>
         </div>
         <span className={styles.vsep} />
-        <Button type="button" variant="outline" size="sm" onClick={onHistory}><History aria-hidden="true" /><span className={styles.label}>{t('topbar.history')}</span></Button>
+        <Button type="button" variant="outline" size="sm" disabled={historyDisabled} onClick={onHistory}><History aria-hidden="true" /><span className={styles.label}>{t('topbar.history')}</span></Button>
         <Button type="button" variant="outline" size="sm" onClick={onSettings}><Settings aria-hidden="true" /><span className={styles.label}>{t('topbar.settings')}</span></Button>
         <Button type="button" variant="outline" size="sm" disabled><ExternalLink aria-hidden="true" /><span className={styles.label}>{t('topbar.preview')}</span></Button>
         <span title={publishBlock ?? undefined}>
