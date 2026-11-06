@@ -23,6 +23,7 @@ const puck = vi.hoisted(() => ({
     dispatch: vi.fn(),
     selectedItem: null as unknown,
     getSelectorForId: vi.fn((id: string) => ({ index: 0, zone: `sel:${id}` })),
+    getParentById: vi.fn((): unknown => null),
     appState: { data: { root: { props: {} }, content: [] as unknown[] } },
   },
 }));
@@ -34,6 +35,7 @@ import { CanvasCrumbs } from './CanvasCrumbs';
 import { CanvasEmpty } from './CanvasEmpty';
 import { CanvasStage, canvasSizeLabel } from './CanvasStage';
 import { idOf } from './left/tree-ops';
+import { useEscapeClimb } from './use-escape-climb';
 
 const U = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
 const el = (type: string, id: string, props: object = {}) => ({ type, props: { id, ...props } }) as unknown as PageElement;
@@ -105,5 +107,48 @@ describe('empty page on the canvas', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Inserir “Abertura”' }));
     expect(inserted()[0].type).toBe('section');
     expect(inserted()[0].props).toHaveProperty('items');
+  });
+});
+
+describe('Esc', () => {
+  const Probe = () => { useEscapeClimb(); return <input aria-label="campo" />; };
+  const press = (target: Element | Document = document.body) => fireEvent.keyDown(target, { key: 'Escape' });
+
+  it('climbs the selection to the parent', () => {
+    puck.store.getParentById.mockReturnValue({ type: 'column', props: { id: U(3) } });
+    render(<Probe />);
+    press();
+    expect(lastItemSelector()).toEqual({ index: 0, zone: `sel:${U(3)}` });
+  });
+
+  it('from a top-level element (Puck answers the page root) it clears the selection', () => {
+    puck.store.getParentById.mockReturnValue({ type: 'root', props: {} });
+    render(<Probe />);
+    press();
+    expect(lastItemSelector()).toBeNull();
+  });
+
+  it('does nothing without a selection', () => {
+    puck.store.selectedItem = null;
+    render(<Probe />);
+    press();
+    expect(puck.store.dispatch).not.toHaveBeenCalled();
+  });
+
+  it('leaves a dialog to close itself: the selection stays', () => {
+    puck.store.getParentById.mockReturnValue({ type: 'column', props: { id: U(3) } });
+    render(<><Probe /><div role="dialog" /></>);
+    press();
+    expect(puck.store.dispatch).not.toHaveBeenCalled();
+  });
+
+  it('typing in a field, the first Esc leaves the field and the selection stays', () => {
+    puck.store.getParentById.mockReturnValue({ type: 'column', props: { id: U(3) } });
+    render(<Probe />);
+    const field = screen.getByLabelText('campo');
+    field.focus();
+    press(field);
+    expect(field).not.toHaveFocus();
+    expect(puck.store.dispatch).not.toHaveBeenCalled();
   });
 });

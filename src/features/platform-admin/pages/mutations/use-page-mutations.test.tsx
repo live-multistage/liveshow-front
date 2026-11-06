@@ -7,6 +7,7 @@ import type { PageDetail } from '@live-show/api-contracts';
 
 vi.mock('../services/pages.service', async (importOriginal) => ({
   isDraftConflict: (await importOriginal<typeof import('../services/pages.service')>()).isDraftConflict,
+  isFeaturedUnavailable: (await importOriginal<typeof import('../services/pages.service')>()).isFeaturedUnavailable,
   pagesService: {
     create: vi.fn(),
     updateSettings: vi.fn(),
@@ -88,6 +89,17 @@ describe('page mutations', () => {
     const error = await result.current.mutateAsync({ changeSummary: 'x' } as never).catch((e) => e);
     expect(error.status).toBe(409);
     expect(error.conflict.updatedBy.name).toBe('Ana');
+  });
+
+  it('publish keeps the FEATURED_UNAVAILABLE body (the element to mark) on the error', async () => {
+    vi.mocked(pagesService.publish).mockRejectedValueOnce(
+      new AxiosError('bad', '400', undefined, undefined, { status: 400, data: { code: 'FEATURED_UNAVAILABLE', elementId: 'el-1' } } as AxiosResponse),
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(() => usePublishPageMutation('p1'), { wrapper });
+    const error = await result.current.mutateAsync({ changeSummary: 'x' } as never).catch((e) => e);
+    expect(error.featuredUnavailable).toEqual({ code: 'FEATURED_UNAVAILABLE', elementId: 'el-1' });
+    expect(error.conflict).toBeUndefined();
   });
 
   it.each([

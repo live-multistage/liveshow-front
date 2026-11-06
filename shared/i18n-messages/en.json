@@ -3942,6 +3942,47 @@
         "slotHint": "or use “Add” in the panel on the left",
         "dropLabel": "Drop here",
         "badDrop": "Cannot go here"
+      },
+      "publish": {
+        "eyebrow": "PUBLISH",
+        "title": "Publish version {version}",
+        "description": "The page /p/{slug} will show this draft.",
+        "compared": "Compared with version {version}:",
+        "comparedSince": "Compared with version {version} (live since {since}):",
+        "comparedFirst": "First publication of this page.",
+        "saving": "Saving the draft…",
+        "nothing": "Nothing changed since version {version}.",
+        "nothingFirst": "There is nothing to publish yet.",
+        "counter": {
+          "added": "ADDED",
+          "edited": "EDITED",
+          "removed": "REMOVED",
+          "hidden": "HIDDEN"
+        },
+        "movedOne": "1 element moved.",
+        "movedMany": "{count} elements moved.",
+        "responsiveOne": "Includes phone style adjustments on 1 element.",
+        "responsiveMany": "Includes phone style adjustments on {count} elements.",
+        "dataNote": "Rails and featured events use the events at the moment the visitor opens the page.",
+        "summary": "Change summary",
+        "liveIn": "The page goes live within 1 minute at {host}/p/{slug}.",
+        "cancel": "Cancel",
+        "close": "Close",
+        "confirm": "Publish version {version}",
+        "publishing": "Publishing…",
+        "error": "Could not publish. Try again.",
+        "blockedOne": "Fix 1 error before publishing",
+        "blockedMany": "Fix {count} errors before publishing",
+        "blockedHint": "The draft stays saved. Click an error to go to the element.",
+        "in": "in",
+        "unavailable": "Event unavailable"
+      },
+      "phone": {
+        "title": "Edit on a bigger screen",
+        "text": "The page editor needs at least 1024px of width. On a phone you can see the draft preview.",
+        "preview": "Open preview",
+        "back": "Back to pages",
+        "backToNotice": "Back"
       }
     },
     "seo": {

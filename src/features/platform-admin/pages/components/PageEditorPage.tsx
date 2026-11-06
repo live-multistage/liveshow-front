@@ -8,6 +8,7 @@ import { Button, Skeleton } from '@live-show/design-system';
 import { useMediaQuery } from '../hooks/use-media-query';
 import { usePageQuery } from '../queries/use-pages';
 import { PAGES_LIST_HREF } from './EditorTopbar';
+import { PHONE_QUERY, PhoneNotice } from '../editor-v2/PhoneNotice';
 import { ReadOnlyV2Page } from '../editor-v2/ReadOnlyV2Page';
 import { PageEditor } from './PageEditor';
 import styles from './PageEditor.module.scss';
@@ -22,11 +23,13 @@ const isNotFound = (error: unknown) => (error as { response?: { status?: number 
 /** `v2`: flag `page_builder_v2`. On, the Puck editor opens (v1 drafts are converted on read); off, the v1 editor. */
 export function PageEditorPage({ pageId, v2 = false }: { pageId: string; v2?: boolean }) {
   const t = useTranslations('platformAdmin.pageEditor');
-  const unsupported = useMediaQuery(UNSUPPORTED_QUERY);
-  const { data: page, isError, error, refetch } = usePageQuery(unsupported ? null : pageId);
+  const unsupported = useMediaQuery(v2 ? PHONE_QUERY : UNSUPPORTED_QUERY);
+  // The v2 phone screen can show the draft's preview, so it needs the page.
+  const { data: page, isError, error, refetch } = usePageQuery(unsupported && !v2 ? null : pageId);
   const [reloadToken, setReloadToken] = useState(0);
   const [reloadFailed, setReloadFailed] = useState(false);
 
+  if (unsupported && v2) return <PhoneNotice page={page} />;
   if (unsupported) {
     return (
       <StatePanel title={t('unsupported.title')} text={t('unsupported.text')} icon={<Monitor aria-hidden="true" />}>

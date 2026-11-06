@@ -3,6 +3,7 @@ import { httpClient } from '@/lib/http/client';
 import type {
   CreatePageRequest,
   DraftConflict,
+  FeaturedUnavailable,
   PageAssetResponse,
   PageDetail,
   PageElement,
@@ -59,4 +60,10 @@ export const pagesService = {
 export function isDraftConflict(error: unknown): error is AxiosError<DraftConflict> {
   const axiosError = error as AxiosError<DraftConflict> | null;
   return axiosError?.response?.status === 409 && axiosError.response.data?.code === 'DRAFT_CONFLICT';
+}
+
+/** 400 FEATURED_UNAVAILABLE: the publish found a featured event that is gone or not public; `elementId` is the element. */
+export function isFeaturedUnavailable(error: unknown): error is AxiosError<FeaturedUnavailable> {
+  const axiosError = error as AxiosError<FeaturedUnavailable> | null;
+  return axiosError?.response?.status === 400 && axiosError.response.data?.code === 'FEATURED_UNAVAILABLE';
 }

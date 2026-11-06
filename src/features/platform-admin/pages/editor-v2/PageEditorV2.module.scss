@@ -298,6 +298,22 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
 }
 .emptyActions { display: flex; gap: 8px; margin-top: 6px; svg { width: 14px; height: 14px; } }
 
+// Below 1280px the inspector is a drawer over the canvas, shown while something is selected.
+.narrow {
+  grid-template-columns: 300px minmax(0, 1fr);
+}
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  width: 340px;
+  max-width: 100%;
+  box-shadow: -24px 0 48px -24px rgba(0, 0, 0, 0.7);
+  &[data-open='false'] { display: none; }
+}
+
 // Conflict: editing is blocked, the page stays readable.
 .locked {
   pointer-events: none;
@@ -331,4 +347,19 @@ $plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width=
   border: 1px solid $border-hairline;
   border-radius: 12px;
   overflow: hidden;
+}
+
+// v2 on a phone: the draft, read-only.
+.phonePreview { min-height: 100vh; background: $bg; }
+.phonePreviewBar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: $bg;
+  border-bottom: 1px solid $hairline;
+  b { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }

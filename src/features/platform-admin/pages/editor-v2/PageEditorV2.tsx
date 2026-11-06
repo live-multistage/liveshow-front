@@ -7,7 +7,7 @@ import { Puck, type Data } from '@puckeditor/core';
 import { AlertTriangle, Layers, X } from 'lucide-react';
 import { Button } from '@live-show/design-system';
 import {
-  pageDraftV2Schema, upgradePageDocument, validatePageAgainstProfile, validatePageTreeV2,
+  pageDraftV2Schema, upgradePageDocument,
   type DraftConflict, type ElementType, type PageDetail, type PageDocumentV2, type PageElement,
 } from '@live-show/api-contracts';
 import { useDraftAutosave } from '../hooks/use-draft-autosave';
@@ -15,11 +15,13 @@ import { usePagePreviewQuery } from '../queries/use-pages';
 import { formatClock } from '../components/EditorTopbar';
 import { HistoryDrawer } from '../components/HistoryDrawer';
 import { PageSettingsDrawer } from '../components/PageSettingsDrawer';
-import { PublishDialog } from '../components/PublishDialog';
 import shell from '../components/PageEditor.module.scss';
 import { EditorChrome } from './EditorChrome';
 import { PANEL_OVERRIDES } from './panels';
 import { EditorDataProvider } from './editor-data';
+import { ServerIssuesProvider, type ServerIssues } from './inspector/element-issues';
+import { locate } from './left/tree-ops';
+import { PublishDialogV2 } from './PublishDialogV2';
 import { createPuckConfig } from './puck-config';
 import { fromPuckData, toPuckData } from './puck-data';
 import { BREAKPOINT_WIDTH, BreakpointProvider, VIEWPORTS } from './use-breakpoint';
@@ -69,6 +71,8 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
   const [copied, setCopied] = useState(false);
   const [publishedVersion, setPublishedVersion] = useState<number | null>(null);
   const [publishConflict, setPublishConflict] = useState<DraftConflict | null>(null);
+  // Featured events the back refused at publish, with the event they had: the mark goes away when the author picks another one.
+  const [featuredFailures, setFeaturedFailures] = useState<{ elementId: string; eventId: string }[]>([]);
   const preview = usePagePreviewQuery(page.id, revision);
 
   const autosave = useDraftAutosave<PageDocumentV2>({
@@ -118,16 +122,15 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
   lockedRef.current = isLocked;
   const settled = !dirty && status.kind !== 'saving' && status.kind !== 'pending';
   const unpublished = page.hasUnpublishedChanges || touched;
-  const issueCount = useMemo(() => {
-    const seen = new Set<string>();
-    [...validatePageTreeV2(document), ...validatePageAgainstProfile(document, 'platform')].forEach((i) => seen.add(`${i.path}|${i.message}`));
-    return seen.size;
-  }, [document]);
+  const serverIssues = useMemo<ServerIssues>(() => Object.fromEntries(
+    featuredFailures
+      .filter(({ elementId, eventId }) => (locate(document.content as PageElement[], elementId)?.element.props as { eventId?: string } | undefined)?.eventId === eventId)
+      .map(({ elementId }) => [elementId, { eventId: tv2('publish.unavailable') }]),
+  ), [featuredFailures, document, tv2]);
 
   let publishBlock: string | null = null;
   if (isLocked) publishBlock = t('publish.tipConflict');
   else if (page.status === 'ARCHIVED') publishBlock = t('publish.tipArchived');
-  else if (issueCount > 0) publishBlock = t(issueCount === 1 ? 'publish.tipInvalidOne' : 'publish.tipInvalidMany', { count: issueCount });
   else if (document.content.length === 0) publishBlock = t('publish.tipEmpty');
   else if (!unpublished && page.publishedVersion !== null) publishBlock = t('publish.tipNothing', { version: page.publishedVersion });
   else if (!unpublished) publishBlock = t('publish.tipNothingFirst');
@@ -187,33 +190,41 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
           permissions={isLocked ? LOCKED_PERMISSIONS : undefined}
           onChange={onChange}
         >
-          <EditorDataProvider value={editorData}>
-            <EditorChrome
-              page={page}
-              saveStatus={conflict ? { kind: 'conflict', conflict } : status}
-              unpublished={unpublished}
-              publishBlock={publishBlock}
-              historyDisabled={!!conflict}
-              locked={isLocked}
-              onRetry={autosave.saveNow}
-              onPublish={() => setPanel('publish')}
-              onHistory={() => setPanel('history')}
-              onSettings={() => setPanel('settings')}
-              banners={banners}
-            />
-          </EditorDataProvider>
+          <ServerIssuesProvider value={serverIssues}>
+            <EditorDataProvider value={editorData}>
+              <EditorChrome
+                page={page}
+                saveStatus={conflict ? { kind: 'conflict', conflict } : status}
+                unpublished={unpublished}
+                publishBlock={publishBlock}
+                historyDisabled={!!conflict}
+                locked={isLocked}
+                onRetry={autosave.saveNow}
+                onPublish={() => setPanel('publish')}
+                onHistory={() => setPanel('history')}
+                onSettings={() => setPanel('settings')}
+                banners={banners}
+              />
+              {panel === 'publish' && (
+                <PublishDialogV2
+                  page={page}
+                  document={document}
+                  serverIssues={serverIssues}
+                  revision={revision}
+                  settled={settled}
+                  onClose={() => setPanel(null)}
+                  onPublished={(version) => { setPanel(null); setTouched(false); setFeaturedFailures([]); setPublishedVersion(version); }}
+                  onConflict={(found) => { setPanel(null); setPublishConflict(found); setLocked(true); }}
+                  onFeaturedUnavailable={(elementId) => {
+                    const eventId = (locate(documentRef.current.content as PageElement[], elementId)?.element.props as { eventId?: string } | undefined)?.eventId ?? '';
+                    setFeaturedFailures((current) => [...current.filter((f) => f.elementId !== elementId), { elementId, eventId }]);
+                  }}
+                />
+              )}
+            </EditorDataProvider>
+          </ServerIssuesProvider>
         </Puck>
       </BreakpointProvider>
-      {panel === 'publish' && (
-        <PublishDialog
-          page={page}
-          revision={revision}
-          settled={settled}
-          onClose={() => setPanel(null)}
-          onPublished={(version) => { setPanel(null); setTouched(false); setPublishedVersion(version); }}
-          onConflict={(found) => { setPanel(null); setPublishConflict(found); setLocked(true); }}
-        />
-      )}
       {panel === 'history' && (
         <HistoryDrawer
           page={page}

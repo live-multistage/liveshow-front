@@ -9,11 +9,16 @@ import { EditorTopbar } from '../components/EditorTopbar';
 import { CanvasCrumbs } from './CanvasCrumbs';
 import { CanvasEmpty } from './CanvasEmpty';
 import { CanvasStage } from './CanvasStage';
+import { useMediaQuery } from '../hooks/use-media-query';
 import { SaveAsBlockProvider } from './left/SaveAsBlock';
+import { useEscapeClimb } from './use-escape-climb';
 import { BREAKPOINT_WIDTH, breakpointFromWidth, useBreakpoint, useBreakpointSetter } from './use-breakpoint';
 import styles from './PageEditorV2.module.scss';
 
 const usePuck = createUsePuck();
+
+/** Below this width the inspector stops being a column and becomes a drawer over the canvas. */
+export const NARROW_QUERY = '(max-width: 1279px)';
 
 // Puck binds undo/redo on the document; while locked they would move its tree away from the document we hold.
 function useBlockHistoryKeys(blocked: boolean) {
@@ -50,6 +55,9 @@ export function EditorChrome({ banners, locked, ...topbar }: Props) {
   // ⌘Z / ⇧⌘Z are bound by Puck itself to this same history.
   const back = usePuck((s) => s.history.back);
   const forward = usePuck((s) => s.history.forward);
+  const hasSelection = usePuck((s) => !!s.selectedItem);
+  const narrow = useMediaQuery(NARROW_QUERY);
+  useEscapeClimb();
   const pageIsEmpty = usePuck((s) => s.appState.data.content.length === 0);
   const breakpoint = useBreakpoint();
   const t = useTranslations('platformAdmin.pageEditorV2');
@@ -83,7 +91,7 @@ export function EditorChrome({ banners, locked, ...topbar }: Props) {
       />
       {banners}
       <SaveAsBlockProvider>
-        <div className={styles.body} style={canvasTexts}>
+        <div className={`${styles.body} ${narrow ? styles.narrow : ''}`} style={canvasTexts}>
           <div className={`${styles.left} ${locked ? styles.locked : ''}`}>
             <Puck.Components />
             <Puck.Outline />
@@ -99,7 +107,7 @@ export function EditorChrome({ banners, locked, ...topbar }: Props) {
               <Puck.Preview />
             </CanvasStage>
           </div>
-          <div className={`${styles.right} ${locked ? styles.locked : ''}`}>
+          <div className={`${styles.right} ${narrow ? styles.drawer : ''} ${locked ? styles.locked : ''}`} data-open={!narrow || hasSelection} data-testid="editor-inspector">
             <Puck.Fields />
           </div>
         </div>

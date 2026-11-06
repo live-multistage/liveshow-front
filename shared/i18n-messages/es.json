@@ -3942,6 +3942,47 @@
         "slotHint": "o usa “Agregar” en el panel de la izquierda",
         "dropLabel": "Soltar aquí",
         "badDrop": "No puede ir aquí"
+      },
+      "publish": {
+        "eyebrow": "PUBLICAR",
+        "title": "Publicar versión {version}",
+        "description": "La página /p/{slug} pasa a mostrar este borrador.",
+        "compared": "Comparado con la versión {version}:",
+        "comparedSince": "Comparado con la versión {version} (en vivo desde {since}):",
+        "comparedFirst": "Primera publicación de esta página.",
+        "saving": "Guardando el borrador…",
+        "nothing": "Nada cambió desde la versión {version}.",
+        "nothingFirst": "Aún no hay nada para publicar.",
+        "counter": {
+          "added": "AGREGADOS",
+          "edited": "EDITADOS",
+          "removed": "ELIMINADOS",
+          "hidden": "OCULTOS"
+        },
+        "movedOne": "1 elemento cambió de lugar.",
+        "movedMany": "{count} elementos cambiaron de lugar.",
+        "responsiveOne": "Incluye ajustes de estilo para celular en 1 elemento.",
+        "responsiveMany": "Incluye ajustes de estilo para celular en {count} elementos.",
+        "dataNote": "Los carruseles y destacados usan los eventos del momento en que el visitante abra la página.",
+        "summary": "Resumen del cambio",
+        "liveIn": "La página queda en vivo en hasta 1 minuto en {host}/p/{slug}.",
+        "cancel": "Cancelar",
+        "close": "Cerrar",
+        "confirm": "Publicar versión {version}",
+        "publishing": "Publicando…",
+        "error": "No se pudo publicar. Inténtalo de nuevo.",
+        "blockedOne": "Corrige 1 error antes de publicar",
+        "blockedMany": "Corrige {count} errores antes de publicar",
+        "blockedHint": "El borrador sigue guardado. Haz clic en un error para ir al elemento.",
+        "in": "en",
+        "unavailable": "Evento no disponible"
+      },
+      "phone": {
+        "title": "Edita en una pantalla más grande",
+        "text": "El editor de páginas necesita al menos 1024px de ancho. En el celular puedes ver la vista previa del borrador.",
+        "preview": "Abrir vista previa",
+        "back": "Volver a páginas",
+        "backToNotice": "Volver"
       }
     },
     "seo": {

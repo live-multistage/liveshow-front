@@ -26,10 +26,11 @@ vi.mock('../queries/use-pages', () => ({
   usePublishDiffQuery: vi.fn(() => ({ data: { added: 1, removed: 0, edited: 0, hidden: 0, hasChanges: true, nextVersionNumber: 4 } })),
   usePageVersionsQuery: vi.fn(() => ({ data: [] })),
 }));
+const publishMutate = vi.hoisted(() => vi.fn());
 vi.mock('../mutations/use-page-mutations', () => {
   const idle = () => ({ mutateAsync: vi.fn(), isPending: false });
   return {
-    usePublishPageMutation: idle, useRestoreVersionMutation: idle, useUpdatePageSettingsMutation: idle,
+    usePublishPageMutation: () => ({ mutateAsync: publishMutate, isPending: false }), useRestoreVersionMutation: idle, useUpdatePageSettingsMutation: idle,
     useUnpublishPageMutation: idle, useArchivePageMutation: idle, useUnarchivePageMutation: idle,
     useUploadPageAssetMutation: idle,
   };
@@ -52,6 +53,7 @@ const puck = vi.hoisted(() => {
     dispatch: vi.fn(),
     selectedItem: null,
     getSelectorForId: vi.fn(),
+    getParentById: vi.fn(() => null),
     appState: { data: { root: { props: {} }, content: [] }, ui: { viewports: { current: { width: 1280, height: 'auto' }, controlsVisible: false, options: [] } } },
     history: { back: vi.fn(), forward: vi.fn(), hasPast: true, hasFuture: false },
   };
@@ -141,6 +143,89 @@ describe('route', () => {
     render(<PageEditorPage pageId="P" />);
     expect(screen.getByTestId('v2-read-only').textContent).toContain('Esta página usa o novo editor');
     expect(screen.queryByTestId('puck')).toBeNull();
+  });
+});
+
+const withDraft = (document: PageDocumentV2) => ({ ...detail(document), hasUnpublishedChanges: true });
+const U = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
+const featuredDocument = (): PageDocumentV2 => ({
+  schemaVersion: 2, context: { type: 'none' }, root: { props: {} },
+  content: [{ type: 'section', props: { id: U(1), name: 'Programação', items: [{ type: 'featuredEvent', props: { id: U(2), eventId: U(3) } }] } }],
+} as unknown as PageDocumentV2);
+const openPublish = () => fireEvent.click(screen.getByRole('button', { name: 'Publicar' }));
+
+describe('publish', () => {
+  it('stays available with errors: the dialog lists them instead of the topbar blocking the click', async () => {
+    const broken = featuredDocument();
+    (broken.content[0].props as { items: unknown[] }).items = [{ type: 'button', props: { id: U(5), label: 'Ir', href: 'javascript:alert(1)' } }];
+    usePage.mockReturnValue({ data: withDraft(broken), isError: false, refetch: vi.fn() } as never);
+    render(<PageEditorPage pageId="P" v2 />);
+    await screen.findByTestId('editor-canvas');
+    expect(screen.getByRole('button', { name: 'Publicar' })).toBeEnabled();
+    openPublish();
+    expect(await screen.findByRole('heading', { name: 'Corrija 1 erro antes de publicar' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Botão em Programação:/ })).toBeInTheDocument();
+  });
+
+  it('FEATURED_UNAVAILABLE from the back marks the element and the dialog turns into the error list', async () => {
+    publishMutate.mockRejectedValueOnce({ featuredUnavailable: { code: 'FEATURED_UNAVAILABLE', elementId: U(2) } });
+    usePage.mockReturnValue({ data: withDraft(featuredDocument()), isError: false, refetch: vi.fn() } as never);
+    render(<PageEditorPage pageId="P" v2 />);
+    await screen.findByTestId('editor-canvas');
+    openPublish();
+    fireEvent.change(await screen.findByLabelText(/Resumo da mudança/), { target: { value: 'x' } });
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Publicar versão 4' })); });
+    expect(await screen.findByRole('heading', { name: 'Corrija 1 erro antes de publicar' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Evento em destaque em Programação: Evento indisponível/ })).toBeInTheDocument();
+  });
+
+  it('the mark goes away when the author picks another event', async () => {
+    publishMutate.mockRejectedValueOnce({ featuredUnavailable: { code: 'FEATURED_UNAVAILABLE', elementId: U(2) } });
+    usePage.mockReturnValue({ data: withDraft(featuredDocument()), isError: false, refetch: vi.fn() } as never);
+    render(<PageEditorPage pageId="P" v2 />);
+    await screen.findByTestId('editor-canvas');
+    openPublish();
+    fireEvent.change(await screen.findByLabelText(/Resumo da mudança/), { target: { value: 'x' } });
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Publicar versão 4' })); });
+    await screen.findByRole('heading', { name: 'Corrija 1 erro antes de publicar' });
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+    const other = featuredDocument();
+    ((other.content[0].props as { items: { props: { eventId: string } }[] }).items[0].props).eventId = U(4);
+    await act(async () => { puck.props.onChange(toPuckData(other)); });
+    openPublish();
+    expect(await screen.findByRole('heading', { name: 'Publicar versão 4' })).toBeInTheDocument();
+  });
+});
+
+describe('screen sizes', () => {
+  const matchWidth = (matches: (query: string) => boolean) => {
+    window.matchMedia = ((query: string) => ({ matches: matches(query), media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() })) as never;
+  };
+  afterEach(() => { delete (window as { matchMedia?: unknown }).matchMedia; });
+
+  it('narrow (< 1280px): the inspector is a drawer, open only while something is selected', async () => {
+    matchWidth((q) => q.includes('1279px'));
+    await mountV2(v2Document());
+    expect(screen.getByTestId('editor-inspector')).toHaveAttribute('data-open', 'false');
+  });
+
+  it('wide: the inspector is a column, always there', async () => {
+    matchWidth(() => false);
+    await mountV2(v2Document());
+    expect(screen.getByTestId('editor-inspector')).toHaveAttribute('data-open', 'true');
+  });
+
+  it('on a phone: "Edite em uma tela maior", with the preview and the way back, instead of the editor', async () => {
+    matchWidth((q) => q.includes('1023px'));
+    usePage.mockReturnValue({ data: detail(v2Document()), isError: false, refetch: vi.fn() } as never);
+    render(<PageEditorPage pageId="P" v2 />);
+    expect(screen.getByRole('heading', { name: 'Edite em uma tela maior' })).toBeInTheDocument();
+    expect(screen.queryByTestId('puck')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Voltar para páginas' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir prévia' }));
+    expect(screen.getByTestId('phone-preview')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Voltar' }));
+    expect(screen.getByRole('heading', { name: 'Edite em uma tela maior' })).toBeInTheDocument();
   });
 });
 

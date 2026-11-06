@@ -3942,6 +3942,47 @@
         "slotHint": "ou use “Adicionar” no painel à esquerda",
         "dropLabel": "Soltar aqui",
         "badDrop": "Não pode ficar aqui"
+      },
+      "publish": {
+        "eyebrow": "PUBLICAR",
+        "title": "Publicar versão {version}",
+        "description": "A página /p/{slug} passa a mostrar este rascunho.",
+        "compared": "Comparado com a versão {version}:",
+        "comparedSince": "Comparado com a versão {version} (no ar desde {since}):",
+        "comparedFirst": "Primeira publicação desta página.",
+        "saving": "Salvando o rascunho…",
+        "nothing": "Nada mudou desde a versão {version}.",
+        "nothingFirst": "Não há nada para publicar ainda.",
+        "counter": {
+          "added": "ADICIONADOS",
+          "edited": "EDITADOS",
+          "removed": "REMOVIDOS",
+          "hidden": "OCULTOS"
+        },
+        "movedOne": "1 elemento mudou de lugar.",
+        "movedMany": "{count} elementos mudaram de lugar.",
+        "responsiveOne": "Inclui ajustes de estilo para celular em 1 elemento.",
+        "responsiveMany": "Inclui ajustes de estilo para celular em {count} elementos.",
+        "dataNote": "Trilhos e destaques usam os eventos do momento em que o visitante abrir a página.",
+        "summary": "Resumo da mudança",
+        "liveIn": "A página fica no ar em até 1 minuto em {host}/p/{slug}.",
+        "cancel": "Cancelar",
+        "close": "Fechar",
+        "confirm": "Publicar versão {version}",
+        "publishing": "Publicando…",
+        "error": "Não foi possível publicar. Tente de novo.",
+        "blockedOne": "Corrija 1 erro antes de publicar",
+        "blockedMany": "Corrija {count} erros antes de publicar",
+        "blockedHint": "O rascunho continua salvo. Clique num erro para ir até o elemento.",
+        "in": "em",
+        "unavailable": "Evento indisponível"
+      },
+      "phone": {
+        "title": "Edite em uma tela maior",
+        "text": "O editor de páginas precisa de pelo menos 1024px de largura. No celular você pode ver a prévia do rascunho.",
+        "preview": "Abrir prévia",
+        "back": "Voltar para páginas",
+        "backToNotice": "Voltar"
       }
     },
     "seo": {

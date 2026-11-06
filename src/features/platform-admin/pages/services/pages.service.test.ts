@@ -8,7 +8,7 @@ const { httpClient } = vi.hoisted(() => ({
 vi.mock('@/lib/http/client', () => ({ httpClient }));
 
 import type { SaveDraftRequest } from '@live-show/api-contracts';
-import { isDraftConflict, pagesService } from './pages.service';
+import { isDraftConflict, isFeaturedUnavailable, pagesService } from './pages.service';
 
 const ok = <T>(data: T) => ({ data }) as AxiosResponse<T>;
 
@@ -120,5 +120,17 @@ describe('isDraftConflict', () => {
     expect(isDraftConflict(axiosError(500, 'DRAFT_CONFLICT'))).toBe(false);
     expect(isDraftConflict(new Error('x'))).toBe(false);
     expect(isDraftConflict(null)).toBe(false);
+  });
+});
+
+describe('isFeaturedUnavailable', () => {
+  const axiosError = (status: number, code?: string) =>
+    new AxiosError('boom', 'ERR', undefined, undefined, { status, data: code ? { code } : {} } as AxiosResponse);
+
+  it('is true only for a 400 with FEATURED_UNAVAILABLE', () => {
+    expect(isFeaturedUnavailable(axiosError(400, 'FEATURED_UNAVAILABLE'))).toBe(true);
+    expect(isFeaturedUnavailable(axiosError(400, 'INVALID_DOCUMENT'))).toBe(false);
+    expect(isFeaturedUnavailable(axiosError(409, 'FEATURED_UNAVAILABLE'))).toBe(false);
+    expect(isFeaturedUnavailable(new Error('x'))).toBe(false);
   });
 });
