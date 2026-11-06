@@ -56,10 +56,14 @@ function renderElement(type: ElementType) {
   const hasSlot = ELEMENT_SLOT_RULES[type] !== null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return function Render(raw: any) {
-    const { puck, items: Items, ...props } = raw as { puck: { metadata?: PuckMetadata }; items?: (opts?: object) => React.ReactNode } & Record<string, unknown>;
+    // `items` is a slot (a render function) only for container types; faq/iconList keep it as content.
+    const { puck, ...rest } = raw as { puck: { metadata?: PuckMetadata } } & Record<string, unknown>;
+    const { items, ...withoutItems } = rest;
+    const props = hasSlot ? withoutItems : rest;
+    const Items = hasSlot ? (items as ((opts?: object) => React.ReactNode) | undefined) : undefined;
     const ctx: RenderContext = { resolved: puck.metadata?.resolved ?? { rails: {}, featured: {}, live: {} }, loading: puck.metadata?.loading, labels: puck.metadata?.labels, mode: 'editor' };
     const element = { type, props: props as unknown as ElementProps } as PageElement;
-    return <ElementRenderer element={element} ctx={ctx} slot={hasSlot && Items ? <Items /> : undefined} />;
+    return <ElementRenderer element={element} ctx={ctx} slot={Items ? <Items /> : undefined} />;
   };
 }
 

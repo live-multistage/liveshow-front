@@ -84,6 +84,7 @@ import { usePageQuery } from '../queries/use-pages';
 import { pagesService } from '../services/pages.service';
 import { PageEditorPage } from '../components/PageEditorPage';
 import { toPuckData } from './puck-data';
+import fixture from '../../../../../shared/api-contracts/src/pages/page-tree-fixture.json';
 
 const saveDraft = vi.mocked(pagesService.saveDraft);
 const usePage = vi.mocked(usePageQuery);
@@ -127,6 +128,11 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers());
 
 describe('route', () => {
+  it('opens a document with all 19 element types, faq and iconList included, without crashing', async () => {
+    await mountV2(fixture as unknown as PageDocumentV2);
+    expect(screen.getByTestId('puck')).toBeTruthy();
+  });
+
   it('flag on opens the Puck editor, off opens the v1 editor', async () => {
     await mountV2(v1Document());
     expect(screen.getByTestId('puck')).toBeTruthy();
