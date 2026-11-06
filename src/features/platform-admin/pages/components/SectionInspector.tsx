@@ -183,7 +183,7 @@ export function SectionInspector({ section, index, issues, locked, full = false,
         const p = section.props;
         return (
           <>
-            <EventPicker value={p.eventId ? [p.eventId] : []} max={1} onChange={(ids) => set({ eventId: ids[0] ?? '' })} />
+            <EventPicker featurable value={p.eventId ? [p.eventId] : []} max={1} onChange={(ids) => set({ eventId: ids[0] ?? '' })} />
             {err('eventId') && <p className={styles.error}>{err('eventId')}</p>}
             <TextField id={id('cta')} label={label('ctaLabel')} max={L.ctaLabelMax} value={p.ctaLabel ?? ''} error={err('ctaLabel')}
               onChange={(v) => set({ ctaLabel: optional(v) })} />

@@ -39,7 +39,7 @@ vi.mock('../../mailing/components/ArtistPicker', () => ({
   ArtistPicker: ({ onChange }: { onChange(id: string): void }) => <button onClick={() => onChange('art-1')}>pick-artist</button>,
 }));
 vi.mock('../../mailing/components/EventPicker', () => ({
-  EventPicker: ({ onChange }: { onChange(ids: string[]): void }) => <button onClick={() => onChange(['ev-1'])}>pick-event</button>,
+  EventPicker: ({ onChange, featurable }: { onChange(ids: string[]): void; featurable?: boolean }) => <button data-featurable={String(!!featurable)} onClick={() => onChange(['ev-1'])}>pick-event</button>,
 }));
 
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -195,6 +195,11 @@ describe('SectionInspector', () => {
     mount('featured');
     await user.click(screen.getByText('pick-event'));
     expect((latest.props as { eventId: string }).eventId).toBe('ev-1');
+  });
+
+  it('featured: the picker only offers featurable events', () => {
+    mount('featured');
+    expect(screen.getByText('pick-event')).toHaveAttribute('data-featurable', 'true');
   });
 
   it('appearance segments and visibility switch update the section', async () => {

@@ -21,12 +21,12 @@ interface Props {
   featurable?: boolean;
 }
 
-// Same rule as the back's isFeaturableEvent (page resolver): PUBLIC and UNLISTED (direct link) are in; draft, cancelled,
-// private and channel containers are out. `visibility`/`format` are optional on the row: an older back that does not send
+// Same rule as the back's isFeaturableEvent (page resolver): only PUBLIC events are featured; UNLISTED (direct link), draft,
+// cancelled, private and channel containers are out. `visibility`/`format` are optional on the row: an older back that does not send
 // them leaves only the status check here, and the publish refuses the rest with FEATURED_UNAVAILABLE.
 export const isFeaturableEventRow = (row: Pick<PlatformEventRow, 'status' | 'visibility' | 'format'>): boolean =>
   row.status !== 'DRAFT' && row.status !== 'CANCELLED'
-  && (row.visibility === undefined || row.visibility === 'PUBLIC' || row.visibility === 'UNLISTED')
+  && (row.visibility === undefined || row.visibility === 'PUBLIC')
   && row.format !== 'CHANNEL';
 
 export function EventPicker({ value, max, onChange, featurable = false }: Props) {

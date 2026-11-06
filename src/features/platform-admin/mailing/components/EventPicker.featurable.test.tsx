@@ -38,10 +38,9 @@ async function search(featurable: boolean) {
 }
 
 describe('EventPicker featurable', () => {
-  it('offers public and UNLISTED events, not draft, private, channel or cancelled ones', async () => {
+  it('offers only PUBLIC events, not UNLISTED, draft, private, channel or cancelled ones', async () => {
     await search(true);
-    expect(screen.getByText('Evento unlisted')).toBeInTheDocument();
-    for (const hidden of ['draft', 'private', 'channel', 'cancelled']) expect(screen.queryByText(`Evento ${hidden}`)).not.toBeInTheDocument();
+    for (const hidden of ['unlisted', 'draft', 'private', 'channel', 'cancelled']) expect(screen.queryByText(`Evento ${hidden}`)).not.toBeInTheDocument();
   });
 
   it('keeps listing everything for the other users of the picker', async () => {
