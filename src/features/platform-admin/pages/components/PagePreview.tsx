@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef, type KeyboardEvent, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { useTranslations } from 'next-intl';
-import { Lock, Plus } from 'lucide-react';
+import { ArrowDown, ArrowUp, Eye, EyeOff, Lock, Plus } from 'lucide-react';
 import { Button } from '@live-show/design-system';
 import type { PageDocument, PageSection, PublicPage } from '@live-show/api-contracts';
 import { PageSections } from '@/features/pages-public/sections';
@@ -19,16 +19,39 @@ interface Props {
   onSelect(id: string): void;
   /** Zero-based index where the new section goes. */
   onInsert(index: number): void;
+  onMove(id: string, delta: -1 | 1): void;
+  onToggleHidden(id: string): void;
 }
+
+// The desktop preview always lays the page out at this width and is scaled to fit the column.
+const DESKTOP_WIDTH = 1280;
 
 const hasNothingToShow = (section: PageSection, resolved: PublicPage['resolved']) =>
   (section.type === 'rail' && !resolved.rails[section.id]?.length) || (section.type === 'featured' && !resolved.featured[section.id]);
 
 /** The editor's local document rendered with the public renderers; clicks select instead of navigating. */
-export function PagePreview({ document, resolved, selectedId, device, locked, onSelect, onInsert }: Props) {
+export function PagePreview({ document, resolved, selectedId, device, locked, onSelect, onInsert, onMove, onToggleHidden }: Props) {
   const t = useTranslations('platformAdmin.pageEditor');
   const selectedRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
+  const [columnWidth, setColumnWidth] = useState(DESKTOP_WIDTH);
+  const [pageHeight, setPageHeight] = useState(0);
+  const scale = Math.min(1, columnWidth / DESKTOP_WIDTH);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver((entries) => {
+      for (const { target, contentRect } of entries) {
+        if (target === root) setColumnWidth(contentRect.width);
+        else setPageHeight(contentRect.height);
+      }
+    });
+    observer.observe(root);
+    if (pageRef.current) observer.observe(pageRef.current);
+    return () => observer.disconnect();
+  }, [device]);
 
   // Rendered sections are inert here: keep their links and controls out of the Tab order (the wrapper is the focus target).
   useEffect(() => {
@@ -65,7 +88,7 @@ export function PagePreview({ document, resolved, selectedId, device, locked, on
           onSelect(section.id);
         };
         return (
-          <div key={section.id}>
+          <div key={section.id} className={styles.slot}>
             {insert(index, t('preview.insertBefore', { name }))}
             <div
               ref={selected ? selectedRef : undefined}
@@ -85,6 +108,20 @@ export function PagePreview({ document, resolved, selectedId, device, locked, on
               </div>
               {section.hidden && <span className={styles.badge}>{t('preview.hiddenBadge')}</span>}
             </div>
+            {selected && (
+              <div className={styles.toolbar} role="toolbar" aria-label={t('preview.toolbar.label')}>
+                <span>{name}</span>
+                <button type="button" disabled={locked || index === 0} aria-label={t('preview.toolbar.up')} onClick={() => onMove(section.id, -1)}>
+                  <ArrowUp aria-hidden="true" />
+                </button>
+                <button type="button" disabled={locked || index === sections.length - 1} aria-label={t('preview.toolbar.down')} onClick={() => onMove(section.id, 1)}>
+                  <ArrowDown aria-hidden="true" />
+                </button>
+                <button type="button" disabled={locked} aria-label={t(section.hidden ? 'preview.toolbar.show' : 'preview.toolbar.hide')} onClick={() => onToggleHidden(section.id)}>
+                  {section.hidden ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
+                </button>
+              </div>
+            )}
           </div>
         );
       })}
@@ -95,7 +132,19 @@ export function PagePreview({ document, resolved, selectedId, device, locked, on
 
   return (
     <div ref={rootRef} className={styles.preview} data-testid="preview-slot" data-selected-id={selectedId ?? undefined} data-device={device} aria-label={t('preview.frame')}>
-      <div className={device === 'mobile' ? styles.phone : styles.page}>{page}</div>
+      {device === 'mobile' ? <div className={styles.phone}>{page}</div> : (
+        // The frame takes the scaled size in layout; transforms alone would leave the unscaled box behind.
+        <div className={styles.frame} style={{ width: DESKTOP_WIDTH * scale, height: pageHeight ? pageHeight * scale : undefined }}>
+          <div
+            ref={pageRef}
+            data-testid="preview-scaler"
+            className={styles.page}
+            style={{ width: DESKTOP_WIDTH, transform: `scale(${scale})`, ['--preview-inverse-scale' as string]: 1 / scale }}
+          >
+            {page}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

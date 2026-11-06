@@ -1,11 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-vi.mock('next/navigation', () => ({ usePathname: () => '/dashboard' }));
+const pathname = vi.hoisted(() => ({ current: '/dashboard' }));
+vi.mock('next/navigation', () => ({ usePathname: () => pathname.current }));
 vi.mock('@/features/account', () => ({ useAuth: vi.fn() }));
 vi.mock('@/features/notifications', () => ({ NotificationsDropdown: () => null }));
 vi.mock('@live-show/design-system', () => ({ Logo: () => null }));
 vi.mock('./DashboardUserMenu', () => ({ DashboardUserMenu: () => null }));
 vi.mock('@/features/platform-admin/components/PendingOrgsBadge', () => ({ PendingOrgsBadge: () => null }));
+import { beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { DashboardSidebar } from './DashboardSidebar';
 import { useAuth } from '@/features/account';
@@ -65,5 +67,30 @@ describe('DashboardSidebar — feature flag gating', () => {
     unmount();
     render(<DashboardSidebar flags={{ ...DEFAULT_FEATURE_FLAGS, page_builder: true }} />);
     expect(screen.getByText('platformPages')).toBeInTheDocument();
+  });
+
+  describe('compact rail on the page editor route', () => {
+    beforeEach(() => { pathname.current = '/dashboard'; });
+
+    const renderSidebar = () => {
+      mockedUseAuth.mockReturnValue({ user: { role: 'SUPER_ADMIN' } } as ReturnType<typeof useAuth>);
+      return render(<DashboardSidebar flags={{ ...DEFAULT_FEATURE_FLAGS, page_builder: true }} />);
+    };
+
+    it('collapses to an icon rail with accessible names on /dashboard/platform/pages/<id>', () => {
+      pathname.current = '/dashboard/platform/pages/abc-123';
+      const { container } = renderSidebar();
+      expect(container.querySelector('aside')).toHaveAttribute('data-compact', 'true');
+      const link = screen.getByRole('link', { name: 'platformPages' });
+      expect(link).toHaveAttribute('title', 'platformPages');
+      expect(link.className).toMatch(/active/);
+    });
+
+    it.each(['/dashboard', '/dashboard/platform/pages', '/dashboard/platform/pages/abc/extra'])('stays expanded on %s', (path) => {
+      pathname.current = path;
+      const { container } = renderSidebar();
+      expect(container.querySelector('aside')).not.toHaveAttribute('data-compact');
+      expect(screen.getByRole('link', { name: 'platformPages' })).not.toHaveAttribute('title');
+    });
   });
 });

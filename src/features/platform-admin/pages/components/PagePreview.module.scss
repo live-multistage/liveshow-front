@@ -10,11 +10,12 @@
   background: #050506;
 }
 
+// Takes the scaled size in layout; the page inside is laid out at 1280px and scaled from the top left.
+.frame { flex: none; align-self: flex-start; }
+
 .page {
   container-type: inline-size;
-  align-self: flex-start;
-  width: 100%;
-  max-width: 1180px;
+  transform-origin: top left;
   overflow: hidden;
   border: 1px solid $hairline;
   border-radius: 10px;
@@ -58,6 +59,48 @@
   color: $text-muted;
 
   svg { width: 11px; height: 11px; }
+}
+
+.slot { position: relative; }
+
+// Counter-scaled so the label and buttons stay readable whatever the preview scale.
+.toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px 0 10px;
+  background: $action;
+  color: #fff;
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: scale(var(--preview-inverse-scale, 1));
+  transform-origin: top left;
+
+  span { margin-right: 6px; }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 24px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+
+    svg { width: 12px; height: 12px; }
+    &:hover:not(:disabled) { background: rgba(0, 0, 0, 0.2); }
+    &:disabled { opacity: 0.45; cursor: default; }
+    &:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+  }
 }
 
 .section {

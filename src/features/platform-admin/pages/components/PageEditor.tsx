@@ -6,7 +6,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { AlertTriangle, X } from 'lucide-react';
 import { Button } from '@live-show/design-system';
-import type { DraftConflict, PageDetail, PageSection, PageSectionType, PublicPage } from '@live-show/api-contracts';
+import { PAGE_LIMITS, type DraftConflict, type PageDetail, type PageSection, type PageSectionType, type PublicPage } from '@live-show/api-contracts';
 import { countInvalidFields, createEditorState, pageEditorReducer, selectInvalidSections } from '../hooks/page-editor-reducer';
 import { useDraftAutosave } from '../hooks/use-draft-autosave';
 import { useMediaQuery } from '../hooks/use-media-query';
@@ -21,10 +21,9 @@ import { SectionLibrary } from './SectionLibrary';
 import { SectionTree } from './SectionTree';
 import styles from './PageEditor.module.scss';
 
-// The prototype collapses the inspector at 1100px of editor width. Here the editor sits beside the always-expanded
-// dashboard sidebar (256px) plus page padding, so the viewport breakpoint is 1100 + 256 + ~4 = 1360px.
-// Keep in sync with the `.label` breakpoint in PageEditor.module.scss, which hides topbar labels on the same constraint.
-export const COMPACT_INSPECTOR_QUERY = '(max-width: 1360px)';
+// The prototype collapses the inspector at 1100px of editor width. Here the editor sits beside the collapsed
+// dashboard rail (64px) plus page padding, so the viewport breakpoint is 1100 + 64 + ~4 = 1170px.
+export const COMPACT_INSPECTOR_QUERY = '(max-width: 1170px)';
 const NO_RESOLVED: PublicPage['resolved'] = { rails: {}, featured: {} };
 const UNDO_TOAST_MS = 6000;
 const PUBLISHED_TOAST_MS = 6000;
@@ -109,7 +108,7 @@ export function PageEditor({ page, onReload, reloadFailed }: Props) {
   const selectedIndex = state.document.sections.findIndex((section) => section.id === state.selectedId);
   const selected = state.document.sections[selectedIndex];
   const inspector = selected
-    ? <SectionInspector key={selected.id} section={selected} index={selectedIndex} issues={issues[selected.id] ?? []} locked={state.locked} dispatch={dispatch} />
+    ? <SectionInspector key={selected.id} section={selected} index={selectedIndex} issues={issues[selected.id] ?? []} locked={state.locked} full={state.document.sections.length >= PAGE_LIMITS.maxSections} dispatch={dispatch} />
     : <InspectorSlot page={page} />;
   const addSection = (sectionType: PageSectionType) => {
     dispatch({ type: 'add', sectionType, index: libraryAt ?? undefined, id: crypto.randomUUID() });
@@ -141,7 +140,7 @@ export function PageEditor({ page, onReload, reloadFailed }: Props) {
               })}
               {reloadFailed && ` ${t('banner.reloadError')}`}
             </span>
-            <Button type="button" size="sm" onClick={onReload}>{t('banner.reload')}</Button>
+            <Button type="button" size="sm" className={styles.reload} onClick={onReload}>{t('banner.reload')}</Button>
           </div>
         )}
         {status.kind === 'error' && (
@@ -171,6 +170,8 @@ export function PageEditor({ page, onReload, reloadFailed }: Props) {
               locked={state.locked}
               onSelect={(id) => { setLibraryAt(null); dispatch({ type: 'select', id }); }}
               onInsert={setLibraryAt}
+              onMove={(id, delta) => dispatch({ type: 'moveBy', id, delta })}
+              onToggleHidden={(id) => dispatch({ type: 'toggleHidden', id })}
             />
             {libraryAt !== null && (
               <SectionLibrary position={libraryAt} count={state.document.sections.length} onPick={addSection} onClose={() => setLibraryAt(null)} />

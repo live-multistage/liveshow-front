@@ -227,4 +227,34 @@ describe('SectionInspector', () => {
     rerender(view(make([{ title: 'Q', text: 'q' }])));
     expect(field).toHaveValue('typing');
   });
+
+  describe('header actions', () => {
+    const section = createEmptySection('hero', ID) as PageSection;
+    const renderWith = (props: Partial<React.ComponentProps<typeof SectionInspector>> = {}) => {
+      const dispatch = vi.fn();
+      render(<SectionInspector section={section} index={0} issues={[]} locked={false} dispatch={dispatch} {...props} />);
+      return dispatch;
+    };
+
+    it('duplicates and removes the section from the header', async () => {
+      const user = userEvent.setup();
+      const dispatch = renderWith();
+      await user.click(screen.getByRole('button', { name: 'Duplicar seção Hero' }));
+      expect(dispatch).toHaveBeenCalledWith({ type: 'duplicate', id: ID, newId: expect.any(String) });
+      await user.click(screen.getByRole('button', { name: 'Remover seção Hero' }));
+      expect(dispatch).toHaveBeenCalledWith({ type: 'remove', id: ID });
+    });
+
+    it('disables both while locked, and duplicate at the section limit', () => {
+      renderWith({ locked: true });
+      expect(screen.getByRole('button', { name: 'Duplicar seção Hero' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Remover seção Hero' })).toBeDisabled();
+    });
+
+    it('disables only duplicate when the page is full', () => {
+      renderWith({ full: true });
+      expect(screen.getByRole('button', { name: 'Duplicar seção Hero' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Remover seção Hero' })).toBeEnabled();
+    });
+  });
 });

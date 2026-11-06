@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ptMessages from '../../../../../shared/i18n-messages/pt.json';
 
 function resolve(namespace: string, key: string): unknown {
@@ -18,7 +18,7 @@ vi.mock('next-intl', () => ({
   },
 }));
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createEmptyDocument, createEmptySection, type PageSection } from '@live-show/api-contracts';
 import { PagePreview } from './PagePreview';
@@ -34,11 +34,13 @@ const resolved = { rails: {}, featured: {} };
 const setup = (props: Partial<React.ComponentProps<typeof PagePreview>> = {}) => {
   const onSelect = vi.fn();
   const onInsert = vi.fn();
+  const onMove = vi.fn();
+  const onToggleHidden = vi.fn();
   render(
     <PagePreview document={document} resolved={resolved} selectedId={null} device="desktop" locked={false}
-      onSelect={onSelect} onInsert={onInsert} {...props} />,
+      onSelect={onSelect} onInsert={onInsert} onMove={onMove} onToggleHidden={onToggleHidden} {...props} />,
   );
-  return { onSelect, onInsert };
+  return { onSelect, onInsert, onMove, onToggleHidden };
 };
 
 describe('PagePreview', () => {
@@ -106,5 +108,54 @@ describe('PagePreview', () => {
     const ctrl = new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true });
     link.dispatchEvent(ctrl);
     expect(ctrl.defaultPrevented).toBe(true);
+  });
+
+  it('shows the floating toolbar only on the selected section and dispatches its actions', async () => {
+    const user = userEvent.setup();
+    const { onMove, onToggleHidden } = setup({ selectedId: id(1) });
+    const toolbar = screen.getByRole('toolbar', { name: 'Barra da seção' });
+    expect(screen.getAllByRole('toolbar')).toHaveLength(1);
+    expect(toolbar).toHaveTextContent('Chamada final');
+    expect(screen.getByRole('button', { name: 'Subir' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Descer' }));
+    expect(onMove).toHaveBeenCalledWith(id(1), 1);
+    await user.click(screen.getByRole('button', { name: 'Ocultar' }));
+    expect(onToggleHidden).toHaveBeenCalledWith(id(1));
+  });
+
+  it('offers Mostrar for a hidden selected section and disables the toolbar while locked', () => {
+    setup({ selectedId: id(2), locked: true });
+    expect(screen.getByRole('button', { name: 'Mostrar' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Subir' })).toBeDisabled();
+  });
+
+  describe('desktop scaling', () => {
+    let resize: (width: number) => void;
+    beforeEach(() => {
+      vi.stubGlobal('ResizeObserver', class {
+        private targets: Element[] = [];
+        constructor(private cb: (entries: { target: Element; contentRect: { width: number; height: number } }[]) => void) {
+          resize = (width) => this.cb(this.targets.map((target) => ({ target, contentRect: { width, height: 800 } })));
+        }
+        observe(el: Element) { this.targets.push(el); }
+        disconnect() {}
+        unobserve() {}
+      });
+    });
+    afterEach(() => vi.unstubAllGlobals());
+
+    it('renders a 1280px desktop page scaled down to the column width', () => {
+      setup();
+      act(() => resize(640));
+      const scaler = screen.getByTestId('preview-scaler');
+      expect(scaler.style.transform).toBe('scale(0.5)');
+      expect(scaler.style.width).toBe('1280px');
+    });
+
+    it('never scales up past the 1280px desktop width', () => {
+      setup();
+      act(() => resize(2000));
+      expect(screen.getByTestId('preview-scaler').style.transform).toBe('scale(1)');
+    });
   });
 });

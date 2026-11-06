@@ -128,7 +128,7 @@
 }
 
 .label {
-  // Same editor-width constraint as COMPACT_INSPECTOR_QUERY in PageEditor.tsx.
+  // Topbar labels need more room than the inspector column, so this breakpoint is independent of COMPACT_INSPECTOR_QUERY.
   @media (max-width: 1500px) { display: none; }
 }
 
@@ -145,7 +145,14 @@
 }
 
 .bannerText { flex: 1; min-width: 240px; }
-.warn { background: rgba(251, 191, 36, 0.07); border-bottom: 1px solid rgba(251, 191, 36, 0.3); color: #fde68a; }
+.warn {
+  background: rgba(251, 191, 36, 0.07);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+  color: #fde68a;
+
+  // The prototype's reload button follows the warning color, not the brand pink.
+  .reload { background: $warning; color: #1a1300; &:hover { background: #fcd34d; } }
+}
 .err { background: $error-bg; border-bottom: 1px solid rgba(248, 113, 113, 0.3); color: #fecaca; }
 
 // Left tree + preview; the inspector column is added on wide screens, otherwise it becomes a drawer.
@@ -178,6 +185,8 @@
   z-index: 30;
   width: 360px;
   max-width: 100%;
+  // Leaves room for the close button beside the inspector header actions.
+  --inspector-header-gutter: 52px;
   display: flex;
   flex-direction: column;
   border-left: 1px solid $border;

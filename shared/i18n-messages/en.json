@@ -3492,7 +3492,8 @@
         "select": "Select section {name}",
         "hiddenBadge": "HIDDEN · NOT SHOWN ON THE PUBLISHED PAGE",
         "noRail": "No events to show right now.",
-        "noFeatured": "Choose an event to show here."
+        "noFeatured": "Choose an event to show here.",
+        "toolbar": { "label": "Section toolbar", "up": "Move up", "down": "Move down", "hide": "Hide", "show": "Show" }
       },
       "publish": {
         "title": "Publish version {version}",

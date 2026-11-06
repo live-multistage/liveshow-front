@@ -9,7 +9,10 @@
 
 .header {
   flex: none;
-  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 14px var(--inspector-header-gutter, 16px) 14px 16px;
   border-bottom: 1px solid $border-hairline;
   font-family: $mono;
   font-size: 10px;
@@ -17,6 +20,10 @@
   letter-spacing: 0.12em;
   color: $text-primary;
 }
+
+// Pushes duplicate/remove to the right; the drawer's close button sits above this corner.
+.header > span { flex: 1; }
+.headerAction { width: 28px; height: 28px; color: $text-secondary; svg { width: 14px; height: 14px; } }
 
 .notice {
   display: flex;

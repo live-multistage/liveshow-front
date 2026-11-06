@@ -3492,7 +3492,8 @@
         "select": "Selecionar seção {name}",
         "hiddenBadge": "OCULTA · NÃO APARECE NA PÁGINA PUBLICADA",
         "noRail": "Sem eventos para mostrar agora.",
-        "noFeatured": "Escolha um evento para mostrar aqui."
+        "noFeatured": "Escolha um evento para mostrar aqui.",
+        "toolbar": { "label": "Barra da seção", "up": "Subir", "down": "Descer", "hide": "Ocultar", "show": "Mostrar" }
       },
       "publish": {
         "title": "Publicar versão {version}",

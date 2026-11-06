@@ -15,7 +15,7 @@ import {
   type PageRailSourceKind,
   type PageSection,
 } from '@live-show/api-contracts';
-import { Eye } from 'lucide-react';
+import { Copy, Eye, Trash2 } from 'lucide-react';
 import type { PageEditorAction, SectionIssue } from '../hooks/page-editor-reducer';
 import { itemsFitLines, itemsToLines, linesToItems } from '../utils/lines-to-items';
 import { parseTextRuns, serializeTextRuns } from '../utils/text-runs';
@@ -30,12 +30,14 @@ interface Props {
   index: number;
   issues: SectionIssue[];
   locked: boolean;
+  /** The page is at its section limit: duplicating is off. */
+  full?: boolean;
   dispatch: Dispatch<PageEditorAction>;
 }
 
 const optional = (value: string): string | undefined => (value === '' ? undefined : value);
 
-export function SectionInspector({ section, index, issues, locked, dispatch }: Props) {
+export function SectionInspector({ section, index, issues, locked, full = false, dispatch }: Props) {
   const t = useTranslations('platformAdmin.pageEditor');
   const tCategory = useTranslations('platformAdmin.mailing.audience.eventCategory');
   const set = (props: Record<string, unknown>) => dispatch({ type: 'updateProps', id: section.id, props });
@@ -46,6 +48,7 @@ export function SectionInspector({ section, index, issues, locked, dispatch }: P
     const line = issue && new RegExp(`^${path}\\.(\\d+)\\.`).exec(issue.path);
     return issue && (line ? t('inspector.itemError', { n: Number(line[1]) + 1, message: issue.message }) : issue.message);
   };
+  const typeName = t(`sectionTypes.${section.type}`);
   const id = (name: string) => `${section.id}-${name}`;
   const label = (key: string, values?: Record<string, string | number>) => t(`inspector.field.${key}`, values);
 
@@ -236,7 +239,16 @@ export function SectionInspector({ section, index, issues, locked, dispatch }: P
   return (
     <div className={styles.inspector} data-testid="inspector-slot" data-selected-id={section.id}>
       <div className={styles.header}>
-        {t('inspector.heading', { name: t(`sectionTypes.${section.type}`), index: String(index + 1).padStart(2, '0') })}
+        <span>{t('inspector.heading', { name: typeName, index: String(index + 1).padStart(2, '0') })}</span>
+        <Button type="button" variant="ghost" size="icon" className={styles.headerAction} disabled={locked || full}
+          aria-label={t('tree.duplicate', { name: typeName })}
+          onClick={() => dispatch({ type: 'duplicate', id: section.id, newId: crypto.randomUUID() })}>
+          <Copy aria-hidden="true" />
+        </Button>
+        <Button type="button" variant="ghost" size="icon" className={styles.headerAction} disabled={locked}
+          aria-label={t('tree.remove', { name: typeName })} onClick={() => dispatch({ type: 'remove', id: section.id })}>
+          <Trash2 aria-hidden="true" />
+        </Button>
       </div>
       {section.hidden && (
         <div className={styles.notice}>

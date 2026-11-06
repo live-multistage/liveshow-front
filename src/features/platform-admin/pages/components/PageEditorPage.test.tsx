@@ -84,7 +84,7 @@ let query: { isLoading?: boolean; isError?: boolean; error?: unknown } = {};
 
 function mockViewport({ narrow = false, drawer = false } = {}) {
   window.matchMedia = vi.fn().mockImplementation((q: string) => ({
-    matches: q.includes('820') ? narrow : q.includes('1360') ? drawer : false,
+    matches: q.includes('820') ? narrow : q.includes('1170') ? drawer : false,
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
   })) as unknown as typeof window.matchMedia;
