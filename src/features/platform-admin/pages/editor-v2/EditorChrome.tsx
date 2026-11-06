@@ -11,6 +11,18 @@ import styles from './PageEditorV2.module.scss';
 
 const usePuck = createUsePuck();
 
+// Puck binds undo/redo on the document; while locked they would move its tree away from the document we hold.
+function useBlockHistoryKeys(blocked: boolean) {
+  useEffect(() => {
+    if (!blocked) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && ['z', 'y'].includes(event.key.toLowerCase())) event.stopImmediatePropagation();
+    };
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => document.removeEventListener('keydown', onKeyDown, true);
+  }, [blocked]);
+}
+
 interface Props {
   page: PageDetail;
   saveStatus: AutosaveStatus;
@@ -36,6 +48,7 @@ export function EditorChrome({ banners, locked, ...topbar }: Props) {
   const forward = usePuck((s) => s.history.forward);
   const breakpoint = useBreakpoint();
   const setBreakpoint = useBreakpointSetter();
+  useBlockHistoryKeys(locked);
 
   const width = viewports.current.width;
   useEffect(() => setBreakpoint(breakpointFromWidth(width)), [width, setBreakpoint]);

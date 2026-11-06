@@ -220,6 +220,23 @@ describe('conflict and the keyboard', () => {
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Copiar minhas alterações' })); });
     expect(JSON.parse(writeText.mock.calls[0][0])).toEqual(editedDocument());
   });
+
+  it('keeps Cmd+Z and Cmd+Y away from Puck (which binds them on the document) while locked', async () => {
+    saveDraft.mockRejectedValue({ response: { status: 409, data: { code: 'DRAFT_CONFLICT', currentRevision: 9, updatedBy: null, updatedAt: '2026-11-06T14:35:00' } } });
+    const reachedPuck = vi.fn();
+    document.addEventListener('keydown', reachedPuck);
+    await mountV2(v2Document());
+    fireEvent.keyDown(document.body, { key: 'z', metaKey: true });
+    expect(reachedPuck).toHaveBeenCalledTimes(1);
+
+    await edit();
+    await act(async () => { await vi.advanceTimersByTimeAsync(900); });
+    fireEvent.keyDown(document.body, { key: 'z', metaKey: true });
+    fireEvent.keyDown(document.body, { key: 'y', ctrlKey: true });
+    fireEvent.keyDown(document.body, { key: 'a', metaKey: true });
+    document.removeEventListener('keydown', reachedPuck);
+    expect(reachedPuck).toHaveBeenCalledTimes(2);
+  });
 });
 
 describe('topbar', () => {
