@@ -1,0 +1,62 @@
+@use '../../../../styles/dashboard-forms' as *;
+
+// Three columns: add/layers, canvas, inspector. V2-U2/U3 fill the side columns.
+.body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) 340px;
+  background: $bg;
+}
+
+.left,
+.right {
+  min-height: 0;
+  overflow-y: auto;
+  background: $bg;
+}
+.left { border-right: 1px solid $border-hairline; }
+.right { border-left: 1px solid $border-hairline; }
+
+// The canvas keeps the real breakpoint width; Puck scales it to fit.
+.canvas {
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+}
+
+// Conflict: editing is blocked, the page stays readable.
+.locked {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.panelPlaceholder {
+  padding: 16px;
+  font-family: $mono;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.info {
+  background: $violet-tint;
+  border-bottom: 1px solid $violet-tint-border;
+  color: #ddd6fe;
+}
+
+.bannerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.readOnlyPage {
+  max-width: 1280px;
+  margin: 0 auto;
+  border: 1px solid $border-hairline;
+  border-radius: 12px;
+  overflow: hidden;
+}

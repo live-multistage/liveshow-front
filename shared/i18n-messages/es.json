@@ -1357,7 +1357,6 @@
     "switchTransmission": "Cambiar transmisión",
     "transmissionNotStartedTitle": "La transmisión aún no comenzó",
     "transmissionNotStartedBody": "La transmisión {title} sale al aire pronto. Mientras tanto, puedes volver a otra transmisión.",
-    "closePanel": "Cerrar",
     "availableToBuy": "Disponible para comprar",
     "unlockFullEvent": "Desbloquear el evento completo"
   },
@@ -3331,7 +3330,10 @@
         "history": "Historial",
         "settings": "Configuración",
         "preview": "Vista previa en pestaña nueva",
-        "publish": "Publicar"
+        "publish": "Publicar",
+        "tablet": "Tablet",
+        "undo": "Deshacer",
+        "redo": "Rehacer"
       },
       "tree": {
         "title": "SECCIONES · {count}",
@@ -3493,7 +3495,13 @@
         "hiddenBadge": "OCULTA · NO APARECE EN LA PÁGINA PUBLICADA",
         "noRail": "No hay eventos para mostrar ahora.",
         "noFeatured": "Elige un evento para mostrar aquí.",
-        "toolbar": { "label": "Barra de la sección", "up": "Subir", "down": "Bajar", "hide": "Ocultar", "show": "Mostrar" }
+        "toolbar": {
+          "label": "Barra de la sección",
+          "up": "Subir",
+          "down": "Bajar",
+          "hide": "Ocultar",
+          "show": "Mostrar"
+        }
       },
       "publish": {
         "title": "Publicar versión {version}",
@@ -3596,6 +3604,53 @@
         "title": "Edita páginas en un computador",
         "text": "El constructor necesita una pantalla más grande. La lista y la vista previa siguen disponibles aquí.",
         "back": "Volver a Páginas"
+      }
+    },
+    "pageEditorV2": {
+      "types": {
+        "section": "Sección",
+        "columns": "Columnas",
+        "column": "Columna",
+        "group": "Grupo en línea",
+        "heading": "Título",
+        "text": "Texto",
+        "label": "Sello",
+        "button": "Botón",
+        "image": "Imagen",
+        "video": "Video",
+        "divider": "Divisor",
+        "spacer": "Espaciador",
+        "iconList": "Lista",
+        "counter": "Número",
+        "faq": "Preguntas",
+        "plan": "Plan",
+        "eventRail": "Carrusel de eventos",
+        "featuredEvent": "Evento destacado",
+        "liveNow": "En vivo ahora"
+      },
+      "banner": {
+        "converted": "Esta página se convirtió al nuevo editor.",
+        "convertedText": "Cada sección se convirtió en un bloque editable. La versión publicada sigue igual hasta que publiques de nuevo.",
+        "compare": "Comparar con la publicada",
+        "dismiss": "Cerrar aviso",
+        "conflict": "{name} guardó esta página a las {time}.",
+        "conflictAnonymous": "Otro admin guardó esta página a las {time}.",
+        "conflictText": "Para no sobrescribir su trabajo, se bloqueó la edición. Tus últimos cambios quedaron solo en este navegador.",
+        "copy": "Copiar mis cambios",
+        "copied": "Copiado",
+        "load": "Cargar versión actual",
+        "reloadError": "No se pudo cargar. Inténtalo de nuevo."
+      },
+      "panels": {
+        "add": "Agregar",
+        "layers": "Capas",
+        "inspector": "Inspector",
+        "canvas": "Vista previa de la página"
+      },
+      "readOnly": {
+        "title": "Esta página usa el nuevo editor",
+        "text": "El editor actual no abre páginas del nuevo formato. Mira la vista previa abajo; para editar, el nuevo editor debe estar activo.",
+        "back": "Volver a páginas"
       }
     },
     "seo": {

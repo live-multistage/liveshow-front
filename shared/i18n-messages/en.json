@@ -1357,7 +1357,6 @@
     "switchTransmission": "Switch transmission",
     "transmissionNotStartedTitle": "Transmission hasn't started yet",
     "transmissionNotStartedBody": "The {title} transmission goes live soon. You can switch to another transmission in the meantime.",
-    "closePanel": "Close",
     "availableToBuy": "Available to buy",
     "unlockFullEvent": "Unlock the full event"
   },
@@ -3331,7 +3330,10 @@
         "history": "History",
         "settings": "Settings",
         "preview": "Preview in new tab",
-        "publish": "Publish"
+        "publish": "Publish",
+        "tablet": "Tablet",
+        "undo": "Undo",
+        "redo": "Redo"
       },
       "tree": {
         "title": "SECTIONS · {count}",
@@ -3493,7 +3495,13 @@
         "hiddenBadge": "HIDDEN · NOT SHOWN ON THE PUBLISHED PAGE",
         "noRail": "No events to show right now.",
         "noFeatured": "Choose an event to show here.",
-        "toolbar": { "label": "Section toolbar", "up": "Move up", "down": "Move down", "hide": "Hide", "show": "Show" }
+        "toolbar": {
+          "label": "Section toolbar",
+          "up": "Move up",
+          "down": "Move down",
+          "hide": "Hide",
+          "show": "Show"
+        }
       },
       "publish": {
         "title": "Publish version {version}",
@@ -3596,6 +3604,53 @@
         "title": "Edit pages on a computer",
         "text": "The builder needs a larger screen. The list and the preview are still available here.",
         "back": "Back to Pages"
+      }
+    },
+    "pageEditorV2": {
+      "types": {
+        "section": "Section",
+        "columns": "Columns",
+        "column": "Column",
+        "group": "Inline group",
+        "heading": "Heading",
+        "text": "Text",
+        "label": "Badge",
+        "button": "Button",
+        "image": "Image",
+        "video": "Video",
+        "divider": "Divider",
+        "spacer": "Spacer",
+        "iconList": "List",
+        "counter": "Number",
+        "faq": "FAQ",
+        "plan": "Plan",
+        "eventRail": "Event rail",
+        "featuredEvent": "Featured event",
+        "liveNow": "Live now"
+      },
+      "banner": {
+        "converted": "This page was converted to the new editor.",
+        "convertedText": "Each section became an editable block. The published version stays the same until you publish again.",
+        "compare": "Compare with published",
+        "dismiss": "Dismiss notice",
+        "conflict": "{name} saved this page at {time}.",
+        "conflictAnonymous": "Another admin saved this page at {time}.",
+        "conflictText": "To avoid overwriting their work, editing was locked. Your latest changes only exist in this browser.",
+        "copy": "Copy my changes",
+        "copied": "Copied",
+        "load": "Load current version",
+        "reloadError": "Could not load. Try again."
+      },
+      "panels": {
+        "add": "Add",
+        "layers": "Layers",
+        "inspector": "Inspector",
+        "canvas": "Page preview"
+      },
+      "readOnly": {
+        "title": "This page uses the new editor",
+        "text": "The current editor cannot open pages in the new format. See the preview below; to edit, the new editor must be enabled.",
+        "back": "Back to pages"
       }
     },
     "seo": {
