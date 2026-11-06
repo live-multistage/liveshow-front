@@ -1,4 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+const cacheSpy = vi.hoisted(() => vi.fn());
+vi.mock('next/cache', () => ({
+  unstable_cache: (fn: () => unknown, keys: string[], opts: unknown) => {
+    cacheSpy(keys, opts);
+    return fn;
+  },
+}));
+
 import { fetchPublicPage, fetchPublicPageList } from './get-public-page.server';
 
 const jsonResponse = (body: unknown, init: { status?: number } = {}) =>
@@ -24,7 +32,8 @@ describe('fetchPublicPage', () => {
 
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toMatch(/\/pages\/verao$/);
-    expect(init).toEqual({ next: { revalidate: 300, tags: ['pages'] } });
+    expect(init).toEqual({ cache: 'no-store' });
+    expect(cacheSpy).toHaveBeenCalledWith(['public-page', 'verao'], { revalidate: 300, tags: ['pages'] });
   });
 
   it('returns null on 404', async () => {
@@ -67,7 +76,8 @@ describe('fetchPublicPageList', () => {
 
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toMatch(/\/pages$/);
-    expect(init).toEqual({ next: { revalidate: 300, tags: ['pages'] } });
+    expect(init).toEqual({ cache: 'no-store' });
+    expect(cacheSpy).toHaveBeenCalledWith(['public-page-list'], { revalidate: 300, tags: ['pages'] });
   });
 
   it('returns an empty list when the request fails', async () => {
