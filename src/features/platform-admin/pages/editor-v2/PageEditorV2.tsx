@@ -20,6 +20,7 @@ import { EditorChrome } from './EditorChrome';
 import { PANEL_OVERRIDES } from './panels';
 import { EditorDataProvider } from './editor-data';
 import { ServerIssuesProvider, type ServerIssues } from './inspector/element-issues';
+import { DuplicateCleaner } from './left/puck-store';
 import { locate } from './left/tree-ops';
 import { PublishDialogV2 } from './PublishDialogV2';
 import { createPuckConfig } from './puck-config';
@@ -125,6 +126,12 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
     setTouched(true);
   }, []);
 
+  // Puck runs onAction inside its store update: the cleanup is a separate step, after it.
+  const cleanDuplicate = useRef<(() => void) | null>(null);
+  const onAction = useCallback((action: { type: string }) => {
+    if (action.type === 'duplicate') queueMicrotask(() => cleanDuplicate.current?.());
+  }, []);
+
   useEffect(() => {
     if (publishedVersion === null) return;
     const timer = setTimeout(() => setPublishedVersion(null), PUBLISHED_TOAST_MS);
@@ -204,7 +211,9 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
           metadata={editorData}
           permissions={isLocked ? LOCKED_PERMISSIONS : undefined}
           onChange={onChange}
+          onAction={onAction}
         >
+          <DuplicateCleaner cleanRef={cleanDuplicate} />
           <ServerIssuesProvider value={serverIssues}>
             <EditorDataProvider value={editorData}>
               <EditorChrome

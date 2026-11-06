@@ -368,6 +368,16 @@ describe('conflict and the keyboard', () => {
   });
 });
 
+describe('duplicate', () => {
+  it('cleans the anchors and h1 Puck copied, after the action', async () => {
+    await mountV2(v2Document());
+    puck.props.onAction({ type: 'duplicate' });
+    expect(puck.store.dispatch).not.toHaveBeenCalled();
+    await act(async () => { await Promise.resolve(); });
+    expect(puck.store.dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'setData' }));
+  });
+});
+
 describe('topbar', () => {
   it('the breakpoint selector moves the Puck viewport', async () => {
     await mountV2(v2Document());

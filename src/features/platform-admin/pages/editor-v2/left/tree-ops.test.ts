@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import fixture from '../../../../../../shared/api-contracts/src/pages/page-tree-fixture.json';
 import {
-  ELEMENT_SLOT_RULES, ELEMENT_TYPES, childrenOf, countElements, walkElements, type ElementType, type PageDocumentV2, type PageElement,
+  ELEMENT_SLOT_RULES, ELEMENT_TYPES, childrenOf, countElements, pageDraftV2Schema, walkElements, type ElementType, type PageDocumentV2, type PageElement,
 } from '@live-show/api-contracts';
 import {
-  canNest, cloneWithNewIds, idOf, insertAt, insertionPoint, locate, moveElement, pathTo, ROOT_ZONE, setHiddenAt,
+  canNest, cloneWithNewIds, withoutClashes, idOf, insertAt, insertionPoint, locate, moveElement, pathTo, ROOT_ZONE, setHiddenAt,
 } from './tree-ops';
 
 const doc = fixture as unknown as PageDocumentV2;
@@ -134,4 +134,33 @@ describe('pathTo', () => {
     path.slice(1).forEach((el, i) => expect(locate(doc.content, idOf(el))!.parent).toBe(path[i]));
   });
   it('is empty for an unknown id', () => expect(pathTo(doc.content, 'nope')).toEqual([]));
+});
+
+describe('copies do not repeat anchors or h1', () => {
+  const heading = (id: string, tag: 'h1' | 'h2', anchor?: string): PageElement => ({ type: 'heading', props: { id, text: 'T', tag, ...(anchor ? { anchor } : {}) } } as PageElement);
+  const hero = () => slot('section', 's1', [heading('h-1', 'h1', 'topo'), slot('group', 'g1', [leaf('d-1')])]);
+
+  it('cloneWithNewIds drops the anchor and demotes h1 at any depth', () => {
+    const copy = cloneWithNewIds(hero());
+    const found: PageElement[] = [];
+    walkElements([copy], (e) => void found.push(e));
+    const h = found.find((e) => e.type === 'heading')!;
+    expect(h.props).toMatchObject({ tag: 'h2' });
+    expect(found.some((e) => 'anchor' in e.props)).toBe(false);
+  });
+
+  it('keeps a document valid after duplicating a hero with h1 and anchor', () => {
+    const U = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
+    const original = slot('section', U(1), [heading(U(2), 'h1', 'topo'), slot('group', U(3), [leaf(U(4))])]);
+    const doc: PageDocumentV2 = { schemaVersion: 2, context: { type: 'none' }, root: { props: {} }, content: [original, cloneWithNewIds(original)] as PageDocumentV2['content'] };
+    expect(pageDraftV2Schema.safeParse(doc).success).toBe(true);
+  });
+
+  it('withoutClashes clears what Puck duplicate copied and keeps the first', () => {
+    const [a, b] = withoutClashes([hero(), JSON.parse(JSON.stringify(hero()))]);
+    const flat = (e: PageElement) => { const out: PageElement[] = []; walkElements([e], (x) => void out.push(x)); return out; };
+    expect(flat(a)[1].props).toMatchObject({ tag: 'h1', anchor: 'topo' });
+    expect(flat(b)[1].props).toMatchObject({ tag: 'h2' });
+    expect('anchor' in flat(b)[1].props).toBe(false);
+  });
 });

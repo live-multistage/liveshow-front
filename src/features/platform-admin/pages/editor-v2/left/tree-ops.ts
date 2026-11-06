@@ -71,9 +71,30 @@ function withChildren(content: readonly PageElement[], parentId: string | null, 
 export const insertAt = (content: readonly PageElement[], parentId: string | null, index: number, element: PageElement) =>
   withChildren(content, parentId, (children) => [...children.slice(0, index), element, ...children.slice(index)]);
 
-/** Copy of a subtree with a fresh id on every element (block insertion, duplicate). */
+const demoteH1 = (el: PageElement): PageElement =>
+  el.type === 'heading' && el.props.tag === 'h1' ? ({ ...el, props: { ...el.props, tag: 'h2' } } as PageElement) : el;
+
+const withoutAnchor = (el: PageElement): PageElement => {
+  const { anchor: _anchor, ...props } = el.props as { anchor?: string };
+  return { ...el, props } as PageElement;
+};
+
+/** Copy of a subtree with a fresh id on every element (block insertion, duplicate). A copy cannot repeat the anchor or the h1 of its source: the draft validator refuses both. */
 export const cloneWithNewIds = (element: PageElement): PageElement =>
-  mapElements([structuredClone(element)], (el) => ({ ...el, props: { ...el.props, id: crypto.randomUUID() } } as PageElement))[0];
+  mapElements([structuredClone(element)], (el) => demoteH1(withoutAnchor({ ...el, props: { ...el.props, id: crypto.randomUUID() } } as PageElement)))[0];
+
+/** Puck's own duplicate copies anchors and h1: keeps the first of each in the tree and clears the repeats (the first h1 stays). */
+export function withoutClashes(content: readonly PageElement[]): PageElement[] {
+  const anchors = new Set<string>();
+  let h1 = 0;
+  return mapElements(content, (el) => {
+    let next = el;
+    const anchor = (el.props as { anchor?: string }).anchor;
+    if (anchor) next = anchors.has(anchor) ? withoutAnchor(next) : (anchors.add(anchor), next);
+    if (next.type === 'heading' && next.props.tag === 'h1' && ++h1 > 1) next = demoteH1(next);
+    return next;
+  });
+}
 
 /**
  * Moves `id` under `parentId` at `index` (the position among the target's children before the removal).
