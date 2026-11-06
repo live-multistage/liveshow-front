@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   STYLE_KEYS_BY_TYPE, type ElementType, type PageDocumentV2, type PageElement, type ResponsiveStyle,
 } from '@live-show/api-contracts';
@@ -61,7 +62,10 @@ function resolveStyle(type: ElementType, style: ResponsiveStyle | undefined): Re
   return { ...style, desktop };
 }
 
-export function ElementRenderer({ element, ctx }: { element: PageElement; ctx: RenderContext }) {
+/**
+ * `slot` replaces the rendered `items`: the editor (Puck) hands slot elements a ready-made drop zone instead of child elements.
+ */
+export function ElementRenderer({ element, ctx, slot }: { element: PageElement; ctx: RenderContext; slot?: ReactNode }) {
   const { type, props } = element;
   const View = REGISTRY[type] as ElementView<ElementType> | undefined;
   if (!View) return null;
@@ -79,9 +83,14 @@ export function ElementRenderer({ element, ctx }: { element: PageElement; ctx: R
       ctx={ctx}
       background={hasBg ? <BgImage style={style} /> : undefined}
     >
-      {items?.map((child) => <ElementRenderer key={child.props.id} element={child} ctx={ctx} />)}
+      {slot ?? items?.map((child) => <ElementRenderer key={child.props.id} element={child} ctx={ctx} />)}
     </View>
   );
+}
+
+/** The `page` container alone, for the editor canvas: Puck supplies the sections as children. */
+export function PageContainer({ children }: { children: ReactNode }) {
+  return <div className={styles.root}>{children}</div>;
 }
 
 /** Page root: the `page` container that the tablet/mobile style families query. */
