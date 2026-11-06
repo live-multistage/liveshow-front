@@ -4,6 +4,9 @@ import { ELEMENT_SLOT_RULES, type ElementType, type PageDocumentV2, type PageEle
 // Puck names the nodes it creates `<type>-<uuid>`; the contract wants the bare uuid (the prefix carries no information).
 const PUCK_ID_PREFIX = /^[A-Za-z]+-(?=[0-9a-f]{8}-[0-9a-f]{4}-)/;
 
+/** Contract id of a Puck node id (`heading-<uuid>` -> `<uuid>`). */
+export const toContractId = (id: string): string => id.replace(PUCK_ID_PREFIX, '');
+
 function cleanIds(element: PageElement): PageElement {
   const props = element.props as { id?: string; items?: PageElement[] };
   const next = { ...props, ...(typeof props.id === 'string' ? { id: props.id.replace(PUCK_ID_PREFIX, '') } : {}) };

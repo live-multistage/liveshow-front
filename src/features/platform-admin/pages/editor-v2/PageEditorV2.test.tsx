@@ -141,7 +141,7 @@ describe('config handed to Puck', () => {
     expect(puck.props.viewports.map((v: { width: number }) => v.width)).toEqual([1280, 768, 390]);
     expect(screen.getByTestId('add-panel-placeholder')).toBeTruthy();
     expect(screen.getByTestId('layers-panel-placeholder')).toBeTruthy();
-    expect(screen.getByTestId('inspector-placeholder')).toBeTruthy();
+    expect(screen.getByTestId('inspector-empty')).toBeTruthy();
   });
 });
 

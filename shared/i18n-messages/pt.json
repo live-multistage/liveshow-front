@@ -3651,6 +3651,223 @@
         "title": "Esta página usa o novo editor",
         "text": "O editor atual não abre páginas do novo formato. Veja a prévia abaixo; para editar, o novo editor precisa estar ativo.",
         "back": "Voltar para páginas"
+      },
+      "inspector": {
+        "empty": {
+          "title": "Nada selecionado",
+          "text": "Clique em um elemento na página ou nas camadas para editar conteúdo, estilo e comportamento."
+        },
+        "inPage": "na página",
+        "insideOf": "dentro de {name}",
+        "errorsOne": "1 ERRO",
+        "errorsMany": "{count} ERROS",
+        "actions": {
+          "selectParent": "Selecionar o elemento pai",
+          "duplicate": "Duplicar",
+          "delete": "Excluir"
+        },
+        "tabs": {
+          "label": "Propriedades",
+          "content": "Conteúdo",
+          "style": "Estilo",
+          "advanced": "Avançado"
+        },
+        "content": {
+          "text": "Texto",
+          "level": "Nível",
+          "levelHint": "Só um H1 por página. O nível afeta SEO e leitores de tela, não o tamanho.",
+          "textHelp": "**negrito**, *itálico* e [link](/caminho). Separe parágrafos com uma linha em branco. Sem HTML.",
+          "buttonLabel": "Texto do botão",
+          "href": "Link",
+          "hrefHint": "Caminho do site (/eventos), https:// ou #âncora de uma seção.",
+          "newTab": "Abrir em nova aba",
+          "imageUrl": "Endereço da imagem",
+          "alt": "Texto alternativo",
+          "videoUrl": "Link do vídeo",
+          "videoHint": "Vídeo do YouTube, do Vimeo ou da biblioteca da plataforma.",
+          "counterValue": "Número",
+          "counterLabel": "Legenda",
+          "item": "Item {n}",
+          "removeItem": "Remover item {n}",
+          "addItem": "Item",
+          "question": "Pergunta {n}",
+          "moveUp": "Subir pergunta {n}",
+          "questionText": "Pergunta",
+          "answerText": "Resposta",
+          "addQuestion": "Pergunta",
+          "planName": "Nome",
+          "planPrice": "Preço",
+          "planDescription": "Descrição",
+          "planCtaLabel": "Texto do botão",
+          "planCtaHref": "Link do botão",
+          "railTitle": "Título do trilho",
+          "railSource": "Origem dos eventos",
+          "source": {
+            "category": "Categoria",
+            "organization": "Organização",
+            "artist": "Artista",
+            "live": "Ao vivo"
+          },
+          "limit": "Quantidade",
+          "railHint": "A página guarda só o filtro. Os eventos são buscados quando o visitante abre a página, com a mesma regra da home: só eventos públicos.",
+          "featuredCta": "Texto do botão",
+          "liveEmptyText": "Texto quando não houver eventos ao vivo",
+          "none": {
+            "section": "Use a aba Estilo para fundo, espaçamento e largura.",
+            "columns": "Use a aba Estilo para o número de colunas e a proporção.",
+            "column": "A coluna guarda elementos. Arraste elementos para dentro dela.",
+            "group": "Coloca elementos lado a lado, com quebra de linha automática.",
+            "divider": "Sem conteúdo. Ajuste na aba Estilo.",
+            "spacer": "Sem conteúdo. Ajuste na aba Estilo."
+          }
+        },
+        "style": {
+          "bp": {
+            "desktop": "desktop",
+            "tablet": "tablet",
+            "mobile": "celular"
+          },
+          "baseNote": "Desktop é a base. Tablet e celular herdam daqui.",
+          "editingNote": "Editando {bp}. O que você mudar vale só a partir deste tamanho.",
+          "overridden": "Ajustado para {bp}",
+          "inherits": "herda do {from}",
+          "reset": "voltar a herdar",
+          "resetField": "Voltar a herdar {field}",
+          "group": {
+            "aspect": "Proporção",
+            "text": "Texto",
+            "button": "Botão",
+            "background": "Fundo",
+            "layout": "Layout",
+            "spacing": "Espaçamento",
+            "box": "Borda e sombra"
+          },
+          "key": {
+            "typo": "Estilo de texto",
+            "color": "Cor",
+            "bg": "Fundo",
+            "p": "Espaço interno",
+            "pt": "Em cima",
+            "pb": "Embaixo",
+            "pl": "À esquerda",
+            "pr": "À direita",
+            "gap": "Espaço entre itens",
+            "my": "Espaço em volta",
+            "h": "Altura",
+            "radius": "Cantos",
+            "border": "Borda",
+            "shadow": "Sombra",
+            "align": "Alinhamento",
+            "valign": "Alinhamento vertical",
+            "halign": "Alinhamento dos itens",
+            "maxw": "Largura do texto",
+            "width": "Largura do conteúdo",
+            "minh": "Altura mínima",
+            "cols": "Número de colunas",
+            "ratio": "Proporção das colunas",
+            "variant": "Variante",
+            "size": "Tamanho",
+            "full": "Largura total",
+            "aspect": "Proporção"
+          },
+          "color": {
+            "bg": "Fundo",
+            "surface": "Superfície",
+            "surfaceDark": "Superfície escura",
+            "accent": "Magenta escuro",
+            "action": "Magenta",
+            "violet": "Violeta",
+            "price": "Rosa",
+            "textPrimary": "Texto",
+            "textSecondary": "Texto secundário",
+            "textMuted": "Texto apagado",
+            "border": "Borda"
+          },
+          "gradient": {
+            "glow": "Brilho magenta",
+            "duo": "Magenta e violeta",
+            "night": "Noite"
+          },
+          "imageBackground": "Imagem com véu",
+          "imageHint": "A imagem recebe um véu escuro do sistema para manter o contraste do texto.",
+          "typo": {
+            "hero": "Destaque",
+            "display": "Título 1",
+            "xxl": "Título 2",
+            "xl": "Título 3",
+            "lg": "Destaque de texto",
+            "md": "Corpo",
+            "sm": "Corpo pequeno",
+            "label": "Rótulo"
+          },
+          "auto": "Auto",
+          "total": "Total",
+          "opt": {
+            "align": {
+              "start": "Esquerda",
+              "center": "Centro",
+              "end": "Direita"
+            },
+            "halign": {
+              "start": "Início",
+              "center": "Centro",
+              "end": "Fim"
+            },
+            "valign": {
+              "start": "Topo",
+              "center": "Centro",
+              "end": "Base",
+              "stretch": "Esticar"
+            },
+            "maxw": {
+              "narrow": "Estreita",
+              "prose": "Leitura"
+            },
+            "width": {
+              "narrow": "Estreita",
+              "contained": "Padrão",
+              "wide": "Larga",
+              "full": "Total"
+            },
+            "minh": {
+              "tall": "Alta",
+              "screen": "Tela"
+            },
+            "border": {
+              "none": "Sem borda",
+              "faint": "Sutil",
+              "default": "Padrão",
+              "strong": "Forte",
+              "accent": "Magenta"
+            },
+            "shadow": {
+              "none": "Nenhuma",
+              "card": "Cartão",
+              "glow": "Brilho"
+            },
+            "variant": {
+              "primary": "Principal",
+              "secondary": "Contorno",
+              "light": "Claro",
+              "ghost": "Link"
+            },
+            "size": {
+              "sm": "P",
+              "md": "M",
+              "lg": "G"
+            }
+          }
+        },
+        "advanced": {
+          "visibility": "Visibilidade por dispositivo",
+          "visibleOn": "Visível no {bp}",
+          "anchor": "Âncora",
+          "anchorPlaceholder": "ex.: programacao",
+          "anchorHint": "Permite links como #{anchor}. Letras minúsculas, números e hífen.",
+          "layerName": "Nome nas camadas",
+          "elementId": "ID do elemento",
+          "elementIdHint": "Usado no histórico e na comparação de publicação."
+        }
       }
     },
     "seo": {

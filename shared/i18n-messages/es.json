@@ -3651,6 +3651,223 @@
         "title": "Esta página usa el nuevo editor",
         "text": "El editor actual no abre páginas del nuevo formato. Mira la vista previa abajo; para editar, el nuevo editor debe estar activo.",
         "back": "Volver a páginas"
+      },
+      "inspector": {
+        "empty": {
+          "title": "Nada seleccionado",
+          "text": "Haz clic en un elemento de la página o de las capas para editar contenido, estilo y comportamiento."
+        },
+        "inPage": "en la página",
+        "insideOf": "dentro de {name}",
+        "errorsOne": "1 ERROR",
+        "errorsMany": "{count} ERRORES",
+        "actions": {
+          "selectParent": "Seleccionar el elemento padre",
+          "duplicate": "Duplicar",
+          "delete": "Eliminar"
+        },
+        "tabs": {
+          "label": "Propiedades",
+          "content": "Contenido",
+          "style": "Estilo",
+          "advanced": "Avanzado"
+        },
+        "content": {
+          "text": "Texto",
+          "level": "Nivel",
+          "levelHint": "Solo un H1 por página. El nivel afecta al SEO y a los lectores de pantalla, no al tamaño.",
+          "textHelp": "**negrita**, *cursiva* y [enlace](/ruta). Separa los párrafos con una línea en blanco. Sin HTML.",
+          "buttonLabel": "Texto del botón",
+          "href": "Enlace",
+          "hrefHint": "Ruta del sitio (/eventos), https:// o #ancla de una sección.",
+          "newTab": "Abrir en una pestaña nueva",
+          "imageUrl": "Dirección de la imagen",
+          "alt": "Texto alternativo",
+          "videoUrl": "Enlace del vídeo",
+          "videoHint": "Vídeo de YouTube, de Vimeo o de la biblioteca de la plataforma.",
+          "counterValue": "Número",
+          "counterLabel": "Leyenda",
+          "item": "Elemento {n}",
+          "removeItem": "Quitar elemento {n}",
+          "addItem": "Elemento",
+          "question": "Pregunta {n}",
+          "moveUp": "Subir pregunta {n}",
+          "questionText": "Pregunta",
+          "answerText": "Respuesta",
+          "addQuestion": "Pregunta",
+          "planName": "Nombre",
+          "planPrice": "Precio",
+          "planDescription": "Descripción",
+          "planCtaLabel": "Texto del botón",
+          "planCtaHref": "Enlace del botón",
+          "railTitle": "Título del carrusel",
+          "railSource": "Origen de los eventos",
+          "source": {
+            "category": "Categoría",
+            "organization": "Organización",
+            "artist": "Artista",
+            "live": "En vivo"
+          },
+          "limit": "Cantidad",
+          "railHint": "La página solo guarda el filtro. Los eventos se buscan cuando el visitante abre la página, con la misma regla de la home: solo eventos públicos.",
+          "featuredCta": "Texto del botón",
+          "liveEmptyText": "Texto cuando no haya eventos en vivo",
+          "none": {
+            "section": "Usa la pestaña Estilo para fondo, espaciado y ancho.",
+            "columns": "Usa la pestaña Estilo para el número de columnas y la proporción.",
+            "column": "La columna guarda elementos. Arrastra elementos dentro de ella.",
+            "group": "Coloca elementos uno al lado del otro, con salto de línea automático.",
+            "divider": "Sin contenido. Ajusta en la pestaña Estilo.",
+            "spacer": "Sin contenido. Ajusta en la pestaña Estilo."
+          }
+        },
+        "style": {
+          "bp": {
+            "desktop": "escritorio",
+            "tablet": "tablet",
+            "mobile": "móvil"
+          },
+          "baseNote": "Escritorio es la base. Tablet y móvil heredan de aquí.",
+          "editingNote": "Editando {bp}. Lo que cambies vale solo a partir de este tamaño.",
+          "overridden": "Ajustado para {bp}",
+          "inherits": "hereda de {from}",
+          "reset": "volver a heredar",
+          "resetField": "Volver a heredar {field}",
+          "group": {
+            "aspect": "Proporción",
+            "text": "Texto",
+            "button": "Botón",
+            "background": "Fondo",
+            "layout": "Diseño",
+            "spacing": "Espaciado",
+            "box": "Borde y sombra"
+          },
+          "key": {
+            "typo": "Estilo de texto",
+            "color": "Color",
+            "bg": "Fondo",
+            "p": "Espacio interno",
+            "pt": "Arriba",
+            "pb": "Abajo",
+            "pl": "A la izquierda",
+            "pr": "A la derecha",
+            "gap": "Espacio entre elementos",
+            "my": "Espacio externo",
+            "h": "Altura",
+            "radius": "Esquinas",
+            "border": "Borde",
+            "shadow": "Sombra",
+            "align": "Alineación",
+            "valign": "Alineación vertical",
+            "halign": "Alineación de los elementos",
+            "maxw": "Ancho del texto",
+            "width": "Ancho del contenido",
+            "minh": "Altura mínima",
+            "cols": "Número de columnas",
+            "ratio": "Proporción de las columnas",
+            "variant": "Variante",
+            "size": "Tamaño",
+            "full": "Ancho completo",
+            "aspect": "Proporción"
+          },
+          "color": {
+            "bg": "Fondo",
+            "surface": "Superficie",
+            "surfaceDark": "Superficie oscura",
+            "accent": "Magenta oscuro",
+            "action": "Magenta",
+            "violet": "Violeta",
+            "price": "Rosa",
+            "textPrimary": "Texto",
+            "textSecondary": "Texto secundario",
+            "textMuted": "Texto apagado",
+            "border": "Borde"
+          },
+          "gradient": {
+            "glow": "Brillo magenta",
+            "duo": "Magenta y violeta",
+            "night": "Noche"
+          },
+          "imageBackground": "Imagen con velo",
+          "imageHint": "La imagen recibe un velo oscuro del sistema para mantener el contraste del texto.",
+          "typo": {
+            "hero": "Destacado",
+            "display": "Título 1",
+            "xxl": "Título 2",
+            "xl": "Título 3",
+            "lg": "Texto destacado",
+            "md": "Cuerpo",
+            "sm": "Cuerpo pequeño",
+            "label": "Rótulo"
+          },
+          "auto": "Auto",
+          "total": "Total",
+          "opt": {
+            "align": {
+              "start": "Izquierda",
+              "center": "Centro",
+              "end": "Derecha"
+            },
+            "halign": {
+              "start": "Inicio",
+              "center": "Centro",
+              "end": "Fin"
+            },
+            "valign": {
+              "start": "Arriba",
+              "center": "Centro",
+              "end": "Abajo",
+              "stretch": "Estirar"
+            },
+            "maxw": {
+              "narrow": "Estrecho",
+              "prose": "Lectura"
+            },
+            "width": {
+              "narrow": "Estrecho",
+              "contained": "Estándar",
+              "wide": "Ancho",
+              "full": "Total"
+            },
+            "minh": {
+              "tall": "Alta",
+              "screen": "Pantalla"
+            },
+            "border": {
+              "none": "Sin borde",
+              "faint": "Sutil",
+              "default": "Estándar",
+              "strong": "Fuerte",
+              "accent": "Magenta"
+            },
+            "shadow": {
+              "none": "Ninguna",
+              "card": "Tarjeta",
+              "glow": "Brillo"
+            },
+            "variant": {
+              "primary": "Principal",
+              "secondary": "Contorno",
+              "light": "Claro",
+              "ghost": "Enlace"
+            },
+            "size": {
+              "sm": "P",
+              "md": "M",
+              "lg": "G"
+            }
+          }
+        },
+        "advanced": {
+          "visibility": "Visibilidad por dispositivo",
+          "visibleOn": "Visible en {bp}",
+          "anchor": "Ancla",
+          "anchorPlaceholder": "p. ej.: programacion",
+          "anchorHint": "Permite enlaces como #{anchor}. Letras minúsculas, números y guion.",
+          "layerName": "Nombre en las capas",
+          "elementId": "ID del elemento",
+          "elementIdHint": "Se usa en el historial y en la comparación de publicación."
+        }
       }
     },
     "seo": {

@@ -243,6 +243,9 @@ export interface PlatformEventRow {
   orgId: string;
   orgName: string;
   status: string;
+  /** Not sent by every back version yet; the page-builder event picker uses it when present. */
+  visibility?: 'PRIVATE' | 'UNLISTED' | 'PUBLIC';
+  format?: string;
   startsAt: string;
   camerasCount: number;
   category: string;

@@ -3651,6 +3651,223 @@
         "title": "This page uses the new editor",
         "text": "The current editor cannot open pages in the new format. See the preview below; to edit, the new editor must be enabled.",
         "back": "Back to pages"
+      },
+      "inspector": {
+        "empty": {
+          "title": "Nothing selected",
+          "text": "Click an element on the page or in the layers to edit its content, style and behavior."
+        },
+        "inPage": "on the page",
+        "insideOf": "inside {name}",
+        "errorsOne": "1 ERROR",
+        "errorsMany": "{count} ERRORS",
+        "actions": {
+          "selectParent": "Select the parent element",
+          "duplicate": "Duplicate",
+          "delete": "Delete"
+        },
+        "tabs": {
+          "label": "Properties",
+          "content": "Content",
+          "style": "Style",
+          "advanced": "Advanced"
+        },
+        "content": {
+          "text": "Text",
+          "level": "Level",
+          "levelHint": "Only one H1 per page. The level affects SEO and screen readers, not the size.",
+          "textHelp": "**bold**, *italic* and [link](/path). Separate paragraphs with a blank line. No HTML.",
+          "buttonLabel": "Button text",
+          "href": "Link",
+          "hrefHint": "Site path (/events), https:// or the #anchor of a section.",
+          "newTab": "Open in a new tab",
+          "imageUrl": "Image address",
+          "alt": "Alternative text",
+          "videoUrl": "Video link",
+          "videoHint": "A YouTube or Vimeo video, or one from the platform library.",
+          "counterValue": "Number",
+          "counterLabel": "Caption",
+          "item": "Item {n}",
+          "removeItem": "Remove item {n}",
+          "addItem": "Item",
+          "question": "Question {n}",
+          "moveUp": "Move question {n} up",
+          "questionText": "Question",
+          "answerText": "Answer",
+          "addQuestion": "Question",
+          "planName": "Name",
+          "planPrice": "Price",
+          "planDescription": "Description",
+          "planCtaLabel": "Button text",
+          "planCtaHref": "Button link",
+          "railTitle": "Rail title",
+          "railSource": "Event source",
+          "source": {
+            "category": "Category",
+            "organization": "Organization",
+            "artist": "Artist",
+            "live": "Live"
+          },
+          "limit": "Quantity",
+          "railHint": "The page only stores the filter. Events are fetched when a visitor opens the page, with the same rule as the home page: public events only.",
+          "featuredCta": "Button text",
+          "liveEmptyText": "Text when nothing is live",
+          "none": {
+            "section": "Use the Style tab for background, spacing and width.",
+            "columns": "Use the Style tab for the number of columns and the ratio.",
+            "column": "A column holds elements. Drag elements into it.",
+            "group": "Places elements side by side, wrapping automatically.",
+            "divider": "No content. Adjust it in the Style tab.",
+            "spacer": "No content. Adjust it in the Style tab."
+          }
+        },
+        "style": {
+          "bp": {
+            "desktop": "desktop",
+            "tablet": "tablet",
+            "mobile": "mobile"
+          },
+          "baseNote": "Desktop is the base. Tablet and mobile inherit from it.",
+          "editingNote": "Editing {bp}. What you change applies from this size on.",
+          "overridden": "Set for {bp}",
+          "inherits": "inherits from {from}",
+          "reset": "back to inherited",
+          "resetField": "Back to inherited: {field}",
+          "group": {
+            "aspect": "Aspect ratio",
+            "text": "Text",
+            "button": "Button",
+            "background": "Background",
+            "layout": "Layout",
+            "spacing": "Spacing",
+            "box": "Border and shadow"
+          },
+          "key": {
+            "typo": "Text style",
+            "color": "Color",
+            "bg": "Background",
+            "p": "Inner spacing",
+            "pt": "Top",
+            "pb": "Bottom",
+            "pl": "Left",
+            "pr": "Right",
+            "gap": "Space between items",
+            "my": "Outer spacing",
+            "h": "Height",
+            "radius": "Corners",
+            "border": "Border",
+            "shadow": "Shadow",
+            "align": "Alignment",
+            "valign": "Vertical alignment",
+            "halign": "Item alignment",
+            "maxw": "Text width",
+            "width": "Content width",
+            "minh": "Minimum height",
+            "cols": "Number of columns",
+            "ratio": "Column ratio",
+            "variant": "Variant",
+            "size": "Size",
+            "full": "Full width",
+            "aspect": "Aspect ratio"
+          },
+          "color": {
+            "bg": "Background",
+            "surface": "Surface",
+            "surfaceDark": "Dark surface",
+            "accent": "Dark magenta",
+            "action": "Magenta",
+            "violet": "Violet",
+            "price": "Pink",
+            "textPrimary": "Text",
+            "textSecondary": "Secondary text",
+            "textMuted": "Muted text",
+            "border": "Border"
+          },
+          "gradient": {
+            "glow": "Magenta glow",
+            "duo": "Magenta and violet",
+            "night": "Night"
+          },
+          "imageBackground": "Image with scrim",
+          "imageHint": "The image gets a dark scrim from the system to keep the text readable.",
+          "typo": {
+            "hero": "Hero",
+            "display": "Title 1",
+            "xxl": "Title 2",
+            "xl": "Title 3",
+            "lg": "Lead text",
+            "md": "Body",
+            "sm": "Small body",
+            "label": "Label"
+          },
+          "auto": "Auto",
+          "total": "Full",
+          "opt": {
+            "align": {
+              "start": "Left",
+              "center": "Center",
+              "end": "Right"
+            },
+            "halign": {
+              "start": "Start",
+              "center": "Center",
+              "end": "End"
+            },
+            "valign": {
+              "start": "Top",
+              "center": "Center",
+              "end": "Bottom",
+              "stretch": "Stretch"
+            },
+            "maxw": {
+              "narrow": "Narrow",
+              "prose": "Reading"
+            },
+            "width": {
+              "narrow": "Narrow",
+              "contained": "Default",
+              "wide": "Wide",
+              "full": "Full"
+            },
+            "minh": {
+              "tall": "Tall",
+              "screen": "Screen"
+            },
+            "border": {
+              "none": "No border",
+              "faint": "Subtle",
+              "default": "Default",
+              "strong": "Strong",
+              "accent": "Magenta"
+            },
+            "shadow": {
+              "none": "None",
+              "card": "Card",
+              "glow": "Glow"
+            },
+            "variant": {
+              "primary": "Primary",
+              "secondary": "Outline",
+              "light": "Light",
+              "ghost": "Link"
+            },
+            "size": {
+              "sm": "S",
+              "md": "M",
+              "lg": "L"
+            }
+          }
+        },
+        "advanced": {
+          "visibility": "Visibility per device",
+          "visibleOn": "Visible on {bp}",
+          "anchor": "Anchor",
+          "anchorPlaceholder": "e.g. schedule",
+          "anchorHint": "Allows links like #{anchor}. Lowercase letters, numbers and hyphens.",
+          "layerName": "Layer name",
+          "elementId": "Element ID",
+          "elementIdHint": "Used in the history and in the publish comparison."
+        }
       }
     },
     "seo": {
