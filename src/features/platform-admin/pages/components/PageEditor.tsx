@@ -56,7 +56,8 @@ export function PageEditor({ page, onReload, reloadFailed }: Props) {
   const autosave = useDraftAutosave({
     pageId: page.id,
     document: state.document,
-    baseRevision: page.draftRevision,
+    // Not the `page` prop: a background refetch carries another admin's revision and would defeat the 409 lock.
+    baseRevision: revision,
     dirty: state.dirty,
     onSaved: ({ document, draftRevision }) => {
       setRevision(draftRevision);
@@ -192,12 +193,19 @@ export function PageEditor({ page, onReload, reloadFailed }: Props) {
             revision={revision}
             settled={settled}
             onClose={() => setPanel(null)}
-            onPublished={(version) => { setPanel(null); setPublishedVersion(version); }}
+            onPublished={(version) => { setPanel(null); setTouched(false); setPublishedVersion(version); }}
             onConflict={onPublishConflict}
           />
         )}
         {panel === 'history' && (
-          <HistoryDrawer page={page} onClose={() => setPanel(null)} onRestored={() => { setPanel(null); onReload(); }} />
+          <HistoryDrawer
+            page={page}
+            settled={settled}
+            onClose={() => setPanel(null)}
+            onRestoreStart={() => dispatch({ type: 'lock' })}
+            onRestoreFail={() => dispatch({ type: 'unlock' })}
+            onRestored={() => { setPanel(null); onReload(); }}
+          />
         )}
         {panel === 'settings' && <PageSettingsDrawer page={page} onClose={() => setPanel(null)} />}
         {publishedVersion !== null && (

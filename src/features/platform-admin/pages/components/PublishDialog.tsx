@@ -31,7 +31,9 @@ export function PublishDialog({ page, revision, settled, onClose, onPublished, o
   const t = useTranslations('platformAdmin.pageEditor.publish');
   const [summary, setSummary] = useState('');
   const [failed, setFailed] = useState(false);
-  const { data: diff } = usePublishDiffQuery(page.id, { enabled: settled });
+  const { data, isFetching } = usePublishDiffQuery(page.id, { enabled: settled });
+  // A cached diff from a previous open is stale until the refetch lands.
+  const diff = isFetching ? undefined : data;
   const publish = usePublishPageMutation(page.id);
 
   const changeSummary = summary.trim();

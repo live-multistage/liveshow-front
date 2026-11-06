@@ -12,12 +12,17 @@ import styles from './PageDrawers.module.scss';
 
 interface Props {
   page: PageDetail;
+  /** No unsaved edits or save in flight: restoring would otherwise race the autosave. */
+  settled: boolean;
+  /** Called before the mutation so the editor stops accepting edits that the restore would discard. */
+  onRestoreStart(): void;
+  onRestoreFail(): void;
   onClose(): void;
   /** The draft was replaced on the server: the editor must restart from the fresh page. */
   onRestored(): void;
 }
 
-export function HistoryDrawer({ page, onClose, onRestored }: Props) {
+export function HistoryDrawer({ page, settled, onClose, onRestoreStart, onRestoreFail, onRestored }: Props) {
   const t = useTranslations('platformAdmin.pageEditor.history');
   const locale = useLocale();
   const { data: versions, isError } = usePageVersionsQuery(page.id, { enabled: true });
@@ -32,11 +37,13 @@ export function HistoryDrawer({ page, onClose, onRestored }: Props) {
   const confirmRestore = async () => {
     if (asking === null) return;
     setFailed(false);
+    onRestoreStart();
     try {
       await restore.mutateAsync(asking);
       setAsking(null);
       onRestored();
     } catch {
+      onRestoreFail();
       setFailed(true);
     }
   };
@@ -52,6 +59,7 @@ export function HistoryDrawer({ page, onClose, onRestored }: Props) {
           <span className={styles.hint}>{page.hasUnpublishedChanges ? t('draftDiffers', { version: live }) : t('draftSame', { version: live })}</span>
         )}
       </div>
+      {!settled && <span className={styles.hint}>{t('restoreWaitSave')}</span>}
       {isError && <p className={styles.error} role="alert">{t('loadError')}</p>}
       {!versions && !isError && <Skeleton className={styles.skelLine} />}
       {versions?.length === 0 && <span className={styles.hint}>{t('empty')}</span>}
@@ -66,7 +74,7 @@ export function HistoryDrawer({ page, onClose, onRestored }: Props) {
           <div className={styles.hint}>{version.publishedBy?.name ?? t('unknownAuthor')}</div>
           {!version.isLive && (
             <div>
-              <Button type="button" variant="outline" size="sm" onClick={() => { setFailed(false); setAsking(version.number); }}>{t('restore')}</Button>
+              <Button type="button" variant="outline" size="sm" disabled={!settled} onClick={() => { setFailed(false); setAsking(version.number); }}>{t('restore')}</Button>
             </div>
           )}
         </div>

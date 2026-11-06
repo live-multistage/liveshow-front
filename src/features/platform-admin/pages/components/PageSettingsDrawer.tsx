@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Button, Input, Label, Switch, Textarea } from '@live-show/design-system';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Switch, Textarea } from '@live-show/design-system';
 import {
   PAGE_LIMITS,
   pageHttpsUrlSchema,
@@ -35,6 +35,7 @@ export function PageSettingsDrawer({ page, onClose }: Props) {
   const [imageUrl, setImageUrl] = useState(page.seo.imageUrl ?? '');
   const [noindex, setNoindex] = useState(page.seo.noindex);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [confirming, setConfirming] = useState<'unpublish' | 'archive' | null>(null);
 
   const update = useUpdatePageSettingsMutation(page.id);
   const unpublish = useUnpublishPageMutation(page.id);
@@ -79,11 +80,12 @@ export function PageSettingsDrawer({ page, onClose }: Props) {
       onClose();
     } catch (error) {
       const status = (error as { status?: number }).status;
-      setErrors(status === 409 ? { slug: t('slugInUse') } : { form: t('error') });
+      setErrors(status === 409 && changes.slug !== undefined ? { slug: t('slugInUse') } : { form: t('error') });
     }
   };
 
   const lifecycle = async (action: { mutateAsync(): Promise<unknown> }) => {
+    setConfirming(null);
     try {
       await action.mutateAsync();
       onClose();
@@ -151,7 +153,7 @@ export function PageSettingsDrawer({ page, onClose }: Props) {
         {page.status === 'PUBLISHED' && (
           <div className={styles.cardRow}>
             <div><b>{t('unpublish')}</b><div className={styles.hint}>{t('unpublishHint')}</div></div>
-            <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={() => void lifecycle(unpublish)}>{t('unpublish')}</Button>
+            <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={() => setConfirming('unpublish')}>{t('unpublish')}</Button>
           </div>
         )}
         {page.status === 'ARCHIVED' ? (
@@ -162,10 +164,24 @@ export function PageSettingsDrawer({ page, onClose }: Props) {
         ) : (
           <div className={styles.cardRow}>
             <div><b>{t('archive')}</b><div className={styles.hint}>{t('archiveHint')}</div></div>
-            <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={() => void lifecycle(archive)}>{t('archive')}</Button>
+            <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={() => setConfirming('archive')}>{t('archive')}</Button>
           </div>
         )}
       </div>
+      <Dialog open={confirming !== null} onOpenChange={(open) => !open && setConfirming(null)}>
+        <DialogContent role="alertdialog">
+          <DialogHeader>
+            <DialogTitle>{confirming && t(`${confirming}ConfirmTitle`)}</DialogTitle>
+            <DialogDescription>{confirming && t(`${confirming}ConfirmText`)}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setConfirming(null)}>{t('cancel')}</Button>
+            <Button type="button" variant="destructive" onClick={() => void lifecycle(confirming === 'archive' ? archive : unpublish)}>
+              {confirming && t(confirming)}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageDrawer>
   );
 }

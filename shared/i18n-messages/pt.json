@@ -3543,7 +3543,8 @@
         "restoreText": "O rascunho atual será substituído. A página publicada não muda até você publicar de novo.",
         "restoreConfirm": "Restaurar",
         "restoreError": "Não foi possível restaurar. Tente de novo.",
-        "cancel": "Cancelar"
+        "cancel": "Cancelar",
+        "restoreWaitSave": "Aguarde o rascunho terminar de salvar para restaurar."
       },
       "settings": {
         "label": "Configurações da página",
@@ -3574,7 +3575,11 @@
         "slugReserved": "Esse endereço é reservado pela plataforma.",
         "slugInUse": "Esse endereço já está em uso.",
         "imageInvalid": "Use um link https://.",
-        "error": "Não foi possível salvar. Tente de novo."
+        "error": "Não foi possível salvar. Tente de novo.",
+        "unpublishConfirmTitle": "Despublicar esta página?",
+        "unpublishConfirmText": "A página sai do ar (404). O rascunho e o histórico ficam.",
+        "archiveConfirmTitle": "Arquivar esta página?",
+        "archiveConfirmText": "A página sai do ar e some da lista padrão. Dá para restaurar."
       },
       "notFound": {
         "title": "Página não encontrada",

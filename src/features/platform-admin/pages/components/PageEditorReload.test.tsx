@@ -92,6 +92,16 @@ describe('PageEditorPage conflict reload', () => {
     expect(saveDraft.mock.calls[0][1]).toMatchObject({ baseRevision: 9 });
   });
 
+  it('keeps the old base revision when a background refetch brings a newer page prop', async () => {
+    saveDraft.mockResolvedValue({ draftRevision: 2, draftUpdatedAt: '2026-11-05T15:00:00' });
+    const { rerender } = render(<PageEditorPage pageId="A" />);
+    current = detail(5, ['Alpha', 'Beta']);
+    rerender(<PageEditorPage pageId="A" />);
+    fireEvent.click(within(rows()[0]).getByRole('button', { name: /Ocultar/ }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(900); });
+    expect(saveDraft.mock.calls[0][1]).toMatchObject({ baseRevision: 1 });
+  });
+
   it('stays locked with a message when the refetch fails', async () => {
     await editIntoConflict();
     refetch.mockResolvedValue({ isError: true, data: current });

@@ -38,11 +38,13 @@ const versions = [
 const mutateAsync = vi.fn();
 const onClose = vi.fn();
 const onRestored = vi.fn();
+const onRestoreStart = vi.fn();
+const onRestoreFail = vi.fn();
 
-function setup() {
+function setup(settled = true) {
   vi.mocked(usePageVersionsQuery).mockReturnValue({ data: versions, isLoading: false, isError: false } as never);
   vi.mocked(useRestoreVersionMutation).mockReturnValue({ mutateAsync, isPending: false } as never);
-  render(<HistoryDrawer page={page} onClose={onClose} onRestored={onRestored} />);
+  render(<HistoryDrawer page={page} settled={settled} onClose={onClose} onRestored={onRestored} onRestoreStart={onRestoreStart} onRestoreFail={onRestoreFail} />);
   return userEvent.setup();
 }
 
@@ -67,5 +69,21 @@ describe('HistoryDrawer', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Restaurar' }));
     await waitFor(() => expect(onRestored).toHaveBeenCalled());
     expect(mutateAsync).toHaveBeenCalledWith(2);
+    expect(onRestoreStart.mock.invocationCallOrder[0]).toBeLessThan(mutateAsync.mock.invocationCallOrder[0]);
+  });
+
+  it('unlocks the editor when the restore fails', async () => {
+    mutateAsync.mockRejectedValue(new Error('x'));
+    const user = setup();
+    await user.click(screen.getByRole('button', { name: 'Restaurar no rascunho' }));
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Restaurar' }));
+    await waitFor(() => expect(onRestoreFail).toHaveBeenCalled());
+    expect(onRestored).not.toHaveBeenCalled();
+  });
+
+  it('disables restore while the draft is still saving', () => {
+    setup(false);
+    expect(screen.getByRole('button', { name: 'Restaurar no rascunho' })).toBeDisabled();
+    expect(screen.getByText('Aguarde o rascunho terminar de salvar para restaurar.')).toBeInTheDocument();
   });
 });

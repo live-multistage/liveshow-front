@@ -3543,7 +3543,8 @@
         "restoreText": "The current draft will be replaced. The published page does not change until you publish again.",
         "restoreConfirm": "Restore",
         "restoreError": "Could not restore. Try again.",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "restoreWaitSave": "Wait for the draft to finish saving before restoring."
       },
       "settings": {
         "label": "Page settings",
@@ -3574,7 +3575,11 @@
         "slugReserved": "This address is reserved by the platform.",
         "slugInUse": "This address is already in use.",
         "imageInvalid": "Use an https:// link.",
-        "error": "Could not save. Try again."
+        "error": "Could not save. Try again.",
+        "unpublishConfirmTitle": "Unpublish this page?",
+        "unpublishConfirmText": "The page goes offline (404). The draft and history stay.",
+        "archiveConfirmTitle": "Archive this page?",
+        "archiveConfirmText": "The page goes offline and leaves the default list. It can be restored."
       },
       "notFound": {
         "title": "Page not found",

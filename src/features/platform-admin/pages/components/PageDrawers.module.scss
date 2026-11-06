@@ -3,7 +3,8 @@
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  // Below the design-system dialogs (50) so confirmations opened from a drawer stack above it.
+  z-index: 48;
   background: rgba(5, 4, 6, 0.72);
 }
 
@@ -12,7 +13,7 @@
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 51;
+  z-index: 49;
   display: flex;
   flex-direction: column;
   width: 440px;

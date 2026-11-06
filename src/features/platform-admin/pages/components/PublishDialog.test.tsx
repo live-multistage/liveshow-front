@@ -35,8 +35,8 @@ const mutateAsync = vi.fn();
 const diff = { added: 2, removed: 0, edited: 3, hidden: 1, hasChanges: true, nextVersionNumber: 4 };
 const callbacks = { onClose: vi.fn(), onPublished: vi.fn(), onConflict: vi.fn() };
 
-function setup(props: { settled?: boolean; data?: typeof diff } = {}) {
-  vi.mocked(usePublishDiffQuery).mockReturnValue({ data: props.data ?? diff } as never);
+function setup(props: { settled?: boolean; data?: typeof diff; isFetching?: boolean } = {}) {
+  vi.mocked(usePublishDiffQuery).mockReturnValue({ data: props.data ?? diff, isFetching: props.isFetching ?? false } as never);
   vi.mocked(usePublishPageMutation).mockReturnValue({ mutateAsync, isPending: false } as never);
   render(<PublishDialog page={page} revision={5} settled={props.settled ?? true} {...callbacks} />);
   return userEvent.setup();
@@ -61,6 +61,13 @@ describe('PublishDialog', () => {
   it('shows the nothing-changed state and blocks publishing', () => {
     setup({ data: { ...diff, hasChanges: false, added: 0, edited: 0, hidden: 0 } });
     expect(screen.getByText('Nada mudou desde a versão 3.')).toBeInTheDocument();
+    expect(confirm()).toBeDisabled();
+  });
+
+  it('ignores a cached diff while it refetches', async () => {
+    const user = setup({ isFetching: true });
+    await user.type(screen.getByLabelText(/Resumo da mudança/), 'Algo');
+    expect(screen.queryByText(/adicionadas/)).not.toBeInTheDocument();
     expect(confirm()).toBeDisabled();
   });
 

@@ -27,7 +27,7 @@ vi.mock('../mutations/use-page-mutations', () => ({
   useUnarchivePageMutation: vi.fn(),
 }));
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { PageDetail } from '@live-show/api-contracts';
 import * as mutations from '../mutations/use-page-mutations';
@@ -99,10 +99,23 @@ describe('PageSettingsDrawer', () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it('treats a 409 as a form error when the slug did not change', async () => {
+    update.mockRejectedValue({ status: 409, message: 'x' });
+    const user = setup();
+    await user.type(screen.getByLabelText('Título para buscadores'), 'Algo');
+    await user.click(save());
+    expect(await screen.findByText('Não foi possível salvar. Tente de novo.')).toBeInTheDocument();
+    expect(screen.queryByText('Esse endereço já está em uso.')).not.toBeInTheDocument();
+  });
+
   it('unpublishes from the danger zone', async () => {
     unpublish.mockResolvedValue({});
     const user = setup();
     await user.click(screen.getByRole('button', { name: 'Despublicar' }));
+    expect(unpublish).not.toHaveBeenCalled();
+    const dialog = screen.getByRole('alertdialog');
+    expect(within(dialog).getByText('Despublicar esta página?')).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Despublicar' }));
     await waitFor(() => expect(unpublish).toHaveBeenCalled());
     expect(onClose).toHaveBeenCalled();
   });

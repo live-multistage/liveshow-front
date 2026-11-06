@@ -3543,7 +3543,8 @@
         "restoreText": "El borrador actual será reemplazado. La página publicada no cambia hasta que publiques de nuevo.",
         "restoreConfirm": "Restaurar",
         "restoreError": "No se pudo restaurar. Inténtalo de nuevo.",
-        "cancel": "Cancelar"
+        "cancel": "Cancelar",
+        "restoreWaitSave": "Espera a que el borrador termine de guardarse para restaurar."
       },
       "settings": {
         "label": "Configuración de la página",
@@ -3574,7 +3575,11 @@
         "slugReserved": "Esta dirección está reservada por la plataforma.",
         "slugInUse": "Esta dirección ya está en uso.",
         "imageInvalid": "Usa un enlace https://.",
-        "error": "No se pudo guardar. Inténtalo de nuevo."
+        "error": "No se pudo guardar. Inténtalo de nuevo.",
+        "unpublishConfirmTitle": "¿Despublicar esta página?",
+        "unpublishConfirmText": "La página sale del aire (404). El borrador y el historial quedan.",
+        "archiveConfirmTitle": "¿Archivar esta página?",
+        "archiveConfirmText": "La página sale del aire y desaparece de la lista predeterminada. Se puede restaurar."
       },
       "notFound": {
         "title": "Página no encontrada",

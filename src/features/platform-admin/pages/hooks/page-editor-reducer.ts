@@ -29,7 +29,8 @@ export type PageEditorAction =
   | { type: 'updateAppearance'; id: string; appearance: Partial<PageSectionAppearance> }
   | { type: 'select'; id: string | null }
   | { type: 'markSaved'; document: PageDocument }
-  | { type: 'lock' };
+  | { type: 'lock' }
+  | { type: 'unlock' };
 
 export type SectionIssue = { path: string; message: string };
 
@@ -85,6 +86,8 @@ export function pageEditorReducer(state: PageEditorState, action: PageEditorActi
       return { ...state, dirty: state.document === action.document ? false : state.dirty };
     case 'lock':
       return { ...state, locked: true };
+    case 'unlock':
+      return { ...state, locked: false };
   }
 }
 

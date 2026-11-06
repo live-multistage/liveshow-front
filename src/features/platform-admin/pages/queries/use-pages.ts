@@ -18,6 +18,8 @@ export function usePageQuery(id: string | null) {
     queryKey: pageKeys.detail(id ?? ''),
     queryFn: () => pagesService.get(id as string),
     enabled: id !== null,
+    // The editor owns the draft; a refetch on focus must not replace what the autosave is based on.
+    refetchOnWindowFocus: false,
   });
 }
 
