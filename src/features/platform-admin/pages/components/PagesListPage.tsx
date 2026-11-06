@@ -79,13 +79,13 @@ export function PagesListPage() {
       )}
       {query.isSuccess && pages.length > 0 && visible.length === 0 && (
         <div className={styles.stateBox}>
-          <div className={styles.stateTitle}>{t('noResults', { q: q.trim() })}</div>
+          <div className={styles.stateTitle}>{needle ? t('noResults', { q: q.trim() }) : t('noResultsStatus')}</div>
           <Button variant="outline" onClick={() => { setQ(''); setStatus('ALL'); }}>{t('clearSearch')}</Button>
         </div>
       )}
       {visible.length > 0 && <PagesTable pages={visible} />}
 
-      <NewPageDialog open={creating} onOpenChange={setCreating} pages={pages} />
+      {creating && <NewPageDialog open onOpenChange={setCreating} pages={pages} />}
     </PlatformPageShell>
   );
 }
@@ -116,38 +116,40 @@ function PagesTable({ pages }: { pages: PageSummary[] }) {
 
   return (
     <div className={styles.card}>
-      <table className={styles.table}>
+      <table className={styles.table} role="table">
         <thead>
-          <tr>
-            <th>{t('cols.page')}</th>
-            <th>{t('cols.status')}</th>
-            <th>{t('cols.live')}</th>
-            <th>{t('cols.sections')}</th>
-            <th>{t('cols.edited')}</th>
-            <th><span className={styles.srOnly}>{t('cols.actions')}</span></th>
+          <tr role="row">
+            <th role="columnheader">{t('cols.page')}</th>
+            <th role="columnheader">{t('cols.status')}</th>
+            <th role="columnheader">{t('cols.live')}</th>
+            <th role="columnheader">{t('cols.sections')}</th>
+            <th role="columnheader">{t('cols.edited')}</th>
+            <th role="columnheader"><span className={styles.srOnly}>{t('cols.actions')}</span></th>
           </tr>
         </thead>
         <tbody>
           {pages.map((p) => (
-            <tr key={p.id} className={styles.row} onClick={() => router.push(`/dashboard/platform/pages/${p.id}`)}>
-              <td data-label={t('cols.page')}>
+            <tr key={p.id} role="row" className={styles.row} onClick={() => router.push(`/dashboard/platform/pages/${p.id}`)}>
+              <td role="cell">
                 <Link href={`/dashboard/platform/pages/${p.id}`} className={styles.title} onClick={(e) => e.stopPropagation()}>{p.title}</Link>
                 <div className={styles.path}>/p/{p.slug}</div>
               </td>
-              <td className={styles.statusCell}>
+              <td role="cell">
+                <div className={styles.statusCell}>
                 <span className={`${styles.pill} ${PILL_CLASS[p.status]}`}>
                   {p.status === 'PUBLISHED' && <span className={styles.pillDot} />}
                   {t(`status.${p.status}`)}
                 </span>
                 {p.hasUnpublishedChanges && <span className={`${styles.pill} ${styles.pending}`}>{t('pending')}</span>}
+                </div>
               </td>
-              <td className={styles.mono}>{p.publishedVersion !== null && p.status !== 'ARCHIVED' ? `v${p.publishedVersion}` : '—'}</td>
-              <td className={styles.mono}>{p.sectionCount}</td>
-              <td>
+              <td role="cell" className={styles.mono}>{p.publishedVersion !== null && p.status !== 'ARCHIVED' ? `v${p.publishedVersion}` : '—'}</td>
+              <td role="cell" className={styles.mono}>{p.sectionCount}</td>
+              <td role="cell">
                 <div>{formatDate(p.draftUpdatedAt)}</div>
                 <div className={styles.hint}>{p.draftUpdatedBy?.name ?? '—'}</div>
               </td>
-              <td className={styles.actions}>
+              <td role="cell" className={styles.actions}>
                 {p.status === 'PUBLISHED' && (
                   <a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" className={styles.iconBtn} aria-label={t('openPublic', { title: p.title })} onClick={(e) => e.stopPropagation()}>
                     <ExternalLink size={15} />

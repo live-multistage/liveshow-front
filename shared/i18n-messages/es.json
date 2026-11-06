@@ -3184,6 +3184,7 @@
         "cta": "Crear la primera página"
       },
       "noResults": "No se encontró ninguna página para “{q}”.",
+      "noResultsStatus": "Ninguna página con este estado.",
       "clearSearch": "Limpiar búsqueda",
       "dialog": {
         "title": "Nueva página",

@@ -3184,6 +3184,7 @@
         "cta": "Create the first page"
       },
       "noResults": "No page found for “{q}”.",
+      "noResultsStatus": "No page with this status.",
       "clearSearch": "Clear search",
       "dialog": {
         "title": "New page",

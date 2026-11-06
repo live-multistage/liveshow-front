@@ -104,6 +104,30 @@ describe('PagesListPage', () => {
     expect(screen.getByText('Festival de Verão 2027')).toBeInTheDocument();
   });
 
+  it('with an empty search and a status without pages, shows a status message and returns to Todas', async () => {
+    list.mockResolvedValue([page({})]);
+    renderPage();
+    await screen.findByText('Festival de Verão 2027');
+    await userEvent.click(screen.getByRole('button', { name: 'Arquivadas' }));
+    expect(screen.getByText('Nenhuma página com esse status.')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Limpar busca' }));
+    expect(screen.getByText('Festival de Verão 2027')).toBeInTheDocument();
+  });
+
+  it('resets the new-page dialog after cancelling and reopening', async () => {
+    renderPage();
+    await screen.findByText('Festival de Verão 2027');
+    await userEvent.click(screen.getByRole('button', { name: 'Nova página' }));
+    fireEvent.change(screen.getByLabelText(/^Título/), { target: { value: 'Abc' } });
+    fireEvent.change(screen.getByLabelText('Endereço'), { target: { value: 'manual' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Nova página' }));
+    expect(screen.getByLabelText(/^Título/)).toHaveValue('');
+    expect(screen.getByLabelText('Endereço')).toHaveValue('');
+    fireEvent.change(screen.getByLabelText(/^Título/), { target: { value: 'Novo' } });
+    expect(screen.getByLabelText('Endereço')).toHaveValue('novo');
+  });
+
   it('shows the empty state with a CTA that opens the dialog', async () => {
     list.mockResolvedValue([]);
     renderPage();
