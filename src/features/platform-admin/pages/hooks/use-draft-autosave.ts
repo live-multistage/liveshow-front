@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { pageDraftSchema, type DraftConflict, type PageDocument } from '@live-show/api-contracts';
+import { pageDraftSchema, type DraftConflict, type PageDocument, type SaveDraftRequest } from '@live-show/api-contracts';
 import { isDraftConflict, pagesService } from '../services/pages.service';
 
 export type AutosaveIssue = { path: string; message: string };
@@ -15,13 +15,22 @@ export type AutosaveStatus =
   | { kind: 'conflict'; conflict: DraftConflict }
   | { kind: 'blocked'; code: string; message: string };
 
-interface Args {
+type DraftDocument = object;
+
+/** What the hook needs from a zod schema; the document version picks it (v1 `pageDraftSchema` by default). */
+export interface DraftValidator<D> {
+  safeParse(value: unknown): { success: boolean; data?: D; error?: { issues: { path: (string | number)[]; message: string }[] } };
+}
+
+interface Args<D extends DraftDocument> {
   pageId: string;
-  document: PageDocument;
+  document: D;
+  /** Validates the document before every save; defaults to the v1 draft schema. */
+  validator?: DraftValidator<D>;
   baseRevision: number;
   dirty: boolean;
   /** `document` is the one that was sent: pass it to `markSaved` so edits made during the save keep the editor dirty. */
-  onSaved: (r: { draftRevision: number; draftUpdatedAt: string; document: PageDocument }) => void;
+  onSaved: (r: { draftRevision: number; draftUpdatedAt: string; document: D }) => void;
   onConflict: () => void;
   delayMs?: number;
 }
@@ -34,6 +43,10 @@ const GENERIC_INVALID: AutosaveIssue = { path: '', message: 'Não foi possível 
 function isRetryable(error: unknown): boolean {
   const status = (error as { response?: { status?: number } })?.response?.status;
   return status === undefined || status >= 500 || RETRYABLE_STATUSES.has(status);
+}
+
+function parse<D extends DraftDocument>(args: Args<D>, value: D) {
+  return (args.validator ?? (pageDraftSchema as unknown as DraftValidator<D>)).safeParse(value);
 }
 
 function blockedStatus(error: unknown): AutosaveStatus {
@@ -54,7 +67,7 @@ function backendIssues(error: unknown): AutosaveIssue[] {
  * Debounced draft autosave with optimistic locking.
  * The caller MUST mount it with `key={pageId}`: state and the revision ref are not reset on pageId change.
  */
-export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow: () => void; flushing: boolean } {
+export function useDraftAutosave<D extends DraftDocument = PageDocument>(args: Args<D>): { status: AutosaveStatus; saveNow: () => void; flushing: boolean } {
   const { document, dirty, baseRevision, delayMs = 800 } = args;
   const [status, setStatus] = useState<AutosaveStatus>({ kind: 'idle' });
 
@@ -78,7 +91,7 @@ export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow:
     clearTimeout(debounceTimer.current);
     clearTimeout(retryTimer.current);
     const sent = argsRef.current.document;
-    const parsed = pageDraftSchema.safeParse(sent);
+    const parsed = parse(argsRef.current, sent);
     if (!parsed.success) {
       setStatus({
         kind: 'invalid',
@@ -91,7 +104,7 @@ export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow:
     const pageId = argsRef.current.pageId;
     let saved: { draftRevision: number; draftUpdatedAt: string };
     try {
-      saved = await pagesService.saveDraft(pageId, { document: parsed.data, baseRevision: revisionRef.current });
+      saved = await pagesService.saveDraft(pageId, { document: parsed.data as SaveDraftRequest['document'], baseRevision: revisionRef.current });
     } catch (error) {
       inFlight.current = false;
       if (!mounted.current || pageId !== argsRef.current.pageId) return;
@@ -153,8 +166,8 @@ export function useDraftAutosave(args: Args): { status: AutosaveStatus; saveNow:
       // Client-side navigation would drop a pending (or retrying) edit: send it once, fire-and-forget.
       const { pageId, document: latest, dirty: unsaved } = argsRef.current;
       if (!unsaved || locked.current || inFlight.current) return;
-      const parsed = pageDraftSchema.safeParse(latest);
-      if (parsed.success) void Promise.resolve(pagesService.saveDraft(pageId, { document: parsed.data, baseRevision: revisionRef.current })).catch(() => undefined);
+      const parsed = parse(argsRef.current, latest);
+      if (parsed.success) void Promise.resolve(pagesService.saveDraft(pageId, { document: parsed.data as SaveDraftRequest['document'], baseRevision: revisionRef.current })).catch(() => undefined);
     };
   }, []);
 

@@ -3,8 +3,11 @@ import { httpClient } from '@/lib/http/client';
 import type {
   CreatePageRequest,
   DraftConflict,
+  FeaturedUnavailable,
   PageAssetResponse,
   PageDetail,
+  PageElement,
+  PageResolvedData,
   PageStatus,
   PageSummary,
   PageVersionDocument,
@@ -42,6 +45,9 @@ export const pagesService = {
   unpublish: async (id: string) => (await httpClient.post<PageDetail>(`/platform/pages/${id}/unpublish`)).data,
   archive: async (id: string) => (await httpClient.post<PageDetail>(`/platform/pages/${id}/archive`)).data,
   unarchive: async (id: string) => (await httpClient.post<PageDetail>(`/platform/pages/${id}/unarchive`)).data,
+  /** Real event data for data elements the editor holds but has not saved (max `PAGE_RESOLVE_DATA_MAX` per call). */
+  resolveData: async (elements: PageElement[]) =>
+    (await httpClient.post<PageResolvedData>('/platform/pages/resolve-data', { elements })).data,
   preview: async (id: string) => (await httpClient.get<PublicPage>(`/platform/pages/${id}/preview`)).data,
   uploadAsset: async (file: File) => {
     const form = new FormData();
@@ -54,4 +60,10 @@ export const pagesService = {
 export function isDraftConflict(error: unknown): error is AxiosError<DraftConflict> {
   const axiosError = error as AxiosError<DraftConflict> | null;
   return axiosError?.response?.status === 409 && axiosError.response.data?.code === 'DRAFT_CONFLICT';
+}
+
+/** 400 FEATURED_UNAVAILABLE: the publish found a featured event that is gone or not public; `elementId` is the element. */
+export function isFeaturedUnavailable(error: unknown): error is AxiosError<FeaturedUnavailable> {
+  const axiosError = error as AxiosError<FeaturedUnavailable> | null;
+  return axiosError?.response?.status === 400 && axiosError.response.data?.code === 'FEATURED_UNAVAILABLE';
 }

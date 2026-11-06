@@ -1357,7 +1357,6 @@
     "switchTransmission": "Switch transmission",
     "transmissionNotStartedTitle": "Transmission hasn't started yet",
     "transmissionNotStartedBody": "The {title} transmission goes live soon. You can switch to another transmission in the meantime.",
-    "closePanel": "Close",
     "availableToBuy": "Available to buy",
     "unlockFullEvent": "Unlock the full event"
   },
@@ -3331,7 +3330,10 @@
         "history": "History",
         "settings": "Settings",
         "preview": "Preview in new tab",
-        "publish": "Publish"
+        "publish": "Publish",
+        "tablet": "Tablet",
+        "undo": "Undo",
+        "redo": "Redo"
       },
       "tree": {
         "title": "SECTIONS · {count}",
@@ -3493,7 +3495,13 @@
         "hiddenBadge": "HIDDEN · NOT SHOWN ON THE PUBLISHED PAGE",
         "noRail": "No events to show right now.",
         "noFeatured": "Choose an event to show here.",
-        "toolbar": { "label": "Section toolbar", "up": "Move up", "down": "Move down", "hide": "Hide", "show": "Show" }
+        "toolbar": {
+          "label": "Section toolbar",
+          "up": "Move up",
+          "down": "Move down",
+          "hide": "Hide",
+          "show": "Show"
+        }
       },
       "publish": {
         "title": "Publish version {version}",
@@ -3503,10 +3511,10 @@
         "saving": "Saving the draft…",
         "nothing": "Nothing changed since version {version}.",
         "nothingFirst": "There is nothing to publish yet.",
-        "addedOne": "{count} section added",
-        "addedMany": "{count} sections added",
-        "removedOne": "{count} section removed",
-        "removedMany": "{count} sections removed",
+        "addedOne": "{count} element added",
+        "addedMany": "{count} elements added",
+        "removedOne": "{count} element removed",
+        "removedMany": "{count} elements removed",
         "editedOne": "{count} edited",
         "editedMany": "{count} edited",
         "hiddenOne": "{count} hidden",
@@ -3596,6 +3604,405 @@
         "title": "Edit pages on a computer",
         "text": "The builder needs a larger screen. The list and the preview are still available here.",
         "back": "Back to Pages"
+      }
+    },
+    "pageEditorV2": {
+      "types": {
+        "section": "Section",
+        "columns": "Columns",
+        "column": "Column",
+        "group": "Inline group",
+        "heading": "Heading",
+        "text": "Text",
+        "label": "Badge",
+        "button": "Button",
+        "image": "Image",
+        "video": "Video",
+        "divider": "Divider",
+        "spacer": "Spacer",
+        "iconList": "List",
+        "counter": "Number",
+        "faq": "FAQ",
+        "plan": "Plan",
+        "eventRail": "Event rail",
+        "featuredEvent": "Featured event",
+        "liveNow": "Live now"
+      },
+      "banner": {
+        "converted": "This page was converted to the new editor.",
+        "convertedText": "Each section became an editable block. The published version stays the same until you publish again.",
+        "compare": "Compare with published",
+        "dismiss": "Dismiss notice",
+        "conflict": "{name} saved this page at {time}.",
+        "conflictAnonymous": "Another admin saved this page at {time}.",
+        "conflictText": "To avoid overwriting their work, editing was locked. Your latest changes only exist in this browser.",
+        "copy": "Copy my changes",
+        "copied": "Copied",
+        "load": "Load current version",
+        "reloadError": "Could not load. Try again."
+      },
+      "panels": {
+        "add": "Add",
+        "layers": "Layers",
+        "inspector": "Inspector",
+        "canvas": "Page preview"
+      },
+      "readOnly": {
+        "title": "This page uses the new editor",
+        "text": "The current editor cannot open pages in the new format. See the preview below; to edit, the new editor must be enabled.",
+        "back": "Back to pages"
+      },
+      "dataLabels": {
+        "railPlaceholder": "Event rail",
+        "railNoneLive": "No live events right now",
+        "railNoneCategory": "No events for “{category}”",
+        "railNoneFilter": "No events for this filter",
+        "railHidden": "On the published page this rail stays hidden until there are events.",
+        "featuredPlaceholder": "Featured event",
+        "featuredUnavailable": "Event unavailable",
+        "featuredUnavailableText": "It was cancelled or is no longer public. On the published page this block does not appear."
+      },
+      "add": {
+        "tabs": {
+          "widgets": "Widgets",
+          "blocks": "Blocks"
+        },
+        "search": "Search widget",
+        "none": "No widgets found.",
+        "realData": "Live data",
+        "groups": {
+          "structure": "Structure",
+          "basic": "Basic",
+          "content": "Content",
+          "events": "Events"
+        },
+        "reasonRoot": "Only sections go straight on the page. Select a section to add here.",
+        "reasonParent": "{parent} cannot hold {child}.",
+        "slotEmpty": "Drop a widget here"
+      },
+      "blocks": {
+        "ready": "Ready blocks",
+        "mine": "My blocks",
+        "loading": "Loading your blocks…",
+        "error": "Could not load your blocks.",
+        "retry": "Try again",
+        "mineEmpty": "You have not saved any block yet. Select a section, columns or column in Layers and use “Save as block”.",
+        "insert": "Insert {name}",
+        "emptyTitle": "Start with a ready block",
+        "emptyText": "Pick a block below, or add an empty section in the Widgets tab and build with columns and widgets.",
+        "insertOpening": "Insert “Opening”",
+        "save": {
+          "eyebrow": "My blocks",
+          "title": "Save as block",
+          "name": "Block name",
+          "summary": "{type} · {count} elements",
+          "note": "The block shows up in “Add › Blocks” for every page. Each use is a copy: editing the block later does not change pages already using it.",
+          "cancel": "Cancel",
+          "submit": "Save block",
+          "saved": "Block “{name}” saved",
+          "error": "Could not save the block. Try again.",
+          "invalid": "The block has invalid fields.",
+          "forbidden": "You do not have permission to manage blocks."
+        },
+        "emptySection": "Empty section"
+      },
+      "layers": {
+        "title": "Layers",
+        "empty": "The page has no elements yet.",
+        "expand": "Expand",
+        "collapse": "Collapse",
+        "overrides": "Has its own styles for tablet (T) and/or mobile (C)",
+        "error": "Has an error",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "moveOut": "Move out of parent",
+        "saveAsBlock": "Save as block",
+        "hide": "Hide on {bp}",
+        "show": "Show on {bp}"
+      },
+      "inspector": {
+        "empty": {
+          "title": "Nothing selected",
+          "text": "Click an element on the page or in the layers to edit its content, style and behavior."
+        },
+        "inPage": "on the page",
+        "insideOf": "inside {name}",
+        "errorsOne": "1 ERROR",
+        "errorsMany": "{count} ERRORS",
+        "actions": {
+          "selectParent": "Select the parent element",
+          "duplicate": "Duplicate",
+          "delete": "Delete"
+        },
+        "tabs": {
+          "label": "Properties",
+          "content": "Content",
+          "style": "Style",
+          "advanced": "Advanced"
+        },
+        "content": {
+          "text": "Text",
+          "level": "Level",
+          "levelHint": "Only one H1 per page. The level affects SEO and screen readers, not the size.",
+          "textHelp": "**bold**, *italic* and [link](/path). Separate paragraphs with a blank line. No HTML.",
+          "buttonLabel": "Button text",
+          "href": "Link",
+          "hrefHint": "Site path (/events), https:// or the #anchor of a section.",
+          "newTab": "Open in a new tab",
+          "imageUrl": "Image address",
+          "alt": "Alternative text",
+          "videoUrl": "Video link",
+          "videoHint": "A YouTube or Vimeo video, or one from the platform library.",
+          "counterValue": "Number",
+          "counterLabel": "Caption",
+          "item": "Item {n}",
+          "removeItem": "Remove item {n}",
+          "addItem": "Item",
+          "question": "Question {n}",
+          "moveUp": "Move question {n} up",
+          "questionText": "Question",
+          "answerText": "Answer",
+          "addQuestion": "Question",
+          "planName": "Name",
+          "planPrice": "Price",
+          "planDescription": "Description",
+          "planCtaLabel": "Button text",
+          "planCtaHref": "Button link",
+          "railTitle": "Rail title",
+          "railSource": "Event source",
+          "source": {
+            "category": "Category",
+            "organization": "Organization",
+            "artist": "Artist",
+            "live": "Live"
+          },
+          "limit": "Quantity",
+          "railHint": "The page only stores the filter. Events are fetched when a visitor opens the page, with the same rule as the home page: public events only.",
+          "featuredCta": "Button text",
+          "liveEmptyText": "Text when nothing is live",
+          "none": {
+            "section": "Use the Style tab for background, spacing and width.",
+            "columns": "Use the Style tab for the number of columns and the ratio.",
+            "column": "A column holds elements. Drag elements into it.",
+            "group": "Places elements side by side, wrapping automatically.",
+            "divider": "No content. Adjust it in the Style tab.",
+            "spacer": "No content. Adjust it in the Style tab."
+          },
+          "railEmpty": "No event matches this filter today. On the published page the rail stays hidden.",
+          "featuredMissing": "The chosen event is no longer available. It was cancelled or is no longer public."
+        },
+        "style": {
+          "bp": {
+            "desktop": "desktop",
+            "tablet": "tablet",
+            "mobile": "mobile"
+          },
+          "baseNote": "Desktop is the base. Tablet and mobile inherit from it.",
+          "editingNote": "Editing {bp}. What you change applies from this size on.",
+          "overridden": "Set for {bp}",
+          "inherits": "inherits from {from}",
+          "reset": "back to inherited",
+          "resetField": "Back to inherited: {field}",
+          "group": {
+            "aspect": "Aspect ratio",
+            "text": "Text",
+            "button": "Button",
+            "background": "Background",
+            "layout": "Layout",
+            "spacing": "Spacing",
+            "box": "Border and shadow"
+          },
+          "key": {
+            "typo": "Text style",
+            "color": "Color",
+            "bg": "Background",
+            "p": "Inner spacing",
+            "pt": "Top",
+            "pb": "Bottom",
+            "pl": "Left",
+            "pr": "Right",
+            "gap": "Space between items",
+            "my": "Outer spacing",
+            "h": "Height",
+            "radius": "Corners",
+            "border": "Border",
+            "shadow": "Shadow",
+            "align": "Alignment",
+            "valign": "Vertical alignment",
+            "halign": "Item alignment",
+            "maxw": "Text width",
+            "width": "Content width",
+            "minh": "Minimum height",
+            "cols": "Number of columns",
+            "ratio": "Column ratio",
+            "variant": "Variant",
+            "size": "Size",
+            "full": "Full width",
+            "aspect": "Aspect ratio"
+          },
+          "color": {
+            "bg": "Background",
+            "surface": "Surface",
+            "surfaceDark": "Dark surface",
+            "accent": "Dark magenta",
+            "action": "Magenta",
+            "violet": "Violet",
+            "price": "Pink",
+            "textPrimary": "Text",
+            "textSecondary": "Secondary text",
+            "textMuted": "Muted text",
+            "border": "Border"
+          },
+          "gradient": {
+            "glow": "Magenta glow",
+            "duo": "Magenta and violet",
+            "night": "Night"
+          },
+          "imageBackground": "Image with scrim",
+          "imageHint": "The image gets a dark scrim from the system to keep the text readable.",
+          "typo": {
+            "hero": "Hero",
+            "display": "Title 1",
+            "xxl": "Title 2",
+            "xl": "Title 3",
+            "lg": "Lead text",
+            "md": "Body",
+            "sm": "Small body",
+            "label": "Label"
+          },
+          "auto": "Auto",
+          "total": "Full",
+          "opt": {
+            "align": {
+              "start": "Left",
+              "center": "Center",
+              "end": "Right"
+            },
+            "halign": {
+              "start": "Start",
+              "center": "Center",
+              "end": "End"
+            },
+            "valign": {
+              "start": "Top",
+              "center": "Center",
+              "end": "Bottom",
+              "stretch": "Stretch"
+            },
+            "maxw": {
+              "narrow": "Narrow",
+              "prose": "Reading"
+            },
+            "width": {
+              "narrow": "Narrow",
+              "contained": "Default",
+              "wide": "Wide",
+              "full": "Full"
+            },
+            "minh": {
+              "tall": "Tall",
+              "screen": "Screen"
+            },
+            "border": {
+              "none": "No border",
+              "faint": "Subtle",
+              "default": "Default",
+              "strong": "Strong",
+              "accent": "Magenta"
+            },
+            "shadow": {
+              "none": "None",
+              "card": "Card",
+              "glow": "Glow"
+            },
+            "variant": {
+              "primary": "Primary",
+              "secondary": "Outline",
+              "light": "Light",
+              "ghost": "Link"
+            },
+            "size": {
+              "sm": "S",
+              "md": "M",
+              "lg": "L"
+            }
+          }
+        },
+        "advanced": {
+          "visibility": "Visibility per device",
+          "visibleOn": "Visible on {bp}",
+          "anchor": "Anchor",
+          "anchorPlaceholder": "e.g. schedule",
+          "anchorHint": "Allows links like #{anchor}. Lowercase letters, numbers and hyphens.",
+          "layerName": "Layer name",
+          "elementId": "Element ID",
+          "elementIdHint": "Used in the history and in the publish comparison."
+        }
+      },
+      "canvas": {
+        "crumbs": "Selection path",
+        "page": "PAGE",
+        "devices": {
+          "desktop": "Desktop",
+          "tablet": "Tablet",
+          "mobile": "Phone"
+        },
+        "emptyText": "Drag a block from the left onto the page, or add an empty section and build it with columns and widgets.",
+        "dropHere": "Drop here",
+        "slotHint": "or use “Add” in the panel on the left",
+        "dropLabel": "Drop here",
+        "badDrop": "Cannot go here"
+      },
+      "publish": {
+        "eyebrow": "PUBLISH",
+        "title": "Publish version {version}",
+        "description": "The page /p/{slug} will show this draft.",
+        "compared": "Compared with version {version}:",
+        "comparedSince": "Compared with version {version} (live since {since}):",
+        "comparedFirst": "First publication of this page.",
+        "saving": "Saving the draft…",
+        "nothing": "Nothing changed since version {version}.",
+        "nothingFirst": "There is nothing to publish yet.",
+        "counter": {
+          "added": "ADDED",
+          "edited": "EDITED",
+          "removed": "REMOVED",
+          "hidden": "HIDDEN"
+        },
+        "movedOne": "1 element moved.",
+        "movedMany": "{count} elements moved.",
+        "responsiveOne": "Includes phone style adjustments on 1 element.",
+        "responsiveMany": "Includes phone style adjustments on {count} elements.",
+        "dataNote": "Rails and featured events use the events at the moment the visitor opens the page.",
+        "summary": "Change summary",
+        "liveIn": "The page goes live within 1 minute at {host}/p/{slug}.",
+        "cancel": "Cancel",
+        "close": "Close",
+        "confirm": "Publish version {version}",
+        "publishing": "Publishing…",
+        "error": "Could not publish. Try again.",
+        "blockedOne": "Fix 1 error before publishing",
+        "blockedMany": "Fix {count} errors before publishing",
+        "blockedHint": "The draft stays saved. Click an error to go to the element.",
+        "in": "in",
+        "unavailable": "Event unavailable"
+      },
+      "phone": {
+        "title": "Edit on a bigger screen",
+        "text": "The page editor needs at least 1024px of width. On a phone you can see the draft preview.",
+        "preview": "Open preview",
+        "back": "Back to pages",
+        "backToNotice": "Back"
+      },
+      "puck": {
+        "viewport-switch-default": "Switch size",
+        "plugin-components": "Add",
+        "plugin-outline": "Layers",
+        "plugin-fields": "Inspector",
+        "action-selectparent": "Select parent element",
+        "action-drag": "Drag",
+        "action-duplicate": "Duplicate",
+        "action-delete": "Delete"
       }
     },
     "seo": {

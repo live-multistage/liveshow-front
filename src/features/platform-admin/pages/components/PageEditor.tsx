@@ -24,7 +24,7 @@ import styles from './PageEditor.module.scss';
 // The prototype collapses the inspector at 1100px of editor width. Here the editor sits beside the collapsed
 // dashboard rail (64px) plus page padding, so the viewport breakpoint is 1100 + 64 + ~4 = 1170px.
 export const COMPACT_INSPECTOR_QUERY = '(max-width: 1170px)';
-const NO_RESOLVED: PublicPage['resolved'] = { rails: {}, featured: {} };
+const NO_RESOLVED: PublicPage['resolved'] = { rails: {}, featured: {}, live: {} };
 const UNDO_TOAST_MS = 6000;
 const PUBLISHED_TOAST_MS = 6000;
 

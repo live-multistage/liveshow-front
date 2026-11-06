@@ -1,9 +1,9 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { CreatePageRequest, DraftConflict, PageAssetResponse, PageDetail, PageVersionSummary, PublishPageRequest, UpdatePageSettingsRequest } from '@live-show/api-contracts';
+import type { CreatePageRequest, DraftConflict, FeaturedUnavailable, PageAssetResponse, PageDetail, PageVersionSummary, PublishPageRequest, UpdatePageSettingsRequest } from '@live-show/api-contracts';
 import { normalizeError, type AppError } from '@/lib/http/errors';
-import { isDraftConflict, pagesService } from '../services/pages.service';
+import { isDraftConflict, isFeaturedUnavailable, pagesService } from '../services/pages.service';
 import { pageKeys } from '../queries/page.keys';
 
 // Save-draft lives in F4: it needs the raw 409 DRAFT_CONFLICT, which normalizeError would flatten.
@@ -36,7 +36,7 @@ export function useUpdatePageSettingsMutation(id: string) {
   });
 }
 
-export type PublishError = AppError & { conflict?: DraftConflict };
+export type PublishError = AppError & { conflict?: DraftConflict; featuredUnavailable?: FeaturedUnavailable };
 
 async function publish(id: string, body: PublishPageRequest): Promise<PageVersionSummary> {
   try {
@@ -44,6 +44,7 @@ async function publish(id: string, body: PublishPageRequest): Promise<PageVersio
   } catch (err) {
     const appError: PublishError = normalizeError(err);
     if (isDraftConflict(err)) appError.conflict = err.response!.data;
+    if (isFeaturedUnavailable(err)) appError.featuredUnavailable = err.response!.data;
     throw appError;
   }
 }

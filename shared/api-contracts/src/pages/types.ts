@@ -1,3 +1,5 @@
+import type { PageDocumentV2 } from './document-v2';
+
 export const PAGE_SECTION_TYPES = ['hero','audience','text','features','how','media','stats','rail','featured','pricing','faq','final'] as const;
 export type PageSectionType = (typeof PAGE_SECTION_TYPES)[number];
 // Reserved for a future phase: 'ENTITY_TEMPLATE'.
@@ -213,7 +215,7 @@ export interface PageSummary {
 }
 
 export interface PageDetail extends PageSummary {
-  draft: PageDocument;
+  draft: PageDocument | PageDocumentV2;
   draftRevision: number;
   seo: PageSeo;
 }
@@ -231,6 +233,10 @@ export interface PublishDiff {
   removed: number;
   edited: number;
   hidden: number;
+  /** Elements that changed parent or position. Optional on read: v1 responses omit it. */
+  moved?: number;
+  /** Elements with tablet/mobile style added or changed. Optional on read: v1 responses omit it. */
+  responsiveEdits?: number;
 }
 
 export interface PublishDiffResponse extends PublishDiff {
@@ -240,7 +246,7 @@ export interface PublishDiffResponse extends PublishDiff {
 
 export interface PageVersionDocument {
   number: number;
-  document: PageDocument;
+  document: PageDocument | PageDocumentV2;
 }
 
 export interface DraftConflict {
@@ -248,6 +254,11 @@ export interface DraftConflict {
   currentRevision: number;
   updatedBy: { id: string; name: string } | null;
   updatedAt: string;
+}
+
+export interface FeaturedUnavailable {
+  code: 'FEATURED_UNAVAILABLE';
+  elementId: string;
 }
 
 export interface ResolvedRailEvent {
@@ -259,17 +270,24 @@ export interface ResolvedRailEvent {
   isLive: boolean;
 }
 
+/**
+ * Event data per element. Keys are the `props.id` of the `eventRail`, `featuredEvent` and `liveNow` elements.
+ * For a v1 document the back converts first and keys by the converted element's id.
+ */
+export interface PageResolvedData {
+  rails: Record<string, ResolvedRailEvent[]>;
+  featured: Record<string, ResolvedRailEvent | null>;
+  live: Record<string, ResolvedRailEvent[]>;
+}
+
 export interface PublicPage {
   slug: string;
   title: string;
   seo: PageSeo;
-  document: PageDocument;
+  document: PageDocumentV2;
   publishedAt: string;
   version: number;
-  resolved: {
-    rails: Record<string, ResolvedRailEvent[]>;
-    featured: Record<string, ResolvedRailEvent | null>;
-  };
+  resolved: PageResolvedData;
 }
 
 export interface PublicPageListItem {

@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
+import type { PageDocumentV2 } from './document-v2';
 import {
   PAGE_ASSET_LIMITS,
   PAGE_CONTEXT_TYPES,
@@ -8,7 +9,10 @@ import {
   PAGE_SECTION_TYPES,
   pageSlugError,
   slugifyPageTitle,
+  type PageDetail,
+  type PageDocument,
   type PageVersionDocument,
+  type PublicPage,
   type PublishDiffResponse,
 } from './types';
 
@@ -91,7 +95,13 @@ describe('publish diff and version document types', () => {
     };
 
     expect(diff.nextVersionNumber).toBe(4);
-    expect(version.document.sections).toHaveLength(0);
+    expect(version.document).toMatchObject({ sections: [] });
+  });
+
+  it('types the stored document of detail and version responses as v1 or v2, and the public page as v2', () => {
+    expectTypeOf<PageDetail['draft']>().toEqualTypeOf<PageDocument | PageDocumentV2>();
+    expectTypeOf<PageVersionDocument['document']>().toEqualTypeOf<PageDocument | PageDocumentV2>();
+    expectTypeOf<PublicPage['document']>().toEqualTypeOf<PageDocumentV2>();
   });
 });
 

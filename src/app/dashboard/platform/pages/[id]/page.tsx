@@ -5,7 +5,7 @@ import { PageEditorPage } from '@/features/platform-admin/pages/components/PageE
 export const metadata: Metadata = { title: 'Plataforma — Editor de página' };
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  await requireFeatureFlag('page_builder');
+  const flags = await requireFeatureFlag('page_builder');
   const { id } = await params;
-  return <PageEditorPage pageId={id} />;
+  return <PageEditorPage pageId={id} v2={flags.page_builder_v2 === true} />;
 }

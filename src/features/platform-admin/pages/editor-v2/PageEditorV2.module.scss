@@ -1,0 +1,371 @@
+@use 'sass:map';
+@use 'sass:string';
+@use '../../../../styles/dashboard-forms' as *;
+
+// Fixed side panels of the prototype; no layout token exists for them.
+$panel-left: 300px;
+$panel-right: 340px;
+$stage-min-height: 440px;
+
+// Three columns: add/layers, canvas, inspector. V2-U2/U3 fill the side columns.
+.body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: $panel-left minmax(0, 1fr) $panel-right;
+  background: $bg;
+}
+
+.left,
+.right {
+  min-height: 0;
+  overflow-y: auto;
+  background: $bg;
+}
+.left { border-right: 1px solid $border-hairline; }
+.right { border-left: 1px solid $border-hairline; }
+
+// Selection blue of the prototype (--sel): hover on the canvas. Not a brand token.
+$hover-blue: $selection-blue;
+$plus-icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23#{string.slice('#{$text-muted}', 2)}' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E";
+
+// Puck's own look (its default greys and dashes) is replaced through the variables it exposes.
+.body {
+  --puck-slot-color-bg: transparent;
+  --puck-slot-color-border: #{$dropzone-border};
+  --puck-slot-border-style: dashed;
+  --puck-slot-border-width: 1px;
+  --puck-slot-component-border-width: 2px;
+  --puck-slot-component-color-border-selected: #{$action};
+  --puck-slot-component-color-overlay-border: #{$hover-blue};
+  --puck-slot-component-color-overlay: transparent;
+  --puck-slot-component-color-placeholder: #{$action};
+  --puck-color-line-placeholder: #{$action};
+  --puck-line-placeholder-width: 4px;
+}
+
+// Canvas column: a bar (selection trail + size) over the scrollable page.
+.canvas {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: $canvas-bg;
+}
+
+.canvasBar {
+  flex: none;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 map.get($space, headerGap);
+  border-bottom: 1px solid $hairline;
+  font-family: $mono;
+  font-size: 10.5px;
+  color: $text-muted;
+}
+.canvasSize { flex: none; letter-spacing: 0.04em; }
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: map.get($space, xs);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  button {
+    border: 0;
+    border-radius: 4px;
+    background: none;
+    padding: 2px map.get($space, xs);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    &:hover { color: $text-primary; background: rgba(255, 255, 255, 0.05); }
+    &:focus-visible { outline: 2px solid $action; outline-offset: 1px; }
+  }
+}
+.crumbCurrent { color: $accent-bright !important; }
+
+.canvasScroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: map.get($space, xl);
+}
+
+.stage {
+  width: 100%;
+}
+
+// The page surface: the scaled size of the breakpoint, with a device ring. Everything inside is the public renderers.
+.stagePage {
+  position: relative;
+  margin: 0 auto;
+  min-height: $stage-min-height;
+  background: $bg;
+  border-radius: map.get($radius, sm);
+  box-shadow: 0 0 0 1px $bg-hover;
+  &[data-device='tablet'] { border-radius: 14px; }
+  &[data-device='mobile'] { border-radius: 22px; }
+
+  // The real-width page, scaled to the surface (the surface itself is never scaled: Puck's overlays are drawn in screen px).
+  .canvasRoot {
+    width: var(--canvas-width);
+    transform: scale(var(--canvas-scale, 1));
+    transform-origin: top left;
+  }
+
+  // Puck wraps the children of a slot in one div, which would become the only grid/flex item of its parent.
+  // It has to keep its box (it is the drop target), so it takes over the parent's layout instead.
+  [data-puck-dropzone] {
+    display: inherit;
+    flex-direction: inherit;
+    flex-wrap: inherit;
+    align-items: inherit;
+    justify-content: inherit;
+    gap: inherit;
+    grid-template-columns: inherit;
+    grid-column: 1 / -1;
+  }
+
+  // An empty column/section: tell the author where to drop (icon, title and hint; the section says "Seção vazia").
+  [data-puck-dropzone]:empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 84px;
+    padding: map.get($space, md);
+    border-radius: 8px;
+    text-align: center;
+    &::before {
+      content: var(--slot-empty-label);
+      padding-top: map.get($space, xl);
+      background: url($plus-icon) no-repeat top center;
+      color: $text-secondary;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+    &::after {
+      content: var(--slot-empty-hint);
+      color: $text-muted;
+      font-size: 12px;
+    }
+  }
+  [data-slot='section'] > [data-puck-dropzone]:empty::before { content: var(--slot-empty-section-label); }
+
+  // The page root, when empty, is explained by the empty-page panel (CanvasEmpty) laid over it: no hint of its own, but room for the panel.
+  [data-puck-dropzone$='default-zone']:empty {
+    min-height: $stage-min-height;
+    border: 0;
+    outline: none;
+    &::before,
+    &::after { content: none; }
+  }
+
+  // Areas Puck outlines on its own (hover, selection): quiet, except while dragging over one that takes the element.
+  &.stagePage [class*='DropZone--isAreaSelected'],
+  &.stagePage [class*='DropZone--hoveringOverArea'] {
+    outline: none;
+    background: none;
+  }
+
+  // Hover: dashed blue. Selection: solid magenta (the variables above).
+  [class*='DraggableComponent--hover']:not([class*='isSelected']) > [class*='overlayWrapper'] > [class*='DraggableComponent-overlay'] {
+    outline-width: 1px;
+    outline-style: dashed;
+  }
+
+  // The tag sits on the left edge of the element, as in the prototype (Puck anchors it to the right).
+  [class*='DraggableComponent-actions'] {
+    left: 0 !important;
+    right: auto !important;
+    transform-origin: left top;
+  }
+
+  // Drop line with its label; a zone that cannot take the dragged element turns red on hover.
+  [class*='DropZone-linePlaceholder']::after {
+    content: var(--slot-drop-label);
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    zoom: var(--canvas-iz, 1);
+    transform: translateX(-50%);
+    padding: 2px map.get($space, sm);
+    border-radius: 4px;
+    background: $action;
+    color: $ink;
+    font-family: $mono;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+}
+
+// Drag in progress: zones that refuse the dragged type (not "enabled" for it) say so under the pointer.
+:global([data-puck-entry][data-puck-dragging]) .stagePage {
+  [class*='DropZone--isAreaSelected'],
+  [class*='DropZone--hoveringOverArea'] {
+    outline: 2px dashed $action;
+    outline-offset: -2px;
+    background: rgba(255, 46, 158, 0.04);
+  }
+}
+
+:global([data-puck-entry][data-puck-dragging]) .stagePage [data-puck-dropzone]:not([class*='isEnabled']):hover {
+  outline: 2px dashed $error;
+  outline-offset: -2px;
+  background: rgba(248, 113, 113, 0.06);
+  &:not(:empty)::after {
+    content: var(--slot-bad-label);
+    position: absolute;
+    top: map.get($space, sm);
+    right: map.get($space, sm);
+    zoom: var(--canvas-iz, 1);
+    padding: 6px 10px;
+    border: 1px solid rgba(248, 113, 113, 0.5);
+    border-radius: map.get($radius, sm);
+    background: #2a0f12;
+    color: #fecaca;
+    font-size: 12px;
+    z-index: 9;
+  }
+  &:empty::before { content: var(--slot-bad-label); color: $error; }
+}
+
+// Selection tag (label + select parent / duplicate / delete). Drawn by Puck outside the scaled page, so it keeps its size.
+.actionBar {
+  --puck-actionbar-color-bg: #18181b;
+  --puck-actionbar-color-separator: #27272a;
+  --puck-actionbar-font-size: 10px;
+  --puck-actionbar-radius: 6px;
+  --puck-actionbar-opacity-text: 1;
+  --puck-actionbar-color-action-hover: #{$action};
+  [class*='ActionBar-label'] {
+    margin: 0;
+    padding: map.get($space, xs) map.get($space, sm);
+    border-radius: 4px;
+    background: $action;
+    color: $ink;
+    font-family: $mono;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+// Empty page: drawn over the page root, which stays mounted so a drop still lands on it.
+.emptyPage {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: map.get($space, headerGap);
+  padding: map.get($space, xxxl) map.get($space, xxl);
+  text-align: center;
+  pointer-events: none;
+  button { pointer-events: auto; }
+  h2 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+  p { margin: 0; max-width: 46ch; color: $text-secondary; font-size: 14px; line-height: 1.5; }
+}
+.emptyIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: $accent-tint;
+  color: $action;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  svg { width: 22px; height: 22px; }
+}
+.emptyDrop {
+  width: 100%;
+  max-width: 640px;
+  min-height: 84px;
+  margin-top: 10px;
+  border: 1px dashed $dropzone-border;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: $text-muted;
+  b { color: $text-secondary; font-size: 12.5px; }
+  svg { width: 16px; height: 16px; }
+}
+.emptyActions { display: flex; gap: map.get($space, sm); margin-top: 6px; svg { width: 14px; height: 14px; } }
+
+// Below 1280px the inspector is a drawer over the canvas, shown while something is selected.
+.narrow {
+  grid-template-columns: $panel-left minmax(0, 1fr);
+}
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  width: $panel-right;
+  max-width: 100%;
+  box-shadow: -24px 0 48px -24px rgba(0, 0, 0, 0.7);
+  &[data-open='false'] { display: none; }
+}
+
+// Conflict: editing is blocked, the page stays readable.
+.locked {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.panelPlaceholder {
+  padding: map.get($space, lg);
+  font-family: $mono;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.info {
+  background: $violet-tint;
+  border-bottom: 1px solid $violet-tint-border;
+  color: #ddd6fe;
+}
+
+.bannerActions {
+  display: flex;
+  align-items: center;
+  gap: map.get($space, sm);
+}
+
+.readOnlyPage {
+  max-width: 1280px;
+  margin: 0 auto;
+  border: 1px solid $border-hairline;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+// v2 on a phone: the draft, read-only.
+.phonePreview { min-height: 100vh; background: $bg; }
+.phonePreviewBar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: map.get($space, sm);
+  padding: map.get($space, sm) map.get($space, md);
+  background: $bg;
+  border-bottom: 1px solid $hairline;
+  b { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}

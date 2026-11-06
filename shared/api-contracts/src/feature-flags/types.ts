@@ -19,6 +19,7 @@ export type FeatureFlagKey =
   | 'mailing'
   | 'blueprints'
   | 'page_builder'
+  | 'page_builder_v2'
   | 'advertiser_platform'
   | 'tracking';
 
@@ -63,6 +64,8 @@ export const DEFAULT_FEATURE_FLAGS = {
   blueprints: false,
   // Ships off — public custom pages (/p/<slug>) builder, not yet ready for org rollout.
   page_builder: false,
+  // Ships off — Puck-based page editor v2; the v1 editor stays under `page_builder`.
+  page_builder_v2: false,
   // Ships on — seeded ON; kill switch for the advertiser platform (/be-advertiser).
   advertiser_platform: true,
   // Ships off — first-party event tracking platform (ingest, plan, reports).

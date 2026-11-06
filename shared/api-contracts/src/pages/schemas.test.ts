@@ -12,10 +12,9 @@ import {
   pageSectionIssues,
   sectionPropsSchemas,
   publishPageSchema,
-  saveDraftSchema,
   updatePageSettingsSchema,
-  upgradePageDocument,
 } from './schemas';
+import { saveDraftSchema } from './schemas-v2';
 
 const U = (n: number) => `${String(n).padStart(8, '0')}-1111-4111-8111-111111111111`;
 const EV = '99999999-9999-4999-8999-999999999999';
@@ -114,9 +113,11 @@ describe('request schemas', () => {
     expect(createPageSchema.safeParse({ title: 'A', slug: 'a', duplicateFromPageId: U(1) }).success).toBe(true);
   });
 
-  it('saveDraftSchema / publishPageSchema', () => {
+  it('PUT /draft accepts a valid v1 draft and rejects an invalid one / publishPageSchema', () => {
+    // PUT /draft takes v1 or v2 (full v2 coverage in schemas-v2.test.ts).
     expect(saveDraftSchema.safeParse({ document: doc(), baseRevision: 0 }).success).toBe(true);
-    expect(saveDraftSchema.safeParse({ document: doc(), baseRevision: -1 }).success).toBe(false);
+    expect(saveDraftSchema.safeParse({ document: doc(sec(1, 'nope', {})), baseRevision: 0 }).success).toBe(false);
+    expect(saveDraftSchema.safeParse({ document: doc(sec(1, 'hero', 'x')), baseRevision: 0 }).success).toBe(false);
     expect(publishPageSchema.safeParse({ changeSummary: ' ', baseRevision: 1 }).success).toBe(false);
     expect(publishPageSchema.safeParse({ changeSummary: x(141), baseRevision: 1 }).success).toBe(false);
     expect(publishPageSchema.safeParse({ changeSummary: 'Novo hero', baseRevision: 1 }).success).toBe(true);
@@ -147,16 +148,6 @@ describe('braces and context', () => {
   });
   it('createEmptyDocument is a valid document', () => {
     expect(pageDocumentSchema.safeParse(createEmptyDocument()).success).toBe(true);
-  });
-});
-
-describe('upgradePageDocument', () => {
-  it('returns v1 as is and rejects other versions', () => {
-    const v1 = doc();
-    expect(upgradePageDocument(v1)).toBe(v1);
-    expect(upgradePageDocument({ schemaVersion: 1, sections: [] })).toEqual({ schemaVersion: 1, context: { type: 'none' }, sections: [] });
-    expect(() => upgradePageDocument({ schemaVersion: 2, sections: [] })).toThrow('Unsupported page schemaVersion');
-    expect(() => upgradePageDocument(null)).toThrow('Unsupported page schemaVersion');
   });
 });
 

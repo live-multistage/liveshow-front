@@ -262,12 +262,6 @@ export const pageDraftSchema = object({
     ),
   );
 
-export function upgradePageDocument(raw: unknown): unknown {
-  const doc = raw as { schemaVersion?: unknown; context?: unknown } | null;
-  if (doc?.schemaVersion === 1) return doc.context === undefined ? { ...doc, context: { type: 'none' } } : raw;
-  throw new Error('Unsupported page schemaVersion');
-}
-
 const title = z.string({ required_error: REQUIRED }).trim().min(1, REQUIRED).max(L.titleMax, `Máximo de ${L.titleMax} caracteres.`).refine(noBraces, RESERVED_BRACES);
 const slug = z.string({ required_error: REQUIRED }).superRefine((value, ctx) => {
   const error = pageSlugError(value);
@@ -277,7 +271,6 @@ const slug = z.string({ required_error: REQUIRED }).superRefine((value, ctx) => 
 const baseRevision = z.number().int().min(0);
 
 export const createPageSchema = object({ title, slug, duplicateFromPageId: uuid.optional() });
-export const saveDraftSchema = object({ document: pageDraftSchema, baseRevision });
 export const publishPageSchema = object({
   changeSummary: z.string({ required_error: REQUIRED }).trim().min(1, REQUIRED).max(L.changeSummaryMax, `Máximo de ${L.changeSummaryMax} caracteres.`).refine(noBraces, RESERVED_BRACES),
   baseRevision,
@@ -294,7 +287,6 @@ export const updatePageSettingsSchema = object({
 }).refine((v) => Object.values(v).some((field) => field !== undefined), { message: 'Informe ao menos um campo.' });
 
 export type CreatePageRequest = z.infer<typeof createPageSchema>;
-export type SaveDraftRequest = z.infer<typeof saveDraftSchema>;
 export type PublishPageRequest = z.infer<typeof publishPageSchema>;
 export type UpdatePageSettingsRequest = z.infer<typeof updatePageSettingsSchema>;
 
