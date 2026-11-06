@@ -3298,6 +3298,100 @@
         "loadError": "Não foi possível carregar o histórico."
       }
     },
+    "pageEditor": {
+      "backToList": "Páginas",
+      "status": {
+        "draft": "RASCUNHO",
+        "archived": "ARQUIVADA",
+        "unpublished": "ALTERAÇÕES NÃO PUBLICADAS",
+        "published": "PUBLICADA · V{version}",
+        "unpublishedHint": "O rascunho difere da versão no ar"
+      },
+      "save": {
+        "saving": "Salvando…",
+        "saved": "Rascunho salvo às {time}",
+        "invalid": "Corrija os campos para salvar",
+        "error": "Não foi possível salvar",
+        "conflict": "Rascunho desatualizado",
+        "blocked": "Não foi possível salvar"
+      },
+      "banner": {
+        "error": "Não foi possível salvar o rascunho. Tentando de novo…",
+        "retry": "Tentar agora",
+        "conflict": "{name} salvou este rascunho às {time} enquanto você editava. Recarregue para ver a versão dela; suas mudanças não salvas serão descartadas.",
+        "conflictAnonymous": "Outro admin salvou este rascunho às {time} enquanto você editava. Recarregue para ver a versão dele; suas mudanças não salvas serão descartadas.",
+        "reload": "Recarregar"
+      },
+      "topbar": {
+        "deviceGroup": "Dispositivo da prévia",
+        "desktop": "Desktop",
+        "mobile": "Celular",
+        "history": "Histórico",
+        "settings": "Configurações",
+        "preview": "Prévia em nova aba",
+        "publish": "Publicar"
+      },
+      "tree": {
+        "title": "SEÇÕES · {count}",
+        "hiddenOne": "{count} OCULTA",
+        "hiddenMany": "{count} OCULTAS",
+        "aria": "Seções da página",
+        "dragHandle": "Arraste para reordenar",
+        "hiddenPrefix": "Oculta · ",
+        "hide": "Ocultar seção {name}",
+        "show": "Mostrar seção {name}",
+        "moveUp": "Mover {name} para cima",
+        "moveDown": "Mover {name} para baixo",
+        "duplicate": "Duplicar seção {name}",
+        "remove": "Remover seção {name}",
+        "add": "Adicionar seção",
+        "empty": "Nenhuma seção ainda.",
+        "siteHeader": "Cabeçalho do site",
+        "siteFooter": "Rodapé do site",
+        "global": "GLOBAL",
+        "removed": "Seção removida",
+        "undo": "Desfazer"
+      },
+      "railSource": {
+        "category": "Categoria",
+        "organization": "Organização",
+        "artist": "Artista",
+        "live": "Ao vivo agora"
+      },
+      "sectionTypes": {
+        "hero": "Hero",
+        "audience": "Faixa de público",
+        "text": "Texto",
+        "features": "Recursos",
+        "how": "Como funciona",
+        "media": "Imagem ou vídeo",
+        "stats": "Números",
+        "rail": "Trilho de eventos",
+        "featured": "Evento em destaque",
+        "pricing": "Planos e preços",
+        "faq": "Perguntas frequentes",
+        "final": "Chamada final"
+      },
+      "inspector": {
+        "pageTitle": "PÁGINA",
+        "emptyHint": "Selecione uma seção na lista ou na prévia para editar.",
+        "close": "Fechar"
+      },
+      "notFound": {
+        "title": "Página não encontrada",
+        "text": "Ela pode ter sido removida ou o endereço está incorreto.",
+        "back": "Voltar para Páginas"
+      },
+      "loadError": {
+        "title": "Não foi possível carregar a página",
+        "retry": "Tentar de novo"
+      },
+      "unsupported": {
+        "title": "Edite páginas num computador",
+        "text": "O construtor precisa de uma tela maior. A lista e a prévia continuam disponíveis aqui.",
+        "back": "Voltar para Páginas"
+      }
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "Como as páginas públicas aparecem no Google e nas redes. Mudanças entram no ar em segundos.",

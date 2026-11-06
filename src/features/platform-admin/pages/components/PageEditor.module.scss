@@ -1,0 +1,278 @@
+@use '../../../../styles/dashboard-forms' as *;
+
+// Fills the dashboard viewport (main has 2rem padding); the columns scroll on their own.
+.editor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 4rem);
+  min-height: 480px;
+  overflow: hidden;
+  border: 1px solid $hairline;
+  border-radius: 12px;
+  background: $bg;
+}
+
+.topbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 60px;
+  padding: 0 18px;
+  border-bottom: 1px solid $border-hairline;
+  background: $surface-dark;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: $mono;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $text-secondary;
+  text-decoration: none;
+
+  svg { width: 14px; height: 14px; }
+  &:hover { color: $text-primary; }
+  &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
+}
+
+.vsep {
+  width: 1px;
+  height: 26px;
+  flex: none;
+  background: $border-hairline;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 0 1 240px;
+
+  b {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.path {
+  font-family: $mono;
+  font-size: 11.5px;
+  color: $text-secondary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pill {
+  @include pill;
+  flex: none;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.pill_published { color: $success-light; background: $success-bg; border-color: rgba(74, 222, 128, 0.35); }
+.pill_draft { color: #c4b5fd; background: $violet-tint; border-color: $violet-tint-border; }
+.pill_archived { color: $text-secondary; background: rgba(255, 255, 255, 0.05); border-color: $border-hairline; }
+.pill_unpublished { color: $warning; background: rgba(251, 191, 36, 0.08); border-color: rgba(251, 191, 36, 0.35); }
+
+.saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: $mono;
+  font-size: 10.5px;
+  color: $text-secondary;
+  white-space: nowrap;
+
+  svg { width: 12px; height: 12px; }
+}
+
+.bad { color: $error; }
+
+.spinner {
+  width: 10px;
+  height: 10px;
+  border: 2px solid $border;
+  border-top-color: $text-primary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.topbarActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+
+  svg { width: 14px; height: 14px; }
+}
+
+.segment {
+  display: inline-flex;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid $border;
+  border-radius: 8px;
+}
+
+.label {
+  @media (max-width: 1500px) { display: none; }
+}
+
+.banner {
+  flex: none;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 11px 18px;
+  font-size: 13.5px;
+
+  svg { width: 15px; height: 15px; flex: none; }
+}
+
+.bannerText { flex: 1; min-width: 240px; }
+.warn { background: rgba(251, 191, 36, 0.07); border-bottom: 1px solid rgba(251, 191, 36, 0.3); color: #fde68a; }
+.err { background: $error-bg; border-bottom: 1px solid rgba(248, 113, 113, 0.3); color: #fecaca; }
+
+// Left tree + preview; the inspector column is added on wide screens, otherwise it becomes a drawer.
+.body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+}
+
+.withInspector { grid-template-columns: 300px minmax(0, 1fr) 340px; }
+
+.column {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: $bg;
+}
+
+.left { border-right: 1px solid $border-hairline; }
+.right { border-left: 1px solid $border-hairline; }
+
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  width: 360px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid $border;
+  background: $bg;
+  box-shadow: -30px 0 60px -30px rgba(0, 0, 0, 0.8);
+}
+
+.drawerClose {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  color: $text-secondary;
+}
+
+.inspector { display: flex; flex-direction: column; min-height: 0; }
+
+.inspectorHeader {
+  padding: 14px 16px;
+  border-bottom: 1px solid $border-hairline;
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $text-muted;
+}
+
+.inspectorBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+
+  b { font-size: 15px; }
+}
+
+.hint {
+  margin: 8px 0 0;
+  padding: 22px 16px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.45;
+  color: $text-secondary;
+  border: 1px dashed $dropzone-border;
+  border-radius: 10px;
+}
+
+.toast {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  z-index: 60;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid $border;
+  background: #18181b;
+  font-size: 13.5px;
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.7);
+}
+
+// Loading skeleton + full-page states
+.skelColumn { gap: 8px; padding: 12px; }
+.skelTitle { width: 240px; height: 28px; }
+.skelRow { height: 42px; border-radius: 10px; }
+.skelHero { height: 260px; border-radius: 12px; }
+.skelField { height: 38px; border-radius: 8px; }
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 420px;
+  margin: 64px auto;
+  padding: 40px 20px;
+  text-align: center;
+  @include card;
+}
+
+.stateIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: $action;
+  background: $accent-tint;
+  border: 1px solid $accent-tint-border;
+
+  svg { width: 18px; height: 18px; }
+}
+
+.stateTitle { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.stateText { margin: 0; font-size: 14px; line-height: 1.5; color: $text-secondary; }

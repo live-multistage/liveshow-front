@@ -3298,6 +3298,100 @@
         "loadError": "No se pudo cargar el historial."
       }
     },
+    "pageEditor": {
+      "backToList": "Páginas",
+      "status": {
+        "draft": "BORRADOR",
+        "archived": "ARCHIVADA",
+        "unpublished": "CAMBIOS SIN PUBLICAR",
+        "published": "PUBLICADA · V{version}",
+        "unpublishedHint": "El borrador difiere de la versión publicada"
+      },
+      "save": {
+        "saving": "Guardando…",
+        "saved": "Borrador guardado a las {time}",
+        "invalid": "Corrige los campos para guardar",
+        "error": "No se pudo guardar",
+        "conflict": "Borrador desactualizado",
+        "blocked": "No se pudo guardar"
+      },
+      "banner": {
+        "error": "No se pudo guardar el borrador. Reintentando…",
+        "retry": "Reintentar ahora",
+        "conflict": "{name} guardó este borrador a las {time} mientras editabas. Recarga para ver su versión; tus cambios sin guardar se descartarán.",
+        "conflictAnonymous": "Otro admin guardó este borrador a las {time} mientras editabas. Recarga para ver su versión; tus cambios sin guardar se descartarán.",
+        "reload": "Recargar"
+      },
+      "topbar": {
+        "deviceGroup": "Dispositivo de la vista previa",
+        "desktop": "Escritorio",
+        "mobile": "Celular",
+        "history": "Historial",
+        "settings": "Configuración",
+        "preview": "Vista previa en pestaña nueva",
+        "publish": "Publicar"
+      },
+      "tree": {
+        "title": "SECCIONES · {count}",
+        "hiddenOne": "{count} OCULTA",
+        "hiddenMany": "{count} OCULTAS",
+        "aria": "Secciones de la página",
+        "dragHandle": "Arrastra para reordenar",
+        "hiddenPrefix": "Oculta · ",
+        "hide": "Ocultar sección {name}",
+        "show": "Mostrar sección {name}",
+        "moveUp": "Mover {name} hacia arriba",
+        "moveDown": "Mover {name} hacia abajo",
+        "duplicate": "Duplicar sección {name}",
+        "remove": "Quitar sección {name}",
+        "add": "Agregar sección",
+        "empty": "Aún no hay secciones.",
+        "siteHeader": "Encabezado del sitio",
+        "siteFooter": "Pie del sitio",
+        "global": "GLOBAL",
+        "removed": "Sección quitada",
+        "undo": "Deshacer"
+      },
+      "railSource": {
+        "category": "Categoría",
+        "organization": "Organización",
+        "artist": "Artista",
+        "live": "En vivo ahora"
+      },
+      "sectionTypes": {
+        "hero": "Hero",
+        "audience": "Franja de audiencia",
+        "text": "Texto",
+        "features": "Recursos",
+        "how": "Cómo funciona",
+        "media": "Imagen o video",
+        "stats": "Números",
+        "rail": "Carrusel de eventos",
+        "featured": "Evento destacado",
+        "pricing": "Planes y precios",
+        "faq": "Preguntas frecuentes",
+        "final": "Llamada final"
+      },
+      "inspector": {
+        "pageTitle": "PÁGINA",
+        "emptyHint": "Selecciona una sección en la lista o en la vista previa para editarla.",
+        "close": "Cerrar"
+      },
+      "notFound": {
+        "title": "Página no encontrada",
+        "text": "Puede haber sido eliminada o la dirección es incorrecta.",
+        "back": "Volver a Páginas"
+      },
+      "loadError": {
+        "title": "No se pudo cargar la página",
+        "retry": "Intentar de nuevo"
+      },
+      "unsupported": {
+        "title": "Edita páginas en un computador",
+        "text": "El constructor necesita una pantalla más grande. La lista y la vista previa siguen disponibles aquí.",
+        "back": "Volver a Páginas"
+      }
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "Cómo aparecen las páginas públicas en Google y en las redes. Los cambios se publican en segundos.",

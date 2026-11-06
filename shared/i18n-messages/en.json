@@ -3298,6 +3298,100 @@
         "loadError": "Could not load the history."
       }
     },
+    "pageEditor": {
+      "backToList": "Pages",
+      "status": {
+        "draft": "DRAFT",
+        "archived": "ARCHIVED",
+        "unpublished": "UNPUBLISHED CHANGES",
+        "published": "PUBLISHED · V{version}",
+        "unpublishedHint": "The draft differs from the live version"
+      },
+      "save": {
+        "saving": "Saving…",
+        "saved": "Draft saved at {time}",
+        "invalid": "Fix the fields to save",
+        "error": "Could not save",
+        "conflict": "Draft out of date",
+        "blocked": "Could not save"
+      },
+      "banner": {
+        "error": "Could not save the draft. Trying again…",
+        "retry": "Try now",
+        "conflict": "{name} saved this draft at {time} while you were editing. Reload to see their version; your unsaved changes will be discarded.",
+        "conflictAnonymous": "Another admin saved this draft at {time} while you were editing. Reload to see their version; your unsaved changes will be discarded.",
+        "reload": "Reload"
+      },
+      "topbar": {
+        "deviceGroup": "Preview device",
+        "desktop": "Desktop",
+        "mobile": "Phone",
+        "history": "History",
+        "settings": "Settings",
+        "preview": "Preview in new tab",
+        "publish": "Publish"
+      },
+      "tree": {
+        "title": "SECTIONS · {count}",
+        "hiddenOne": "{count} HIDDEN",
+        "hiddenMany": "{count} HIDDEN",
+        "aria": "Page sections",
+        "dragHandle": "Drag to reorder",
+        "hiddenPrefix": "Hidden · ",
+        "hide": "Hide section {name}",
+        "show": "Show section {name}",
+        "moveUp": "Move {name} up",
+        "moveDown": "Move {name} down",
+        "duplicate": "Duplicate section {name}",
+        "remove": "Remove section {name}",
+        "add": "Add section",
+        "empty": "No sections yet.",
+        "siteHeader": "Site header",
+        "siteFooter": "Site footer",
+        "global": "GLOBAL",
+        "removed": "Section removed",
+        "undo": "Undo"
+      },
+      "railSource": {
+        "category": "Category",
+        "organization": "Organization",
+        "artist": "Artist",
+        "live": "Live now"
+      },
+      "sectionTypes": {
+        "hero": "Hero",
+        "audience": "Audience strip",
+        "text": "Text",
+        "features": "Features",
+        "how": "How it works",
+        "media": "Image or video",
+        "stats": "Numbers",
+        "rail": "Event rail",
+        "featured": "Featured event",
+        "pricing": "Plans and pricing",
+        "faq": "FAQ",
+        "final": "Final call to action"
+      },
+      "inspector": {
+        "pageTitle": "PAGE",
+        "emptyHint": "Select a section in the list or in the preview to edit it.",
+        "close": "Close"
+      },
+      "notFound": {
+        "title": "Page not found",
+        "text": "It may have been removed or the address is wrong.",
+        "back": "Back to Pages"
+      },
+      "loadError": {
+        "title": "Could not load the page",
+        "retry": "Try again"
+      },
+      "unsupported": {
+        "title": "Edit pages on a computer",
+        "text": "The builder needs a larger screen. The list and the preview are still available here.",
+        "back": "Back to Pages"
+      }
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "How public pages appear on Google and social networks. Changes go live within seconds.",
