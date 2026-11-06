@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { fetchFeatureFlags } from '@/features/feature-flags';
-import { fetchPublicPage } from '@/features/pages-public/queries/get-public-page.server';
+import { loadPublishedPage } from '@/features/pages-public/queries/load-published-page.server';
 import { PageSections } from '@/features/pages-public/sections';
 import styles from './page.module.scss';
 
@@ -12,15 +11,9 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-// Flag off is indistinguishable from a missing page, so both 404 and neither is indexed.
-async function loadPage(slug: string) {
-  const [flags, page] = await Promise.all([fetchFeatureFlags(), fetchPublicPage(slug)]);
-  return flags.page_builder ? page : null;
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const page = await loadPage(slug);
+  const page = await loadPublishedPage(slug);
   if (!page) return { title: 'Página', ...NOINDEX };
 
   const title = page.seo.title || page.title;
@@ -30,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: url },
-    // Without seo.imageUrl, `images` stays unset so Next serves the (public) opengraph-image default.
+    // Without seo.imageUrl, `images` stays unset so the co-located opengraph-image.tsx card is used.
     openGraph: { type: 'website', url, title, description, ...(page.seo.imageUrl ? { images: [page.seo.imageUrl] } : {}) },
     ...(page.seo.noindex ? NOINDEX : {}),
   };
@@ -38,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PublicPageRoute({ params }: Props) {
   const { slug } = await params;
-  const page = await loadPage(slug);
+  const page = await loadPublishedPage(slug);
   if (!page) notFound();
   return (
     <main>
