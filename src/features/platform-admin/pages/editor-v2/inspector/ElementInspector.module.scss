@@ -12,8 +12,8 @@ $colors: (
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 48px 24px;
+  gap: map.get($space, sm);
+  padding: map.get($space, xxxl) map.get($space, xl);
   text-align: center;
   font-size: 13px;
   color: $text-secondary;
@@ -24,18 +24,18 @@ $colors: (
 .head {
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 14px 12px 14px 16px;
+  gap: map.get($space, xs);
+  padding: map.get($space, lg) map.get($space, md) map.get($space, lg) map.get($space, lg);
   border-bottom: 1px solid $border-hairline;
   button { width: 28px; height: 28px; color: $text-secondary; svg { width: 14px; height: 14px; } }
 }
 .title { flex: 1; min-width: 0; display: flex; flex-direction: column; b { font-size: 14px; } small { font-size: 11.5px; color: $text-muted; } }
 
 .pill {
-  margin-right: 6px;
-  padding: 2px 8px;
-  border: 1px solid rgba(248, 113, 113, 0.4);
-  border-radius: 999px;
+  margin-right: map.get($space, sm);
+  padding: map.get($space, xs) map.get($space, sm);
+  border: 1px solid $error;
+  border-radius: map.get($radius, full);
   font-family: $mono;
   font-size: 10px;
   font-weight: 700;
@@ -62,24 +62,24 @@ $colors: (
   .on { color: $text-primary; border-bottom-color: $action; }
 }
 
-.body { display: flex; flex-direction: column; gap: 16px; min-width: 0; padding: 16px; }
+.body { display: flex; flex-direction: column; gap: map.get($space, lg); min-width: 0; padding: map.get($space, lg); }
 
-.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.flabel { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; font-weight: 600; }
+.field { display: flex; flex-direction: column; gap: map.get($space, sm); min-width: 0; }
+.flabel { display: flex; align-items: center; justify-content: space-between; gap: map.get($space, sm); font-size: 12.5px; font-weight: 600; }
 .hint { margin: 0; font-size: 12px; line-height: 1.45; color: $text-secondary; }
 .error { margin: 0; font-size: 12px; color: $error; }
 .select {
   height: 38px;
-  padding: 0 10px;
+  padding: 0 map.get($space, md);
   border: 1px solid $border;
-  border-radius: 8px;
+  border-radius: map.get($radius, md);
   background: $surface;
   color: $text-primary;
   font-size: 13.5px;
 }
-.switchRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; }
+.switchRow { display: flex; align-items: center; justify-content: space-between; gap: map.get($space, md); font-size: 13px; }
 
-.listItem { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid $border-hairline; border-radius: 8px; }
+.listItem { display: flex; flex-direction: column; gap: map.get($space, sm); padding: map.get($space, md); border: 1px solid $border-hairline; border-radius: map.get($radius, md); }
 .listHead {
   display: flex;
   align-items: center;
@@ -96,22 +96,22 @@ $colors: (
 .bpNote {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
+  gap: map.get($space, sm);
+  padding: map.get($space, sm) map.get($space, md);
   border: 1px solid $border;
-  border-radius: 8px;
+  border-radius: map.get($radius, md);
   font-size: 12px;
   color: $text-secondary;
   svg { width: 14px; height: 14px; flex: none; }
 }
-.bpNoteOverride { border-color: rgba(255, 46, 158, 0.4); background: rgba(255, 46, 158, 0.08); color: $price; }
+.bpNoteOverride { border-color: $action; background: $action-bg; color: $price; }
 
-.override { display: inline-flex; align-items: center; gap: 6px; }
+.override { display: inline-flex; align-items: center; gap: map.get($space, sm); }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: $action; }
 .reset {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: map.get($space, xs);
   padding: 0;
   border: 0;
   background: transparent;
@@ -125,25 +125,25 @@ $colors: (
 .inherits { font-family: $mono; font-size: 10px; letter-spacing: 0.08em; color: $text-muted; text-transform: uppercase; }
 
 // ---- groups and controls ----
-.group { border-top: 1px solid $border-hairline; padding-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+.group { border-top: 1px solid $border-hairline; padding-top: map.get($space, lg); display: flex; flex-direction: column; gap: map.get($space, lg); }
 .groupTitle { font-family: $mono; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; color: $text-muted; text-transform: uppercase; }
 
 .seg,
 .scale {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px;
-  padding: 2px;
+  gap: map.get($space, xs);
+  padding: map.get($space, xs);
   border: 1px solid $border;
-  border-radius: 8px;
+  border-radius: map.get($radius, md);
   align-self: flex-start;
   max-width: 100%;
   button {
     min-width: 32px;
     height: 28px;
-    padding: 0 9px;
+    padding: 0 map.get($space, sm);
     border: 0;
-    border-radius: 6px;
+    border-radius: map.get($radius, sm);
     background: transparent;
     color: $text-secondary;
     font-size: 12.5px;
@@ -153,15 +153,15 @@ $colors: (
   }
   .on { background: $bg-hover; color: $text-primary; }
 }
-.scale button { font-family: $mono; font-size: 11px; padding: 0 7px; }
+.scale button { font-family: $mono; font-size: 11px; padding: 0 map.get($space, sm); }
 
-.swatches { display: flex; flex-direction: column; gap: 8px; }
-.sw { display: flex; flex-wrap: wrap; gap: 6px; }
+.swatches { display: flex; flex-direction: column; gap: map.get($space, sm); }
+.sw { display: flex; flex-wrap: wrap; gap: map.get($space, sm); }
 .swatch {
   width: 26px;
   height: 26px;
   border: 1px solid $border;
-  border-radius: 6px;
+  border-radius: map.get($radius, sm);
   cursor: pointer;
   &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
   &.on { outline: 2px solid $action; outline-offset: 2px; }
@@ -173,15 +173,15 @@ $colors: (
 .presets {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
+  gap: map.get($space, sm);
   button {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 2px;
-    padding: 8px 10px;
+    gap: map.get($space, xs);
+    padding: map.get($space, sm) map.get($space, md);
     border: 1px solid $border;
-    border-radius: 8px;
+    border-radius: map.get($radius, md);
     background: transparent;
     color: $text-primary;
     text-align: left;
@@ -189,7 +189,7 @@ $colors: (
     &:focus-visible { outline: 2px solid $action; outline-offset: 1px; }
     small { font-family: $mono; font-size: 10px; color: $text-muted; }
   }
-  .on { border-color: $action; background: rgba(255, 46, 158, 0.08); }
+  .on { border-color: $action; background: $action-dim; }
 }
 @each $key, $t in $typo {
   .ty-#{$key} {

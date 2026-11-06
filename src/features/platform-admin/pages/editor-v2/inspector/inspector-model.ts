@@ -28,15 +28,25 @@ export const inheritedFrom = (props: Props, bp: Breakpoint, key: StyleKey): 'des
 
 const ratioFits = (cols: unknown, ratio: unknown) => typeof ratio === 'string' && ratio.split('-').length === cols;
 
+/** After a `cols` change, drops the own `ratio` of every breakpoint whose effective cols changed and no longer matches it. */
+function dropStaleRatios(before: Props, after: Props): Props {
+  const style = styleOf(after);
+  let next = style;
+  for (const bp of BP_ORDER) {
+    const cols = effectiveStyle(after, bp).cols;
+    const own = style[bp];
+    if (cols === effectiveStyle(before, bp).cols || !isRecord(own) || !('ratio' in own) || ratioFits(cols, own.ratio)) continue;
+    const { ratio: _ratio, ...rest } = own;
+    const { [bp]: _old, ...others } = next;
+    next = bp === 'desktop' || Object.keys(rest).length > 0 ? { ...others, [bp]: rest } : others;
+  }
+  return next === style ? after : { ...after, style: next };
+}
+
 export function withStyleValue(props: Props, bp: Breakpoint, key: StyleKey, value: unknown): Props {
   const style = styleOf(props);
-  let next: StyleBag = { ...style[bp], [key]: value };
-  // The contract refuses a ratio whose parts differ from `cols` inside one breakpoint.
-  if (key === 'cols' && 'ratio' in next && !ratioFits(value, next.ratio)) {
-    const { ratio: _ratio, ...rest } = next;
-    next = rest;
-  }
-  return { ...props, style: { desktop: {}, ...style, [bp]: next } };
+  const next = { ...props, style: { desktop: {}, ...style, [bp]: { ...style[bp], [key]: value } } };
+  return key === 'cols' ? dropStaleRatios(props, next) : next;
 }
 
 export function withoutStyleKey(props: Props, bp: Breakpoint, key: StyleKey): Props {
@@ -44,7 +54,8 @@ export function withoutStyleKey(props: Props, bp: Breakpoint, key: StyleKey): Pr
   const { [key]: _removed, ...rest } = style[bp] ?? {};
   const { [bp]: _bp, ...others } = style;
   const kept = bp === 'desktop' || Object.keys(rest).length > 0 ? { [bp]: rest } : {};
-  return { ...props, style: { desktop: {}, ...others, ...kept } };
+  const next = { ...props, style: { desktop: {}, ...others, ...kept } };
+  return key === 'cols' ? dropStaleRatios(props, next) : next;
 }
 
 // ---- which control groups an element type shows (keys always come from the contract) ----

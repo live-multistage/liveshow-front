@@ -40,6 +40,23 @@ describe('responsive style', () => {
   });
 });
 
+describe('cols/ratio coherence across breakpoints', () => {
+  const props = { id: ID, style: { desktop: { cols: 2, ratio: '2-1' }, tablet: { ratio: '3-2' } } };
+
+  it('changing desktop cols drops the tablet ratio that inherited the old cols', () => {
+    expect(withStyleValue(props, 'desktop', 'cols', 3).style).toEqual({ desktop: { cols: 3 } });
+  });
+
+  it('going back to inherited cols drops ratios that no longer fit', () => {
+    const own = { id: ID, style: { desktop: { cols: 2 }, mobile: { cols: 3, ratio: '1-1-1' } } };
+    expect(withoutStyleKey(own, 'mobile', 'cols').style).toEqual({ desktop: { cols: 2 } });
+  });
+
+  it('keeps ratios that still fit', () => {
+    expect(withStyleValue(props, 'desktop', 'cols', 2).style).toEqual(props.style);
+  });
+});
+
 describe('style groups', () => {
   it.each(ELEMENT_TYPES)('%s: every contract key lands in exactly one group', (type) => {
     const keys = styleKeyGroups(type).flatMap((g) => g.keys);

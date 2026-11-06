@@ -81,6 +81,8 @@ const replaced = (dispatch: ReturnType<typeof vi.fn>) => dispatch.mock.calls.map
 
 beforeEach(() => uploadMutate.mockReset());
 
+const replaces = (dispatch: ReturnType<typeof vi.fn>) => dispatch.mock.calls.map(([a]) => a).filter((a) => a.type === 'replace');
+
 describe('ElementInspector: structure', () => {
   it('shows the empty state without a selection', () => {
     puck.store = { selectedItem: null };
@@ -115,7 +117,7 @@ describe('ElementInspector: content', () => {
     fireEvent.change(screen.getByLabelText(/^Texto/), { target: { value: 'Olá' } });
     expect(replaced(dispatch)).toEqual({
       type: 'replace', destinationIndex: 0, destinationZone: `${SECTION}:items`,
-      data: { type: 'heading', props: { id: PUCK_ID, text: 'Olá', tag: 'h2' } },
+      data: { type: 'heading', props: { id: PUCK_ID, text: 'Olá', tag: 'h2' } }, recordHistory: false,
     });
   });
 
@@ -242,6 +244,34 @@ describe('ElementInspector: style by breakpoint', () => {
     openTab('Estilo');
     fireEvent.click(within(screen.getByRole('group', { name: 'Número de colunas' })).getByRole('button', { name: '3' }));
     expect(replaced(dispatch)?.data.props.style).toEqual({ desktop: { cols: 3 } });
+  });
+});
+
+describe('ElementInspector: undo history', () => {
+  it('typing is applied without history and recorded once after a pause', () => {
+    vi.useFakeTimers();
+    const dispatch = select('heading', { text: 'Oi', tag: 'h2' });
+    renderInspector();
+    const input = screen.getByLabelText(/^Texto/);
+    ['O', 'Ol', 'Olá'].forEach((value) => fireEvent.change(input, { target: { value } }));
+    expect(replaces(dispatch).map((a) => a.recordHistory)).toEqual([false, false, false]);
+    vi.advanceTimersByTime(500);
+    const all = replaces(dispatch);
+    expect(all).toHaveLength(4);
+    expect(all[3].recordHistory).toBe(true);
+    expect(all[3].data.props.text).toBe('Olá');
+    vi.useRealTimers();
+  });
+
+  it('leaving the field records right away, and only once', () => {
+    vi.useFakeTimers();
+    const dispatch = select('heading', { text: 'Oi', tag: 'h2' });
+    renderInspector();
+    fireEvent.change(screen.getByLabelText(/^Texto/), { target: { value: 'X' } });
+    fireEvent.blur(screen.getByLabelText(/^Texto/));
+    vi.advanceTimersByTime(1000);
+    expect(replaces(dispatch).map((a) => a.recordHistory)).toEqual([false, true]);
+    vi.useRealTimers();
   });
 });
 

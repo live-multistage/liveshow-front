@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { createUsePuck } from '@puckeditor/core';
 import { ArrowUpLeft, Copy, Layers, Trash2 } from 'lucide-react';
@@ -15,6 +15,10 @@ import { useElementIssues } from './element-issues';
 import styles from './ElementInspector.module.scss';
 
 const usePuck = createUsePuck();
+
+// Puck records one undo entry per `replace`; a keystroke must not be one. Edits are applied without history and the
+// burst is recorded once, after a pause, on blur, or when the selection changes.
+const HISTORY_PAUSE_MS = 500;
 
 type Props = Record<string, unknown>;
 type TabName = 'content' | 'style' | 'advanced';
@@ -54,12 +58,26 @@ function SelectedInspector({ puckId, type, props }: { puckId: string; type: Elem
   const latest = useRef(props);
   latest.current = props;
   const selector = getSelectorForId(puckId);
-  const replace = (next: Props) => {
-    if (selector) dispatch({ type: 'replace', destinationIndex: selector.index, destinationZone: selector.zone, data: { type, props: next } as never });
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const unrecorded = useRef(false);
+  const replace = (next: Props, recordHistory: boolean) => {
+    if (selector) dispatch({ type: 'replace', destinationIndex: selector.index, destinationZone: selector.zone, data: { type, props: next } as never, recordHistory } as never);
   };
+  const flush = () => {
+    clearTimeout(timer.current);
+    if (!unrecorded.current) return;
+    unrecorded.current = false;
+    replace(latest.current, true);
+  };
+  const flushRef = useRef(flush);
+  flushRef.current = flush;
+  useEffect(() => () => flushRef.current(), []);
   const change = (fn: (current: Props) => Props) => {
     latest.current = fn(latest.current);
-    replace(latest.current);
+    unrecorded.current = true;
+    replace(latest.current, false);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(flush, HISTORY_PAUSE_MS);
   };
   const set = (patch: Props) => change((current) => withPatch(current, patch));
   const bp = useBreakpoint();
@@ -68,7 +86,7 @@ function SelectedInspector({ puckId, type, props }: { puckId: string; type: Elem
   const parentSelector = parent ? getSelectorForId(String((parent.props as Props).id)) : undefined;
 
   return (
-    <div className={styles.inspector} data-testid="element-inspector" data-element-id={elementId}>
+    <div className={styles.inspector} data-testid="element-inspector" data-element-id={elementId} onBlur={flush}>
       <div className={styles.head}>
         <div className={styles.title}>
           <b>{tTypes(type)}</b>
