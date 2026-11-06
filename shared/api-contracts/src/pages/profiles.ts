@@ -1,4 +1,5 @@
 import { ELEMENT_TYPES, PAGE_V2_LIMITS, type ElementType, type PageDocumentV2, type StyleKey } from './document-v2';
+import { formatPath, walkElements } from './page-tree';
 import type { PageTreeIssue } from './schemas-v2';
 
 // Editor profiles (SDD §6.3). The profile comes from the page OWNER, not from the actor, and is enforced on save by the
@@ -32,10 +33,7 @@ export type PageOwner = { kind: 'platform' } | { kind: 'organization'; organizat
 export const profileNameOf = (owner: PageOwner): PageEditorProfileName => (owner.kind === 'platform' ? 'platform' : 'organization');
 
 const isRecord = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
-const SLOT_TYPES: readonly string[] = ['section', 'columns', 'column', 'group'];
 const BREAKPOINT_KEYS = ['desktop', 'tablet', 'mobile'] as const;
-const formatPath = (segments: (string | number)[]) =>
-  segments.reduce<string>((acc, s) => (typeof s === 'number' ? `${acc}[${s}]` : acc ? `${acc}.${s}` : s), '');
 
 /** Named-profile entry point; see `validatePageAgainstProfileConfig`. */
 export const validatePageAgainstProfile = (doc: PageDocumentV2, profileName: PageEditorProfileName, ownerOrganizationId?: string): PageTreeIssue[] =>
@@ -57,7 +55,8 @@ export function validatePageAgainstProfileConfig(
   const issues: PageTreeIssue[] = [];
   let count = 0;
 
-  const walk = (node: unknown, segments: (string | number)[], depth: number) => {
+  walkElements(doc, (el, { segments, depth }) => {
+    const node: unknown = el; // untrusted until checked below
     if (!isRecord(node) || !isRecord(node.props)) return;
     count += 1;
     const type = node.type as ElementType;
@@ -92,13 +91,8 @@ export function validatePageAgainstProfileConfig(
         fail(['props', 'source'], 'A faixa só pode mostrar eventos da sua organização.');
       }
     }
+  });
 
-    if (SLOT_TYPES.includes(type) && Array.isArray(props.items)) {
-      props.items.forEach((child, i) => walk(child, [...segments, 'props', 'items', i], depth + 1));
-    }
-  };
-
-  (Array.isArray(doc.content) ? doc.content : []).forEach((section, i) => walk(section, ['content', i], 1));
   if (count > profile.maxElements) {
     issues.push({ path: '', segments: [], message: `Máximo de ${profile.maxElements} elementos neste tipo de página.` });
   }

@@ -3,12 +3,13 @@ import {
   ALIGN_KEYS, ANCHOR_RE, ASPECT_KEYS, BORDER_KEYS, BREAKPOINTS, BUTTON_SIZES, BUTTON_VARIANTS, COLOR_KEYS, COLS_KEYS,
   ELEMENT_SLOT_RULES, ELEMENT_TYPES, GRADIENT_KEYS, HEADING_TAGS, LIVE_NOW_LIMITS, MAXW_KEYS, MINH_KEYS, PAGE_V2_LIMITS as L,
   RADIUS_KEYS, RATIO_KEYS, SHADOW_KEYS, SPACE_KEYS, STYLE_KEYS_BY_TYPE, TYPO_KEYS, VALIGN_KEYS, VIDEO_ALLOWED_HOSTS, WIDTH_KEYS,
-  type ElementType, type PageDocumentV2, type StyleKey,
+  type ElementType, type PageDocumentV2, type PageElement, type StyleKey,
 } from './document-v2';
 import {
   isPageHttpsUrl, pageContextSchema, pageCtaSchema, pageHrefSchema, pageHttpsUrlSchema, sectionPropsSchemas, isPageHref,
   pageDocumentSchema, pageDraftSchema,
 } from './schemas';
+import { childrenOf, formatPath, walkElements } from './page-tree';
 import { PAGE_LIMITS as L1, PAGE_RAIL_SOURCES } from './types';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -233,9 +234,6 @@ export interface ValidateTreeOptions {
   draft?: boolean;
 }
 
-const formatPath = (segments: (string | number)[]) =>
-  segments.reduce<string>((acc, s) => (typeof s === 'number' ? `${acc}[${s}]` : acc ? `${acc}.${s}` : s), '');
-
 const NON_TEXT_KEYS = new Set(['href', 'url', 'icon', 'eventId', 'kind', 'type', 'id', 'anchor', 'token']);
 const bracePaths = (value: unknown, path: (string | number)[] = []): (string | number)[][] => {
   if (typeof value === 'string') return noBraces(value) ? [] : [path];
@@ -262,10 +260,13 @@ export function validatePageTreeV2(doc: PageDocumentV2, options: ValidateTreeOpt
   const ids = new Set<string>();
   const anchors = new Set<string>();
 
-  const walk = (node: unknown, segments: (string | number)[], depth: number, parent: ElementType | null) => {
+  walkElements(doc, (el, { segments, depth, parent: parentEl }) => {
+    const node: unknown = el; // untrusted until checked below
+    const parent = parentEl?.type ?? null;
     count += 1;
     if (!isRecord(node) || !isRecord(node.props) || !(ELEMENT_TYPES as readonly unknown[]).includes(node.type)) {
-      return add(segments, 'Elemento inválido.');
+      add(segments, 'Elemento inválido.');
+      return false;
     }
     const type = node.type as ElementType;
     const props = node.props;
@@ -274,7 +275,10 @@ export function validatePageTreeV2(doc: PageDocumentV2, options: ValidateTreeOpt
 
     const allowed = parent === null ? (['section'] as readonly ElementType[]) : ELEMENT_SLOT_RULES[parent];
     if (!allowed?.includes(type)) fail(['type'], parent === null ? 'A página só aceita seções.' : `"${type}" não pode ficar dentro de "${parent}".`);
-    if (depth > L.maxDepth) return fail([], `Profundidade máxima de ${L.maxDepth} níveis.`);
+    if (depth > L.maxDepth) {
+      fail([], `Profundidade máxima de ${L.maxDepth} níveis.`);
+      return false;
+    }
 
     const schema = options.draft ? draftPropsSchema(type) : elementPropsSchemas[type];
     const parsed = schema.safeParse(props);
@@ -291,15 +295,12 @@ export function validatePageTreeV2(doc: PageDocumentV2, options: ValidateTreeOpt
     }
     if (type === 'heading' && props.tag === 'h1' && ++h1 > 1) fail(['props', 'tag'], 'A página só pode ter um título h1.');
 
-    if (!ELEMENT_SLOT_RULES[type]) return;
-    const children: unknown[] = Array.isArray(props.items) ? props.items : [];
-    if (type === 'columns' && (children.length < 1 || children.length > L.maxColumns)) {
-      fail(['props', 'items'], `Colunas aceita de 1 a ${L.maxColumns} colunas.`);
+    if (type === 'columns') {
+      const columnCount = childrenOf(el).length;
+      if (columnCount < 1 || columnCount > L.maxColumns) fail(['props', 'items'], `Colunas aceita de 1 a ${L.maxColumns} colunas.`);
     }
-    children.forEach((child, i) => walk(child, [...segments, 'props', 'items', i], depth + 1, type));
-  };
+  });
 
-  content.forEach((section, i) => walk(section, ['content', i], 1, null));
   if (count > L.maxElements) add([], `Máximo de ${L.maxElements} elementos.`);
   return issues;
 }
@@ -349,3 +350,25 @@ export const saveDraftSchema = object({
 // RESPONSE: the API converts v1 to v2 before answering, but readers stay tolerant of both versions.
 export const pageDraftReadSchema = z.union([pageDraftV2Schema, pageDraftSchema]);
 export const pageDocumentReadSchema = z.union([pageDocumentV2Schema, pageDocumentSchema]);
+
+// ---- resolve-data (editor preview of event data for the elements being edited) ----
+export const PAGE_RESOLVE_DATA_MAX = 20;
+const RESOLVABLE_TYPES = ['eventRail', 'featuredEvent', 'liveNow'] as const;
+export const resolvePageDataRequestSchema = object({
+  elements: list(z.unknown(), 1, PAGE_RESOLVE_DATA_MAX),
+}).superRefine((value, ctx) => {
+  const seenIds = new Set<string>();
+  value.elements.forEach((el, i) => {
+    const id = isRecord(el) && isRecord(el.props) ? el.props.id : undefined;
+    if (typeof id === 'string') {
+      if (seenIds.has(id)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['elements', i, 'props', 'id'], message: 'ID de elemento duplicado.' });
+      seenIds.add(id);
+    }
+    const type = isRecord(el) ? el.type : undefined;
+    const schema = (RESOLVABLE_TYPES as readonly unknown[]).includes(type) ? elementPropsSchemas[type as (typeof RESOLVABLE_TYPES)[number]] : null;
+    if (!schema) return ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['elements', i, 'type'], message: 'Só eventRail, featuredEvent e liveNow.' });
+    const parsed = schema.safeParse(isRecord(el) ? el.props : undefined);
+    if (!parsed.success) parsed.error.issues.forEach((issue) => ctx.addIssue({ ...issue, path: ['elements', i, 'props', ...issue.path] }));
+  });
+}) as unknown as z.ZodType<{ elements: PageElement<'eventRail' | 'featuredEvent' | 'liveNow'>[] }, z.ZodTypeDef, unknown>;
+export type ResolvePageDataRequest = z.infer<typeof resolvePageDataRequestSchema>;

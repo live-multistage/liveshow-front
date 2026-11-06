@@ -10,7 +10,6 @@ import {
   pageDraftV2Schema, upgradePageDocument, validatePageAgainstProfile, validatePageTreeV2,
   type DraftConflict, type ElementType, type PageDetail, type PageDocumentV2,
 } from '@live-show/api-contracts';
-import { elementResolved } from '@/features/pages-public/elements';
 import { useDraftAutosave } from '../hooks/use-draft-autosave';
 import { usePagePreviewQuery } from '../queries/use-pages';
 import { formatClock } from '../components/EditorTopbar';
@@ -26,7 +25,7 @@ import { BREAKPOINT_WIDTH, BreakpointProvider, VIEWPORTS } from './use-breakpoin
 import styles from './PageEditorV2.module.scss';
 
 const PUBLISHED_TOAST_MS = 6000;
-const NO_RESOLVED = { rails: {}, featured: {} };
+const NO_RESOLVED = { rails: {}, featured: {}, live: {} };
 const LOCKED_PERMISSIONS = { drag: false, duplicate: false, delete: false, edit: false, insert: false };
 const PUCK_UI = { viewports: { current: { width: BREAKPOINT_WIDTH.desktop, height: 'auto' as const }, controlsVisible: false, options: VIEWPORTS } };
 const PUCK_IFRAME = { enabled: false };
@@ -83,7 +82,7 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
   });
 
   const config = useMemo(() => createPuckConfig((type: ElementType) => tv2(`types.${type}`)), [tv2]);
-  const metadata = useMemo(() => ({ resolved: preview.data ? elementResolved(document, preview.data.resolved) : NO_RESOLVED }), [preview.data, document]);
+  const metadata = useMemo(() => ({ resolved: preview.data?.resolved ?? NO_RESOLVED }), [preview.data]);
 
   // Locked: Puck's own keyboard history (Cmd+Z) still moves its tree; the document and what "copy my changes" hands out must not follow.
   const onChange = useCallback((data: Data) => {

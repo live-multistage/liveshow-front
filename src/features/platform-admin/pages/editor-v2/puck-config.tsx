@@ -53,7 +53,7 @@ function renderElement(type: ElementType) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return function Render(raw: any) {
     const { puck, items: Items, ...props } = raw as { puck: { metadata?: PuckMetadata }; items?: (opts?: object) => React.ReactNode } & Record<string, unknown>;
-    const ctx: RenderContext = { resolved: puck.metadata?.resolved ?? { rails: {}, featured: {} }, mode: 'editor' };
+    const ctx: RenderContext = { resolved: puck.metadata?.resolved ?? { rails: {}, featured: {}, live: {} }, mode: 'editor' };
     const element = { type, props: props as unknown as ElementProps } as PageElement;
     return <ElementRenderer element={element} ctx={ctx} slot={hasSlot && Items ? <Items /> : undefined} />;
   };

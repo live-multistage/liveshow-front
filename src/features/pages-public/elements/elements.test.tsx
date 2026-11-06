@@ -2,10 +2,10 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { upgradePageDocument, type PageDocument, type PageElement, type PageDocumentV2, type PublicPage, type ResolvedRailEvent } from '@live-show/api-contracts';
 import parityCases from '../../../../shared/api-contracts/src/pages/page-parity-cases.json';
-import { ElementRenderer, PageRoot, elementResolved, type RenderContext } from './index';
+import { ElementRenderer, PageRoot, type RenderContext } from './index';
 
 const ID = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
-const empty: PublicPage['resolved'] = { rails: {}, featured: {} };
+const empty: PublicPage['resolved'] = { rails: {}, featured: {}, live: {} };
 const ctx = (over: Partial<RenderContext> = {}): RenderContext => ({ resolved: empty, mode: 'public', ...over });
 const el = (type: string, props: Record<string, unknown>) => ({ type, props: { id: ID(1), ...props } }) as unknown as PageElement;
 const event = (over: Partial<ResolvedRailEvent> = {}): ResolvedRailEvent => ({ id: 'e1', title: 'Show A', posterUrl: null, startsAt: null, isLive: false, ...over });
@@ -81,7 +81,7 @@ describe('visibility and layout', () => {
 describe('event widgets', () => {
   it('eventRail draws cards but not its title; null without data in public, placeholder in editor', () => {
     const rail = el('eventRail', { title: 'Categoria', source: { kind: 'category', id: 'musica' }, limit: 4 });
-    const withData = ctx({ resolved: { rails: { [ID(1)]: [event()] }, featured: {} } });
+    const withData = ctx({ resolved: { rails: { [ID(1)]: [event()] }, featured: {}, live: {} } });
     render(<ElementRenderer ctx={withData} element={rail} />);
     expect(screen.getByText('Show A')).toBeTruthy();
     expect(screen.queryByText('Categoria')).toBeNull();
@@ -90,14 +90,22 @@ describe('event widgets', () => {
     const ed = render(<ElementRenderer ctx={ctx({ mode: 'editor' })} element={rail} />);
     expect(ed.container.textContent).toContain('Trilho');
   });
-  it('liveNow keeps only live events up to the limit', () => {
-    const live = ctx({ resolved: { rails: { [ID(1)]: [event({ id: 'a', title: 'Ao A', isLive: true }), event({ id: 'b', title: 'Off B' }), event({ id: 'c', title: 'Ao C', isLive: true })] }, featured: {} } });
-    render(<ElementRenderer ctx={live} element={el('liveNow', { limit: 4, emptyText: 'Nada' })} />);
+  it('liveNow renders from the live bucket of its element, up to the limit', () => {
+    const live = ctx({
+      resolved: {
+        rails: { [ID(1)]: [event({ id: 'x', title: 'Do trilho', isLive: true })] },
+        featured: {},
+        live: { [ID(1)]: [event({ id: 'a', title: 'Ao A', isLive: true }), event({ id: 'b', title: 'Ao B', isLive: true }), event({ id: 'c', title: 'Ao C', isLive: true })] },
+      },
+    });
+    render(<ElementRenderer ctx={live} element={el('liveNow', { limit: 2, emptyText: 'Nada' })} />);
     expect(screen.getByText('Ao A')).toBeTruthy();
-    expect(screen.queryByText('Off B')).toBeNull();
+    expect(screen.getByText('Ao B')).toBeTruthy();
+    expect(screen.queryByText('Ao C')).toBeNull();
+    expect(screen.queryByText('Do trilho')).toBeNull();
   });
   it('featuredEvent renders title and cta, null without data', () => {
-    const c = ctx({ resolved: { rails: {}, featured: { [ID(1)]: event({ title: 'Grande Show' }) } } });
+    const c = ctx({ resolved: { rails: {}, featured: { [ID(1)]: event({ title: 'Grande Show' }) }, live: {} } });
     render(<ElementRenderer ctx={c} element={el('featuredEvent', { eventId: 'x', ctaLabel: 'Garanta' })} />);
     expect(screen.getByRole('heading', { name: 'Grande Show' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Garanta' })).toBeTruthy();
@@ -106,27 +114,12 @@ describe('event widgets', () => {
   });
 });
 
-describe('elementResolved', () => {
-  it('maps section-keyed data to the widgets inside the converted section', () => {
-    const v1 = (parityCases as { input: PageDocument }[])[0]!.input;
-    const doc = upgradePageDocument(v1);
-    const railSection = v1.sections.find((s) => s.type === 'rail')!;
-    const featSection = v1.sections.find((s) => s.type === 'featured')!;
-    const mapped = elementResolved(doc, { rails: { [railSection.id]: [event()] }, featured: { [featSection.id]: event({ title: 'F' }) } });
-    const section = doc.content.find((s) => s.props.id === railSection.id)!;
-    const railEl = section.props.items!.find((i) => i.type === 'eventRail')!;
-    expect(mapped.rails[railEl.props.id]).toHaveLength(1);
-    const featEl = doc.content.find((s) => s.props.id === featSection.id)!.props.items!.find((i) => i.type === 'featuredEvent')!;
-    expect(mapped.featured[featEl.props.id]?.title).toBe('F');
-  });
-});
-
 describe('v1 parity (converted)', () => {
   it('hero, faq and rail render with their texts and the rail title once', () => {
     const v1 = (parityCases as { input: PageDocument }[])[0]!.input;
     const doc = upgradePageDocument({ ...v1, sections: v1.sections.filter((s) => ['hero', 'faq', 'rail'].includes(s.type)) });
-    const railId = v1.sections.find((s) => s.type === 'rail')!.id;
-    const resolved = elementResolved(doc, { rails: { [railId]: [event({ title: 'Evento Z' })] }, featured: {} });
+    const railEl = doc.content.flatMap((s) => s.props.items ?? []).find((i) => i.type === 'eventRail')!;
+    const resolved = { rails: { [railEl.props.id]: [event({ title: 'Evento Z' })] }, featured: {}, live: {} };
     render(<PageRoot document={doc} ctx={ctx({ resolved })} />);
     expect(screen.getByRole('heading', { level: 1, name: 'Eventos ao vivo' })).toBeTruthy();
     expect(screen.getByText('Novo')).toBeTruthy();

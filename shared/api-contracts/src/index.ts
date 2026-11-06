@@ -58,3 +58,5 @@ export * from './pages/document-v2';
 export * from './pages/schemas-v2';
 export * from './pages/upgrade-v2';
 export * from './pages/profiles';
+export * from './pages/page-blocks';
+export * from './pages/page-tree';

@@ -2,7 +2,7 @@ import type { ComponentType, ReactNode } from 'react';
 import type { ElementProps, ElementType, PublicPage } from '@live-show/api-contracts';
 
 export interface RenderContext {
-  /** Event data keyed by element id (see `elementResolved`). */
+  /** Event data keyed by element id. */
   resolved: PublicPage['resolved'];
   /** `editor`: data widgets draw a placeholder when they have no data; `public`: they render nothing. */
   mode: 'public' | 'editor';

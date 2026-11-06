@@ -233,6 +233,10 @@ export interface PublishDiff {
   removed: number;
   edited: number;
   hidden: number;
+  /** Elements that changed parent or position. Optional on read: v1 responses omit it. */
+  moved?: number;
+  /** Elements with tablet/mobile style added or changed. Optional on read: v1 responses omit it. */
+  responsiveEdits?: number;
 }
 
 export interface PublishDiffResponse extends PublishDiff {
@@ -252,6 +256,11 @@ export interface DraftConflict {
   updatedAt: string;
 }
 
+export interface FeaturedUnavailable {
+  code: 'FEATURED_UNAVAILABLE';
+  elementId: string;
+}
+
 export interface ResolvedRailEvent {
   id: string;
   title: string;
@@ -261,6 +270,16 @@ export interface ResolvedRailEvent {
   isLive: boolean;
 }
 
+/**
+ * Event data per element. Keys are the `props.id` of the `eventRail`, `featuredEvent` and `liveNow` elements.
+ * For a v1 document the back converts first and keys by the converted element's id.
+ */
+export interface PageResolvedData {
+  rails: Record<string, ResolvedRailEvent[]>;
+  featured: Record<string, ResolvedRailEvent | null>;
+  live: Record<string, ResolvedRailEvent[]>;
+}
+
 export interface PublicPage {
   slug: string;
   title: string;
@@ -268,10 +287,7 @@ export interface PublicPage {
   document: PageDocumentV2;
   publishedAt: string;
   version: number;
-  resolved: {
-    rails: Record<string, ResolvedRailEvent[]>;
-    featured: Record<string, ResolvedRailEvent | null>;
-  };
+  resolved: PageResolvedData;
 }
 
 export interface PublicPageListItem {

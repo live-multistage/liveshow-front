@@ -17,7 +17,7 @@ const ev = (over: Partial<ResolvedRailEvent> = {}): ResolvedRailEvent => ({
 describe('RailSection', () => {
   it('renders title, cards linking by slug (id fallback), date and live badge', () => {
     render(<RailSection sectionId="r" props={{ title: 'Em alta', source: { kind: 'live' }, limit: 4 }}
-      resolved={{ rails: { r: [ev({ isLive: true }), ev({ id: 'e2', slug: undefined, title: 'Sem slug' })] }, featured: {} }} />);
+      resolved={{ rails: { r: [ev({ isLive: true }), ev({ id: 'e2', slug: undefined, title: 'Sem slug' })] }, featured: {}, live: {} }} />);
     expect(screen.getByRole('heading', { name: 'Em alta' })).toBeTruthy();
     expect(screen.getByRole('link', { name: /Aurora ao vivo/ }).getAttribute('href')).toBe('/events/aurora');
     expect(screen.getByRole('link', { name: /Sem slug/ }).getAttribute('href')).toBe('/events/e2');
@@ -25,7 +25,7 @@ describe('RailSection', () => {
     expect(screen.getAllByText(/jan/i).length).toBeGreaterThan(0);
   });
   it('renders nothing without resolved events', () => {
-    const { container } = render(<RailSection sectionId="r" props={{ title: 'X', source: { kind: 'live' }, limit: 4 }} resolved={{ rails: {}, featured: {} }} />);
+    const { container } = render(<RailSection sectionId="r" props={{ title: 'X', source: { kind: 'live' }, limit: 4 }} resolved={{ rails: {}, featured: {}, live: {} }} />);
     expect(container.innerHTML).toBe('');
   });
 });
@@ -33,16 +33,16 @@ describe('RailSection', () => {
 describe('FeaturedSection', () => {
   const props = { eventId: 'e1' };
   it('renders event with default CTA label', () => {
-    render(<FeaturedSection sectionId="f" props={props} resolved={{ rails: {}, featured: { f: ev() } }} />);
+    render(<FeaturedSection sectionId="f" props={props} resolved={{ rails: {}, featured: { f: ev() }, live: {} }} />);
     expect(screen.getByRole('link', { name: 'Comprar ingresso' }).getAttribute('href')).toBe('/events/aurora');
     expect(screen.getByText('Aurora ao vivo')).toBeTruthy();
   });
   it('uses custom ctaLabel', () => {
-    render(<FeaturedSection sectionId="f" props={{ ...props, ctaLabel: 'Garanta já' }} resolved={{ rails: {}, featured: { f: ev() } }} />);
+    render(<FeaturedSection sectionId="f" props={{ ...props, ctaLabel: 'Garanta já' }} resolved={{ rails: {}, featured: { f: ev() }, live: {} }} />);
     expect(screen.getByRole('link', { name: 'Garanta já' })).toBeTruthy();
   });
   it('renders nothing when null', () => {
-    const { container } = render(<FeaturedSection sectionId="f" props={props} resolved={{ rails: {}, featured: { f: null } }} />);
+    const { container } = render(<FeaturedSection sectionId="f" props={props} resolved={{ rails: {}, featured: { f: null }, live: {} }} />);
     expect(container.innerHTML).toBe('');
   });
 });
@@ -88,7 +88,7 @@ describe('PageSections registry (all 12)', () => {
   const sec = (id: string, type: string, props: unknown) => ({ id, type, hidden: false, appearance, props }) as PageSection;
   it('renders rail via section id, skips empty rail and null featured frames', () => {
     const { container } = render(<PageSections
-      resolved={{ rails: { r1: [ev()], r2: [] }, featured: { f1: null } }}
+      resolved={{ rails: { r1: [ev()], r2: [] }, featured: { f1: null }, live: {} }}
       document={doc(
         sec('r1', 'rail', { title: 'A', source: { kind: 'live' }, limit: 4 }),
         sec('r2', 'rail', { title: 'B', source: { kind: 'live' }, limit: 4 }),

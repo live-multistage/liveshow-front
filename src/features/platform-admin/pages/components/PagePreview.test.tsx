@@ -29,7 +29,7 @@ const final = (n: number, title: string, hidden = false): PageSection => {
   return { ...base, hidden, props: { title, cta: { label: 'Ir', href: '/x' } } } as PageSection;
 };
 const document = { ...createEmptyDocument(), sections: [final(1, 'Primeira'), final(2, 'Segunda', true)] };
-const resolved = { rails: {}, featured: {} };
+const resolved = { rails: {}, featured: {}, live: {} };
 
 const setup = (props: Partial<React.ComponentProps<typeof PagePreview>> = {}) => {
   const onSelect = vi.fn();

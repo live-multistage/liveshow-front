@@ -10,7 +10,7 @@ import { HowSection } from './HowSection';
 import { MediaSection } from './MediaSection';
 import { StatsSection } from './StatsSection';
 
-const resolved = { rails: {}, featured: {} };
+const resolved = { rails: {}, featured: {}, live: {} };
 const appearance = { background: 'default', spacing: 'normal', showOn: 'all' } as const;
 const doc = (...sections: PageSection[]): PageDocument => ({ schemaVersion: 1, context: { type: 'none' }, sections });
 
