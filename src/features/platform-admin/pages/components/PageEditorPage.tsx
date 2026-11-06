@@ -20,6 +20,7 @@ export function PageEditorPage({ pageId }: { pageId: string }) {
   const unsupported = useMediaQuery(UNSUPPORTED_QUERY);
   const { data: page, isError, error, refetch } = usePageQuery(unsupported ? null : pageId);
   const [reloadToken, setReloadToken] = useState(0);
+  const [reloadFailed, setReloadFailed] = useState(false);
 
   if (unsupported) {
     return (
@@ -48,7 +49,15 @@ export function PageEditorPage({ pageId }: { pageId: string }) {
     <PageEditor
       key={`${page.id}:${reloadToken}`}
       page={page}
-      onReload={() => void refetch().then(() => setReloadToken((n) => n + 1))}
+      reloadFailed={reloadFailed}
+      onReload={() => {
+        setReloadFailed(false);
+        // Remount only with fresh data: a failed refetch would restart the editor on the stale page and revision.
+        void refetch().then((result) => {
+          if (result?.isError || !result?.data) return setReloadFailed(true);
+          setReloadToken((n) => n + 1);
+        }, () => setReloadFailed(true));
+      }}
     />
   );
 }

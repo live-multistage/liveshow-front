@@ -18,6 +18,7 @@ interface Props {
   page: PageDetail;
   saveStatus: AutosaveStatus;
   unpublished: boolean;
+  onRetry?(): void;
 }
 
 function statusKey(page: PageDetail, unpublished: boolean): 'archived' | 'draft' | 'unpublished' | 'published' {
@@ -26,7 +27,7 @@ function statusKey(page: PageDetail, unpublished: boolean): 'archived' | 'draft'
   return unpublished ? 'unpublished' : 'published';
 }
 
-function SaveIndicator({ page, status }: { page: PageDetail; status: AutosaveStatus }) {
+function SaveIndicator({ page, status, onRetry }: { page: PageDetail; status: AutosaveStatus; onRetry?(): void }) {
   const t = useTranslations('platformAdmin.pageEditor');
   const locale = useLocale();
   switch (status.kind) {
@@ -38,7 +39,12 @@ function SaveIndicator({ page, status }: { page: PageDetail; status: AutosaveSta
     case 'invalid':
       return <span className={`${styles.saved} ${styles.bad}`}><AlertTriangle aria-hidden="true" />{t('save.invalid')}</span>;
     case 'error':
-      return <span className={`${styles.saved} ${styles.bad}`}><AlertTriangle aria-hidden="true" />{t('save.error')}</span>;
+      return (
+        <>
+          <span className={`${styles.saved} ${styles.bad}`}><AlertTriangle aria-hidden="true" />{t('save.error')}</span>
+          {onRetry && <Button type="button" variant="outline" size="sm" onClick={onRetry}>{t('save.retry')}</Button>}
+        </>
+      );
     case 'conflict':
       return <span className={`${styles.saved} ${styles.bad}`}><AlertTriangle aria-hidden="true" />{t('save.conflict')}</span>;
     case 'blocked':
@@ -50,7 +56,7 @@ function SaveIndicator({ page, status }: { page: PageDetail; status: AutosaveSta
 
 // Device switch, history, settings, preview and publish belong to the preview/publish tasks:
 // they render here as disabled placeholders with the final labels.
-export function EditorTopbar({ page, saveStatus, unpublished }: Props) {
+export function EditorTopbar({ page, saveStatus, unpublished, onRetry }: Props) {
   const t = useTranslations('platformAdmin.pageEditor');
   const key = statusKey(page, unpublished);
 
@@ -68,7 +74,7 @@ export function EditorTopbar({ page, saveStatus, unpublished }: Props) {
       <span className={`${styles.pill} ${styles[`pill_${key}`]}`} title={key === 'unpublished' ? t('status.unpublishedHint') : undefined}>
         {t(`status.${key}`, { version: page.publishedVersion ?? '' })}
       </span>
-      <SaveIndicator page={page} status={saveStatus} />
+      <SaveIndicator page={page} status={saveStatus} onRetry={onRetry} />
       <div className={styles.topbarActions}>
         <div className={styles.segment} role="group" aria-label={t('topbar.deviceGroup')}>
           <Button type="button" variant="ghost" size="sm" aria-pressed="true" disabled><Monitor aria-hidden="true" /><span className={styles.label}>{t('topbar.desktop')}</span></Button>

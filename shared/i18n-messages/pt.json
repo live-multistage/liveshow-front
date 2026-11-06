@@ -3313,14 +3313,16 @@
         "invalid": "Corrija os campos para salvar",
         "error": "Não foi possível salvar",
         "conflict": "Rascunho desatualizado",
-        "blocked": "Não foi possível salvar"
+        "blocked": "Não foi possível salvar",
+        "retry": "Tentar de novo"
       },
       "banner": {
         "error": "Não foi possível salvar o rascunho. Tentando de novo…",
         "retry": "Tentar agora",
         "conflict": "{name} salvou este rascunho às {time} enquanto você editava. Recarregue para ver a versão dela; suas mudanças não salvas serão descartadas.",
         "conflictAnonymous": "Outro admin salvou este rascunho às {time} enquanto você editava. Recarregue para ver a versão dele; suas mudanças não salvas serão descartadas.",
-        "reload": "Recarregar"
+        "reload": "Recarregar",
+        "reloadError": "Não foi possível recarregar. Tente de novo."
       },
       "topbar": {
         "deviceGroup": "Dispositivo da prévia",

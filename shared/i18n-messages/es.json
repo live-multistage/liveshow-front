@@ -3313,14 +3313,16 @@
         "invalid": "Corrige los campos para guardar",
         "error": "No se pudo guardar",
         "conflict": "Borrador desactualizado",
-        "blocked": "No se pudo guardar"
+        "blocked": "No se pudo guardar",
+        "retry": "Reintentar"
       },
       "banner": {
         "error": "No se pudo guardar el borrador. Reintentando…",
         "retry": "Reintentar ahora",
         "conflict": "{name} guardó este borrador a las {time} mientras editabas. Recarga para ver su versión; tus cambios sin guardar se descartarán.",
         "conflictAnonymous": "Otro admin guardó este borrador a las {time} mientras editabas. Recarga para ver su versión; tus cambios sin guardar se descartarán.",
-        "reload": "Recargar"
+        "reload": "Recargar",
+        "reloadError": "No se pudo recargar. Inténtalo de nuevo."
       },
       "topbar": {
         "deviceGroup": "Dispositivo de la vista previa",

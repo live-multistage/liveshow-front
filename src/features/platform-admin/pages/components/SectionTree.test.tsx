@@ -137,4 +137,20 @@ describe('SectionTree', () => {
     expect(within(rows()[0]).getByRole('button', { name: /Ocultar/ })).toBeDisabled();
     expect(within(rows()[0]).getByRole('button', { name: /Remover/ })).toBeDisabled();
   });
+
+  it('keeps focus on the moved row after Alt+ArrowDown and ignores Alt moves at the edges', async () => {
+    const user = userEvent.setup();
+    render(<Harness sections={three()} />);
+    const select = (i: number) => within(rows()[i]).getByRole('button', { name: /Alpha|Beta|Gama/ });
+    select(0).focus();
+    await user.keyboard('{Alt>}{ArrowUp}{/Alt}');
+    expect(order()).toEqual(['Alpha', 'Beta', 'Gama']);
+    await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
+    expect(order()).toEqual(['Beta', 'Alpha', 'Gama']);
+    expect(select(1)).toHaveFocus();
+    select(2).focus();
+    await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
+    await user.click(screen.getByRole('button', { name: /Adicionar seção/ }));
+    expect(screen.getByRole('button', { name: /Adicionar seção/ })).toHaveFocus();
+  });
 });

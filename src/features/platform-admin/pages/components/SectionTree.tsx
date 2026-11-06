@@ -63,7 +63,10 @@ function SectionRow({ section, index, count, selected, invalid, locked, full, di
     if (locked || !event.altKey) return;
     if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
     event.preventDefault();
-    moveBy(event.key === 'ArrowUp' ? -1 : 1);
+    const delta = event.key === 'ArrowUp' ? -1 : 1;
+    // No-op at the edges: a pending focus request would otherwise steal focus on a later render.
+    if (index + delta < 0 || index + delta >= count) return;
+    moveBy(delta);
   };
   const remove = () => {
     focusAfter(ADD_FOCUS);

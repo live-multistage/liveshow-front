@@ -128,6 +128,7 @@
 }
 
 .label {
+  // Same editor-width constraint as COMPACT_INSPECTOR_QUERY in PageEditor.tsx.
   @media (max-width: 1500px) { display: none; }
 }
 

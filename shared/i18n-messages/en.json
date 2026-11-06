@@ -3313,14 +3313,16 @@
         "invalid": "Fix the fields to save",
         "error": "Could not save",
         "conflict": "Draft out of date",
-        "blocked": "Could not save"
+        "blocked": "Could not save",
+        "retry": "Try again"
       },
       "banner": {
         "error": "Could not save the draft. Trying again…",
         "retry": "Try now",
         "conflict": "{name} saved this draft at {time} while you were editing. Reload to see their version; your unsaved changes will be discarded.",
         "conflictAnonymous": "Another admin saved this draft at {time} while you were editing. Reload to see their version; your unsaved changes will be discarded.",
-        "reload": "Reload"
+        "reload": "Reload",
+        "reloadError": "Could not reload. Try again."
       },
       "topbar": {
         "deviceGroup": "Preview device",
