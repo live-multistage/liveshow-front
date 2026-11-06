@@ -277,3 +277,6 @@
 
 .stateTitle { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
 .stateText { margin: 0; font-size: 14px; line-height: 1.5; color: $text-secondary; }
+
+// Preview column hosts the absolutely positioned section library.
+.center { position: relative; }

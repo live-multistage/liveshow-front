@@ -6,14 +6,18 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { AlertTriangle, X } from 'lucide-react';
 import { Button } from '@live-show/design-system';
-import type { DraftConflict, PageDetail, PageSection } from '@live-show/api-contracts';
+import type { DraftConflict, PageDetail, PageSection, PageSectionType, PublicPage } from '@live-show/api-contracts';
 import { countInvalidFields, createEditorState, pageEditorReducer, selectInvalidSections } from '../hooks/page-editor-reducer';
 import { useDraftAutosave } from '../hooks/use-draft-autosave';
 import { useMediaQuery } from '../hooks/use-media-query';
+import { usePagePreviewQuery } from '../queries/use-pages';
 import { EditorTopbar, formatClock } from './EditorTopbar';
 import { HistoryDrawer } from './HistoryDrawer';
 import { PageSettingsDrawer } from './PageSettingsDrawer';
+import { PagePreview, type PreviewDevice } from './PagePreview';
 import { PublishDialog } from './PublishDialog';
+import { SectionInspector } from './SectionInspector';
+import { SectionLibrary } from './SectionLibrary';
 import { SectionTree } from './SectionTree';
 import styles from './PageEditor.module.scss';
 
@@ -21,6 +25,7 @@ import styles from './PageEditor.module.scss';
 // dashboard sidebar (256px) plus page padding, so the viewport breakpoint is 1100 + 256 + ~4 = 1360px.
 // Keep in sync with the `.label` breakpoint in PageEditor.module.scss, which hides topbar labels on the same constraint.
 export const COMPACT_INSPECTOR_QUERY = '(max-width: 1360px)';
+const NO_RESOLVED: PublicPage['resolved'] = { rails: {}, featured: {} };
 const UNDO_TOAST_MS = 6000;
 const PUBLISHED_TOAST_MS = 6000;
 
@@ -31,11 +36,10 @@ interface Props {
   onReload(): void;
   /** The last reload attempt failed: the editor stays locked on the stale draft. */
   reloadFailed?: boolean;
-  onOpenLibrary?(): void;
 }
 
 // Mount with `key` = page id (+ reload token): reducer state and autosave revision must not outlive the page.
-export function PageEditor({ page, onReload, reloadFailed, onOpenLibrary }: Props) {
+export function PageEditor({ page, onReload, reloadFailed }: Props) {
   const t = useTranslations('platformAdmin.pageEditor');
   const locale = useLocale();
   const compact = useMediaQuery(COMPACT_INSPECTOR_QUERY);
@@ -43,6 +47,10 @@ export function PageEditor({ page, onReload, reloadFailed, onOpenLibrary }: Prop
   // Latest revision the server holds for this draft; publish uses it as its optimistic-lock base.
   const [revision, setRevision] = useState(page.draftRevision);
   const [panel, setPanel] = useState<Panel>(null);
+  const [device, setDevice] = useState<PreviewDevice>('desktop');
+  // Zero-based insertion index while the section library is open.
+  const [libraryAt, setLibraryAt] = useState<number | null>(null);
+  const preview = usePagePreviewQuery(page.id, revision);
   const [publishedVersion, setPublishedVersion] = useState<number | null>(null);
   const [publishConflict, setPublishConflict] = useState<DraftConflict | null>(null);
   const autosave = useDraftAutosave({
@@ -97,7 +105,15 @@ export function PageEditor({ page, onReload, reloadFailed, onOpenLibrary }: Prop
     dispatch({ type: 'lock' });
   };
   const showInspector = compact ? state.selectedId !== null : true;
-  const inspector = <InspectorSlot page={page} selectedId={state.selectedId} />;
+  const selectedIndex = state.document.sections.findIndex((section) => section.id === state.selectedId);
+  const selected = state.document.sections[selectedIndex];
+  const inspector = selected
+    ? <SectionInspector key={selected.id} section={selected} index={selectedIndex} issues={issues[selected.id] ?? []} locked={state.locked} dispatch={dispatch} />
+    : <InspectorSlot page={page} />;
+  const addSection = (sectionType: PageSectionType) => {
+    dispatch({ type: 'add', sectionType, index: libraryAt ?? undefined, id: crypto.randomUUID() });
+    setLibraryAt(null);
+  };
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -107,6 +123,8 @@ export function PageEditor({ page, onReload, reloadFailed, onOpenLibrary }: Prop
           saveStatus={conflict ? { kind: 'conflict', conflict } : status}
           unpublished={unpublished}
           onRetry={autosave.saveNow}
+          device={device}
+          onDevice={setDevice}
           onPublish={() => setPanel('publish')}
           onHistory={() => setPanel('history')}
           onSettings={() => setPanel('settings')}
@@ -140,10 +158,23 @@ export function PageEditor({ page, onReload, reloadFailed, onOpenLibrary }: Prop
               issues={issues}
               locked={state.locked}
               dispatch={dispatch}
-              onAdd={() => onOpenLibrary?.()}
+              onAdd={() => setLibraryAt(state.document.sections.length)}
             />
           </div>
-          <div className={styles.column} data-testid="preview-slot" data-selected-id={state.selectedId ?? undefined} />
+          <div className={`${styles.column} ${styles.center}`}>
+            <PagePreview
+              document={state.document}
+              resolved={preview.data?.resolved ?? NO_RESOLVED}
+              selectedId={state.selectedId}
+              device={device}
+              locked={state.locked}
+              onSelect={(id) => { setLibraryAt(null); dispatch({ type: 'select', id }); }}
+              onInsert={setLibraryAt}
+            />
+            {libraryAt !== null && (
+              <SectionLibrary position={libraryAt} count={state.document.sections.length} onPick={addSection} onClose={() => setLibraryAt(null)} />
+            )}
+          </div>
           {showInspector && !compact && <div className={`${styles.column} ${styles.right}`}>{inspector}</div>}
           {showInspector && compact && (
             <aside className={styles.drawer} data-testid="inspector-drawer">
@@ -186,21 +217,17 @@ export function PageEditor({ page, onReload, reloadFailed, onOpenLibrary }: Prop
   );
 }
 
-// Placeholder: the properties panel arrives with the preview/inspector task.
-function InspectorSlot({ page, selectedId }: { page: PageDetail; selectedId: string | null }) {
+// Shown while no section is selected.
+function InspectorSlot({ page }: { page: PageDetail }) {
   const t = useTranslations('platformAdmin.pageEditor');
   return (
-    <div className={styles.inspector} data-testid="inspector-slot" data-selected-id={selectedId ?? undefined}>
-      {selectedId === null && (
-        <>
-          <div className={styles.inspectorHeader}>{t('inspector.pageTitle')}</div>
-          <div className={styles.inspectorBody}>
-            <b>{page.title}</b>
-            <span className={styles.path}>/p/{page.slug}</span>
-            <p className={styles.hint}>{t('inspector.emptyHint')}</p>
-          </div>
-        </>
-      )}
+    <div className={styles.inspector} data-testid="inspector-slot">
+      <div className={styles.inspectorHeader}>{t('inspector.pageTitle')}</div>
+      <div className={styles.inspectorBody}>
+        <b>{page.title}</b>
+        <span className={styles.path}>/p/{page.slug}</span>
+        <p className={styles.hint}>{t('inspector.emptyHint')}</p>
+      </div>
     </div>
   );
 }

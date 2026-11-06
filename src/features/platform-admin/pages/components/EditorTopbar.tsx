@@ -6,6 +6,7 @@ import { AlertTriangle, ArrowLeft, Check, ExternalLink, History, Monitor, Settin
 import { Button } from '@live-show/design-system';
 import type { PageDetail } from '@live-show/api-contracts';
 import type { AutosaveStatus } from '../hooks/use-draft-autosave';
+import type { PreviewDevice } from './PagePreview';
 import styles from './PageEditor.module.scss';
 
 export const PAGES_LIST_HREF = '/dashboard/platform/pages';
@@ -18,6 +19,8 @@ interface Props {
   page: PageDetail;
   saveStatus: AutosaveStatus;
   unpublished: boolean;
+  device?: PreviewDevice;
+  onDevice?(device: PreviewDevice): void;
   onRetry?(): void;
   onPublish?(): void;
   onHistory?(): void;
@@ -59,8 +62,7 @@ function SaveIndicator({ page, status, onRetry }: { page: PageDetail; status: Au
   }
 }
 
-// Device switch and preview belong to the preview task: they render here as disabled placeholders with the final labels.
-export function EditorTopbar({ page, saveStatus, unpublished, onRetry, onPublish, onHistory, onSettings, publishBlock = null }: Props) {
+export function EditorTopbar({ page, saveStatus, unpublished, device = 'desktop', onDevice, onRetry, onPublish, onHistory, onSettings, publishBlock = null }: Props) {
   const t = useTranslations('platformAdmin.pageEditor');
   const key = statusKey(page, unpublished);
 
@@ -81,8 +83,8 @@ export function EditorTopbar({ page, saveStatus, unpublished, onRetry, onPublish
       <SaveIndicator page={page} status={saveStatus} onRetry={onRetry} />
       <div className={styles.topbarActions}>
         <div className={styles.segment} role="group" aria-label={t('topbar.deviceGroup')}>
-          <Button type="button" variant="ghost" size="sm" aria-pressed="true" disabled><Monitor aria-hidden="true" /><span className={styles.label}>{t('topbar.desktop')}</span></Button>
-          <Button type="button" variant="ghost" size="sm" aria-pressed="false" disabled><Smartphone aria-hidden="true" /><span className={styles.label}>{t('topbar.mobile')}</span></Button>
+          <Button type="button" variant={device === 'desktop' ? 'secondary' : 'ghost'} size="sm" aria-pressed={device === 'desktop'} aria-label={t('topbar.desktop')} onClick={() => onDevice?.('desktop')}><Monitor aria-hidden="true" /><span className={styles.label}>{t('topbar.desktop')}</span></Button>
+          <Button type="button" variant={device === 'mobile' ? 'secondary' : 'ghost'} size="sm" aria-pressed={device === 'mobile'} aria-label={t('topbar.mobile')} onClick={() => onDevice?.('mobile')}><Smartphone aria-hidden="true" /><span className={styles.label}>{t('topbar.mobile')}</span></Button>
         </div>
         <span className={styles.vsep} />
         <Button type="button" variant="outline" size="sm" onClick={onHistory}><History aria-hidden="true" /><span className={styles.label}>{t('topbar.history')}</span></Button>

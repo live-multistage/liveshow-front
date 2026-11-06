@@ -6,4 +6,5 @@ export const pageKeys = {
   detail: (id: string) => [...pageKeys.all, 'detail', id] as const,
   versions: (id: string) => [...pageKeys.all, 'versions', id] as const,
   diff: (id: string) => [...pageKeys.all, 'diff', id] as const,
+  preview: (id: string, revision: number) => [...pageKeys.all, 'preview', id, revision] as const,
 };

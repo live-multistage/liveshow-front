@@ -25,6 +25,18 @@ describe('pagesService', () => {
     expect(httpClient.get).toHaveBeenCalledWith('/platform/pages', { params: { status: 'DRAFT', q: 'verão' } });
   });
 
+  it('uploadAsset posts the file as multipart field "file"', async () => {
+    httpClient.post.mockResolvedValue(ok({ url: 'https://cdn.showon.io/a.png' }));
+    const file = new File(['x'], 'a.png', { type: 'image/png' });
+
+    await expect(pagesService.uploadAsset(file)).resolves.toEqual({ url: 'https://cdn.showon.io/a.png' });
+
+    const [path, form, config] = httpClient.post.mock.calls[0];
+    expect(path).toBe('/platform/pages/assets');
+    expect((form as FormData).get('file')).toBe(file);
+    expect(config).toEqual({ headers: { 'Content-Type': 'multipart/form-data' } });
+  });
+
   it('saveDraft sends a PUT with the document and base revision', async () => {
     httpClient.put.mockResolvedValue(ok({ draftRevision: 4, draftUpdatedAt: '2026-11-05T00:00:00Z' }));
     const body: SaveDraftRequest = { document: { schemaVersion: 1, context: { type: 'none' }, sections: [] }, baseRevision: 3 };

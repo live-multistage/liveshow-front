@@ -38,3 +38,14 @@ export function usePublishDiffQuery(id: string, options: { enabled: boolean }) {
     staleTime: 0,
   });
 }
+
+// Keyed by draft revision: every successful autosave yields a fresh preview (resolved rails/featured), while the
+// previous one stays on screen until it arrives.
+export function usePagePreviewQuery(id: string, revision: number) {
+  return useQuery({
+    queryKey: pageKeys.preview(id, revision),
+    queryFn: () => pagesService.preview(id),
+    staleTime: Infinity,
+    placeholderData: keepPreviousData,
+  });
+}

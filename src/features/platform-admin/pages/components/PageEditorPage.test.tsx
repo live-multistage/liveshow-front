@@ -27,6 +27,7 @@ vi.mock('next/link', () => ({
 }));
 vi.mock('../queries/use-pages', () => ({
   usePageQuery: vi.fn(),
+  usePagePreviewQuery: vi.fn(() => ({ data: undefined })),
   usePublishDiffQuery: vi.fn(() => ({ data: { added: 1, removed: 0, edited: 0, hidden: 0, hasChanges: true, nextVersionNumber: 4 } })),
   usePageVersionsQuery: vi.fn(() => ({ data: [] })),
 }));
@@ -35,6 +36,7 @@ vi.mock('../mutations/use-page-mutations', () => {
   return {
     usePublishPageMutation: idle, useRestoreVersionMutation: idle, useUpdatePageSettingsMutation: idle,
     useUnpublishPageMutation: idle, useArchivePageMutation: idle, useUnarchivePageMutation: idle,
+    useUploadPageAssetMutation: idle,
   };
 });
 vi.mock('../services/pages.service', () => ({
@@ -223,5 +225,60 @@ describe('PageEditorPage', () => {
     await user.keyboard('{Escape}');
     await user.click(screen.getByRole('button', { name: /Configurações/ }));
     expect(screen.getByRole('dialog', { name: 'Configurações da página' })).toBeInTheDocument();
+  });
+  it('edits the selected section in the inspector and mirrors it in the tree and the preview', async () => {
+    const user = userEvent.setup();
+    render(<PageEditorPage pageId="A" />);
+    await user.click(within(rows()[1]).getByRole('button', { name: /Beta/ }));
+    const title = screen.getByLabelText(/^Título/);
+    await user.clear(title);
+    await user.type(title, 'Novo');
+    expect(titlesInOrder()).toEqual(['Alpha', 'Novo', 'Gama']);
+    expect(within(screen.getByTestId('preview-slot')).getByText('Novo')).toBeInTheDocument();
+  });
+
+  it('selects a section by clicking it in the preview', async () => {
+    const user = userEvent.setup();
+    render(<PageEditorPage pageId="A" />);
+    await user.click(within(screen.getByTestId('preview-slot')).getAllByRole('button', { name: /Selecionar seção/ })[2]);
+    expect(screen.getByTestId('inspector-slot')).toHaveAttribute('data-selected-id', sectionId('A', 3));
+  });
+
+  it('switches the preview between desktop and phone', async () => {
+    const user = userEvent.setup();
+    render(<PageEditorPage pageId="A" />);
+    expect(screen.getByTestId('preview-slot')).toHaveAttribute('data-device', 'desktop');
+    await user.click(screen.getByRole('button', { name: /Celular/ }));
+    expect(screen.getByTestId('preview-slot')).toHaveAttribute('data-device', 'mobile');
+    expect(screen.getByRole('button', { name: /Celular/ })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('adds a section from the library at the end and selects it', async () => {
+    const user = userEvent.setup();
+    render(<PageEditorPage pageId="A" />);
+    await user.click(screen.getByRole('button', { name: 'Adicionar seção' }));
+    await user.click(within(screen.getByRole('dialog', { name: 'Biblioteca de seções' })).getByRole('button', { name: 'Adicionar Perguntas frequentes' }));
+    expect(screen.queryByRole('dialog', { name: 'Biblioteca de seções' })).not.toBeInTheDocument();
+    expect(rows()).toHaveLength(4);
+    expect(screen.getByText('Perguntas frequentes · SEÇÃO 04')).toBeInTheDocument();
+  });
+
+  it('inserts at the position chosen in the preview', async () => {
+    const user = userEvent.setup();
+    render(<PageEditorPage pageId="A" />);
+    await user.click(screen.getAllByRole('button', { name: /Inserir seção antes de/ })[1]);
+    expect(screen.getByText(/POSIÇÃO 02/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Adicionar Chamada final' }));
+    expect(screen.getByText('Chamada final · SEÇÃO 02')).toBeInTheDocument();
+  });
+
+  it('blocks Publicar and reports the count while a field is invalid', async () => {
+    saveDraft.mockResolvedValue({ draftRevision: 2, draftUpdatedAt: '2026-11-05T15:00:00' });
+    const user = userEvent.setup();
+    render(<PageEditorPage pageId="A" />);
+    await user.click(screen.getAllByRole('button', { name: /Selecionar seção/ })[0]);
+    await user.type(screen.getByLabelText(/^Texto/), '{Control>}a{/Control}{Backspace}');
+    expect(screen.getByRole('button', { name: 'Publicar' }).parentElement).toHaveAttribute('title', 'Corrija 1 campo antes de publicar');
+    expect(screen.getByRole('button', { name: 'Publicar' })).toBeDisabled();
   });
 });

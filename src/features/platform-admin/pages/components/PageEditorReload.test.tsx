@@ -20,7 +20,7 @@ vi.mock('next-intl', () => ({
       : key;
   },
 }));
-vi.mock('../queries/use-pages', () => ({ usePageQuery: vi.fn() }));
+vi.mock('../queries/use-pages', () => ({ usePageQuery: vi.fn(), usePagePreviewQuery: vi.fn(() => ({ data: undefined })) }));
 vi.mock('../services/pages.service', () => ({
   pagesService: { saveDraft: vi.fn() },
   isDraftConflict: (e: { response?: { status?: number; data?: { code?: string } } }) =>

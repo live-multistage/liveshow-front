@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { CreatePageRequest, DraftConflict, PageDetail, PageVersionSummary, PublishPageRequest, UpdatePageSettingsRequest } from '@live-show/api-contracts';
+import type { CreatePageRequest, DraftConflict, PageAssetResponse, PageDetail, PageVersionSummary, PublishPageRequest, UpdatePageSettingsRequest } from '@live-show/api-contracts';
 import { normalizeError, type AppError } from '@/lib/http/errors';
 import { isDraftConflict, pagesService } from '../services/pages.service';
 import { pageKeys } from '../queries/page.keys';
@@ -93,4 +93,10 @@ export function useArchivePageMutation(id: string) {
 
 export function useUnarchivePageMutation(id: string) {
   return useLifecycleMutation(id, pagesService.unarchive);
+}
+
+export function useUploadPageAssetMutation() {
+  return useMutation<PageAssetResponse, AppError, File>({
+    mutationFn: (file) => run(() => pagesService.uploadAsset(file)),
+  });
 }

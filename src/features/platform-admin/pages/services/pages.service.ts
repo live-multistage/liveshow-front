@@ -3,6 +3,7 @@ import { httpClient } from '@/lib/http/client';
 import type {
   CreatePageRequest,
   DraftConflict,
+  PageAssetResponse,
   PageDetail,
   PageStatus,
   PageSummary,
@@ -42,6 +43,12 @@ export const pagesService = {
   archive: async (id: string) => (await httpClient.post<PageDetail>(`/platform/pages/${id}/archive`)).data,
   unarchive: async (id: string) => (await httpClient.post<PageDetail>(`/platform/pages/${id}/unarchive`)).data,
   preview: async (id: string) => (await httpClient.get<PublicPage>(`/platform/pages/${id}/preview`)).data,
+  uploadAsset: async (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    const { data } = await httpClient.post<PageAssetResponse>('/platform/pages/assets', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return data;
+  },
 };
 
 export function isDraftConflict(error: unknown): error is AxiosError<DraftConflict> {

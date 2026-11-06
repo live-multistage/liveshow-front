@@ -293,3 +293,12 @@ export function pageSlugError(slug: string): 'format' | 'reserved' | null {
   if (RESERVED_PAGE_SLUGS.includes(slug)) return 'reserved';
   return PAGE_SLUG_RE.test(slug) ? null : 'format';
 }
+
+export interface PageAssetResponse {
+  url: string;
+}
+
+export const PAGE_ASSET_LIMITS = {
+  maxBytes: 5 * 1024 * 1024,
+  mimeTypes: ['image/png', 'image/jpeg', 'image/webp'],
+} as const;
