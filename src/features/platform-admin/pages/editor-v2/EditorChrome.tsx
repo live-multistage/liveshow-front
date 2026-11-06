@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import { createUsePuck, Puck } from '@puckeditor/core';
 import type { Breakpoint, PageDetail } from '@live-show/api-contracts';
 import type { AutosaveStatus } from '../hooks/use-draft-autosave';
 import { EditorTopbar } from '../components/EditorTopbar';
 import { CanvasStage } from './CanvasStage';
+import { SaveAsBlockProvider } from './left/SaveAsBlock';
 import { BREAKPOINT_WIDTH, breakpointFromWidth, useBreakpoint, useBreakpointSetter } from './use-breakpoint';
 import styles from './PageEditorV2.module.scss';
 
@@ -47,6 +49,9 @@ export function EditorChrome({ banners, locked, ...topbar }: Props) {
   const back = usePuck((s) => s.history.back);
   const forward = usePuck((s) => s.history.forward);
   const breakpoint = useBreakpoint();
+  const t = useTranslations('platformAdmin.pageEditorV2');
+  // Text of the empty-slot hint drawn by CSS inside the canvas (see PageEditorV2.module.scss).
+  const slotLabel = { '--slot-empty-label': JSON.stringify(t('add.slotEmpty')) } as React.CSSProperties;
   const setBreakpoint = useBreakpointSetter();
   useBlockHistoryKeys(locked);
 
@@ -68,18 +73,20 @@ export function EditorChrome({ banners, locked, ...topbar }: Props) {
         canRedo={!locked && hasFuture}
       />
       {banners}
-      <div className={styles.body}>
-        <div className={`${styles.left} ${locked ? styles.locked : ''}`}>
-          <Puck.Components />
-          <Puck.Outline />
+      <SaveAsBlockProvider>
+        <div className={styles.body} style={slotLabel}>
+          <div className={`${styles.left} ${locked ? styles.locked : ''}`}>
+            <Puck.Components />
+            <Puck.Outline />
+          </div>
+          <div className={`${styles.canvas} ${locked ? styles.locked : ''}`} data-testid="editor-canvas">
+            <CanvasStage width={BREAKPOINT_WIDTH[breakpoint]}><Puck.Preview /></CanvasStage>
+          </div>
+          <div className={`${styles.right} ${locked ? styles.locked : ''}`}>
+            <Puck.Fields />
+          </div>
         </div>
-        <div className={`${styles.canvas} ${locked ? styles.locked : ''}`} data-testid="editor-canvas">
-          <CanvasStage width={BREAKPOINT_WIDTH[breakpoint]}><Puck.Preview /></CanvasStage>
-        </div>
-        <div className={`${styles.right} ${locked ? styles.locked : ''}`}>
-          <Puck.Fields />
-        </div>
-      </div>
+      </SaveAsBlockProvider>
     </>
   );
 }

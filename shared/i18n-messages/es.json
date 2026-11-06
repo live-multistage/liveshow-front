@@ -3652,6 +3652,64 @@
         "text": "El editor actual no abre páginas del nuevo formato. Mira la vista previa abajo; para editar, el nuevo editor debe estar activo.",
         "back": "Volver a páginas"
       },
+      "add": {
+        "tabs": {
+          "widgets": "Widgets",
+          "blocks": "Bloques"
+        },
+        "search": "Buscar widget",
+        "none": "No se encontraron widgets.",
+        "realData": "Datos reales",
+        "groups": {
+          "structure": "Estructura",
+          "basic": "Básico",
+          "content": "Contenido",
+          "events": "Eventos"
+        },
+        "reasonRoot": "Directo en la página solo entran secciones. Selecciona una sección para agregar aquí.",
+        "reasonParent": "{parent} no acepta {child} dentro.",
+        "slotEmpty": "Suelta un widget aquí"
+      },
+      "blocks": {
+        "ready": "Bloques listos",
+        "mine": "Mis bloques",
+        "loading": "Cargando tus bloques…",
+        "error": "No se pudieron cargar tus bloques.",
+        "retry": "Intentar de nuevo",
+        "mineEmpty": "Aún no guardaste ningún bloque. Selecciona una sección, columnas o columna en Capas y usa “Guardar como bloque”.",
+        "insert": "Insertar {name}",
+        "emptyTitle": "Empieza con un bloque listo",
+        "emptyText": "Elige un bloque abajo o agrega una sección vacía en la pestaña Widgets y arma con columnas y widgets.",
+        "insertOpening": "Insertar “Apertura”",
+        "save": {
+          "eyebrow": "Mis bloques",
+          "title": "Guardar como bloque",
+          "name": "Nombre del bloque",
+          "summary": "{type} · {count} elementos",
+          "note": "El bloque aparece en “Agregar › Bloques” para todas las páginas. Cada uso es una copia: editar el bloque después no cambia las páginas que ya lo usan.",
+          "cancel": "Cancelar",
+          "submit": "Guardar bloque",
+          "saved": "Bloque “{name}” guardado",
+          "error": "No se pudo guardar el bloque. Intenta de nuevo.",
+          "invalid": "El bloque tiene campos inválidos.",
+          "forbidden": "No tienes permiso para gestionar bloques."
+        },
+        "emptySection": "Sección vacía"
+      },
+      "layers": {
+        "title": "Capas",
+        "empty": "La página aún no tiene elementos.",
+        "expand": "Expandir",
+        "collapse": "Contraer",
+        "overrides": "Tiene estilos propios para tablet (T) y/o celular (C)",
+        "error": "Tiene un error",
+        "moveUp": "Mover arriba",
+        "moveDown": "Mover abajo",
+        "moveOut": "Sacar del padre",
+        "saveAsBlock": "Guardar como bloque",
+        "hide": "Ocultar en {bp}",
+        "show": "Mostrar en {bp}"
+      },
       "inspector": {
         "empty": {
           "title": "Nada seleccionado",
