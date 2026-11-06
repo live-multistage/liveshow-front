@@ -5,6 +5,7 @@ import { createUsePuck, Puck } from '@puckeditor/core';
 import type { Breakpoint, PageDetail } from '@live-show/api-contracts';
 import type { AutosaveStatus } from '../hooks/use-draft-autosave';
 import { EditorTopbar } from '../components/EditorTopbar';
+import { CanvasStage } from './CanvasStage';
 import { BREAKPOINT_WIDTH, breakpointFromWidth, useBreakpoint, useBreakpointSetter } from './use-breakpoint';
 import styles from './PageEditorV2.module.scss';
 
@@ -60,7 +61,7 @@ export function EditorChrome({ banners, locked, ...topbar }: Props) {
           <Puck.Outline />
         </div>
         <div className={`${styles.canvas} ${locked ? styles.locked : ''}`} data-testid="editor-canvas">
-          <Puck.Preview />
+          <CanvasStage width={BREAKPOINT_WIDTH[breakpoint]}><Puck.Preview /></CanvasStage>
         </div>
         <div className={`${styles.right} ${locked ? styles.locked : ''}`}>
           <Puck.Fields />

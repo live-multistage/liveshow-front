@@ -19,11 +19,37 @@
 .left { border-right: 1px solid $border-hairline; }
 .right { border-left: 1px solid $border-hairline; }
 
-// The canvas keeps the real breakpoint width; Puck scales it to fit.
+// The canvas keeps the real breakpoint width; CanvasStage scales it to fit.
 .canvas {
   min-height: 0;
   min-width: 0;
   overflow: auto;
+}
+
+.stage {
+  width: 100%;
+}
+
+.sizer {
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.stagePage {
+  transform-origin: top left;
+
+  // Puck wraps the children of a slot in one div, which would become the only grid/flex item of its parent.
+  // It has to keep its box (it is the drop target), so it takes over the parent's layout instead.
+  [data-puck-dropzone] {
+    display: inherit;
+    flex-direction: inherit;
+    flex-wrap: inherit;
+    align-items: inherit;
+    justify-content: inherit;
+    gap: inherit;
+    grid-template-columns: inherit;
+    grid-column: 1 / -1;
+  }
 }
 
 // Conflict: editing is blocked, the page stays readable.
