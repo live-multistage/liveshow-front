@@ -1,0 +1,141 @@
+// One class per style token, generated from the SCSS token maps (never written by hand).
+// Families: base = desktop, `t-` = tablet, `m-` = mobile. Tablet/mobile live inside `@container page` queries (the page root
+// is the container, see ElementRenderer's PageRoot), declared after the base so they override it at equal specificity.
+// Class names must match style-classes.ts; style.module test compiles this file and checks every key/value exists.
+@use 'sass:list';
+@use 'sass:map';
+@use '../../../../styles/variables' as *;
+
+$mono: var(--font-space-mono), 'Space Mono', monospace;
+
+$colors: (
+  bg: $bg, surface: $surface, surfaceDark: $surface-dark, accent: $accent, action: $action, 'violet': $violet, price: $price,
+  textPrimary: $text-primary, textSecondary: $text-secondary, textMuted: $text-muted, border: $border,
+);
+$maxw: (narrow: 48ch, prose: 68ch);
+// Section content width, read by the inner wrapper (`max-width: var(--page-w)`). Values from the prototype.
+$widths: (narrow: 760px, contained: 1200px, wide: 1440px, full: none);
+$minh: (tall: 560px, screen: 100svh);
+$aligns: (start: flex-start, center: center, end: flex-end, stretch: stretch);
+$ratios: (
+  '1-1': minmax(0, 1fr) minmax(0, 1fr),
+  '2-1': minmax(0, 2fr) minmax(0, 1fr),
+  '1-2': minmax(0, 1fr) minmax(0, 2fr),
+  '3-2': minmax(0, 3fr) minmax(0, 2fr),
+  '1-1-1': minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr),
+  '2-1-1': minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr),
+  '1-2-1': minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr),
+  '1-1-1-1': minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr),
+);
+$aspects: ('16-9': '16 / 9', '4-3': '4 / 3', '1-1': '1 / 1', '4-5': '4 / 5', '21-9': '21 / 9');
+$sizes: (
+  sm: (34px, 0 14px, 13px),
+  md: (42px, 0 20px, 14px),
+  lg: (48px, 0 24px, 15px),
+);
+
+@mixin tokens($p, $bp) {
+  // Order matters inside a family: shorthands first so longhands (pt over p, ratio over cols) win.
+  @each $k, $v in $space {
+    .#{$p}p-#{$k} { padding: $v; }
+  }
+  @each $k, $v in $space {
+    .#{$p}pt-#{$k} { padding-top: $v; }
+    .#{$p}pb-#{$k} { padding-bottom: $v; }
+    .#{$p}pl-#{$k} { padding-left: $v; }
+    .#{$p}pr-#{$k} { padding-right: $v; }
+    .#{$p}gap-#{$k} { gap: $v; }
+    .#{$p}my-#{$k} { margin-top: $v; margin-bottom: $v; }
+    .#{$p}h-#{$k} { height: $v; }
+  }
+
+  @each $k, $t in $typo {
+    .#{$p}ty-#{$k} {
+      font-size: map.get($t, 'size-#{$bp}');
+      font-weight: map.get($t, weight);
+      letter-spacing: map.get($t, tracking);
+      line-height: map.get($t, line-height);
+      @if $k == label {
+        font-family: $mono;
+        text-transform: uppercase;
+      } @else {
+        font-family: inherit;
+        text-transform: none;
+      }
+    }
+  }
+
+  @each $k, $v in $colors {
+    .#{$p}c-#{$k} { color: $v; }
+    .#{$p}bg-c-#{$k} { background: $v; }
+  }
+  @each $k, $v in $page-gradients {
+    .#{$p}bg-g-#{$k} { background: $v; }
+  }
+  // The <img> itself is rendered by BgImage; this class only gives it a positioning context and a fallback colour.
+  .#{$p}bg-image { position: relative; isolation: isolate; background: #050406; }
+
+  @each $k, $v in $radius {
+    .#{$p}r-#{$k} {
+      border-radius: $v;
+      @if $v != 0 { overflow: hidden; }
+    }
+  }
+  @each $k, $v in $page-borders {
+    .#{$p}bd-#{$k} { border: $v; }
+  }
+  @each $k, $v in $shadow {
+    .#{$p}sh-#{$k} { box-shadow: $v; }
+  }
+
+  // `start`/`end` follow reading direction. The auto margins let a max-width block sit where the text is aligned.
+  .#{$p}al-start { text-align: start; margin-inline: 0 auto; }
+  .#{$p}al-center { text-align: center; margin-inline: auto; }
+  .#{$p}al-end { text-align: end; margin-inline: auto 0; }
+  @each $k, $v in $aligns {
+    .#{$p}va-#{$k} { align-items: $v; }
+  }
+  .#{$p}ha-start { justify-content: flex-start; }
+  .#{$p}ha-center { justify-content: center; }
+  .#{$p}ha-end { justify-content: flex-end; }
+
+  @each $k, $v in $maxw {
+    .#{$p}mw-#{$k} { max-width: $v; }
+  }
+  @each $k, $v in $widths {
+    .#{$p}w-#{$k} { --page-w: #{$v}; }
+  }
+  @each $k, $v in $minh {
+    .#{$p}mh-#{$k} { min-height: $v; }
+  }
+
+  @each $n in (1, 2, 3, 4) {
+    .#{$p}cols-#{$n} { grid-template-columns: repeat($n, minmax(0, 1fr)); }
+  }
+  @each $k, $v in $ratios {
+    .#{$p}ratio-#{$k} { grid-template-columns: $v; }
+  }
+
+  .#{$p}v-primary { background: $action; color: $ink; border-color: transparent; }
+  .#{$p}v-secondary { background: transparent; color: $text-primary; border-color: rgba(255, 255, 255, 0.2); }
+  .#{$p}v-light { background: #fff; color: $ink; border-color: transparent; }
+  .#{$p}v-ghost { background: transparent; color: $action; border-color: transparent; }
+  @each $k, $s in $sizes {
+    .#{$p}sz-#{$k} { height: list.nth($s, 1); padding: list.nth($s, 2); font-size: list.nth($s, 3); }
+  }
+  .#{$p}full-1 { width: 100%; }
+  .#{$p}full-0 { width: auto; }
+
+  @each $k, $v in $aspects {
+    .#{$p}as-#{$k} { aspect-ratio: #{$v}; }
+  }
+}
+
+@include tokens('', 'desktop');
+@container page (max-width: 1023px) { @include tokens('t-', 'tablet'); }
+@container page (max-width: 639px) { @include tokens('m-', 'mobile'); }
+
+// Hidden per breakpoint: ranges are exclusive, so hiding on tablet never hides desktop or mobile.
+@container page (min-width: 1024px) { .hide-d { display: none !important; } }
+@container page (min-width: 640px) and (max-width: 1023px) { .hide-t { display: none !important; } }
+@container page (max-width: 639px) { .hide-m { display: none !important; } }
