@@ -3651,6 +3651,64 @@
         "title": "Esta página usa o novo editor",
         "text": "O editor atual não abre páginas do novo formato. Veja a prévia abaixo; para editar, o novo editor precisa estar ativo.",
         "back": "Voltar para páginas"
+      },
+      "add": {
+        "tabs": {
+          "widgets": "Widgets",
+          "blocks": "Blocos"
+        },
+        "search": "Buscar widget",
+        "none": "Nenhum widget encontrado.",
+        "realData": "Dados reais",
+        "groups": {
+          "structure": "Estrutura",
+          "basic": "Básico",
+          "content": "Conteúdo",
+          "events": "Eventos"
+        },
+        "reasonRoot": "Direto na página só entram seções. Selecione uma seção para adicionar aqui.",
+        "reasonParent": "{parent} não aceita {child} dentro.",
+        "slotEmpty": "Solte um widget aqui"
+      },
+      "blocks": {
+        "ready": "Blocos prontos",
+        "mine": "Meus blocos",
+        "loading": "Carregando seus blocos…",
+        "error": "Não foi possível carregar seus blocos.",
+        "retry": "Tentar de novo",
+        "mineEmpty": "Você ainda não salvou nenhum bloco. Selecione uma seção, colunas ou coluna nas Camadas e use “Salvar como bloco”.",
+        "insert": "Inserir {name}",
+        "emptyTitle": "Comece por um bloco pronto",
+        "emptyText": "Escolha um bloco abaixo ou adicione uma seção vazia na aba Widgets e monte com colunas e widgets.",
+        "insertOpening": "Inserir “Abertura”",
+        "save": {
+          "eyebrow": "Meus blocos",
+          "title": "Salvar como bloco",
+          "name": "Nome do bloco",
+          "summary": "{type} · {count} elementos",
+          "note": "O bloco aparece em “Adicionar › Blocos” para todas as páginas. Cada uso é uma cópia: editar o bloco depois não altera páginas que já o usam.",
+          "cancel": "Cancelar",
+          "submit": "Salvar bloco",
+          "saved": "Bloco “{name}” salvo",
+          "error": "Não foi possível salvar o bloco. Tente de novo.",
+          "invalid": "O bloco tem campos inválidos.",
+          "forbidden": "Você não tem permissão para gerenciar blocos."
+        },
+        "emptySection": "Seção vazia"
+      },
+      "layers": {
+        "title": "Camadas",
+        "empty": "A página ainda não tem elementos.",
+        "expand": "Expandir",
+        "collapse": "Recolher",
+        "overrides": "Tem estilos próprios para tablet (T) e/ou celular (C)",
+        "error": "Tem erro",
+        "moveUp": "Mover para cima",
+        "moveDown": "Mover para baixo",
+        "moveOut": "Mover para fora do pai",
+        "saveAsBlock": "Salvar como bloco",
+        "hide": "Ocultar no {bp}",
+        "show": "Mostrar no {bp}"
       }
     },
     "seo": {
