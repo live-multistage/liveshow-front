@@ -109,6 +109,40 @@ $mono: var(--font-space-mono), 'Space Mono', monospace;
   @container page (max-width: 1023px) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   @container page (max-width: 639px) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 }
+// Editor only: skeleton cards while the event data loads.
+.skelPoster,
+.skelLine {
+  display: block;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  animation: skelPulse 1.4s ease-in-out infinite;
+}
+.skelPoster { aspect-ratio: 3 / 4; }
+.skelLine { height: 12px; width: 80%; margin-top: 8px; }
+@keyframes skelPulse { 50% { opacity: 0.4; } }
+
+// Editor only: a data widget with nothing to show says why.
+.notice {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 26px;
+  border: 1px dashed #3f3f46;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+  font-size: 13px;
+  color: $text-muted;
+  b { color: #d4d4d8; }
+}
+.noticeError {
+  border-color: rgba(248, 113, 113, 0.5);
+  border-radius: 16px;
+  color: $text-secondary;
+  b { color: #fca5a5; }
+}
+
 .eventCard {
   display: flex;
   flex-direction: column;

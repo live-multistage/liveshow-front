@@ -3777,7 +3777,9 @@
             "group": "Coloca elementos lado a lado, com quebra de linha automática.",
             "divider": "Sem conteúdo. Ajuste na aba Estilo.",
             "spacer": "Sem conteúdo. Ajuste na aba Estilo."
-          }
+          },
+          "railEmpty": "Nenhum evento corresponde a este filtro hoje. Na página publicada o trilho fica oculto.",
+          "featuredMissing": "O evento escolhido não está mais disponível. Foi cancelado ou deixou de ser público."
         },
         "style": {
           "bp": {

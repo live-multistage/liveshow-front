@@ -8,7 +8,7 @@ import { AlertTriangle, Layers, X } from 'lucide-react';
 import { Button } from '@live-show/design-system';
 import {
   pageDraftV2Schema, upgradePageDocument, validatePageAgainstProfile, validatePageTreeV2,
-  type DraftConflict, type ElementType, type PageDetail, type PageDocumentV2,
+  type DraftConflict, type ElementType, type PageDetail, type PageDocumentV2, type PageElement,
 } from '@live-show/api-contracts';
 import { useDraftAutosave } from '../hooks/use-draft-autosave';
 import { usePagePreviewQuery } from '../queries/use-pages';
@@ -19,9 +19,11 @@ import { PublishDialog } from '../components/PublishDialog';
 import shell from '../components/PageEditor.module.scss';
 import { EditorChrome } from './EditorChrome';
 import { PANEL_OVERRIDES } from './panels';
+import { EditorDataProvider } from './editor-data';
 import { createPuckConfig } from './puck-config';
 import { fromPuckData, toPuckData } from './puck-data';
 import { BREAKPOINT_WIDTH, BreakpointProvider, VIEWPORTS } from './use-breakpoint';
+import { useResolveData } from './use-resolve-data';
 import styles from './PageEditorV2.module.scss';
 
 const PUBLISHED_TOAST_MS = 6000;
@@ -52,6 +54,8 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
   const convertedFromV1 = page.draft.schemaVersion === 1 && page.draft.sections.length > 0;
   const [initial] = useState<PageDocumentV2>(() => upgradePageDocument(page.draft));
   const [puckData] = useState<Data>(() => toPuckData(initial));
+  // The content as Puck holds it (its own ids), for the event data of elements that are not saved yet.
+  const [puckContent, setPuckContent] = useState(puckData.content);
   const [document, setDocument] = useState(initial);
   const documentRef = useRef(initial);
   const [dirty, setDirty] = useState(false);
@@ -82,11 +86,18 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
   });
 
   const config = useMemo(() => createPuckConfig((type: ElementType) => tv2(`types.${type}`)), [tv2]);
-  const metadata = useMemo(() => ({ resolved: preview.data?.resolved ?? NO_RESOLVED }), [preview.data]);
+  const live = useResolveData(puckContent as unknown as PageElement[]);
+  // What was fetched for the editor's current state wins over the preview of the saved draft.
+  const editorData = useMemo(() => {
+    const saved = preview.data?.resolved ?? NO_RESOLVED;
+    const resolved = { rails: { ...saved.rails, ...live.resolved.rails }, featured: { ...saved.featured, ...live.resolved.featured }, live: { ...saved.live, ...live.resolved.live } };
+    return { resolved, loading: live.loading };
+  }, [preview.data, live]);
 
   // Locked: Puck's own keyboard history (Cmd+Z) still moves its tree; the document and what "copy my changes" hands out must not follow.
   const onChange = useCallback((data: Data) => {
     if (lockedRef.current) return;
+    setPuckContent(data.content);
     const next = fromPuckData(data, documentRef.current.context);
     if (JSON.stringify(next) === JSON.stringify(documentRef.current)) return;
     documentRef.current = next;
@@ -172,23 +183,25 @@ export function PageEditorV2({ page, onReload, reloadFailed }: Props) {
           ui={PUCK_UI}
           overrides={PANEL_OVERRIDES}
           dictionary={PUCK_DICTIONARY}
-          metadata={metadata}
+          metadata={editorData}
           permissions={isLocked ? LOCKED_PERMISSIONS : undefined}
           onChange={onChange}
         >
-          <EditorChrome
-            page={page}
-            saveStatus={conflict ? { kind: 'conflict', conflict } : status}
-            unpublished={unpublished}
-            publishBlock={publishBlock}
-            historyDisabled={!!conflict}
-            locked={isLocked}
-            onRetry={autosave.saveNow}
-            onPublish={() => setPanel('publish')}
-            onHistory={() => setPanel('history')}
-            onSettings={() => setPanel('settings')}
-            banners={banners}
-          />
+          <EditorDataProvider value={editorData}>
+            <EditorChrome
+              page={page}
+              saveStatus={conflict ? { kind: 'conflict', conflict } : status}
+              unpublished={unpublished}
+              publishBlock={publishBlock}
+              historyDisabled={!!conflict}
+              locked={isLocked}
+              onRetry={autosave.saveNow}
+              onPublish={() => setPanel('publish')}
+              onHistory={() => setPanel('history')}
+              onSettings={() => setPanel('settings')}
+              banners={banners}
+            />
+          </EditorDataProvider>
         </Puck>
       </BreakpointProvider>
       {panel === 'publish' && (

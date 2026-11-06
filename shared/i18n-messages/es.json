@@ -3777,7 +3777,9 @@
             "group": "Coloca elementos uno al lado del otro, con salto de línea automático.",
             "divider": "Sin contenido. Ajusta en la pestaña Estilo.",
             "spacer": "Sin contenido. Ajusta en la pestaña Estilo."
-          }
+          },
+          "railEmpty": "Ningún evento coincide con este filtro hoy. En la página publicada el carrusel queda oculto.",
+          "featuredMissing": "El evento elegido ya no está disponible. Fue cancelado o dejó de ser público."
         },
         "style": {
           "bp": {

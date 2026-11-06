@@ -34,6 +34,8 @@ vi.mock('../mutations/use-page-mutations', () => {
     useUploadPageAssetMutation: idle,
   };
 });
+const live = vi.hoisted(() => ({ value: { resolved: { rails: {}, featured: {}, live: {} }, loading: [] as string[] } as { resolved: Record<string, Record<string, unknown>>; loading: string[] } }));
+vi.mock('./use-resolve-data', () => ({ useResolveData: () => live.value }));
 vi.mock('../queries/use-page-blocks', () => ({
   usePageBlocksQuery: () => ({ data: [], isPending: false, isError: false }),
   useCreatePageBlockMutation: () => ({ mutate: vi.fn(), isPending: false, isError: false }),
@@ -139,6 +141,16 @@ describe('route', () => {
     render(<PageEditorPage pageId="P" />);
     expect(screen.getByTestId('v2-read-only').textContent).toContain('Esta página usa o novo editor');
     expect(screen.queryByTestId('puck')).toBeNull();
+  });
+});
+
+describe('event data on the canvas', () => {
+  it('hands the renderers what was fetched for the editor state, over the preview of the saved draft, and who is loading', async () => {
+    live.value = { resolved: { rails: { 'eventRail-new': [] }, featured: {}, live: {} }, loading: ['eventRail-loading'] };
+    await mountV2(v2Document());
+    expect(puck.props.metadata.resolved.rails).toEqual({ 'eventRail-new': [] });
+    expect(puck.props.metadata.loading).toEqual(['eventRail-loading']);
+    live.value = { resolved: { rails: {}, featured: {}, live: {} }, loading: [] };
   });
 });
 

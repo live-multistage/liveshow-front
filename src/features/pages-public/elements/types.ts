@@ -6,6 +6,8 @@ export interface RenderContext {
   resolved: PublicPage['resolved'];
   /** `editor`: data widgets draw a placeholder when they have no data; `public`: they render nothing. */
   mode: 'public' | 'editor';
+  /** Editor only: data elements whose event data has not arrived yet (they draw a skeleton). An array, not a Set: Puck clones `metadata` and a Set does not survive it. */
+  loading?: readonly string[];
 }
 
 /** Attributes every element root receives from ElementRenderer: the anchor and the token classes. */

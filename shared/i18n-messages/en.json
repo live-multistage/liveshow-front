@@ -3777,7 +3777,9 @@
             "group": "Places elements side by side, wrapping automatically.",
             "divider": "No content. Adjust it in the Style tab.",
             "spacer": "No content. Adjust it in the Style tab."
-          }
+          },
+          "railEmpty": "No event matches this filter today. On the published page the rail stays hidden.",
+          "featuredMissing": "The chosen event is no longer available. It was cancelled or is no longer public."
         },
         "style": {
           "bp": {

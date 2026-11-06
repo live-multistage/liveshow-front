@@ -5,6 +5,8 @@ import type {
   DraftConflict,
   PageAssetResponse,
   PageDetail,
+  PageElement,
+  PageResolvedData,
   PageStatus,
   PageSummary,
   PageVersionDocument,
@@ -42,6 +44,9 @@ export const pagesService = {
   unpublish: async (id: string) => (await httpClient.post<PageDetail>(`/platform/pages/${id}/unpublish`)).data,
   archive: async (id: string) => (await httpClient.post<PageDetail>(`/platform/pages/${id}/archive`)).data,
   unarchive: async (id: string) => (await httpClient.post<PageDetail>(`/platform/pages/${id}/unarchive`)).data,
+  /** Real event data for data elements the editor holds but has not saved (max `PAGE_RESOLVE_DATA_MAX` per call). */
+  resolveData: async (elements: PageElement[]) =>
+    (await httpClient.post<PageResolvedData>('/platform/pages/resolve-data', { elements })).data,
   preview: async (id: string) => (await httpClient.get<PublicPage>(`/platform/pages/${id}/preview`)).data,
   uploadAsset: async (file: File) => {
     const form = new FormData();

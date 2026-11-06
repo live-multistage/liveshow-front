@@ -40,6 +40,7 @@ import { toPuckData } from '../puck-data';
 import { BreakpointProvider, useBreakpointSetter } from '../use-breakpoint';
 import { ElementInspector } from './ElementInspector';
 import { ServerIssuesProvider } from './element-issues';
+import { EditorDataProvider } from '../editor-data';
 
 const SECTION = '99999999-9999-4999-8999-999999999999';
 const ELEMENT = '11111111-1111-4111-8111-111111111111';
@@ -68,11 +69,13 @@ function SetBreakpoint({ bp }: { bp: 'desktop' | 'tablet' | 'mobile' }) {
   return null;
 }
 
-function renderInspector(bp: 'desktop' | 'tablet' | 'mobile' = 'desktop', serverIssues = {}) {
+function renderInspector(bp: 'desktop' | 'tablet' | 'mobile' = 'desktop', serverIssues = {}, data = { rails: {}, featured: {}, live: {} } as Record<string, Record<string, unknown>>) {
   return render(
     <BreakpointProvider>
       <SetBreakpoint bp={bp} />
-      <ServerIssuesProvider value={serverIssues}><ElementInspector /></ServerIssuesProvider>
+      <EditorDataProvider value={{ resolved: data as never, loading: [] }}>
+        <ServerIssuesProvider value={serverIssues}><ElementInspector /></ServerIssuesProvider>
+      </EditorDataProvider>
     </BreakpointProvider>,
   );
 }
@@ -82,6 +85,24 @@ const replaced = (dispatch: ReturnType<typeof vi.fn>) => dispatch.mock.calls.map
 beforeEach(() => uploadMutate.mockReset());
 
 const replaces = (dispatch: ReturnType<typeof vi.fn>) => dispatch.mock.calls.map(([a]) => a).filter((a) => a.type === 'replace');
+
+describe('ElementInspector: real data', () => {
+  it('a rail whose filter has no events today says so', () => {
+    select('eventRail', { title: 'T', source: { kind: 'live' }, limit: 4 });
+    renderInspector('desktop', {}, { rails: { [PUCK_ID]: [] }, featured: {}, live: {} });
+    expect(screen.getByText(/Nenhum evento corresponde a este filtro hoje/)).toBeInTheDocument();
+  });
+  it('a rail with events or still unresolved says nothing', () => {
+    select('eventRail', { title: 'T', source: { kind: 'live' }, limit: 4 });
+    renderInspector();
+    expect(screen.queryByText(/Nenhum evento corresponde/)).toBeNull();
+  });
+  it('a featured event that resolved to null is flagged as unavailable', () => {
+    select('featuredEvent', { eventId: '33333333-3333-4333-8333-333333333333' });
+    renderInspector('desktop', {}, { rails: {}, featured: { [PUCK_ID]: null }, live: {} });
+    expect(screen.getByText(/O evento escolhido não está mais disponível/)).toBeInTheDocument();
+  });
+});
 
 describe('ElementInspector: structure', () => {
   it('shows the empty state without a selection', () => {

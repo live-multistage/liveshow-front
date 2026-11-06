@@ -11,6 +11,7 @@ import { CtaFields, Field, ImageUpload, Segment, TextField, issueFor } from '../
 import { ArtistPicker } from '../../../mailing/components/ArtistPicker';
 import { EventPicker } from '../../../mailing/components/EventPicker';
 import { OrganizationPicker } from '../../../mailing/components/OrganizationPicker';
+import { useEditorData } from '../editor-data';
 import type { ElementIssue } from './inspector-model';
 import styles from './ElementInspector.module.scss';
 
@@ -37,6 +38,8 @@ export function ContentTab({ elementId, type, props, issues, set }: Tab) {
   const err = (...paths: string[]) => issueFor(issues, ...paths)?.message;
   const id = (name: string) => `${elementId}-${name}`;
   const text = (name: string) => (typeof props[name] === 'string' ? (props[name] as string) : '');
+  const { resolved } = useEditorData();
+  const puckId = String(props.id);
 
   switch (type) {
     case 'heading':
@@ -174,6 +177,7 @@ export function ContentTab({ elementId, type, props, issues, set }: Tab) {
           <Segment label={t('limit')} value={String(props.limit ?? '')} onChange={(v) => set({ limit: Number(v) })}
             options={PAGE_RAIL_LIMITS.map((value) => ({ value: String(value), label: String(value) }))} />
           <p className={styles.hint}>{t('railHint')}</p>
+          {resolved.rails[puckId]?.length === 0 && <p className={styles.warn} role="status">{t('railEmpty')}</p>}
         </>
       );
     }
@@ -183,6 +187,7 @@ export function ContentTab({ elementId, type, props, issues, set }: Tab) {
         <>
           <EventPicker featurable value={eventId ? [eventId] : []} max={1} onChange={(ids) => set({ eventId: ids[0] ?? '' })} />
           {err('eventId') && <p className={styles.error}>{err('eventId')}</p>}
+          {eventId && resolved.featured[puckId] === null && <p className={styles.error} role="status">{t('featuredMissing')}</p>}
           <TextField id={id('cta')} label={t('featuredCta')} max={PAGE_LIMITS.ctaLabelMax} value={text('ctaLabel')} error={err('ctaLabel')} onChange={(v) => set({ ctaLabel: optional(v) })} />
         </>
       );

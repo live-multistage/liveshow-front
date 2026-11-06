@@ -148,3 +148,35 @@ describe('v1 parity (converted)', () => {
     expect(screen.getByText('Evento Z')).toBeTruthy();
   });
 });
+
+describe('data widgets in the editor: loading, empty and unavailable', () => {
+  const rail = el('eventRail', { title: 'T', source: { kind: 'artist', id: 'Banda Aurora' }, limit: 8 });
+  const editor = (over: Partial<RenderContext> = {}) => ctx({ mode: 'editor', ...over });
+
+  it('shows a skeleton with the rail limit while the data loads', () => {
+    render(<ElementRenderer ctx={editor({ loading: [ID(1)] })} element={rail} />);
+    expect(screen.getByTestId('event-skeleton').querySelectorAll('li')).toHaveLength(8);
+  });
+  it('a rail with an empty answer explains the filter and that the published page hides it', () => {
+    const { rerender } = render(<ElementRenderer ctx={editor({ resolved: { ...empty, rails: { [ID(1)]: [] } } })} element={rail} />);
+    expect(screen.getByText('Nenhum evento para este filtro')).toBeInTheDocument();
+    rerender(<ElementRenderer ctx={editor({ resolved: { ...empty, rails: { [ID(1)]: [] } } })} element={el('eventRail', { title: 'T', source: { kind: 'category', id: 'MUSIC' }, limit: 4 })} />);
+    expect(screen.getByText('Nenhum evento para “MUSIC”')).toBeInTheDocument();
+    expect(screen.getByText('Na página publicada este trilho fica oculto até haver eventos.')).toBeInTheDocument();
+  });
+  it('a rail that was never resolved keeps the plain placeholder', () => {
+    render(<ElementRenderer ctx={editor()} element={rail} />);
+    expect(screen.getByText('Trilho de eventos')).toBeInTheDocument();
+  });
+  it('an unavailable featured event (resolved to null) says so; undefined is only "not resolved"', () => {
+    const featured = el('featuredEvent', { eventId: ID(7) });
+    const { rerender } = render(<ElementRenderer ctx={editor({ resolved: { ...empty, featured: { [ID(1)]: null } } })} element={featured} />);
+    expect(screen.getByText('Evento indisponível')).toBeInTheDocument();
+    rerender(<ElementRenderer ctx={editor()} element={featured} />);
+    expect(screen.getByText('Evento em destaque')).toBeInTheDocument();
+  });
+  it('public mode never draws any of this', () => {
+    const { container } = render(<ElementRenderer ctx={ctx({ loading: [ID(1)], resolved: { ...empty, rails: { [ID(1)]: [] } } })} element={rail} />);
+    expect(container.innerHTML).toBe('');
+  });
+});
