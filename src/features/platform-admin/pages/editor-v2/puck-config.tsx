@@ -42,6 +42,8 @@ const DEFAULT_PROPS: Record<ElementType, Record<string, unknown>> = {
   liveNow: { limit: 4, emptyText: 'Nenhum evento ao vivo agora' },
 };
 
+const ROOT_ZONE = 'root:default-zone';
+
 export interface PuckMetadata {
   resolved: RenderContext['resolved'];
 }
@@ -65,6 +67,11 @@ function fieldsFor(type: ElementType): Record<string, Field> {
   return fields;
 }
 
+// The page root only takes sections (SDD §2.3); Puck's default root zone would take anything.
+function RootRender({ puck }: { puck: { renderDropZone: (props: { zone: string; allow: string[] }) => React.ReactNode } }) {
+  return <PageContainer>{puck.renderDropZone({ zone: ROOT_ZONE, allow: ['section'] })}</PageContainer>;
+}
+
 /** Generated from the contract: one entry per element type, nesting from the slot table, labels from the caller (i18n). */
 export function createPuckConfig(label: (type: ElementType) => string): Config {
   const components = Object.fromEntries(
@@ -75,5 +82,5 @@ export function createPuckConfig(label: (type: ElementType) => string): Config {
       render: renderElement(type),
     } as ComponentConfig]),
   );
-  return { components, root: { render: ({ children }: { children: React.ReactNode }) => <PageContainer>{children}</PageContainer> } } as unknown as Config;
+  return { components, root: { render: RootRender } } as unknown as Config;
 }

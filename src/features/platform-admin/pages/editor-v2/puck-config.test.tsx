@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ELEMENT_SLOT_RULES, ELEMENT_TYPES, pageDraftV2Schema, type ElementType } from '@live-show/api-contracts';
 import { fromPuckData } from './puck-data';
 import { createPuckConfig } from './puck-config';
@@ -7,6 +7,13 @@ const config = createPuckConfig((type) => `rótulo:${type}`);
 const components = config.components as Record<string, { label?: string; fields?: Record<string, { type: string; allow?: string[] }>; defaultProps?: Record<string, unknown> }>;
 
 describe('puck config', () => {
+  it('the page root zone only accepts sections', () => {
+    const renderDropZone = vi.fn(() => null);
+    const root = config.root as { render: (props: unknown) => unknown };
+    root.render({ puck: { renderDropZone } });
+    expect(renderDropZone).toHaveBeenCalledWith({ zone: 'root:default-zone', allow: ['section'] });
+  });
+
   it('has the 19 element types with PT-BR labels', () => {
     expect(Object.keys(components).sort()).toEqual([...ELEMENT_TYPES].sort());
     expect(components.heading.label).toBe('rótulo:heading');
