@@ -195,7 +195,20 @@ export interface PlatformSettingsView {
   defaultFeeRate: number;
   cartTaxRate: number;
   blueprintHttpAllowlist: string[];
+  // Lance mínimo (centavos) da pausa por variante e modelo.
+  adPauseMinCpmStandardCents: number;
+  adPauseMinCpcStandardCents: number;
+  adPauseMinCpmFullscreenCents: number;
+  adPauseMinCpcFullscreenCents: number;
 }
+
+export type AdPauseMinimums = Pick<
+  PlatformSettingsView,
+  | 'adPauseMinCpmStandardCents'
+  | 'adPauseMinCpcStandardCents'
+  | 'adPauseMinCpmFullscreenCents'
+  | 'adPauseMinCpcFullscreenCents'
+>;
 
 // Audit trail entry (GET /platform-admin/audit).
 export interface AuditLogEntry {

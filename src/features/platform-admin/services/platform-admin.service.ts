@@ -32,6 +32,7 @@ import type {
   OrganizerApplicationAdmin,
   ArtistApplicationAdmin,
   PlatformSettingsView,
+  AdPauseMinimums,
   FiscalDocumentStatus,
   FiscalDocumentAdminList,
   FiscalIssuerView,
@@ -75,6 +76,11 @@ export const platformAdminService = {
 
   setDefaultFeeRate: async (rate: number): Promise<PlatformSettingsView> => {
     const { data } = await httpClient.patch<PlatformSettingsView>('/platform-settings/default-fee-rate', { rate });
+    return data;
+  },
+
+  setAdPauseMinimums: async (minimums: AdPauseMinimums): Promise<PlatformSettingsView> => {
+    const { data } = await httpClient.patch<PlatformSettingsView>('/platform-settings/ad-programme', minimums);
     return data;
   },
 
