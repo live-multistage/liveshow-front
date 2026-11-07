@@ -1,6 +1,6 @@
 import { httpClient } from '@/lib/http/client';
 import { getAdSessionId } from '../utils/ad-session';
-import type { ServedAd, AdPlacement } from '../types/advertisement.types';
+import type { ServedAd, AdPlacement, AdEventType } from '../types/advertisement.types';
 
 export const advertisementsService = {
   // eventId is REQUIRED by the API for PRE_ROLL / PLAYER_PAUSE — it is what
@@ -17,6 +17,11 @@ export const advertisementsService = {
 
   recordImpression: (servedId: string): void => {
     httpClient.post(`/ads/serve/${servedId}/impression`).catch(() => {});
+  },
+
+  // Engajamento de vídeo e pausa. Fire-and-forget: falha não pode atrapalhar o player.
+  recordEvent: (servedId: string, type: AdEventType): void => {
+    httpClient.post(`/ads/serve/${servedId}/event`, { type }).catch(() => {});
   },
 
   recordClick: (servedId: string): void => {

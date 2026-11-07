@@ -154,7 +154,14 @@ function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
         <p className={styles.title}>{ad.title}</p>
         <div className={styles.actions}>
           {cta}
-          <button type="button" className={styles.closeBtn} onClick={onResume}>
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={() => {
+              advertisementsService.recordEvent(ad.servedId, 'pause_close');
+              onResume();
+            }}
+          >
             {t('close')}
           </button>
         </div>

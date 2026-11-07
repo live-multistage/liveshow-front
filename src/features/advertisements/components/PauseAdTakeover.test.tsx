@@ -10,6 +10,7 @@ vi.mock('../services/advertisements.service', () => ({
     serve: vi.fn(),
     recordImpression: vi.fn(),
     recordClick: vi.fn(),
+    recordEvent: vi.fn(),
   },
 }));
 
@@ -130,6 +131,12 @@ describe('PauseAdTakeover content', () => {
   it('labels the takeover Patrocinado', async () => {
     await pauseAndWaitForAd();
     expect(screen.getByText('Patrocinado')).toBeInTheDocument();
+  }, 4000);
+
+  it('"Fechar anúncio" reports pause_close', async () => {
+    await pauseAndWaitForAd();
+    fireEvent.click(screen.getByText('Fechar anúncio'));
+    expect(mockedService.recordEvent).toHaveBeenCalledWith('srv-1', 'pause_close');
   }, 4000);
 
   it('"Fechar anúncio" calls onResume', async () => {

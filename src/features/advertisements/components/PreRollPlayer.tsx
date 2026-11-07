@@ -4,10 +4,16 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import styles from './PreRollPlayer.module.scss';
 import { advertisementsService } from '../services/advertisements.service';
-import type { ServedAd } from '../types/advertisement.types';
+import type { AdEventType, ServedAd } from '../types/advertisement.types';
 
 const SKIP_AFTER_SEC = 5;
 const PLAYING_WATCHDOG_MS = 8000;
+
+const QUARTILES: { at: number; event: AdEventType }[] = [
+  { at: 0.25, event: 'video_q25' },
+  { at: 0.5, event: 'video_q50' },
+  { at: 0.75, event: 'video_q75' },
+];
 
 interface Props {
   ad: ServedAd;
@@ -24,6 +30,7 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
   const [mutedFallback, setMutedFallback] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(ad.videoDurationSec);
   const impressionFired = useRef(false);
+  const quartilesFired = useRef(new Set<AdEventType>());
   const finished = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -68,6 +75,14 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
   const handleTimeUpdate = () => {
     const video = videoRef.current;
     if (!video || !Number.isFinite(video.duration)) return;
+    if (video.duration > 0) {
+      const progress = video.currentTime / video.duration;
+      for (const { at, event } of QUARTILES) {
+        if (progress < at || quartilesFired.current.has(event)) continue;
+        quartilesFired.current.add(event);
+        advertisementsService.recordEvent(ad.servedId, event);
+      }
+    }
     setRemaining(Math.max(0, Math.ceil(video.duration - video.currentTime)));
   };
 
@@ -106,7 +121,10 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
         playsInline
         onPlaying={handlePlaying}
         onTimeUpdate={handleTimeUpdate}
-        onEnded={finish}
+        onEnded={() => {
+          advertisementsService.recordEvent(ad.servedId, 'video_complete');
+          finish();
+        }}
         onError={finish}
       />
       <div className={styles.overlay}>
@@ -122,6 +140,7 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
               const video = videoRef.current;
               if (video) video.muted = false;
               setMutedFallback(false);
+              advertisementsService.recordEvent(ad.servedId, 'video_unmute');
             }}
           >
             {tPlayer('unmute')}
@@ -144,7 +163,14 @@ export function PreRollPlayer({ ad, onFinished }: Props) {
           </span>
         )}
         {skippable && (
-          <button type="button" className={styles.skip} onClick={finish}>
+          <button
+            type="button"
+            className={styles.skip}
+            onClick={() => {
+              advertisementsService.recordEvent(ad.servedId, 'video_skip');
+              finish();
+            }}
+          >
             {t('skip')}
           </button>
         )}
