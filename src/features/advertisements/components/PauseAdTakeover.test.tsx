@@ -30,6 +30,7 @@ const baseAd: ServedAd = {
   bannerUrl: null,
   videoUrl: null,
   videoDurationSec: null,
+  pauseVariant: null,
 };
 
 function renderTakeover(props: Partial<Parameters<typeof PauseAdTakeover>[0]> & { ad?: ServedAd } = {}) {
