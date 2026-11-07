@@ -82,7 +82,7 @@ describe('PauseAdTakeover timing', () => {
     rerenderWith(true);
     act(() => vi.advanceTimersByTime(1999));
     expect(mockedService.serve).not.toHaveBeenCalled();
-    expect(onVisibleChange).not.toHaveBeenCalledWith(true);
+    expect(onVisibleChange).not.toHaveBeenCalledWith(true, 'STANDARD');
     act(() => vi.advanceTimersByTime(1));
     expect(mockedService.serve).toHaveBeenCalledTimes(1);
   });
@@ -92,7 +92,7 @@ describe('PauseAdTakeover timing', () => {
     rerenderWith(true);
     act(() => vi.advanceTimersByTime(2000));
     rerenderWith(false);
-    expect(onVisibleChange).toHaveBeenLastCalledWith(false);
+    expect(onVisibleChange).toHaveBeenLastCalledWith(false, 'STANDARD');
   });
 });
 
@@ -112,7 +112,7 @@ describe('PauseAdTakeover content', () => {
   it('renders the takeover after the pause delay with the served ad', async () => {
     const { onVisibleChange } = await pauseAndWaitForAd();
     expect(screen.getByText('Great Ad')).toBeInTheDocument();
-    expect(onVisibleChange).toHaveBeenLastCalledWith(true);
+    expect(onVisibleChange).toHaveBeenLastCalledWith(true, 'STANDARD');
   }, 4000);
 
   // Replay with no PLAYER_PAUSE ad registered: the serve returns [] and the
@@ -123,7 +123,7 @@ describe('PauseAdTakeover content', () => {
     utils.rerenderWith(true);
     await waitFor(() => expect(mockedService.serve).toHaveBeenCalledTimes(1), { timeout: 3000 });
     await act(() => new Promise((r) => setTimeout(r, 50)));
-    expect(utils.onVisibleChange).not.toHaveBeenCalledWith(true);
+    expect(utils.onVisibleChange).not.toHaveBeenCalledWith(true, 'STANDARD');
     expect(screen.queryByText('Patrocinado')).toBeNull();
   }, 4000);
 
@@ -139,6 +139,47 @@ describe('PauseAdTakeover content', () => {
     fireEvent.click(screen.getByText('Fechar anúncio'));
     expect(onResume).toHaveBeenCalledTimes(1);
   }, 4000);
+
+  describe('layout', () => {
+    const originalMatchMedia = window.matchMedia;
+    afterEach(() => {
+      window.matchMedia = originalMatchMedia;
+    });
+    const phone = (matches: boolean) => {
+      window.matchMedia = ((query: string) => ({
+        matches,
+        media: query,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      })) as unknown as typeof window.matchMedia;
+    };
+
+    it('reports the STANDARD layout for a STANDARD ad on desktop', async () => {
+      phone(false);
+      const { onVisibleChange, container } = await pauseAndWaitForAd({ ad: { ...baseAd, pauseVariant: 'STANDARD' } });
+      expect(onVisibleChange).toHaveBeenLastCalledWith(true, 'STANDARD');
+      expect(container.querySelector('[data-layout="STANDARD"]')).not.toBeNull();
+    }, 4000);
+
+    it('reports FULLSCREEN for a FULLSCREEN ad', async () => {
+      phone(false);
+      const { onVisibleChange, container } = await pauseAndWaitForAd({ ad: { ...baseAd, pauseVariant: 'FULLSCREEN' } });
+      expect(onVisibleChange).toHaveBeenLastCalledWith(true, 'FULLSCREEN');
+      expect(container.querySelector('[data-layout="FULLSCREEN"]')).not.toBeNull();
+    }, 4000);
+
+    it('a legacy ad without variant is STANDARD', async () => {
+      phone(false);
+      const { onVisibleChange } = await pauseAndWaitForAd({ ad: { ...baseAd, pauseVariant: null } });
+      expect(onVisibleChange).toHaveBeenLastCalledWith(true, 'STANDARD');
+    }, 4000);
+
+    it('on a phone every variant is FULLSCREEN', async () => {
+      phone(true);
+      const { onVisibleChange } = await pauseAndWaitForAd({ ad: { ...baseAd, pauseVariant: 'STANDARD' } });
+      expect(onVisibleChange).toHaveBeenLastCalledWith(true, 'FULLSCREEN');
+    }, 4000);
+  });
 
   it('fires impression exactly once per display', async () => {
     await pauseAndWaitForAd();

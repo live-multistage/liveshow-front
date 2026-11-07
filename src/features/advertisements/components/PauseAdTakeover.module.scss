@@ -107,3 +107,12 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+// Tela cheia: o criativo ocupa tudo e a transmissão some; ficam só os
+// controles do player (z-index acima do takeover). O scrim lateral some junto:
+// a imagem é pensada para a área acima dos controles.
+.fullscreen {
+  .scrim {
+    background: linear-gradient(90deg, transparent 55%, rgba(5, 4, 6, 0.55) 85%);
+  }
+}

@@ -8,6 +8,8 @@ import styles from './PauseAdTakeover.module.scss';
 import { advertisementsService } from '../services/advertisements.service';
 import { SERVE_QUERY_CACHE } from '../queries/use-serve-ads';
 import { gradientFor } from '../utils/ad-gradient';
+import { resolvePauseLayout, type PauseLayout } from '../utils/pause-layout';
+import { useIsPhone } from '../hooks/use-is-phone';
 
 // Mostrar o anúncio só depois de uma pausa "de verdade": uma pausa de um
 // segundo para ler o chat não deve virar impressão cobrada do anunciante.
@@ -19,7 +21,8 @@ interface Props {
   eventId: string;
   paused: boolean;
   onResume: () => void;
-  onVisibleChange: (visible: boolean) => void;
+  // `layout` diz ao player como compor a tela: card encolhido (STANDARD) ou só o criativo (FULLSCREEN).
+  onVisibleChange: (visible: boolean, layout: PauseLayout) => void;
 }
 
 export function PauseAdTakeover({ eventId, paused, onResume, onVisibleChange }: Props) {
@@ -56,7 +59,7 @@ export function PauseAdTakeover({ eventId, paused, onResume, onVisibleChange }: 
 interface TakeoverAdProps {
   eventId: string;
   onResume: () => void;
-  onVisibleChange: (visible: boolean) => void;
+  onVisibleChange: (visible: boolean, layout: PauseLayout) => void;
 }
 
 function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
@@ -72,6 +75,8 @@ function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
   });
 
   const ad = ads?.[0] ?? null;
+  const isPhone = useIsPhone();
+  const layout = resolvePauseLayout(ad?.pauseVariant, isPhone);
 
   // A impressão é cobrada: só conta quando o criativo realmente apareceu.
   // Com imagem, isso é o onLoad; sem imagem (gradiente), já está na tela.
@@ -95,9 +100,9 @@ function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
     onVisibleChangeRef.current = onVisibleChange;
   });
   useEffect(() => {
-    onVisibleChangeRef.current(Boolean(ad));
-    return () => onVisibleChangeRef.current(false);
-  }, [ad]);
+    onVisibleChangeRef.current(Boolean(ad), layout);
+    return () => onVisibleChangeRef.current(false, layout);
+  }, [ad, layout]);
 
   if (!ad) return null;
 
@@ -128,7 +133,11 @@ function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
   }
 
   return (
-    <div className={styles.takeover} style={hasImage ? undefined : { background: gradientFor(ad.adId) }}>
+    <div
+      className={`${styles.takeover} ${layout === 'FULLSCREEN' ? styles.fullscreen : ''}`}
+      data-layout={layout}
+      style={hasImage ? undefined : { background: gradientFor(ad.adId) }}
+    >
       {hasImage && (
         // eslint-disable-next-line @next/next/no-img-element -- criativo externo, precisamos do onLoad para cobrar a impressão
         <img

@@ -273,6 +273,7 @@ function Stage(gridProps: PlayerStagePartProps) {
         onResume={() => shell.setPaused(false)}
         pauseAdVisible={shell.pauseAdVisible}
         onPauseAdVisibleChange={shell.setPauseAdVisible}
+        pauseAdLayout={shell.pauseAdLayout}
         adsEnabled={adsEnabled}
       >
         {offlineStream && <TransmissionOfflineState title={offlineStream.title} />}

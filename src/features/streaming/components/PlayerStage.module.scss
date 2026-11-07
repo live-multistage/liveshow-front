@@ -22,6 +22,13 @@
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
 }
 
+.stageAreaHidden {
+  // Tela cheia: a transmissão some (continua montada, só invisível) e o
+  // anúncio ocupa a tela; os controles do player ficam acima dele.
+  opacity: 0;
+  pointer-events: none;
+}
+
 .pausedChip {
   position: absolute;
   top: 16px;
