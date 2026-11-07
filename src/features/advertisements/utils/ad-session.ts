@@ -2,8 +2,8 @@ const KEY = 'ads:sessionId';
 
 let memoryFallback: string | null = null;
 
-// Um id por sessão do navegador: o backend usa para limitar frequência por
-// espectador, então precisa sobreviver a remontagens do player.
+// Um id por sessão do navegador, estável entre remontagens do player. O
+// backend só o grava no anúncio servido e no clique.
 export function getAdSessionId(): string {
   try {
     const stored = sessionStorage.getItem(KEY);
