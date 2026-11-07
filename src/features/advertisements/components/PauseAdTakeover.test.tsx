@@ -13,6 +13,11 @@ vi.mock('../services/advertisements.service', () => ({
   },
 }));
 
+vi.mock('next-intl', () => {
+  const messages: Record<string, string> = { sponsored: 'Patrocinado', learnMore: 'Saiba mais', close: 'Fechar anúncio' };
+  return { useTranslations: () => (key: string) => messages[key] };
+});
+
 const mockedService = vi.mocked(advertisementsService);
 
 const baseAd: ServedAd = {
@@ -118,7 +123,12 @@ describe('PauseAdTakeover content', () => {
     await waitFor(() => expect(mockedService.serve).toHaveBeenCalledTimes(1), { timeout: 3000 });
     await act(() => new Promise((r) => setTimeout(r, 50)));
     expect(utils.onVisibleChange).not.toHaveBeenCalledWith(true);
-    expect(screen.queryByText('PATROCINADO')).toBeNull();
+    expect(screen.queryByText('Patrocinado')).toBeNull();
+  }, 4000);
+
+  it('labels the takeover Patrocinado', async () => {
+    await pauseAndWaitForAd();
+    expect(screen.getByText('Patrocinado')).toBeInTheDocument();
   }, 4000);
 
   it('"Fechar anúncio" calls onResume', async () => {

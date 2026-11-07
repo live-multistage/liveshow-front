@@ -12,6 +12,17 @@ vi.mock('../services/advertisements.service', () => ({
   },
 }));
 
+vi.mock('next-intl', () => {
+  const messages: Record<string, Record<string, string>> = {
+    ads: { sponsored: 'Patrocinado', skipIn: 'Pular em {seconds}s', skip: 'Pular anúncio' },
+    player: { unmute: 'Ativar som' },
+  };
+  return {
+    useTranslations: (namespace: string) => (key: string, params?: Record<string, number>) =>
+      messages[namespace][key].replace(/\{(\w+)\}/g, (_, name: string) => String(params?.[name])),
+  };
+});
+
 const mockedService = vi.mocked(advertisementsService);
 
 const videoAd: ServedAd = {
@@ -55,6 +66,23 @@ describe('PreRollPlayer', () => {
     expect(screen.queryByRole('button', { name: /pular/i })).toBeNull();
     act(() => vi.advanceTimersByTime(5000));
     expect(screen.getByRole('button', { name: /pular/i })).toBeInTheDocument();
+  });
+
+  it('labels the badge Patrocinado with the remaining time', () => {
+    render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+    expect(screen.getByText('Patrocinado · 15s')).toBeInTheDocument();
+  });
+
+  it('counts down with "Pular em" before offering "Pular anúncio"', () => {
+    render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+    fireEvent(screen.getByTestId('preroll-video'), new Event('playing'));
+    expect(screen.getByText('Pular em 5s')).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(2000));
+    expect(screen.getByText('Pular em 3s')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /pular/i })).toBeNull();
+    act(() => vi.advanceTimersByTime(3000));
+    expect(screen.queryByText(/Pular em/)).toBeNull();
+    expect(screen.getByRole('button', { name: 'Pular anúncio' })).toBeInTheDocument();
   });
 
   it('onFinished on skip click', () => {

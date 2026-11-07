@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import styles from './PauseAdTakeover.module.scss';
 import { advertisementsService } from '../services/advertisements.service';
 import { SERVE_QUERY_CACHE } from '../queries/use-serve-ads';
@@ -59,6 +60,7 @@ interface TakeoverAdProps {
 }
 
 function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
+  const t = useTranslations('ads');
   const impressionFired = useRef(false);
 
   const { data: ads } = useQuery({
@@ -101,7 +103,7 @@ function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
   if (ad.destination?.type === 'EVENT') {
     cta = (
       <Link href={`/events/${ad.destination.eventId}`} className={styles.cta} onClick={handleCtaClick}>
-        Saiba mais →
+        {t('learnMore')} →
       </Link>
     );
   } else if (ad.destination?.type === 'EXTERNAL_URL') {
@@ -113,7 +115,7 @@ function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
         className={styles.cta}
         onClick={handleCtaClick}
       >
-        Saiba mais →
+        {t('learnMore')} →
       </a>
     );
   }
@@ -121,13 +123,13 @@ function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
   return (
     <div className={styles.takeover} style={{ background: bg }}>
       <div className={styles.scrim} />
-      <span className={styles.sponsored}>PATROCINADO</span>
+      <span className={styles.sponsored}>{t('sponsored')}</span>
       <div className={styles.copy}>
         <p className={styles.title}>{ad.title}</p>
         <div className={styles.actions}>
           {cta}
           <button type="button" className={styles.closeBtn} onClick={onResume}>
-            Fechar anúncio
+            {t('close')}
           </button>
         </div>
       </div>
