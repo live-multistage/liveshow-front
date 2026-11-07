@@ -9,10 +9,21 @@ import type { AdDetail } from '../types/platform-admin.types';
 vi.mock('../services/platform-admin.service', () => ({
   platformAdminService: {
     getAdDetail: vi.fn(),
+    getPlatformSettings: vi.fn(),
   },
 }));
 
 const mockedService = vi.mocked(platformAdminService);
+
+const PLATFORM_SETTINGS = {
+  defaultFeeRate: 0.035,
+  cartTaxRate: 0.125,
+  blueprintHttpAllowlist: [],
+  adPauseMinCpmStandardCents: 800,
+  adPauseMinCpcStandardCents: 40,
+  adPauseMinCpmFullscreenCents: 1400,
+  adPauseMinCpcFullscreenCents: 70,
+};
 
 const baseAd: AdDetail['ad'] = {
   id: 'ad-1',
@@ -55,6 +66,7 @@ function renderWithDetail(ad: AdDetail['ad']) {
 describe('AdDetailDrawer destination', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedService.getPlatformSettings.mockResolvedValue(PLATFORM_SETTINGS);
   });
 
   it('shows the legacy badge for a null destination', async () => {
@@ -82,7 +94,10 @@ describe('AdDetailDrawer destination', () => {
 });
 
 describe('AdDetailDrawer creative review', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockedService.getPlatformSettings.mockResolvedValue(PLATFORM_SETTINGS);
+  });
 
   const videoAd = {
     ...baseAd,
@@ -144,5 +159,50 @@ describe('AdDetailDrawer creative review', () => {
   it('treats a legacy pause ad without variant as Padrão', async () => {
     renderWithDetail({ ...baseAd, format: 'WIDE_16_9', placements: ['PLAYER_PAUSE'], bannerUrl: 'https://x/p.webp', pauseVariant: null });
     expect(await screen.findByText('Padrão')).toBeInTheDocument();
+  });
+});
+
+describe('AdDetailDrawer pause bid vs variant minimum', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockedService.getPlatformSettings.mockResolvedValue(PLATFORM_SETTINGS);
+  });
+
+  const pauseAd = (over: Partial<AdDetail['ad']>) => ({
+    ...baseAd,
+    format: 'WIDE_16_9',
+    placements: ['PLAYER_PAUSE'],
+    bannerUrl: 'https://cdn.example.com/p.webp',
+    pauseVariant: 'FULLSCREEN' as const,
+    billingModel: 'CPM',
+    bidCents: 1500,
+    ...over,
+  });
+
+  it('shows the bid next to the variant minimum', async () => {
+    renderWithDetail(pauseAd({}));
+    expect(await screen.findByText(/R\$\s?15.*mínimo R\$\s?14.*Tela cheia/)).toBeInTheDocument();
+  });
+
+  it('uses the per-click minimum for CPC', async () => {
+    renderWithDetail(pauseAd({ billingModel: 'CPC', bidCents: 90, pauseVariant: 'STANDARD' }));
+    expect(await screen.findByText(/mínimo R\$\s?0,40.*Padrão/)).toBeInTheDocument();
+  });
+
+  it('warns when the bid is under the current minimum', async () => {
+    renderWithDetail(pauseAd({ bidCents: 1000 }));
+    expect(await screen.findByText(/abaixo do mínimo atual/i)).toBeInTheDocument();
+  });
+
+  it('does not warn when the bid meets the minimum', async () => {
+    renderWithDetail(pauseAd({ bidCents: 1400 }));
+    await screen.findByText(/mínimo R\$\s?14/);
+    expect(screen.queryByText(/abaixo do mínimo atual/i)).toBeNull();
+  });
+
+  it('banner ads show no minimum', async () => {
+    renderWithDetail(baseAd);
+    await screen.findByText('Campanha Teste');
+    expect(screen.queryByText(/mínimo R\$/)).toBeNull();
   });
 });

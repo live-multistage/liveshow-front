@@ -5,12 +5,15 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { X, Check, Ban } from 'lucide-react';
 import { useAdDetailQuery, useReviewAdMutation } from '../queries/get-platform-directory';
-import type { AdDestination, AdReviewRecord } from '../types/platform-admin.types';
+import { usePlatformSettingsQuery } from '../queries/get-settings';
+import type { AdDestination, AdReviewRecord, PlatformSettingsView } from '../types/platform-admin.types';
 import { brlCompact } from '../utils/format';
 import { adKindFromFormat } from '../utils/ad-kind';
 import styles from './AdDetailDrawer.module.scss';
 
 const REAIS = (cents: number) => brlCompact(cents / 100);
+// Lance e mínimo são centavos que importam (R$ 0,40 por clique): sem arredondar.
+const REAIS_EXACT = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 const fmtDate = (iso: string) => new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
 const list = (arr: string[]) => (arr.length ? arr.join(', ') : '—');
 const FORMAT_LABEL: Record<string, string> = {
@@ -21,6 +24,20 @@ const FORMAT_LABEL: Record<string, string> = {
 };
 
 const PAUSE_VARIANT_LABEL = { STANDARD: 'Padrão', FULLSCREEN: 'Tela cheia' } as const;
+
+type PauseVariant = keyof typeof PAUSE_VARIANT_LABEL;
+
+// Mínimo atual (centavos) da variante e do modelo de cobrança, das Configurações.
+function pauseMinimumCents(
+  settings: PlatformSettingsView | undefined,
+  variant: PauseVariant,
+  billingModel: string,
+): number | null {
+  if (!settings) return null;
+  const perMille = billingModel === 'CPM';
+  if (variant === 'FULLSCREEN') return perMille ? settings.adPauseMinCpmFullscreenCents : settings.adPauseMinCpcFullscreenCents;
+  return perMille ? settings.adPauseMinCpmStandardCents : settings.adPauseMinCpcStandardCents;
+}
 
 const OUTCOME_LABEL: Record<AdReviewRecord['outcome'], string> = {
   SUBMITTED: 'adSUBMITTED', APPROVE: 'adAPPROVE', REJECT: 'adREJECT', PENDING: 'adPENDING',
@@ -37,6 +54,7 @@ interface Props {
 export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
   const t = useTranslations('platformAdmin');
   const { data, isLoading } = useAdDetailQuery(adId);
+  const { data: platformSettings } = usePlatformSettingsQuery();
   const [reason, setReason] = useState('');
   const [watchedVideo, setWatchedVideo] = useState(false);
   const review = useReviewAdMutation(onClose);
@@ -53,6 +71,14 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
   const isVideo = ad ? adKindFromFormat(ad.format) === 'preroll' : false;
   const isPause = ad ? adKindFromFormat(ad.format) === 'pause' : false;
   // Vídeo só é aprovado depois de o revisor ver e ouvir o arquivo; sem arquivo, nunca.
+  const pauseVariant: PauseVariant = ad?.pauseVariant ?? 'STANDARD';
+  const minCents = ad && isPause ? pauseMinimumCents(platformSettings, pauseVariant, ad.billingModel) : null;
+  const bidLabel = ad
+    ? minCents === null
+      ? REAIS(ad.bidCents)
+      : `${REAIS_EXACT(ad.bidCents)} · mínimo ${REAIS_EXACT(minCents)} (${PAUSE_VARIANT_LABEL[pauseVariant]})`
+    : '';
+  const bidBelowMinimum = ad !== undefined && minCents !== null && ad.bidCents < minCents;
   const approveLocked = isVideo && (!ad?.videoUrl || !watchedVideo);
 
   return (
@@ -108,7 +134,12 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
             <div className={styles.sectionLabel}>Orçamento & entrega</div>
             <dl className={styles.fields}>
               <Field label="Modelo" value={ad.billingModel} />
-              <Field label="Lance" value={REAIS(ad.bidCents)} />
+              <Field label="Lance" value={bidLabel} wide={isPause} />
+              {bidBelowMinimum && (
+                <p className={styles.warn} role="alert">
+                  Lance abaixo do mínimo atual da variante: o anúncio não entra no leilão da pausa.
+                </p>
+              )}
               <Field label="Orçamento diário" value={REAIS(ad.dailyBudgetCents)} />
               <Field label="Limite total" value={REAIS(ad.totalLimitCents)} />
               <Field label="Gasto até agora" value={REAIS(ad.totalSpendCents)} />

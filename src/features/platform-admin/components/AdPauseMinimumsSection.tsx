@@ -54,35 +54,37 @@ export function AdPauseMinimumsSection() {
         <div className={cardStyles.mono10}>ANÚNCIOS</div>
         <div className={cardStyles.sectionTitle}>Lance mínimo da pausa</div>
       </header>
-      <p className={styles.hint}>
-        Piso do lance do anúncio na pausa do player, por variante e modelo de cobrança. Vale também para anúncios já
-        aprovados: o leilão descarta quem ficar abaixo do mínimo atual.
-      </p>
-      <div className={styles.grid}>
-        {FIELDS.map(({ key, label }) => {
-          const cents = reaisInputToCents(draft[key]);
-          const bad = cents === null || cents <= 0;
-          return (
-            <div key={key} className={styles.field}>
-              <Label htmlFor={key}>{label}</Label>
-              <div className={styles.money}>
-                <span>R$</span>
-                <Input
-                  id={key}
-                  inputMode="decimal"
-                  value={draft[key]}
-                  aria-invalid={bad}
-                  onChange={(e) => setDraft({ ...draft, [key]: e.target.value })}
-                />
+      <div className={styles.body}>
+        <p className={styles.hint}>
+          Piso do lance do anúncio na pausa do player, por variante e modelo de cobrança. Vale também para anúncios já
+          aprovados: o leilão descarta quem ficar abaixo do mínimo atual.
+        </p>
+        <div className={styles.grid}>
+          {FIELDS.map(({ key, label }) => {
+            const cents = reaisInputToCents(draft[key]);
+            const bad = cents === null || cents <= 0;
+            return (
+              <div key={key} className={styles.field}>
+                <Label htmlFor={key}>{label}</Label>
+                <div className={styles.money}>
+                  <span>R$</span>
+                  <Input
+                    id={key}
+                    inputMode="decimal"
+                    value={draft[key]}
+                    aria-invalid={bad}
+                    onChange={(e) => setDraft({ ...draft, [key]: e.target.value })}
+                  />
+                </div>
+                {bad && <span className={styles.error}>Informe um valor maior que zero.</span>}
               </div>
-              {bad && <span className={styles.error}>Informe um valor maior que zero.</span>}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+        <Button onClick={submit} disabled={invalid || unchanged || save.isPending}>
+          Salvar mínimos
+        </Button>
       </div>
-      <Button onClick={submit} disabled={invalid || unchanged || save.isPending}>
-        Salvar mínimos
-      </Button>
     </section>
   );
 }

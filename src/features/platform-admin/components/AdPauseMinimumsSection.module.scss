@@ -1,3 +1,8 @@
+// Mesmo respiro interno do cartão "Taxas": o cabeçalho tem a própria borda e o corpo recua do cartão.
+.body {
+  padding: 20px 22px;
+}
+
 .hint {
   font-size: 13px;
   line-height: 1.5;
