@@ -239,3 +239,20 @@
   font-size: 10px;
   color: #6f6f77;
 }
+
+.watchConfirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #d8d8de;
+  cursor: pointer;
+}
+
+.warn {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 12px;
+  color: #fbbf24;
+}

@@ -28,6 +28,7 @@ const videoAd: ServedAd = {
   bannerUrl: null,
   videoUrl: 'https://cdn.example.com/ad.mp4',
   videoDurationSec: 15,
+  pauseVariant: null,
 };
 
 const adWithoutVideo: ServedAd = {
@@ -56,6 +57,24 @@ describe('usePrerollGate', () => {
     expect(result.current.pending).toBe(false);
     expect(result.current.ad).toBeNull();
     expect(serveMock).not.toHaveBeenCalled();
+  });
+
+  it('does not serve before the gate is ready (no access / not live yet)', () => {
+    const { result } = renderHook(() => usePrerollGate('ev1', true, false), { wrapper });
+    expect(serveMock).not.toHaveBeenCalled();
+    expect(result.current.pending).toBe(false);
+    expect(result.current.ad).toBeNull();
+  });
+
+  it('serves once the gate becomes ready', async () => {
+    serveMock.mockResolvedValue([videoAd]);
+    const { result, rerender } = renderHook(({ ready }) => usePrerollGate('ev1', true, ready), {
+      wrapper,
+      initialProps: { ready: false },
+    });
+    expect(serveMock).not.toHaveBeenCalled();
+    rerender({ ready: true });
+    await waitFor(() => expect(result.current.ad).toEqual(videoAd));
   });
 
   it('markSeen persists the session flag', async () => {

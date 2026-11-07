@@ -12,6 +12,7 @@ import { useHouseAdsQuery } from '../house-ads/queries/house-ads.queries';
 import type { HouseAdListItem, HouseAdPriority, HouseAdStatus } from '../house-ads/types/house-ads.types';
 import type { PlatformAdRow } from '../types/platform-admin.types';
 import { brlCompact } from '../utils/format';
+import { AD_KIND_LABEL, adKindFromPlacements } from '../utils/ad-kind';
 import { PlatformPageShell } from './PlatformPageShell';
 import { Pager } from './PlatformEventsPage';
 import { AdDetailDrawer } from './AdDetailDrawer';
@@ -23,7 +24,7 @@ import table from './PlatformTable.module.scss';
 import styles from './PlatformAdsPage.module.scss';
 
 const STATUSES = ['REVIEW', 'ACTIVE', 'PAUSED', 'REJECTED', 'DRAFT', 'ENDED'];
-const COLS = '2fr 1.3fr 0.9fr 1fr 1fr auto';
+const COLS = '2fr 1.3fr 0.8fr 0.9fr 1fr 1fr auto';
 
 const STRATEGY_LABEL: Record<string, string> = {
   human: 'Humano', auto: 'Auto-aprovar', ai: 'IA / triagem',
@@ -188,7 +189,7 @@ export function PlatformAdsPage() {
           <div className={table.card}>
             <div className={table.scroll}>
               <div className={table.head} style={{ gridTemplateColumns: COLS }}>
-                <span>Campanha</span><span>Organização</span><span>Status</span><span className={table.right}>Impressões 30d</span><span className={table.right}>Gasto</span><span className={table.right}>Ações</span>
+                <span>Campanha</span><span>Organização</span><span>Tipo</span><span>Status</span><span className={table.right}>Impressões 30d</span><span className={table.right}>Gasto</span><span className={table.right}>Ações</span>
               </div>
               {isLoading && <div className={table.empty}>Carregando…</div>}
               {!isLoading && total === 0 && <div className={table.empty}>Nenhuma campanha para este filtro.</div>}
@@ -231,6 +232,7 @@ function AdRow({ a, onOpen }: { a: PlatformAdRow; onOpen: () => void }) {
     <div className={table.row} style={{ gridTemplateColumns: COLS }}>
       <span className={table.primary}>{a.name}</span>
       <span className={table.mono}>{a.orgName}</span>
+      <span className={table.mono}>{AD_KIND_LABEL[adKindFromPlacements(a.placements)]}</span>
       <span><span className={`${table.badge} ${statusBadge(a.status)}`}>{a.status}</span></span>
       <span className={`${table.mono} ${table.right}`}>{compact(a.impressions30d)}</span>
       <span className={`${table.mono} ${table.right}`}>{brlCompact(a.spend)}</span>

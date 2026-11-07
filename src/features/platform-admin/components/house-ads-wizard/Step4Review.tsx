@@ -52,6 +52,9 @@ export function Step4Review({ draft, submitError }: Props) {
         <div className={styles.cardHead}><span>CRIATIVO E DESTINO</span></div>
         <Row k="Título" v={draft.title} />
         <Row k="Formato" v={draft.format ? FORMAT_LABEL[draft.format] : '—'} />
+        {draft.format === 'WIDE_16_9' && (
+          <Row k="Variante" v={draft.pauseVariant === 'FULLSCREEN' ? 'Tela cheia' : 'Padrão'} />
+        )}
         <Row k="Criativo" v={draft.creativeFileName ?? 'mantém o atual'} />
         <Row k="Destino" v={destination} />
       </div>

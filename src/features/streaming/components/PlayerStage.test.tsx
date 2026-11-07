@@ -73,3 +73,38 @@ describe('PlayerStage — live mode', () => {
     expect(queryByTestId('pause-ad')).toBeNull();
   });
 });
+
+describe('PlayerStage — pause ad layouts', () => {
+  const stageOf = (container: HTMLElement) => container.querySelector('[class*="stageArea"]') as HTMLElement;
+
+  it('STANDARD shrinks the stage into a card and keeps the paused chip', () => {
+    const { container, getByText } = render(
+      <PlayerStage {...baseProps} mode="live" pauseAdLayout="STANDARD">
+        <div>grid</div>
+      </PlayerStage>,
+    );
+    expect(stageOf(container).className).toContain('stageAreaShrunk');
+    expect(getByText('pausedChipLive')).toBeInTheDocument();
+  });
+
+  it('FULLSCREEN hides the stage, the center play button and the paused chip', () => {
+    const { container, queryByLabelText, queryByText } = render(
+      <PlayerStage {...baseProps} mode="live" pauseAdLayout="FULLSCREEN">
+        <div>grid</div>
+      </PlayerStage>,
+    );
+    expect(stageOf(container).className).toContain('stageAreaHidden');
+    expect(stageOf(container).className).not.toContain('stageAreaShrunk');
+    expect(queryByLabelText('resume')).toBeNull();
+    expect(queryByText('pausedChipLive')).toBeNull();
+  });
+
+  it('with no ad on screen the stage is untouched in either layout', () => {
+    const { container } = render(
+      <PlayerStage {...baseProps} pauseAdVisible={false} mode="live" pauseAdLayout="FULLSCREEN">
+        <div>grid</div>
+      </PlayerStage>,
+    );
+    expect(stageOf(container).className).not.toContain('stageAreaHidden');
+  });
+});

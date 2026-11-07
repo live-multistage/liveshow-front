@@ -9,8 +9,20 @@ vi.mock('../services/advertisements.service', () => ({
     serve: vi.fn(),
     recordImpression: vi.fn(),
     recordClick: vi.fn(),
+    recordEvent: vi.fn(),
   },
 }));
+
+vi.mock('next-intl', () => {
+  const messages: Record<string, Record<string, string>> = {
+    ads: { sponsored: 'Patrocinado', skipIn: 'Pular em {seconds}s', skip: 'Pular anúncio' },
+    player: { unmute: 'Ativar som' },
+  };
+  return {
+    useTranslations: (namespace: string) => (key: string, params?: Record<string, number>) =>
+      messages[namespace][key].replace(/\{(\w+)\}/g, (_, name: string) => String(params?.[name])),
+  };
+});
 
 const mockedService = vi.mocked(advertisementsService);
 
@@ -24,6 +36,7 @@ const videoAd: ServedAd = {
   bannerUrl: null,
   videoUrl: 'https://cdn.example.com/ad.mp4',
   videoDurationSec: 15,
+  pauseVariant: null,
 };
 
 describe('PreRollPlayer', () => {
@@ -55,6 +68,23 @@ describe('PreRollPlayer', () => {
     expect(screen.queryByRole('button', { name: /pular/i })).toBeNull();
     act(() => vi.advanceTimersByTime(5000));
     expect(screen.getByRole('button', { name: /pular/i })).toBeInTheDocument();
+  });
+
+  it('labels the badge Patrocinado with the remaining time', () => {
+    render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+    expect(screen.getByText('Patrocinado · 15s')).toBeInTheDocument();
+  });
+
+  it('counts down with "Pular em" before offering "Pular anúncio"', () => {
+    render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+    fireEvent(screen.getByTestId('preroll-video'), new Event('playing'));
+    expect(screen.getByText('Pular em 5s')).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(2000));
+    expect(screen.getByText('Pular em 3s')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /pular/i })).toBeNull();
+    act(() => vi.advanceTimersByTime(3000));
+    expect(screen.queryByText(/Pular em/)).toBeNull();
+    expect(screen.getByRole('button', { name: 'Pular anúncio' })).toBeInTheDocument();
   });
 
   it('onFinished on skip click', () => {
@@ -168,5 +198,51 @@ describe('PreRollPlayer', () => {
     // against an unmounted component.
     act(() => vi.advanceTimersByTime(5000));
     expect(onFinished).not.toHaveBeenCalled();
+  });
+
+  describe('engagement events', () => {
+    const progress = (at: number, duration = 20) => {
+      const video = screen.getByTestId('preroll-video') as HTMLVideoElement;
+      Object.defineProperty(video, 'duration', { value: duration, configurable: true });
+      Object.defineProperty(video, 'currentTime', { value: at, configurable: true });
+      fireEvent.timeUpdate(video);
+    };
+
+    it('reports each quartile once as the video progresses', () => {
+      render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+      progress(5);
+      progress(5.5);
+      progress(10);
+      progress(15);
+      expect(mockedService.recordEvent.mock.calls.map((c) => c[1])).toEqual(['video_q25', 'video_q50', 'video_q75']);
+    });
+
+    it('does not report a quartile that was never reached', () => {
+      render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+      progress(4);
+      expect(mockedService.recordEvent).not.toHaveBeenCalled();
+    });
+
+    it('reports completion when the video ends', () => {
+      render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+      fireEvent.ended(screen.getByTestId('preroll-video'));
+      expect(mockedService.recordEvent).toHaveBeenCalledWith('srv-1', 'video_complete');
+      expect(onFinished).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports a skip and finishes', () => {
+      render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+      fireEvent(screen.getByTestId('preroll-video'), new Event('playing'));
+      act(() => vi.advanceTimersByTime(5000));
+      fireEvent.click(screen.getByText('Pular anúncio'));
+      expect(mockedService.recordEvent).toHaveBeenCalledWith('srv-1', 'video_skip');
+      expect(onFinished).toHaveBeenCalledTimes(1);
+    });
+
+    it('a video that errors reports no completion', () => {
+      render(<PreRollPlayer ad={videoAd} onFinished={onFinished} />);
+      fireEvent.error(screen.getByTestId('preroll-video'));
+      expect(mockedService.recordEvent).not.toHaveBeenCalled();
+    });
   });
 });

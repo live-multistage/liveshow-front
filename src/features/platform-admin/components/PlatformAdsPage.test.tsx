@@ -40,7 +40,7 @@ import { useChangeHouseAdStatusMutation } from '../house-ads/mutations/house-ads
 import type { HouseAdListItem } from '../house-ads/types/house-ads.types';
 
 const reviewAds = [{
-  id: 'ad-1', name: 'Campanha X', orgName: 'Org X', status: 'REVIEW', impressions30d: 100, spend: 5000,
+  id: 'ad-1', name: 'Campanha X', orgName: 'Org X', status: 'REVIEW', impressions30d: 100, spend: 5000, placements: 'PRE_ROLL',
 }];
 
 const houseAd: HouseAdListItem = {
@@ -70,6 +70,12 @@ beforeEach(() => {
 });
 
 describe('PlatformAdsPage — tabs', () => {
+  it('shows the campaign type column derived from placements', () => {
+    render(<PlatformAdsPage />);
+    expect(screen.getByText('Tipo')).toBeInTheDocument();
+    expect(screen.getByText('Vídeo antes')).toBeInTheDocument();
+  });
+
   it('defaults to the Revisão tab and keeps its queue unchanged', () => {
     render(<PlatformAdsPage />);
     expect(screen.getByRole('tab', { name: /Revisão/ })).toHaveAttribute('aria-selected', 'true');

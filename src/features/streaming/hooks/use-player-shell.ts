@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { pickActiveStream } from '@live-show/api-contracts';
+import type { PauseLayout } from '@/features/advertisements/utils/pause-layout';
 import type { LiveCamera } from '../types/live.types';
 import type { ViewMode } from '../components/camera-layout';
 import { useFullscreen } from './use-fullscreen';
@@ -90,6 +91,11 @@ export function usePlayerShell({
   // onVisibleChange, which fires false on resume/unmount so this can never
   // get stuck shrunk without an ad actually on screen.
   const [pauseAdVisible, setPauseAdVisible] = useState(false);
+  const [pauseAdLayout, setPauseAdLayout] = useState<PauseLayout>('STANDARD');
+  const handlePauseAdVisibleChange = useCallback((visible: boolean, layout: PauseLayout) => {
+    setPauseAdVisible(visible);
+    setPauseAdLayout(layout);
+  }, []);
   const [viewMode, setViewMode] = useState<ViewMode>('main-rail');
   const [cameraStripOpen, setCameraStripOpen] = useState(false);
   // Cameras and chapters share the right edge: opening one closes the other.
@@ -208,7 +214,8 @@ export function usePlayerShell({
     setPaused,
     togglePlay,
     pauseAdVisible,
-    setPauseAdVisible,
+    pauseAdLayout,
+    setPauseAdVisible: handlePauseAdVisibleChange,
     viewMode,
     setViewMode,
     effectiveViewMode,

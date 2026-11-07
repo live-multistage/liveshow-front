@@ -66,6 +66,7 @@ const mockDetail: HouseAdDetail = {
   bannerUrl: null,
   videoUrl: null,
   videoDurationSec: null,
+  pauseVariant: null,
 };
 
 const createWrapper = () => {

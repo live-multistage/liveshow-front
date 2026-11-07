@@ -30,7 +30,7 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true, s
   // Fetched next to playback and never awaited: the player must not wait
   // for (or fail on) chapters.
   const chapters = useReplayChaptersQuery(eventId, access.data === true);
-  const preroll = usePrerollGate(eventId, adsEnabled);
+  const preroll = usePrerollGate(eventId, adsEnabled, access.data === true && playback.data?.available === true);
   const [prerollDone, setPrerollDone] = useState(false);
 
   if (authLoading || access.isLoading) {

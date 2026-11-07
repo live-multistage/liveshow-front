@@ -86,6 +86,10 @@ function setup(overrides?: {
       defaultFeeRate: 0.035,
       cartTaxRate: 0.125,
       blueprintHttpAllowlist: ['api.partner.com', '*.stripe.com'],
+      adPauseMinCpmStandardCents: 800,
+      adPauseMinCpcStandardCents: 40,
+      adPauseMinCpmFullscreenCents: 1400,
+      adPauseMinCpcFullscreenCents: 70,
       ...overrides?.settings,
     }),
   );

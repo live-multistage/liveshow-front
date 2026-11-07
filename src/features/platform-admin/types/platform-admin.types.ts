@@ -195,7 +195,20 @@ export interface PlatformSettingsView {
   defaultFeeRate: number;
   cartTaxRate: number;
   blueprintHttpAllowlist: string[];
+  // Lance mínimo (centavos) da pausa por variante e modelo.
+  adPauseMinCpmStandardCents: number;
+  adPauseMinCpcStandardCents: number;
+  adPauseMinCpmFullscreenCents: number;
+  adPauseMinCpcFullscreenCents: number;
 }
+
+export type AdPauseMinimums = Pick<
+  PlatformSettingsView,
+  | 'adPauseMinCpmStandardCents'
+  | 'adPauseMinCpcStandardCents'
+  | 'adPauseMinCpmFullscreenCents'
+  | 'adPauseMinCpcFullscreenCents'
+>;
 
 // Audit trail entry (GET /platform-admin/audit).
 export interface AuditLogEntry {
@@ -312,6 +325,10 @@ export interface AdDetail {
     targetDomains: string[];
     targetCategories: string[];
     bannerUrl: string | null;
+    videoUrl: string | null;
+    videoDurationSec: number | null;
+    /** STANDARD | FULLSCREEN for PLAYER_PAUSE; null otherwise (and on legacy rows). */
+    pauseVariant: 'STANDARD' | 'FULLSCREEN' | null;
     frequencyCapMax: number | null;
     frequencyCapWindow: string | null;
     billingModel: string;
