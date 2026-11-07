@@ -51,9 +51,10 @@ const prerollState: { ad: unknown; pending: boolean; markSeen: () => void } = {
   pending: false,
   markSeen: vi.fn(),
 };
-const usePrerollGateMock = vi.fn((_eventId: string, _adsEnabled?: boolean) => prerollState);
+const usePrerollGateMock = vi.fn((_eventId: string, _adsEnabled?: boolean, _ready?: boolean) => prerollState);
 vi.mock('@/features/advertisements/hooks/use-preroll-gate', () => ({
-  usePrerollGate: (eventId: string, adsEnabled?: boolean) => usePrerollGateMock(eventId, adsEnabled),
+  usePrerollGate: (eventId: string, adsEnabled?: boolean, ready?: boolean) =>
+    usePrerollGateMock(eventId, adsEnabled, ready),
 }));
 
 vi.mock('@/features/advertisements/components/PreRollPlayer', () => ({
@@ -74,6 +75,10 @@ vi.mock('./LivePlayer', () => ({
 
 vi.mock('./LiveGateLoading', () => ({
   LiveGateLoading: () => <div>loading-stub</div>,
+}));
+
+vi.mock('./LiveNotStarted', () => ({
+  LiveNotStarted: () => <div>not-started-stub</div>,
 }));
 
 vi.mock('./LiveNoAccess', () => ({
@@ -131,9 +136,26 @@ describe('LiveGate — pre-roll ad gate', () => {
   it('passes adsEnabled=false through to usePrerollGate, so no ad is served', () => {
     render(<LiveGate eventId="evt-1" chatEnabled={false} adsEnabled={false} />);
 
-    expect(usePrerollGateMock).toHaveBeenCalledWith('evt-1', false);
+    expect(usePrerollGateMock).toHaveBeenCalledWith('evt-1', false, true);
     expect(screen.getByText('live-player-stub')).toBeInTheDocument();
     expect(screen.queryByText('preroll-stub-finish')).not.toBeInTheDocument();
+  });
+
+  it('only marks the pre-roll gate ready once access is granted and the event is live', () => {
+    render(<LiveGate eventId="evt-1" chatEnabled={false} />);
+    expect(usePrerollGateMock).toHaveBeenLastCalledWith('evt-1', true, true);
+
+    usePrerollGateMock.mockClear();
+    playbackState.data = { ...DEFAULT_PLAYBACK_DATA, live: false };
+    render(<LiveGate eventId="evt-1" chatEnabled={false} />);
+    expect(usePrerollGateMock).toHaveBeenLastCalledWith('evt-1', true, false);
+
+    usePrerollGateMock.mockClear();
+    playbackState.data = DEFAULT_PLAYBACK_DATA;
+    accessState.data = false;
+    render(<LiveGate eventId="evt-1" chatEnabled={false} />);
+    expect(usePrerollGateMock).toHaveBeenLastCalledWith('evt-1', true, false);
+    accessState.data = true;
   });
 });
 

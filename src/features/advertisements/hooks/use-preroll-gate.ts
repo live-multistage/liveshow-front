@@ -16,13 +16,16 @@ function alreadySeen(eventId: string): boolean {
   }
 }
 
-export function usePrerollGate(eventId: string, adsEnabled = true) {
+// `ready` = acesso concedido e transmissão no ar. Antes disso o serve não é
+// pedido: o anúncio é um registro cobrável e não pode ser consumido por quem
+// ainda nem vai ver o player.
+export function usePrerollGate(eventId: string, adsEnabled = true, ready = true) {
   const [seen] = useState(() => alreadySeen(eventId));
 
   const query = useQuery({
     queryKey: ['ads', 'serve', 'PRE_ROLL', eventId],
     queryFn: () => advertisementsService.serve('PRE_ROLL', 1, eventId),
-    enabled: adsEnabled && !seen,
+    enabled: adsEnabled && ready && !seen,
     ...SERVE_QUERY_CACHE,
     retry: false,
   });
@@ -36,6 +39,6 @@ export function usePrerollGate(eventId: string, adsEnabled = true) {
   }, [eventId]);
 
   const served = query.data?.[0];
-  const ad = adsEnabled && !seen && served?.videoUrl ? served : null;
-  return { ad, pending: adsEnabled && !seen && query.isLoading, markSeen };
+  const ad = adsEnabled && ready && !seen && served?.videoUrl ? served : null;
+  return { ad, pending: adsEnabled && ready && !seen && query.isLoading, markSeen };
 }

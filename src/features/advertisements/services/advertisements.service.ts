@@ -1,4 +1,5 @@
 import { httpClient } from '@/lib/http/client';
+import { getAdSessionId } from '../utils/ad-session';
 import type { ServedAd, AdPlacement } from '../types/advertisement.types';
 
 export const advertisementsService = {
@@ -8,7 +9,7 @@ export const advertisementsService = {
     // Pré-roll segura o player: um serve pendurado não pode travar a entrada
     // ao vivo/replay, então falha rápido e deixa o hook cair no caminho de erro.
     const { data } = await httpClient.get<ServedAd[]>('/ads/serve', {
-      params: { placement, limit, ...(eventId ? { eventId } : {}) },
+      params: { placement, limit, sessionId: getAdSessionId(), ...(eventId ? { eventId } : {}) },
       timeout: 5000,
     });
     return data;

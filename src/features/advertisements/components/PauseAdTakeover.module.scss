@@ -23,6 +23,14 @@
 
 // Legibility scrim so the copy column reads over any real creative, not just
 // the deterministic gradient fallback.
+.media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .scrim {
   position: absolute;
   inset: 0;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
@@ -62,6 +62,7 @@ interface TakeoverAdProps {
 function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
   const t = useTranslations('ads');
   const impressionFired = useRef(false);
+  const [imageFailed, setImageFailed] = useState(false);
 
   const { data: ads } = useQuery({
     queryKey: ['ads', 'serve', PLACEMENT, eventId],
@@ -72,12 +73,19 @@ function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
 
   const ad = ads?.[0] ?? null;
 
-  useEffect(() => {
-    if (ad && !impressionFired.current) {
-      impressionFired.current = true;
-      advertisementsService.recordImpression(ad.servedId);
-    }
+  // A impressão é cobrada: só conta quando o criativo realmente apareceu.
+  // Com imagem, isso é o onLoad; sem imagem (gradiente), já está na tela.
+  const recordImpressionOnce = useCallback(() => {
+    if (!ad || impressionFired.current) return;
+    impressionFired.current = true;
+    advertisementsService.recordImpression(ad.servedId);
   }, [ad]);
+
+  const hasImage = Boolean(ad?.bannerUrl) && !imageFailed;
+
+  useEffect(() => {
+    if (ad && !ad.bannerUrl) recordImpressionOnce();
+  }, [ad, recordImpressionOnce]);
 
   // Shrink the video / hide the header only while a real ad is on screen —
   // an empty serve or a failed request must not touch the layout. Cleanup
@@ -93,7 +101,6 @@ function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
 
   if (!ad) return null;
 
-  const bg = ad.bannerUrl ? `url(${ad.bannerUrl}) center/cover no-repeat` : gradientFor(ad.adId);
 
   function handleCtaClick() {
     advertisementsService.recordClick(ad!.servedId);
@@ -121,7 +128,17 @@ function TakeoverAd({ eventId, onResume, onVisibleChange }: TakeoverAdProps) {
   }
 
   return (
-    <div className={styles.takeover} style={{ background: bg }}>
+    <div className={styles.takeover} style={hasImage ? undefined : { background: gradientFor(ad.adId) }}>
+      {hasImage && (
+        // eslint-disable-next-line @next/next/no-img-element -- criativo externo, precisamos do onLoad para cobrar a impressão
+        <img
+          className={styles.media}
+          src={ad.bannerUrl!}
+          alt=""
+          onLoad={recordImpressionOnce}
+          onError={() => setImageFailed(true)}
+        />
+      )}
       <div className={styles.scrim} />
       <span className={styles.sponsored}>{t('sponsored')}</span>
       <div className={styles.copy}>

@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { httpClient } from '@/lib/http/client';
+import { getAdSessionId } from '../utils/ad-session';
 import type { ServedAd, AdPlacement } from '../types/advertisement.types';
 
 /**
@@ -23,7 +24,7 @@ export const SERVE_QUERY_CACHE = {
 
 async function fetchServedAds(placement: AdPlacement, limit: number, eventId?: string): Promise<ServedAd[]> {
   const { data } = await httpClient.get<ServedAd[]>('/ads/serve', {
-    params: { placement, limit, ...(eventId ? { eventId } : {}) },
+    params: { placement, limit, sessionId: getAdSessionId(), ...(eventId ? { eventId } : {}) },
   });
   return data;
 }

@@ -28,7 +28,7 @@ export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }
   const access = useLiveAccessQuery(eventId, !authLoading);
   const authorized = access.data === true;
   const playback = useLivePlaybackQuery(eventId, authorized, { playing: true });
-  const preroll = usePrerollGate(eventId, adsEnabled);
+  const preroll = usePrerollGate(eventId, adsEnabled, authorized && playback.data?.live === true);
   const [prerollDone, setPrerollDone] = useState(false);
 
   if (authLoading || access.isLoading) {

@@ -145,6 +145,35 @@ describe('PauseAdTakeover content', () => {
     expect(mockedService.recordImpression).toHaveBeenCalledWith('srv-1');
   }, 4000);
 
+  describe('with an image creative', () => {
+    const imageAd: ServedAd = { ...baseAd, bannerUrl: 'https://cdn.example.com/pause.webp' };
+
+    it('waits for the image to load before recording the impression', async () => {
+      const { container } = await pauseAndWaitForAd({ ad: imageAd });
+      expect(mockedService.recordImpression).not.toHaveBeenCalled();
+
+      fireEvent.load(container.querySelector('img')!);
+
+      expect(mockedService.recordImpression).toHaveBeenCalledTimes(1);
+      expect(mockedService.recordImpression).toHaveBeenCalledWith('srv-1');
+    }, 4000);
+
+    it('never records the impression when the image fails to load', async () => {
+      const { container } = await pauseAndWaitForAd({ ad: imageAd });
+      fireEvent.error(container.querySelector('img')!);
+      fireEvent.load(container.querySelector('img') ?? document.createElement('img'));
+      expect(mockedService.recordImpression).not.toHaveBeenCalled();
+    }, 4000);
+
+    it('records the impression once even if load fires twice', async () => {
+      const { container } = await pauseAndWaitForAd({ ad: imageAd });
+      const img = container.querySelector('img')!;
+      fireEvent.load(img);
+      fireEvent.load(img);
+      expect(mockedService.recordImpression).toHaveBeenCalledTimes(1);
+    }, 4000);
+  });
+
   // A served record is billable once — the beacon consumes it server-side — so
   // a second pause reusing a cached servedId would show the ad for free.
   it('serves a fresh record on every takeover mount', async () => {
