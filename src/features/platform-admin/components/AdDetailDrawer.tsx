@@ -7,6 +7,7 @@ import { X, Check, Ban } from 'lucide-react';
 import { useAdDetailQuery, useReviewAdMutation } from '../queries/get-platform-directory';
 import type { AdDestination, AdReviewRecord } from '../types/platform-admin.types';
 import { brlCompact } from '../utils/format';
+import { adKindFromFormat } from '../utils/ad-kind';
 import styles from './AdDetailDrawer.module.scss';
 
 const REAIS = (cents: number) => brlCompact(cents / 100);
@@ -15,7 +16,11 @@ const list = (arr: string[]) => (arr.length ? arr.join(', ') : '—');
 const FORMAT_LABEL: Record<string, string> = {
   HORIZONTAL_728x90: 'Horizontal · 728×90',
   VERTICAL_300x600: 'Vertical · 300×600',
+  WIDE_16_9: 'Tela ampla · 16:9',
+  VIDEO_16_9: 'Vídeo · 16:9',
 };
+
+const PAUSE_VARIANT_LABEL = { STANDARD: 'Padrão', FULLSCREEN: 'Tela cheia' } as const;
 
 const OUTCOME_LABEL: Record<AdReviewRecord['outcome'], string> = {
   SUBMITTED: 'adSUBMITTED', APPROVE: 'adAPPROVE', REJECT: 'adREJECT', PENDING: 'adPENDING',
@@ -33,6 +38,7 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
   const t = useTranslations('platformAdmin');
   const { data, isLoading } = useAdDetailQuery(adId);
   const [reason, setReason] = useState('');
+  const [watchedVideo, setWatchedVideo] = useState(false);
   const review = useReviewAdMutation(onClose);
 
   // Close on Escape.
@@ -44,6 +50,10 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
 
   const ad = data?.ad;
   const inReview = ad?.status === 'REVIEW';
+  const isVideo = ad ? adKindFromFormat(ad.format) === 'preroll' : false;
+  const isPause = ad ? adKindFromFormat(ad.format) === 'pause' : false;
+  // Vídeo só é aprovado depois de o revisor ver e ouvir o arquivo; sem arquivo, nunca.
+  const approveLocked = isVideo && (!ad?.videoUrl || !watchedVideo);
 
   return (
     <div className={styles.backdrop} onClick={onClose}>
@@ -62,7 +72,13 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
           <div className={styles.body}>
             {/* Creative — the actual banner submitted, or a clear "no creative". */}
             <div className={styles.sectionLabel}>Criativo</div>
-            {ad.bannerUrl ? (
+            {isVideo ? (
+              ad.videoUrl ? (
+                <video className={styles.banner} src={ad.videoUrl} controls preload="metadata" aria-label={ad.title} />
+              ) : (
+                <div className={styles.bannerEmpty}>Vídeo não enviado — não pode ser aprovado.</div>
+              )
+            ) : ad.bannerUrl ? (
               <a href={ad.bannerUrl} target="_blank" rel="noopener noreferrer" className={styles.bannerLink}>
                 <img src={ad.bannerUrl} alt={ad.title} className={styles.banner} />
               </a>
@@ -72,6 +88,8 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
             <dl className={styles.fields}>
               <Field label="Status" value={ad.status} />
               <Field label="Formato" value={FORMAT_LABEL[ad.format] ?? ad.format} />
+              {isPause && <Field label="Variante" value={PAUSE_VARIANT_LABEL[ad.pauseVariant ?? 'STANDARD']} />}
+              {isVideo && ad.videoDurationSec != null && <Field label="Duração" value={`${ad.videoDurationSec} s`} />}
               <Field label="Organização" value={orgName ?? ad.advertiserAccountId} />
               <DestinationField destination={ad.destination} />
             </dl>
@@ -102,6 +120,12 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
             {inReview && (
               <div className={styles.reviewBox}>
                 <div className={styles.reviewTitle}>Decisão de revisão</div>
+                {isVideo && (
+                  <label className={styles.watchConfirm}>
+                    <input type="checkbox" checked={watchedVideo} onChange={(e) => setWatchedVideo(e.target.checked)} />
+                    Assisti ao vídeo inteiro com som
+                  </label>
+                )}
                 <textarea
                   className={styles.reason}
                   placeholder={t('adReasonPlaceholder')}
@@ -114,7 +138,8 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
                   <button
                     className={styles.approve}
                     onClick={() => review.mutate({ id: adId, decision: 'APPROVE', reason: reason.trim() || undefined })}
-                    disabled={review.isPending}
+                    disabled={review.isPending || approveLocked}
+                    title={approveLocked ? 'Assista ao vídeo inteiro com som para aprovar' : undefined}
                   >
                     <Check size={15} /> {t('approve')}
                   </button>
