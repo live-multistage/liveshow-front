@@ -28,3 +28,26 @@ export interface ServedAd {
   /** Layout of a PLAYER_PAUSE creative; null for every other placement. */
   pauseVariant: AdPauseVariant | null;
 }
+
+/** Non-billable player beacons: POST /ads/serve/:servedId/event { type }. Idempotent per (servedId, type). */
+export type AdServedEventType =
+  | 'video_q25'
+  | 'video_q50'
+  | 'video_q75'
+  | 'video_complete'
+  | 'video_skip'
+  | 'video_unmute'
+  | 'pause_close';
+
+export interface AdVideoEventTotals {
+  q25: number;
+  q50: number;
+  q75: number;
+  complete: number;
+  skip: number;
+  unmute: number;
+}
+
+export interface AdPauseEventTotals {
+  closed: number;
+}

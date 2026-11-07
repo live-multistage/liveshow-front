@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import type { HouseAdListItem } from '../../house-ads';
-import { isoToLocal, localToIso } from './useHouseAdWizardForm';
+import { buildCreatePayload, buildUpdatePayload, isoToLocal, localToIso, type WizardDraft } from './useHouseAdWizardForm';
 
 const createMutateAsync = vi.fn();
 const updateMutateAsync = vi.fn();
@@ -201,5 +201,60 @@ describe('submit() re-validates the creative instead of trusting a stale/pending
 
     expect(createMutateAsync).not.toHaveBeenCalled();
     expect(result.current.submitError).toMatch(/o limite é 2 mb/i);
+  });
+});
+
+describe('pause variant in the payload', () => {
+  const draft = (over: Partial<WizardDraft>): WizardDraft => ({
+    title: 'Pausa',
+    format: 'WIDE_16_9',
+    destinationMode: 'EVENT',
+    destinationEventId: 'evt-1',
+    destinationEventTitle: '',
+    destinationUrl: '',
+    creativeFile: null,
+    creativeFileName: null,
+    creativeError: null,
+    placements: ['PLAYER_PAUSE'],
+    pauseVariant: 'FULLSCREEN',
+    targetDomains: [],
+    targetCategories: [],
+    targetAgeBrackets: [],
+    frequencyCapMax: '',
+    frequencyCapWindow: 'day',
+    startsAt: '2026-10-01T00:00',
+    endsAt: '2026-10-15T23:59',
+    housePriority: 'FILL',
+    existingCreativeUrl: null,
+    ...over,
+  });
+
+  it('create sends the variant with PLAYER_PAUSE', () => {
+    expect(buildCreatePayload(draft({})).pauseVariant).toBe('FULLSCREEN');
+  });
+
+  it('create omits it for banners and video', () => {
+    expect(buildCreatePayload(draft({ format: 'VIDEO_16_9', placements: ['PRE_ROLL'] }))).not.toHaveProperty('pauseVariant');
+    expect(buildCreatePayload(draft({ format: 'HORIZONTAL_728x90', placements: ['FEED'] }))).not.toHaveProperty('pauseVariant');
+  });
+
+  it('update sends the variant with PLAYER_PAUSE and null once the pause is gone', () => {
+    expect(buildUpdatePayload(draft({}), true).pauseVariant).toBe('FULLSCREEN');
+    expect(buildUpdatePayload(draft({ format: 'HORIZONTAL_728x90', placements: ['FEED'] }), true).pauseVariant).toBeNull();
+  });
+
+  it('opening a legacy pause ad without variant defaults to Padrão', () => {
+    houseAdQueryMock.mockReturnValue({
+      data: {
+        id: 'ad-9', title: 'x', format: 'WIDE_16_9', placements: ['PLAYER_PAUSE'], destination: { type: 'EVENT', eventId: 'e' },
+        targetDomains: [], targetCategories: [], targetAgeBrackets: [], frequencyCapMax: null, frequencyCapWindow: null,
+        startsAt: existingAd.startsAt, endsAt: existingAd.endsAt, status: 'PAUSED', housePriority: 'FILL',
+        bannerUrl: 'https://cdn/p.webp', videoUrl: null, videoDurationSec: null, pauseVariant: null,
+      },
+      isLoading: false,
+      isError: false,
+    });
+    const { result } = renderHook(() => useHouseAdWizardForm({ ad: { ...existingAd, format: 'WIDE_16_9', placements: ['PLAYER_PAUSE'] }, open: true, onSaved: vi.fn() }));
+    expect(result.current.draft.pauseVariant).toBe('STANDARD');
   });
 });

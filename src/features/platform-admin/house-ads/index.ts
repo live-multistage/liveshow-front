@@ -19,6 +19,7 @@ export {
   canEditHouseAd,
 } from './labels';
 export type {
+  AdPauseVariant,
   HouseAdFormat,
   HouseAdPlacement,
   HouseAdStatus,
