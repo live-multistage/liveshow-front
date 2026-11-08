@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useAuditSearchQuery } from '../queries/get-audit';
 import type { AuditLogEntry } from '../types/platform-admin.types';
 import {
@@ -11,6 +11,8 @@ import {
   AUDIT_DANGER,
   AUDIT_MONEY,
 } from '../utils/audit-format';
+import { summarizeUserAgent } from '../utils/user-agent';
+import { AuditRowDetail } from './AuditRowDetail';
 import { PlatformPageShell } from './PlatformPageShell';
 import styles from './PlatformAuditPage.module.scss';
 
@@ -97,22 +99,55 @@ export function PlatformAuditPage() {
 }
 
 function AuditRow({ e }: { e: AuditLogEntry }) {
+  const [open, setOpen] = useState(false);
+  const detailId = useId();
   const tone = AUDIT_DANGER.has(e.action)
     ? styles.actionDanger
     : AUDIT_MONEY.has(e.action)
       ? styles.actionMoney
       : '';
   const meta = auditMetaLine(e.metadata);
+  const browser = summarizeUserAgent(e.userAgent);
 
   return (
-    <div className={styles.row}>
-      <span className={`${styles.action} ${tone}`}>{auditActionLabel(e.action)}</span>
-      <span className={styles.body}>
-        <span className={styles.actor}>{e.actorName ?? 'Sistema'}</span>
-        {e.targetLabel && <> → <span className={styles.target}>{e.targetLabel}</span></>}
-        {meta && <span className={styles.meta}>{meta}</span>}
-      </span>
-      <span className={styles.time}>{fmtAbsolute(e.createdAt)}</span>
+    <div className={styles.item}>
+      <div className={styles.row}>
+        <span className={`${styles.action} ${tone}`}>{auditActionLabel(e.action)}</span>
+        <span className={styles.body}>
+          <span className={styles.actor}>{e.actorName ?? 'Sistema'}</span>
+          {e.impersonator && (
+            <span className={styles.via}>via {e.impersonator.name ?? 'admin'}</span>
+          )}
+          {e.targetLabel && <> → <span className={styles.target}>{e.targetLabel}</span></>}
+          {meta && <span className={styles.meta}>{meta}</span>}
+        </span>
+        <span className={styles.origin} title={e.userAgent ?? undefined}>
+          {e.ip || browser ? (
+            <>
+              {e.ip && <span className={styles.ip}>{e.ip}</span>}
+              {browser && <span className={styles.meta}>{browser}</span>}
+            </>
+          ) : (
+            <span className={styles.none}>Origem não registrada</span>
+          )}
+        </span>
+        <span className={styles.time}>{fmtAbsolute(e.createdAt)}</span>
+        <button
+          type="button"
+          className={styles.toggle}
+          aria-expanded={open}
+          aria-controls={detailId}
+          aria-label={open ? 'Ocultar detalhes' : 'Ver detalhes'}
+          onClick={() => setOpen((v) => !v)}
+        >
+          {open ? '▴' : '▾'}
+        </button>
+      </div>
+      {open && (
+        <div id={detailId}>
+          <AuditRowDetail e={e} />
+        </div>
+      )}
     </div>
   );
 }
