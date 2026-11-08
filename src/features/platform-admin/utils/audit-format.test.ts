@@ -42,13 +42,19 @@ describe('formatAuditValue', () => {
 describe('auditChanges', () => {
   it('lists changed fields as de → para, skipping unchanged ones', () => {
     expect(auditChanges({ role: 'MEMBER', status: 'ACTIVE' }, { role: 'ADMIN', status: 'ACTIVE' })).toEqual([
-      { field: 'role', from: 'MEMBER', to: 'ADMIN' },
+      { kind: 'change', field: 'role', from: 'MEMBER', to: 'ADMIN' },
     ]);
   });
 
   it('treats a missing side as empty', () => {
-    expect(auditChanges(null, { status: 'SUSPENDED' })).toEqual([{ field: 'status', from: '—', to: 'SUSPENDED' }]);
-    expect(auditChanges({ flag: true }, null)).toEqual([{ field: 'flag', from: 'sim', to: '—' }]);
+    expect(auditChanges(null, { status: 'SUSPENDED' })).toEqual([{ kind: 'change', field: 'status', from: '—', to: 'SUSPENDED' }]);
+    expect(auditChanges({ flag: true }, null)).toEqual([{ kind: 'change', field: 'flag', from: 'sim', to: '—' }]);
+  });
+
+  it('keeps de → para when before exists, even for arrays', () => {
+    expect(auditChanges({ tags: ['a'] }, { tags: ['a', 'b'] })).toEqual([
+      { kind: 'change', field: 'tags', from: 'a', to: 'a, b' },
+    ]);
   });
 
   it('is empty when there is nothing to compare', () => {
@@ -61,8 +67,8 @@ describe('auditChanges', () => {
   });
 
   it('shows field names only for PROFILE_UPDATED-style after.fields lists', () => {
-    expect(auditChanges(null, { fields: ['name', 'phone'] })).toEqual([
-      { field: 'fields', from: '—', to: 'name, phone' },
+    expect(auditChanges(null, { fields: ['displayName', 'phone'] })).toEqual([
+      { kind: 'list', field: 'fields', values: ['displayName', 'phone'] },
     ]);
   });
 });

@@ -98,10 +98,12 @@ export function formatAuditValue(value: unknown): string {
   return String(value);
 }
 
-export interface AuditChange {
-  field: string;
-  from: string;
-  to: string;
+export type AuditChange =
+  | { kind: 'change'; field: string; from: string; to: string }
+  | { kind: 'list'; field: string; values: string[] };
+
+function isStringArray(v: unknown): v is string[] {
+  return Array.isArray(v) && v.length > 0 && v.every((x) => typeof x === 'string');
 }
 
 // before/after → "campo: de → para". Only fields whose value differs are
@@ -113,8 +115,15 @@ export function auditChanges(
 ): AuditChange[] {
   const b = before ?? {};
   const a = after ?? {};
+  // No "before" and a list of names (PROFILE_UPDATED: after.fields) is not a
+  // value change: it is just which fields were touched.
+  const isFieldList = (f: string) => before == null && isStringArray(a[f]);
   const fields = [...new Set([...Object.keys(b), ...Object.keys(a)])];
   return fields
     .filter((f) => formatAuditValue(b[f]) !== formatAuditValue(a[f]))
-    .map((f) => ({ field: f, from: formatAuditValue(b[f]), to: formatAuditValue(a[f]) }));
+    .map((f): AuditChange =>
+      isFieldList(f)
+        ? { kind: 'list', field: f, values: a[f] as string[] }
+        : { kind: 'change', field: f, from: formatAuditValue(b[f]), to: formatAuditValue(a[f]) },
+    );
 }

@@ -52,14 +52,21 @@ export function AuditRowDetail({ e }: { e: AuditLogEntry }) {
           <span className={styles.none}>Sem alterações registradas</span>
         ) : (
           <ul className={styles.changes}>
-            {changes.map((c) => (
-              <li key={c.field} className={styles.change}>
-                <span className={styles.changeField}>{auditFieldLabel(c.field)}</span>
-                <span className={styles.changeFrom}>{c.from}</span>
-                <span aria-hidden="true">→</span>
-                <span className={styles.changeTo}>{c.to}</span>
-              </li>
-            ))}
+            {changes.map((c) =>
+              c.kind === 'list' ? (
+                <li key={c.field} className={styles.change}>
+                  <span className={styles.changeField}>{auditFieldLabel(c.field)}:</span>{' '}
+                  <span className={styles.changeTo}>{c.values.join(', ')}</span>
+                </li>
+              ) : (
+                <li key={c.field} className={styles.change}>
+                  <span className={styles.changeField}>{auditFieldLabel(c.field)}</span>
+                  <span className={styles.changeFrom}>{c.from}</span>
+                  <span aria-hidden="true">→</span>
+                  <span className={styles.changeTo}>{c.to}</span>
+                </li>
+              ),
+            )}
           </ul>
         )}
       </div>

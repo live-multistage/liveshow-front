@@ -24,7 +24,7 @@ function fmtAbsolute(iso: string): string {
   });
 }
 
-// D8 — Audit log. Filterable + paginated view of the append-only trail (the
+// D8 — Audit log. Filterable + paginated view of the audit trail (the
 // overview card shows only the latest 20). Read-only: no edit/delete path.
 export function PlatformAuditPage() {
   const t = useTranslations('platformAdmin');
@@ -44,7 +44,7 @@ export function PlatformAuditPage() {
     <PlatformPageShell
       group="GOVERNANÇA"
       title="Audit log"
-      subtitle="Trilha append-only de ações sensíveis. Somente leitura — sem edição ou exclusão."
+      subtitle="Trilha de ações sensíveis da plataforma. Somente leitura nesta tela."
       actions={
         <select
           className={styles.filter}

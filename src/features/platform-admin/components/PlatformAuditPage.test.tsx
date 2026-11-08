@@ -7,8 +7,8 @@ import type { AuditLogEntry } from '../types/platform-admin.types';
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 vi.mock('./PlatformPageShell', () => ({
-  PlatformPageShell: ({ children, actions }: { children: React.ReactNode; actions?: React.ReactNode }) => (
-    <div>{actions}{children}</div>
+  PlatformPageShell: ({ children, actions, subtitle }: { children: React.ReactNode; actions?: React.ReactNode; subtitle?: string }) => (
+    <div><p>{subtitle}</p>{actions}{children}</div>
   ),
 }));
 vi.mock('../queries/get-audit', () => ({ useAuditSearchQuery: vi.fn() }));
@@ -41,6 +41,15 @@ const writeText = vi.fn().mockResolvedValue(undefined);
 beforeEach(() => {
   writeText.mockClear();
   Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+});
+
+describe('PlatformAuditPage — header', () => {
+  it('does not claim the table is append-only', () => {
+    mockEntries(base);
+    const { container } = render(<PlatformAuditPage />);
+    expect(container).not.toHaveTextContent(/append-only/i);
+    expect(container).toHaveTextContent('Trilha de ações sensíveis da plataforma. Somente leitura nesta tela.');
+  });
 });
 
 describe('PlatformAuditPage — Origem', () => {
@@ -123,6 +132,16 @@ describe('PlatformAuditPage — expandable detail', () => {
     expect(within(change).getByText('Papel')).toBeInTheDocument();
     expect(within(change).getByText('MEMBER')).toBeInTheDocument();
     expect(within(change).getByText('ADMIN')).toBeInTheDocument();
+  });
+
+  it('shows a bare field list (no arrow) when before is null and after is names', async () => {
+    mockEntries({ ...base, action: 'PROFILE_UPDATED', before: null, after: { fields: ['displayName', 'phone'] } });
+    render(<PlatformAuditPage />);
+    await userEvent.click(screen.getByRole('button', { name: /detalhes/i }));
+
+    const item = screen.getByRole('listitem');
+    expect(item).toHaveTextContent('Campos alterados: displayName, phone');
+    expect(item).not.toHaveTextContent('→');
   });
 
   it('copies the requestId', async () => {
