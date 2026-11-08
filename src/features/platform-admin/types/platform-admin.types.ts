@@ -221,6 +221,20 @@ export interface AuditLogEntry {
   targetLabel: string | null;
   metadata: Record<string, unknown> | null;
   createdAt: string;
+  // Origin + change detail (audit trail phase 1). Optional so rows written
+  // before the columns existed, or served by an older API, still render.
+  ip?: string | null;
+  userAgent?: string | null;
+  requestId?: string | null;
+  // Set when a SUPER_ADMIN acted while impersonating `actor`.
+  impersonator?: AuditImpersonator | null;
+  before?: Record<string, unknown> | null;
+  after?: Record<string, unknown> | null;
+}
+
+export interface AuditImpersonator {
+  id: string;
+  name: string | null;
 }
 
 // Filtered + paginated audit read (GET /platform-admin/audit/search).
