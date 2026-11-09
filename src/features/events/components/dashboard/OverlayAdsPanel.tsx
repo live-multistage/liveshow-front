@@ -3,12 +3,12 @@
 import { Megaphone } from 'lucide-react';
 import { Switch } from '@live-show/design-system';
 import { useSetOverlayAdsMutation } from '../../mutations/set-overlay-ads.mutation';
-import type { OverlayAdsSettings } from '../../types/event.types';
+import type { EventOverlayAds } from '../../types/event.types';
 import styles from './OverlayAdsPanel.module.scss';
 
 interface Props {
   eventId: string;
-  overlayAds: OverlayAdsSettings;
+  overlayAds: EventOverlayAds;
   // Colaborador: a API só aceita OWNER/ADMIN da organização.
   readOnly?: boolean;
 }

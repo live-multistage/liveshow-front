@@ -31,7 +31,7 @@ import { VodUploadCard } from '../VodUploadCard/VodUploadCard';
 import { EventMetadataSection } from '@/features/metadata';
 import { formatDate, formatTime, formatDuration } from '../../utils/event-formatters';
 import { eventHref, publicOrigin } from '../../utils/slug';
-import type { EventResponse, EventWithOverlayAds } from '../../types/event.types';
+import type { EventResponse } from '../../types/event.types';
 import styles from './EventDashboardDetailContent.module.scss';
 
 const STATUS_MOD: Record<string, string> = {
@@ -87,7 +87,7 @@ export function EventDashboardDetailContent({
   // Default to blocked while the status is still loading (avoids a 400 round-trip).
   const publishBlocked = !!event?.publiclyFunded && !accessibility?.publishable;
   // Toda resposta de evento traz a escolha do organizador; uma API antiga sem ela esconde o painel.
-  const overlayAds = (event as EventWithOverlayAds | undefined)?.overlayAds;
+  const overlayAds = event?.overlayAds;
 
   const { register, control, handleSubmit, reset, formState: { errors } } = useForm<EditFormValues>({
     resolver: zodResolver(editSchema),
