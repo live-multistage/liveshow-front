@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useHydrated } from '@/shared/hooks/use-hydrated';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginFormValues } from '@/features/account/schemas/login.schema';
 import { useDockLoginMutation } from '../hooks/use-dock-login.mutation';
 import styles from './DockLoginScreen.module.scss';
 
 export function DockLoginScreen() {
+  const hydrated = useHydrated();
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
@@ -30,7 +32,7 @@ export function DockLoginScreen() {
         <h2 className={styles.title}>Entrar no Studio</h2>
         <p className={styles.subtitle}>Console de transmissão para produtores e organizações.</p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+        <form method="post" onSubmit={handleSubmit(onSubmit)} className={styles.form}>
           <div className={styles.field}>
             <label htmlFor="dock-email" className={styles.label}>E-MAIL DE TRABALHO</label>
             <div className={styles.inputWrapper}>
@@ -91,7 +93,7 @@ export function DockLoginScreen() {
 
           {error && <p className={styles.errorBanner}>{error.message}</p>}
 
-          <button type="submit" disabled={isPending} className={styles.submit}>
+          <button type="submit" disabled={isPending || !hydrated} className={styles.submit}>
             {isPending ? 'Entrando...' : 'Acessar o Studio'}
             {!isPending && (
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
