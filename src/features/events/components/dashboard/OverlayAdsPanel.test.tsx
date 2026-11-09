@@ -105,4 +105,9 @@ describe('OverlayAdsPanel — the off switch stays visible', () => {
   it('draws the off track in #27272a (Prévia), so it does not melt into the card', () => {
     expect(scss).toMatch(/\.switch\[data-state='unchecked'\]\s*\{[^}]*background-color:\s*#27272a/);
   });
+
+  it('is a card like the others in the rail (same surface, border and radius)', () => {
+    expect(scss).toMatch(/\.panel\s*\{[^}]*\$surface-card/);
+    expect(scss).toMatch(/\.panel\s*\{[^}]*border-radius:\s*16px/);
+  });
 });

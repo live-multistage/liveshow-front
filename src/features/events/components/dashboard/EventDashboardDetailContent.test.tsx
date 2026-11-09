@@ -301,6 +301,20 @@ describe('EventDashboardDetailContent collaboration read-only gate', () => {
     expect(screen.getByText('overlay-ads-panel-false')).toBeInTheDocument();
   });
 
+  it('puts the panel in the side rail, with the other cards — not full width above the public URL', () => {
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: { ...EVENT, collaborationRole: 'OWNER', overlayAds: { allowed: true, onReplay: true } },
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+
+    renderPage();
+
+    const rail = screen.getByText('overlay-ads-panel-true').closest('aside');
+    expect(rail).not.toBeNull();
+    expect(rail).toHaveTextContent('detailsTitle');
+  });
+
   it('hands the panel read-only to a COLLABORATOR org', () => {
     vi.mocked(useGetEventQuery).mockReturnValue({
       data: { ...EVENT, collaborationRole: 'COLLABORATOR', overlayAds: { allowed: true, onReplay: true } },

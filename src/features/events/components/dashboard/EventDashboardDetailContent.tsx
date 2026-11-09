@@ -165,6 +165,7 @@ export function EventDashboardDetailContent({
   // Collaborator orgs get read-only access: backend 403s every mutation, so
   // hide the buttons that would trigger them instead of showing dead ones.
   const readOnly = event.collaborationRole === 'COLLABORATOR';
+  const overlayPanel = overlayAds ? <OverlayAdsPanel eventId={id} overlayAds={overlayAds} readOnly={readOnly} /> : null;
   const hasPhysicalEntry = tickets.some((tk) => tk.capabilities.includes('PHYSICAL_ENTRY'));
 
   return (
@@ -228,7 +229,6 @@ export function EventDashboardDetailContent({
       </div>
 
       {event.publiclyFunded && <LibrasAccessibilityPanel eventId={id} />}
-      {overlayAds && <OverlayAdsPanel eventId={id} overlayAds={overlayAds} readOnly={readOnly} />}
       {event.format === 'VOD' && vodUploadEnabled && <VodUploadCard eventId={id} />}
 
       {editing ? (
@@ -252,6 +252,7 @@ export function EventDashboardDetailContent({
           <EventArtistsSection eventId={id} />
           <EventScheduleEditor eventId={id} />
           <EventCollaboratorsSection eventId={id} readOnly={readOnly} collaborationsEnabled={collaborationsEnabled} />
+          {overlayPanel}
         </div>
       ) : (
         <div className={styles.grid}>
@@ -280,6 +281,8 @@ export function EventDashboardDetailContent({
               <div className={styles.railHead}>{t('detailsTitle')}</div>
               <EventInfoGrid event={event} ticketCount={tickets.length} />
             </div>
+
+            {overlayPanel}
 
             <div className={styles.checklist}>
               <div className={styles.checklistHead}>{t('checklistTitle')}</div>
