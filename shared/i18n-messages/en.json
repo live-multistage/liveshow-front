@@ -1813,6 +1813,10 @@
         "name": "Ad revenue share",
         "description": "Partner program and daily ad revenue rollup."
       },
+      "ads_overlay": {
+        "name": "Player showcase",
+        "description": "Advertiser's animated logo over the player; its own kill switch, on top of ad delivery."
+      },
       "organizer_applications": {
         "name": "Organizer applications",
         "description": "Public form at /be-partner/apply."

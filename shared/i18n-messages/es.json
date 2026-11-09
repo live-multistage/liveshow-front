@@ -1813,6 +1813,10 @@
         "name": "Reparto de ingresos por anuncios",
         "description": "Programa de socios y consolidado diario de ingresos por anuncios."
       },
+      "ads_overlay": {
+        "name": "Vitrina en el reproductor",
+        "description": "Logo animado del anunciante sobre el reproductor; interruptor propio, además de la entrega de anuncios."
+      },
       "organizer_applications": {
         "name": "Solicitudes de organizador",
         "description": "Formulario público en /be-partner/apply."

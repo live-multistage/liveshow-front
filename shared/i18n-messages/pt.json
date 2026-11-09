@@ -1813,6 +1813,10 @@
         "name": "Revenue share de anúncios",
         "description": "Programa de parceiros e rollup diário de receita de anúncios."
       },
+      "ads_overlay": {
+        "name": "Vitrine no player",
+        "description": "Logo animada do anunciante sobre o player; kill switch próprio, além da entrega de anúncios."
+      },
       "organizer_applications": {
         "name": "Candidaturas de organizador",
         "description": "Formulário público em /be-partner/apply."
