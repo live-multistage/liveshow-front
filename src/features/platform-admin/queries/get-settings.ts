@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { platformAdminService } from '../services/platform-admin.service';
-import type { AdPauseMinimums, AuditLogEntry } from '../types/platform-admin.types';
+import type { AdOverlaySettings, AdPauseMinimums, AuditLogEntry } from '../types/platform-admin.types';
 
 const SETTINGS_KEY = ['platform-admin', 'settings'] as const;
 const FLAGS_KEY = ['platform-admin', 'global-flags'] as const;
@@ -45,6 +45,14 @@ export function useSetAdPauseMinimumsMutation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (minimums: AdPauseMinimums) => platformAdminService.setAdPauseMinimums(minimums),
+    onSuccess: () => qc.invalidateQueries({ queryKey: SETTINGS_KEY }),
+  });
+}
+
+export function useSetAdOverlaySettingsMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (settings: AdOverlaySettings) => platformAdminService.setAdOverlaySettings(settings),
     onSuccess: () => qc.invalidateQueries({ queryKey: SETTINGS_KEY }),
   });
 }

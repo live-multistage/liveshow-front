@@ -9,6 +9,7 @@ import { usePlatformSettingsQuery } from '../queries/get-settings';
 import type { AdDestination, AdReviewRecord, PlatformSettingsView } from '../types/platform-admin.types';
 import { brlCompact } from '../utils/format';
 import { adKindFromFormat } from '../utils/ad-kind';
+import { VitrineReview } from './VitrineReview';
 import styles from './AdDetailDrawer.module.scss';
 
 const REAIS = (cents: number) => brlCompact(cents / 100);
@@ -21,7 +22,15 @@ const FORMAT_LABEL: Record<string, string> = {
   VERTICAL_300x600: 'Vertical · 300×600',
   WIDE_16_9: 'Tela ampla · 16:9',
   VIDEO_16_9: 'Vídeo · 16:9',
+  LOGO_4x1: 'Logo horizontal · 4:1',
+  LOGO_2x3: 'Logo vertical · 2:3',
 };
+
+const OVERLAY_POSITION_LABEL = { TOP: 'Topo', BOTTOM: 'Rodapé', SIDE: 'Lateral' } as const;
+
+// Motivo de ajuste sugerido para a causa mais comum da vitrine: sem placa, a logo precisa ter contorno.
+const OVERLAY_DEFAULT_REASON =
+  'A logo some sobre vídeo claro: as letras brancas não têm contorno. Envie uma versão com contorno ou cores que leiam sobre fundo claro e escuro.';
 
 const PAUSE_VARIANT_LABEL = { STANDARD: 'Padrão', FULLSCREEN: 'Tela cheia' } as const;
 
@@ -37,6 +46,12 @@ function pauseMinimumCents(
   const perMille = billingModel === 'CPM';
   if (variant === 'FULLSCREEN') return perMille ? settings.adPauseMinCpmFullscreenCents : settings.adPauseMinCpcFullscreenCents;
   return perMille ? settings.adPauseMinCpmStandardCents : settings.adPauseMinCpcStandardCents;
+}
+
+// Mínimo atual da vitrine (único para as três posições). Sem o campo (API antiga), não afirma nada.
+function overlayMinimumCents(settings: PlatformSettingsView | undefined, billingModel: string): number | null {
+  const cents = billingModel === 'CPM' ? settings?.adOverlayMinCpmCents : settings?.adOverlayMinCpcCents;
+  return cents ?? null;
 }
 
 const OUTCOME_LABEL: Record<AdReviewRecord['outcome'], string> = {
@@ -57,6 +72,7 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
   const { data: platformSettings } = usePlatformSettingsQuery();
   const [reason, setReason] = useState('');
   const [watchedVideo, setWatchedVideo] = useState(false);
+  const [viewedLight, setViewedLight] = useState(false);
   const review = useReviewAdMutation(onClose);
 
   // Close on Escape.
@@ -70,16 +86,28 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
   const inReview = ad?.status === 'REVIEW';
   const isVideo = ad ? adKindFromFormat(ad.format) === 'preroll' : false;
   const isPause = ad ? adKindFromFormat(ad.format) === 'pause' : false;
+  const isVitrine = ad ? adKindFromFormat(ad.format) === 'vitrine' : false;
   // Vídeo só é aprovado depois de o revisor ver e ouvir o arquivo; sem arquivo, nunca.
   const pauseVariant: PauseVariant = ad?.pauseVariant ?? 'STANDARD';
-  const minCents = ad && isPause ? pauseMinimumCents(platformSettings, pauseVariant, ad.billingModel) : null;
+  const minCents = ad
+    ? isPause
+      ? pauseMinimumCents(platformSettings, pauseVariant, ad.billingModel)
+      : isVitrine
+        ? overlayMinimumCents(platformSettings, ad.billingModel)
+        : null
+    : null;
+  const minimumOwner = isVitrine ? 'Vitrine' : PAUSE_VARIANT_LABEL[pauseVariant];
   const bidLabel = ad
     ? minCents === null
       ? REAIS(ad.bidCents)
-      : `${REAIS_EXACT(ad.bidCents)} · mínimo ${REAIS_EXACT(minCents)} (${PAUSE_VARIANT_LABEL[pauseVariant]})`
+      : `${REAIS_EXACT(ad.bidCents)} · mínimo ${REAIS_EXACT(minCents)} (${minimumOwner})`
     : '';
   const bidBelowMinimum = ad !== undefined && minCents !== null && ad.bidCents < minCents;
-  const approveLocked = isVideo && (!ad?.videoUrl || !watchedVideo);
+  // A vitrine só é aprovada depois de o revisor ver a logo sobre fundo claro (onde o contraste falha); sem logo, nunca.
+  const approveLocked = (isVideo && (!ad?.videoUrl || !watchedVideo)) || (isVitrine && (!ad?.bannerUrl || !viewedLight));
+  const approveHint = isVitrine
+    ? !ad?.bannerUrl ? 'Sem a logo a vitrine não pode ser aprovada' : 'Veja a logo sobre fundo claro para aprovar'
+    : 'Assista ao vídeo inteiro com som para aprovar';
 
   return (
     <div className={styles.backdrop} onClick={onClose}>
@@ -104,6 +132,19 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
               ) : (
                 <div className={styles.bannerEmpty}>Vídeo não enviado — não pode ser aprovado.</div>
               )
+            ) : isVitrine ? (
+              ad.bannerUrl && ad.overlayPosition && ad.overlayAnimation && ad.overlayDurationSec ? (
+                <VitrineReview
+                  logoUrl={ad.bannerUrl}
+                  title={ad.title}
+                  position={ad.overlayPosition}
+                  animation={ad.overlayAnimation}
+                  durationSec={ad.overlayDurationSec}
+                  onViewedLight={() => setViewedLight(true)}
+                />
+              ) : (
+                <div className={styles.bannerEmpty}>Logo não enviada — não pode ser aprovada.</div>
+              )
             ) : ad.bannerUrl ? (
               <a href={ad.bannerUrl} target="_blank" rel="noopener noreferrer" className={styles.bannerLink}>
                 <img src={ad.bannerUrl} alt={ad.title} className={styles.banner} />
@@ -115,6 +156,19 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
               <Field label="Status" value={ad.status} />
               <Field label="Formato" value={FORMAT_LABEL[ad.format] ?? ad.format} />
               {isPause && <Field label="Variante" value={PAUSE_VARIANT_LABEL[ad.pauseVariant ?? 'STANDARD']} />}
+              {isVitrine && ad.overlayPosition && <Field label="Tipo" value={`Vitrine · ${OVERLAY_POSITION_LABEL[ad.overlayPosition]}`} />}
+              {isVitrine && ad.overlayAnimation && ad.overlayDurationSec && (
+                <Field label="Animação" value={`${ad.overlayAnimation === 'SLIDE' ? 'Deslizar' : 'Aparecer'} · ${ad.overlayDurationSec} s`} />
+              )}
+              {isVitrine && (
+                <Field
+                  label="Onde roda"
+                  value={ad.overlayRunsLive && ad.overlayRunsReplay ? 'Eventos ao vivo e replays' : ad.overlayRunsLive ? 'Só eventos ao vivo' : 'Só replays'}
+                />
+              )}
+              {isVitrine && ad.overlayMinIntervalMin && (
+                <Field label="Frequência" value={`1 a cada ${ad.overlayMinIntervalMin} min por espectador`} />
+              )}
               {isVideo && ad.videoDurationSec != null && <Field label="Duração" value={`${ad.videoDurationSec} s`} />}
               <Field label="Organização" value={orgName ?? ad.advertiserAccountId} />
               <DestinationField destination={ad.destination} />
@@ -134,10 +188,12 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
             <div className={styles.sectionLabel}>Orçamento & entrega</div>
             <dl className={styles.fields}>
               <Field label="Modelo" value={ad.billingModel} />
-              <Field label="Lance" value={bidLabel} wide={isPause} />
+              <Field label="Lance" value={bidLabel} wide={isPause || isVitrine} />
               {bidBelowMinimum && (
                 <p className={styles.warn} role="alert">
-                  Lance abaixo do mínimo atual da variante: o anúncio não entra no leilão da pausa.
+                  {isVitrine
+                    ? 'Lance abaixo do mínimo atual da vitrine: o anúncio não entra no leilão da vitrine.'
+                    : 'Lance abaixo do mínimo atual da variante: o anúncio não entra no leilão da pausa.'}
                 </p>
               )}
               <Field label="Orçamento diário" value={REAIS(ad.dailyBudgetCents)} />
@@ -157,6 +213,11 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
                     Assisti ao vídeo inteiro com som
                   </label>
                 )}
+                {isVitrine && (
+                  <button type="button" className={styles.reasonPreset} onClick={() => setReason(OVERLAY_DEFAULT_REASON)}>
+                    Usar motivo padrão
+                  </button>
+                )}
                 <textarea
                   className={styles.reason}
                   placeholder={t('adReasonPlaceholder')}
@@ -170,7 +231,7 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
                     className={styles.approve}
                     onClick={() => review.mutate({ id: adId, decision: 'APPROVE', reason: reason.trim() || undefined })}
                     disabled={review.isPending || approveLocked}
-                    title={approveLocked ? 'Assista ao vídeo inteiro com som para aprovar' : undefined}
+                    title={approveLocked ? approveHint : undefined}
                   >
                     <Check size={15} /> {t('approve')}
                   </button>
@@ -180,7 +241,7 @@ export function AdDetailDrawer({ adId, orgName, onClose }: Props) {
                     disabled={review.isPending || !reason.trim()}
                     title={!reason.trim() ? t('adReasonRequired') : undefined}
                   >
-                    <Ban size={15} /> {t('reject')}
+                    <Ban size={15} /> {isVitrine ? 'Pedir ajuste' : t('reject')}
                   </button>
                 </div>
               </div>

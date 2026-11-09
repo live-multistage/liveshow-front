@@ -1367,7 +1367,8 @@
     "continueWatching": "Continuar assistindo",
     "learnMore": "Saiba mais",
     "close": "Fechar anúncio",
-    "ariaLabel": "Anúncio: {title}"
+    "ariaLabel": "Anúncio: {title}",
+    "overlayAriaLabel": "Patrocinado: {title} (abre em nova aba)"
   },
   "controlRoom": {
     "noCameraOnAir": "Nenhuma câmera no ar",
@@ -1811,6 +1812,10 @@
       "ad_revenue_share": {
         "name": "Revenue share de anúncios",
         "description": "Programa de parceiros e rollup diário de receita de anúncios."
+      },
+      "ads_overlay": {
+        "name": "Vitrine no player",
+        "description": "Logo animada do anunciante sobre o player; kill switch próprio, além da entrega de anúncios."
       },
       "organizer_applications": {
         "name": "Candidaturas de organizador",

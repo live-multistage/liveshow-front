@@ -76,6 +76,15 @@ describe('PlatformAdsPage — tabs', () => {
     expect(screen.getByText('Vídeo antes')).toBeInTheDocument();
   });
 
+  it('labels a vitrine campaign by its placement', () => {
+    vi.mocked(usePlatformAdsQuery).mockReturnValue({
+      data: { items: [{ ...reviewAds[0], id: 'ad-9', name: 'Aurora', placements: 'PLAYER_OVERLAY' }], total: 1, limit: 20 },
+      isLoading: false,
+    } as never);
+    render(<PlatformAdsPage />);
+    expect(screen.getByText('Vitrine')).toBeInTheDocument();
+  });
+
   it('defaults to the Revisão tab and keeps its queue unchanged', () => {
     render(<PlatformAdsPage />);
     expect(screen.getByRole('tab', { name: /Revisão/ })).toHaveAttribute('aria-selected', 'true');

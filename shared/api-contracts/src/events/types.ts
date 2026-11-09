@@ -118,6 +118,14 @@ export interface EventResponse {
   lifecycle?: { idleFinishMinutes: number };
   // Set when this event is an occurrence of a channel Program.
   programId?: string | null;
+  // Organizer switches for the vitrine (PLAYER_OVERLAY). Written by
+  // PUT /events/:eventId/overlay-ads. Optional: older API responses lack it.
+  overlayAds?: EventOverlayAds;
+}
+
+export interface EventOverlayAds {
+  allowed: boolean;
+  onReplay: boolean;
 }
 
 // NBR 15290 — Libras window accessibility state for an event.

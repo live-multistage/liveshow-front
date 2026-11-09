@@ -23,6 +23,11 @@ const PLATFORM_SETTINGS = {
   adPauseMinCpcStandardCents: 40,
   adPauseMinCpmFullscreenCents: 1400,
   adPauseMinCpcFullscreenCents: 70,
+  adOverlayMinCpmCents: 600,
+  adOverlayMinCpcCents: 35,
+  adOverlayGlobalMinIntervalMin: 10,
+  adOverlayMaxPerHour: 4,
+  adOverlayFirstAfterMin: 3,
 };
 
 const baseAd: AdDetail['ad'] = {
@@ -204,5 +209,134 @@ describe('AdDetailDrawer pause bid vs variant minimum', () => {
     renderWithDetail(baseAd);
     await screen.findByText('Campanha Teste');
     expect(screen.queryByText(/mínimo R\$/)).toBeNull();
+  });
+});
+
+describe('AdDetailDrawer vitrine review', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockedService.getPlatformSettings.mockResolvedValue(PLATFORM_SETTINGS);
+  });
+
+  const vitrineAd = (over: Partial<AdDetail['ad']> = {}): AdDetail['ad'] => ({
+    ...baseAd,
+    title: 'Aurora Bebidas · Noite Alta',
+    format: 'LOGO_4x1',
+    placements: ['PLAYER_OVERLAY'],
+    bannerUrl: 'https://cdn.example.com/aurora-logo.png',
+    destination: { type: 'EXTERNAL_URL', url: 'https://aurorabebidas.com.br/noite-alta' },
+    overlayPosition: 'TOP',
+    overlayAnimation: 'SLIDE',
+    overlayDurationSec: 8,
+    overlayMinIntervalMin: 10,
+    overlayRunsLive: true,
+    overlayRunsReplay: true,
+    billingModel: 'CPM',
+    bidCents: 900,
+    ...over,
+  });
+
+  const logo = () => screen.getByTestId('vitrine-review-logo');
+
+  it('shows the logo in the player at the purchased position', async () => {
+    renderWithDetail(vitrineAd());
+    await screen.findByText('Vitrine · Topo');
+    expect(screen.getByRole('img', { name: 'Logo da vitrine' })).toHaveAttribute('src', 'https://cdn.example.com/aurora-logo.png');
+    expect(logo()).toHaveAttribute('data-position', 'TOP');
+    expect(screen.getByRole('button', { name: 'Topo · comprada' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('describes the vitrine: type, animation, duration, reach and interval', async () => {
+    renderWithDetail(vitrineAd({ overlayAnimation: 'FADE', overlayDurationSec: 15, overlayMinIntervalMin: 30, overlayRunsReplay: false }));
+    await screen.findByText('Vitrine · Topo');
+    const value = (label: string) => screen.getByText(label, { selector: 'dt' }).nextElementSibling?.textContent;
+    expect(value('Animação')).toBe('Aparecer · 15 s');
+    expect(value('Onde roda')).toBe('Só eventos ao vivo');
+    expect(value('Frequência')).toBe('1 a cada 30 min por espectador');
+  });
+
+  it('lets the reviewer see the other two positions and the phone', async () => {
+    renderWithDetail(vitrineAd({ overlayPosition: 'SIDE', format: 'LOGO_2x3' }));
+    await screen.findByText('Vitrine · Lateral');
+    expect(logo()).toHaveAttribute('data-position', 'SIDE');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Rodapé' }));
+    expect(logo()).toHaveAttribute('data-position', 'BOTTOM');
+    expect(screen.getByRole('button', { name: 'Lateral · comprada' })).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Lateral · comprada' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Celular' }));
+    expect(logo()).toHaveAttribute('data-position', 'BOTTOM');
+  });
+
+  it('switches the video behind the logo between dark and light', async () => {
+    renderWithDetail(vitrineAd());
+    await screen.findByText('Vitrine · Topo');
+    expect(screen.getByTestId('vitrine-review-player')).toHaveAttribute('data-bg', 'dark');
+    fireEvent.click(screen.getByRole('button', { name: 'Fundo claro' }));
+    expect(screen.getByTestId('vitrine-review-player')).toHaveAttribute('data-bg', 'light');
+  });
+
+  it('shows the five checks of the brief', async () => {
+    renderWithDetail(vitrineAd());
+    await screen.findByText('Vitrine · Topo');
+    for (const item of [
+      'Fundo transparente',
+      'Contraste da logo sem placa',
+      'Não imita controles do player',
+      'Destino abre e não é golpe',
+      'Selo "Patrocinado" visível',
+    ]) {
+      expect(screen.getByText(item)).toBeInTheDocument();
+    }
+  });
+
+  it('locks Aprovar until the logo has been seen on a light background', async () => {
+    renderWithDetail(vitrineAd());
+    const approve = await screen.findByRole('button', { name: /approve/i });
+    expect(approve).toBeDisabled();
+    expect(approve).toHaveAttribute('title', 'Veja a logo sobre fundo claro para aprovar');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fundo claro' }));
+    expect(approve).toBeEnabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Fundo escuro' }));
+    expect(approve).toBeEnabled();
+  });
+
+  it('never approves a vitrine without its logo', async () => {
+    renderWithDetail(vitrineAd({ bannerUrl: null }));
+    expect(await screen.findByText(/logo não enviada/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /approve/i })).toBeDisabled();
+  });
+
+  it('asks for an adjustment instead of rejecting, with a default reason on one click', async () => {
+    renderWithDetail(vitrineAd());
+    await screen.findByText('Vitrine · Topo');
+    expect(screen.getByRole('button', { name: 'Pedir ajuste' })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Usar motivo padrão' }));
+    expect(screen.getByLabelText('adReasonLabel')).toHaveValue(
+      'A logo some sobre vídeo claro: as letras brancas não têm contorno. Envie uma versão com contorno ou cores que leiam sobre fundo claro e escuro.',
+    );
+    expect(screen.getByRole('button', { name: 'Pedir ajuste' })).toBeEnabled();
+  });
+
+  it('shows the bid next to the vitrine minimum and warns when under it', async () => {
+    renderWithDetail(vitrineAd({ bidCents: 450 }));
+    expect(await screen.findByText(/R\$\s?4,50.*mínimo R\$\s?6,00.*Vitrine/)).toBeInTheDocument();
+    expect(screen.getByText(/Lance abaixo do mínimo atual da vitrine/)).toBeInTheDocument();
+  });
+
+  it('uses the per-click minimum for CPC', async () => {
+    renderWithDetail(vitrineAd({ billingModel: 'CPC', bidCents: 50 }));
+    expect(await screen.findByText(/mínimo R\$\s?0,35.*Vitrine/)).toBeInTheDocument();
+    expect(screen.queryByText(/Lance abaixo do mínimo/)).toBeNull();
+  });
+
+  it('other kinds are untouched: no vitrine review, Aprovar as before', async () => {
+    renderWithDetail(baseAd);
+    expect(await screen.findByRole('button', { name: /approve/i })).toBeEnabled();
+    expect(screen.queryByTestId('vitrine-review-player')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Pedir ajuste' })).toBeNull();
   });
 });

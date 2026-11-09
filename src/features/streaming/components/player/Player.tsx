@@ -13,6 +13,7 @@ import { shareCurrentPage } from '../../utils/share-current-page';
 import { CameraGrid, DRAWER_W } from '../CameraGrid';
 import type { CameraGridProps } from '../CameraGrid';
 import { Header as HeaderBar } from '../Header';
+import { OverlayAd } from '@/features/advertisements/components/OverlayAd';
 import { PlayerStage as StageFrame } from '../PlayerStage';
 import { RecommendedOverlay } from '../RecommendedOverlay';
 import type { LockedStreamOffer } from '../../types/live.types';
@@ -66,6 +67,31 @@ function useSinglePartWarning(children: ReactNode) {
   }, []);
 }
 
+// Publica no box do player onde terminam o header e a barra de controles. Quem flutua
+// entre os dois (a vitrine) se posiciona por esses valores: no celular o header passa de
+// 150 px (título + botões) e um tamanho fixo em rem o deixaria por cima da vitrine.
+function usePlayerChromeInsets(containerRef: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const root = containerRef.current;
+    if (!root || typeof ResizeObserver === 'undefined') return;
+    const header = root.querySelector('header');
+    const bar = root.querySelector('[data-player-bar]');
+
+    const apply = () => {
+      const box = root.getBoundingClientRect();
+      if (header) root.style.setProperty('--player-header-h', `${Math.ceil(header.getBoundingClientRect().bottom - box.top)}px`);
+      if (bar) root.style.setProperty('--player-bar-top', `${Math.ceil(box.bottom - bar.getBoundingClientRect().top)}px`);
+    };
+    apply();
+
+    const observer = new ResizeObserver(apply);
+    observer.observe(root);
+    if (header) observer.observe(header);
+    if (bar) observer.observe(bar);
+    return () => observer.disconnect();
+  }, [containerRef]);
+}
+
 // live/channel both read as 'live' for analytics — only replay has its own
 // consumption semantics (mode: e(live,replay) in the tracking plan).
 function analyticsMode(mode: 'live' | 'replay' | 'channel'): 'live' | 'replay' {
@@ -92,6 +118,7 @@ function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true,
   };
 
   useSinglePartWarning(children);
+  usePlayerChromeInsets(shell.containerRef);
 
   return (
     <PlayerProvider value={value}>
@@ -317,7 +344,9 @@ function Stage(gridProps: PlayerStagePartProps) {
 function TransportRegion({ children }: { children: ReactNode }) {
   return (
     <div className={styles.bottomStack}>
-      <div className={styles.bar}>{children}</div>
+      <div className={styles.bar} data-player-bar>
+        {children}
+      </div>
     </div>
   );
 }
@@ -336,6 +365,35 @@ function Overlay() {
   );
 }
 
+// Vitrine (logo animada do anunciante). Irmã do Overlay: só lê o shell e diz
+// ao OverlayAd o que está aberto, para a logo nunca cobrir nada. O chat é
+// estado do modo (não do shell), por isso chega por prop.
+function Vitrine({ chatOpen = false }: { chatOpen?: boolean }) {
+  const { shell, mode, playbackEventId, adsEnabled, preview } = usePlayer();
+  const activeStream = shell.streams.find((s) => s.id === shell.activeStreamId);
+  // Libras ocupa o canto inferior direito e a câmera em PiP se empilha sobre ela.
+  const compositionCameras = shell.activeCameraIds.filter((id) => id !== shell.librasInStage).length;
+
+  return (
+    <OverlayAd
+      eventId={playbackEventId}
+      // Canal: transmissão contínua, sem pausa nem arquivo — fora do escopo da vitrine.
+      enabled={adsEnabled && !preview && mode !== 'channel'}
+      context={{
+        chatOpen,
+        chaptersOpen: shell.chaptersOpen,
+        cameraDrawerOpen: shell.cameraStripOpen,
+        hasLibras: shell.librasInStage !== null,
+        hasPip: shell.effectiveViewMode !== 'solo' && compositionCameras === 2,
+        fullscreen: shell.isFullscreen,
+        paused: shell.paused,
+        pauseAdVisible: shell.pauseAdVisible,
+        offline: activeStream?.live === false,
+      }}
+    />
+  );
+}
+
 export const Player = {
   Root,
   Header: PlayerHeader,
@@ -343,4 +401,5 @@ export const Player = {
   Transport: TransportRegion,
   Aside,
   Overlay,
+  Vitrine,
 };

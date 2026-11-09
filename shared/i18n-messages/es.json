@@ -1367,7 +1367,8 @@
     "continueWatching": "Seguir viendo",
     "learnMore": "Más información",
     "close": "Cerrar anuncio",
-    "ariaLabel": "Anuncio: {title}"
+    "ariaLabel": "Anuncio: {title}",
+    "overlayAriaLabel": "Patrocinado: {title} (se abre en una pestaña nueva)"
   },
   "controlRoom": {
     "noCameraOnAir": "Ninguna cámara al aire",
@@ -1811,6 +1812,10 @@
       "ad_revenue_share": {
         "name": "Reparto de ingresos por anuncios",
         "description": "Programa de socios y consolidado diario de ingresos por anuncios."
+      },
+      "ads_overlay": {
+        "name": "Vitrina en el reproductor",
+        "description": "Logo animado del anunciante sobre el reproductor; interruptor propio, además de la entrega de anuncios."
       },
       "organizer_applications": {
         "name": "Solicitudes de organizador",

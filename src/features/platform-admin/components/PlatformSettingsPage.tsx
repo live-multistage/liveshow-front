@@ -6,6 +6,7 @@ import { Clock } from 'lucide-react';
 import { PlatformPageShell } from './PlatformPageShell';
 import { FeesSection } from './FeesSection';
 import { AdPauseMinimumsSection } from './AdPauseMinimumsSection';
+import { AdOverlaySettingsSection } from './AdOverlaySettingsSection';
 import { FiscalIssuerSection } from './FiscalIssuerSection';
 import { BlueprintHttpSection } from './BlueprintHttpSection';
 import { FeatureFlagsSection } from './FeatureFlagsSection';
@@ -40,6 +41,7 @@ export function PlatformSettingsPage() {
         <div className={styles.main}>
           <FeesSection />
           <AdPauseMinimumsSection />
+          <AdOverlaySettingsSection />
           <FiscalIssuerSection />
           <BlueprintHttpSection />
           <FeatureFlagsSection />

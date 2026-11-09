@@ -29,3 +29,23 @@ describe('advertisementsService.recordEvent', () => {
     await Promise.resolve();
   });
 });
+
+describe('advertisementsService.serveOverlay', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    get.mockReset().mockResolvedValue({ data: { ad: null, retryAfterSec: 600 } });
+  });
+
+  it('asks /ads/serve/overlay with event, session and watched seconds', async () => {
+    const res = await advertisementsService.serveOverlay('e1', 185);
+    expect(res).toEqual({ ad: null, retryAfterSec: 600 });
+    const [url, config] = get.mock.calls[0];
+    expect(url).toBe('/ads/serve/overlay');
+    expect(config.params).toEqual({ eventId: 'e1', sessionId: expect.any(String), watchedSec: 185 });
+  });
+
+  it('fails fast like the other serves', async () => {
+    await advertisementsService.serveOverlay('e1', 0);
+    expect(get.mock.calls[0][1].timeout).toBe(5000);
+  });
+});

@@ -35,6 +35,11 @@ vi.mock('./EventHeaderActions', () => ({
   ),
 }));
 vi.mock('./LibrasAccessibilityPanel', () => ({ LibrasAccessibilityPanel: () => null }));
+vi.mock('./OverlayAdsPanel', () => ({
+  OverlayAdsPanel: (props: { overlayAds: { allowed: boolean }; readOnly?: boolean }) => (
+    <div>overlay-ads-panel-{String(props.overlayAds.allowed)}{props.readOnly ? '-readonly' : ''}</div>
+  ),
+}));
 vi.mock('./EventInfoGrid', () => ({ EventInfoGrid: () => null }));
 vi.mock('./EventTicketList', () => ({ EventTicketList: () => null }));
 vi.mock('./EditTicketSection', () => ({ EditTicketSection: () => null }));
@@ -282,6 +287,56 @@ describe('EventDashboardDetailContent collaboration read-only gate', () => {
     expect(screen.getByText('header-actions')).toBeInTheDocument();
     expect(screen.getByText('collaborators-section')).toBeInTheDocument();
     expect(screen.getByText('metadata-section')).toBeInTheDocument();
+  });
+
+  it('mounts the "Anúncios no player" panel from the event payload, editable for the owner', () => {
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: { ...EVENT, collaborationRole: 'OWNER', overlayAds: { allowed: false, onReplay: true } },
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+
+    renderPage();
+
+    expect(screen.getByText('overlay-ads-panel-false')).toBeInTheDocument();
+  });
+
+  it('puts the panel in the side rail, with the other cards — not full width above the public URL', () => {
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: { ...EVENT, collaborationRole: 'OWNER', overlayAds: { allowed: true, onReplay: true } },
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+
+    renderPage();
+
+    const rail = screen.getByText('overlay-ads-panel-true').closest('aside');
+    expect(rail).not.toBeNull();
+    expect(rail).toHaveTextContent('detailsTitle');
+  });
+
+  it('hands the panel read-only to a COLLABORATOR org', () => {
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: { ...EVENT, collaborationRole: 'COLLABORATOR', overlayAds: { allowed: true, onReplay: true } },
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+
+    renderPage();
+
+    expect(screen.getByText('overlay-ads-panel-true-readonly')).toBeInTheDocument();
+  });
+
+  it('hides the panel while the API does not send overlayAds yet', () => {
+    vi.mocked(useGetEventQuery).mockReturnValue({
+      data: { ...EVENT, collaborationRole: 'OWNER' },
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetEventQuery>);
+
+    renderPage();
+
+    expect(screen.queryByText(/overlay-ads-panel/)).not.toBeInTheDocument();
   });
 
   it('grants access to a COLLABORATOR org that has no owning-org membership', () => {

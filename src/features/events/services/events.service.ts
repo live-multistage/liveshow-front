@@ -1,6 +1,6 @@
 import { httpClient } from '@/lib/http/client';
 import type { MyEventTicketsResponse } from '@live-show/api-contracts';
-import type { AccessibilityStatus, CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, EventFacetCounts, ListEventsParams, MyEventCounts, MyEventsPageParams, MyEventsPageResponse, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
+import type { AccessibilityStatus, CreateEventRequest, CreateTicketRequest, EventPhotoResponse, EventResponse, EventFacetCounts, ListEventsParams, MyEventCounts, MyEventsPageParams, MyEventsPageResponse, EventOverlayAds, PaginatedEventsResponse, RecommendedEventsResponse, TicketProductResponse, TicketProductsResponse, UpdateEventRequest, UpdateTicketRequest } from '../types/event.types';
 
 export const eventsService = {
   // The caller's PAID products for this event (JWT only). Drives the
@@ -115,6 +115,12 @@ export const eventsService = {
 
   updateEvent: async (eventId: string, payload: UpdateEventRequest): Promise<EventResponse> => {
     const { data } = await httpClient.patch<EventResponse>(`/events/${eventId}`, payload);
+    return data;
+  },
+
+  // Só OWNER/ADMIN da organização; qualquer outro papel recebe 403.
+  setOverlayAds: async (eventId: string, settings: EventOverlayAds): Promise<{ overlayAds: EventOverlayAds }> => {
+    const { data } = await httpClient.put<{ overlayAds: EventOverlayAds }>(`/events/${eventId}/overlay-ads`, settings);
     return data;
   },
 

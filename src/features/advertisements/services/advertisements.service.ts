@@ -1,6 +1,6 @@
 import { httpClient } from '@/lib/http/client';
 import { getAdSessionId } from '../utils/ad-session';
-import type { ServedAd, AdPlacement, AdEventType } from '../types/advertisement.types';
+import type { ServedAd, AdPlacement, AdEventType, ServeOverlayResponse } from '../types/advertisement.types';
 
 export const advertisementsService = {
   // eventId is REQUIRED by the API for PRE_ROLL / PLAYER_PAUSE — it is what
@@ -10,6 +10,16 @@ export const advertisementsService = {
     // ao vivo/replay, então falha rápido e deixa o hook cair no caminho de erro.
     const { data } = await httpClient.get<ServedAd[]>('/ads/serve', {
       params: { placement, limit, sessionId: getAdSessionId(), ...(eventId ? { eventId } : {}) },
+      timeout: 5000,
+    });
+    return data;
+  },
+
+  // Vitrine: o servidor decide quando (retryAfterSec) e o modo (live/replay).
+  // `watchedSec` só serve para a 1ª vitrine esperar N min de sessão.
+  serveOverlay: async (eventId: string, watchedSec: number): Promise<ServeOverlayResponse> => {
+    const { data } = await httpClient.get<ServeOverlayResponse>('/ads/serve/overlay', {
+      params: { eventId, sessionId: getAdSessionId(), watchedSec },
       timeout: 5000,
     });
     return data;

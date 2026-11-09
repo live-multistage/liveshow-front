@@ -1367,7 +1367,8 @@
     "continueWatching": "Continue watching",
     "learnMore": "Learn more",
     "close": "Close ad",
-    "ariaLabel": "Ad: {title}"
+    "ariaLabel": "Ad: {title}",
+    "overlayAriaLabel": "Sponsored: {title} (opens in a new tab)"
   },
   "controlRoom": {
     "noCameraOnAir": "No camera on air",
@@ -1811,6 +1812,10 @@
       "ad_revenue_share": {
         "name": "Ad revenue share",
         "description": "Partner program and daily ad revenue rollup."
+      },
+      "ads_overlay": {
+        "name": "Player showcase",
+        "description": "Advertiser's animated logo over the player; its own kill switch, on top of ad delivery."
       },
       "organizer_applications": {
         "name": "Organizer applications",

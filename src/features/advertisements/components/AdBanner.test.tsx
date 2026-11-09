@@ -43,6 +43,7 @@ const baseAd: Omit<ServedAd, 'destination'> = {
   videoUrl: null,
   videoDurationSec: null,
   pauseVariant: null,
+  overlay: null,
 };
 
 describe('AdBanner', () => {
