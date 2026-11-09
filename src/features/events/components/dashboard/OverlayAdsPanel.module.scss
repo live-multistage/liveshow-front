@@ -54,3 +54,9 @@
   font-size: 0.8125rem;
   color: #f87171;
 }
+
+// O trilho desligado do Switch do design system usa a cor do próprio cartão e some:
+// aqui ele ganha o cinza da Prévia.
+.panel .switch[data-state='unchecked'] {
+  background-color: #27272a;
+}

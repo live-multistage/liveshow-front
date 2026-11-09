@@ -46,6 +46,7 @@ export function OverlayAdsPanel({ eventId, overlayAds, readOnly = false }: Props
           id="overlay-allowed"
           aria-label="Permitir vitrine neste evento"
           checked={allowed}
+          className={styles.switch}
           disabled={locked}
           onCheckedChange={(checked) => save.mutate({ allowed: checked, onReplay })}
         />
@@ -62,6 +63,7 @@ export function OverlayAdsPanel({ eventId, overlayAds, readOnly = false }: Props
           id="overlay-replay"
           aria-label="Mostrar também no replay"
           checked={allowed && onReplay}
+          className={styles.switch}
           disabled={locked || !allowed}
           onCheckedChange={(checked) => save.mutate({ allowed, onReplay: checked })}
         />

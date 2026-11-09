@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { OverlayAdsPanel } from './OverlayAdsPanel';
@@ -87,5 +90,19 @@ describe('OverlayAdsPanel', () => {
     expect(allowed()).toBeDisabled();
     expect(replay()).toBeDisabled();
     expect(screen.getByText('Só o dono ou administrador da organização altera isto.')).toBeInTheDocument();
+  });
+});
+
+describe('OverlayAdsPanel — the off switch stays visible', () => {
+  const scss = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'OverlayAdsPanel.module.scss'), 'utf8');
+
+  it('gives both switches the panel track class', () => {
+    render(<OverlayAdsPanel eventId="evt-1" overlayAds={{ allowed: false, onReplay: false }} />);
+    expect(allowed().className).toMatch(/switch/);
+    expect(replay().className).toMatch(/switch/);
+  });
+
+  it('draws the off track in #27272a (Prévia), so it does not melt into the card', () => {
+    expect(scss).toMatch(/\.switch\[data-state='unchecked'\]\s*\{[^}]*background-color:\s*#27272a/);
   });
 });
