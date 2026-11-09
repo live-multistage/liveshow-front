@@ -67,6 +67,31 @@ function useSinglePartWarning(children: ReactNode) {
   }, []);
 }
 
+// Publica no box do player onde terminam o header e a barra de controles. Quem flutua
+// entre os dois (a vitrine) se posiciona por esses valores: no celular o header passa de
+// 150 px (título + botões) e um tamanho fixo em rem o deixaria por cima da vitrine.
+function usePlayerChromeInsets(containerRef: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const root = containerRef.current;
+    if (!root || typeof ResizeObserver === 'undefined') return;
+    const header = root.querySelector('header');
+    const bar = root.querySelector('[data-player-bar]');
+
+    const apply = () => {
+      const box = root.getBoundingClientRect();
+      if (header) root.style.setProperty('--player-header-h', `${Math.ceil(header.getBoundingClientRect().bottom - box.top)}px`);
+      if (bar) root.style.setProperty('--player-bar-top', `${Math.ceil(box.bottom - bar.getBoundingClientRect().top)}px`);
+    };
+    apply();
+
+    const observer = new ResizeObserver(apply);
+    observer.observe(root);
+    if (header) observer.observe(header);
+    if (bar) observer.observe(bar);
+    return () => observer.disconnect();
+  }, [containerRef]);
+}
+
 // live/channel both read as 'live' for analytics — only replay has its own
 // consumption semantics (mode: e(live,replay) in the tracking plan).
 function analyticsMode(mode: 'live' | 'replay' | 'channel'): 'live' | 'replay' {
@@ -93,6 +118,7 @@ function Root({ shell, mode, eventId, title, playbackEventId, adsEnabled = true,
   };
 
   useSinglePartWarning(children);
+  usePlayerChromeInsets(shell.containerRef);
 
   return (
     <PlayerProvider value={value}>
@@ -318,7 +344,9 @@ function Stage(gridProps: PlayerStagePartProps) {
 function TransportRegion({ children }: { children: ReactNode }) {
   return (
     <div className={styles.bottomStack}>
-      <div className={styles.bar}>{children}</div>
+      <div className={styles.bar} data-player-bar>
+        {children}
+      </div>
     </div>
   );
 }

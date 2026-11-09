@@ -522,3 +522,60 @@ describe('Player.Vitrine', () => {
     expect(lastVitrine().context.offline).toBe(true);
   });
 });
+
+// A vitrine se posiciona pela borda REAL do header e da barra: no celular o header
+// passa de 150 px (título + botões) e um rem fixo a deixava atrás dele.
+describe('Player chrome insets', () => {
+  let resizeCallbacks: Array<() => void>;
+
+  beforeEach(() => {
+    resizeCallbacks = [];
+    class FakeResizeObserver {
+      constructor(cb: () => void) { resizeCallbacks.push(cb); }
+      observe() {}
+      disconnect() {}
+    }
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver);
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  function mockRects(root: HTMLElement, { headerBottom, barTop, rootHeight = 800 }: { headerBottom: number; barTop: number; rootHeight?: number }) {
+    root.getBoundingClientRect = () => ({ top: 0, bottom: rootHeight, left: 0, right: 390, width: 390, height: rootHeight, x: 0, y: 0, toJSON() {} }) as DOMRect;
+    const header = root.querySelector('header')!;
+    header.getBoundingClientRect = () => ({ top: 0, bottom: headerBottom, left: 0, right: 390, width: 390, height: headerBottom, x: 0, y: 0, toJSON() {} }) as DOMRect;
+    const bar = root.querySelector('[data-player-bar]')!;
+    bar.getBoundingClientRect = () => ({ top: barTop, bottom: barTop + 56, left: 0, right: 390, width: 390, height: 56, x: 0, y: barTop, toJSON() {} }) as DOMRect;
+  }
+
+  it('publishes the header bottom edge and the bar top edge as CSS variables on the player box', () => {
+    const { container } = render(<Harness options={{ cameras: [cam('a', 1)] }} />);
+    const root = container.firstElementChild as HTMLElement;
+
+    mockRects(root, { headerBottom: 157, barTop: 700 });
+    act(() => resizeCallbacks.forEach((cb) => cb()));
+
+    expect(root.style.getPropertyValue('--player-header-h')).toBe('157px');
+    // distância da borda de baixo do player até o topo da barra de controles
+    expect(root.style.getPropertyValue('--player-bar-top')).toBe('100px');
+  });
+
+  it('follows the header when it grows (rotation, wrapped title)', () => {
+    const { container } = render(<Harness options={{ cameras: [cam('a', 1)] }} />);
+    const root = container.firstElementChild as HTMLElement;
+
+    mockRects(root, { headerBottom: 72, barTop: 712 });
+    act(() => resizeCallbacks.forEach((cb) => cb()));
+    expect(root.style.getPropertyValue('--player-header-h')).toBe('72px');
+
+    mockRects(root, { headerBottom: 157, barTop: 712 });
+    act(() => resizeCallbacks.forEach((cb) => cb()));
+    expect(root.style.getPropertyValue('--player-header-h')).toBe('157px');
+  });
+
+  it('works without ResizeObserver (old browsers): no throw, no variables', () => {
+    vi.unstubAllGlobals();
+    vi.stubGlobal('ResizeObserver', undefined);
+    const { container } = render(<Harness options={{ cameras: [cam('a', 1)] }} />);
+    expect((container.firstElementChild as HTMLElement).style.getPropertyValue('--player-header-h')).toBe('');
+  });
+});

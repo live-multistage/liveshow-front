@@ -39,10 +39,12 @@ $mono: var(--font-space-mono), 'Space Mono', monospace;
     margin-inline: auto;
   }
 
-  &[data-position='TOP'] { top: calc(4.5rem + 8px); }
-  &[data-position='BOTTOM'] { bottom: calc(5.5rem + 8px); }
+  // Abaixo da borda REAL do header e acima do topo REAL da barra (variáveis do Player.Root);
+  // os rem são só o valor de partida antes da primeira medição.
+  &[data-position='TOP'] { top: calc(var(--player-header-h, 4.5rem) + 8px); }
+  &[data-position='BOTTOM'] { bottom: calc(var(--player-bar-top, 5.5rem) + 8px); }
   // Em tela cheia o rodapé sobe acima da pílula de recomendados.
-  &[data-position='BOTTOM'][data-raised='true'] { bottom: 8.1rem; }
+  &[data-position='BOTTOM'][data-raised='true'] { bottom: calc(var(--player-bar-top, 5.5rem) + 8px + 2.1rem); }
 
   &[data-position='SIDE'] {
     width: 9.4cqw;
@@ -58,7 +60,6 @@ $mono: var(--font-space-mono), 'Space Mono', monospace;
       width: 46cqw;
       height: 11.5cqw;
     }
-    &[data-position='TOP'] { top: calc(4rem + 12px); }
   }
 
   // Entrada e saída: Deslizar vem da borda da posição, Aparecer é fade + escala.

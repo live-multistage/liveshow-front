@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { OverlayAd, type OverlayAdContext } from './OverlayAd';
@@ -148,6 +151,21 @@ describe('OverlayAd — rendering', () => {
   it('ignores an ad with no image or no overlay spec', async () => {
     const { container } = await renderAd({}, { ...ad, bannerUrl: null });
     expect(container).toBeEmptyDOMElement();
+  });
+});
+
+describe('OverlayAd — vertical position follows the real header and bar', () => {
+  const scss = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'OverlayAd.module.scss'), 'utf8');
+
+  it('TOP starts below the measured header, at any width (no fixed rem)', () => {
+    expect(scss).toMatch(/data-position='TOP'\]\s*\{\s*top:\s*calc\(var\(--player-header-h,[^)]*\) \+ 8px\)/);
+    // nenhuma regra (nem a do celular) volta a fixar o topo em rem
+    expect(scss).not.toMatch(/top:\s*calc\(\d+(\.\d+)?rem/);
+  });
+
+  it('BOTTOM stays above the measured top of the controls bar, also raised in fullscreen', () => {
+    expect(scss).toMatch(/data-position='BOTTOM'\]\s*\{\s*bottom:\s*calc\(var\(--player-bar-top,[^)]*\) \+ 8px\)/);
+    expect(scss).toMatch(/data-raised='true'\]\s*\{\s*bottom:\s*calc\(var\(--player-bar-top/);
   });
 });
 
