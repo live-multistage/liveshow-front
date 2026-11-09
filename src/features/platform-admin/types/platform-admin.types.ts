@@ -200,6 +200,12 @@ export interface PlatformSettingsView {
   adPauseMinCpcStandardCents: number;
   adPauseMinCpmFullscreenCents: number;
   adPauseMinCpcFullscreenCents: number;
+  // Vitrine (PLAYER_OVERLAY): lance mínimo (centavos) e limites por espectador.
+  adOverlayMinCpmCents: number;
+  adOverlayMinCpcCents: number;
+  adOverlayGlobalMinIntervalMin: number;
+  adOverlayMaxPerHour: number;
+  adOverlayFirstAfterMin: number;
 }
 
 export type AdPauseMinimums = Pick<
@@ -208,6 +214,15 @@ export type AdPauseMinimums = Pick<
   | 'adPauseMinCpcStandardCents'
   | 'adPauseMinCpmFullscreenCents'
   | 'adPauseMinCpcFullscreenCents'
+>;
+
+export type AdOverlaySettings = Pick<
+  PlatformSettingsView,
+  | 'adOverlayMinCpmCents'
+  | 'adOverlayMinCpcCents'
+  | 'adOverlayGlobalMinIntervalMin'
+  | 'adOverlayMaxPerHour'
+  | 'adOverlayFirstAfterMin'
 >;
 
 // Audit trail entry (GET /platform-admin/audit).
@@ -343,6 +358,13 @@ export interface AdDetail {
     videoDurationSec: number | null;
     /** STANDARD | FULLSCREEN for PLAYER_PAUSE; null otherwise (and on legacy rows). */
     pauseVariant: 'STANDARD' | 'FULLSCREEN' | null;
+    /** Vitrine (PLAYER_OVERLAY): os seis campos juntos; null nos demais tipos. */
+    overlayPosition?: 'TOP' | 'BOTTOM' | 'SIDE' | null;
+    overlayAnimation?: 'SLIDE' | 'FADE' | null;
+    overlayDurationSec?: 5 | 8 | 10 | 15 | null;
+    overlayMinIntervalMin?: 10 | 20 | 30 | null;
+    overlayRunsLive?: boolean | null;
+    overlayRunsReplay?: boolean | null;
     frequencyCapMax: number | null;
     frequencyCapWindow: string | null;
     billingModel: string;

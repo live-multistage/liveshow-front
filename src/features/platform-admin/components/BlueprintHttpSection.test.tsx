@@ -89,7 +89,7 @@ function setup(overrides?: {
       adPauseMinCpmStandardCents: 800,
       adPauseMinCpcStandardCents: 40,
       adPauseMinCpmFullscreenCents: 1400,
-      adPauseMinCpcFullscreenCents: 70,
+      adPauseMinCpcFullscreenCents: 70, adOverlayMinCpmCents: 600, adOverlayMinCpcCents: 35, adOverlayGlobalMinIntervalMin: 10, adOverlayMaxPerHour: 4, adOverlayFirstAfterMin: 3,
       ...overrides?.settings,
     }),
   );

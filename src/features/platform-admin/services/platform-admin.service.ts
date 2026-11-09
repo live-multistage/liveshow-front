@@ -32,6 +32,7 @@ import type {
   OrganizerApplicationAdmin,
   ArtistApplicationAdmin,
   PlatformSettingsView,
+  AdOverlaySettings,
   AdPauseMinimums,
   FiscalDocumentStatus,
   FiscalDocumentAdminList,
@@ -81,6 +82,12 @@ export const platformAdminService = {
 
   setAdPauseMinimums: async (minimums: AdPauseMinimums): Promise<PlatformSettingsView> => {
     const { data } = await httpClient.patch<PlatformSettingsView>('/platform-settings/ad-programme', minimums);
+    return data;
+  },
+
+  // Mesma rota do programa de anúncios; só os campos da vitrine vão no corpo.
+  setAdOverlaySettings: async (settings: AdOverlaySettings): Promise<PlatformSettingsView> => {
+    const { data } = await httpClient.patch<PlatformSettingsView>('/platform-settings/ad-programme', settings);
     return data;
   },
 

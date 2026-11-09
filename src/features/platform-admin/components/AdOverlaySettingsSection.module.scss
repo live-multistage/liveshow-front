@@ -1,0 +1,70 @@
+// Mesmo respiro interno do cartão "Taxas": o cabeçalho tem a própria borda e o corpo recua do cartão.
+.body {
+  padding: 20px 22px;
+}
+
+.hint {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #a1a1aa;
+  margin: 0 0 16px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.money {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #a1a1aa;
+}
+
+.fieldHint {
+  font-size: 12px;
+  color: #71717a;
+}
+
+.error {
+  font-size: 12px;
+  color: #f87171;
+}
+
+.note {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #a1a1aa;
+
+  code {
+    font-family: var(--font-space-mono), 'Space Mono', monospace;
+    color: #e4e4e7;
+  }
+}
+
+.warn {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 10px;
+  background: rgba(251, 191, 36, 0.08);
+}
+
+@media (max-width: 820px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
