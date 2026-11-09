@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { StrictMode } from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { useOverlayAdSchedule } from './use-overlay-ad-schedule';
 import { advertisementsService } from '../services/advertisements.service';
@@ -122,5 +123,72 @@ describe('useOverlayAdSchedule', () => {
     unmount();
     await act(async () => { resolve({ ad, retryAfterSec: 600 }); });
     expect(result.current.ad).toBeNull();
+  });
+});
+
+// O servidor grava o anúncio servido e o conta no limite do espectador assim que responde:
+// descartar essa resposta (efeito cancelado) gasta a vez dele sem mostrar nada.
+describe('useOverlayAdSchedule — in-flight request is shared across mounts', () => {
+  it('StrictMode (effect runs twice): one request, and the live mount gets the served ad', async () => {
+    serve.mockResolvedValueOnce({ ad, retryAfterSec: 600 });
+    const { result } = renderHook(() => useOverlayAdSchedule('e1'), { wrapper: StrictMode });
+    await flush();
+
+    expect(serve).toHaveBeenCalledTimes(1);
+    expect(result.current.ad).toEqual(ad);
+  });
+
+  it('a remount while the request is in flight reuses it instead of asking again', async () => {
+    let resolve!: (v: { ad: ServedAd; retryAfterSec: number }) => void;
+    serve.mockReturnValueOnce(new Promise((r) => { resolve = r; }));
+
+    const first = renderHook(() => useOverlayAdSchedule('e1'));
+    first.unmount();
+    const second = renderHook(() => useOverlayAdSchedule('e1'));
+    expect(serve).toHaveBeenCalledTimes(1);
+
+    await act(async () => { resolve({ ad, retryAfterSec: 600 }); });
+    expect(second.result.current.ad).toEqual(ad);
+    expect(first.result.current.ad).toBeNull();
+  });
+
+  it('a toggle of `enabled` with the request in flight does not ask twice', async () => {
+    let resolve!: (v: { ad: ServedAd; retryAfterSec: number }) => void;
+    serve.mockReturnValueOnce(new Promise((r) => { resolve = r; }));
+
+    const { result, rerender } = renderHook(({ enabled }) => useOverlayAdSchedule('e1', { enabled }), { initialProps: { enabled: true } });
+    rerender({ enabled: false });
+    rerender({ enabled: true });
+    expect(serve).toHaveBeenCalledTimes(1);
+
+    await act(async () => { resolve({ ad, retryAfterSec: 600 }); });
+    expect(result.current.ad).toEqual(ad);
+  });
+
+  it('after the answer arrives, the next ask is a fresh request (the shared promise is cleared)', async () => {
+    serve.mockResolvedValueOnce({ ad: null, retryAfterSec: 60 }).mockResolvedValueOnce({ ad: null, retryAfterSec: 60 });
+    renderHook(() => useOverlayAdSchedule('e1'));
+    await flush();
+    await act(async () => { await vi.advanceTimersByTimeAsync(60_000); });
+    expect(serve).toHaveBeenCalledTimes(2);
+  });
+
+  it('a failed request is not kept: the next mount asks again', async () => {
+    serve.mockRejectedValueOnce(new Error('boom')).mockResolvedValueOnce({ ad, retryAfterSec: 600 });
+    const first = renderHook(() => useOverlayAdSchedule('e1'));
+    await flush();
+    first.unmount();
+
+    const second = renderHook(() => useOverlayAdSchedule('e1'));
+    await flush();
+    expect(serve).toHaveBeenCalledTimes(2);
+    expect(second.result.current.ad).toEqual(ad);
+  });
+
+  it('different events do not share a request', async () => {
+    serve.mockResolvedValue({ ad: null, retryAfterSec: 600 });
+    renderHook(() => useOverlayAdSchedule('e1'));
+    renderHook(() => useOverlayAdSchedule('e2'));
+    expect(serve).toHaveBeenCalledTimes(2);
   });
 });
