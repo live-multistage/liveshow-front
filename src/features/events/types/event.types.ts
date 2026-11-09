@@ -25,6 +25,17 @@ export type {
 
 export { EVENT_CATEGORIES, EVENT_CATEGORY_LABELS } from '@live-show/api-contracts';
 
+// Vitrine (logo animada no player) neste evento, escolha do organizador.
+// Toda resposta de evento traz isso; fica aqui até entrar em EventResponse, no contrato.
+export interface OverlayAdsSettings {
+  allowed: boolean;
+  onReplay: boolean;
+}
+
+export type EventWithOverlayAds = import('@live-show/api-contracts').EventResponse & {
+  overlayAds?: OverlayAdsSettings;
+};
+
 export type { AccessCapability } from '@live-show/api-contracts';
 
 export interface CreateEventRequest {

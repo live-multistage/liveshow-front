@@ -1,0 +1,56 @@
+@use '../../../../styles/_variables' as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid $border;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  color: $text-primary;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.hint {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: $text-secondary;
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.rowOff {
+  opacity: 0.45;
+}
+
+.label {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 0.125rem;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #f87171;
+}

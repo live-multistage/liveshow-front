@@ -14,6 +14,7 @@ import { useUpdateEventMutation } from '../../mutations/update-event.mutation';
 import { usePublishEventMutation, useUnpublishEventMutation, useFinishEventMutation, useResumeLiveMutation } from '../../mutations/publish-event.mutation';
 import { EventHeaderActions } from './EventHeaderActions';
 import { LibrasAccessibilityPanel } from './LibrasAccessibilityPanel';
+import { OverlayAdsPanel } from './OverlayAdsPanel';
 import { useAccessibilityQuery } from '../../queries/get-accessibility';
 import { EventEditForm, editSchema } from './EventEditForm';
 import type { EditFormValues } from './EventEditForm';
@@ -30,7 +31,7 @@ import { VodUploadCard } from '../VodUploadCard/VodUploadCard';
 import { EventMetadataSection } from '@/features/metadata';
 import { formatDate, formatTime, formatDuration } from '../../utils/event-formatters';
 import { eventHref, publicOrigin } from '../../utils/slug';
-import type { EventResponse } from '../../types/event.types';
+import type { EventResponse, EventWithOverlayAds } from '../../types/event.types';
 import styles from './EventDashboardDetailContent.module.scss';
 
 const STATUS_MOD: Record<string, string> = {
@@ -85,6 +86,8 @@ export function EventDashboardDetailContent({
   // Publicly-funded events can't publish until the NBR 15290 gate is satisfied.
   // Default to blocked while the status is still loading (avoids a 400 round-trip).
   const publishBlocked = !!event?.publiclyFunded && !accessibility?.publishable;
+  // Toda resposta de evento traz a escolha do organizador; uma API antiga sem ela esconde o painel.
+  const overlayAds = (event as EventWithOverlayAds | undefined)?.overlayAds;
 
   const { register, control, handleSubmit, reset, formState: { errors } } = useForm<EditFormValues>({
     resolver: zodResolver(editSchema),
@@ -225,6 +228,7 @@ export function EventDashboardDetailContent({
       </div>
 
       {event.publiclyFunded && <LibrasAccessibilityPanel eventId={id} />}
+      {overlayAds && <OverlayAdsPanel eventId={id} overlayAds={overlayAds} readOnly={readOnly} />}
       {event.format === 'VOD' && vodUploadEnabled && <VodUploadCard eventId={id} />}
 
       {editing ? (
