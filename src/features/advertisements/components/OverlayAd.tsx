@@ -143,6 +143,8 @@ function OverlayCreative({ ad, context, onDone }: { ad: ServedAd; context: Overl
         data-animation={reducedMotion ? 'FADE' : spec.animation}
         data-phase={phase}
         data-raised={placement.raised || undefined}
+        // Logo 2:3 da Lateral realocada para Topo/Rodapé: no celular ganha altura própria.
+        data-portrait={(spec.position === 'SIDE' && placement.position !== 'SIDE') || undefined}
         // Largura dos painéis à direita (chat, capítulos, câmeras): valor dinâmico.
         style={{ '--vt-inset': `${placement.insetPx}px` } as CSSProperties}
         onClick={() => {

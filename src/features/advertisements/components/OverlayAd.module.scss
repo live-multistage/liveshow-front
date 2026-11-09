@@ -60,6 +60,15 @@ $mono: var(--font-space-mono), 'Space Mono', monospace;
       width: 46cqw;
       height: 11.5cqw;
     }
+
+    // Logo 2:3 da Lateral no Rodapé: 11.5cqw deixava ~30 px de largura; ~80 px de altura num celular de 390.
+    // Preenche o espaço entre header e barra até esse teto, sem invadir o header.
+    &[data-portrait='true'] {
+      top: calc(var(--player-header-h, 4.5rem) + 8px + 1.4em);
+      height: auto;
+      max-height: 20.5cqw;
+      margin-top: auto;
+    }
   }
 
   // Entrada e saída: Deslizar vem da borda da posição, Aparecer é fade + escala.
