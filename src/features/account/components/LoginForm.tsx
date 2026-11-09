@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
+import { useHydrated } from '@/shared/hooks/use-hydrated';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { loginSchema, type LoginFormValues } from '../schemas/login.schema';
@@ -21,6 +22,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }: LoginFormProps) {
+  const hydrated = useHydrated();
   const t = useTranslations('auth.login');
   // Reused only for the resend-confirmation copy — identical wording to the
   // register check-email screen, so no new i18n key was added for it.
@@ -97,7 +99,7 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
           <h2 className={styles.formTitle}>{t('title')}</h2>
           <p className={styles.formSubtitle}>{t('subtitle')}</p>
 
-          <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+          <form method="post" onSubmit={handleSubmit(onSubmit)} className={styles.form}>
             <div className={styles.field}>
               <Label htmlFor="email" className={styles.label}>{t('email')}</Label>
               <div className={styles.inputWrapper}>
@@ -192,7 +194,7 @@ export function LoginForm({ callbackUrl, oauthError, socialLoginEnabled = true }
 
             <Button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || !hydrated}
               className={styles.btnSubmit}
             >
               {isPending ? t('submitting') : t('submit')}

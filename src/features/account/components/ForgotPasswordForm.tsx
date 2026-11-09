@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
+import { useHydrated } from '@/shared/hooks/use-hydrated';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { Button, Input, Label, Logo } from '@live-show/design-system';
@@ -32,6 +33,7 @@ function ArrowIcon() {
 }
 
 export function ForgotPasswordForm() {
+  const hydrated = useHydrated();
   const t = useTranslations('auth.forgotPassword');
 
   const {
@@ -81,7 +83,7 @@ export function ForgotPasswordForm() {
               <h2 className={styles.title}>{t('title')}</h2>
               <p className={styles.subtitle}>{t('subtitle')}</p>
 
-              <form onSubmit={handleSubmit(onSubmit)} className={styles.form} noValidate>
+              <form method="post" onSubmit={handleSubmit(onSubmit)} className={styles.form} noValidate>
                 <div className={styles.field}>
                   <Label htmlFor="email" className={styles.label}>{t('email')}</Label>
                   <div className={styles.inputWrapper}>
@@ -109,7 +111,7 @@ export function ForgotPasswordForm() {
 
                 {error && <p className={styles.errorBanner} role="alert">{t('errors.GENERIC')}</p>}
 
-                <Button type="submit" disabled={isPending} className={styles.submit}>
+                <Button type="submit" disabled={isPending || !hydrated} className={styles.submit}>
                   {t('submit')}
                   <ArrowIcon />
                 </Button>

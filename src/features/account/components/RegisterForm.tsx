@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
+import { useHydrated } from '@/shared/hooks/use-hydrated';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { registerSchema, type RegisterFormValues } from '../schemas/register.schema';
@@ -38,6 +39,7 @@ function getSignupSource(): string | undefined {
 }
 
 export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: RegisterFormProps) {
+  const hydrated = useHydrated();
   const t = useTranslations('auth.register');
   // Same choice mobile made: a resend failure reuses forgotPassword's
   // generic error copy rather than adding a new key.
@@ -142,7 +144,7 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
           <h2 className={styles.formTitle}>{t('title')}</h2>
           <p className={styles.formSubtitle}>{t('subtitle')}</p>
 
-          <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+          <form method="post" onSubmit={handleSubmit(onSubmit)} className={styles.form}>
             <div className={styles.field}>
               <Label htmlFor="email" className={styles.label}>{t('email')}</Label>
               <div className={styles.inputWrapper}>
@@ -303,7 +305,7 @@ export function RegisterForm({ callbackUrl, socialLoginEnabled = true }: Registe
 
             <Button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || !hydrated}
               className={styles.btnSubmit}
             >
               {isPending ? t('submitting') : t('submit')}
