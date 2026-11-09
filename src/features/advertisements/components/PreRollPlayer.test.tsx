@@ -37,6 +37,7 @@ const videoAd: ServedAd = {
   videoUrl: 'https://cdn.example.com/ad.mp4',
   videoDurationSec: 15,
   pauseVariant: null,
+  overlay: null,
 };
 
 describe('PreRollPlayer', () => {

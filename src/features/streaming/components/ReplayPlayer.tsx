@@ -326,6 +326,7 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
       )}
 
       <Player.Overlay />
+      <Player.Vitrine />
     </Player.Root>
   );
 }

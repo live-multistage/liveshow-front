@@ -45,6 +45,16 @@ vi.mock('@/features/advertisements/components/PauseAdTakeover', () => ({
   ),
 }));
 
+// The vitrine is stubbed: what Player.Vitrine hands it is the contract.
+const vitrine = vi.hoisted(() => ({ calls: [] as Array<{ eventId: string; enabled?: boolean; context: Record<string, boolean> }> }));
+vi.mock('@/features/advertisements/components/OverlayAd', () => ({
+  OverlayAd: (props: { eventId: string; enabled?: boolean; context: Record<string, boolean> }) => {
+    vitrine.calls.push(props);
+    return <div data-testid="vitrine" />;
+  },
+}));
+const lastVitrine = () => vitrine.calls[vitrine.calls.length - 1];
+
 // CameraGrid is stubbed, but Player.Stage's whole job is what it hands over —
 // so the stub records every props object it was called with.
 const h = vi.hoisted(() => ({ gridCalls: [] as unknown[] }));
@@ -455,5 +465,60 @@ describe('Player analytics', () => {
     vi.advanceTimersByTime(1); // flush any deferred emit from the phantom cleanup
     const ended = mockTrack.mock.calls.filter(([name]) => name === 'playback_ended');
     expect(ended).toHaveLength(0);
+  });
+});
+
+describe('Player.Vitrine', () => {
+  function VitrineHarness({ mode = 'live', preview = false, adsEnabled = true, chatOpen, options }: {
+    mode?: 'live' | 'replay' | 'channel'; preview?: boolean; adsEnabled?: boolean; chatOpen?: boolean; options?: Partial<UsePlayerShellOptions>;
+  }) {
+    const shell = usePlayerShell({ cameras: [cam('a', 1)], ...options });
+    return (
+      <Player.Root shell={shell} mode={mode} eventId="evt-1" playbackEventId="evt-played" title="Show" adsEnabled={adsEnabled} preview={preview}>
+        <Player.Vitrine chatOpen={chatOpen} />
+      </Player.Root>
+    );
+  }
+
+  beforeEach(() => { vitrine.calls.length = 0; });
+
+  it('serves for the event actually on screen, in live and in replay', () => {
+    render(<VitrineHarness />);
+    expect(lastVitrine().eventId).toBe('evt-played');
+    expect(lastVitrine().enabled).toBe(true);
+    render(<VitrineHarness mode="replay" />);
+    expect(lastVitrine().enabled).toBe(true);
+  });
+
+  it.each([
+    ['ads are off', { adsEnabled: false }],
+    ['it is the event-page preview', { preview: true }],
+    ['it is a channel', { mode: 'channel' as const }],
+  ])('does not ask when %s', (_label, props) => {
+    render(<VitrineHarness {...props} />);
+    expect(lastVitrine().enabled).toBe(false);
+  });
+
+  it('reports what is open and playing so the logo steps aside', () => {
+    render(<VitrineHarness chatOpen options={{ initialPaused: true }} />);
+    expect(lastVitrine().context).toMatchObject({
+      chatOpen: true,
+      paused: true,
+      pauseAdVisible: false,
+      offline: false,
+      hasLibras: false,
+      hasPip: false,
+      fullscreen: false,
+      cameraDrawerOpen: false,
+      chaptersOpen: false,
+    });
+  });
+
+  it('knows the transmission on screen is offline', () => {
+    const stream = {
+      id: 's1', title: 'Palco', position: 0, live: false, stages: [], cameras: [cam('a', 1)], primaryCameraId: 'a', librasCameraId: null,
+    };
+    render(<VitrineHarness options={{ streams: [stream], defaultStreamId: 's1' }} />);
+    expect(lastVitrine().context.offline).toBe(true);
   });
 });

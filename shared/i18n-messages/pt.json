@@ -1367,7 +1367,8 @@
     "continueWatching": "Continuar assistindo",
     "learnMore": "Saiba mais",
     "close": "Fechar anúncio",
-    "ariaLabel": "Anúncio: {title}"
+    "ariaLabel": "Anúncio: {title}",
+    "overlayAriaLabel": "Patrocinado: {title} (abre em nova aba)"
   },
   "controlRoom": {
     "noCameraOnAir": "Nenhuma câmera no ar",

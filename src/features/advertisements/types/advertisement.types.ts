@@ -1,6 +1,15 @@
 // Advertiser-side types (CreateAdRequest, AdResponse, AdReviewEntry, etc.)
 // moved to the external Ads Manager. Only the serve-side contract remains.
-export type { AdPlacement, AdDestination, AdPauseVariant, ServedAd } from '@live-show/api-contracts';
+export type {
+  AdPlacement,
+  AdDestination,
+  AdPauseVariant,
+  AdOverlayPosition,
+  AdOverlayAnimation,
+  AdOverlaySpec,
+  ServeOverlayResponse,
+  ServedAd,
+} from '@live-show/api-contracts';
 
 // Eventos de engajamento (sem cobrança), idempotentes por (anúncio servido, tipo).
 export type AdEventType =
@@ -10,4 +19,5 @@ export type AdEventType =
   | 'video_complete'
   | 'video_skip'
   | 'video_unmute'
-  | 'pause_close';
+  | 'pause_close'
+  | 'overlay_complete';

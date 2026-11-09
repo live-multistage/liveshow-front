@@ -185,6 +185,7 @@ export function LivePlayer({ cameras, stages, primaryCameraId, librasCameraId, s
       </Player.Transport>
 
       <Player.Overlay />
+      <Player.Vitrine chatOpen={chatOpen} />
 
       {autoplayBlocked && audio.globalMuted && (
         <button type="button" className={styles.unmutePrompt} onClick={() => audio.setGlobalMuted(false)}>

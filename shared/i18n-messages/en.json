@@ -1367,7 +1367,8 @@
     "continueWatching": "Continue watching",
     "learnMore": "Learn more",
     "close": "Close ad",
-    "ariaLabel": "Ad: {title}"
+    "ariaLabel": "Ad: {title}",
+    "overlayAriaLabel": "Sponsored: {title} (opens in a new tab)"
   },
   "controlRoom": {
     "noCameraOnAir": "No camera on air",
