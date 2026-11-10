@@ -139,7 +139,7 @@ export const CATALOG: BlueprintCatalogEntry[] = [
     } },
   // Mirrors system.event@1 / data.query@1 (orchestrator): outputs depend on the chosen option.
   { kind: 'trigger', key: 'system.event', version: 1, label: 'Evento do sistema', description: 'Dispara quando um evento da plataforma acontece.',
-    dynamicOutputs: 'byOption', dedupeKeyDefaults: { 'user.registered': 'signup:{{t.userId}}', 'order.paid': 'paid:{{t.orderId}}' },
+    dynamicOutputs: 'byOption', dedupeKeyDefaults: { 'user.registered': 'signup:{{trigger.userId}}', 'order.paid': 'paid:{{trigger.orderId}}' },
     config: {
       event: { kind: 'enum', values: ['user.registered', 'order.paid'], required: true, description: 'Evento do sistema' },
       dedupeKey,

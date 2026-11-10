@@ -125,7 +125,7 @@ describe('Inspector', () => {
     render(<InspectorHarness initial={state} onState={(s) => { latest = s; }} />);
     await userEvent.click(screen.getByRole('combobox', { name: 'Evento do sistema' }));
     await userEvent.click(screen.getByRole('option', { name: 'editor.enum.user.registered' }));
-    expect(latest!.nodes[0].config).toEqual({ event: 'user.registered', dedupeKey: 'signup:{{t.userId}}' });
+    expect(latest!.nodes[0].config).toEqual({ event: 'user.registered', dedupeKey: `signup:{{${latest!.nodes[0].id}.userId}}` });
   });
 
   it('keeps a dedupeKey the admin already typed when the event changes', async () => {

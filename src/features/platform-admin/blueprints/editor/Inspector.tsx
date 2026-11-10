@@ -175,7 +175,8 @@ function changeConfig(
   dispatch({ type: 'setConfig', id, field, value });
   const byOption = entry.outputsByOption;
   if (!byOption || field !== byOption.configKey || typeof value !== 'string') return;
-  const defaultKey = entry.dedupeKeyDefaults?.[value];
+  // Registry defaults are written against `trigger`; the analyzer wants the node's own id.
+  const defaultKey = entry.dedupeKeyDefaults?.[value]?.replaceAll('{{trigger.', `{{${id}.`);
   if (defaultKey && !config.dedupeKey) dispatch({ type: 'setConfig', id, field: 'dedupeKey', value: defaultKey });
   if (Array.isArray(config.fields)) {
     const kept = config.fields.filter((f) => f in (byOption.options[value] ?? {}));
