@@ -2525,6 +2525,7 @@
           "typeMismatch": "tipo {type}",
           "personalNotAllowed": "dato personal",
           "dedupeHelp": "Evita dos ejecuciones para la misma persona y evento. Ej.: {example}",
+          "multiEnumEmpty": "Elige primero la entidad para ver los campos disponibles.",
           "jsonNeedsTransform": "tipo diferente (json — usa Transformar)",
           "errorPortSection": "Disponible en el puerto de error",
           "durationUnit": {

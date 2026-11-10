@@ -137,6 +137,46 @@ export const CATALOG: BlueprintCatalogEntry[] = [
         class: 'INTERNAL', description: 'Erro', port: 'error',
       },
     } },
+  // Mirrors system.event@1 / data.query@1 (orchestrator): outputs depend on the chosen option.
+  { kind: 'trigger', key: 'system.event', version: 1, label: 'Evento do sistema', description: 'Dispara quando um evento da plataforma acontece.',
+    dynamicOutputs: 'byOption', dedupeKeyDefaults: { 'user.registered': 'signup:{{t.userId}}', 'order.paid': 'paid:{{t.orderId}}' },
+    config: {
+      event: { kind: 'enum', values: ['user.registered', 'order.paid'], required: true, description: 'Evento do sistema' },
+      dedupeKey,
+    },
+    outputs: {},
+    outputsByOption: {
+      configKey: 'event',
+      options: {
+        'user.registered': { userId: { type: 'uuid', class: 'INTERNAL', description: 'Usuário cadastrado' } },
+        'order.paid': {
+          orderId: { type: 'uuid', class: 'INTERNAL', description: 'Pedido pago' },
+          userId: { type: 'uuid', class: 'INTERNAL', description: 'Comprador' },
+        },
+      },
+    } },
+  { kind: 'data', key: 'data.query', version: 1, label: 'Buscar dados', description: 'Busca campos de um registro da plataforma.',
+    dynamicOutputs: 'byOption',
+    config: {
+      entity: { kind: 'enum', values: ['user', 'order'], required: true, description: 'Entidade' },
+      id: uuidRef('Identificador do registro'),
+      fields: { kind: 'multiEnum', values: [], maxItems: 2, required: true, description: 'Campos' },
+    },
+    outputs: {},
+    outputsByOption: {
+      configKey: 'entity',
+      options: {
+        user: {
+          firstName: { type: 'string', class: 'PERSONAL', description: 'Primeiro nome' },
+          createdAt: { type: 'datetime', class: 'INTERNAL', description: 'Criado em' },
+          signupOrigin: { type: 'string', class: 'INTERNAL', description: 'Origem do cadastro' },
+        },
+        order: {
+          status: { type: 'string', class: 'INTERNAL', description: 'Status' },
+          totalCents: { type: 'number', class: 'INTERNAL', description: 'Total' },
+        },
+      },
+    } },
 ];
 
 export const CATALOG_MAP = new Map(CATALOG.map((e) => [`${e.key}@${e.version}`, e]));

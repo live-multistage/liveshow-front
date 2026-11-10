@@ -293,6 +293,7 @@ function outputsOfNodeInternal(
   entry: BlueprintCatalogEntry, config: Record<string, unknown>,
   state: EditorState, catalog: Map<string, BlueprintCatalogEntry>, forEachId: string, resolving: Set<string>,
 ): Record<string, BlueprintOutputField> {
+  if (entry.dynamicOutputs === 'byOption') return outputsByOption(entry, config);
   if ((entry.dynamicOutputs !== 'forEach' && entry.key !== 'core.forEach') || resolving.has(forEachId)) return entry.outputs;
   const ref = parseRef(config.items);
   const spec = ref
@@ -304,6 +305,21 @@ function outputsOfNodeInternal(
     item: { type: spec.type.list, class: spec.class ?? 'INTERNAL', description: entry.outputs.item.description, port: 'each' },
     index: entry.outputs.index,
   };
+}
+
+/**
+ * system.event / data.query: outputs come from the catalog's per-option shapes
+ * (`options[config[configKey]]`); a multiEnum `fields` config narrows them to
+ * the selected subset. Unset/unknown option → no outputs (analyzer reports refs).
+ */
+function outputsByOption(entry: BlueprintCatalogEntry, config: Record<string, unknown>): Record<string, BlueprintOutputField> {
+  const { outputsByOption: spec } = entry;
+  if (!spec) return entry.outputs;
+  const chosen = config[spec.configKey];
+  const all = (typeof chosen === 'string' ? spec.options[chosen] : undefined) ?? {};
+  if (entry.config.fields?.kind !== 'multiEnum') return all;
+  const picked = Array.isArray(config.fields) ? config.fields : [];
+  return Object.fromEntries(Object.entries(all).filter(([name]) => picked.includes(name)));
 }
 
 export function outputsOfNode(
@@ -339,7 +355,7 @@ function availableFieldsInternal(
     if (!ids.has(n.id)) continue;
     const entry = catalog.get(catalogKey(n.node, n.version));
     if (!entry) continue;
-    const outputs = n.id === nodeId ? entry.outputs : outputsOfNodeInternal(entry, n.config, state, catalog, n.id, resolving);
+    const outputs = n.id === nodeId && entry.dynamicOutputs !== 'byOption' ? entry.outputs : outputsOfNodeInternal(entry, n.config, state, catalog, n.id, resolving);
     for (const [field, spec] of Object.entries(outputs)) {
       collectFields(nodeId, state.edges, n.id, entry.label, field, spec, [], result);
     }

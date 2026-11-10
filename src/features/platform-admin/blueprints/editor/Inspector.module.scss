@@ -223,3 +223,8 @@ $field-border: rgba(255, 255, 255, .1);
 .footer { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, .07); padding-top: 14px; display: flex; gap: 8px; }
 .footerBtn { flex: 1; gap: 6px; }
 .danger { border-color: rgba(255, 77, 77, .35); color: #ff7a7a; &:hover { background: rgba(255, 77, 77, .08); } }
+
+// ── Multi-select (data.query fields) ───────────────────────────────────────
+.checkList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.checkRow { display: flex; align-items: center; gap: 8px; cursor: pointer; color: $text-secondary; input { accent-color: $action; } }
+.checkRow:has(input:disabled) { opacity: .5; cursor: not-allowed; }

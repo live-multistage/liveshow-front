@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { BlueprintCatalogEntry, BlueprintConfigField, BlueprintFieldType, BlueprintOutputField } from './types';
 
 const nodeId = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
 
@@ -33,4 +34,67 @@ export const blueprintGraphSchema = z
 export const createBlueprintSchema = z.object({
   name: z.string().trim().min(1).max(120),
   description: z.string().max(500).optional(),
+});
+
+const scalarType = z.enum(['string', 'number', 'boolean', 'datetime', 'uuid', 'url', 'json']);
+
+export const blueprintFieldTypeSchema: z.ZodType<BlueprintFieldType> = z.lazy(() =>
+  z.union([
+    scalarType,
+    z.object({ list: blueprintFieldTypeSchema }).strict(),
+    z.object({ object: z.record(blueprintOutputFieldSchema) }).strict(),
+  ]),
+);
+
+export const blueprintOutputFieldSchema: z.ZodType<BlueprintOutputField> = z.lazy(() =>
+  z
+    .object({
+      type: blueprintFieldTypeSchema,
+      class: z.enum(['PUBLIC', 'INTERNAL', 'PERSONAL']),
+      description: z.string(),
+      port: z.string().optional(),
+    })
+    .strict(),
+);
+
+const base = { required: z.boolean(), description: z.string() };
+
+export const blueprintConfigFieldSchema: z.ZodType<BlueprintConfigField> = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('ref'), type: blueprintFieldTypeSchema, ...base }),
+  z.object({ kind: z.literal('text'), template: z.boolean(), acceptsPersonal: z.boolean(), maxLength: z.number(), ...base }),
+  z.object({ kind: z.literal('enum'), values: z.array(z.string()), ...base }),
+  z.object({ kind: z.literal('multiEnum'), values: z.array(z.string()), maxItems: z.number().int().positive(), ...base }),
+  z.object({ kind: z.literal('uuid'), ...base }),
+  z.object({ kind: z.literal('datetimeExpr'), ...base }),
+  z.object({ kind: z.literal('condition'), ...base }),
+  z.object({ kind: z.literal('number'), min: z.number().optional(), max: z.number().optional(), ...base }),
+  z.object({ kind: z.literal('boolean'), ...base }),
+  z.object({ kind: z.literal('duration'), ...base }),
+  z.object({ kind: z.literal('keyValueList'), template: z.boolean(), maxItems: z.number(), ...base }),
+  z.object({ kind: z.literal('secret'), ...base }),
+  z.object({ kind: z.literal('cases'), maxCases: z.number(), ...base }),
+]);
+
+export const blueprintOutputsByOptionSchema = z.object({
+  configKey: z.string().min(1),
+  options: z.record(z.record(blueprintOutputFieldSchema)),
+});
+
+export const blueprintCatalogEntrySchema: z.ZodType<BlueprintCatalogEntry> = z.object({
+  key: z.string().min(1),
+  version: z.number().int().positive(),
+  kind: z.enum(['trigger', 'data', 'action', 'core']),
+  label: z.string(),
+  description: z.string(),
+  config: z.record(blueprintConfigFieldSchema),
+  outputs: z.record(blueprintOutputFieldSchema),
+  event: z.string().optional(),
+  ports: z.array(z.string()).optional(),
+  optionalPorts: z.array(z.string()).optional(),
+  mode: z.enum(['dispatch', 'call']).optional(),
+  secretFields: z.array(z.string()).optional(),
+  dynamicPorts: z.literal('switch').optional(),
+  dynamicOutputs: z.enum(['forEach', 'byOption']).optional(),
+  outputsByOption: blueprintOutputsByOptionSchema.optional(),
+  dedupeKeyDefaults: z.record(z.string().min(1)).optional(),
 });

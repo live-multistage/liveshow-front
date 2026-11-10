@@ -2525,6 +2525,7 @@
           "typeMismatch": "type {type}",
           "personalNotAllowed": "personal data",
           "dedupeHelp": "Prevents two runs for the same person and event. E.g.: {example}",
+          "multiEnumEmpty": "Choose the entity first to see the available fields.",
           "jsonNeedsTransform": "different type (json — use Transform)",
           "errorPortSection": "Available on the error port",
           "durationUnit": {
