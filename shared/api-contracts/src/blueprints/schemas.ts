@@ -38,15 +38,16 @@ export const createBlueprintSchema = z.object({
 
 const scalarType = z.enum(['string', 'number', 'boolean', 'datetime', 'uuid', 'url', 'json']);
 
-export const blueprintFieldTypeSchema: z.ZodType<BlueprintFieldType> = z.lazy(() =>
+// Cast: with `strict: false` zod infers every key optional, which no longer matches the declared type.
+export const blueprintFieldTypeSchema = z.lazy(() =>
   z.union([
     scalarType,
     z.object({ list: blueprintFieldTypeSchema }).strict(),
     z.object({ object: z.record(blueprintOutputFieldSchema) }).strict(),
   ]),
-);
+) as z.ZodType<BlueprintFieldType, z.ZodTypeDef, unknown>;
 
-export const blueprintOutputFieldSchema: z.ZodType<BlueprintOutputField> = z.lazy(() =>
+export const blueprintOutputFieldSchema = z.lazy(() =>
   z
     .object({
       type: blueprintFieldTypeSchema,
@@ -55,11 +56,11 @@ export const blueprintOutputFieldSchema: z.ZodType<BlueprintOutputField> = z.laz
       port: z.string().optional(),
     })
     .strict(),
-);
+) as z.ZodType<BlueprintOutputField, z.ZodTypeDef, unknown>;
 
 const base = { required: z.boolean(), description: z.string() };
 
-export const blueprintConfigFieldSchema: z.ZodType<BlueprintConfigField> = z.discriminatedUnion('kind', [
+export const blueprintConfigFieldSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('ref'), type: blueprintFieldTypeSchema, ...base }),
   z.object({ kind: z.literal('text'), template: z.boolean(), acceptsPersonal: z.boolean(), maxLength: z.number(), ...base }),
   z.object({ kind: z.literal('enum'), values: z.array(z.string()), ...base }),
@@ -80,7 +81,7 @@ export const blueprintOutputsByOptionSchema = z.object({
   options: z.record(z.record(blueprintOutputFieldSchema)),
 });
 
-export const blueprintCatalogEntrySchema: z.ZodType<BlueprintCatalogEntry> = z.object({
+export const blueprintCatalogEntrySchema = z.object({
   key: z.string().min(1),
   version: z.number().int().positive(),
   kind: z.enum(['trigger', 'data', 'action', 'core']),
