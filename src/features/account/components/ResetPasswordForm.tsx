@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
+import { useHydrated } from '@/shared/hooks/use-hydrated';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { resetPasswordSchema, type ResetPasswordFormValues } from '../schemas/reset-password.schema';
@@ -15,6 +16,7 @@ interface ResetPasswordFormProps {
 }
 
 export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
+  const hydrated = useHydrated();
   const t = useTranslations('auth.resetPassword');
   // Reused only for the "sign in" CTA after a successful reset — identical
   // wording to the verify-email success screen, so no new i18n key was added.
@@ -63,7 +65,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     <div className={styles.card}>
       <h1 className={styles.title}>{t('title')}</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+      <form method="post" onSubmit={handleSubmit(onSubmit)} className={styles.form}>
         <div className={styles.field}>
           <Label htmlFor="password" className={styles.label}>{t('password')}</Label>
           <Controller
@@ -108,7 +110,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
         {serverErrorMessage && <p className={styles.errorBanner}>{serverErrorMessage}</p>}
 
-        <Button type="submit" disabled={isPending} className={styles.btnSubmit}>
+        <Button type="submit" disabled={isPending || !hydrated} className={styles.btnSubmit}>
           {t('submit')}
         </Button>
       </form>

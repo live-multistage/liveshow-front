@@ -1,0 +1,179 @@
+@use '../../../styles/_variables' as *;
+
+$mono: var(--font-space-mono), 'Space Mono', monospace;
+
+.eyebrow {
+  font-family: $mono;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  color: $accent-text;
+  margin: 0 0 14px;
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: min(40px, 4.2cqw);
+  font-weight: 800;
+  letter-spacing: -.035em;
+  line-height: 1.02;
+  @media (max-width: #{$md - 1px}) { font-size: 28px; }
+}
+
+.heroTitle {
+  margin: 0 0 12px;
+  font-size: min(64px, 6.4cqw);
+  font-weight: 900;
+  letter-spacing: -.045em;
+  line-height: .95;
+  max-width: 14ch;
+  @media (max-width: #{$md - 1px}) { font-size: 38px; }
+}
+
+.lead {
+  margin: 0;
+  font-size: 16px;
+  color: $text-secondary;
+  line-height: 1.55;
+  max-width: 60ch;
+}
+
+.heroImage { display: block; width: 100%; max-height: 420px; object-fit: cover; border-radius: 16px; margin-top: 28px; }
+
+.ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14.5px;
+}
+.ctaPrimary { background: $action; color: $ink; }
+.ctaSecondary { background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .2); color: $text-primary; }
+
+.audienceText { margin: 0; font-size: 15px; color: $text-secondary; line-height: 1.55; max-width: 44ch; }
+.counters { display: flex; gap: 40px; flex-wrap: wrap; }
+.counter b { display: block; font-size: 30px; font-weight: 800; letter-spacing: -.03em; }
+.counter span { font-family: $mono; font-size: 10.5px; letter-spacing: .12em; color: $text-muted; }
+
+.paragraph { margin: 0 0 16px; font-size: 16px; color: $text-secondary; line-height: 1.55; max-width: 60ch; }
+.paragraph a { color: $action; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 28px;
+  @media (max-width: #{$md - 1px}) { grid-template-columns: minmax(0, 1fr); }
+}
+.card {
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid $border-hairline;
+  background: $surface;
+  b { display: block; font-size: 18px; font-weight: 800; letter-spacing: -.02em; margin: 10px 0 6px; }
+  p { margin: 0; font-size: 13.5px; color: $text-muted; line-height: 1.5; }
+}
+.num { font-family: $mono; font-size: 11px; font-weight: 700; color: $action; letter-spacing: .14em; }
+.icon { color: $action; font-size: 18px; }
+
+.stat {
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid $border-hairline;
+  background: radial-gradient(circle at 100% 0%, rgba($action, .18), transparent 60%), $surface;
+  b { display: block; font-size: min(42px, 4cqw); white-space: nowrap; font-weight: 800; letter-spacing: -.03em; }
+  span { font-size: 13px; color: $text-muted; }
+}
+
+.figure { margin: 0; }
+.media { display: block; width: 100%; border-radius: 16px; }
+.caption { margin-top: 10px; font-size: 13px; color: $text-muted; }
+
+.rail {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  @media (max-width: #{$md - 1px}) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+}
+.eventCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+  b { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+}
+.poster {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  border-radius: 12px;
+  overflow: hidden;
+  background: $surface;
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+.liveBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: $action;
+  color: $ink;
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+.eventDate { font-family: $mono; font-size: 11px; letter-spacing: .1em; color: $text-muted; text-transform: uppercase; }
+
+.featured {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  border-radius: 16px;
+  border: 1px solid $border-hairline;
+  background: $surface;
+  overflow: hidden;
+  @media (max-width: #{$md - 1px}) { grid-template-columns: minmax(0, 1fr); }
+}
+.featuredArt {
+  display: block;
+  min-height: 220px;
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+.featuredBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px;
+  .liveBadge { position: static; }
+  .title { margin: 0; }
+}
+
+.price { display: block; font-family: $mono; font-size: 22px; font-weight: 700; color: $action; margin-bottom: 8px; }
+.card .cta { margin-top: 16px; }
+
+.faq {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  details {
+    border: 1px solid $border-hairline;
+    border-radius: 12px;
+    background: $surface;
+    padding: 0 18px;
+  }
+  summary { cursor: pointer; padding: 16px 0; font-weight: 700; font-size: 15px; }
+  p { margin: 0 0 16px; color: $text-secondary; font-size: 14px; line-height: 1.55; }
+}

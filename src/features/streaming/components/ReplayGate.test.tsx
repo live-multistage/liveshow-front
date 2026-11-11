@@ -38,13 +38,17 @@ vi.mock('../queries/live.queries', () => ({
   useReplayChaptersQuery: () => chaptersState,
 }));
 
+const usePrerollGateMock = vi.hoisted(() => vi.fn());
 const prerollState: { ad: unknown; pending: boolean; markSeen: () => void } = {
   ad: null,
   pending: false,
   markSeen: vi.fn(),
 };
 vi.mock('@/features/advertisements/hooks/use-preroll-gate', () => ({
-  usePrerollGate: () => prerollState,
+  usePrerollGate: (...args: unknown[]) => {
+    usePrerollGateMock(...args);
+    return prerollState;
+  },
 }));
 
 vi.mock('@/features/advertisements/components/PreRollPlayer', () => ({
@@ -56,8 +60,8 @@ vi.mock('@/features/advertisements/components/PreRollPlayer', () => ({
 }));
 
 vi.mock('./ReplayPlayer', () => ({
-  ReplayPlayer: ({ chapters }: { chapters?: unknown[] }) => (
-    <div data-testid="replay-player" data-chapter-count={chapters?.length ?? 'none'}>
+  ReplayPlayer: ({ chapters, startAtSeconds }: { chapters?: unknown[]; startAtSeconds?: number | null }) => (
+    <div data-testid="replay-player" data-chapter-count={chapters?.length ?? 'none'} data-start={startAtSeconds ?? 'none'}>
       replay-player-stub
     </div>
   ),
@@ -93,6 +97,13 @@ describe('ReplayGate — revoked access on playback refresh', () => {
       mode: 'replay',
       hasAccess: false,
     });
+  });
+
+  it('keeps the pre-roll gate closed until access is granted and the replay is available', () => {
+    render(<ReplayGate eventId="evt-1" eventTitle="Show" />);
+    const lastReady = usePrerollGateMock.mock.calls.at(-1)?.[2];
+    expect(typeof lastReady).toBe('boolean');
+    expect(lastReady).toBe(Boolean((playbackState.data as { available?: boolean } | undefined)?.available));
   });
 
   it('unmounts the player and shows the no-access state on a 403 refresh', () => {
@@ -148,5 +159,10 @@ describe('ReplayGate — chapters', () => {
     // Still loading or failed: no data.
     render(<ReplayGate eventId="evt-1" eventTitle="Show" />);
     expect(screen.getByTestId('replay-player')).toHaveAttribute('data-chapter-count', 'none');
+  });
+
+  it('hands the ?t= start to the player', () => {
+    render(<ReplayGate eventId="evt-1" eventTitle="Show" startAtSeconds={90} />);
+    expect(screen.getByTestId('replay-player')).toHaveAttribute('data-start', '90');
   });
 });

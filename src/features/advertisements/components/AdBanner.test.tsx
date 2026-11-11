@@ -14,8 +14,11 @@ vi.mock('../services/advertisements.service', () => ({
 }));
 
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string, params?: Record<string, string>) =>
-    key === 'ariaLabel' && params ? `Anúncio: ${params.title}` : key,
+  useTranslations: () => (key: string, params?: Record<string, string>) => {
+    if (key === 'ariaLabel' && params) return `Anúncio: ${params.title}`;
+    if (key === 'sponsored') return 'Patrocinado';
+    return key;
+  },
 }));
 
 const mockedService = vi.mocked(advertisementsService);
@@ -39,6 +42,8 @@ const baseAd: Omit<ServedAd, 'destination'> = {
   bannerUrl: null,
   videoUrl: null,
   videoDurationSec: null,
+  pauseVariant: null,
+  overlay: null,
 };
 
 describe('AdBanner', () => {
@@ -101,7 +106,7 @@ describe('AdBanner', () => {
   it('renders the sponsored label and the aria-label from i18n', async () => {
     renderWithAd({ ...baseAd, destination: { type: 'EVENT', eventId: 'evt-1' } });
 
-    expect(await screen.findByText('sponsored')).toBeInTheDocument();
+    expect(await screen.findByText('Patrocinado')).toBeInTheDocument();
     expect(screen.getByRole('link')).toHaveAttribute('aria-label', 'Anúncio: Great Ad');
   });
 });

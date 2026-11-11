@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { PauseAdTakeover } from '@/features/advertisements/components/PauseAdTakeover';
+import type { PauseLayout } from '@/features/advertisements/utils/pause-layout';
 import { SessionWatermark } from './SessionWatermark';
 import styles from './PlayerStage.module.scss';
 
@@ -18,7 +19,9 @@ interface PlayerStageProps {
   // PauseAdTakeover's onVisibleChange, which fires false on resume/unmount
   // so this can never get stuck shrunk without an ad actually on screen.
   pauseAdVisible: boolean;
-  onPauseAdVisibleChange: (visible: boolean) => void;
+  onPauseAdVisibleChange: (visible: boolean, layout: PauseLayout) => void;
+  // STANDARD encolhe a transmissão num card; FULLSCREEN a esconde (só os controles ficam).
+  pauseAdLayout?: PauseLayout;
   // Gates the pause-ad takeover — false must skip mounting PauseAdTakeover
   // entirely, not just hide it, so /ads/serve is never called.
   adsEnabled?: boolean;
@@ -32,12 +35,14 @@ interface PlayerStageProps {
 //
 // Sem o overlay central, uma live pausada é indistinguível de uma transmissão
 // travada: a imagem congela e nada na tela explica por quê.
-export function PlayerStage({ mode, eventId, paused, onResume, pauseAdVisible, onPauseAdVisibleChange, adsEnabled = true, children }: PlayerStageProps) {
+export function PlayerStage({ mode, eventId, paused, onResume, pauseAdVisible, onPauseAdVisibleChange, pauseAdLayout = 'STANDARD', adsEnabled = true, children }: PlayerStageProps) {
   const t = useTranslations('player');
   // Um canal não tem arquivo atrás da janela de ~12 s da origem: não há para
   // onde pausar. Sem pausa, o takeover de anúncio, o play central e o chip de
   // "pausado" não têm o que representar.
   const pausable = mode !== 'channel';
+  const adCoversStage = pausable && pauseAdVisible && pauseAdLayout === 'FULLSCREEN';
+  const adShrinksStage = pausable && pauseAdVisible && pauseAdLayout === 'STANDARD';
 
   return (
     <>
@@ -50,12 +55,14 @@ export function PlayerStage({ mode, eventId, paused, onResume, pauseAdVisible, o
         />
       )}
 
-      <div className={`${styles.stageArea} ${pausable && pauseAdVisible ? styles.stageAreaShrunk : ''}`}>
+      <div
+        className={`${styles.stageArea} ${adShrinksStage ? styles.stageAreaShrunk : ''} ${adCoversStage ? styles.stageAreaHidden : ''}`}
+      >
         {children}
 
         <SessionWatermark />
 
-        {pausable && paused && (
+        {pausable && paused && !adCoversStage && (
           <button
             type="button"
             className={styles.centerPlayOverlay}
@@ -68,7 +75,7 @@ export function PlayerStage({ mode, eventId, paused, onResume, pauseAdVisible, o
           </button>
         )}
 
-        {pausable && pauseAdVisible && (
+        {adShrinksStage && (
           <span className={styles.pausedChip}>
             <span className={styles.pausedDot} />
             {mode === 'live' ? t('pausedChipLive') : t('pausedChip')}

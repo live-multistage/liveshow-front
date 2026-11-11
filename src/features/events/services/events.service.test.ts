@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { get } = vi.hoisted(() => ({ get: vi.fn() }));
-vi.mock('@/lib/http/client', () => ({ httpClient: { get } }));
+const { get, put } = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn() }));
+vi.mock('@/lib/http/client', () => ({ httpClient: { get, put } }));
 
 import { eventsService } from './events.service';
 
@@ -30,5 +30,17 @@ describe('eventsService my events', () => {
     get.mockResolvedValueOnce({ data: counts });
     await expect(eventsService.getMyEventCounts()).resolves.toEqual(counts);
     expect(get).toHaveBeenCalledWith('/events/mine/counts');
+  });
+});
+
+describe('eventsService.setOverlayAds', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('PUTs both switches and returns the saved settings', async () => {
+    put.mockResolvedValueOnce({ data: { overlayAds: { allowed: false, onReplay: true } } });
+    await expect(eventsService.setOverlayAds('evt-1', { allowed: false, onReplay: true })).resolves.toEqual({
+      overlayAds: { allowed: false, onReplay: true },
+    });
+    expect(put).toHaveBeenCalledWith('/events/evt-1/overlay-ads', { allowed: false, onReplay: true });
   });
 });

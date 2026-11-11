@@ -1,3 +1,4 @@
+import { watchPath } from '@/features/streaming/utils/watch-route';
 import { eventHref } from '@/features/events/utils/slug';
 import type { AccessibleEvent } from '../types/my-list.types';
 
@@ -25,10 +26,10 @@ export function eventAction(event: AccessibleEvent): EventAction {
     return { kind: 'cancelled', labelKey: 'cancelled', href: eventHref(event), primary: false };
   }
   if (event.canWatchLive) {
-    return { kind: 'watch-live', labelKey: 'watchLive', href: `/live/${event.id}`, primary: true };
+    return { kind: 'watch-live', labelKey: 'watchLive', href: watchPath(event.id), primary: true };
   }
   if (event.canWatchReplay) {
-    return { kind: 'watch-replay', labelKey: 'watchReplay', href: `/replay/${event.id}`, primary: true };
+    return { kind: 'watch-replay', labelKey: 'watchReplay', href: watchPath(event.id), primary: true };
   }
   // Cobre tudo o mais: evento futuro, ingresso que não cobre este momento, e
   // ingresso presencial (que dá entrada no local, não playback).

@@ -29,7 +29,7 @@ import { Palette } from './Palette';
 import { Inspector } from './Inspector';
 import { ProblemsFooter } from './ProblemsFooter';
 import savers from './__fixtures__/reminder-savers.json';
-import { editorReducer, graphToState, stateToGraph, type AvailableField, type EditorAction, type EditorState } from './useEditorGraph';
+import { EMPTY_STATE, editorReducer, graphToState, stateToGraph, type AvailableField, type EditorAction, type EditorState } from './useEditorGraph';
 import { ConfigField } from './fields/ConfigField';
 import { WaitUntilBuilder } from './fields/WaitUntilBuilder';
 
@@ -79,6 +79,7 @@ function InspectorHarness({ initial, errors = [], readOnly = false, onState, onD
   );
 }
 
+const EMPTY = EMPTY_STATE;
 const buyersAt = (selected: string) => graphToState(buyers as BlueprintGraph, selected);
 
 describe('Inspector', () => {
@@ -116,6 +117,41 @@ describe('Inspector', () => {
     expect(screen.getByRole('option', { name: /^orderId/ })).not.toHaveAttribute('aria-disabled');
     await userEvent.click(screen.getByRole('option', { name: /^orderId/ }));
     expect(latest!.nodes.find((n) => n.id === 'e1')?.config.eventId).toBe('{{t.orderId}}');
+  });
+
+  it('picking an event prefills dedupeKey', async () => {
+    let latest: EditorState | undefined;
+    const state = editorReducer(EMPTY, { type: 'add', entry: CATALOG_MAP.get('system.event@1')!, position: { x: 0, y: 0 } });
+    render(<InspectorHarness initial={state} onState={(s) => { latest = s; }} />);
+    await userEvent.click(screen.getByRole('combobox', { name: 'Evento do sistema' }));
+    await userEvent.click(screen.getByRole('option', { name: 'editor.enum.user.registered' }));
+    expect(latest!.nodes[0].config).toEqual({ event: 'user.registered', dedupeKey: `signup:{{${latest!.nodes[0].id}.userId}}` });
+  });
+
+  it('keeps a dedupeKey the admin already typed when the event changes', async () => {
+    let latest: EditorState | undefined;
+    const added = editorReducer(EMPTY, { type: 'add', entry: CATALOG_MAP.get('system.event@1')!, position: { x: 0, y: 0 } });
+    const state = editorReducer(added, { type: 'setConfig', id: 't', field: 'dedupeKey', value: 'meu:{{t.userId}}' });
+    render(<InspectorHarness initial={state} onState={(s) => { latest = s; }} />);
+    await userEvent.click(screen.getByRole('combobox', { name: 'Evento do sistema' }));
+    await userEvent.click(screen.getByRole('option', { name: 'editor.enum.order.paid' }));
+    expect(latest!.nodes[0].config.dedupeKey).toBe('meu:{{t.userId}}');
+  });
+
+  it('changing entity clears fields not in the new entity', async () => {
+    let latest: EditorState | undefined;
+    const added = editorReducer(EMPTY, { type: 'add', entry: CATALOG_MAP.get('data.query@1')!, position: { x: 0, y: 0 } });
+    const state = editorReducer(
+      editorReducer(added, { type: 'setConfig', id: 'q1', field: 'entity', value: 'user' }),
+      { type: 'setConfig', id: 'q1', field: 'fields', value: ['firstName', 'status'] },
+    );
+    render(<InspectorHarness initial={state} onState={(s) => { latest = s; }} />);
+    expect(screen.getByRole('checkbox', { name: 'firstName' })).toBeChecked();
+    await userEvent.click(screen.getByRole('combobox', { name: 'Entidade' }));
+    await userEvent.click(screen.getByRole('option', { name: 'editor.enum.order' }));
+    expect(latest!.nodes[0].config).toEqual({ entity: 'order', fields: ['status'] });
+    expect(screen.getByRole('checkbox', { name: 'status' })).toBeChecked();
+    expect(screen.queryByRole('checkbox', { name: 'firstName' })).toBeNull();
   });
 
   it('shows the mailing template select with tested state and category', async () => {

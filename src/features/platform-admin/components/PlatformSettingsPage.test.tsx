@@ -83,6 +83,8 @@ vi.mock('../blueprints/mutations/blueprint-secrets.mutations', () => ({
   useSetBlueprintSecretMutation: vi.fn(),
   useDeleteBlueprintSecretMutation: vi.fn(),
 }));
+vi.mock('./AdPauseMinimumsSection', () => ({ AdPauseMinimumsSection: () => null }));
+vi.mock('./AdOverlaySettingsSection', () => ({ AdOverlaySettingsSection: () => null }));
 vi.mock('../queries/get-settings', async () => {
   const actual = await vi.importActual<typeof import('../queries/get-settings')>('../queries/get-settings');
   return {
@@ -187,6 +189,10 @@ function setup(overrides?: {
       defaultFeeRate: 0.035,
       cartTaxRate: 0.125,
       blueprintHttpAllowlist: [],
+      adPauseMinCpmStandardCents: 800,
+      adPauseMinCpcStandardCents: 40,
+      adPauseMinCpmFullscreenCents: 1400,
+      adPauseMinCpcFullscreenCents: 70, adOverlayMinCpmCents: 600, adOverlayMinCpcCents: 35, adOverlayGlobalMinIntervalMin: 10, adOverlayMaxPerHour: 4, adOverlayFirstAfterMin: 3,
       ...overrides?.settings,
     }),
   );

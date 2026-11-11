@@ -1,5 +1,6 @@
 'use client';
 
+import { watchPath } from '@/features/streaming/utils/watch-route';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
@@ -58,7 +59,7 @@ export function ShowCard({ show, purchased = false, layout = 'vertical', size = 
   const cta = purchased ? t('watch') : show.isLive ? t('watch') : t('details');
 
   const cardHref = eventHref(show);
-  const ctaHref = purchased || show.isLive ? `/live/${show.id}` : eventHref(show);
+  const ctaHref = purchased || show.isLive ? watchPath(show.id) : eventHref(show);
 
   const hasProgress = !!progress && progress.durationSeconds > 0;
   const progressPct = hasProgress

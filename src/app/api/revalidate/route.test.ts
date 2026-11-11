@@ -48,6 +48,12 @@ describe('POST /api/revalidate', () => {
     expect(revalidateTag).not.toHaveBeenCalled();
   });
 
+  it('revalidates the pages tag', async () => {
+    const res = await POST(req({ tags: ['pages'] }, 'right'));
+    expect(res.status).toBe(200);
+    expect(revalidateTag.mock.calls.map((c) => c[0])).toEqual(['pages']);
+  });
+
   it('revalidates allowed tags', async () => {
     const res = await POST(req({ tags: ['seo', 'legal'] }, 'right'));
     expect(res.status).toBe(200);

@@ -24,6 +24,8 @@ $ink:            #0a0a0b;
 // ── Borders & hover ───────────────────────────────────────────────
 $border:       #27272A;
 $bg-hover:     #1f1f23;
+$canvas-bg:    #050506; // page editor canvas, darker than $bg so the page surface reads as a sheet
+$selection-blue: #5b9dff; // page editor hover outline (prototype --sel)
 $border-hairline: rgba(255, 255, 255, 0.08);
 
 // ── Radius ────────────────────────────────────────────────────────
@@ -54,3 +56,42 @@ $sm: 640px;
 $md: 768px;
 $lg: 1024px;
 $xl: 1280px;
+
+// ── Page builder tokens ───────────────────────────────────────────
+// mirrors packages/design-tokens (space, radius, shadow, typo). Keep in sync by hand; variables.tokens.test.ts guards it.
+// '0' and radius 'none' do not exist in design-tokens: they are page-builder style keys.
+$space: (
+  '0': 0, xs: 4px, sm: 8px, md: 12px, headerGap: 14px, lg: 16px, xl: 24px, xxl: 32px, section: 36px, xxxl: 48px,
+  l1: 64px, l2: 96px, l3: 128px,
+);
+$radius: (none: 0, sm: 6px, md: 10px, lg: 16px, full: 999px);
+$shadow: (
+  none: none,
+  card: 0 12px 32px rgba(0, 0, 0, 0.45),
+  glow: 0 0 48px rgba(255, 46, 158, 0.28),
+);
+$typo: (
+  hero:    (size-desktop: 52px, size-tablet: 40px, size-mobile: 34px, weight: 800, tracking: -0.035em, line-height: 1),
+  display: (size-desktop: 34px, size-tablet: 30px, size-mobile: 28px, weight: 800, tracking: -0.035em, line-height: 1.05),
+  xxl:     (size-desktop: 28px, size-tablet: 24px, size-mobile: 22px, weight: 800, tracking: -0.02em, line-height: 1.1),
+  xl:      (size-desktop: 22px, size-tablet: 20px, size-mobile: 18px, weight: 700, tracking: -0.02em, line-height: 1.2),
+  lg:      (size-desktop: 18px, size-tablet: 18px, size-mobile: 16px, weight: 500, tracking: 0em, line-height: 1.5),
+  md:      (size-desktop: 16px, size-tablet: 16px, size-mobile: 15px, weight: 400, tracking: 0em, line-height: 1.5),
+  sm:      (size-desktop: 14px, size-tablet: 14px, size-mobile: 14px, weight: 400, tracking: 0em, line-height: 1.5),
+  label:   (size-desktop: 11px, size-tablet: 11px, size-mobile: 10px, weight: 700, tracking: 0.16em, line-height: 1.2),
+);
+
+// Not in design-tokens: borders and gradients of the page builder come from the approved prototype
+// (docs/pages/showon-page-builder-v2/index.html, BORDERS and GRADS).
+$page-borders: (
+  none: none,
+  faint: 1px solid rgba(255, 255, 255, 0.07),
+  default: 1px solid #27272a,
+  strong: 1px solid rgba(255, 255, 255, 0.2),
+  accent: 1px solid rgba(255, 46, 158, 0.5),
+);
+$page-gradients: (
+  glow: (radial-gradient(120% 90% at 85% 10%, rgba(255, 46, 158, 0.38), transparent 55%), radial-gradient(90% 80% at 10% 100%, rgba(152, 16, 250, 0.32), transparent 60%), #050406),
+  duo: linear-gradient(120deg, #ff2e9e, #9810fa),
+  night: linear-gradient(180deg, #0b0b0d, #1a0a12),
+);

@@ -187,6 +187,26 @@ describe('ReplayPlayer — absolute timeline', () => {
     // 150 mil segundos de vídeo.
     expect(video.currentTime).toBe(150);
   });
+
+  // ?t= on /watch: an explicit start wins over saved progress.
+  it('starts at startAtSeconds over the saved progress', () => {
+    progressQueryState = {
+      data: [{ eventId: 'evt-1', positionSeconds: 200, durationSeconds: 600, resumeSeconds: 150, completed: false, updatedAt: '' }],
+    };
+    const { container } = render(
+      <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} startAtSeconds={42} />,
+    );
+    expect(container.querySelector('video')!.currentTime).toBe(42);
+  });
+
+  // Logged out there is no progress query to wait for — a shared link still lands on t.
+  it('starts at startAtSeconds when logged out', () => {
+    authState.isLoggedIn = false;
+    const { container } = render(
+      <ReplayPlayer cameras={[camA]} title="Show" eventId="evt-1" timeline={timeline} startAtSeconds={42} />,
+    );
+    expect(container.querySelector('video')!.currentTime).toBe(42);
+  });
 });
 
 // The header's round buttons used to overlap the camera drawer's top-right

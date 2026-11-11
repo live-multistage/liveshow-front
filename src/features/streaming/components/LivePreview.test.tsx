@@ -36,7 +36,7 @@ describe('LivePreview', () => {
   it('opens the full player for the event', () => {
     render(<LivePreview eventId="evt-1" title="Evento" playback={playback} />);
 
-    expect(screen.getByRole('link', { name: /openPlayer/ })).toHaveAttribute('href', '/live/evt-1');
+    expect(screen.getByRole('link', { name: /openPlayer/ })).toHaveAttribute('href', '/watch/evt-1');
     expect(screen.getByTestId('player-stage')).toBeInTheDocument();
   });
 });

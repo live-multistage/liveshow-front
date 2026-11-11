@@ -1,0 +1,192 @@
+@use '../../../../styles/dashboard-forms' as *;
+
+.preview {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+  padding: 28px;
+  background: #050506;
+}
+
+// Takes the scaled size in layout; the page inside is laid out at 1280px and scaled from the top left.
+.frame { flex: none; align-self: flex-start; }
+
+.page {
+  container-type: inline-size;
+  transform-origin: top left;
+  overflow: hidden;
+  border: 1px solid $hairline;
+  border-radius: 10px;
+  background: $bg;
+}
+
+// Fixed 390px frame, like a phone.
+.phone {
+  container-type: inline-size;
+  align-self: flex-start;
+  flex: none;
+  width: 390px;
+  overflow: hidden;
+  border: 10px solid #1c1c1f;
+  border-radius: 44px;
+  background: $bg;
+  box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.5);
+}
+
+.siteBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 28px;
+  background: rgba(3, 3, 3, 0.92);
+  font-size: 12.5px;
+  color: $text-secondary;
+
+  &:first-child { border-bottom: 1px solid $hairline; }
+  &:last-child { border-top: 1px solid $hairline; }
+}
+
+.lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: $mono;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: $text-muted;
+
+  svg { width: 11px; height: 11px; }
+}
+
+.slot { position: relative; }
+
+// Counter-scaled so the label and buttons stay readable whatever the preview scale.
+.toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px 0 10px;
+  background: $action;
+  color: #fff;
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: scale(var(--preview-inverse-scale, 1));
+  transform-origin: top left;
+
+  span { margin-right: 6px; }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 24px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+
+    svg { width: 12px; height: 12px; }
+    &:hover:not(:disabled) { background: rgba(0, 0, 0, 0.2); }
+    &:disabled { opacity: 0.45; cursor: default; }
+    &:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+  }
+}
+
+.section {
+  position: relative;
+  cursor: pointer;
+
+  &:hover { outline: 1px dashed rgba($action, 0.5); outline-offset: -1px; }
+  &:focus-visible { outline: 2px solid $action; outline-offset: -2px; }
+}
+
+.selected { outline: 2px solid $action !important; outline-offset: -2px; }
+
+// Links and buttons inside the rendered section must not swallow the click that selects it.
+.content { pointer-events: none; }
+
+.hidden .content { opacity: 0.35; filter: grayscale(1); }
+
+.badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 10px;
+  border: 1px solid $border;
+  border-radius: 999px;
+  background: #18181b;
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: $text-primary;
+}
+
+.placeholder {
+  margin: 0;
+  padding: 32px 20px;
+  text-align: center;
+  font-size: 13px;
+  color: $text-secondary;
+  border: 1px dashed $dropzone-border;
+}
+
+.insert {
+  position: relative;
+  z-index: 4;
+  height: 0;
+
+  button {
+    position: absolute;
+    left: 50%;
+    top: -14px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid $action;
+    border-radius: 50%;
+    background: $bg;
+    color: $action;
+    opacity: 0;
+    transition: opacity 0.15s;
+    cursor: pointer;
+
+    svg { width: 14px; height: 14px; }
+    &:focus-visible { opacity: 1; }
+    &:disabled { display: none; }
+  }
+
+  &:hover button { opacity: 1; }
+}
+
+.insertAlways { height: 28px; button { opacity: 1; top: 0; } }
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 40px 56px;
+  padding: 56px 24px;
+  text-align: center;
+  border: 1px dashed $dropzone-border;
+  border-radius: 16px;
+
+  b { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+  p { margin: 0; max-width: 40ch; font-size: 13.5px; color: $text-secondary; }
+  svg { width: 14px; height: 14px; }
+}

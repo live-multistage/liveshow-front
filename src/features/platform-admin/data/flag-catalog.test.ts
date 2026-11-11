@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { FLAG_CATALOG, FLAG_GROUP_ORDER, flagMeta } from './flag-catalog';
 
@@ -23,7 +26,7 @@ describe('flagMeta', () => {
     });
   });
 
-  it('catalogs exactly the 18 backend keys', () => {
+  it('catalogs exactly the 19 backend keys', () => {
     expect(Object.keys(FLAG_CATALOG).sort()).toEqual(
       [
         'chat',
@@ -35,6 +38,7 @@ describe('flagMeta', () => {
         'vod_upload',
         'ads_delivery',
         'ad_revenue_share',
+        'ads_overlay',
         'organizer_applications',
         'artist_applications',
         'social_login',
@@ -54,11 +58,35 @@ describe('flagMeta', () => {
       .map(([key]) => key)
       .sort();
     expect(riskyKeys).toEqual(
-      ['mobile_stripe_checkout', 'play_billing', 'ads_delivery', 'ad_revenue_share', 'coupons'].sort(),
+      ['mobile_stripe_checkout', 'play_billing', 'ads_delivery', 'ads_overlay', 'ad_revenue_share', 'coupons'].sort(),
     );
   });
 
   it('orders groups player, account, payments, other', () => {
     expect(FLAG_GROUP_ORDER).toEqual(['player', 'account', 'payments', 'other']);
+  });
+});
+
+// A tela de flags mostra nome e descrição vindos das mensagens; sem eles aparece a chave crua.
+describe('ads_overlay label', () => {
+  const messages = (lang: string) =>
+    JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../../../shared/i18n-messages', `${lang}.json`), 'utf8'));
+
+  it('is a payments flag, risky like ads_delivery (turning it on starts showing ads)', () => {
+    expect(flagMeta('ads_overlay')).toEqual({ group: 'payments', scope: 'all', risky: true });
+  });
+
+  it('has a PT-BR name and description, like the other flags', () => {
+    const flag = messages('pt').platformAdmin.featureFlags.ads_overlay;
+    expect(flag.name).toBe('Vitrine no player');
+    expect(flag.description).toBe(
+      'Logo animada do anunciante sobre o player; kill switch próprio, além da entrega de anúncios.',
+    );
+  });
+
+  it.each(['en', 'es'])('has a %s label too', (lang) => {
+    const flag = messages(lang).platformAdmin.featureFlags.ads_overlay;
+    expect(flag.name).toBeTruthy();
+    expect(flag.description).toBeTruthy();
   });
 });

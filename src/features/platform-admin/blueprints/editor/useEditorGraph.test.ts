@@ -303,7 +303,7 @@ describe('outputsOfNode / availableFields for core.forEach', () => {
       { id: 'done1', node: 'core.end', version: 1, config: {}, position: { x: 300, y: 50 } },
     ],
     edges: [
-      { from: 't', to: 'd' }, { from: 'd', to: 'f' },
+      { from: 't', to: 'd1' }, { from: 'd', to: 'f' },
       { from: 'f', to: 'each1', port: 'each' }, { from: 'f', to: 'done1', port: 'done' },
     ],
   };
@@ -372,5 +372,36 @@ describe('errorCountByNode', () => {
       { code: 'NO_TRIGGER', message: 'z' },
     ]);
     expect(counts).toEqual(new Map([['c', 2]]));
+  });
+});
+
+describe('outputsOfNode — byOption', () => {
+  const state = EMPTY_STATE;
+  const outputs = (key: string, config: Record<string, unknown>) => outputsOfNode(entry(key), config, state, CATALOG_MAP, 'x');
+
+  it('outputsOfNode follows the chosen event', () => {
+    expect(Object.keys(outputs('system.event', { event: 'order.paid' }))).toEqual(['orderId', 'userId']);
+    expect(Object.keys(outputs('system.event', { event: 'user.registered' }))).toEqual(['userId']);
+    expect(outputs('system.event', {})).toEqual({});
+    expect(outputs('system.event', { event: 'nope' })).toEqual({});
+  });
+
+  it('outputsOfNode returns only the selected query fields', () => {
+    expect(Object.keys(outputs('data.query', { entity: 'user', fields: ['firstName', 'createdAt'] }))).toEqual(['firstName', 'createdAt']);
+    expect(outputs('data.query', { entity: 'user' })).toEqual({});
+    expect(Object.keys(outputs('data.query', { entity: 'user', fields: ['firstName', 'ghost'] }))).toEqual(['firstName']);
+  });
+
+  it('downstream ref picker lists the new outputs after the event changes', () => {
+    const s = run(
+      EMPTY_STATE,
+      { type: 'add', entry: entry('system.event'), position: { x: 0, y: 0 } },
+      { type: 'add', entry: entry('core.delay'), position: { x: 0, y: 0 } },
+      { type: 'connect', from: 't', to: 'd1' },
+      { type: 'setConfig', id: 't', field: 'event', value: 'user.registered' },
+    );
+    const names = (st: EditorState) => availableFields(st, CATALOG_MAP, 'd1').map((f) => f.field);
+    expect(names(s)).toEqual(['userId']);
+    expect(names(run(s, { type: 'setConfig', id: 't', field: 'event', value: 'order.paid' }))).toEqual(['orderId', 'userId']);
   });
 });

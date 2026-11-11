@@ -9,20 +9,12 @@ import { JsonLd } from '@/shared/components/JsonLd';
 import { buildEventJsonLd } from '@/features/events/utils/event-json-ld';
 import { applySeo, getSeoForPage, resolveJsonLd } from '@/features/seo';
 import { eventSeoVars } from '@/features/seo/utils/event-seo-vars';
+import { toMetaDescription } from '@/features/seo/utils/meta-description';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://showon.io';
 
 interface Props {
   params: Promise<{ id: string }>;
-}
-
-// Meta descriptions get truncated around 160 chars anyway; cut on a word so the
-// ellipsis doesn't land mid-word.
-function toDescription(text: string, max = 160): string {
-  const clean = text.replace(/\s+/g, ' ').trim();
-  if (clean.length <= max) return clean;
-  const cut = clean.slice(0, max);
-  return `${cut.slice(0, cut.lastIndexOf(' ')) || cut}…`;
 }
 
 // The segment accepts a UUID or a slug. Old links (and anything still built from
@@ -37,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!event) return { title: 'Evento', robots: { index: false, follow: false } };
 
   const url = `${SITE_URL}/events/${event.slug || event.id}`;
-  const description = toDescription(event.description ?? '');
+  const description = toMetaDescription(event.description ?? '');
 
   const base: Metadata = {
     title: event.title,

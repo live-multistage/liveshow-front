@@ -1,6 +1,6 @@
-import type { AgeBracket } from '@live-show/api-contracts';
+import type { AdPauseVariant, AgeBracket } from '@live-show/api-contracts';
 
-export type { AgeBracket };
+export type { AdPauseVariant, AgeBracket };
 
 // Mirrors src/advertisements/domain/ad-format.enum.ts (orchestrator).
 export type HouseAdFormat = 'HORIZONTAL_728x90' | 'VERTICAL_300x600' | 'WIDE_16_9' | 'VIDEO_16_9';
@@ -82,6 +82,8 @@ export interface CreateHouseAdRequest {
   title: string;
   format: HouseAdFormat;
   placements: HouseAdPlacement[];
+  // Obrigatória com PLAYER_PAUSE; null (no PATCH) quando a pausa sai dos posicionamentos.
+  pauseVariant?: AdPauseVariant | null;
   targetDomains: string[];
   targetCategories: string[];
   targetAgeBrackets?: AgeBracket[];
@@ -131,6 +133,7 @@ export interface HouseAdDetail {
   bannerUrl: string | null;
   videoUrl: string | null;
   videoDurationSec: number | null;
+  pauseVariant: AdPauseVariant | null;
 }
 
 // GET /platform-admin/house-ads/:id/report (GetHouseAdReportUseCase). No

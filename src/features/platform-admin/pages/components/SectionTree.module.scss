@@ -1,0 +1,210 @@
+@use '../../../../styles/dashboard-forms' as *;
+
+.tree {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid $border-hairline;
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: $text-muted;
+}
+
+.hiddenCount {
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid $hairline;
+  background: $surface-dark;
+  transition: border-color 0.15s, background-color 0.15s, opacity 0.15s;
+
+  &:hover { border-color: $border; }
+}
+
+.selected,
+.selected:hover {
+  border-color: $accent-selected-border;
+  background: $accent-tint;
+}
+
+// Inset bar instead of a border swap so selection and error can coexist.
+.invalid { box-shadow: inset 3px 0 0 $error; }
+
+.hidden .select { opacity: 0.5; }
+
+.dragging { opacity: 0.4; }
+
+.handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 32px;
+  flex-shrink: 0;
+  color: $text-muted;
+  cursor: grab;
+
+  svg { width: 15px; height: 15px; }
+  &:active { cursor: grabbing; }
+}
+
+.select {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  flex: 1;
+  min-width: 0;
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: $text-primary;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
+}
+
+.index {
+  flex-shrink: 0;
+  font-family: $mono;
+  font-size: 10.5px;
+  color: $text-muted;
+}
+
+.type {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summary {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 12.5px;
+  color: $text-secondary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+
+  .iconButton {
+    width: 26px;
+    height: 30px;
+    color: $text-secondary;
+
+    svg { width: 14px; height: 14px; }
+    &:hover:not(:disabled) { color: $text-primary; }
+    &:focus-visible { outline: 2px solid $action; outline-offset: 1px; }
+    &:disabled { opacity: 0.3; }
+  }
+
+  .remove:hover:not(:disabled) {
+    color: $error;
+    background: $error-bg;
+  }
+}
+
+.fixed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 10px;
+  border-radius: 10px;
+  border: 1px dashed $border;
+}
+
+.lockIcon {
+  width: 13px;
+  height: 13px;
+  color: $text-muted;
+}
+
+.fixedLabel {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: $text-secondary;
+}
+
+.global {
+  font-family: $mono;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: $text-muted;
+}
+
+.empty {
+  margin: 0;
+  padding: 22px 12px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.45;
+  color: $text-secondary;
+  border: 1px dashed $dropzone-border;
+  border-radius: 10px;
+}
+
+.footer {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid $border-hairline;
+}
+
+.count {
+  font-family: $mono;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: $text-muted;
+}

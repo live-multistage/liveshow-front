@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import { eventsService } from '../services/events.service';
 import type { EventResponse } from '../types/event.types';
 
@@ -14,7 +14,11 @@ export const eventKeys = {
   photos: (eventId: string) => ['events', 'photos', eventId] as const,
 };
 
-export function useGetEventQuery(id: string, initialData?: EventResponse) {
+export function useGetEventQuery(
+  id: string,
+  initialData?: EventResponse,
+  { refetchInterval }: Pick<UseQueryOptions<EventResponse>, 'refetchInterval'> = {},
+) {
   return useQuery({
     queryKey: eventKeys.detail(id),
     queryFn: () => eventsService.getEvent(id),
@@ -22,6 +26,7 @@ export function useGetEventQuery(id: string, initialData?: EventResponse) {
     initialData,
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,
+    refetchInterval,
   });
 }
 

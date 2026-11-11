@@ -1,5 +1,6 @@
 'use client';
 
+import { watchPath } from '@/features/streaming/utils/watch-route';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -165,7 +166,7 @@ export function TicketPanel({ event, tickets }: Props) {
                 fullWidth
                 icon={<Tv2 size={16} />}
                 className={styles.ticketAction}
-                href={`/live/${event.id}`}
+                href={watchPath(event.id)}
               >
                 {t('watchNow')}
               </Button>
@@ -178,7 +179,7 @@ export function TicketPanel({ event, tickets }: Props) {
                 fullWidth
                 icon={isVod ? <Play size={16} /> : <RotateCcw size={16} />}
                 className={styles.ticketAction}
-                href={`/replay/${event.id}`}
+                href={watchPath(event.id)}
               >
                 {isVod ? t('watch') : t('watchReplay')}
               </Button>
@@ -210,10 +211,7 @@ export function TicketPanel({ event, tickets }: Props) {
   // goes to the player. The player route stays gated by the real access grant —
   // this only removes UI, never authorization.
   if (soleFreeTicket) {
-    const playerHref =
-      (isFinished || isVod) && soleFreeTicket.capabilities.includes('REPLAY_VIEW')
-        ? `/replay/${event.id}`
-        : `/live/${event.id}`;
+    const playerHref = watchPath(event.id);
 
     return (
       <div className={styles.panel}>
@@ -426,7 +424,7 @@ export function TicketPanel({ event, tickets }: Props) {
 
         {hasDemo && (
           <div className={styles.demoLink}>
-            <Link href={`/live/${event.id}`} className={styles.demoBtn}>
+            <Link href={watchPath(event.id)} className={styles.demoBtn}>
               {t('freePreview')}
             </Link>
           </div>
@@ -434,7 +432,7 @@ export function TicketPanel({ event, tickets }: Props) {
 
         {isLive && (
           <div className={styles.demoLink}>
-            <Link href={`/live/${event.id}`} className={styles.demoBtn}>
+            <Link href={watchPath(event.id)} className={styles.demoBtn}>
               {t('freePreview')}
             </Link>
           </div>

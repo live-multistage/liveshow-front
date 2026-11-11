@@ -40,7 +40,7 @@ import { useChangeHouseAdStatusMutation } from '../house-ads/mutations/house-ads
 import type { HouseAdListItem } from '../house-ads/types/house-ads.types';
 
 const reviewAds = [{
-  id: 'ad-1', name: 'Campanha X', orgName: 'Org X', status: 'REVIEW', impressions30d: 100, spend: 5000,
+  id: 'ad-1', name: 'Campanha X', orgName: 'Org X', status: 'REVIEW', impressions30d: 100, spend: 5000, placements: 'PRE_ROLL',
 }];
 
 const houseAd: HouseAdListItem = {
@@ -70,6 +70,21 @@ beforeEach(() => {
 });
 
 describe('PlatformAdsPage — tabs', () => {
+  it('shows the campaign type column derived from placements', () => {
+    render(<PlatformAdsPage />);
+    expect(screen.getByText('Tipo')).toBeInTheDocument();
+    expect(screen.getByText('Vídeo antes')).toBeInTheDocument();
+  });
+
+  it('labels a vitrine campaign by its placement', () => {
+    vi.mocked(usePlatformAdsQuery).mockReturnValue({
+      data: { items: [{ ...reviewAds[0], id: 'ad-9', name: 'Aurora', placements: 'PLAYER_OVERLAY' }], total: 1, limit: 20 },
+      isLoading: false,
+    } as never);
+    render(<PlatformAdsPage />);
+    expect(screen.getByText('Vitrine')).toBeInTheDocument();
+  });
+
   it('defaults to the Revisão tab and keeps its queue unchanged', () => {
     render(<PlatformAdsPage />);
     expect(screen.getByRole('tab', { name: /Revisão/ })).toHaveAttribute('aria-selected', 'true');

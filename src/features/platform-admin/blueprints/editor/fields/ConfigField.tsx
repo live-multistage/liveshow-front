@@ -12,6 +12,7 @@ import { BooleanField } from './BooleanField';
 import { CasesBuilder } from './CasesBuilder';
 import { ConditionBuilder } from './ConditionBuilder';
 import { DurationField } from './DurationField';
+import { MultiEnumField } from './MultiEnumField';
 import { KeyValueListField } from './KeyValueListField';
 import { NumberField } from './NumberField';
 import { RefSelect } from './RefSelect';
@@ -94,6 +95,21 @@ export function ConfigField({ nodeId, entry, name, spec, value, fields, nodeConf
         />
       );
       break;
+    case 'multiEnum': {
+      // data.query lists the chosen entity's fields, which only the catalog's per-option shapes know.
+      const byOption = entry.outputsByOption;
+      const chosen = byOption ? nodeConfig?.[byOption.configKey] : undefined;
+      const optionKeys = byOption ? Object.keys((typeof chosen === 'string' ? byOption.options[chosen] : undefined) ?? {}) : undefined;
+      return (
+        <MultiEnumField
+          id={id}
+          spec={spec}
+          value={Array.isArray(value) ? (value as string[]) : []}
+          optionKeys={optionKeys}
+          onChange={(next) => onChange(next.length === 0 ? undefined : next)}
+        />
+      );
+    }
     case 'uuid':
       if (entry.key === 'mailing.sendEmail' && name === 'templateId') {
         label = t('editor.template.label');

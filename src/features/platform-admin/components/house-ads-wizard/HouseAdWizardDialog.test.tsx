@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import type { HouseAdDetail, HouseAdListItem } from '../../house-ads';
@@ -296,6 +296,7 @@ describe('HouseAdWizardDialog — edit mode', () => {
     bannerUrl: 'https://cdn/existing-banner.jpg',
     videoUrl: null,
     videoDurationSec: null,
+    pauseVariant: null,
   };
 
   function mockDetailResolved(id: string, detail: HouseAdDetail) {
@@ -356,6 +357,7 @@ describe('HouseAdWizardDialog — edit mode', () => {
         format: 'HORIZONTAL_728x90',
         destination: { type: 'EVENT', eventId: 'evt-1' },
         placements: ['FEED'],
+        pauseVariant: null,
         targetDomains: ['ENTERTAINMENT'],
         targetCategories: ['rock'],
         targetAgeBrackets: [],
@@ -393,5 +395,15 @@ describe('HouseAdWizardDialog — edit mode', () => {
     expect(await screen.findByText(/não foi possível carregar os dados do anúncio/i)).toBeInTheDocument();
     expect(continueButton()).toBeDisabled();
     expect(updateMutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('shows the pause variant choice only for the 16:9 image format', () => {
+    renderDialog();
+    expect(screen.queryByRole('radiogroup', { name: 'Variante da pausa' })).toBeNull();
+    fireEvent.click(screen.getByRole('radio', { name: /Imagem 16:9/ }));
+    const group = screen.getByRole('radiogroup', { name: 'Variante da pausa' });
+    expect(within(group).getByRole('radio', { name: /Padrão/ })).toHaveAttribute('aria-checked', 'true');
+    fireEvent.click(within(group).getByRole('radio', { name: /Tela cheia/ }));
+    expect(within(group).getByRole('radio', { name: /Tela cheia/ })).toHaveAttribute('aria-checked', 'true');
   });
 });

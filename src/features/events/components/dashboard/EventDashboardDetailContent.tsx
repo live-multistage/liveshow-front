@@ -14,6 +14,7 @@ import { useUpdateEventMutation } from '../../mutations/update-event.mutation';
 import { usePublishEventMutation, useUnpublishEventMutation, useFinishEventMutation, useResumeLiveMutation } from '../../mutations/publish-event.mutation';
 import { EventHeaderActions } from './EventHeaderActions';
 import { LibrasAccessibilityPanel } from './LibrasAccessibilityPanel';
+import { OverlayAdsPanel } from './OverlayAdsPanel';
 import { useAccessibilityQuery } from '../../queries/get-accessibility';
 import { EventEditForm, editSchema } from './EventEditForm';
 import type { EditFormValues } from './EventEditForm';
@@ -85,6 +86,8 @@ export function EventDashboardDetailContent({
   // Publicly-funded events can't publish until the NBR 15290 gate is satisfied.
   // Default to blocked while the status is still loading (avoids a 400 round-trip).
   const publishBlocked = !!event?.publiclyFunded && !accessibility?.publishable;
+  // Toda resposta de evento traz a escolha do organizador; uma API antiga sem ela esconde o painel.
+  const overlayAds = event?.overlayAds;
 
   const { register, control, handleSubmit, reset, formState: { errors } } = useForm<EditFormValues>({
     resolver: zodResolver(editSchema),
@@ -162,6 +165,7 @@ export function EventDashboardDetailContent({
   // Collaborator orgs get read-only access: backend 403s every mutation, so
   // hide the buttons that would trigger them instead of showing dead ones.
   const readOnly = event.collaborationRole === 'COLLABORATOR';
+  const overlayPanel = overlayAds ? <OverlayAdsPanel eventId={id} overlayAds={overlayAds} readOnly={readOnly} /> : null;
   const hasPhysicalEntry = tickets.some((tk) => tk.capabilities.includes('PHYSICAL_ENTRY'));
 
   return (
@@ -248,6 +252,7 @@ export function EventDashboardDetailContent({
           <EventArtistsSection eventId={id} />
           <EventScheduleEditor eventId={id} />
           <EventCollaboratorsSection eventId={id} readOnly={readOnly} collaborationsEnabled={collaborationsEnabled} />
+          {overlayPanel}
         </div>
       ) : (
         <div className={styles.grid}>
@@ -276,6 +281,8 @@ export function EventDashboardDetailContent({
               <div className={styles.railHead}>{t('detailsTitle')}</div>
               <EventInfoGrid event={event} ticketCount={tickets.length} />
             </div>
+
+            {overlayPanel}
 
             <div className={styles.checklist}>
               <div className={styles.checklistHead}>{t('checklistTitle')}</div>

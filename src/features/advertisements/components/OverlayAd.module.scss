@@ -1,0 +1,110 @@
+// Vitrine: logo sem placa sobre o vídeo. Medidas da Prévia aprovada
+// (showon-anuncio-vitrine, .vt), em cqw da largura do player.
+$mono: var(--font-space-mono), 'Space Mono', monospace;
+
+// A camada cobre o player só para dar as unidades cqw; nada nela recebe clique, só a logo.
+.layer {
+  position: absolute;
+  inset: 0;
+  z-index: 24; // acima do vídeo/PiP/reações (21), abaixo dos controles (30) e do header (35)
+  pointer-events: none;
+  container-type: inline-size;
+}
+
+.item {
+  --vt-inset: 0px;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  text-decoration: none;
+  color: #fff;
+  transition:
+    transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.45s ease;
+
+  &:focus-visible {
+    outline: 2px solid #ff2e9e;
+    outline-offset: 4px;
+    border-radius: 6px;
+  }
+
+  &[data-position='TOP'],
+  &[data-position='BOTTOM'] {
+    width: 24cqw;
+    height: 6cqw;
+    left: 0;
+    right: var(--vt-inset);
+    margin-inline: auto;
+  }
+
+  // Abaixo da borda REAL do header e acima do topo REAL da barra (variáveis do Player.Root);
+  // os rem são só o valor de partida antes da primeira medição.
+  &[data-position='TOP'] { top: calc(var(--player-header-h, 4.5rem) + 8px); }
+  &[data-position='BOTTOM'] { bottom: calc(var(--player-bar-top, 5.5rem) + 8px); }
+  // Em tela cheia o rodapé sobe acima da pílula de recomendados.
+  &[data-position='BOTTOM'][data-raised='true'] { bottom: calc(var(--player-bar-top, 5.5rem) + 8px + 2.1rem); }
+
+  &[data-position='SIDE'] {
+    width: 9.4cqw;
+    height: 14.1cqw;
+    top: 21.1cqw;
+    right: calc(1.4cqw + var(--vt-inset));
+  }
+
+  // Celular: só Topo e Rodapé, com 46% da largura.
+  @media (max-width: 820px) {
+    &[data-position='TOP'],
+    &[data-position='BOTTOM'] {
+      width: 46cqw;
+      height: 11.5cqw;
+    }
+
+    // Logo 2:3 da Lateral no Rodapé: 11.5cqw deixava ~30 px de largura; ~80 px de altura num celular de 390.
+    // Preenche o espaço entre header e barra até esse teto, sem invadir o header.
+    &[data-portrait='true'] {
+      top: calc(var(--player-header-h, 4.5rem) + 8px + 1.4em);
+      height: auto;
+      max-height: 20.5cqw;
+      margin-top: auto;
+    }
+  }
+
+  // Entrada e saída: Deslizar vem da borda da posição, Aparecer é fade + escala.
+  &[data-phase='off'] { opacity: 0; }
+  &[data-phase='out'] { transition-duration: 0.35s; }
+  &[data-phase='off'][data-animation='SLIDE'][data-position='TOP'] { transform: translateY(-170%); }
+  &[data-phase='off'][data-animation='SLIDE'][data-position='BOTTOM'] { transform: translateY(170%); }
+  &[data-phase='off'][data-animation='SLIDE'][data-position='SIDE'] { transform: translateX(160%); }
+  &[data-phase='off'][data-animation='FADE'] { transform: scale(0.92); }
+}
+
+// Sem placa nem fundo: só um contorno de sombra sutil para ler sobre vídeo claro.
+.logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.55)) drop-shadow(0 1px 4px rgba(0, 0, 0, 0.35));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.seal {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -1.3em;
+  font-family: $mono;
+  font-size: clamp(9px, 0.68cqw, 10px);
+  letter-spacing: 0.04em;
+  color: #f4f4f5;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.85), 0 1px 2px rgba(0, 0, 0, 0.7);
+  white-space: nowrap;
+
+  // No Rodapé o selo fica acima da logo, longe da barra de controles.
+  .item[data-position='BOTTOM'] & {
+    bottom: auto;
+    top: -1.4em;
+  }
+}

@@ -80,7 +80,7 @@ export function Inspector({ state, dispatch, catalog, errors, readOnly, highligh
                 value={node.config[name]}
                 nodeConfig={node.config}
                 fields={fields}
-                onChange={(value) => dispatch({ type: 'setConfig', id: node.id, field: name, value })}
+                onChange={(value) => changeConfig(dispatch, node.id, entry, node.config, name, value)}
               />
             </div>
           ))
@@ -163,6 +163,25 @@ export function Inspector({ state, dispatch, catalog, errors, readOnly, highligh
       </fieldset>
     </aside>
   );
+}
+
+// A byOption node's chosen option drives its dependents: picking a system event
+// seeds an empty dedupeKey with that event's registry default, and switching a data.query
+// entity drops selected fields the new entity doesn't have.
+function changeConfig(
+  dispatch: Dispatch<EditorAction>, id: string, entry: BlueprintCatalogEntry,
+  config: Record<string, unknown>, field: string, value: unknown,
+) {
+  dispatch({ type: 'setConfig', id, field, value });
+  const byOption = entry.outputsByOption;
+  if (!byOption || field !== byOption.configKey || typeof value !== 'string') return;
+  // Registry defaults are written against `trigger`; the analyzer wants the node's own id.
+  const defaultKey = entry.dedupeKeyDefaults?.[value]?.replaceAll('{{trigger.', `{{${id}.`);
+  if (defaultKey && !config.dedupeKey) dispatch({ type: 'setConfig', id, field: 'dedupeKey', value: defaultKey });
+  if (Array.isArray(config.fields)) {
+    const kept = config.fields.filter((f) => f in (byOption.options[value] ?? {}));
+    dispatch({ type: 'setConfig', id, field: 'fields', value: kept.length ? kept : undefined });
+  }
 }
 
 // One output leaf/branch (design C4): object fields recurse into their

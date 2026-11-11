@@ -610,6 +610,7 @@
       "platformCoupons": "Cupones",
       "platformSeo": "SEO",
       "platformLegal": "Documentos legales",
+      "platformPages": "Páginas",
       "platformSettings": "Configuración",
       "platformAudit": "Registro de auditoría",
       "channels": "Canales",
@@ -1356,7 +1357,6 @@
     "switchTransmission": "Cambiar transmisión",
     "transmissionNotStartedTitle": "La transmisión aún no comenzó",
     "transmissionNotStartedBody": "La transmisión {title} sale al aire pronto. Mientras tanto, puedes volver a otra transmisión.",
-    "closePanel": "Cerrar",
     "availableToBuy": "Disponible para comprar",
     "unlockFullEvent": "Desbloquear el evento completo"
   },
@@ -1367,7 +1367,8 @@
     "continueWatching": "Seguir viendo",
     "learnMore": "Más información",
     "close": "Cerrar anuncio",
-    "ariaLabel": "Anuncio: {title}"
+    "ariaLabel": "Anuncio: {title}",
+    "overlayAriaLabel": "Patrocinado: {title} (se abre en una pestaña nueva)"
   },
   "controlRoom": {
     "noCameraOnAir": "Ninguna cámara al aire",
@@ -1811,6 +1812,10 @@
       "ad_revenue_share": {
         "name": "Reparto de ingresos por anuncios",
         "description": "Programa de socios y consolidado diario de ingresos por anuncios."
+      },
+      "ads_overlay": {
+        "name": "Vitrina en el reproductor",
+        "description": "Logo animado del anunciante sobre el reproductor; interruptor propio, además de la entrega de anuncios."
       },
       "organizer_applications": {
         "name": "Solicitudes de organizador",
@@ -2520,6 +2525,7 @@
           "typeMismatch": "tipo {type}",
           "personalNotAllowed": "dato personal",
           "dedupeHelp": "Evita dos ejecuciones para la misma persona y evento. Ej.: {example}",
+          "multiEnumEmpty": "Elige primero la entidad para ver los campos disponibles.",
           "jsonNeedsTransform": "tipo diferente (json — usa Transformar)",
           "errorPortSection": "Disponible en el puerto de error",
           "durationUnit": {
@@ -3146,6 +3152,66 @@
         "retry": "Reintentar"
       }
     },
+    "pages": {
+      "title": "Páginas",
+      "subtitle": "Arma páginas públicas con secciones listas — campañas, socios, eventos. El borrador se guarda solo; solo sale al aire cuando publicas.",
+      "new": "Nueva página",
+      "searchLabel": "Buscar páginas",
+      "searchPlaceholder": "Buscar por título o dirección",
+      "filterLabel": "Filtrar por estado",
+      "filters": {
+        "all": "Todas",
+        "published": "Publicadas",
+        "draft": "Borradores",
+        "archived": "Archivadas"
+      },
+      "count": "{shown} de {total} páginas",
+      "cols": {
+        "page": "PÁGINA",
+        "status": "ESTADO",
+        "live": "EN VIVO",
+        "sections": "SECCIONES",
+        "edited": "ÚLTIMA EDICIÓN",
+        "actions": "Acciones"
+      },
+      "status": {
+        "PUBLISHED": "PUBLICADA",
+        "DRAFT": "BORRADOR",
+        "ARCHIVED": "ARCHIVADA"
+      },
+      "pending": "CAMBIOS SIN PUBLICAR",
+      "openPublic": "Ver página pública de {title}",
+      "loadError": "No se pudieron cargar las páginas.",
+      "retry": "Intentar de nuevo",
+      "empty": {
+        "title": "Aún no hay páginas",
+        "body": "Arma páginas de campañas, socios y eventos con secciones listas. Nada sale al aire hasta que publiques.",
+        "cta": "Crear la primera página"
+      },
+      "noResults": "No se encontró ninguna página para “{q}”.",
+      "noResultsStatus": "Ninguna página con este estado.",
+      "clearSearch": "Limpiar búsqueda",
+      "dialog": {
+        "title": "Nueva página",
+        "desc": "Nace como borrador y solo es pública cuando publicas.",
+        "titleLabel": "Título",
+        "slugLabel": "Dirección",
+        "slugHint": "Letras minúsculas, números y guiones. Generada a partir del título.",
+        "slugFormat": "Usa solo letras minúsculas, números y guiones.",
+        "slugReserved": "Esta dirección está reservada por la plataforma.",
+        "slugTaken": "Esta dirección ya está en uso.",
+        "startLabel": "Punto de partida",
+        "blank": "En blanco",
+        "blankHint": "Empieza sin secciones.",
+        "dup": "Duplicar página existente",
+        "dupHint": "Copia las secciones del borrador de otra página.",
+        "dupSelect": "Página a duplicar",
+        "cancel": "Cancelar",
+        "create": "Crear y abrir editor",
+        "creating": "Creando…",
+        "genericError": "No se pudo crear la página. Inténtalo de nuevo."
+      }
+    },
     "legal": {
       "title": "Documentos legales",
       "subtitle": "Términos de Uso y Política de Privacidad. Cada publicación crea una versión nueva; las anteriores quedan en el historial público.",
@@ -3235,6 +3301,714 @@
         "open": "Abrir",
         "single": "Esta es la primera versión.",
         "loadError": "No se pudo cargar el historial."
+      }
+    },
+    "pageEditor": {
+      "backToList": "Páginas",
+      "status": {
+        "draft": "BORRADOR",
+        "archived": "ARCHIVADA",
+        "unpublished": "CAMBIOS SIN PUBLICAR",
+        "published": "PUBLICADA · V{version}",
+        "unpublishedHint": "El borrador difiere de la versión publicada"
+      },
+      "save": {
+        "saving": "Guardando…",
+        "saved": "Borrador guardado a las {time}",
+        "invalid": "Corrige los campos para guardar",
+        "error": "No se pudo guardar",
+        "conflict": "Borrador desactualizado",
+        "blocked": "No se pudo guardar",
+        "retry": "Reintentar"
+      },
+      "banner": {
+        "error": "No se pudo guardar el borrador. Reintentando…",
+        "retry": "Reintentar ahora",
+        "conflict": "{name} guardó este borrador a las {time} mientras editabas. Recarga para ver su versión; tus cambios sin guardar se descartarán.",
+        "conflictAnonymous": "Otro admin guardó este borrador a las {time} mientras editabas. Recarga para ver su versión; tus cambios sin guardar se descartarán.",
+        "reload": "Recargar",
+        "reloadError": "No se pudo recargar. Inténtalo de nuevo."
+      },
+      "topbar": {
+        "deviceGroup": "Dispositivo de la vista previa",
+        "desktop": "Escritorio",
+        "mobile": "Celular",
+        "history": "Historial",
+        "settings": "Configuración",
+        "preview": "Vista previa en pestaña nueva",
+        "publish": "Publicar",
+        "tablet": "Tablet",
+        "undo": "Deshacer",
+        "redo": "Rehacer"
+      },
+      "tree": {
+        "title": "SECCIONES · {count}",
+        "hiddenOne": "{count} OCULTA",
+        "hiddenMany": "{count} OCULTAS",
+        "aria": "Secciones de la página",
+        "dragHandle": "Arrastra para reordenar",
+        "hiddenPrefix": "Oculta · ",
+        "hide": "Ocultar sección {name}",
+        "show": "Mostrar sección {name}",
+        "moveUp": "Mover {name} hacia arriba",
+        "moveDown": "Mover {name} hacia abajo",
+        "duplicate": "Duplicar sección {name}",
+        "remove": "Quitar sección {name}",
+        "add": "Agregar sección",
+        "empty": "Aún no hay secciones.",
+        "siteHeader": "Encabezado del sitio",
+        "siteFooter": "Pie del sitio",
+        "global": "GLOBAL",
+        "removed": "Sección quitada",
+        "undo": "Deshacer"
+      },
+      "railSource": {
+        "category": "Categoría",
+        "organization": "Organización",
+        "artist": "Artista",
+        "live": "En vivo ahora"
+      },
+      "sectionTypes": {
+        "hero": "Hero",
+        "audience": "Franja de audiencia",
+        "text": "Texto",
+        "features": "Recursos",
+        "how": "Cómo funciona",
+        "media": "Imagen o video",
+        "stats": "Números",
+        "rail": "Carrusel de eventos",
+        "featured": "Evento destacado",
+        "pricing": "Planes y precios",
+        "faq": "Preguntas frecuentes",
+        "final": "Llamada final"
+      },
+      "inspector": {
+        "pageTitle": "PÁGINA",
+        "emptyHint": "Selecciona una sección en la lista o en la vista previa para editarla.",
+        "close": "Cerrar",
+        "heading": "{name} · SECCIÓN {index}",
+        "hiddenNotice": "Esta sección está oculta y no aparece en la página publicada.",
+        "show": "Mostrar",
+        "content": "CONTENIDO",
+        "appearance": "APARIENCIA",
+        "visibility": "VISIBILIDAD",
+        "listHint": "Un elemento por línea. Separa título y texto con “ — ”.",
+        "textHint": "Separa los párrafos con una línea en blanco. Usa **negrita**, *cursiva* y [texto](enlace).",
+        "field": {
+          "eyebrow": "Eyebrow",
+          "title": "Título",
+          "subtitle": "Subtítulo",
+          "text": "Texto",
+          "body": "Texto",
+          "primaryCtaLabel": "Botón principal",
+          "primaryCtaHref": "Enlace del botón principal",
+          "secondaryCtaLabel": "Botón secundario",
+          "secondaryCtaHref": "Enlace del botón secundario",
+          "ctaLabel": "Botón",
+          "ctaHref": "Enlace del botón",
+          "counterValue": "Número {n}",
+          "counterLabel": "Etiqueta {n}",
+          "features": "Elementos (uno por línea: título — texto)",
+          "steps": "Pasos (uno por línea: título — texto)",
+          "stats": "Números (uno por línea: valor — etiqueta)",
+          "plans": "Planes (uno por línea: nombre — precio)",
+          "faq": "Preguntas (una por línea: pregunta — respuesta)",
+          "caption": "Leyenda",
+          "alt": "Texto alternativo",
+          "mediaKind": "Tipo de medio",
+          "mediaImage": "Imagen",
+          "mediaVideo": "Video",
+          "mediaUrl": "Enlace del medio (https)",
+          "imageUrl": "Enlace de la imagen (https)",
+          "imageAlt": "Texto alternativo de la imagen",
+          "railSource": "Origen de los eventos",
+          "railLimit": "Cantidad máxima",
+          "railCategory": "Categoría del evento",
+          "railOrganization": "Organización",
+          "railArtist": "Artista",
+          "featuredEvent": "Evento destacado"
+        },
+        "upload": {
+          "button": "Subir imagen",
+          "uploading": "Subiendo…",
+          "invalid": "Sube una imagen PNG, JPG o WebP de hasta 5 MB.",
+          "error": "No se pudo subir la imagen. Inténtalo de nuevo."
+        },
+        "background": {
+          "label": "Fondo",
+          "default": "Predeterminado",
+          "accent": "Destacado",
+          "image": "Imagen"
+        },
+        "spacing": {
+          "label": "Espaciado",
+          "compact": "Compacto",
+          "normal": "Normal",
+          "wide": "Amplio"
+        },
+        "showOn": {
+          "label": "Mostrar en",
+          "all": "Todos",
+          "desktop": "Solo escritorio",
+          "mobile": "Solo móvil"
+        },
+        "visible": "Sección visible en la página",
+        "itemError": "Elemento {n}: {message}",
+        "listUnsafe": "Este campo tiene elementos con “ — ” o salto de línea y no se puede editar aquí sin perder datos."
+      },
+      "library": {
+        "title": "AÑADIR SECCIÓN",
+        "position": "POSICIÓN {n}",
+        "close": "Cerrar biblioteca",
+        "dialog": "Biblioteca de secciones",
+        "add": "Añadir {name}",
+        "search": "Buscar sección",
+        "categories": "Categorías",
+        "category": {
+          "all": "Todas",
+          "open": "Apertura",
+          "content": "Contenido",
+          "events": "Eventos",
+          "conv": "Conversión"
+        },
+        "full": "Esta página alcanzó el límite de {max} secciones.",
+        "none": "No se encontraron secciones.",
+        "desc": {
+          "hero": "Apertura con título grande, llamada y medio de fondo.",
+          "audience": "Frase corta con contadores, justo debajo del hero.",
+          "text": "Título y párrafos con negrita, cursiva y enlace.",
+          "features": "2 a 6 elementos con ícono, título y texto.",
+          "how": "3 a 5 pasos numerados.",
+          "media": "Un medio ancho con leyenda.",
+          "stats": "2 a 4 estadísticas destacadas.",
+          "rail": "Eventos del catálogo por categoría, organización, artista o en vivo ahora.",
+          "featured": "Un evento elegido, con fecha, precio y botón de compra.",
+          "pricing": "2 o 3 columnas de planes con precio y beneficios.",
+          "faq": "3 a 12 preguntas en acordeón.",
+          "final": "Título grande y un botón para cerrar la página."
+        }
+      },
+      "preview": {
+        "frame": "Vista previa de la página",
+        "globalHeader": "ENCABEZADO GLOBAL",
+        "globalFooter": "PIE GLOBAL",
+        "emptyTitle": "Esta página aún no tiene secciones",
+        "emptyText": "Empieza con un Hero y arma la página de arriba hacia abajo.",
+        "addFirst": "Añadir primera sección",
+        "insertBefore": "Insertar sección antes de {name}",
+        "insertEnd": "Añadir sección al final",
+        "select": "Seleccionar sección {name}",
+        "hiddenBadge": "OCULTA · NO APARECE EN LA PÁGINA PUBLICADA",
+        "noRail": "No hay eventos para mostrar ahora.",
+        "noFeatured": "Elige un evento para mostrar aquí.",
+        "toolbar": {
+          "label": "Barra de la sección",
+          "up": "Subir",
+          "down": "Bajar",
+          "hide": "Ocultar",
+          "show": "Mostrar"
+        }
+      },
+      "publish": {
+        "title": "Publicar versión {version}",
+        "description": "La página /p/{slug} pasa a mostrar este borrador. La versión {live} queda en el historial.",
+        "descriptionFirst": "La página /p/{slug} sale al aire con este borrador.",
+        "changes": "QUÉ CAMBIA",
+        "saving": "Guardando el borrador…",
+        "nothing": "No cambió nada desde la versión {version}.",
+        "nothingFirst": "Todavía no hay nada para publicar.",
+        "addedOne": "{count} elemento agregado",
+        "addedMany": "{count} elementos agregados",
+        "removedOne": "{count} elemento eliminado",
+        "removedMany": "{count} elementos eliminados",
+        "editedOne": "{count} editado",
+        "editedMany": "{count} editados",
+        "hiddenOne": "{count} oculto",
+        "hiddenMany": "{count} ocultos",
+        "summary": "Resumen del cambio",
+        "summaryHint": "Aparece en el historial de versiones.",
+        "cancel": "Cancelar",
+        "confirm": "Publicar versión {version}",
+        "publishing": "Publicando…",
+        "error": "No se pudo publicar. Inténtalo de nuevo.",
+        "published": "Versión {version} publicada",
+        "viewPage": "Ver página ↗",
+        "tipConflict": "Recarga antes de publicar",
+        "tipArchived": "Desarchiva la página antes de publicar",
+        "tipInvalidOne": "Corrige {count} campo antes de publicar",
+        "tipInvalidMany": "Corrige {count} campos antes de publicar",
+        "tipEmpty": "Agrega al menos una sección",
+        "tipNothing": "No cambió nada desde la versión {version}",
+        "tipNothingFirst": "Agrega contenido para publicar"
+      },
+      "history": {
+        "label": "Historial de versiones",
+        "heading": "HISTORIAL",
+        "close": "Cerrar",
+        "draft": "BORRADOR ACTUAL",
+        "draftAt": "guardado a las {time}",
+        "draftDiffers": "Tiene cambios respecto a la versión {version}.",
+        "draftSame": "Igual a la versión {version}.",
+        "version": "VERSIÓN {number}",
+        "live": "AL AIRE",
+        "unknownAuthor": "Sistema",
+        "restore": "Restaurar en el borrador",
+        "empty": "Aún no hay versiones publicadas.",
+        "loadError": "No se pudo cargar el historial.",
+        "restoreTitle": "¿Restaurar la versión {number} en el borrador?",
+        "restoreText": "El borrador actual será reemplazado. La página publicada no cambia hasta que publiques de nuevo.",
+        "restoreConfirm": "Restaurar",
+        "restoreError": "No se pudo restaurar. Inténtalo de nuevo.",
+        "cancel": "Cancelar",
+        "restoreWaitSave": "Espera a que el borrador termine de guardarse para restaurar."
+      },
+      "settings": {
+        "label": "Configuración de la página",
+        "heading": "CONFIGURACIÓN DE LA PÁGINA",
+        "close": "Cerrar",
+        "general": "GENERAL",
+        "title": "Título",
+        "address": "Dirección",
+        "addressPrefix": "showon.io/p/",
+        "addressPublishedWarning": "Esta página está publicada: al cambiar la dirección, la anterior deja de funcionar.",
+        "seo": "SEO",
+        "seoTitle": "Título para buscadores",
+        "seoDescription": "Descripción",
+        "seoImage": "Imagen para compartir (enlace https)",
+        "noindex": "No indexar en los buscadores",
+        "dangerZone": "ZONA DE RIESGO",
+        "unpublish": "Despublicar",
+        "unpublishHint": "La página sale del aire (404). El borrador y el historial quedan.",
+        "archive": "Archivar",
+        "archiveHint": "Sale del aire y desaparece de la lista predeterminada. Se puede restaurar.",
+        "unarchive": "Desarchivar",
+        "unarchiveHint": "La página vuelve a la lista de páginas.",
+        "cancel": "Cancelar",
+        "save": "Guardar configuración",
+        "saving": "Guardando…",
+        "required": "Obligatorio.",
+        "slugFormat": "Usa solo letras minúsculas, números y guion.",
+        "slugReserved": "Esta dirección está reservada por la plataforma.",
+        "slugInUse": "Esta dirección ya está en uso.",
+        "imageInvalid": "Usa un enlace https://.",
+        "error": "No se pudo guardar. Inténtalo de nuevo.",
+        "unpublishConfirmTitle": "¿Despublicar esta página?",
+        "unpublishConfirmText": "La página sale del aire (404). El borrador y el historial quedan.",
+        "archiveConfirmTitle": "¿Archivar esta página?",
+        "archiveConfirmText": "La página sale del aire y desaparece de la lista predeterminada. Se puede restaurar."
+      },
+      "notFound": {
+        "title": "Página no encontrada",
+        "text": "Puede haber sido eliminada o la dirección es incorrecta.",
+        "back": "Volver a Páginas"
+      },
+      "loadError": {
+        "title": "No se pudo cargar la página",
+        "retry": "Intentar de nuevo"
+      },
+      "unsupported": {
+        "title": "Edita páginas en un computador",
+        "text": "El constructor necesita una pantalla más grande. La lista y la vista previa siguen disponibles aquí.",
+        "back": "Volver a Páginas"
+      }
+    },
+    "pageEditorV2": {
+      "types": {
+        "section": "Sección",
+        "columns": "Columnas",
+        "column": "Columna",
+        "group": "Grupo en línea",
+        "heading": "Título",
+        "text": "Texto",
+        "label": "Sello",
+        "button": "Botón",
+        "image": "Imagen",
+        "video": "Video",
+        "divider": "Divisor",
+        "spacer": "Espaciador",
+        "iconList": "Lista",
+        "counter": "Número",
+        "faq": "Preguntas",
+        "plan": "Plan",
+        "eventRail": "Carrusel de eventos",
+        "featuredEvent": "Evento destacado",
+        "liveNow": "En vivo ahora"
+      },
+      "banner": {
+        "converted": "Esta página se convirtió al nuevo editor.",
+        "convertedText": "Cada sección se convirtió en un bloque editable. La versión publicada sigue igual hasta que publiques de nuevo.",
+        "compare": "Comparar con la publicada",
+        "dismiss": "Cerrar aviso",
+        "conflict": "{name} guardó esta página a las {time}.",
+        "conflictAnonymous": "Otro admin guardó esta página a las {time}.",
+        "conflictText": "Para no sobrescribir su trabajo, se bloqueó la edición. Tus últimos cambios quedaron solo en este navegador.",
+        "copy": "Copiar mis cambios",
+        "copied": "Copiado",
+        "load": "Cargar versión actual",
+        "reloadError": "No se pudo cargar. Inténtalo de nuevo."
+      },
+      "panels": {
+        "add": "Agregar",
+        "layers": "Capas",
+        "inspector": "Inspector",
+        "canvas": "Vista previa de la página"
+      },
+      "readOnly": {
+        "title": "Esta página usa el nuevo editor",
+        "text": "El editor actual no abre páginas del nuevo formato. Mira la vista previa abajo; para editar, el nuevo editor debe estar activo.",
+        "back": "Volver a páginas"
+      },
+      "dataLabels": {
+        "railPlaceholder": "Carrusel de eventos",
+        "railNoneLive": "Ningún evento en vivo ahora",
+        "railNoneCategory": "Ningún evento para “{category}”",
+        "railNoneFilter": "Ningún evento para este filtro",
+        "railHidden": "En la página publicada este carrusel queda oculto hasta que haya eventos.",
+        "featuredPlaceholder": "Evento destacado",
+        "featuredUnavailable": "Evento no disponible",
+        "featuredUnavailableText": "Fue cancelado o dejó de ser público. En la página publicada este bloque no aparece."
+      },
+      "add": {
+        "tabs": {
+          "widgets": "Widgets",
+          "blocks": "Bloques"
+        },
+        "search": "Buscar widget",
+        "none": "No se encontraron widgets.",
+        "realData": "Datos reales",
+        "groups": {
+          "structure": "Estructura",
+          "basic": "Básico",
+          "content": "Contenido",
+          "events": "Eventos"
+        },
+        "reasonRoot": "Directo en la página solo entran secciones. Selecciona una sección para agregar aquí.",
+        "reasonParent": "{parent} no acepta {child} dentro.",
+        "slotEmpty": "Suelta un widget aquí"
+      },
+      "blocks": {
+        "ready": "Bloques listos",
+        "mine": "Mis bloques",
+        "loading": "Cargando tus bloques…",
+        "error": "No se pudieron cargar tus bloques.",
+        "retry": "Intentar de nuevo",
+        "mineEmpty": "Aún no guardaste ningún bloque. Selecciona una sección, columnas o columna en Capas y usa “Guardar como bloque”.",
+        "insert": "Insertar {name}",
+        "emptyTitle": "Empieza con un bloque listo",
+        "emptyText": "Elige un bloque abajo o agrega una sección vacía en la pestaña Widgets y arma con columnas y widgets.",
+        "insertOpening": "Insertar “Apertura”",
+        "save": {
+          "eyebrow": "Mis bloques",
+          "title": "Guardar como bloque",
+          "name": "Nombre del bloque",
+          "summary": "{type} · {count} elementos",
+          "note": "El bloque aparece en “Agregar › Bloques” para todas las páginas. Cada uso es una copia: editar el bloque después no cambia las páginas que ya lo usan.",
+          "cancel": "Cancelar",
+          "submit": "Guardar bloque",
+          "saved": "Bloque “{name}” guardado",
+          "error": "No se pudo guardar el bloque. Intenta de nuevo.",
+          "invalid": "El bloque tiene campos inválidos.",
+          "forbidden": "No tienes permiso para gestionar bloques."
+        },
+        "emptySection": "Sección vacía"
+      },
+      "layers": {
+        "title": "Capas",
+        "empty": "La página aún no tiene elementos.",
+        "expand": "Expandir",
+        "collapse": "Contraer",
+        "overrides": "Tiene estilos propios para tablet (T) y/o celular (C)",
+        "error": "Tiene un error",
+        "moveUp": "Mover arriba",
+        "moveDown": "Mover abajo",
+        "moveOut": "Sacar del padre",
+        "saveAsBlock": "Guardar como bloque",
+        "hide": "Ocultar en {bp}",
+        "show": "Mostrar en {bp}"
+      },
+      "inspector": {
+        "empty": {
+          "title": "Nada seleccionado",
+          "text": "Haz clic en un elemento de la página o de las capas para editar contenido, estilo y comportamiento."
+        },
+        "inPage": "en la página",
+        "insideOf": "dentro de {name}",
+        "errorsOne": "1 ERROR",
+        "errorsMany": "{count} ERRORES",
+        "actions": {
+          "selectParent": "Seleccionar el elemento padre",
+          "duplicate": "Duplicar",
+          "delete": "Eliminar"
+        },
+        "tabs": {
+          "label": "Propiedades",
+          "content": "Contenido",
+          "style": "Estilo",
+          "advanced": "Avanzado"
+        },
+        "content": {
+          "text": "Texto",
+          "level": "Nivel",
+          "levelHint": "Solo un H1 por página. El nivel afecta al SEO y a los lectores de pantalla, no al tamaño.",
+          "textHelp": "**negrita**, *cursiva* y [enlace](/ruta). Separa los párrafos con una línea en blanco. Sin HTML.",
+          "buttonLabel": "Texto del botón",
+          "href": "Enlace",
+          "hrefHint": "Ruta del sitio (/eventos), https:// o #ancla de una sección.",
+          "newTab": "Abrir en una pestaña nueva",
+          "imageUrl": "Dirección de la imagen",
+          "alt": "Texto alternativo",
+          "videoUrl": "Enlace del vídeo",
+          "videoHint": "Vídeo de YouTube, de Vimeo o de la biblioteca de la plataforma.",
+          "counterValue": "Número",
+          "counterLabel": "Leyenda",
+          "item": "Elemento {n}",
+          "removeItem": "Quitar elemento {n}",
+          "addItem": "Elemento",
+          "question": "Pregunta {n}",
+          "moveUp": "Subir pregunta {n}",
+          "questionText": "Pregunta",
+          "answerText": "Respuesta",
+          "addQuestion": "Pregunta",
+          "planName": "Nombre",
+          "planPrice": "Precio",
+          "planDescription": "Descripción",
+          "planCtaLabel": "Texto del botón",
+          "planCtaHref": "Enlace del botón",
+          "railTitle": "Título del carrusel",
+          "railSource": "Origen de los eventos",
+          "source": {
+            "category": "Categoría",
+            "organization": "Organización",
+            "artist": "Artista",
+            "live": "En vivo"
+          },
+          "limit": "Cantidad",
+          "railHint": "La página solo guarda el filtro. Los eventos se buscan cuando el visitante abre la página, con la misma regla de la home: solo eventos públicos.",
+          "featuredCta": "Texto del botón",
+          "liveEmptyText": "Texto cuando no haya eventos en vivo",
+          "none": {
+            "section": "Usa la pestaña Estilo para fondo, espaciado y ancho.",
+            "columns": "Usa la pestaña Estilo para el número de columnas y la proporción.",
+            "column": "La columna guarda elementos. Arrastra elementos dentro de ella.",
+            "group": "Coloca elementos uno al lado del otro, con salto de línea automático.",
+            "divider": "Sin contenido. Ajusta en la pestaña Estilo.",
+            "spacer": "Sin contenido. Ajusta en la pestaña Estilo."
+          },
+          "railEmpty": "Ningún evento coincide con este filtro hoy. En la página publicada el carrusel queda oculto.",
+          "featuredMissing": "El evento elegido ya no está disponible. Fue cancelado o dejó de ser público."
+        },
+        "style": {
+          "bp": {
+            "desktop": "escritorio",
+            "tablet": "tablet",
+            "mobile": "móvil"
+          },
+          "baseNote": "Escritorio es la base. Tablet y móvil heredan de aquí.",
+          "editingNote": "Editando {bp}. Lo que cambies vale solo a partir de este tamaño.",
+          "overridden": "Ajustado para {bp}",
+          "inherits": "hereda de {from}",
+          "reset": "volver a heredar",
+          "resetField": "Volver a heredar {field}",
+          "group": {
+            "aspect": "Proporción",
+            "text": "Texto",
+            "button": "Botón",
+            "background": "Fondo",
+            "layout": "Diseño",
+            "spacing": "Espaciado",
+            "box": "Borde y sombra"
+          },
+          "key": {
+            "typo": "Estilo de texto",
+            "color": "Color",
+            "bg": "Fondo",
+            "p": "Espacio interno",
+            "pt": "Arriba",
+            "pb": "Abajo",
+            "pl": "A la izquierda",
+            "pr": "A la derecha",
+            "gap": "Espacio entre elementos",
+            "my": "Espacio externo",
+            "h": "Altura",
+            "radius": "Esquinas",
+            "border": "Borde",
+            "shadow": "Sombra",
+            "align": "Alineación",
+            "valign": "Alineación vertical",
+            "halign": "Alineación de los elementos",
+            "maxw": "Ancho del texto",
+            "width": "Ancho del contenido",
+            "minh": "Altura mínima",
+            "cols": "Número de columnas",
+            "ratio": "Proporción de las columnas",
+            "variant": "Variante",
+            "size": "Tamaño",
+            "full": "Ancho completo",
+            "aspect": "Proporción"
+          },
+          "color": {
+            "bg": "Fondo",
+            "surface": "Superficie",
+            "surfaceDark": "Superficie oscura",
+            "accent": "Magenta oscuro",
+            "action": "Magenta",
+            "violet": "Violeta",
+            "price": "Rosa",
+            "textPrimary": "Texto",
+            "textSecondary": "Texto secundario",
+            "textMuted": "Texto apagado",
+            "border": "Borde"
+          },
+          "gradient": {
+            "glow": "Brillo magenta",
+            "duo": "Magenta y violeta",
+            "night": "Noche"
+          },
+          "imageBackground": "Imagen con velo",
+          "imageHint": "La imagen recibe un velo oscuro del sistema para mantener el contraste del texto.",
+          "typo": {
+            "hero": "Destacado",
+            "display": "Título 1",
+            "xxl": "Título 2",
+            "xl": "Título 3",
+            "lg": "Texto destacado",
+            "md": "Cuerpo",
+            "sm": "Cuerpo pequeño",
+            "label": "Rótulo"
+          },
+          "auto": "Auto",
+          "total": "Total",
+          "opt": {
+            "align": {
+              "start": "Izquierda",
+              "center": "Centro",
+              "end": "Derecha"
+            },
+            "halign": {
+              "start": "Inicio",
+              "center": "Centro",
+              "end": "Fin"
+            },
+            "valign": {
+              "start": "Arriba",
+              "center": "Centro",
+              "end": "Abajo",
+              "stretch": "Estirar"
+            },
+            "maxw": {
+              "narrow": "Estrecho",
+              "prose": "Lectura"
+            },
+            "width": {
+              "narrow": "Estrecho",
+              "contained": "Estándar",
+              "wide": "Ancho",
+              "full": "Total"
+            },
+            "minh": {
+              "tall": "Alta",
+              "screen": "Pantalla"
+            },
+            "border": {
+              "none": "Sin borde",
+              "faint": "Sutil",
+              "default": "Estándar",
+              "strong": "Fuerte",
+              "accent": "Magenta"
+            },
+            "shadow": {
+              "none": "Ninguna",
+              "card": "Tarjeta",
+              "glow": "Brillo"
+            },
+            "variant": {
+              "primary": "Principal",
+              "secondary": "Contorno",
+              "light": "Claro",
+              "ghost": "Enlace"
+            },
+            "size": {
+              "sm": "P",
+              "md": "M",
+              "lg": "G"
+            }
+          }
+        },
+        "advanced": {
+          "visibility": "Visibilidad por dispositivo",
+          "visibleOn": "Visible en {bp}",
+          "anchor": "Ancla",
+          "anchorPlaceholder": "p. ej.: programacion",
+          "anchorHint": "Permite enlaces como #{anchor}. Letras minúsculas, números y guion.",
+          "layerName": "Nombre en las capas",
+          "elementId": "ID del elemento",
+          "elementIdHint": "Se usa en el historial y en la comparación de publicación."
+        }
+      },
+      "canvas": {
+        "crumbs": "Ruta de la selección",
+        "page": "PÁGINA",
+        "devices": {
+          "desktop": "Escritorio",
+          "tablet": "Tablet",
+          "mobile": "Celular"
+        },
+        "emptyText": "Arrastra un bloque desde la izquierda o agrega una sección vacía y arma con columnas y widgets.",
+        "dropHere": "Suelta aquí",
+        "slotHint": "o usa “Agregar” en el panel de la izquierda",
+        "dropLabel": "Soltar aquí",
+        "badDrop": "No puede ir aquí"
+      },
+      "publish": {
+        "eyebrow": "PUBLICAR",
+        "title": "Publicar versión {version}",
+        "description": "La página /p/{slug} pasa a mostrar este borrador.",
+        "compared": "Comparado con la versión {version}:",
+        "comparedSince": "Comparado con la versión {version} (en vivo desde {since}):",
+        "comparedFirst": "Primera publicación de esta página.",
+        "saving": "Guardando el borrador…",
+        "nothing": "Nada cambió desde la versión {version}.",
+        "nothingFirst": "Aún no hay nada para publicar.",
+        "counter": {
+          "added": "AGREGADOS",
+          "edited": "EDITADOS",
+          "removed": "ELIMINADOS",
+          "hidden": "OCULTOS"
+        },
+        "movedOne": "1 elemento cambió de lugar.",
+        "movedMany": "{count} elementos cambiaron de lugar.",
+        "responsiveOne": "Incluye ajustes de estilo para celular en 1 elemento.",
+        "responsiveMany": "Incluye ajustes de estilo para celular en {count} elementos.",
+        "dataNote": "Los carruseles y destacados usan los eventos del momento en que el visitante abra la página.",
+        "summary": "Resumen del cambio",
+        "liveIn": "La página queda en vivo en hasta 1 minuto en {host}/p/{slug}.",
+        "cancel": "Cancelar",
+        "close": "Cerrar",
+        "confirm": "Publicar versión {version}",
+        "publishing": "Publicando…",
+        "error": "No se pudo publicar. Inténtalo de nuevo.",
+        "blockedOne": "Corrige 1 error antes de publicar",
+        "blockedMany": "Corrige {count} errores antes de publicar",
+        "blockedHint": "El borrador sigue guardado. Haz clic en un error para ir al elemento.",
+        "in": "en",
+        "unavailable": "Evento no disponible"
+      },
+      "phone": {
+        "title": "Edita en una pantalla más grande",
+        "text": "El editor de páginas necesita al menos 1024px de ancho. En el celular puedes ver la vista previa del borrador.",
+        "preview": "Abrir vista previa",
+        "back": "Volver a páginas",
+        "backToNotice": "Volver"
+      },
+      "puck": {
+        "viewport-switch-default": "Cambiar tamaño",
+        "plugin-components": "Agregar",
+        "plugin-outline": "Capas",
+        "plugin-fields": "Inspector",
+        "action-selectparent": "Seleccionar el elemento padre",
+        "action-drag": "Arrastrar",
+        "action-duplicate": "Duplicar",
+        "action-delete": "Eliminar"
       }
     },
     "seo": {

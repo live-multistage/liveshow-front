@@ -19,9 +19,10 @@ interface Props {
   eventTitle: string;
   coverUrl?: string | null;
   adsEnabled?: boolean;
+  startAtSeconds?: number | null;
 }
 
-export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }: Props) {
+export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true, startAtSeconds = null }: Props) {
   const t = useTranslations('liveGate');
   const { isLoading: authLoading } = useAuth();
   const access = useReplayAccessQuery(eventId, !authLoading);
@@ -29,7 +30,7 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
   // Fetched next to playback and never awaited: the player must not wait
   // for (or fail on) chapters.
   const chapters = useReplayChaptersQuery(eventId, access.data === true);
-  const preroll = usePrerollGate(eventId, adsEnabled);
+  const preroll = usePrerollGate(eventId, adsEnabled, access.data === true && playback.data?.available === true);
   const [prerollDone, setPrerollDone] = useState(false);
 
   if (authLoading || access.isLoading) {
@@ -89,6 +90,7 @@ export function ReplayGate({ eventId, eventTitle, coverUrl, adsEnabled = true }:
       timeline={playback.data.timeline}
       adsEnabled={adsEnabled}
       chapters={chapters.data}
+      startAtSeconds={startAtSeconds}
     />
   );
 }

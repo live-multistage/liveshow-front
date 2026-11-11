@@ -195,7 +195,35 @@ export interface PlatformSettingsView {
   defaultFeeRate: number;
   cartTaxRate: number;
   blueprintHttpAllowlist: string[];
+  // Lance mínimo (centavos) da pausa por variante e modelo.
+  adPauseMinCpmStandardCents: number;
+  adPauseMinCpcStandardCents: number;
+  adPauseMinCpmFullscreenCents: number;
+  adPauseMinCpcFullscreenCents: number;
+  // Vitrine (PLAYER_OVERLAY): lance mínimo (centavos) e limites por espectador.
+  adOverlayMinCpmCents: number;
+  adOverlayMinCpcCents: number;
+  adOverlayGlobalMinIntervalMin: number;
+  adOverlayMaxPerHour: number;
+  adOverlayFirstAfterMin: number;
 }
+
+export type AdPauseMinimums = Pick<
+  PlatformSettingsView,
+  | 'adPauseMinCpmStandardCents'
+  | 'adPauseMinCpcStandardCents'
+  | 'adPauseMinCpmFullscreenCents'
+  | 'adPauseMinCpcFullscreenCents'
+>;
+
+export type AdOverlaySettings = Pick<
+  PlatformSettingsView,
+  | 'adOverlayMinCpmCents'
+  | 'adOverlayMinCpcCents'
+  | 'adOverlayGlobalMinIntervalMin'
+  | 'adOverlayMaxPerHour'
+  | 'adOverlayFirstAfterMin'
+>;
 
 // Audit trail entry (GET /platform-admin/audit).
 export interface AuditLogEntry {
@@ -208,6 +236,20 @@ export interface AuditLogEntry {
   targetLabel: string | null;
   metadata: Record<string, unknown> | null;
   createdAt: string;
+  // Origin + change detail (audit trail phase 1). Optional so rows written
+  // before the columns existed, or served by an older API, still render.
+  ip?: string | null;
+  userAgent?: string | null;
+  requestId?: string | null;
+  // Set when a SUPER_ADMIN acted while impersonating `actor`.
+  impersonator?: AuditImpersonator | null;
+  before?: Record<string, unknown> | null;
+  after?: Record<string, unknown> | null;
+}
+
+export interface AuditImpersonator {
+  id: string;
+  name: string | null;
 }
 
 // Filtered + paginated audit read (GET /platform-admin/audit/search).
@@ -243,6 +285,9 @@ export interface PlatformEventRow {
   orgId: string;
   orgName: string;
   status: string;
+  /** Not sent by every back version yet; the page-builder event picker uses it when present. */
+  visibility?: 'PRIVATE' | 'UNLISTED' | 'PUBLIC';
+  format?: string;
   startsAt: string;
   camerasCount: number;
   category: string;
@@ -309,6 +354,17 @@ export interface AdDetail {
     targetDomains: string[];
     targetCategories: string[];
     bannerUrl: string | null;
+    videoUrl: string | null;
+    videoDurationSec: number | null;
+    /** STANDARD | FULLSCREEN for PLAYER_PAUSE; null otherwise (and on legacy rows). */
+    pauseVariant: 'STANDARD' | 'FULLSCREEN' | null;
+    /** Vitrine (PLAYER_OVERLAY): os seis campos juntos; null nos demais tipos. */
+    overlayPosition?: 'TOP' | 'BOTTOM' | 'SIDE' | null;
+    overlayAnimation?: 'SLIDE' | 'FADE' | null;
+    overlayDurationSec?: 5 | 8 | 10 | 15 | null;
+    overlayMinIntervalMin?: 10 | 20 | 30 | null;
+    overlayRunsLive?: boolean | null;
+    overlayRunsReplay?: boolean | null;
     frequencyCapMax: number | null;
     frequencyCapWindow: string | null;
     billingModel: string;

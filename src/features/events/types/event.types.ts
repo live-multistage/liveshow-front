@@ -11,6 +11,7 @@ export type {
   VenueData,
   EventOrganization,
   EventResponse,
+  EventOverlayAds,
   AccessibilityStatus,
   PaginatedEventsResponse,
   MyEventsStatusFilter,

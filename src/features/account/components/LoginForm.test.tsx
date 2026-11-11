@@ -138,3 +138,24 @@ describe('LoginForm — login_failed tracking', () => {
     expect(track).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('LoginForm — credentials never go in the URL', () => {
+  beforeEach(() => {
+    mockedLogin.mockReturnValue({ mutate: vi.fn(), isPending: false, error: null } as never);
+    mockedResend.mockReturnValue({ mutate: vi.fn(), isPending: false, error: null } as never);
+  });
+
+  it('server HTML posts the form and keeps submit disabled until hydration', async () => {
+    const { renderToString } = await import('react-dom/server');
+    const html = renderToString(<LoginForm />);
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    expect(container.querySelector('form')?.getAttribute('method')).toBe('post');
+    expect(container.querySelector('button[type="submit"]')?.hasAttribute('disabled')).toBe(true);
+  });
+
+  it('enables submit once hydrated', () => {
+    render(<LoginForm />);
+    expect(screen.getByRole('button', { name: 'submit' })).not.toBeDisabled();
+  });
+});

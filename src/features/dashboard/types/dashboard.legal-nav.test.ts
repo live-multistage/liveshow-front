@@ -20,3 +20,17 @@ describe('SUPER_ADMIN nav: SEO and legal documents', () => {
     expect(keys).not.toContain('platformLegal');
   });
 });
+
+describe('SUPER_ADMIN nav: pages', () => {
+  it('lists Páginas in CONFIG & GOVERNANÇA behind the page_builder flag', () => {
+    expect(NAV_BY_ROLE.SUPER_ADMIN.find((i) => i.navKey === 'platformPages')).toEqual(
+      expect.objectContaining({ href: '/dashboard/platform/pages', group: 'CONFIG & GOVERNANÇA', flag: 'page_builder' }),
+    );
+  });
+
+  it('sits after legal documents and before SEO, like the prototype', () => {
+    const keys = NAV_BY_ROLE.SUPER_ADMIN.map((i) => i.navKey);
+    expect(keys.indexOf('platformPages')).toBe(keys.indexOf('platformLegal') + 1);
+    expect(keys.indexOf('platformSeo')).toBe(keys.indexOf('platformPages') + 1);
+  });
+});

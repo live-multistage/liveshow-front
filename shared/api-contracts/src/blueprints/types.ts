@@ -17,6 +17,7 @@ export type BlueprintConfigField =
   | { kind: 'ref'; type: BlueprintFieldType; required: boolean; description: string }
   | { kind: 'text'; template: boolean; acceptsPersonal: boolean; maxLength: number; required: boolean; description: string }
   | { kind: 'enum'; values: string[]; required: boolean; description: string }
+  | { kind: 'multiEnum'; values: readonly string[]; maxItems: number; required: boolean; description: string }
   | { kind: 'uuid'; required: boolean; description: string }
   | { kind: 'datetimeExpr'; required: boolean; description: string }
   | { kind: 'condition'; required: boolean; description: string }
@@ -30,6 +31,8 @@ export type BlueprintConfigField =
 export interface BlueprintSwitchCase { match: string | number | boolean; port: string }
 
 export interface BlueprintOutputField { type: BlueprintFieldType; class: BlueprintFieldClass; description: string; port?: string }
+
+export interface BlueprintOutputsByOption { configKey: string; options: Record<string, Record<string, BlueprintOutputField>> }
 
 export interface BlueprintCatalogEntry {
   key: string;
@@ -45,7 +48,9 @@ export interface BlueprintCatalogEntry {
   mode?: 'dispatch' | 'call';
   secretFields?: string[];
   dynamicPorts?: 'switch';
-  dynamicOutputs?: 'forEach';
+  dynamicOutputs?: 'forEach' | 'byOption';
+  outputsByOption?: BlueprintOutputsByOption;
+  dedupeKeyDefaults?: Record<string, string>;
 }
 
 export type BlueprintAnalysisCode =

@@ -1,0 +1,84 @@
+@use '../../../../styles/_variables' as *;
+
+$mono: var(--font-space-mono), 'Space Mono', monospace;
+
+.form { display: flex; flex-direction: column; gap: 1rem; }
+.field { display: flex; flex-direction: column; gap: 0.375rem; }
+
+.label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $text-primary;
+}
+.count { font-family: $mono; font-size: 0.65rem; font-weight: 400; color: $text-muted; }
+
+.input, .select, .prefix {
+  width: 100%;
+  height: 2.375rem;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: $surface-dark;
+  color: $text-primary;
+  padding: 0 0.75rem;
+  font-size: 0.84rem;
+
+  &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
+}
+
+.prefix {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  overflow: hidden;
+  span { font-family: $mono; font-size: 0.75rem; color: $text-muted; padding-left: 0.75rem; white-space: nowrap; }
+  &:focus-within { outline: 2px solid $action; outline-offset: 2px; }
+}
+.slugInput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: $text-primary;
+  padding: 0 0.75rem 0 0.125rem;
+  font-family: $mono;
+  font-size: 0.78rem;
+  outline: none;
+}
+.bad { border-color: $error; }
+
+.hint { font-size: 0.75rem; line-height: 1.45; color: $text-muted; }
+.error { margin: 0; font-size: 0.75rem; color: $error; }
+
+.radios { display: flex; flex-direction: column; gap: 0.5rem; }
+.radio {
+  display: flex;
+  gap: 0.625rem;
+  align-items: flex-start;
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid $border;
+  background: $surface-dark;
+  color: $text-primary;
+  text-align: left;
+  font-size: 0.84rem;
+  cursor: pointer;
+
+  &[aria-disabled='true'] { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $action; outline-offset: 2px; }
+}
+.on { border-color: $action; background: $action-dim; }
+.dot {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  border-radius: 50%;
+  border: 2px solid $text-muted;
+  .on & { border-color: $action; background: $action; box-shadow: inset 0 0 0 3px $surface-dark; }
+}
+.grow { flex: 1; }
+.select { margin-top: 0.625rem; }

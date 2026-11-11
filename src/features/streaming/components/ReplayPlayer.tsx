@@ -34,6 +34,8 @@ interface ReplayPlayerProps {
   // Chapters marked on the replay (GET /events/:id/replay-chapters). Undefined
   // or empty renders the player exactly as without the feature.
   chapters?: ReplayChapter[];
+  // Seconds into the default window to open on (?t= on /watch). Wins over saved progress.
+  startAtSeconds?: number | null;
   // Granted transmissions, each with its own replay window. Absent = legacy
   // flattened props above (the default stream's view).
   streams?: ReplayPlaybackStream[];
@@ -77,7 +79,7 @@ const clampToWindow = (ms: number, w: ReplayEventTimeline) => Math.min(Math.max(
 // camera is still its own independent VOD timeline underneath (no frame-
 // accurate cross-camera sync), a real, harder problem deliberately left for
 // later.
-export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCameraId = null, librasCameraId = null, title, eventId, timeline: eventTimeline, adsEnabled = true, chapters, streams: rawStreams, defaultStreamId, lockedStreams }: ReplayPlayerProps) {
+export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCameraId = null, librasCameraId = null, title, eventId, timeline: eventTimeline, adsEnabled = true, chapters, streams: rawStreams, defaultStreamId, lockedStreams, startAtSeconds = null }: ReplayPlayerProps) {
   const t = useTranslations('player');
 
   const cameras = useMemo(() => rawCameras.map(toLiveCamera), [rawCameras]);
@@ -184,17 +186,19 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
   // início da timeline (linhas já existem nesse formato — ver report abaixo).
   const resumeApplied = useRef(false);
   useEffect(() => {
-    if (resumeApplied.current || !progress || !progressWindow || !timeline) return;
-    const saved = progress.find((p) => p.eventId === eventId);
+    if (resumeApplied.current || !progressWindow || !timeline) return;
+    // Um ?t= explícito não espera (nem consulta) o progresso salvo.
+    if (startAtSeconds === null && !progress) return;
     resumeApplied.current = true;
     // resumeSeconds já vem 0 quando o evento foi concluído ou quando a posição
     // é pequena demais — a regra é do servidor, não recalcular aqui.
-    if (!saved || saved.resumeSeconds <= 0) return;
+    const resumeSeconds = startAtSeconds ?? progress?.find((p) => p.eventId === eventId)?.resumeSeconds ?? 0;
+    if (resumeSeconds <= 0) return;
     // Relative to the default window, landed inside the one on screen.
-    const resumeAbsoluteMs = clampToWindow(progressWindow.startsAtMs + saved.resumeSeconds * 1000, timeline);
+    const resumeAbsoluteMs = clampToWindow(progressWindow.startsAtMs + resumeSeconds * 1000, timeline);
     setSeekCommand({ time: resumeAbsoluteMs, token: Date.now() });
     setPositionMs(resumeAbsoluteMs);
-  }, [progress, eventId, progressWindow, timeline]);
+  }, [progress, eventId, progressWindow, timeline, startAtSeconds]);
 
   // CameraGrid only reports progress for the PRIMARY panel, and it reports in
   // that camera's own local seconds — its coverage is what converts that back
@@ -322,6 +326,7 @@ export function ReplayPlayer({ cameras: rawCameras, stages: rawStages, primaryCa
       )}
 
       <Player.Overlay />
+      <Player.Vitrine />
     </Player.Root>
   );
 }

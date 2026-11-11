@@ -8,6 +8,7 @@ import { Input } from '@live-show/design-system';
 import { eventsService } from '@/features/events/services/events.service';
 import { eventKeys } from '@/features/events/queries/get-event';
 import { platformAdminService } from '../../services/platform-admin.service';
+import type { PlatformEventRow } from '../../types/platform-admin.types';
 import styles from './EventPicker.module.scss';
 
 const dateFormatter = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/Sao_Paulo' });
@@ -16,9 +17,19 @@ interface Props {
   value: string[];
   max: 1 | 3;
   onChange(ids: string[]): void;
+  /** Only events a page may feature (see `isFeaturableEventRow`). Off by default: the mailing keeps listing everything. */
+  featurable?: boolean;
 }
 
-export function EventPicker({ value, max, onChange }: Props) {
+// Same rule as the back's isFeaturableEvent (page resolver): only PUBLIC events are featured; UNLISTED (direct link), draft,
+// cancelled, private and channel containers are out. `visibility`/`format` are optional on the row: an older back that does not send
+// them leaves only the status check here, and the publish refuses the rest with FEATURED_UNAVAILABLE.
+export const isFeaturableEventRow = (row: Pick<PlatformEventRow, 'status' | 'visibility' | 'format'>): boolean =>
+  row.status !== 'DRAFT' && row.status !== 'CANCELLED'
+  && (row.visibility === undefined || row.visibility === 'PUBLIC')
+  && row.format !== 'CHANNEL';
+
+export function EventPicker({ value, max, onChange, featurable = false }: Props) {
   const t = useTranslations('platformAdmin.mailing');
   const uid = useId();
   const [input, setInput] = useState('');
@@ -41,7 +52,7 @@ export function EventPicker({ value, max, onChange }: Props) {
   });
 
   const full = value.length >= max;
-  const items = search.data?.items ?? [];
+  const items = (search.data?.items ?? []).filter((row) => !featurable || isFeaturableEventRow(row));
 
   return (
     <fieldset className={styles.picker}>

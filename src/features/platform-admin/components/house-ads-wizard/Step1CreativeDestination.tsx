@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
-import type { HouseAdFormat } from '../../house-ads';
+import type { AdPauseVariant, HouseAdFormat } from '../../house-ads';
 import { EventDestinationSearch } from './EventDestinationSearch';
 import type { WizardDraft } from './useHouseAdWizardForm';
 import { isValidHttpsUrl } from './useHouseAdWizardForm';
@@ -14,6 +14,11 @@ const FORMAT_OPTIONS: { value: HouseAdFormat; name: string; spec: string }[] = [
   { value: 'VERTICAL_300x600', name: 'Banner 300×600', spec: 'Imagem' },
   { value: 'WIDE_16_9', name: 'Imagem 16:9', spec: 'Mín. 1280×720' },
   { value: 'VIDEO_16_9', name: 'Vídeo 16:9', spec: 'MP4 · até 30s' },
+];
+
+const PAUSE_VARIANT_OPTIONS: { value: AdPauseVariant; name: string; spec: string }[] = [
+  { value: 'STANDARD', name: 'Padrão', spec: 'Card da transmissão à esquerda' },
+  { value: 'FULLSCREEN', name: 'Tela cheia', spec: 'Só o criativo e os controles' },
 ];
 
 interface Props {
@@ -76,6 +81,28 @@ export function Step1CreativeDestination({ draft, update, setFormat, setCreative
           ))}
         </div>
       </div>
+
+      {draft.format === 'WIDE_16_9' && (
+        <div className={styles.card}>
+          <div className={styles.cardHead}><span>VARIANTE DA PAUSA</span></div>
+          <div className={styles.formatGrid} role="radiogroup" aria-label="Variante da pausa">
+            {PAUSE_VARIANT_OPTIONS.map((v) => (
+              <button
+                key={v.value}
+                type="button"
+                role="radio"
+                aria-checked={draft.pauseVariant === v.value}
+                className={`${styles.formatCard} ${draft.pauseVariant === v.value ? styles.formatCardActive : ''}`}
+                onClick={() => update('pauseVariant', v.value)}
+              >
+                <span className={styles.formatName}>{v.name}</span>
+                <span className={styles.formatSpec}>{v.spec}</span>
+              </button>
+            ))}
+          </div>
+          <p className={styles.hint}>No celular a pausa é sempre Tela cheia, qualquer que seja a variante.</p>
+        </div>
+      )}
 
       <div className={styles.card}>
         <div className={styles.cardHead}><span>CRIATIVO</span></div>

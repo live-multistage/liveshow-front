@@ -1,0 +1,175 @@
+{
+ "schemaVersion": 2,
+ "context": {
+  "type": "none"
+ },
+ "root": {
+  "props": {}
+ },
+ "content": [
+  {
+   "type": "section",
+   "props": {
+    "id": "00000020-5555-4555-8555-555555555555",
+    "items": [
+     {
+      "type": "heading",
+      "props": {
+       "id": "00000001-5555-4555-8555-555555555555",
+       "text": "Titulo",
+       "tag": "h2"
+      }
+     },
+     {
+      "type": "columns",
+      "props": {
+       "id": "00000019-5555-4555-8555-555555555555",
+       "items": [
+        {
+         "type": "column",
+         "props": {
+          "id": "00000012-5555-4555-8555-555555555555",
+          "items": [
+           {
+            "type": "text",
+            "props": {
+             "id": "00000002-5555-4555-8555-555555555555",
+             "text": "Texto **forte**"
+            }
+           },
+           {
+            "type": "group",
+            "props": {
+             "id": "00000005-5555-4555-8555-555555555555",
+             "items": [
+              {
+               "type": "button",
+               "props": {
+                "id": "00000003-5555-4555-8555-555555555555",
+                "label": "Entrar",
+                "href": "/entrar"
+               }
+              },
+              {
+               "type": "label",
+               "props": {
+                "id": "00000004-5555-4555-8555-555555555555",
+                "text": "Novo"
+               }
+              }
+             ]
+            }
+           },
+           {
+            "type": "image",
+            "props": {
+             "id": "00000006-5555-4555-8555-555555555555",
+             "url": "https://showon.io/a.png",
+             "alt": "Capa"
+            }
+           },
+           {
+            "type": "video",
+            "props": {
+             "id": "00000007-5555-4555-8555-555555555555",
+             "url": "https://youtu.be/abc"
+            }
+           },
+           {
+            "type": "divider",
+            "props": {
+             "id": "00000008-5555-4555-8555-555555555555"
+            }
+           },
+           {
+            "type": "spacer",
+            "props": {
+             "id": "00000009-5555-4555-8555-555555555555"
+            }
+           },
+           {
+            "type": "iconList",
+            "props": {
+             "id": "00000010-5555-4555-8555-555555555555",
+             "items": [
+              "Um",
+              "Dois",
+              "Tres"
+             ]
+            }
+           },
+           {
+            "type": "counter",
+            "props": {
+             "id": "00000011-5555-4555-8555-555555555555",
+             "value": "10k",
+             "label": "Eventos"
+            }
+           },
+           {
+            "type": "faq",
+            "props": {
+             "id": "00000013-5555-4555-8555-555555555555",
+             "items": [
+              {
+               "question": "P1?",
+               "answer": "R1"
+              },
+              {
+               "question": "P2?",
+               "answer": "R2"
+              }
+             ]
+            }
+           },
+           {
+            "type": "plan",
+            "props": {
+             "id": "00000014-5555-4555-8555-555555555555",
+             "name": "Pro",
+             "price": "R$ 10",
+             "description": "Plano",
+             "cta": {
+              "label": "Assinar",
+              "href": "/assinar"
+             }
+            }
+           },
+           {
+            "type": "eventRail",
+            "props": {
+             "id": "00000015-5555-4555-8555-555555555555",
+             "title": "Eventos",
+             "source": {
+              "kind": "live"
+             },
+             "limit": 4
+            }
+           },
+           {
+            "type": "featuredEvent",
+            "props": {
+             "id": "00000016-5555-4555-8555-555555555555",
+             "eventId": "11111111-1111-4111-8111-111111111111",
+             "ctaLabel": "Ver"
+            }
+           },
+           {
+            "type": "liveNow",
+            "props": {
+             "id": "00000017-5555-4555-8555-555555555555",
+             "limit": 4,
+             "emptyText": "Nada agora"
+            }
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,5 +1,6 @@
 'use client';
 
+import { watchPath } from '@/features/streaming/utils/watch-route';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { PurchasedTicket } from '../types/ticket.types';
@@ -24,11 +25,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
     ? t('allCameras')
     : t('cameras', { count: camerasLimit });
 
-  const watchHref = isLive
-    ? `/live/${event.id}`
-    : hasReplay
-      ? `/replay/${event.id}`
-      : null;
+  const watchHref = isLive || hasReplay ? watchPath(event.id) : null;
 
   const watchLabel = isLive ? t('watchNow') : hasReplay ? t('watchReplay') : t('watch');
   const coverImage = event.thumbnailUrl ?? event.bannerUrl;

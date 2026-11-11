@@ -28,7 +28,7 @@ export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }
   const access = useLiveAccessQuery(eventId, !authLoading);
   const authorized = access.data === true;
   const playback = useLivePlaybackQuery(eventId, authorized, { playing: true });
-  const preroll = usePrerollGate(eventId, adsEnabled);
+  const preroll = usePrerollGate(eventId, adsEnabled, authorized && playback.data?.live === true);
   const [prerollDone, setPrerollDone] = useState(false);
 
   if (authLoading || access.isLoading) {
@@ -86,7 +86,7 @@ export function LiveGate({ eventId, eventTitle, chatEnabled, adsEnabled = true }
     );
   }
 
-  // Deep link from a chat-mention notification (/live/:id?stream=…). Only a
+  // Deep link from a chat-mention notification (/watch/:id?stream=…, old /live links redirect here). Only a
   // transmission this viewer was actually granted; anything else falls back
   // to the server default instead of the first stream.
   const defaultStreamId =

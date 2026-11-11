@@ -9,6 +9,7 @@ import {
   useUploadHouseAdVideoMutation,
   useChangeHouseAdStatusMutation,
   useHouseAdQuery,
+  type AdPauseVariant,
   type CreateHouseAdRequest,
   type HouseAdDetail,
   type HouseAdFormat,
@@ -35,6 +36,8 @@ export interface WizardDraft {
   creativeFileName: string | null;
   creativeError: string | null;
   placements: HouseAdPlacement[];
+  // Só vale com PLAYER_PAUSE; Padrão por default.
+  pauseVariant: AdPauseVariant;
   targetDomains: string[];
   targetCategories: string[];
   targetAgeBrackets: AgeBracket[];
@@ -59,6 +62,7 @@ const EMPTY_DRAFT: WizardDraft = {
   creativeFileName: null,
   creativeError: null,
   placements: [],
+  pauseVariant: 'STANDARD',
   targetDomains: [],
   targetCategories: [],
   targetAgeBrackets: [],
@@ -95,6 +99,8 @@ function draftFromAd(ad: HouseAdListItem): WizardDraft {
 function mergeDetailIntoDraft(draft: WizardDraft, detail: HouseAdDetail): WizardDraft {
   return {
     ...draft,
+    // Anúncio de pausa legado (sem variante) vale Padrão.
+    pauseVariant: detail.pauseVariant ?? 'STANDARD',
     targetDomains: detail.targetDomains,
     targetCategories: detail.targetCategories,
     targetAgeBrackets: detail.targetAgeBrackets,
@@ -156,6 +162,12 @@ function destinationOf(draft: WizardDraft) {
     : { type: 'EXTERNAL_URL' as const, url: draft.destinationUrl.trim() };
 }
 
+// Variante só existe com PLAYER_PAUSE. Fora dela o backend exige null; no
+// create basta omitir, no PATCH é preciso mandar null para limpar.
+function pauseVariantOf(draft: WizardDraft): AdPauseVariant | null {
+  return draft.placements.includes('PLAYER_PAUSE') ? draft.pauseVariant : null;
+}
+
 // Create always sends the full targeting the wizard collected — there's
 // nothing to preserve yet.
 export function buildCreatePayload(draft: WizardDraft): CreateHouseAdRequest {
@@ -164,6 +176,7 @@ export function buildCreatePayload(draft: WizardDraft): CreateHouseAdRequest {
     format: draft.format as HouseAdFormat,
     destination: destinationOf(draft),
     placements: draft.placements,
+    ...(pauseVariantOf(draft) ? { pauseVariant: pauseVariantOf(draft) } : {}),
     targetDomains: draft.targetDomains,
     targetCategories: draft.targetCategories,
     ...(draft.targetAgeBrackets.length > 0 ? { targetAgeBrackets: draft.targetAgeBrackets } : {}),
@@ -192,6 +205,7 @@ export function buildUpdatePayload(draft: WizardDraft, targetingLoaded: boolean)
     format: draft.format as HouseAdFormat,
     destination: destinationOf(draft),
     placements: draft.placements,
+    pauseVariant: pauseVariantOf(draft),
     ...(targetingLoaded
       ? {
           targetDomains: draft.targetDomains,
