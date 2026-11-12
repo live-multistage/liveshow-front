@@ -12,6 +12,12 @@ vi.mock('@/features/events/components/public/editorial/EditorialHero', () => ({
   ),
 }));
 
+vi.mock('./OrganizerAcquisitionHero', () => ({
+  OrganizerAcquisitionHero: ({ applicationsOpen }: { applicationsOpen?: boolean }) => (
+    <div data-testid="acquisition">{String(applicationsOpen)}</div>
+  ),
+}));
+
 import { HomeHeroFallback } from './HomeHeroFallback';
 
 function makeEvent(overrides: Partial<EventResponse>): EventResponse {
@@ -55,10 +61,17 @@ describe('HomeHeroFallback', () => {
     expect(screen.queryByTestId('hero-skeleton')).not.toBeInTheDocument();
   });
 
-  it('renders nothing when the feed settles with no events', () => {
+  it('invites organizers when the feed settles with no events', () => {
     query.mockReturnValue({ data: { pages: [page([])] }, isFetching: false });
-    const { container } = render(<HomeHeroFallback />);
+    render(<HomeHeroFallback applicationsOpen={false} />);
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByTestId('acquisition')).toHaveTextContent('false');
+  });
+
+  it('invites organizers when the feed failed and there is nothing to show', () => {
+    query.mockReturnValue({ data: undefined, isFetching: false, isError: true });
+    render(<HomeHeroFallback />);
+
+    expect(screen.getByTestId('acquisition')).toBeInTheDocument();
   });
 });

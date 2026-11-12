@@ -426,6 +426,30 @@
       "loadError": "Couldn't load more rails",
       "retry": "Try again",
       "seeAllEvents": "See the full schedule"
+    },
+    "acquisition": {
+      "label": "For organizers",
+      "title": "Stream your live event",
+      "titleAccent": "and sell tickets in one place.",
+      "subtitle": "Concerts, games, conferences and classes on multiple cameras, with digital tickets, payments and replay. No platform to build.",
+      "cta": "Become a partner",
+      "ctaHint": "Takes under 5 minutes.",
+      "ctaClosed": "Applications closed for now",
+      "secondary": "See how it works",
+      "proofsLabel": "What you get",
+      "cameras": {
+        "title": "Multiple cameras",
+        "text": "Viewers pick the angle, you control the broadcast."
+      },
+      "tickets": {
+        "title": "Tickets and payments ready",
+        "text": "Sell online and get paid without integrating anything."
+      },
+      "replay": {
+        "title": "Replay when the event ends",
+        "text": "Anyone who missed it can still watch, and you keep selling."
+      },
+      "finalTitle": "Your first event could be here."
     }
   },
   "language": {
