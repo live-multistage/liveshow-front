@@ -426,6 +426,30 @@
       "loadError": "Não foi possível carregar mais trilhos",
       "retry": "Tentar de novo",
       "seeAllEvents": "Ver toda a programação"
+    },
+    "acquisition": {
+      "label": "Para organizadores",
+      "title": "Transmita seu evento ao vivo",
+      "titleAccent": "e venda ingressos no mesmo lugar.",
+      "subtitle": "Shows, jogos, conferências e aulas em múltiplas câmeras, com ingresso digital, pagamento e replay. Sem montar plataforma.",
+      "cta": "Quero ser parceiro",
+      "ctaHint": "Leva menos de 5 minutos.",
+      "ctaClosed": "Inscrições fechadas no momento",
+      "secondary": "Ver como funciona",
+      "proofsLabel": "O que você ganha",
+      "cameras": {
+        "title": "Várias câmeras",
+        "text": "O público escolhe o ângulo, você controla a transmissão."
+      },
+      "tickets": {
+        "title": "Ingressos e pagamento prontos",
+        "text": "Venda online e receba sem integrar nada."
+      },
+      "replay": {
+        "title": "Replay ao fim do evento",
+        "text": "Quem perdeu ainda assiste, e você segue vendendo."
+      },
+      "finalTitle": "Seu primeiro evento pode estar aqui."
     }
   },
   "language": {

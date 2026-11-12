@@ -13,9 +13,10 @@ import styles from './EditorialHomeContent.module.scss';
 
 interface Props {
   initialPage: HomeRailsResponse | null;
+  applicationsOpen?: boolean;
 }
 
-export function EditorialHome({ initialPage }: Props) {
+export function EditorialHome({ initialPage, applicationsOpen }: Props) {
   const t = useTranslations('home');
   const heroSlides = pickHeroSlides(initialPage?.rails ?? []).map(eventToShow);
 
@@ -31,7 +32,7 @@ export function EditorialHome({ initialPage }: Props) {
         {heroSlides.length > 0 ? (
           <EditorialHero slides={heroSlides} />
         ) : (
-          <HomeHeroFallback initialPage={initialPage ?? undefined} />
+          <HomeHeroFallback initialPage={initialPage ?? undefined} applicationsOpen={applicationsOpen} />
         )}
       </Suspense>
       <Suspense fallback={null}>

@@ -426,6 +426,30 @@
       "loadError": "No se pudieron cargar más filas",
       "retry": "Intentar de nuevo",
       "seeAllEvents": "Ver toda la programación"
+    },
+    "acquisition": {
+      "label": "Para organizadores",
+      "title": "Transmite tu evento en vivo",
+      "titleAccent": "y vende entradas en un solo lugar.",
+      "subtitle": "Conciertos, partidos, conferencias y clases con múltiples cámaras, con entrada digital, pago y repetición. Sin armar una plataforma.",
+      "cta": "Quiero ser socio",
+      "ctaHint": "Toma menos de 5 minutos.",
+      "ctaClosed": "Inscripciones cerradas por ahora",
+      "secondary": "Ver cómo funciona",
+      "proofsLabel": "Lo que ganas",
+      "cameras": {
+        "title": "Varias cámaras",
+        "text": "El público elige el ángulo, tú controlas la transmisión."
+      },
+      "tickets": {
+        "title": "Entradas y pago listos",
+        "text": "Vende en línea y cobra sin integrar nada."
+      },
+      "replay": {
+        "title": "Repetición al terminar el evento",
+        "text": "Quien no pudo verlo aún puede, y tú sigues vendiendo."
+      },
+      "finalTitle": "Tu primer evento puede estar aquí."
     }
   },
   "language": {

@@ -3,6 +3,7 @@ import { applySeo, getSeoForPage } from '@/features/seo';
 import { PageJsonLd } from '@/features/seo/components/PageJsonLd';
 import { EditorialHome } from '@/features/events/components/public/EditorialHome';
 import { fetchHomeRails } from '@/features/home';
+import { fetchFeatureFlags } from '@/features/feature-flags';
 
 // Home-specific <title>/description: the layout default is just "showon.io",
 // which says nothing to a search result. `absolute` skips the "· showon.io"
@@ -26,10 +27,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Home() {
   // One fetch: the rail feed decides what the home shows (live, channels,
   // recommendations, categories…) — including which rail headlines the hero.
-  const initialPage = await fetchHomeRails();
+  const [initialPage, flags] = await Promise.all([fetchHomeRails(), fetchFeatureFlags()]);
   return (
     <>
-      <EditorialHome initialPage={initialPage} />
+      <EditorialHome initialPage={initialPage} applicationsOpen={flags.organizer_applications} />
       <PageJsonLd pageKey="home" path="/" />
     </>
   );
