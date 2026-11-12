@@ -25,22 +25,6 @@ $rail-gutter-mobile: 20px;
   cursor: pointer;
 }
 
-// ── Empty ─────────────────────────────────────────────────────────
-
-.empty {
-  padding: 120px $rail-gutter 140px;
-  text-align: center;
-  border: 1px dashed $border-hairline;
-  border-radius: 16px;
-  font-family: var(--font-space-mono), 'Space Mono', monospace;
-  font-size: 13px;
-  color: $text-secondary;
-
-  @media (max-width: $md - 1) {
-    padding: 120px $rail-gutter-mobile 140px;
-  }
-}
-
 // ── Next-page error ───────────────────────────────────────────────
 
 .error {

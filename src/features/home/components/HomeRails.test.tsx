@@ -195,12 +195,12 @@ describe('HomeRails', () => {
     expect(observerInstances[0].observe).toHaveBeenCalledTimes(1);
   });
 
-  it('renders the empty state when the feed settled with zero rails', () => {
+  it('renders nothing when the feed settled with zero rails (the hero invites organizers)', () => {
     setQuery({ hasNextPage: false });
 
     render(<HomeRails />);
 
-    expect(screen.getByText('noShows')).toBeInTheDocument();
+    expect(screen.queryByText('noShows')).not.toBeInTheDocument();
     expect(screen.queryByTestId('rail')).not.toBeInTheDocument();
   });
 
