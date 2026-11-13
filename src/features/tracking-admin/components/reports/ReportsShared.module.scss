@@ -18,7 +18,7 @@ $error-border: #f87171;
 }
 
 .tab {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   color: var(--muted-foreground);
   padding: 10px 2px 12px;
@@ -50,7 +50,7 @@ $error-border: #f87171;
 }
 
 .fieldLabel {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: 0.14em;
   color: $dim;
@@ -107,7 +107,7 @@ $error-border: #f87171;
 }
 
 .mono {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: $dim;
 }
@@ -115,7 +115,7 @@ $error-border: #f87171;
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
 
   thead th {
@@ -180,7 +180,7 @@ $error-border: #f87171;
 }
 
 .stepIndex {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: $accent;
   font-weight: 700;
@@ -203,7 +203,7 @@ $error-border: #f87171;
   background: none;
   border: none;
   color: $accent;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   cursor: pointer;
 }
@@ -287,7 +287,7 @@ $error-border: #f87171;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10.5px;
   color: $dim;
   margin-top: 12px;

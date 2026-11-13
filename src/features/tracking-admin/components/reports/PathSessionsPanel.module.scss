@@ -57,7 +57,7 @@ $secondary: #a1a1aa;
 }
 
 .chip {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   padding: 4px 9px;
   border-radius: 6px;
@@ -73,7 +73,7 @@ $secondary: #a1a1aa;
 }
 
 .meta {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: $dim;
 }
@@ -107,7 +107,7 @@ $secondary: #a1a1aa;
   gap: 4px 12px;
   padding: 11px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
 
   &:hover {
     background: rgba(255, 255, 255, 0.03);

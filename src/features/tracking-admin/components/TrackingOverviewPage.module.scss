@@ -10,7 +10,7 @@ $muted-text: #a1a1aa;
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: .1em;
   color: $muted-text;
@@ -41,14 +41,14 @@ $muted-text: #a1a1aa;
 }
 
 .kpiLabel {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .1em;
   color: $dim;
 }
 
 .kpiValue {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 28px;
   font-weight: 700;
   color: var(--kpi-accent, var(--foreground));
@@ -61,7 +61,7 @@ $muted-text: #a1a1aa;
 }
 
 .kpiSub {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: var(--kpi-sub-color, #{$dim});
 }
@@ -69,7 +69,7 @@ $muted-text: #a1a1aa;
 .pill, .pillWarn {
   display: inline-flex;
   align-items: center;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: .06em;
@@ -111,7 +111,7 @@ $muted-text: #a1a1aa;
 }
 
 .mono {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: $dim;
 }
@@ -129,7 +129,7 @@ $muted-text: #a1a1aa;
   flex-direction: column;
   justify-content: space-between;
   height: 200px;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   color: #52525b;
   text-align: right;
@@ -159,7 +159,7 @@ $muted-text: #a1a1aa;
   display: flex;
   gap: 6px;
   margin-top: 8px;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   color: #52525b;
 
@@ -197,7 +197,7 @@ $muted-text: #a1a1aa;
 }
 
 .topEventName {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   color: var(--foreground);
   flex: 1;
@@ -208,7 +208,7 @@ $muted-text: #a1a1aa;
 }
 
 .topEventCount {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   color: $muted-text;
 }
@@ -239,13 +239,13 @@ $muted-text: #a1a1aa;
 }
 
 .sourceName {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13px;
   color: var(--foreground);
 }
 
 .link {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: $accent-light;
 }
@@ -303,7 +303,7 @@ $muted-text: #a1a1aa;
 }
 
 .emptyLink {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   color: $accent-light;
 }

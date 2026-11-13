@@ -8,7 +8,7 @@ $warning-bg: rgba(234, 179, 8, .12);
 $enum-purple: #b9a6ff;
 
 .mono {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
 }
 
 .muted { color: var(--muted-foreground); }
@@ -110,7 +110,7 @@ $enum-purple: #b9a6ff;
 }
 
 .countPill {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
   color: $warning;
@@ -132,7 +132,7 @@ $enum-purple: #b9a6ff;
   grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) 110px 70px 90px;
   gap: 12px;
   padding: 13px 20px;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .12em;
   color: var(--muted-foreground);
@@ -159,7 +159,7 @@ $enum-purple: #b9a6ff;
 .eventCell { min-width: 0; }
 
 .eventName {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13.5px;
 }
 
@@ -179,7 +179,7 @@ $enum-purple: #b9a6ff;
 .statusPill {
   display: inline-flex;
   align-items: center;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: .06em;
@@ -197,7 +197,7 @@ $enum-purple: #b9a6ff;
   grid-template-columns: minmax(0, 2fr) 130px 130px 100px 170px;
   gap: 12px;
   padding: 13px 20px;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .12em;
   color: var(--muted-foreground);
@@ -233,7 +233,7 @@ $enum-purple: #b9a6ff;
 }
 
 .editorEyebrow {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .14em;
   color: var(--muted-foreground);
@@ -271,7 +271,7 @@ $enum-purple: #b9a6ff;
 
 .label {
   display: block;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .12em;
   color: var(--muted-foreground);
@@ -356,7 +356,7 @@ $enum-purple: #b9a6ff;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: var(--foreground);
   background: rgba(155, 123, 255, .1);
@@ -373,7 +373,7 @@ $enum-purple: #b9a6ff;
 }
 
 .enumInput {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: var(--foreground);
   background: var(--background);
@@ -384,7 +384,7 @@ $enum-purple: #b9a6ff;
 }
 
 .addPropertyLink {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   color: var(--primary);
   background: none;
