@@ -7,7 +7,7 @@ $danger-bg: rgba(248, 113, 113, .12);
 $danger-border: rgba(248, 113, 113, .4);
 
 .mono {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
 }
 
 .muted { color: var(--muted-foreground); }
@@ -106,7 +106,7 @@ $danger-border: rgba(248, 113, 113, .4);
 .statusPill {
   display: inline-flex;
   align-items: center;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: .06em;
@@ -134,7 +134,7 @@ $danger-border: rgba(248, 113, 113, .4);
 }
 
 .filterChip {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 11px;
   color: var(--foreground);
   background: rgba(255, 255, 255, .04);
@@ -202,7 +202,7 @@ $danger-border: rgba(248, 113, 113, .4);
 }
 
 .deliveryHeaderRow {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .12em;
   color: var(--muted-foreground);
@@ -219,7 +219,7 @@ $danger-border: rgba(248, 113, 113, .4);
   display: inline-flex;
   align-items: center;
   justify-self: flex-start;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: .06em;
@@ -246,7 +246,7 @@ $danger-border: rgba(248, 113, 113, .4);
 }
 
 .loadMoreLink {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12px;
   color: var(--primary);
   background: none;
@@ -262,7 +262,7 @@ $danger-border: rgba(248, 113, 113, .4);
 
 .label {
   display: block;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .12em;
   color: var(--muted-foreground);
@@ -278,7 +278,7 @@ $danger-border: rgba(248, 113, 113, .4);
   border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--foreground);
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 12.5px;
   line-height: 1.6;
   padding: 11px 13px;

@@ -2,7 +2,7 @@
 $warn-text: #e9d38a;
 
 .mono {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
 }
 
 .muted { color: var(--muted-foreground); }
@@ -79,7 +79,7 @@ $warn-text: #e9d38a;
   grid-template-columns: minmax(0, 1.6fr) 100px minmax(0, 1.3fr) 150px 110px;
   gap: 12px;
   padding: 13px 20px;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .12em;
   color: var(--muted-foreground);
@@ -96,14 +96,14 @@ $warn-text: #e9d38a;
 }
 
 .name {
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 13.5px;
 }
 
 .kindBadge {
   display: inline-flex;
   justify-self: start;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: .08em;
   color: var(--foreground);
@@ -148,7 +148,7 @@ $warn-text: #e9d38a;
 
 .label {
   display: block;
-  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
   font-size: 9.5px;
   letter-spacing: .12em;
   color: var(--muted-foreground);
